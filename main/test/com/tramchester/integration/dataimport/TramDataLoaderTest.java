@@ -38,7 +38,7 @@ class TramDataLoaderTest {
         DataLoader<CalendarData> dataLoader = new DataLoader<>(Path.of("data/test/calendar.txt"), new CalendarDataMapper(Collections.emptySet()));
         List<CalendarData> calendarData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
-        assertThat(calendarData).hasSize(12);
+        assertThat(calendarData).hasSize(3);
         assertThat(calendarData.get(0).getServiceId()).isEqualTo("Serv000001");
         assertThat(calendarData.get(0).getStartDate().toString()).contains("2014-10-20");
         assertThat(calendarData.get(0).getEndDate().toString()).contains("2014-12-19");
@@ -64,7 +64,7 @@ class TramDataLoaderTest {
                 new StopTimeDataMapper(Collections.emptySet()));
         List<StopTimeData> stopTimeData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
-        assertThat(stopTimeData).hasSize(20);
+        assertThat(stopTimeData).hasSize(40);
         StopTimeData stopTime = stopTimeData.get(0);
         assertThat(stopTime.getStopId()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTime.getTripId()).isEqualTo("Trip000001");
@@ -79,7 +79,7 @@ class TramDataLoaderTest {
         DataLoader<TripData> dataLoader = new DataLoader<>(Path.of("data/test/trips.txt"), new TripDataMapper(Collections.emptySet()));
         List<TripData> tripData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
 
-        assertThat(tripData).hasSize(20);
+        assertThat(tripData).hasSize(6);
         TripData theTrip = tripData.get(0);
         assertThat(theTrip.getTripHeadsign()).isEqualTo("Bury Interchange");
         assertThat(theTrip.getTripId()).isEqualTo("Trip000001");

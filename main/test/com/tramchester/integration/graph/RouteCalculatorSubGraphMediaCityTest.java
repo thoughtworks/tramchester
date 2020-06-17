@@ -11,6 +11,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -85,6 +86,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(Stations.MediaCityUK, Stations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
+    @DataExpiryCategory
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
         List<String> failures = new LinkedList<>();

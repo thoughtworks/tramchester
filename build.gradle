@@ -212,6 +212,7 @@ task integration(type: Test, dependsOn: compileJava) {
     maxHeapSize = "1500m"
     useJUnitPlatform {
         excludeTags "liveDataMessages" // hopefully temporary exclusion
+        excludeTags "dataExpiry" // ONLY exclude when imprending data expiry causes issues
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"

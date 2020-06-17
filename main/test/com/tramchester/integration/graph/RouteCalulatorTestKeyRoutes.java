@@ -10,6 +10,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,8 +99,9 @@ class RouteCalulatorTestKeyRoutes {
         validateAllHaveAtLeastOneJourney(when, combinations, TramTime.of(8,0));
     }
 
+    @DataExpiryCategory
     @Test
-    void shouldFindEndOfLinesToEndOfLinesNextDays() {
+    void shouldFindEndOfLinesToEndOfLinesNextNDays() {
         // todo: changed from 9 to 10.15 as airport to eccles fails for 10.15am
         Set<Pair<Station, Station>> combinations = createJourneyPairs(Stations.EndOfTheLine, Stations.EndOfTheLine);
         checkRouteNextNDays(combinations, when, TramTime.of(10,15));

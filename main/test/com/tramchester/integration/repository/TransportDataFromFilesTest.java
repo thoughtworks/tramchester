@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -127,6 +128,7 @@ class TransportDataFromFilesTest {
         assertFalse(sundayTrips.isEmpty());
     }
 
+    @DataExpiryCategory
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
         LocalDate queryDate = LocalDate.now().plusDays(DAYS_AHEAD);
@@ -139,6 +141,7 @@ class TransportDataFromFilesTest {
         assertEquals(Collections.emptySet(), expiringServices, routes.toString() + " with expiring svcs " +HasId.asIds(expiringServices));
     }
 
+    @DataExpiryCategory
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
 
@@ -301,6 +304,7 @@ class TransportDataFromFilesTest {
         assertFalse(onTime.isEmpty()); // at least one service (likely is just one)
     }
 
+    @DataExpiryCategory
     @Test
     void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
         Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark);

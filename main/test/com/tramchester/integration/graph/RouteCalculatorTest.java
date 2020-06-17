@@ -13,6 +13,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -81,6 +82,7 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, TramTime.of(9,0), DAYS_AHEAD);
     }
 
+    @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
         checkRouteNextNDays(Stations.Altrincham, Stations.Bury, when, TramTime.of(9,0), DAYS_AHEAD);
