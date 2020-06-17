@@ -10,6 +10,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.picocontainer.Disposable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import static com.tramchester.graph.GraphStaticKeys.*;
 
 public class CachedNodeOperations implements ReportsCacheStats, Disposable, NodeContentsRepository {
+    private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, String> tripRelationshipCache;
@@ -39,6 +42,7 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
 
     @Override
     public void dispose() {
+        logger.info("dispose");
         relationshipCostCache.invalidateAll();
         svcIdCache.invalidateAll();
         hourNodeCache.invalidateAll();

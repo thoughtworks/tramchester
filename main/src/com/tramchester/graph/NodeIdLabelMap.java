@@ -49,6 +49,7 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
 
     @Override
     public void dispose() {
+        logger.info("dispose");
         queryNodes.clear();
         map.clear();
     }

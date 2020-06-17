@@ -13,6 +13,8 @@ import org.neo4j.graphdb.Transaction;
 
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.logging.Log;
+import org.neo4j.logging.LogProvider;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,13 +57,14 @@ public class GraphDatabase implements Startable {
 
         databaseService = createGraphDatabaseService(graphFile);
 
-        logger.info("graph db ready for " + graphFile.getAbsolutePath());
+        logger.info("graph db started " + graphFile.getAbsolutePath());
     }
 
     private GraphDatabaseService createGraphDatabaseService(File graphFile) {
 
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
-                //setUserLogProvider(new Slf4jLogProvider()).
+                loadPropertiesFromFile("config/neo4j.conf").
+                //setUserLogProvider(new Neo4jLogging()).
                 build();
 
         // for community edition must be DEFAULT_DATABASE_NAME
@@ -155,4 +158,5 @@ public class GraphDatabase implements Startable {
     public EvaluationContext createContext(Transaction txn) {
         return new BasicEvaluationContext(txn, databaseService);
     }
+
 }

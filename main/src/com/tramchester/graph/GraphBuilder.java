@@ -80,7 +80,6 @@ public abstract class GraphBuilder implements Startable {
         return stationNode;
     }
 
-
     @Override
     public void start() {
         logger.info("start");
@@ -93,7 +92,7 @@ public abstract class GraphBuilder implements Startable {
             }
             logger.info("Graph rebuild is finished for " + config.getGraphName());
         } else {
-            logger.info("Load existing graph");
+            logger.info("No rebuild of graph, using existing data");
             loadGraph();
         }
     }
