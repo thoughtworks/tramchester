@@ -87,14 +87,14 @@ public class Trip implements HasId {
 
     public TramTime earliestDepartTime() {
         if (earliestDepart==null) {
-            throw new RuntimeException("earliestDepart not set");
+            throw new RuntimeException("earliestDepart not set for " + tripId);
         }
         return earliestDepart;
     }
 
     public TramTime latestDepartTime() {
         if (latestDepart==null) {
-            throw new RuntimeException("earliestDepart not set");
+            throw new RuntimeException("earliestDepart not set for " + tripId);
         }
         return latestDepart;
     }

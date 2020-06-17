@@ -31,7 +31,7 @@ import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 class TramJourneyToDTOMapperTest {
     private static GraphDatabase database;
     private static TransportDataFromFiles transportData;
-    private final LocalDate when = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
     private LocalTime sevenAM;
     private LocalTime eightAM;
 

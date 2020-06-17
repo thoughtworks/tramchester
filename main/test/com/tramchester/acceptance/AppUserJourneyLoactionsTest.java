@@ -37,7 +37,7 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
     private final String altrincham = Stations.Altrincham.getName();
     private final String deansgate = Stations.Deansgate.getName();
 
-    private LocalDate nextTuesday;
+    private LocalDate when;
     private String url;
 
     @BeforeAll
@@ -52,8 +52,7 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
     @BeforeEach
     void beforeEachTestRuns() {
         url = testRule.getUrl()+"/app/index.html";
-        // TODO offset for when tfgm data is expiring
-        nextTuesday = TestEnv.nextTuesday(0);
+        when = TestEnv.testDay();
     }
 
     @AfterEach
@@ -97,7 +96,7 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
         Assertions.assertEquals(Stations.NumberOf, nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
         appPage.planAJourney();
         appPage.waitForReady();
 
@@ -118,7 +117,7 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
         AppPage appPage = prepare(providesDriver);
 
         LocalTime planTime = LocalTime.of(10,15);
-        desiredJourney(appPage, "My Location", deansgate, nextTuesday, planTime, false);
+        desiredJourney(appPage, "My Location", deansgate, when, planTime, false);
         appPage.planAJourney();
 
         List<SummaryResult> results = appPage.getResults();

@@ -64,11 +64,11 @@ class TramTransportDataFileImporterTest {
 
         Route route = transportData.getRoute("MET:MET1:I:");
         assertThat(route.getName()).isEqualTo("Abraham Moss - Bury");
-        assertThat(route.getServices()).hasSize(1); // 20 trips all for same svc
+        assertThat(route.getServices()).hasSize(2);
 
         Service service = route.getServices().stream().findFirst().get();
         assertThat(service.getId()).isEqualTo("Serv000001");
-        assertThat(service.getTrips()).hasSize(20);
+        assertThat(service.getTrips()).hasSize(3);
         assertThat(service.operatesOn(LocalDate.of(2014,11,1)));
         assertThat(!service.operatesOn(LocalDate.of(2014,11,20)));
 

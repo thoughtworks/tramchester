@@ -28,7 +28,7 @@ class RouteCalculatorFromPostcodeSpike {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
     private LocationJourneyPlanner locationJourneyPlanner;
     private PostcodeRepository postCodeRepository;
@@ -72,7 +72,7 @@ class RouteCalculatorFromPostcodeSpike {
                 combinations.add(Pair.of(begin, dest));
             }
         }));
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(8,45), false);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45), false);
         for (Pair locations : combinations) {
             Stream<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, locations.begin.getLatLong(),
                     locations.dest.getLatLong(),

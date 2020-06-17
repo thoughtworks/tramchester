@@ -22,6 +22,10 @@ public class TestEnv {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
     public static final int DAYS_AHEAD = 7;
+    private static final LocalDate testDay;
+    private static final LocalDate saturday;
+    private static final LocalDate sunday;
+    private static final LocalDate monday;
 
     public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
@@ -30,7 +34,7 @@ public class TestEnv {
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
-    private static Agency MET = new Agency("MET");
+    private static final Agency MET = new Agency("MET");
 
     public static AppConfiguration GET() {
         return new TestConfig() {
@@ -45,14 +49,32 @@ public class TestEnv {
         return LocalDateTime.now(TestConfig.TimeZone);
     }
 
-    public static LocalDate nextTuesday(int offsetDays) {
-        DayOfWeek dayOfWeek = DayOfWeek.TUESDAY;
-        LocalDate date = LocalNow().toLocalDate().plusDays(offsetDays);
-        return getNextDate(dayOfWeek, date);
+    static {
+        LocalDate today = LocalNow().toLocalDate();
+        testDay = getNextDate(DayOfWeek.THURSDAY, today);
+        saturday = getNextDate(DayOfWeek.SATURDAY, today);
+        sunday = getNextDate(DayOfWeek.SUNDAY, today);
+        monday = getNextDate(DayOfWeek.MONDAY, today);
+    }
+
+    public static LocalDate nextSaturday() {
+        return saturday;
+    }
+
+    public static LocalDate nextSunday() {
+        return sunday;
+    }
+
+    public static LocalDate testDay() {
+        return testDay;
+    }
+
+    public static LocalDate nextMonday() {
+        return monday;
     }
 
     private static LocalDate getNextDate(DayOfWeek dayOfWeek, LocalDate date) {
-        while (date.getDayOfWeek()!= dayOfWeek) {
+        while (date.getDayOfWeek() != dayOfWeek) {
             date = date.plusDays(1);
         }
         return avoidChristmasDate(date);
@@ -63,14 +85,6 @@ public class TestEnv {
             date = date.plusWeeks(1);
         }
         return date;
-    }
-
-    public static LocalDate nextSaturday() {
-        return getNextDate(DayOfWeek.SATURDAY, LocalNow().toLocalDate());
-    }
-
-    public static LocalDate nextSunday() {
-        return getNextDate(DayOfWeek.SUNDAY, LocalNow().toLocalDate());
     }
 
     public static Route getTestRoute() {
@@ -109,4 +123,5 @@ public class TestEnv {
     public static boolean isCircleci() {
         return System.getenv("CIRCLECI") != null;
     }
+
 }

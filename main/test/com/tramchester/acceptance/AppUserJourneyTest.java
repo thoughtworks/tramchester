@@ -47,7 +47,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
-    private LocalDate nextTuesday;
+    private LocalDate when;
     private String url;
 
     @BeforeAll
@@ -62,7 +62,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @BeforeEach
     void beforeEachTestRuns() {
         url = testRule.getUrl()+"/app/index.html";
-        nextTuesday = TestEnv.nextTuesday(0); // TODO offset for when tfgm data is expiring
+        when = TestEnv.testDay();
     }
 
     @AfterEach
@@ -100,10 +100,10 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
 
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
-        assertJourney(appPage, altrincham, bury, "10:15", nextTuesday, false);
-        desiredJourney(appPage, altrincham, bury, nextTuesday.plusMonths(1), LocalTime.parse("03:15"), false);
-        assertJourney(appPage, altrincham, bury, "03:15", nextTuesday.plusMonths(1), false);
+        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
+        assertJourney(appPage, altrincham, bury, "10:15", when, false);
+        desiredJourney(appPage, altrincham, bury, when.plusMonths(1), LocalTime.parse("03:15"), false);
+        assertJourney(appPage, altrincham, bury, "03:15", when.plusMonths(1), false);
 
         appPage.selectNow();
         validateCurrentTimeIsSelected(appPage);
@@ -129,7 +129,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable());
@@ -155,7 +155,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(Stations.NumberOf-1, remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, Stations.ExchangeSquare.getName(), Stations.PiccadillyGardens.getName(), "10:15", nextTuesday, false);
+        assertJourney(appPage, Stations.ExchangeSquare.getName(), Stations.PiccadillyGardens.getName(), "10:15", when, false);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -163,7 +163,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
         LocalTime planTime = LocalTime.parse("10:00");
-        desiredJourney(appPage, altrincham, deansgate, nextTuesday, planTime, false);
+        desiredJourney(appPage, altrincham, deansgate, when, planTime, false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable());
@@ -198,7 +198,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldHideStationInToListWhenSelectedInFromList(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("10:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
 
         appPage.waitForToStopsContains(Stations.Bury);
         List<String> destStops = appPage.getToStops();
@@ -209,7 +209,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldShowNoRoutesMessage(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, nextTuesday, LocalTime.parse("03:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("03:15"), false);
         appPage.planAJourney();
 
         assertTrue(appPage.noResults());
@@ -222,7 +222,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         LocalTime eightFifteen = LocalTime.parse("08:15");
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
+        desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
@@ -230,7 +230,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         List<SummaryResult> results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
 
-        desiredJourney(appPage, altrincham, bury, nextTuesday, eightFifteen, false);
+        desiredJourney(appPage, altrincham, bury, when, eightFifteen, false);
         appPage.planAJourney();
         // need way to delay response for this test to be useful
         //assertFalse(appPage.searchEnabled());
@@ -248,7 +248,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
+        desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
@@ -271,7 +271,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         LocalTime tenFifteen = LocalTime.parse("10:15");
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, nextTuesday, tenFifteen, false);
+        desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
@@ -293,7 +293,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
         LocalTime planTime = LocalTime.parse("10:00");
-        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), nextTuesday, planTime, false);
+        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), when, planTime, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
@@ -351,7 +351,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.hasWeekendMessage());
         assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
 
-        desiredJourney(appPage, altrincham, bury, nextTuesday, time, false);
+        desiredJourney(appPage, altrincham, bury, when, time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.noWeekendMessage());

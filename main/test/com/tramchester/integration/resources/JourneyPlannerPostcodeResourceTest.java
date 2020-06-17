@@ -31,7 +31,7 @@ public class JourneyPlannerPostcodeResourceTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        when = TestEnv.nextTuesday(0);
+        when = TestEnv.testDay();
         now = TestEnv.LocalNow();
     }
 

@@ -42,7 +42,7 @@ public class JourneyPlannerLocationResourceTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        when = TestEnv.nextTuesday(0);
+        when = TestEnv.testDay();
     }
 
     @Test

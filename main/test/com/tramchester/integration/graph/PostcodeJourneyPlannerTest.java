@@ -43,7 +43,7 @@ class PostcodeJourneyPlannerTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private static final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private static final LocalDate when = TestEnv.testDay();
     private Transaction txn;
     private LocationJourneyPlanner planner;
     private PostcodeRepository repository;
@@ -79,8 +79,8 @@ class PostcodeJourneyPlannerTest {
 
     private static Stream<JourneyRequest> getRequest() {
         return Stream.of(
-                new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, false),
-                new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, true));
+                new JourneyRequest(new TramServiceDate(when), planningTime, false),
+                new JourneyRequest(new TramServiceDate(when), planningTime, true));
     }
 
     @ParameterizedTest

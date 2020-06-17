@@ -46,12 +46,11 @@ public class JourneyPlannerBusTest {
     public static IntegrationTestRun testRule = new IntegrationTestRun(App.class,
             new IntegrationBusTestConfig());
 
-    private LocalDate nextTuesday;
+    private LocalDate when;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        nextTuesday = TestEnv.nextTuesday(0);
-        // todo NO longer needed?
+        when = TestEnv.testDay();
     }
 
     @Category({BusTest.class})
@@ -59,7 +58,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanSimpleTramJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan =  JourneyPlannerResourceTest.getJourneyPlanRepresentation(testRule,
-                Stations.Deansgate, Stations.Altrincham, new TramServiceDate(nextTuesday), queryTime, false, 3);
+                Stations.Deansgate, Stations.Altrincham, new TramServiceDate(when), queryTime, false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -70,7 +69,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanSimpleBusJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(AltrinchamInterchange.getId(), StockportBusStation.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false, 3);
+                new TramServiceDate(when), false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -81,7 +80,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanLongBusJourney() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(ShudehillInterchange.getId(), StockportBusStation.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false, 3);
+                new TramServiceDate(when), false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -92,7 +91,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanBusJourneyNoLoops() {
         TramTime queryTime = TramTime.of(8,56);
         JourneyPlanRepresentation plan = getJourneyPlan(AltrinchamInterchange.getId(), ManchesterAirportStation.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false, 2);
+                new TramServiceDate(when), false, 2);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -112,7 +111,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, StockportBusStation.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false);
+                new TramServiceDate(when), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -123,7 +122,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanDirectWalkToBusStopFromLocation() {
         TramTime queryTime = TramTime.of(8,15);
         JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, AltrinchamInterchange.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false);
+                new TramServiceDate(when), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -134,7 +133,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanSimpleTramJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, Stations.StPetersSquare.getId(), queryTime,
-                new TramServiceDate(nextTuesday), false);
+                new TramServiceDate(when), false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -145,7 +144,7 @@ public class JourneyPlannerBusTest {
     void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan(StockportBusStation.getId(), AltrinchamInterchange.getId(), queryTime,
-                new TramServiceDate(nextTuesday), true, 3); // true => arrive by
+                new TramServiceDate(when), true, 3); // true => arrive by
         
         // TODO 20 mins gap? Estimation is too optimistic for Buses?
         List<JourneyDTO> found = new ArrayList<>();

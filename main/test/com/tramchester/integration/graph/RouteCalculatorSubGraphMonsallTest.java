@@ -31,7 +31,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
 
     @BeforeAll
@@ -66,27 +66,27 @@ class RouteCalculatorSubGraphMonsallTest {
 
         // Can be direct or with a change depending on the timetable data
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5),
-                nextTuesday, 1);
+                when, 1);
 
         // direct
         validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,10),
-                nextTuesday, 1);
+                when, 1);
     }
 
     @Test
     void shouldHaveEndToEnd() {
-        validateNumberOfStages(Stations.EastDidsbury, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
+        validateNumberOfStages(Stations.EastDidsbury, Stations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
     @Test
     void shouldHaveJourneysTerminationPointsToEndOfLine() {
         // many trams only run as far as Shaw
-        validateNumberOfStages(Stations.ShawAndCrompton, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
+        validateNumberOfStages(Stations.ShawAndCrompton, Stations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourney() {
-        validateNumberOfStages(Stations.RochdaleRail, Stations.Rochdale, TramTime.of(8,0), nextTuesday, 1);
+        validateNumberOfStages(Stations.RochdaleRail, Stations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

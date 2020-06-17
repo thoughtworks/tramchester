@@ -16,7 +16,6 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.NotInTransactionException;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -39,7 +38,7 @@ class RouteCalculatorTestAllJourneys {
     private static final boolean circleCi = TestEnv.isCircleci();
 
     private RouteCalculator calculator;
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
@@ -76,7 +75,7 @@ class RouteCalculatorTestAllJourneys {
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toSet());
 
-        Map<Pair<Station, Station>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(nextTuesday,
+        Map<Pair<Station, Station>, Optional<Journey>> results = validateAllHaveAtLeastOneJourney(when,
                 combinations, TramTime.of(8, 5));
 
         // now find longest journey

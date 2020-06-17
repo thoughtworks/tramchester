@@ -17,7 +17,6 @@ import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -134,9 +133,7 @@ class TransportDataFromFilesTest {
 
         Collection<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
-                filter(svc -> {
-                    return !svc.operatesOn(queryDate);
-                }).collect(Collectors.toSet());
+                filter(svc -> !svc.operatesOn(queryDate)).collect(Collectors.toSet());
         Set<String> routes = expiringServices.stream().map(Service::getRouteId).collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), expiringServices, routes.toString() + " with expiring svcs " +HasId.asIds(expiringServices));
@@ -152,7 +149,7 @@ class TransportDataFromFilesTest {
         int maxwait = 25;
 
         for (int day = 0; day < DAYS_AHEAD; day++) {
-            LocalDate date = TestEnv.nextTuesday(day);
+            LocalDate date = TestEnv.testDay().plusDays(day);
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);
 
@@ -291,7 +288,7 @@ class TransportDataFromFilesTest {
         Set<Service> services = toMediaCity.stream().
                 map(svc->transportData.getServiceById(svc)).collect(Collectors.toSet());
 
-        LocalDate nextTuesday = TestEnv.nextTuesday(0);
+        LocalDate nextTuesday = TestEnv.testDay();
 
         Set<Service> onDay = services.stream().
                 filter(service -> service.operatesOn(nextTuesday)).
@@ -308,7 +305,7 @@ class TransportDataFromFilesTest {
     void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
         Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark);
 
-        LocalDate aMonday = TestEnv.nextTuesday(0).minusDays(1);
+        LocalDate aMonday = TestEnv.nextMonday();
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
 
         // TOOD Due to exception dates makes no sense to use getDays

@@ -39,7 +39,7 @@ public class RouteCalculatorTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
 
     @BeforeAll
@@ -68,32 +68,32 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproIssueWithChangesVeloToTraffordBar() {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, TramTime.of(8,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, TramTime.of(8,0), when);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyNextDays() {
-        checkRouteNextNDays(Stations.TraffordBar, Stations.Altrincham, nextTuesday, TramTime.of(9,0), DAYS_AHEAD);
+        checkRouteNextNDays(Stations.TraffordBar, Stations.Altrincham, when, TramTime.of(9,0), DAYS_AHEAD);
     }
 
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, nextTuesday, TramTime.of(9,0), DAYS_AHEAD);
+        checkRouteNextNDays(Stations.Altrincham, Stations.Cornbrook, when, TramTime.of(9,0), DAYS_AHEAD);
     }
 
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
-        checkRouteNextNDays(Stations.Altrincham, Stations.Bury, nextTuesday, TramTime.of(9,0), DAYS_AHEAD);
+        checkRouteNextNDays(Stations.Altrincham, Stations.Bury, when, TramTime.of(9,0), DAYS_AHEAD);
     }
 
     @Test
     void shouldHaveSimpleJourney() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.Deansgate, TramTime.of(10, 15), nextTuesday);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.Deansgate, TramTime.of(10, 15), when);
     }
 
     @Test
     void shouldHaveReasonableJourneyAltyToDeansgate() {
-        TramServiceDate tramServiceDate = new TramServiceDate(nextTuesday);
+        TramServiceDate tramServiceDate = new TramServiceDate(when);
         Set<Journey> results = calculator.calculateRoute(txn, Stations.Altrincham, Stations.Deansgate,
                 new JourneyRequest(tramServiceDate, TramTime.of(10, 15), false)).collect(Collectors.toSet());
         assertFalse(results.isEmpty());
@@ -115,7 +115,7 @@ public class RouteCalculatorTest {
     @Disabled("Failing due to temporarily less frequency service")
     @Test
     void shouldUseAllRoutesCorrectlWhenMultipleRoutesServDestination() {
-        TramServiceDate today = new TramServiceDate(nextTuesday);
+        TramServiceDate today = new TramServiceDate(when);
 
         Station start = Stations.Altrincham;
 
@@ -131,19 +131,19 @@ public class RouteCalculatorTest {
     // over max wait, catch failure to accumulate journey times correctly
     @Test
     void shouldHaveSimpleButLongJoruneySameRoute() {
-        checkRouteNextNDays(Stations.ManAirport, Stations.TraffordBar, nextTuesday, TramTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.ManAirport, Stations.TraffordBar, when, TramTime.of(9,0), 1);
     }
 
     @Test
     void shouldHaveLongJourneyAcross() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.Rochdale, TramTime.of(9,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.Rochdale, TramTime.of(9,0), when);
     }
 
     @Test
     void shouldHaveReasonableLongJourneyAcrossFromInterchange() {
         TramTime am8 = TramTime.of(8, 0);
 
-        Set<Journey> journeys = calculateRoutes(Stations.Monsall, Stations.RochdaleRail, am8, new TramServiceDate(nextTuesday));
+        Set<Journey> journeys = calculateRoutes(Stations.Monsall, Stations.RochdaleRail, am8, new TramServiceDate(when));
 
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
@@ -154,7 +154,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
-        checkRouteNextNDays(Stations.Cornbrook, Stations.Bury, nextTuesday, TramTime.of(9,0), 1);
+        checkRouteNextNDays(Stations.Cornbrook, Stations.Bury, when, TramTime.of(9,0), 1);
     }
 
     @Test
@@ -198,38 +198,38 @@ public class RouteCalculatorTest {
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightWithChange() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, TramTime.of(23,20), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, TramTime.of(23,20), when);
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), nextTuesday);
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.TraffordBar, TramTime.of(23,51), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), when);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.TraffordBar, TramTime.of(23,51), when);
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleAfterMidnightDirect() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.NavigationRoad, TramTime.of(0,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Altrincham, Stations.NavigationRoad, TramTime.of(0,0), when);
     }
 
     @Test
     void shouldHaveHeatonParkToBurtonRoad() {
-        validateAtLeastOneJourney(HeatonPark, Stations.BurtonRoad, TramTime.of(7, 30),  nextTuesday);
+        validateAtLeastOneJourney(HeatonPark, Stations.BurtonRoad, TramTime.of(7, 30), when);
     }
 
     @Test
     void shouldReproIssueRochInterchangeToBury() {
-        validateAtLeastOneJourney(Stations.Rochdale, Stations.Bury, TramTime.of(9, 0), nextTuesday );
+        validateAtLeastOneJourney(Stations.Rochdale, Stations.Bury, TramTime.of(9, 0), when);
     }
 
     @Test
     void shouldReproIssueWithMediaCityTrams() {
         TramTime time = TramTime.of(12, 0);
 
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.MediaCityUK, time, nextTuesday);
-        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, time, nextTuesday);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.MediaCityUK, time, when);
+        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, time, when);
     }
 
 
@@ -244,7 +244,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
         TramTime time = TramTime.of(11, 0);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, time, nextTuesday.plusDays(5));
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, time, when.plusDays(5));
     }
 
     @Test
@@ -253,7 +253,7 @@ public class RouteCalculatorTest {
         Set<List<TransportStage>> stages = new HashSet<>();
 
         Stream<Journey> stream = calculator.calculateRoute(txn, Stations.Bury, Stations.Altrincham,
-                new JourneyRequest(new TramServiceDate(nextTuesday), TramTime.of(11,45), false));
+                new JourneyRequest(new TramServiceDate(when), TramTime.of(11,45), false));
         Set<Journey> journeys = stream.collect(Collectors.toSet());
         stream.close();
 
@@ -268,28 +268,27 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
-        LocalDate nextTuesday = TestEnv.nextTuesday(0);
         // catches issue with services, only some of which go to media city, while others direct to broadway
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(8,0), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(8,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(8,0), when);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(8,0), when);
 
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(9,0), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(9,0), when);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), when);
     }
 
     @Test
     void shouldReproIssueWithJourneysToEccles() {
-        validateAtLeastOneJourney(Stations.Bury, Stations.Broadway, TramTime.of(9,0), nextTuesday);
-        validateAtLeastOneJourney(Stations.Bury, Stations.Eccles, TramTime.of(9,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Bury, Stations.Broadway, TramTime.of(9,0), when);
+        validateAtLeastOneJourney(Stations.Bury, Stations.Eccles, TramTime.of(9,0), when);
     }
 
     @Test
     void reproduceIssueEdgePerTrip() {
         // see also RouteCalculatorSubGraphTest
-        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Pomona, TramTime.of(19,48), nextTuesday);
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), nextTuesday);
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), nextTuesday);
+        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Pomona, TramTime.of(19,48), when);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), when);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), when);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), when);
     }
 
     @Test
@@ -300,7 +299,7 @@ public class RouteCalculatorTest {
 
     @Test
     void reproduceIssueWithImmediateDepartOffABoardedTram() {
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Ashton, TramTime.of(8,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Ashton, TramTime.of(8,0), when);
     }
 
     @Test
@@ -328,13 +327,13 @@ public class RouteCalculatorTest {
     void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
         for(int i=0; i<60; i++) {
             TramTime time = TramTime.of(8,i);
-            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, nextTuesday);
+            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, when);
         }
     }
 
     @Test
     void reproIssueRochdaleToEccles() {
-        validateAtLeastOneJourney(Stations.Rochdale, Stations.Eccles, TramTime.of(9,0), nextTuesday);
+        validateAtLeastOneJourney(Stations.Rochdale, Stations.Eccles, TramTime.of(9,0), when);
     }
 
     private void checkRouteNextNDays(Station start, Station dest, LocalDate date, TramTime time, int numDays) {
@@ -386,7 +385,7 @@ public class RouteCalculatorTest {
             for (int minutes = 0; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
                 Stream<Journey> journeys = calculator.calculateRoute(txn, start, dest,
-                        new JourneyRequest(new TramServiceDate(nextTuesday), time, false));
+                        new JourneyRequest(new TramServiceDate(when), time, false));
                 if (journeys.limit(1).findFirst().isEmpty()) {
                     missing.add(time);
                 }

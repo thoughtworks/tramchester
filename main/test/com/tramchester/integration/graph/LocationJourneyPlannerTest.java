@@ -38,7 +38,7 @@ class LocationJourneyPlannerTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
     private LocationJourneyPlanner planner;
 
@@ -68,7 +68,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveDirectWalkNearPiccadily() {
-        TramServiceDate queryDate = new TramServiceDate(nextTuesday);
+        TramServiceDate queryDate = new TramServiceDate(when);
 
         Set<Journey> unsortedResults = getJourneySet(new JourneyRequest(queryDate,TramTime.of(9, 0), false) ,
                 nearPiccGardens, Stations.PiccadillyGardens);
@@ -91,7 +91,7 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveDirectWalkFromPiccadily() {
-        TramServiceDate queryDate = new TramServiceDate(nextTuesday);
+        TramServiceDate queryDate = new TramServiceDate(when);
 
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, Stations.PiccadillyGardens,
                 nearPiccGardens, new JourneyRequest(queryDate, TramTime.of(9, 0), false));
@@ -212,13 +212,13 @@ class LocationJourneyPlannerTest {
     }
 
     private Set<Journey> getJourneysForWalkThenTram(LatLong latLong, Station destination, TramTime queryTime, boolean arriveBy, int maxChanges) {
-        TramServiceDate date = new TramServiceDate(nextTuesday);
+        TramServiceDate date = new TramServiceDate(when);
 
         return getJourneySet(new JourneyRequest(date, queryTime, arriveBy, maxChanges), latLong, destination);
     }
 
     private List<Journey> getSortedJourneysForTramThenWalk(Station start, LatLong latLong, TramTime queryTime, boolean arriveBy) {
-        TramServiceDate date = new TramServiceDate(nextTuesday);
+        TramServiceDate date = new TramServiceDate(when);
 
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, start, latLong,
                 new JourneyRequest(date, queryTime, arriveBy, Integer.MAX_VALUE)).sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));

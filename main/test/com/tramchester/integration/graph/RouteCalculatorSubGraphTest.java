@@ -31,7 +31,7 @@ class RouteCalculatorSubGraphTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
     private static final List<Station> stations = Arrays.asList(
             Stations.Cornbrook,
             Stations.StPetersSquare,
@@ -74,21 +74,21 @@ class RouteCalculatorSubGraphTest {
     @Test
     void reproduceIssueEdgePerTrip() {
 
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, TramTime.of(19,51), nextTuesday);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Pomona, TramTime.of(19,51).plusMinutes(6), nextTuesday);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, TramTime.of(19,51), when);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Pomona, TramTime.of(19,51).plusMinutes(6), when);
 
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Cornbrook, TramTime.of(19,51).plusMinutes(3), nextTuesday);
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Pomona, TramTime.of(19,51).plusMinutes(3), nextTuesday);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Cornbrook, TramTime.of(19,51).plusMinutes(3), when);
+        validateAtLeastOneJourney(Stations.Deansgate, Stations.Pomona, TramTime.of(19,51).plusMinutes(3), when);
 
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), nextTuesday);
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), nextTuesday);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), when);
+        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), when);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), nextTuesday);
+        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), when);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -97,7 +97,7 @@ class RouteCalculatorSubGraphTest {
         for (Station start: stations) {
             for (Station destination: stations) {
                 if (!start.equals(destination)) {
-                    validateAtLeastOneJourney(start, destination, tramTime, nextTuesday);
+                    validateAtLeastOneJourney(start, destination, tramTime, when);
                 }
             }
         }
@@ -106,7 +106,7 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveSimpleOneStopJourney() {
         Set<Journey> results = calculator.calculateRoute(txn, Stations.Cornbrook, Stations.Pomona,
-                new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(when), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
@@ -120,14 +120,14 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         Set<Journey> results = calculator.calculateRoute(txn, Stations.StPetersSquare, Stations.Deansgate,
-                new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(when), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(txn, Stations.StPetersSquare, Stations.Cornbrook,
-                new JourneyRequest(new TramServiceDate(nextTuesday), tramTime, false)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(when), tramTime, false)).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 

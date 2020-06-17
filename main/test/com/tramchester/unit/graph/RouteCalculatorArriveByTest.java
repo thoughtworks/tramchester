@@ -44,7 +44,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     @Test
     void shouldArriveByTramNoWalk() {
         TramTime arriveBy = TramTime.of(14,35);
-        LocalDate localDate = TestEnv.nextTuesday(0);
+        LocalDate localDate = TestEnv.testDay();
 
         Station start = Stations.Bury;
         Station destinationId = Stations.Cornbrook;

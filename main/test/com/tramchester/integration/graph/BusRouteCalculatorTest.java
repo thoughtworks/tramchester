@@ -27,7 +27,7 @@ class BusRouteCalculatorTest {
     private static GraphDatabase database;
 
     private RouteCalculator calculator;
-    private final LocalDate nextTuesday = TestEnv.nextTuesday(0);
+    private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
 
     @BeforeAll
@@ -58,14 +58,14 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHaveAltyToStockJourney() {
         RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, AltrinchamInterchange, StockportBusStation,
-                TramTime.of(8, 0), nextTuesday, 5);
+                TramTime.of(8, 0), when, 5);
     }
 
     @Test
     void shouldHaveShudehillToStockJourney() {
         int maxChanges = 1;
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, ShudehillInterchange, StockportBusStation,
-                TramTime.of(8, 0), nextTuesday, maxChanges);
+                TramTime.of(8, 0), when, maxChanges);
         Journey journey = journeys.toArray(new Journey[1])[0];
         Assertions.assertFalse(journey.getStages().size()>(maxChanges+1));
     }
@@ -74,6 +74,6 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHaveSimpleTramJourney() {
         RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, Stations.Altrincham, Stations.Cornbrook,
-                TramTime.of(8, 0), nextTuesday, 5);
+                TramTime.of(8, 0), when, 5);
     }
 }

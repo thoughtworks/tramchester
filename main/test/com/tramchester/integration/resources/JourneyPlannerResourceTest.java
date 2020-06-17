@@ -22,7 +22,6 @@ import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -58,7 +57,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        when = TestEnv.nextTuesday(0);
+        when = TestEnv.testDay();
         now = TestEnv.LocalNow();
     }
 

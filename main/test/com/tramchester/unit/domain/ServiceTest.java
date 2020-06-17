@@ -57,13 +57,13 @@ class ServiceTest {
         Service service = new Service("", TestEnv.getTestRoute());
 
         LocalDate startDate = TestEnv.LocalNow().toLocalDate();
-        LocalDate endDate = TestEnv.nextTuesday(14);
+        LocalDate endDate = TestEnv.testDay().plusWeeks(2);
         service.setServiceDateRange(startDate, endDate);
 
         service.setDays(false, false, false, false, false, false, true);
         Assertions.assertTrue(service.operatesOn(TestEnv.nextSunday()));
 
-        LocalDate weekTuesday = TestEnv.nextTuesday(7);
+        LocalDate weekTuesday = TestEnv.testDay().plusWeeks(1);
         Assertions.assertFalse(service.operatesOn(weekTuesday));
         service.addExceptionDate(weekTuesday, CalendarDateData.ADDED);
         Assertions.assertTrue(service.operatesOn(weekTuesday));
@@ -95,10 +95,10 @@ class ServiceTest {
     void shouldSetWeekendDaysOnService() {
         Service service = new Service("", TestEnv.getTestRoute());
 
-        service.setServiceDateRange(TestEnv.LocalNow().toLocalDate(), TestEnv.nextTuesday(14));
+        service.setServiceDateRange(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay().plusWeeks(2));
         service.setDays(false, false, false, false, false, true, true);
 
-        Assertions.assertFalse(service.operatesOn(TestEnv.nextTuesday(7)));
+        Assertions.assertFalse(service.operatesOn(TestEnv.testDay().plusWeeks(1)));
         Assertions.assertTrue(service.operatesOn(TestEnv.nextSaturday()));
         Assertions.assertTrue(service.operatesOn(TestEnv.nextSunday()));
     }
@@ -119,7 +119,7 @@ class ServiceTest {
         service.setServiceDateRange(LocalDate.MIN, LocalDate.MAX);
         Assertions.assertTrue(service.HasMissingDates());
 
-        service.setServiceDateRange(TestEnv.LocalNow().toLocalDate(), TestEnv.nextTuesday(0));
+        service.setServiceDateRange(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay());
         Assertions.assertTrue(service.HasMissingDates());// no days set
 
         service.setDays(true, false, false, false, false, false, false);
@@ -138,7 +138,7 @@ class ServiceTest {
 
         Assertions.assertTrue(service.HasMissingDates()); // missing dates
 
-        service.addExceptionDate(TestEnv.nextTuesday(0), CalendarDateData.ADDED);
+        service.addExceptionDate(TestEnv.testDay(), CalendarDateData.ADDED);
         Assertions.assertFalse(service.HasMissingDates());
     }
 
