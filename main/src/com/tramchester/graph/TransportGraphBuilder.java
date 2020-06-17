@@ -73,8 +73,6 @@ public class TransportGraphBuilder extends GraphBuilder {
 
         graphDatabase.createIndexs();
 
-        Transaction tx = graphDatabase.beginTx();
-        NodeIdQuery nodeIdQuery = new NodeIdQuery(tx, graphQuery, config);
         try {
             logger.info("Rebuilding the graph...");
             for (Agency agency : transportData.getAgencies()) {
@@ -84,21 +82,20 @@ public class TransportGraphBuilder extends GraphBuilder {
                     if (filter.shouldInclude(route)) {
                         for (Service service : route.getServices()) {
                             if (filter.shouldInclude(service)) {
-                                for (Trip trip : service.getTrips()) {
-                                    AddRouteServiceTrip(graphDatabase, nodeIdQuery, tx, route, service, trip, filter);
+                                try(Transaction tx = graphDatabase.beginTx()) {
+                                    NodeIdQuery nodeIdQuery = new NodeIdQuery(tx, graphQuery, config);
+                                    for (Trip trip : service.getTrips()) {
+                                        AddRouteServiceTrip(graphDatabase, nodeIdQuery, tx, route, service, trip, filter);
+                                    }
+                                    // performance & memory use control, specifically on prod box with limited ram
+                                    tx.commit();
+                                    nodeIdQuery.clearAfterGraphBuild();
                                 }
-                                // performance & memory use control, specifically on prod box with limited ram
-//                                tx.commit();
-//                                tx.close();
-//                                tx = graphDatabase.beginTx();
                             }
                         }
                     }
                 }
             }
-            nodeIdQuery.clearAfterGraphBuild();
-            tx.commit();
-            tx.close();
 
             logger.info("Wait for indexes online");
             try(Transaction checkTxn = graphDatabase.beginTx()) {
