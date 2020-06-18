@@ -10,6 +10,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.StationLocations;
+import org.picocontainer.Disposable;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,7 @@ import static com.tramchester.dataimport.data.RouteData.BUS_TYPE;
 import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
 import static java.lang.String.format;
 
-public class TransportDataFromFiles implements TransportDataSource {
+public class TransportDataFromFiles implements TransportDataSource, Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
     private final TransportDataStreams transportDataStreams;
@@ -38,11 +40,9 @@ public class TransportDataFromFiles implements TransportDataSource {
 
     private FeedInfo feedInfo = null;
 
-    public TransportDataFromFiles(StationLocations stationLocations, Stream<StopData> stops, Stream<RouteData> rawRoutes,
-                                  Stream<TripData> rawTrips, Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
-                                  Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates)  {
-        this.transportDataStreams = new TransportDataStreams(stops, rawRoutes, rawTrips, stopTimes, calendars, feedInfo, calendarsDates);
+    public TransportDataFromFiles(StationLocations stationLocations, TransportDataStreams transportDataStreams) {
         this.stationLocations = stationLocations;
+        this.transportDataStreams = transportDataStreams;
     }
 
     @Override
@@ -277,8 +277,8 @@ public class TransportDataFromFiles implements TransportDataSource {
             services.put(serviceId, new Service(serviceId, route));
         }
         Service matched = services.get(serviceId);
-        if (matched.getRoute()!=route || matched.getId()!=serviceId) {
-            logger.error("Mismatch on service id: " + serviceId);
+        if (matched.getRoute()!=route) {
+            logger.error("Mismatch on route for route " + route + " on service " + matched);
         }
         return matched;
     }

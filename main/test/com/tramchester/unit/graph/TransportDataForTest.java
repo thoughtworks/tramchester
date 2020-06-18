@@ -12,6 +12,8 @@ import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import org.picocontainer.Disposable;
+import org.picocontainer.Startable;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,7 +22,8 @@ import java.util.*;
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
 import static java.lang.String.format;
 
-public class TransportDataForTest implements TransportDataSource {
+@SuppressWarnings("FieldCanBeLocal")
+public class TransportDataForTest implements TransportDataSource, Startable, Disposable {
     private Service serviceB;
     private final String serviceAId = "serviceAId";
     private final String serviceBId = "serviceBId";
@@ -98,7 +101,7 @@ public class TransportDataForTest implements TransportDataSource {
         serviceB.setDays(true, false, false, false, false, false, false);
         serviceC.setDays(true, false, false, false, false, false, false);
 
-        LocalDate startDate = LocalDate.of(2014, 02, 10);
+        LocalDate startDate = LocalDate.of(2014, 2, 10);
         LocalDate endDate = LocalDate.of(2020, 8, 15);
         serviceA.setServiceDateRange(startDate, endDate);
         serviceB.setServiceDateRange(startDate, endDate);

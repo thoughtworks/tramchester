@@ -11,6 +11,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
@@ -42,8 +43,9 @@ class GraphBuildAndStartTest {
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
-        TransportDataFileImporter dataImporter = new TransportDataFileImporter(new TransportDataReaderFactory(config), providesNow, stationLocations);
-        TransportDataSource transportData = dataImporter.createSource();
+        TransportDataFromFileFactory fileFactory = new TransportDataFromFileFactory(new TransportDataReaderFactory(config),
+                providesNow, stationLocations);
+        TransportDataFromFiles transportData = fileFactory.create();
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 
         GraphDatabase graphDatabase = new GraphDatabase(config);

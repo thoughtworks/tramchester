@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DownloadConfig;
-import com.tramchester.dataimport.TransportDataFileImporter;
+import com.tramchester.dataimport.TransportDataFromFileFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.Route;
@@ -22,7 +22,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TramTransportDataFileImporterTest {
+class TramTransportDataFromFileFactoryTest {
 
     private final DownloadConfig config = new DownloadConfig() {
 
@@ -54,10 +54,10 @@ class TramTransportDataFileImporterTest {
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
 
-        TransportDataFileImporter transportDataImporter = new TransportDataFileImporter(factory, providesNow,
+        TransportDataFromFileFactory transportDataImporter = new TransportDataFromFileFactory(factory, providesNow,
                 stationLocations);
 
-        TransportDataFromFiles transportData = transportDataImporter.createSource();
+        TransportDataFromFiles transportData = transportDataImporter.create();
         transportData.start();
 
         assertThat(transportData.getRoutes()).hasSize(2);
