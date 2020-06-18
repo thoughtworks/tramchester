@@ -25,7 +25,7 @@ public class GraphQuery {
         return getNodeByLabel(txn, stationId, GraphBuilder.Labels.TRAM_STATION);
     }
 
-    public Node getBusStationNode(Transaction txn, String stationId) {
+    private Node getBusStationNode(Transaction txn, String stationId) {
         return getNodeByLabel(txn, stationId, GraphBuilder.Labels.BUS_STATION);
     }
 
@@ -33,17 +33,8 @@ public class GraphQuery {
         return getNodeByLabel(txn, id, GraphBuilder.Labels.PLATFORM);
     }
 
-    public Node getServiceNode(Transaction txn, String id) {
-        GraphBuilder.Labels Label = GraphBuilder.Labels.SERVICE;
-        return getNodeByLabel(txn, id, Label);
-    }
-
     public Node getRouteStationNode(Transaction txn, String id) {
         return getNodeByLabel(txn, id,GraphBuilder.Labels.ROUTE_STATION);
-    }
-
-    public Node getHourNode(Transaction txn, String id) {
-        return getNodeByLabel(txn, id, GraphBuilder.Labels.HOUR);
     }
 
     private Node getNodeByLabel(Transaction txn, String id, GraphBuilder.Labels label) {
