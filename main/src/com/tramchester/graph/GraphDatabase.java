@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.io.FileUtils;
+import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -15,6 +16,7 @@ import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.logging.Log;
 import org.neo4j.logging.LogProvider;
+import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +66,7 @@ public class GraphDatabase implements Startable {
 
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
                 loadPropertiesFromFile("config/neo4j.conf").
-                //setUserLogProvider(new Neo4jLogging()).
+                setUserLogProvider(new Slf4jLogProvider()).
                 build();
 
         // for community edition must be DEFAULT_DATABASE_NAME

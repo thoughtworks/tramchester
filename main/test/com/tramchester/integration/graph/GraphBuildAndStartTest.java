@@ -49,15 +49,14 @@ class GraphBuildAndStartTest {
         GraphDatabase graphDatabase = new GraphDatabase(config);
         GraphQuery graphQuery = new GraphQuery(graphDatabase);
 
-        GraphBuilder transportGraphBuilder = new TransportGraphBuilder(graphDatabase, new IncludeAllFilter(), transportData,
-                nodeIdLabelMap, interchangeRepository, config, graphQuery);
+        GraphBuilder transportGraphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, new IncludeAllFilter(),
+                graphQuery, nodeIdLabelMap, transportData, interchangeRepository);
 
         transportData.start();
         interchangeRepository.start();
         graphDatabase.start();
         Assertions.assertTrue(graphDatabase.isAvailable(2000));
         transportGraphBuilder.start();
-
 
         graphDatabase.stop();
         interchangeRepository.dispose();

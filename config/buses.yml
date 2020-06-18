@@ -62,10 +62,10 @@ logging:
       host: localhost
       port: 514
     - type: file
-      currentLogFilename: log/tramchester_buses.log
+      currentLogFilename: logs/tramchester_buses.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: log/tramchester_buses-%d.log
+      archivedLogFilenamePattern: logs/tramchester_buses-%d.log
       archivedFileCount: 5
       timeZone: UTC
 

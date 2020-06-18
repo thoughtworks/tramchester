@@ -5,6 +5,7 @@ import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.PostcodeRepository;
+import com.tramchester.testSupport.WithPostcodesEnabled;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -20,7 +21,7 @@ class PostcodeRepositoryTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        dependencies.initialise(new WithPostcodesEnabled());
     }
 
     @AfterAll

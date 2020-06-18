@@ -61,6 +61,7 @@ class RouteCalulatorTestKeyRoutes {
         validateAllHaveAtLeastOneJourney(when, combinations, TramTime.of(8,0));
     }
 
+    @Disabled("used for diagnosing specific issue")
     @Test
     void shouldRepoServiceTimeIssueForConcurrency() {
         List<Pair<Station, Station>> combinations = new ArrayList<>();

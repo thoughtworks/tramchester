@@ -8,6 +8,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.WithPostcodesEnabled;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,7 @@ import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerPostcodeResourceTest {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new WithPostcodesEnabled());
 
     private LocalDate when;
     private LocalDateTime now;

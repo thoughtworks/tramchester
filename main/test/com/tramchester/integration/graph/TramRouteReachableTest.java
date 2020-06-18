@@ -76,17 +76,17 @@ class TramRouteReachableTest {
     void shouldHaveAdjacentRoutesCorrectly() {
 
         // TODO Lockdown 2->1 for next two tests, only one route to alty now
-        assertEquals(2,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
-        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad.getId()).size());
+        assertEquals(1,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
+        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad.getId()).size());
 
         // 5 not the 7 on the map, only 6 routes modelled in timetable data, 1 of which does not go between these 2
         // TODO Lockdown 5->4
-        assertEquals(5, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare.getId()).size());
+        assertEquals(4, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare.getId()).size());
 
         assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.PiccadillyGardens.getId()).size());
 
         // TODO Lockdown 2->1
-        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet.getId()).size());
+        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet.getId()).size());
 
         assertEquals(0, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.Cornbrook.getId()).size());
     }
@@ -98,8 +98,8 @@ class TramRouteReachableTest {
             assertEquals(5, reachable.getApproxCostBetween(txn, Stations.NavigationRoad, Stations.Altrincham));
             assertEquals(6, reachable.getApproxCostBetween(txn, Stations.Altrincham, Stations.NavigationRoad));
 
-            assertEquals(60, reachable.getApproxCostBetween(txn, Stations.Bury, Stations.Altrincham));
-            assertEquals(59, reachable.getApproxCostBetween(txn, Stations.Altrincham, Stations.Bury));
+            assertEquals(62, reachable.getApproxCostBetween(txn, Stations.Bury, Stations.Altrincham));
+            assertEquals(62, reachable.getApproxCostBetween(txn, Stations.Altrincham, Stations.Bury));
 
             assertEquals(61, reachable.getApproxCostBetween(txn, Stations.MediaCityUK, Stations.ManAirport));
             assertEquals(61, reachable.getApproxCostBetween(txn, Stations.ManAirport, Stations.MediaCityUK));

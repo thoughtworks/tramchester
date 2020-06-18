@@ -6,6 +6,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTestRun;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.WithPostcodesEnabled;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class PostcodeResourceTest {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new WithPostcodesEnabled());
 
     @Test
     void shouldGetAllPostcodes() {

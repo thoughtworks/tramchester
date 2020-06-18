@@ -52,7 +52,8 @@ public class JourneyPlannerLocationResourceTest {
 
     @Test
     void planRouteAllowingForWalkingTime() {
-        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Stations.Deansgate.getId(),  LocalTime.of(20,9), false);
+        SortedSet<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Stations.Deansgate.getId(),
+                LocalTime.of(19,1), false);
         assertTrue(journeys.size()>0);
         JourneyDTO firstJourney = journeys.first();
 
@@ -64,14 +65,14 @@ public class JourneyPlannerLocationResourceTest {
         // two walks result in same arrival time
         //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
-        // new lockdown timetable
-        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
+        // todo new lockdown timetable
+        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(19, 7));
 
         assertTrue(possibleTimes.contains(departureTime), "Expected time "+departureTime.toString());
 
         // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
-        // new lockdown timetable
-        assertEquals(TramTime.of(20,48), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
+        // todo new lockdown timetable
+        assertEquals(TramTime.of(19,36), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
     }
 
     @Test
@@ -255,9 +256,9 @@ public class JourneyPlannerLocationResourceTest {
     private SortedSet<JourneyDTO> validateJourneyPresent(Response response) {
         JourneyPlanRepresentation plan = response.readEntity(JourneyPlanRepresentation.class);
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size()>=1);
+        assertTrue(journeys.size()>=1, "no journeys");
         List<StageDTO> stages = journeys.first().getStages();
-        assertTrue(stages.size()>0);
+        assertTrue(stages.size()>0, "no stages");
         stages.forEach(stage -> assertTrue(stage.getDuration()>0, stage.toString()));
         return journeys;
     }

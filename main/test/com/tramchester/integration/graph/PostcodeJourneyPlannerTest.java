@@ -16,6 +16,7 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.WithPostcodesEnabled;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,7 +54,7 @@ class PostcodeJourneyPlannerTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        TramchesterConfig testConfig = new IntegrationTramTestConfig();
+        TramchesterConfig testConfig = new WithPostcodesEnabled();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }

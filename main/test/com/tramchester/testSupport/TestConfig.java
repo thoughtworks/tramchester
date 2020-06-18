@@ -145,7 +145,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public boolean getLoadPostcodes() {
-        return true;
+        return false;
     }
 
     @Override

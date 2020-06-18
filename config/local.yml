@@ -64,10 +64,10 @@ logging:
       host: localhost
       port: 514
     - type: file
-      currentLogFilename: log/tramchester.log
+      currentLogFilename: logs/tramchester_local.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: log/tramchester-%d.log
+      archivedLogFilenamePattern: logs/tramchester_local-%d.log
       archivedFileCount: 5
       timeZone: UTC
 

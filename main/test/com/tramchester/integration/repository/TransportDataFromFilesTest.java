@@ -72,8 +72,9 @@ class TransportDataFromFilesTest {
         assertEquals("MET:   3:I:",result.getId());
         assertTrue(result.isTram());
 
+        // Eccles - plus some go to cornbrook, mediacity UK and Trafford bar
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals(2, headsigns.size(), "expected headsigns");
+        assertEquals(4, headsigns.size(), "expected headsigns");
         assertTrue(headsigns.contains("Eccles"));
     }
 
@@ -82,8 +83,8 @@ class TransportDataFromFilesTest {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
 
-        // lockdown 14->12
-        assertEquals(14, tramRoutes);
+        // todo lockdown 14->12
+        assertEquals(12, tramRoutes);
     }
 
     @Test
