@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class VersionResourceTest {
@@ -24,7 +25,8 @@ class VersionResourceTest {
     void shouldGetVersion() {
         String endPoint = "version";
 
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);
+        assertEquals(200, responce.getStatus());
 
         Version version = responce.readEntity(Version.class);
 

@@ -4,8 +4,8 @@ import com.tramchester.App;
 import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
-import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationAppExtension;
+import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
@@ -17,7 +17,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +34,7 @@ class RouteResourceTest {
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-       RouteDTO query = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
+        RouteDTO query = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
                 "shortName", new LinkedList<>(), "displayClass");
         int index = routes.indexOf(query);
         assertTrue(index>0);
@@ -62,7 +61,8 @@ class RouteResourceTest {
     }
 
     private List<RouteDTO> getRouteResponse() {
-        Response result = IntegrationClient.getApiResponse(appExtension, "routes", Optional.empty(), 200);
+        Response result = IntegrationClient.getApiResponse(appExtension, "routes");
+        assertEquals(200, result.getStatus());
         return result.readEntity(new GenericType<>() {
         });
     }

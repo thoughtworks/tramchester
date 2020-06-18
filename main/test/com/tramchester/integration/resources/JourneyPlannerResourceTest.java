@@ -15,8 +15,8 @@ import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationAppExtension;
+import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
@@ -43,8 +43,6 @@ import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.oneOf;
-import static org.joda.time.DateTimeConstants.SATURDAY;
-import static org.joda.time.DateTimeConstants.SUNDAY;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
@@ -151,9 +149,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         SortedSet<JourneyDTO> journeys = plan.getJourneys();
         Assertions.assertTrue(journeys.size()>0);
-        journeys.forEach(journeyDTO -> {
-            Assertions.assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime()));
-        });
+        journeys.forEach(journeyDTO -> Assertions.assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
     @Test
@@ -186,11 +182,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void testAltyToManAirportHasRealisticTranferAtCornbrook() throws TramchesterException {
-        int offsetToSunday = SUNDAY - when.getDayOfWeek().getValue();
-        LocalDate nextSunday = when.plusDays(offsetToSunday).plusWeeks(1);
+        LocalDate nextSunday = TestEnv.nextSunday();
 
         JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
-                TramTime.of(11,00), nextSunday);
+                TramTime.of(11,0), nextSunday);
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
@@ -200,29 +195,24 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldWarnOnSaturdayAndSundayJourney() throws TramchesterException {
-        int offsetToSunday = SUNDAY-when.getDayOfWeek().getValue();
-        LocalDate nextSunday = when.plusDays(offsetToSunday);
 
         JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
-                TramTime.of(11,43), nextSunday);
+                TramTime.of(11,43), TestEnv.nextSunday());
 
         List<Note> notes = results.getNotes();
         Assertions.assertEquals(2, notes.size()); // include station closure message
         Note weekendNote = new Note(Note.NoteType.Weekend,"At the weekend your journey may be affected by improvement works."+ProvidesNotes.website);
         assertThat(notes, hasItem(weekendNote));
 
-        int offsetToSaturday = SATURDAY-when.getDayOfWeek().getValue();
-        LocalDate nextSaturday = when.plusDays(offsetToSaturday);
-
         results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
-                TramTime.of(11,43), nextSaturday);
+                TramTime.of(11,43), TestEnv.nextSaturday());
 
         notes = results.getNotes();
         Assertions.assertEquals(2,notes.size());
         assertThat(notes, hasItem(weekendNote));
 
         JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
-                TramTime.of(11,43), nextSunday.plusDays(1));
+                TramTime.of(11,43), TestEnv.nextMonday());
         notes = notWeekendResult.getNotes();
         Assertions.assertEquals(1,notes.size());
         assertThat(notes, not(hasItem(weekendNote)));
@@ -293,8 +283,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         // journey to bury
         Response response = IntegrationClient.getApiResponse(appExtension,
-                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
-                Optional.of(cookie), 200);
+                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),cookie);
 
         Assertions.assertEquals(200, response.getStatus());
 
@@ -316,8 +305,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
         Response response = getResponseForJourney(appExtension, start, end, time, date, latlong, false, 3);
-
         Assertions.assertEquals(200, response.getStatus());
+
         RecentJourneys result = getRecentJourneysFromCookie(response);
         Set<Timestamped> recents = result.getRecentIds();
         Assertions.assertEquals(1, recents.size());
@@ -359,9 +348,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(start) || MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(end)) {
             if (latlong==null) {
                 fail("must provide latlong");
+            } else {
+                queryString = String.format("%s&lat=%f&lon=%f", queryString, latlong.getLat(), latlong.getLon());
             }
-            queryString = String.format("%s&lat=%f&lon=%f", queryString, latlong.getLat(), latlong.getLon());
         }
-        return IntegrationClient.getApiResponse(rule, queryString, Optional.empty(), 200);
+        return IntegrationClient.getApiResponse(rule, queryString);
     }
 }

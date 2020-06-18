@@ -3,8 +3,8 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
 import com.tramchester.domain.presentation.TramPositionDTO;
-import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationAppExtension;
+import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,12 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class TramPositionsResourceTest {
 
-    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     @Test
     void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);
+        assertEquals(200, responce.getStatus());
 
         TramsPositionsDTO filtered = responce.readEntity(TramsPositionsDTO.class);
 
@@ -57,7 +57,9 @@ class TramPositionsResourceTest {
     @Test
     void shouldGetSomePositionsUnfiltered() {
         String endPoint = "positions?unfiltered=true";
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);
+        assertEquals(200, responce.getStatus());
+
         TramsPositionsDTO unfiltered = responce.readEntity(TramsPositionsDTO.class);
 
         // should have some positions

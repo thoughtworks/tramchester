@@ -42,7 +42,7 @@ class DeparturesResourceTest {
         Station station = Stations.StPetersSquare;
 
         Response response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s", station.getId()), Optional.empty(), 200);
+                appExtension, String.format("departures/station/%s", station.getId()));
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
@@ -87,7 +87,7 @@ class DeparturesResourceTest {
     private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, Station station) {
         String time = queryTime.format(TestEnv.timeFormatter);
         Response response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?querytime=%s", station.getId(), time), Optional.empty(), 200);
+                appExtension, String.format("departures/station/%s?querytime=%s", station.getId(), time));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -128,8 +128,7 @@ class DeparturesResourceTest {
 
     private SortedSet<DepartureDTO> getDeparturesForLatlongTime(double lat, double lon, LocalTime queryTime) {
         String time = queryTime.format(TestEnv.timeFormatter);
-        Response response = IntegrationClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time),
-                Optional.empty(), 200);
+        Response response = IntegrationClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time));
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
         return departureList.getDepartures();
@@ -141,8 +140,7 @@ class DeparturesResourceTest {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
-        Response response = IntegrationClient.getApiResponse(appExtension, String.format("departures/%s/%s", lat, lon),
-                Optional.empty(), 200);
+        Response response = IntegrationClient.getApiResponse(appExtension, String.format("departures/%s/%s", lat, lon));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -176,14 +174,14 @@ class DeparturesResourceTest {
     @LiveDataMessagesCategory
     void shouldGetDueTramsForStationNotesOnOrOff() {
         Response response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()), Optional.empty(), 200);
+                appExtension, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
         assertFalse(departureList.getNotes().isEmpty());
 
         response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.getId()), Optional.empty(), 200);
+                appExtension, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.getId()));
         assertEquals(200, response.getStatus());
 
         departureList = response.readEntity(DepartureListDTO.class);

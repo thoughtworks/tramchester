@@ -30,7 +30,8 @@ public class FeedInfoResourceTest {
     void shouldGetFeedinfoCorrectly() {
         String endPoint = "feedinfo";
 
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Assertions.assertEquals(200, responce.getStatus());
 
         FeedInfoDTO result = responce.readEntity(FeedInfoDTO.class);
 

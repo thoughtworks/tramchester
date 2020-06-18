@@ -23,9 +23,10 @@ class PostcodeResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new WithPostcodesEnabled());
 
     @Test
-    void shouldGetAllPostcodes() {
+    void shouldGetLoadedPostcodes() {
         String endPoint = "postcodes";
-        Response response = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
+        Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
+        assertEquals(200, response.getStatus());
 
         List<PostcodeDTO> results = response.readEntity(new GenericType<>(){});
 
