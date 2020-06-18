@@ -5,7 +5,7 @@ import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.integration.IntegrationClient;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
@@ -22,9 +22,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class RouteResourceTest {
+class RouteResourceTest {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     @Test
     void shouldGetAllRoutes() {
@@ -62,7 +62,7 @@ public class RouteResourceTest {
     }
 
     private List<RouteDTO> getRouteResponse() {
-        Response result = IntegrationClient.getApiResponse(testRule, "routes", Optional.empty(), 200);
+        Response result = IntegrationClient.getApiResponse(appExtension, "routes", Optional.empty(), 200);
         return result.readEntity(new GenericType<>() {
         });
     }

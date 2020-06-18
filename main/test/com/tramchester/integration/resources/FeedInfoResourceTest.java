@@ -4,7 +4,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.FeedInfoDTO;
 import com.tramchester.integration.IntegrationClient;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
@@ -24,13 +24,13 @@ public class FeedInfoResourceTest {
     public static LocalDate validFrom = LocalDate.of(2020, 6, 18); // year, month, day
     public static LocalDate validUntil = LocalDate.of(2020, 8, 18);
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     @Test
     void shouldGetFeedinfoCorrectly() {
         String endPoint = "feedinfo";
 
-        Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
 
         FeedInfoDTO result = responce.readEntity(FeedInfoDTO.class);
 

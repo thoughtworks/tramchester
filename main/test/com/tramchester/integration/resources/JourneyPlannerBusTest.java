@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationBusTestConfig;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.Timeout;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
@@ -37,13 +36,9 @@ import static org.junit.Assert.assertFalse;
 
 @Disabled("Experimental")
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class JourneyPlannerBusTest {
+class JourneyPlannerBusTest {
 
-    //@Rule
-    public Timeout globalTimeout = Timeout.seconds(10*60);
-
-    //@ClassRule
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class,
+    private static final IntegrationAppExtension appExt = new IntegrationAppExtension(App.class,
             new IntegrationBusTestConfig());
 
     private LocalDate when;
@@ -57,7 +52,7 @@ public class JourneyPlannerBusTest {
     @Test
     void shouldPlanSimpleTramJourney() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan =  JourneyPlannerResourceTest.getJourneyPlanRepresentation(testRule,
+        JourneyPlanRepresentation plan =  JourneyPlannerResourceTest.getJourneyPlanRepresentation(appExt,
                 Stations.Deansgate, Stations.Altrincham, new TramServiceDate(when), queryTime, false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -174,7 +169,7 @@ public class JourneyPlannerBusTest {
                                                      TramServiceDate queryDate, boolean arriveBy, int maxChanges) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId, endId, time, date,
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, startId, endId, time, date,
                 null, arriveBy, maxChanges);
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
@@ -185,7 +180,7 @@ public class JourneyPlannerBusTest {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
 
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID,
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID,
                 endId, time, date, startLocation, arriveBy, 3);
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);

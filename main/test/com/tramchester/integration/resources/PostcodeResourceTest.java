@@ -4,8 +4,7 @@ import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationClient;
-import com.tramchester.integration.IntegrationTestRun;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.testSupport.WithPostcodesEnabled;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
@@ -19,14 +18,14 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class PostcodeResourceTest {
+class PostcodeResourceTest {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new WithPostcodesEnabled());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new WithPostcodesEnabled());
 
     @Test
     void shouldGetAllPostcodes() {
         String endPoint = "postcodes";
-        Response response = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
+        Response response = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
 
         List<PostcodeDTO> results = response.readEntity(new GenericType<>(){});
 

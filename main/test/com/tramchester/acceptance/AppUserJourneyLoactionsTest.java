@@ -1,7 +1,7 @@
 package com.tramchester.acceptance;
 
 import com.tramchester.App;
-import com.tramchester.acceptance.infra.AcceptanceTestRun;
+import com.tramchester.acceptance.infra.AcceptanceAppExtenstion;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
@@ -31,7 +31,7 @@ import static org.hamcrest.core.IsNot.not;
 public class AppUserJourneyLoactionsTest extends UserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
 
-    public static AcceptanceTestRun testRule = new AcceptanceTestRun(App.class, configPath);
+    public static AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
 
     private final String bury = Stations.Bury.getName();
     private final String altrincham = Stations.Altrincham.getName();

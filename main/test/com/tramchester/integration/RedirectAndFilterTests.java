@@ -1,8 +1,8 @@
 package com.tramchester.integration;
 
 import com.tramchester.App;
-import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.RedirectToAppFilter;
+import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -16,20 +16,18 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class RedirectAndFilterTests {
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+class RedirectAndFilterTests {
+
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     private URL base;
     private URL app;
 
     @BeforeEach
     void onceBeforeEachTestRuns() throws MalformedURLException {
-        base = new URL("http://localhost:" + testRule.getLocalPort());
-        app = new URL("http://localhost:" + testRule.getLocalPort() + "/app");
+        base = new URL("http://localhost:" + appExtension.getLocalPort());
+        app = new URL("http://localhost:" + appExtension.getLocalPort() + "/app");
     }
 
     @Test

@@ -3,8 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.integration.IntegrationTestRun;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -23,9 +22,9 @@ import java.util.SortedSet;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class JourneyPlannerPostcodeResourceTest {
+class JourneyPlannerPostcodeResourceTest {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new WithPostcodesEnabled());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new WithPostcodesEnabled());
 
     private LocalDate when;
     private LocalDateTime now;
@@ -40,7 +39,7 @@ public class JourneyPlannerPostcodeResourceTest {
     void shouldPlanJourneyFromPostcodeToPostcode() {
         String date = when.format(dateFormatDashes);
         String time = now.format(TestEnv.timeFormatter);
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, Postcodes.CentralBury,
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, Postcodes.CentralBury,
                 Postcodes.NearPiccadily, time, date,
                 null, false, 5);
 
@@ -56,7 +55,7 @@ public class JourneyPlannerPostcodeResourceTest {
     void shouldPlanJourneyFromPostcodeToStation() {
         String date = when.format(dateFormatDashes);
         String time = now.format(TestEnv.timeFormatter);
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, Postcodes.CentralBury,
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, Postcodes.CentralBury,
                 Stations.Piccadilly.getId(), time, date,
                 null, false, 5);
 
@@ -72,7 +71,7 @@ public class JourneyPlannerPostcodeResourceTest {
     void shouldPlanJourneyFromStationToPostcode() {
         String date = when.format(dateFormatDashes);
         String time = now.format(TestEnv.timeFormatter);
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, Stations.Piccadilly.getId(),
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, Stations.Piccadilly.getId(),
                 Postcodes.CentralBury, time, date,
                 null, false, 5);
 

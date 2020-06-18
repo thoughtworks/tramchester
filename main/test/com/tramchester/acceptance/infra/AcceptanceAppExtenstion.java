@@ -9,14 +9,14 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 
-public class AcceptanceTestRun extends DropwizardAppExtension<AppConfiguration> {
+public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfiguration> {
 
     // if SERVER_URL env var not set then run against localhost
     private final Optional<String> serverURLFromEnv;
     private final String localRunHost;
 
-    public AcceptanceTestRun(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
-                             ConfigOverride... configOverrides) {
+    public AcceptanceAppExtenstion(Class<? extends Application<AppConfiguration>> applicationClass, String configPath,
+                                   ConfigOverride... configOverrides) {
         super(applicationClass, configPath, configOverrides);
         serverURLFromEnv = Optional.ofNullable(System.getenv("SERVER_URL"));
         localRunHost = createLocalURL();

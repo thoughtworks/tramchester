@@ -14,9 +14,9 @@ import static org.junit.Assert.assertEquals;
 
 public class IntegrationClient {
 
-    public static Response getApiResponse(IntegrationTestRun testRule, String endPoint, Optional<Cookie> cookie, int expectedStatusCode) {
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:" + testRule.getLocalPort() + "/api/"+ endPoint);
+    public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint, Optional<Cookie> cookie, int expectedStatusCode) {
+        Client client = appExtension.client();
+        WebTarget target = client.target("http://localhost:" + appExtension.getLocalPort() + "/api/"+ endPoint);
         Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON);
         cookie.ifPresent(builder::cookie);
         Response response = builder.get();

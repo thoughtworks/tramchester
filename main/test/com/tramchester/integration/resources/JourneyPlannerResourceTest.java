@@ -16,7 +16,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationClient;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
@@ -49,7 +49,7 @@ import static org.joda.time.DateTimeConstants.SUNDAY;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
@@ -267,7 +267,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
-        Response result = getResponseForJourney(testRule, start, end, time, date, null, false, 3);
+        Response result = getResponseForJourney(appExtension, start, end, time, date, null, false, 3);
 
         Assertions.assertEquals(200, result.getStatus());
 
@@ -292,7 +292,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
         // journey to bury
-        Response response = IntegrationClient.getApiResponse(testRule,
+        Response response = IntegrationClient.getApiResponse(appExtension,
                 String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),
                 Optional.of(cookie), 200);
 
@@ -315,7 +315,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
-        Response response = getResponseForJourney(testRule, start, end, time, date, latlong, false, 3);
+        Response response = getResponseForJourney(appExtension, start, end, time, date, latlong, false, 3);
 
         Assertions.assertEquals(200, response.getStatus());
         RecentJourneys result = getRecentJourneysFromCookie(response);
@@ -337,10 +337,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, TramTime queryTime,
                                                        boolean arriveBy, int maxChanges) {
-        return getJourneyPlanRepresentation(testRule, start, end, queryDate, queryTime, arriveBy, maxChanges);
+        return getJourneyPlanRepresentation(appExtension, start, end, queryDate, queryTime, arriveBy, maxChanges);
     }
 
-    public static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationTestRun rule, Location start, Location end,
+    public static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationAppExtension rule, Location start, Location end,
                                                                          TramServiceDate queryDate, TramTime queryTime,
                                                                          boolean arriveBy, int maxChanges) {
         String date = queryDate.getDate().format(dateFormatDashes);
@@ -351,7 +351,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    public static Response getResponseForJourney(IntegrationTestRun rule, String start, String end, String time,
+    public static Response getResponseForJourney(IntegrationAppExtension rule, String start, String end, String time,
                                                  String date, LatLong latlong, boolean arriveBy, int maxChanges) {
         String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
                 start, end, time, date, arriveBy, maxChanges);

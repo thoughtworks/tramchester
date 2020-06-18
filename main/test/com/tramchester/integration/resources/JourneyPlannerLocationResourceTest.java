@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class JourneyPlannerLocationResourceTest {
+class JourneyPlannerLocationResourceTest {
 
     private static final String TIME_PATTERN = "HH:mm:00";
     private static final AppConfiguration config = new IntegrationTramTestConfig();
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, config);
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 
     private LocalDate when;
 
@@ -224,7 +224,7 @@ public class JourneyPlannerLocationResourceTest {
     private JourneyPlanRepresentation getPlanFor(Location start, Location end, LocalTime time) {
         String date = when.format(TestEnv.dateFormatDashes);
         String timeString = time.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, start.getId(), end.getId(), timeString, date, null, false, 3);
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, start.getId(), end.getId(), timeString, date, null, false, 3);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
@@ -234,7 +234,7 @@ public class JourneyPlannerLocationResourceTest {
         String date = when.format(TestEnv.dateFormatDashes);
         String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
 
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule,
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, destination, time, date, location, arriveBy, 3);
         assertEquals(200, response.getStatus());
 
@@ -245,7 +245,7 @@ public class JourneyPlannerLocationResourceTest {
         String date = when.format(TestEnv.dateFormatDashes);
         String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
 
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(testRule, startId,
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, startId,
                 MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, time, date, location, arriveBy, 3);
         assertEquals(200, response.getStatus());
 

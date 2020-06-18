@@ -14,7 +14,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationClient;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class StationResourceTest {
+class StationResourceTest {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -42,7 +42,7 @@ public class StationResourceTest {
     void shouldGetSingleStationWithPlatforms() {
         String id = Stations.StPetersSquare.getId();
         String endPoint = "stations/" + id;
-        Response response = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
+        Response response = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
         Assertions.assertEquals(200,response.getStatus());
         StationDTO result = response.readEntity(StationDTO.class);
 
@@ -165,7 +165,7 @@ public class StationResourceTest {
     void shouldReturnChangesToRecent() throws JsonProcessingException {
         Cookie cookieA = createRecentsCookieFor(Stations.Altrincham);
 
-        Response result = IntegrationClient.getApiResponse(testRule, "stations/update", Optional.of(cookieA), 200);
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations/update", Optional.of(cookieA), 200);
         StationListDTO list = result.readEntity(StationListDTO.class);
 
         Assertions.assertEquals(1, list.getProximityGroups().size());
@@ -174,7 +174,7 @@ public class StationResourceTest {
 
         Cookie cookieB = createRecentsCookieFor(Stations.Altrincham, Stations.Deansgate);
 
-        Response updatedResult = IntegrationClient.getApiResponse(testRule, "stations/update", Optional.of(cookieB), 200);
+        Response updatedResult = IntegrationClient.getApiResponse(appExtension, "stations/update", Optional.of(cookieB), 200);
         StationListDTO updatedList = updatedResult.readEntity(StationListDTO.class);
 
         Assertions.assertEquals(1, updatedList.getProximityGroups().size());
@@ -186,7 +186,7 @@ public class StationResourceTest {
     @Test
     void shouldReturnChangesToRecentAndNearest() throws JsonProcessingException {
 
-        Response result = IntegrationClient.getApiResponse(testRule, String.format("stations/update/%s/%s",
+        Response result = IntegrationClient.getApiResponse(appExtension, String.format("stations/update/%s/%s",
                 TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon()),
                 Optional.of(createRecentsCookieFor(Stations.Bury)), 200);
 
@@ -203,7 +203,7 @@ public class StationResourceTest {
         Assertions.assertEquals(6, nearby.size());
 
         // add one of the nearby to the recents list
-        result = IntegrationClient.getApiResponse(testRule, String.format("stations/update/%s/%s",
+        result = IntegrationClient.getApiResponse(appExtension, String.format("stations/update/%s/%s",
                 TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon()),
                 Optional.of(createRecentsCookieFor(Stations.PiccadillyGardens)), 200);
         list = result.readEntity(StationListDTO.class);
@@ -217,7 +217,7 @@ public class StationResourceTest {
         Assertions.assertEquals(5, nearby.size());
 
         // switch locations, expect different nearby stations
-        result = IntegrationClient.getApiResponse(testRule, String.format("stations/update/%s/%s",
+        result = IntegrationClient.getApiResponse(appExtension, String.format("stations/update/%s/%s",
                 TestEnv.nearAltrincham.getLat(), TestEnv.nearAltrincham.getLon()),
                 Optional.of(createRecentsCookieFor(Stations.PiccadillyGardens)), 200);
         list = result.readEntity(StationListDTO.class);
@@ -250,14 +250,14 @@ public class StationResourceTest {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private StationListDTO getNearest(LatLong location, Optional<Cookie> cookie) {
-        Response result = IntegrationClient.getApiResponse(testRule, String.format("stations/%s/%s",
+        Response result = IntegrationClient.getApiResponse(appExtension, String.format("stations/%s/%s",
                 location.getLat(), location.getLon()), cookie, 200);
         return result.readEntity(StationListDTO.class);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private StationListDTO getAll(Optional<Cookie> cookie) {
-        Response result = IntegrationClient.getApiResponse(testRule, "stations", cookie, 200);
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations", cookie, 200);
         return result.readEntity(StationListDTO.class);
     }
 

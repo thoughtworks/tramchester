@@ -4,7 +4,7 @@ import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
 import com.tramchester.domain.presentation.TramPositionDTO;
 import com.tramchester.integration.IntegrationClient;
-import com.tramchester.integration.IntegrationTestRun;
+import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class TramPositionsResourceTest {
+class TramPositionsResourceTest {
 
-    public static IntegrationTestRun testRule = new IntegrationTestRun(App.class, new IntegrationTramTestConfig());
+    private static IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     @Test
     void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
-        Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
 
         TramsPositionsDTO filtered = responce.readEntity(TramsPositionsDTO.class);
 
@@ -57,7 +57,7 @@ public class TramPositionsResourceTest {
     @Test
     void shouldGetSomePositionsUnfiltered() {
         String endPoint = "positions?unfiltered=true";
-        Response responce = IntegrationClient.getApiResponse(testRule, endPoint, Optional.empty(), 200);
+        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint, Optional.empty(), 200);
         TramsPositionsDTO unfiltered = responce.readEntity(TramsPositionsDTO.class);
 
         // should have some positions
