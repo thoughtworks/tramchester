@@ -129,6 +129,7 @@ class TransportDataFromFilesTest {
         assertFalse(sundayTrips.isEmpty());
     }
 
+    @Disabled("Only useful when issues arise with expiry")
     @DataExpiryCategory
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
