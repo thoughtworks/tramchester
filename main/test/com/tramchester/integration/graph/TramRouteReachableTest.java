@@ -53,42 +53,36 @@ class TramRouteReachableTest {
 
     @Test
     void shouldHaveCorrectReachabilityOrInterchanges() {
-        assertTrue(reachable.getRouteReachableWithInterchange(ALTY_TO_PICC, Stations.NavigationRoad.getId(), Stations.ManAirport.getId()
-        ));
-        assertFalse(reachable.getRouteReachableWithInterchange(PICC_TO_ALTY, Stations.NavigationRoad.getId(), Stations.ManAirport.getId()
-        ));
+        assertTrue(reachable.getRouteReachableWithInterchange(ALTY_TO_PICC, Stations.NavigationRoad, Stations.ManAirport));
+        assertFalse(reachable.getRouteReachableWithInterchange(PICC_TO_ALTY, Stations.NavigationRoad, Stations.ManAirport));
 
-        assertTrue(reachable.getRouteReachableWithInterchange(AIR_TO_VIC, Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId()
-        ));
-        assertFalse(reachable.getRouteReachableWithInterchange(VIC_TO_AIR, Stations.ManAirport.getId(), Stations.StWerburghsRoad.getId()
-        ));
+        assertTrue(reachable.getRouteReachableWithInterchange(AIR_TO_VIC, Stations.ManAirport, Stations.StWerburghsRoad));
+        assertFalse(reachable.getRouteReachableWithInterchange(VIC_TO_AIR, Stations.ManAirport, Stations.StWerburghsRoad));
     }
 
     @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachable.getRouteReachableWithInterchange(ROCH_TO_DIDS, Stations.RochdaleRail.getId(), Stations.Monsall.getId()
-        ));
-        assertTrue(reachable.getRouteReachableWithInterchange(DIDS_TO_ROCH, Stations.Monsall.getId(), Stations.RochdaleRail.getId()
-        ));
+        assertTrue(reachable.getRouteReachableWithInterchange(ROCH_TO_DIDS, Stations.RochdaleRail, Stations.Monsall));
+        assertTrue(reachable.getRouteReachableWithInterchange(DIDS_TO_ROCH, Stations.Monsall, Stations.RochdaleRail));
     }
 
     @Test
     void shouldHaveAdjacentRoutesCorrectly() {
 
         // TODO Lockdown 2->1 for next two tests, only one route to alty now
-        assertEquals(1,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham.getId()).size());
-        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad.getId()).size());
+        assertEquals(1,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham).size());
+        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad).size());
 
         // 5 not the 7 on the map, only 6 routes modelled in timetable data, 1 of which does not go between these 2
         // TODO Lockdown 5->4
-        assertEquals(4, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare.getId()).size());
+        assertEquals(4, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare).size());
 
-        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.PiccadillyGardens.getId()).size());
+        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.PiccadillyGardens).size());
 
         // TODO Lockdown 2->1
-        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet.getId()).size());
+        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet).size());
 
-        assertEquals(0, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.Cornbrook.getId()).size());
+        assertEquals(0, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.Cornbrook).size());
     }
 
     @Test

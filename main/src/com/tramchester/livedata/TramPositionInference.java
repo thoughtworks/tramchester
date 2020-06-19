@@ -65,7 +65,7 @@ public class TramPositionInference {
             logger.info(format("Not both tram stations %s and %s", start, neighbour));
             return Collections.emptySet();
         }
-        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(start, neighbour.getId());
+        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(start, neighbour);
 
         // get departure info at neighbouring station for relevant routes
         Set<StationDepartureInfo> departureInfos = new HashSet<>();

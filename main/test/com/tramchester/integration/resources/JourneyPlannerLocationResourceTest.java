@@ -66,13 +66,13 @@ class JourneyPlannerLocationResourceTest {
         //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
         // todo new lockdown timetable
-        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(19, 7));
+        List<TramTime> possibleTimes = Arrays.asList(TramTime.of(19, 5));
 
         assertTrue(possibleTimes.contains(departureTime), "Expected time "+departureTime.toString());
 
         // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
         // todo new lockdown timetable
-        assertEquals(TramTime.of(19,36), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
+        assertEquals(TramTime.of(19,34), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
     }
 
     @Test
@@ -123,7 +123,7 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldPlanRouteEndingInAWalkArriveBy() {
-        LocalTime queryTime = LocalTime.of(20, 9);
+        LocalTime queryTime = LocalTime.of(19, 9);
         SortedSet<JourneyDTO> results = validateJourneyToLocation(Stations.Deansgate.getId(), TestEnv.nearAltrincham,
                 queryTime, true);
 

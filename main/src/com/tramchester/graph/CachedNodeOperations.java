@@ -27,8 +27,6 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
     private final Cache<Long, String> tripRelationshipCache;
     private final Cache<Long, String> svcIdCache;
     private final Cache<Long, Integer> hourNodeCache;
-
-    // cached times
     private final Cache<Long, TramTime> times;
 
     public CachedNodeOperations() {

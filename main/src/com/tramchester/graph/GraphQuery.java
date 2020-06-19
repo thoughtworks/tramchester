@@ -21,14 +21,6 @@ public class GraphQuery {
         this.graphDatabase = graphDatabase;
     }
 
-    public Node getTramStationNode(Transaction txn, String stationId) {
-        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.TRAM_STATION);
-    }
-
-    private Node getBusStationNode(Transaction txn, String stationId) {
-        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.BUS_STATION);
-    }
-
     public Node getPlatformNode(Transaction txn, String id) {
         return getNodeByLabel(txn, id, GraphBuilder.Labels.PLATFORM);
     }
@@ -58,5 +50,13 @@ public class GraphQuery {
         } else {
             return getBusStationNode(txn, stationId);
         }
+    }
+
+    private Node getTramStationNode(Transaction txn, String stationId) {
+        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.TRAM_STATION);
+    }
+
+    private Node getBusStationNode(Transaction txn, String stationId) {
+        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.BUS_STATION);
     }
 }

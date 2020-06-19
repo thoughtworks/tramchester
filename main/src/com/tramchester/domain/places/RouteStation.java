@@ -19,14 +19,6 @@ public class RouteStation implements HasId {
         id = formId(station, route);
     }
 
-    public String getStationId() {
-        return station.getId();
-    }
-
-    public String getRouteId() {
-        return route.getId();
-    }
-
     public String getId() {
         return id;
     }
@@ -55,4 +47,13 @@ public class RouteStation implements HasId {
         return station.getId() + route.getId().replaceAll(" ","");
     }
 
+    // Use get getStation
+    @Deprecated
+    public String getStationId() {
+        return station.getId();
+    }
+
+    public Station getStation() {
+        return station;
+    }
 }

@@ -34,14 +34,15 @@ public class RouteReachable {
     }
 
     // supports building tram station reachability matrix
-    public boolean getRouteReachableWithInterchange(Route route, String startStationId, String endStationId) {
-        return hasAnyPaths(route, startStationId, endStationId);
+    public boolean getRouteReachableWithInterchange(Route route, Station startStation, Station endStation) {
+        return hasAnyPaths(route, startStation, endStation);
     }
 
     // supports position inference on live data
-    public List<Route> getRoutesFromStartToNeighbour(Station startStation, String endStationId) {
+    public List<Route> getRoutesFromStartToNeighbour(Station startStation, Station endStation) {
         List<Route> results = new ArrayList<>();
         Set<Route> firstRoutes = startStation.getRoutes();
+        String endStationId = endStation.getId();
 
         try (Transaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
@@ -83,17 +84,18 @@ public class RouteReachable {
         return results;
     }
 
-    private boolean hasAnyPaths(Route route, String startStationId, String endStationId) {
+    private boolean hasAnyPaths(Route route, Station startStation, Station endStation) {
 
         boolean hasAny = false;
         try (Transaction txn = graphDatabaseService.beginTx()) {
 
-            Node found = graphQuery.getTramStationNode(txn, startStationId);
+            Node found = graphQuery.getStationNode(txn, startStation);
             if (found==null) {
                 if (warnForMissing) {
-                    logger.warn("Cannot find node for station id " + startStationId);
+                    logger.warn("Cannot find node for station id " + startStation);
                 }
             } else  {
+                String endStationId = endStation.getId();
                 Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId<>(endStationId, route.getId(),
                         interchangeRepository);
 
@@ -107,7 +109,7 @@ public class RouteReachable {
 
                 Traverser traverser = traverserDesc.traverse(found);
 
-                for(Path path : traverser) {
+                for(Path ignored : traverser) {
                     hasAny = true;
                 }
             }
