@@ -124,23 +124,12 @@ class RouteCalculatorTestAllJourneys {
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toList());
 
-        // TODO Diagnose threading issue so this can be removed
-        List<Journey> retry;
-        try(Transaction txn = database.beginTx(TXN_TIMEOUT_SECS, TimeUnit.SECONDS)) {
-            retry = failed.stream().map(pair -> calculator.calculateRoute(txn, pair.getLeft(), pair.getRight(), journeyRequest)).
-                    map(Stream::findAny).
-                    filter(Optional::isPresent).
-                    map(Optional::get).
-                    collect(Collectors.toList());
-        }
-
         Assertions.assertEquals(
-                0L, failed.size(), format("Failed some of %s (finished %s) combinations %s retry is %s",
-                        results.size(), combinations.size(), displayFailed(failed), retry));
+                0L, failed.size(), format("Failed some of %s (finished %s) combinations %s",
+                        results.size(), combinations.size(), displayFailed(failed)));
 
         return results;
     }
-
 
     private String displayFailed(List<Pair<Station, Station>> pairs) {
         StringBuilder stringBuilder = new StringBuilder();

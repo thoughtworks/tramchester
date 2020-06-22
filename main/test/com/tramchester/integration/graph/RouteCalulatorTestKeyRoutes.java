@@ -139,14 +139,9 @@ class RouteCalulatorTestKeyRoutes {
 
         assertEquals(combinations.size(), results.size());
         // check all results present, collect failures into a list
-        List<JourneyOrNot> failed = results.entrySet().stream().
-                filter(journeyOrNot -> journeyOrNot.getValue().missing()).
-                map(Map.Entry::getValue).
+        List<JourneyOrNot> failed = results.values().stream().
+                filter(JourneyOrNot::missing).
                 collect(Collectors.toList());
-
-        // retry, only to assist in tracking down concurrency issue
-        Set<Pair<Station, Station>> retries = failed.stream().map(failure -> failure.requested).collect(Collectors.toSet());
-        computeJourneys(queryDate, retries, queryTime, true);
 
         assertEquals(Collections.emptyList(), failed);
         return results;
