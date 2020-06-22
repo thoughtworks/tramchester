@@ -25,7 +25,6 @@ class BusRouteReachableTest {
     private static Dependencies dependencies;
 
     private RouteReachable reachable;
-    private StationRepository stationRepository;
     private Transaction txn;
     private TransportData transportData;
 
@@ -43,7 +42,6 @@ class BusRouteReachableTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(RouteReachable.class);
         GraphDatabase database = dependencies.get(GraphDatabase.class);
         transportData = dependencies.get(TransportData.class);
@@ -90,7 +88,4 @@ class BusRouteReachableTest {
 //        assertEquals(8, routesSeenStockToShudehill.size());
     }
 
-    private Station getReal(Station testStation) {
-        return stationRepository.getStation(testStation.getId());
-    }
 }

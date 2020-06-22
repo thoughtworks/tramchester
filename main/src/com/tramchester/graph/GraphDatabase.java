@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.io.FileUtils;
-import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -11,21 +10,18 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.logging.Log;
-import org.neo4j.logging.LogProvider;
 import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
 public class GraphDatabase implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
@@ -119,6 +115,10 @@ public class GraphDatabase implements Startable {
             schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphStaticKeys.ID).create();
             schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphStaticKeys.ID).create();
             schema.indexFor(GraphBuilder.Labels.MINUTE).on(GraphStaticKeys.ID).create();
+
+            // doesn't help graph build performance....
+//            schema.indexFor(TransportRelationshipTypes.TO_SERVICE).on(GraphStaticKeys.TRIPS).
+//                    withIndexType(IndexType.FULLTEXT).create();
 
             tx.commit();
         }

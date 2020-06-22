@@ -67,6 +67,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         try {
             logger.info("Rebuilding the graph...");
+
             for(Agency agency : transportData.getAgencies()) {
                 logger.info("Adding agency " + agency.getId());
                 Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
@@ -85,19 +86,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             logger.error("Exception while rebuilding the graph", except);
             throw new RuntimeException("Unable to build graph", except);
         }
-        //nodeIdQuery.clearAfterGraphBuild();
         reportStats();
         logMemory("After graph build");
         System.gc();
     }
 
-    private void buildGraphForRoutes(GraphDatabase graphDatabase, GraphFilter filter, Stream<Route> routes) {
-        Set<Station> filteredStations = filter.isFiltered() ? transportData.getStations().
-                stream().filter(filter::shouldInclude).collect(Collectors.toSet()) : transportData.getStations();
+    private void buildGraphForRoutes(GraphDatabase graphDatabase, final GraphFilter filter, Stream<Route> routes) {
+        Set<Station> filteredStations = filter.isFiltered() ?
+                transportData.getStations().stream().filter(filter::shouldInclude).collect(Collectors.toSet()) :
+                transportData.getStations();
 
         routes.forEach(route -> {
             RouteBuilderCache routeBuilderCache = new RouteBuilderCache();
-            String asId = HasId.asId(route);
+            String asId = route.getId();
             logger.info("Adding route " + asId);
 
             try(Transaction tx = graphDatabase.beginTx()) {
@@ -370,7 +371,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         crossFromPlatform.setProperty(COST, leavePlatformCost);
         crossFromPlatform.setProperty(STATION_ID, station.getId());
     }
-
 
     private void updateTripRelationship(Route route, Service service, Trip trip, StopCall beginStop, StopCall endStop,
                                         RouteBuilderCache routeBuilderCache, Map<Pair<Station, TramTime>, Node> timeNodes) {

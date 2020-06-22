@@ -143,11 +143,11 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
         Assertions.assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
 
-        validateWalkingStage(firstStage, LocalTime.of(10,19), "Walk to",
+        validateWalkingStage(firstStage, LocalTime.of(10,25), "Walk to",
                 Stations.Altrincham.getName(), -1, "RouteWalking", "Walk", 0);
 
         Stage secondStage = stages.get(1);
-        LocalTime departTime = LocalTime.of(10,25);
+        LocalTime departTime = LocalTime.of(10,31);
         validateAStage(secondStage, departTime, "Board", Stations.Altrincham.getName(), 1,
                 AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }

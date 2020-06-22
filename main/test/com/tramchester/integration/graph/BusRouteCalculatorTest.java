@@ -63,7 +63,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveShudehillToStockJourney() {
-        int maxChanges = 1;
+        int maxChanges = 2;
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, ShudehillInterchange, StockportBusStation,
                 TramTime.of(8, 0), when, maxChanges);
         Journey journey = journeys.toArray(new Journey[1])[0];
