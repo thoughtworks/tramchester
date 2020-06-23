@@ -38,7 +38,7 @@ public class StationLocations {
         maxNorthings = Long.MIN_VALUE;
     }
 
-    public void addStation(Station station) {
+    public StationLocations addStation(Station station) {
         LatLong position = station.getLatLong();
         try {
             GridPosition gridPosition = coordinateTransforms.getGridPosition(position);
@@ -48,6 +48,7 @@ public class StationLocations {
         } catch (TransformException e) {
             logger.error("Unable to store station as cannot convert location", e);
         }
+        return this;
     }
 
     public LatLong getStationPosition(Station station) throws TransformException {

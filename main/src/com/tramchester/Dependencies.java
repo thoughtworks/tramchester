@@ -17,6 +17,7 @@ import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.graph.search.MapPathToStages;
@@ -118,6 +119,7 @@ public class Dependencies {
         picoContainer.addComponent(TramJourneyToDTOMapper.class);
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
+        picoContainer.addComponent(SortsPositions.class);
 
         picoContainer.addComponent(StagedTransportGraphBuilder.class);
 //        picoContainer.addComponent(TransportGraphBuilder.class);

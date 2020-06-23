@@ -34,8 +34,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(StagedTransportGraphBuilder.class);
 
     ///
-    // Station-[enter]->Platform-[board]->RouteStation-[toHour]->Hour-[toMinute]->Minute-[toService]->
-    //          Service-[GoesTo]->RouteStation-[depart]->Platform-[leave]->Station
+    // Station-[enter]-> Platform-[board] -> RouteStation-[toSvc] -> Service ->Hour-[toMinute]
+    //          -> Minute -> RouteStation-[depart]->Platform-[leave]->Station
     //
     // RouteStation-[onRoute]->RouteStation
     //
@@ -154,13 +154,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     }
                 }
         });
-        services.forEach(pair -> createServiceNode(tx, route, service, pair.getLeft(), pair.getRight(), stationCache));
+        services.forEach(pair -> createServiceNodeAndRelationship(tx, route, service, pair.getLeft(), pair.getRight(), stationCache));
         hours.forEach(triple -> createHourNode(tx, service, triple.getLeft(), triple.getMiddle(), triple.getRight(), stationCache));
     }
 
 
-    private void createServiceNode(Transaction tx, Route route, Service service, Station begin, Station end,
-                                   RouteBuilderCache routeBuilderCache) {
+    private void createServiceNodeAndRelationship(Transaction tx, Route route, Service service, Station begin, Station end,
+                                                  RouteBuilderCache routeBuilderCache) {
 
         // Node for the service
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
@@ -181,6 +181,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
         svcRelationship.setProperty(COST, 0);
         svcRelationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
+        svcRelationship.setProperty(GraphStaticKeys.TOWARDS_STATION_ID, end.getId());
         svcRelationship.setProperty(GraphStaticKeys.TRIPS, "");
 
     }

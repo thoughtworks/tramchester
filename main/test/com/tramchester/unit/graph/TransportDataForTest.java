@@ -145,7 +145,7 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
         Station stationFour = new Station(STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens, true);
         addStation(stationFour);
 
-        Station stationFive = new Station(STATION_FIVE, "area5", "Station5", TestEnv.nearPiccGardens, true);
+        Station stationFive = new Station(STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus, true);
         addStation(stationFive);
 
         //

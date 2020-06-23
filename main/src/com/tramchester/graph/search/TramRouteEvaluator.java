@@ -75,7 +75,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
 
-            // NOTE: We only cache previous for certian node types
+            // NOTE: We only cache previous for certain node types
             if (nodeTypeRepository.isHour(endNode) && previousVisitTime.equals(journeyClock)) {
                 reasons.recordReason(ServiceReason.Cached(previousVisitTime, path));
                 return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue

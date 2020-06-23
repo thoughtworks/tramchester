@@ -1,6 +1,7 @@
 package com.tramchester.graph.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
@@ -17,13 +18,14 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
-    private TraversalState child;
-
     protected final TramchesterConfig config;
     protected final NodeContentsRepository nodeOperations;
     protected final long destinationNodeId;
     protected final TraversalState parent;
     protected final List<String> destinationStationIds;
+    protected final SortsPositions sortsPositions;
+
+    private TraversalState child;
 
     @Override
     public int hashCode() {
@@ -31,9 +33,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     // initial only
-    protected TraversalState(TraversalState parent, NodeContentsRepository nodeOperations, Iterable<Relationship> outbounds,
-                             long destinationNodeId, List<String> destinationStationdId, int costForLastEdge,
-                             TramchesterConfig config) {
+    protected TraversalState(SortsPositions sortsPositions, TraversalState parent, NodeContentsRepository nodeOperations,
+                             Iterable<Relationship> outbounds, long destinationNodeId, List<String> destinationStationdId,
+                             int costForLastEdge, TramchesterConfig config) {
+        this.sortsPositions = sortsPositions;
         this.parent = parent;
         this.nodeOperations = nodeOperations;
         this.outbounds = outbounds;
@@ -45,6 +48,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
+        this.sortsPositions = parent.sortsPositions;
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
         this.destinationStationIds = parent.destinationStationIds;
@@ -68,8 +72,8 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     public void dispose() {
         if (child!=null) {
             child.dispose();
+            child = null;
         }
-        child = null;
     }
 
     public Iterable<Relationship> getOutbounds() {

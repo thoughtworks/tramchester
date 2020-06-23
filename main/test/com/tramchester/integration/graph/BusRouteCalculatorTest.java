@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.testSupport.BusStations.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Disabled("experimental")
 class BusRouteCalculatorTest {
@@ -54,11 +55,20 @@ class BusRouteCalculatorTest {
         txn.close();
     }
 
-    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveAltyToStockJourney() {
-        RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, AltrinchamInterchange, StockportBusStation,
-                TramTime.of(8, 0), when, 5);
+        TramTime travelTime = TramTime.of(10, 45);
+        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, AltrinchamInterchange,
+                StockportBusStation, travelTime, when, 2);
+        // 2 changes means 3 stages or less
+        journeys.forEach(journey -> assertTrue(journey.getStages().size()<=3, journey.getStages().toString()));
+
+        // algo seems to return very large number of changes event when 2 is possible??
+
+        Set<Journey> journeysMaxChanges = RouteCalculatorTest.validateAtLeastOneJourney(calculator, txn, AltrinchamInterchange,
+                StockportBusStation, travelTime, when, 8);
+        // algo seems to return very large number of changes even when 2 is possible??
+        journeysMaxChanges.forEach(journey -> assertTrue(journey.getStages().size()<=3, journey.getStages().toString()));
     }
 
     @Test

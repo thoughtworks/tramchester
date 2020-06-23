@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.geo.CoordinateTransforms.distanceInMiles;
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static java.lang.String.format;
 
 public class LocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
 
-    private static final double EARTH_RADIUS = 3958.75;
 
     private final SpatialService spatialService;
     private final TramchesterConfig config;
@@ -206,24 +206,10 @@ public class LocationJourneyPlanner {
     // TODO Use Grid Position instead of LatLong??
     private int findCostInMinutes(LatLong latLong, Location station) {
 
-        double distanceInMiles = distFrom(latLong, station.getLatLong());
+        double distanceInMiles = distanceInMiles(latLong, station.getLatLong());
         double hours = distanceInMiles / config.getWalkingMPH();
         return (int)Math.ceil(hours * 60D);
     }
 
-    private double distFrom(LatLong point1, LatLong point2) {
-        double lat1 = point1.getLat();
-        double lat2 = point2.getLat();
-        double diffLat = Math.toRadians(lat2-lat1);
-        double diffLong = Math.toRadians(point2.getLon()-point1.getLon());
-        double sineDiffLat = Math.sin(diffLat / 2D);
-        double sineDiffLong = Math.sin(diffLong / 2D);
-
-        double a = Math.pow(sineDiffLat, 2) + Math.pow(sineDiffLong, 2)
-                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
-
-        double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return EARTH_RADIUS * fractionOfRadius;
-    }
 
 }

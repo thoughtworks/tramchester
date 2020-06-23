@@ -18,7 +18,6 @@ public class JourneyState implements ImmutableJourneyState {
     private TraversalState traversalState;
     private int numberOfBoardings;
 
-
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
         journeyOffset = 0;
@@ -117,7 +116,7 @@ public class JourneyState implements ImmutableJourneyState {
         if (numberOfBoardings==0) {
             return 0;
         }
-        return numberOfBoardings-1;
+        return numberOfBoardings-1; // initial boarding
     }
 
     public void boardTram() throws TramchesterException {

@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
 import com.tramchester.graph.states.ImmuatableTraversalState;
 import com.tramchester.graph.states.NotStartedState;
@@ -31,13 +32,15 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final List<String> endStationIds;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
+    private final SortsPositions sortsPosition;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
-                                NodeContentsRepository nodeContentsRepository, Node destinationNode,
+                                SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, Node destinationNode,
                                 List<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.reasons = serviceHeuristics.getReasons();
+        this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
         this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeId = destinationNode.getId();
@@ -51,7 +54,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
                 destinationNodeId, nodeTypeRepository, reasons, config);
 
-        final NotStartedState traversalState = new NotStartedState(nodeContentsRepository, destinationNodeId, endStationIds, config);
+        final NotStartedState traversalState = new NotStartedState(sortsPosition, nodeContentsRepository,
+                destinationNodeId, endStationIds, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Create traversal");

@@ -20,6 +20,8 @@ public class CoordinateTransforms {
     private CoordinateOperation gridToLatLong;
     private CoordinateOperation latLongToGrid;
 
+    private static final double EARTH_RADIUS = 3958.75;
+
     public CoordinateTransforms() {
         CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
 
@@ -51,4 +53,20 @@ public class CoordinateTransforms {
         double lon = directPositionLatLong.getOrdinate(1);
         return new LatLong(lat, lon);
     }
+
+    public static double distanceInMiles(LatLong point1, LatLong point2) {
+        double lat1 = point1.getLat();
+        double lat2 = point2.getLat();
+        double diffLat = Math.toRadians(lat2-lat1);
+        double diffLong = Math.toRadians(point2.getLon()-point1.getLon());
+        double sineDiffLat = Math.sin(diffLat / 2D);
+        double sineDiffLong = Math.sin(diffLong / 2D);
+
+        double a = Math.pow(sineDiffLat, 2) + Math.pow(sineDiffLong, 2)
+                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
+
+        double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return EARTH_RADIUS * fractionOfRadius;
+    }
+
 }

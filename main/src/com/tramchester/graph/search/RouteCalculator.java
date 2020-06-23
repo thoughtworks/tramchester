@@ -7,6 +7,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.NodeContentsRepository;
@@ -45,11 +46,13 @@ public class RouteCalculator implements TramRouteCalculator {
     private final ProvidesLocalNow providesLocalNow;
     private final GraphQuery graphQuery;
     private final int maxPathLength;
+    private final SortsPositions sortsPosition;
 
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
                            CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
-                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository) {
+                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
+                           SortsPositions sortsPosition) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
@@ -62,6 +65,7 @@ public class RouteCalculator implements TramRouteCalculator {
         this.nodeTypeRepository = nodeTypeRepository;
 
         maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
+        this.sortsPosition = sortsPosition;
     }
 
     @Override
@@ -135,7 +139,7 @@ public class RouteCalculator implements TramRouteCalculator {
         List<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toList());
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
-                nodeOperations, endNode, endStationIds, config, nodeTypeRepository);
+                sortsPosition, nodeOperations, endNode, endStationIds, config, nodeTypeRepository);
 
         return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }

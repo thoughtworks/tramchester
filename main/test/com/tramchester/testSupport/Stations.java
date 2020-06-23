@@ -10,7 +10,7 @@ public class Stations {
     public static int NumberOf = 99;
 
     // TEST DATA For stations
-    private static LatLong position = new LatLong(1,1);
+    private static final LatLong position = new LatLong(1,1);
 
     public static Station Altrincham = createStation("9400ZZMAALT", "Altrincham area", "Altrincham");
     public static Station Ashton = createStation("9400ZZMAAUL", "Ashton area", "Ashton-Under-Lyne");
