@@ -30,12 +30,12 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class AppUserJourneyTest extends UserJourneyTest {
+class AppUserJourneyTest extends UserJourneyTest {
     // NOTE: Needs correct locale settings, see .circleci/config.yml setupLocale target
 
     private static final String configPath = "config/localAcceptance.yml";
 
-    public static AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
+    private static final AcceptanceAppExtenstion appExtenstion = new AcceptanceAppExtenstion(App.class, configPath);
 
     private final String bury = Stations.Bury.getName();
     private final String altrincham = Stations.Altrincham.getName();
@@ -61,7 +61,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        url = testRule.getUrl()+"/app/index.html";
+        url = appExtenstion.getUrl()+"/app/index.html";
         when = TestEnv.testDay();
     }
 
@@ -339,7 +339,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) {
         LocalTime time = LocalTime.parse("10:15");
-        String weekendMsg = "At the weekend your journey may be affected by improvement works.Please check TFGM for details.";
 
         AppPage appPage = prepare(providesDriver, url);
         LocalDate aSaturday = TestEnv.nextSaturday();
@@ -349,7 +348,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
         assertTrue(appPage.hasWeekendMessage());
-        assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
 
         desiredJourney(appPage, altrincham, bury, when, time, false);
         appPage.planAJourney();
@@ -361,7 +359,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
         assertTrue(appPage.hasWeekendMessage());
-        assertThat(appPage.getAllNotes(), hasItem(weekendMsg));
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")

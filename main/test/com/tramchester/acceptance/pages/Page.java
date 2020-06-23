@@ -32,20 +32,6 @@ public class Page {
         return waitForElement(id, timeOut);
     }
 
-    public List<String> getAllNotes() {
-        WebElement listElement;
-        try {
-            listElement = waitForElement("NotesList", timeOut);
-            waitForElement("NoteItem", timeOut);
-        }
-        catch (TimeoutException timedOut) {
-            // legit, may not be any notes.....
-            return new ArrayList<>();
-        }
-        List<WebElement> listItems = listElement.findElements(By.id("NoteItem"));
-        return listItems.stream().map(WebElement::getText).collect(Collectors.toList());
-    }
-
     public String getExpectedBuildNumberFromEnv() {
         // prefer release number if set
         String releaseNumber = System.getenv("RELEASE_NUMBER");
