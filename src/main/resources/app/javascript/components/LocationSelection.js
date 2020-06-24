@@ -52,6 +52,7 @@ export default {
             :data="stops"
             v-model="current"
             maxMatches=20
+            minMatchingChars=3
             :serializer="item => formName(item)"
             @hit="updateValue($event.id)"
             placeholder="Select a location"

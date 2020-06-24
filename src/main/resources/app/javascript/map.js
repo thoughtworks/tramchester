@@ -7,6 +7,7 @@ Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
 
 var L = require('leaflet');
+require('leaflet-arrowheads')
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -18,9 +19,10 @@ require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
 
 import Footer from './components/Footer';
+import { map } from 'lodash';
 
-var width = 800;
-var height = 800;
+var width = 300;
+var height = 300;
 var margin = 60;
 
 function textFor(trams) {
@@ -40,8 +42,7 @@ function addStations() {
 }
 
 function addStationsForRoute(route, stationIcon) {
-    var stationLayerGroup = L.layerGroup();
-    //var stationRender = L.canvas({ padding: 0.5 }); 
+    var stationLayerGroup = L.featureGroup();
 
     route.stations.forEach(station => {
         if (station.tram) {
@@ -54,23 +55,8 @@ function addStationsForRoute(route, stationIcon) {
     stationLayerGroup.addTo(mapApp.map);
 }
 
-function addPostcodes() {
-    var postcodeLayer = L.layerGroup();
-    var postcodeRender = L.canvas({ padding: 0.5 }); 
-
-    var postcodeIcon = L.divIcon({className: 'postcode-icon', iconSize:[1,1]});
-
-    mapApp.postcodes.forEach(postcode => {
-        var lat = postcode.latLong.lat;
-        var lon = postcode.latLong.lon;
-        var marker = new L.marker(L.latLng(lat,lon), { renderer: postcodeRender, title: postcode.name, icon: postcodeIcon })
-        postcodeLayer.addLayer(marker);
-    });
-    postcodeLayer.addTo(mapApp.map);
-}
-
 function addRoutes() {
-    var routeLayerGroup = L.layerGroup();
+    var routeLayerGroup = L.featureGroup();
 
     mapApp.routes.forEach(route => {
         var steps = [];
@@ -96,24 +82,39 @@ function refreshTrams() {
 }
 
 function addTrams() {
-    var tramIcon =  L.divIcon({className: 'tram-icon', iconSize:[8,8]});
+    var tramIcon =  L.divIcon({className: 'arrow-up', html: 'transform: rotate(20deg);'});
    
     mapApp.tramLayerGroup.clearLayers();
     mapApp.positionsList.forEach(position => {
-        var latA = position.first.latLong.lat;
-        var lonA = position.first.latLong.lon;
-        var latB = position.second.latLong.lat;
-        var lonB = position.second.latLong.lon;
+        var latBegin = position.first.latLong.lat;
+        var lonBegin = position.first.latLong.lon;
+        var latNext = position.second.latLong.lat;
+        var lonNext = position.second.latLong.lon;
         
-        var vectorLat = (latB-latA)/position.cost;
-        var vectorLon = (lonB-lonA)/position.cost;
+        // unit vector based on cost between the stations
+        var vectorLat = (latNext-latBegin)/position.cost;
+        var vectorLon = (lonNext-lonBegin)/position.cost;
 
         position.trams.forEach(tram => {
-            var dist = (position.cost-tram.wait);
-            var lat = latA + ( dist * vectorLat );
-            var lon = lonA + ( dist * vectorLon );
-            var marker = new L.marker(L.latLng(lat,lon), { title: getTramTitle(tram, position) , icon: tramIcon }); 
-            mapApp.tramLayerGroup.addLayer(marker);
+            var dist = (position.cost-tram.wait); // approx current dist travelled based on wait at next station
+            var latCurrent = latBegin + ( dist * vectorLat );
+            var lonCurrent = lonBegin + ( dist * vectorLon );
+            if (tram.wait>0) {
+                var latTorwards = latCurrent + (vectorLat*0.8);
+                var lonTowards = lonCurrent + (vectorLon*0.8);
+                var linePoints = [ [latCurrent,lonCurrent] , [latTorwards,lonTowards] ];
+
+                var line = L.polyline(linePoints, { color: 'black', opacity: 0.6, weight: 4, pane: mapApp.tramPane}).
+                    arrowheads({ opacity: 1, fill: false, size: '8px', pane: mapApp.tramPane, yaw: 90 });
+                line.bindTooltip(getTramTitle(tram, position));
+                mapApp.tramLayerGroup.addLayer(line);
+            } else {
+                var circle = L.circle([latCurrent, lonCurrent], {radius: 100, color: 'black', weight: 2, pane: mapApp.tramPane});
+                circle.bindTooltip(getTramTitle(tram, position));
+                mapApp.tramLayerGroup.addLayer(circle);
+            }
+
+            
         })
         mapApp.tramLayerGroup.addTo(mapApp.map);
     });
@@ -171,7 +172,8 @@ var mapApp = new Vue({
             routes: [],
             postcodes: [],
             tramLayerGroup: null,
-            feedinfo: []
+            feedinfo: [],
+            tramPane: null
         }
     },
     methods: {
@@ -180,7 +182,9 @@ var mapApp = new Vue({
         },
         draw() {
             findAndSetMapBounds();
-            mapApp.tramLayerGroup = L.layerGroup();
+            mapApp.tramPane = mapApp.map.createPane("tramPane");
+            mapApp.tramPane.style.zIndex = 610; // above marker plane, below popups and tooltips
+            mapApp.tramLayerGroup = L.featureGroup();
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
@@ -212,16 +216,6 @@ var mapApp = new Vue({
                 mapApp.networkError = true;
                 console.log(error);
             });
-        // axios.get("/api/postcodes")
-        //     .then(function (response) {
-        //     mapApp.networkError = false;
-        //     mapApp.postcodes = response.data;
-        //     addPostcodes();
-        // }).catch(function (error){
-        //     mapApp.networkError = true;
-        //     console.log(error);
-        // });
-
     }, 
     computed: {
         havePos: function () {
