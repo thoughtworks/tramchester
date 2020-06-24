@@ -109,7 +109,7 @@ function addTrams() {
                 line.bindTooltip(getTramTitle(tram, position));
                 mapApp.tramLayerGroup.addLayer(line);
             } else {
-                var circle = L.circle([latCurrent, lonCurrent], {radius: 100, color: 'black', weight: 2, pane: mapApp.tramPane});
+                var circle = L.circle([latCurrent, lonCurrent], {radius: 50, color: 'black', weight: 2, pane: mapApp.tramPane});
                 circle.bindTooltip(getTramTitle(tram, position));
                 mapApp.tramLayerGroup.addLayer(circle);
             }
@@ -128,7 +128,6 @@ function getTramTitle(tram, position) {
     }
 }
 
-// TODO use postcodes for this - although those are bounded server side
 function findAndSetMapBounds() {
     let minLat = 1000;
     let maxLat = -1000;
