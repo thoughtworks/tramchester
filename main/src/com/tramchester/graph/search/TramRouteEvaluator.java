@@ -3,7 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
-import com.tramchester.graph.states.TraversalState;
+import com.tramchester.graph.search.states.TraversalState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;

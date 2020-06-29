@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.build.GraphBuilder;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

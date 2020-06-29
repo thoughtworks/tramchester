@@ -1,8 +1,8 @@
-package com.tramchester.graph.states;
+package com.tramchester.graph.search.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.graph.GraphBuilder;
 import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.build.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -10,7 +10,6 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -19,14 +18,14 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class RouteStationState extends TraversalState {
     private final long routeStationNodeId;
     private final boolean justBoarded;
-    private final Optional<String> maybeExistingTrip;
+    private final ExistingTrip maybeExistingTrip;
 
     public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId,
                              int cost, boolean justBoarded) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.justBoarded = justBoarded;
-        maybeExistingTrip = Optional.empty();
+        maybeExistingTrip = ExistingTrip.none();
     }
 
     public RouteStationState(TraversalState parent, Iterable<Relationship> relationships,
@@ -34,7 +33,7 @@ public class RouteStationState extends TraversalState {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.justBoarded = false;
-        maybeExistingTrip = Optional.of(tripId);
+        maybeExistingTrip = ExistingTrip.onTrip(tripId);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class RouteStationState extends TraversalState {
 
         List<Relationship> stationRelationships = filterExcludingEndNode(busStationNode.getRelationships(OUTGOING, BOARD,
                 INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
-        if (maybeExistingTrip.isPresent() || justBoarded) {
+        if (maybeExistingTrip.isOnTrip() || justBoarded) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
             List<Relationship> filterExcludingEndNode = filterExcludingEndNode(stationRelationships, routeStationNodeId);
             //return new PlatformState(this, filterExcludingEndNode, platformNode.getId(), cost);
@@ -112,7 +111,7 @@ public class RouteStationState extends TraversalState {
             Iterable<Relationship> platformRelationships = platformNode.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
-            if (maybeExistingTrip.isPresent() || justBoarded) {
+            if (maybeExistingTrip.isOnTrip() || justBoarded) {
                 // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
                 List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationNodeId);
                 return new PlatformState(this, filterExcludingEndNode, platformNode.getId(), cost);

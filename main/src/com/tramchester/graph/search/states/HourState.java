@@ -1,8 +1,8 @@
-package com.tramchester.graph.states;
+package com.tramchester.graph.search.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphBuilder;
+import com.tramchester.graph.build.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -10,7 +10,6 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.BUS_GOES_TO;
@@ -20,10 +19,10 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class HourState extends TraversalState {
 //    private static final Logger logger = LoggerFactory.getLogger(HourState.class);
 
-    private final Optional<String> maybeExistingTrip;
+    private final ExistingTrip maybeExistingTrip;
 
     public HourState(TraversalState parent, Iterable<Relationship> relationships,
-                     Optional<String> maybeExistingTrip, int cost) {
+                     ExistingTrip maybeExistingTrip, int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
     }
@@ -43,9 +42,9 @@ public class HourState extends TraversalState {
     private TraversalState toMinute(Node node, JourneyState journeyState, int cost) throws TramchesterException {
         TramTime time = nodeOperations.getTime(node);
 
-        if (maybeExistingTrip.isPresent()) {
+        if (maybeExistingTrip.isOnTrip()) {
             // continuing an existing trip
-            String existingTripId = maybeExistingTrip.get();
+            String existingTripId = maybeExistingTrip.getTripId();
             journeyState.recordTramDetails(time, getTotalCost());
             Iterable<Relationship> relationships = filterBySingleTripId(node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO),
                     existingTripId);

@@ -7,7 +7,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.states.NotStartedState;
+import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;

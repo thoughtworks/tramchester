@@ -1,4 +1,4 @@
-package com.tramchester.graph.states;
+package com.tramchester.graph.search.states;
 
 public class ExistingTrip {
     private final String tripId;

@@ -1,21 +1,19 @@
-package com.tramchester.graph.states;
+package com.tramchester.graph.search.states;
 
-import com.tramchester.graph.GraphBuilder;
+import com.tramchester.graph.build.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-
-import java.util.Optional;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
-    private final Optional<String> maybeExistingTrip;
+    private final ExistingTrip maybeExistingTrip;
 
-    public ServiceState(TraversalState parent, Iterable<Relationship> relationships, Optional<String> maybeExistingTrip,
+    public ServiceState(TraversalState parent, Iterable<Relationship> relationships, ExistingTrip maybeExistingTrip,
                         int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;

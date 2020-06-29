@@ -5,7 +5,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.ActiveGraphFilter;
+import com.tramchester.graph.build.ActiveGraphFilter;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;

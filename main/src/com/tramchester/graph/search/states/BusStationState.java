@@ -1,8 +1,8 @@
-package com.tramchester.graph.states;
+package com.tramchester.graph.search.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphBuilder;
+import com.tramchester.graph.build.GraphBuilder;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.search.JourneyState;
 import org.jetbrains.annotations.NotNull;

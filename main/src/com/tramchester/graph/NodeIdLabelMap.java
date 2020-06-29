@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.graph.build.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.picocontainer.Disposable;
@@ -10,8 +11,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.tramchester.graph.GraphBuilder.Labels.BUS_STATION;
-import static com.tramchester.graph.GraphBuilder.Labels.ROUTE_STATION;
+import static com.tramchester.graph.build.GraphBuilder.Labels.BUS_STATION;
+import static com.tramchester.graph.build.GraphBuilder.Labels.ROUTE_STATION;
 
 public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);

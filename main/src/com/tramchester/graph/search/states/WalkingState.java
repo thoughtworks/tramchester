@@ -1,6 +1,6 @@
-package com.tramchester.graph.states;
+package com.tramchester.graph.search.states;
 
-import com.tramchester.graph.GraphBuilder;
+import com.tramchester.graph.build.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
