@@ -4,7 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
-import com.tramchester.graph.build.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.graph.search.states.TraversalState;

@@ -1,7 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.graph.*;
-import com.tramchester.graph.build.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.*;
 
 import java.io.*;

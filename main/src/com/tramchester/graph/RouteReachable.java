@@ -3,7 +3,7 @@ package com.tramchester.graph;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.build.GraphFilter;
+import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.repository.InterchangeRepository;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.build.GraphBuilder.Labels.ROUTE_STATION;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class RouteReachable {

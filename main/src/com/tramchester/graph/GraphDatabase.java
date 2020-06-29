@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.build.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;

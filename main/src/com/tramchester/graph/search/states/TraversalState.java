@@ -2,7 +2,7 @@ package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.build.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
