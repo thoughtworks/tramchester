@@ -1,17 +1,13 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.search.JourneyState;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -51,11 +47,13 @@ public class BusStationState extends TraversalState implements NodeId {
 
     private final long stationNodeId;
     private final WalkingState.Builder walkingStateBuilder;
+    private final RouteStationState.Builder routeStationStateBuilder;
 
     private BusStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
         walkingStateBuilder = new WalkingState.Builder();
+        routeStationStateBuilder = new RouteStationState.Builder(sortsPositions, destinationStationIds);
     }
 
     @Override
@@ -83,21 +81,14 @@ public class BusStationState extends TraversalState implements NodeId {
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board bus", e);
         }
-        List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
-                DEPART, INTERCHANGE_DEPART), this);
 
-        outbounds.addAll(orderSvcRelationships(node));
-
-        return new RouteStationState(this, outbounds, nodeId, cost, true);
-    }
-
-    private Collection<Relationship> orderSvcRelationships(Node node) {
-        Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
-
-        List<SortsPositions.HasStationId<Relationship>> relationships = new ArrayList<>();
-        toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
-
-        return sortsPositions.sortedByNearTo(destinationStationIds, relationships);
+        return routeStationStateBuilder.fromBusStation(this, node, cost);
+//        List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
+//                DEPART, INTERCHANGE_DEPART), this);
+//
+//        outbounds.addAll(orderSvcRelationships(node));
+//
+//        return new RouteStationState(this, outbounds, nodeId, cost, true);
     }
 
     @Override
@@ -114,21 +105,4 @@ public class BusStationState extends TraversalState implements NodeId {
         return stationNodeId;
     }
 
-    private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
-        private final Relationship relationship;
-
-        private RelationshipFacade(Relationship relationship) {
-            this.relationship = relationship;
-        }
-
-        @Override
-        public String getStationId() {
-            return relationship.getProperty(GraphStaticKeys.TOWARDS_STATION_ID).toString();
-        }
-
-        @Override
-        public Relationship getContained() {
-            return relationship;
-        }
-    }
 }

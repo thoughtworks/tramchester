@@ -9,7 +9,6 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
@@ -20,25 +19,29 @@ public class MinuteState extends TraversalState {
 
     public static class Builder {
 
-        public TraversalState fromHourOnTrip(HourState hourState, String tripId, Node node, int cost) {
-            Iterable<Relationship> relationships = filterBySingleTripId(hourState.nodeOperations,
-                    node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO),
-                    tripId);
-            return new MinuteState(hourState, relationships, tripId, cost);
-        }
-
-        public TraversalState fromHour(HourState hourState, Node node, int cost) {
-            String newTripId = getTrip(node);
+        public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
-            return new MinuteState(hourState, relationships, newTripId, cost);
+
+            if (maybeExistingTrip.isOnTrip()) {
+                String existingTripId = maybeExistingTrip.getTripId();
+                Iterable<Relationship> filterBySingleTripId = filterBySingleTripId(hourState.nodeOperations,
+                        relationships, existingTripId);
+                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost);
+            } else {
+                // starting a brand new journey
+                String newTripId = getTrip(node);
+                return new MinuteState(hourState, relationships, newTripId, cost);
+            }
         }
     }
 
     private final String tripId;
+    private final RouteStationState.Builder routeStationStateBuilder;
 
     private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
         super(parent, relationships, cost);
         this.tripId = tripId;
+        routeStationStateBuilder = new RouteStationState.Builder(sortsPositions, destinationStationIds);
     }
 
     @Override
@@ -71,7 +74,7 @@ public class MinuteState extends TraversalState {
         for (Relationship depart : allDeparts) {
             if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
                 // we've arrived
-                return new RouteStationState(this, Collections.singleton(depart), node.getId(), tripId, cost);
+                return routeStationStateBuilder.fromMinuteState(this, node, cost, depart, tripId);
             }
         }
 
@@ -88,9 +91,9 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // service finished here so don't pass in trip ID
-            return new RouteStationState(this, routeStationOutbound, node.getId(), cost, false);
+            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound);
         } else {
-            return new RouteStationState(this, routeStationOutbound, node.getId(), tripId, cost);
+            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, tripId);
         }
     }
 

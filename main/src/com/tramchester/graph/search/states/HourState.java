@@ -23,11 +23,13 @@ public class HourState extends TraversalState {
     }
 
     private final ExistingTrip maybeExistingTrip;
+    private final MinuteState.Builder minuteStateBuilder;
 
     private HourState(TraversalState parent, Iterable<Relationship> relationships,
                       ExistingTrip maybeExistingTrip, int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
+        minuteStateBuilder = new MinuteState.Builder();
     }
 
     @Override
@@ -47,16 +49,8 @@ public class HourState extends TraversalState {
 
         journeyState.recordTramDetails(time, getTotalCost());
 
-        MinuteState.Builder builder = new MinuteState.Builder();
-        if (maybeExistingTrip.isOnTrip()) {
-            String existingTripId = maybeExistingTrip.getTripId();
-            return builder.fromHourOnTrip(this, existingTripId, node, cost);
-        } else {
-            // starting a brand new journey
-            return builder.fromHour(this, node, cost);
-        }
+        return minuteStateBuilder.fromHour(this, node, cost, maybeExistingTrip);
     }
-
 
     @Override
     public String toString() {

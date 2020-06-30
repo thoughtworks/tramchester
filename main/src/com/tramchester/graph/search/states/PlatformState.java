@@ -44,11 +44,13 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final long platformNodeId;
     private final TramStationState.Builder tramStationStateBuilder;
+    private final RouteStationState.Builder routeStationStateBuilder;
 
     private PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId, int cost) {
         super(parent, relationships, cost);
         this.platformNodeId = platformNodeId;
         tramStationStateBuilder = new TramStationState.Builder();
+        routeStationStateBuilder = new RouteStationState.Builder(sortsPositions, destinationStationIds);
     }
 
     @Override
@@ -79,9 +81,9 @@ public class PlatformState extends TraversalState implements NodeId {
             } catch (TramchesterException e) {
                 throw new RuntimeException("unable to board tram", e);
             }
-            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), this);
-            node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
-            return new RouteStationState(this, outbounds, nodeId, cost, true);
+
+            return routeStationStateBuilder.fromPlatformState(this, node, cost);
+
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

@@ -1,12 +1,15 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+
+import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -20,12 +23,59 @@ public class RouteStationState extends TraversalState implements NodeId {
     private final ServiceState.Builder serviceStateBuilder;
     private final PlatformState.Builder platformStateBuilder;
 
-    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId,
+    public static class Builder {
+        private final SortsPositions sortsPositions;
+        private final List<String> destinationStationIds;
+
+        public Builder(SortsPositions sortsPositions, List<String> destinationStationIds) {
+            this.sortsPositions = sortsPositions;
+            this.destinationStationIds = destinationStationIds;
+        }
+
+        public RouteStationState fromPlatformState(PlatformState platformState, Node node, int cost) {
+            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformState);
+            node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
+            return new RouteStationState(platformState, outbounds, node.getId(), cost, true);
+        }
+
+        public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
+            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
+                    DEPART, INTERCHANGE_DEPART), busStationState);
+
+            outbounds.addAll(orderSvcRelationships(node));
+
+            return new RouteStationState(busStationState, outbounds, node.getId(), cost, true);
+        }
+
+        public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Relationship toDest, String tripId) {
+            return new RouteStationState(minuteState, Collections.singleton(toDest), node.getId(), tripId, cost);
+        }
+
+        public RouteStationState fromMinuteState(MinuteState minuteState, Node node, int cost, List<Relationship> routeStationOutbound) {
+            return new RouteStationState(minuteState, routeStationOutbound, node.getId(), cost, false);
+        }
+
+        public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, List<Relationship> routeStationOutbound, String tripId) {
+            return new RouteStationState(minuteState, routeStationOutbound, node.getId(), tripId, cost);
+        }
+
+        private Collection<Relationship> orderSvcRelationships(Node node) {
+            Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
+
+            List<SortsPositions.HasStationId<Relationship>> relationships = new ArrayList<>();
+            toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
+
+            return sortsPositions.sortedByNearTo(destinationStationIds, relationships);
+        }
+
+    }
+
+    private RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId,
                              int cost, boolean justBoarded) {
         this(parent, relationships, cost, routeStationNodeId, ExistingTrip.none(), justBoarded);
     }
 
-    public RouteStationState(TraversalState parent, Iterable<Relationship> relationships,
+    private RouteStationState(TraversalState parent, Iterable<Relationship> relationships,
                              long routeStationNodeId, String tripId, int cost) {
         this(parent, relationships, cost, routeStationNodeId, ExistingTrip.onTrip(tripId), false);
     }
@@ -121,5 +171,24 @@ public class RouteStationState extends TraversalState implements NodeId {
     @Override
     public long nodeId() {
         return routeStationNodeId;
+    }
+
+
+    private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
+        private final Relationship relationship;
+
+        private RelationshipFacade(Relationship relationship) {
+            this.relationship = relationship;
+        }
+
+        @Override
+        public String getStationId() {
+            return relationship.getProperty(GraphStaticKeys.TOWARDS_STATION_ID).toString();
+        }
+
+        @Override
+        public Relationship getContained() {
+            return relationship;
+        }
     }
 }
