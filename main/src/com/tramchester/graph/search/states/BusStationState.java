@@ -44,13 +44,13 @@ public class BusStationState extends TraversalState implements NodeId {
 
     private final long stationNodeId;
     private final WalkingState.Builder walkingStateBuilder;
-    private final RouteStationState.Builder routeStationStateBuilder;
+    private final RouteStationStateJustBoarded.Builder routeStationStateBuilder;
 
     private BusStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
         walkingStateBuilder = new WalkingState.Builder();
-        routeStationStateBuilder = new RouteStationState.Builder(sortsPositions, destinationStationIds);
+        routeStationStateBuilder = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
     }
 
     @Override

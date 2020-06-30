@@ -17,6 +17,11 @@ public class ServiceState extends TraversalState {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
             return new ServiceState(routeStationState, serviceRelationships, maybeExistingTrip, cost);
         }
+
+        public TraversalState fromRouteStation(RouteStationStateJustBoarded justBoarded, Node node, int cost) {
+            Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
+            return new ServiceState(justBoarded, serviceRelationships, ExistingTrip.none(), cost);
+        }
     }
 
     private final ExistingTrip maybeExistingTrip;

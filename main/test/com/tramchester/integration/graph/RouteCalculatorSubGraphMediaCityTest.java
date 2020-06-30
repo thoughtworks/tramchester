@@ -127,10 +127,10 @@ class RouteCalculatorSubGraphMediaCityTest {
         Assertions.assertTrue(results.size()>0);
     }
 
-    @Disabled
+    //@Disabled
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(database, 5);
+        DiagramCreator creator = new DiagramCreator(database, 3);
         List<String> toDraw = new ArrayList<>();
         toDraw.add(Stations.MediaCityUK.getId());
 

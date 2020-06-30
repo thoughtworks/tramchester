@@ -44,13 +44,13 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final long platformNodeId;
     private final TramStationState.Builder tramStationStateBuilder;
-    private final RouteStationState.Builder routeStationStateBuilder;
+    private final RouteStationStateJustBoarded.Builder routeStationStateBuilder;
 
     private PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId, int cost) {
         super(parent, relationships, cost);
         this.platformNodeId = platformNodeId;
         tramStationStateBuilder = new TramStationState.Builder();
-        routeStationStateBuilder = new RouteStationState.Builder(sortsPositions, destinationStationIds);
+        routeStationStateBuilder = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
     }
 
     @Override
@@ -70,9 +70,9 @@ public class PlatformState extends TraversalState implements NodeId {
         if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
             if (nodeId == destinationNodeId) {
                 return new DestinationState(this, cost);
+            } else {
+                return tramStationStateBuilder.fromPlatform(this, node, cost);
             }
-            return tramStationStateBuilder.fromPlatform(this, node, cost);
-
         }
 
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {

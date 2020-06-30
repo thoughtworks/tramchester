@@ -42,7 +42,7 @@ public class MinuteState extends TraversalState {
     private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
         super(parent, relationships, cost);
         this.tripId = tripId;
-        routeStationStateBuilder = new RouteStationState.Builder(sortsPositions, destinationStationIds);
+        routeStationStateBuilder = new RouteStationState.Builder();
     }
 
     @Override
