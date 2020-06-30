@@ -48,7 +48,7 @@ public class TramStationState extends TraversalState {
         long nodeId = node.getId();
         if (nodeId == destinationNodeId) {
             // TODO Cost of platform depart?
-            return new DestinationState(this, cost);
+            return builders.destination.from(this, cost);
         }
 
         if (nodeLabel == GraphBuilder.Labels.PLATFORM) {

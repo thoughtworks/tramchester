@@ -15,7 +15,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class RouteStationState extends TraversalState implements NodeId {
+public class RouteStationStateOnTrip extends TraversalState implements NodeId {
     private final long routeStationNodeId;
     private final String tripId;
     private final boolean busesEnabled;
@@ -30,12 +30,12 @@ public class RouteStationState extends TraversalState implements NodeId {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
                                               String tripId) {
-            return new RouteStationState(minuteState, routeStationOutbound, cost, node.getId(), tripId, config.getBus());
+            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId, config.getBus());
         }
     }
 
-    private RouteStationState(TraversalState parent, Iterable<Relationship> relationships, int cost,
-                              long routeStationNodeId, String tripId, boolean busesEnabled) {
+    private RouteStationStateOnTrip(TraversalState parent, Iterable<Relationship> relationships, int cost,
+                                    long routeStationNodeId, String tripId, boolean busesEnabled) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.tripId = tripId;
@@ -79,7 +79,7 @@ public class RouteStationState extends TraversalState implements NodeId {
         // if bus station then may have arrived
         long busStationNodeId = busStationNode.getId();
         if (busStationNodeId == destinationNodeId) {
-            return new DestinationState(this, cost);
+            return builders.destination.from(this, cost);
         }
 
         return builders.busStation.fromRouteStation(this, busStationNode, cost);

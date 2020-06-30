@@ -72,7 +72,7 @@ public class RouteStationStateEndTrip extends TraversalState {
         // if bus station then may have arrived
         long busStationNodeId = busStationNode.getId();
         if (busStationNodeId == destinationNodeId) {
-            return new DestinationState(this, cost);
+            return builders.destination.from(this, cost);
         }
 
         return builders.busStation.fromRouteStation(this, busStationNode, cost);

@@ -22,20 +22,20 @@ public class PlatformState extends TraversalState implements NodeId {
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
         }
 
-        public TraversalState fromRouteStationTowardsDest(RouteStationState routeStationState, Relationship relationship, Node platformNode, int cost) {
-            return new PlatformState(routeStationState, Collections.singleton(relationship), platformNode.getId(), cost);
+        public TraversalState fromRouteStationTowardsDest(RouteStationStateOnTrip routeStationStateOnTrip, Relationship relationship, Node platformNode, int cost) {
+            return new PlatformState(routeStationStateOnTrip, Collections.singleton(relationship), platformNode.getId(), cost);
         }
 
         public TraversalState fromRouteStationTowardsDest(RouteStationStateEndTrip endTrip, Relationship relationship, Node platformNode, int cost) {
             return new PlatformState(endTrip, Collections.singleton(relationship), platformNode.getId(), cost);
         }
 
-        public TraversalState fromRouteStationOnTrip(RouteStationState routeStationState, Node node, int cost) {
+        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, int cost) {
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationState);
-            return new PlatformState(routeStationState, filterExcludingEndNode, node.getId(), cost);
+            List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
+            return new PlatformState(routeStationStateOnTrip, filterExcludingEndNode, node.getId(), cost);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
@@ -67,7 +67,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
         if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
             if (nodeId == destinationNodeId) {
-                return new DestinationState(this, cost);
+                return builders.destination.from(this, cost);
             } else {
                 return builders.tramStation.fromPlatform(this, node, cost);
             }

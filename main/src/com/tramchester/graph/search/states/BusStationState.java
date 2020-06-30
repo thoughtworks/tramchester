@@ -22,22 +22,22 @@ public class BusStationState extends TraversalState implements NodeId {
         }
 
         public BusStationState from(NotStartedState notStartedState, Node node, int cost) {
-            return new BusStationState(notStartedState, node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM), cost,
-                    node.getId());
+            return new BusStationState(notStartedState, getAll(node), cost, node.getId());
         }
 
-        public TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
-            List<Relationship> stationRelationships = filterExcludingEndNode(
-                    node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM), routeStationState);
-
+        public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            return new BusStationState(routeStationState, stationRelationships, cost, node.getId());
+            List<Relationship> stationRelationships = filterExcludingEndNode(getAll(node), onTrip);
+            return new BusStationState(onTrip, stationRelationships, cost, node.getId());
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
             // end of a trip, may need to go back to this route station to catch new service
-            return new BusStationState(routeStationState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM),
-                    cost, node.getId());
+            return new BusStationState(routeStationState, getAll(node), cost, node.getId());
+        }
+
+        private Iterable<Relationship> getAll(Node node) {
+            return node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM);
         }
 
     }
@@ -54,15 +54,17 @@ public class BusStationState extends TraversalState implements NodeId {
         long nodeId = node.getId();
         if (nodeId == destinationNodeId) {
             // TODO Cost of bus depart?
-            return new DestinationState(this, cost);
+            return builders.destination.from(this, cost);
         }
 
         if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
             return builders.walking.fromBusStation(this, node, cost);
         }
+
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             return toRouteStation(node, journeyState, cost);
         }
+
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
 
     }

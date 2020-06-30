@@ -114,7 +114,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     public static class Builders {
 
-        protected final RouteStationState.Builder routeStation;
+        protected final RouteStationStateOnTrip.Builder routeStation;
         protected final RouteStationStateEndTrip.Builder routeStationEndTrip;
         protected final RouteStationStateJustBoarded.Builder routeStationJustBoarded;
         protected final BusStationState.Builder busStation;
@@ -124,9 +124,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         protected final WalkingState.Builder walking;
         protected final MinuteState.Builder minute;
         protected final HourState.Builder hour;
+        protected final DestinationState.Builder destination;
 
         public Builders(SortsPositions sortsPositions, List<String> destinationStationIds, TramchesterConfig config) {
-            routeStation = new RouteStationState.Builder(config);
+            routeStation = new RouteStationStateOnTrip.Builder(config);
             routeStationEndTrip = new RouteStationStateEndTrip.Builder(config);
             routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
             busStation = new BusStationState.Builder();
@@ -136,6 +137,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             minute = new MinuteState.Builder(config);
             tramStation = new TramStationState.Builder();
             hour = new HourState.Builder();
+            destination = new DestinationState.Builder();
         }
     }
 

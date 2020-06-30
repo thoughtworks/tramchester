@@ -39,7 +39,7 @@ public class WalkingState extends TraversalState {
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         // could be we've walked to our destination
         if (node.getId()==destinationNodeId) {
-            return new DestinationState(this, cost);
+            return builders.destination.from(this, cost);
         }
 
         if (GraphBuilder.Labels.TRAM_STATION==nodeLabel)   {
