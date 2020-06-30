@@ -28,9 +28,6 @@ public class DestinationState extends TraversalState
 
     @Override
     public String toString() {
-        return "DestinationState{" +
-                "destinationNodeId=" + destinationNodeId +
-                ", parent=" + parent +
-                '}';
+        return "DestinationState{} " + super.toString();
     }
 }

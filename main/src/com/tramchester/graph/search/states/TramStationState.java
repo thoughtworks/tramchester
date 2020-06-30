@@ -28,25 +28,18 @@ public class TramStationState extends TraversalState {
         }
     }
 
-    private final WalkingState.Builder walkingStateBuilder;
-    private final PlatformState.Builder platformStateBuilder;
-
     private final long stationNodeId;
 
     private TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
-        walkingStateBuilder = new WalkingState.Builder();
-        platformStateBuilder = new PlatformState.Builder();
     }
 
     @Override
     public String toString() {
         return "TramStationState{" +
                 "stationNodeId=" + stationNodeId +
-                ", cost=" + super.getCurrentCost() +
-                ", parent=" + parent +
-                '}';
+                "} " + super.toString();
     }
 
     @Override
@@ -59,11 +52,11 @@ public class TramStationState extends TraversalState {
         }
 
         if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
-            return platformStateBuilder.from(this, node, cost);
+            return builders.platform.from(this, node, cost);
 
         }
         if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
-            return walkingStateBuilder.fromTramStation(this, node, cost);
+            return builders.walking.fromTramStation(this, node, cost);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

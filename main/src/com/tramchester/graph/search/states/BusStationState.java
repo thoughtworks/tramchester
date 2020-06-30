@@ -43,12 +43,10 @@ public class BusStationState extends TraversalState implements NodeId {
     }
 
     private final long stationNodeId;
-    private final WalkingState.Builder walkingStateBuilder;
 
     private BusStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
-        walkingStateBuilder = new WalkingState.Builder();
     }
 
     @Override
@@ -60,7 +58,7 @@ public class BusStationState extends TraversalState implements NodeId {
         }
 
         if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
-            return walkingStateBuilder.fromBusStation(this, node, cost);
+            return builders.walking.fromBusStation(this, node, cost);
         }
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             return toRouteStation(node, journeyState, cost);
@@ -77,16 +75,14 @@ public class BusStationState extends TraversalState implements NodeId {
             throw new RuntimeException("unable to board bus", e);
         }
 
-        return routeStationStateBuilder.fromBusStation(this, node, cost);
+        return builders.routeStationJustBoarded.fromBusStation(this, node, cost);
     }
 
     @Override
     public String toString() {
         return "BusStationState{" +
                 "stationNodeId=" + stationNodeId +
-                ", cost=" + super.getCurrentCost() +
-                ", parent=" + parent +
-                '}';
+                "} " + super.toString();
     }
 
     @Override

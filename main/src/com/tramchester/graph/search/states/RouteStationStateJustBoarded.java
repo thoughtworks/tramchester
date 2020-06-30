@@ -50,11 +50,13 @@ public class RouteStationStateJustBoarded extends TraversalState {
         }
     }
 
-    private final ServiceState.Builder serviceStateBuilder;
+    @Override
+    public String toString() {
+        return "RouteStationStateJustBoarded{} " + super.toString();
+    }
 
     private RouteStationStateJustBoarded(TraversalState traversalState, List<Relationship> outbounds, int cost) {
         super(traversalState, outbounds, cost);
-        serviceStateBuilder = new ServiceState.Builder();
     }
 
     @Override
@@ -62,7 +64,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
                                           JourneyState journeyState, int cost) {
 
         if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return serviceStateBuilder.fromRouteStation(this, nextNode, cost);
+            return builders.service.fromRouteStation(this, nextNode, cost);
         }
 
         // if one to one relationship between platforms and route stations, or bus stations and route stations,

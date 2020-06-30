@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -16,21 +17,31 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateEndTrip extends TraversalState {
 
+    private final boolean busesEnabled;
+
+    @Override
+    public String toString() {
+        return "RouteStationStateEndTrip{" +
+                "busesEnabled=" + busesEnabled +
+                "} " + super.toString();
+    }
+
     public static class Builder {
+        private final TramchesterConfig config;
+
+        public Builder(TramchesterConfig config) {
+            this.config = config;
+        }
+
         public TraversalState fromMinuteState(MinuteState minuteState, int cost, List<Relationship> routeStationOutbound) {
-            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost);
+            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, config.getBus());
         }
     }
 
-    private final BusStationState.Builder busStationStateBuilder;
-    private final ServiceState.Builder serviceStateBuilder;
-    private final PlatformState.Builder platformStateBuilder;
 
-    private RouteStationStateEndTrip(MinuteState minuteState, List<Relationship> routeStationOutbound, int cost) {
+    private RouteStationStateEndTrip(MinuteState minuteState, List<Relationship> routeStationOutbound, int cost, boolean busesEnabled) {
         super(minuteState, routeStationOutbound, cost);
-        busStationStateBuilder = new BusStationState.Builder();
-        serviceStateBuilder = new ServiceState.Builder();
-        platformStateBuilder = new PlatformState.Builder();
+        this.busesEnabled = busesEnabled;
     }
 
     @Override
@@ -41,9 +52,9 @@ public class RouteStationStateEndTrip extends TraversalState {
         }
 
         if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return serviceStateBuilder.fromRouteStation(this, nextNode, cost);
+            return builders.service.fromRouteStation(this, nextNode, cost);
         }
-        if (config.getBus() && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
+        if (busesEnabled && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
             return toBusStation(nextNode, journeyState, cost);
         }
 
@@ -64,7 +75,7 @@ public class RouteStationStateEndTrip extends TraversalState {
             return new DestinationState(this, cost);
         }
 
-        return busStationStateBuilder.fromRouteStation(this, busStationNode, cost);
+        return builders.busStation.fromRouteStation(this, busStationNode, cost);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
@@ -80,12 +91,12 @@ public class RouteStationStateEndTrip extends TraversalState {
         if (destinationStationIds.size()==1) {
             for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
                 if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                    return platformStateBuilder.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
+                    return builders.platform.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
                 }
             }
         }
 
-        return platformStateBuilder.fromRouteStation(this, platformNode, cost);
+        return builders.platform.fromRouteStation(this, platformNode, cost);
 
     }
 }

@@ -18,15 +18,13 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
-    protected final TramchesterConfig config;
+    private TraversalState child;
+    private final TraversalState parent;
+
     protected final NodeContentsRepository nodeOperations;
     protected final long destinationNodeId;
-    protected final TraversalState parent;
     protected final List<String> destinationStationIds;
-    protected final RouteStationStateJustBoarded.Builder routeStationStateBuilder;
-
-
-    private TraversalState child;
+    protected final Builders builders;
 
     @Override
     public int hashCode() {
@@ -34,26 +32,26 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     // initial only
-    protected TraversalState(SortsPositions sortsPositions, TraversalState parent, NodeContentsRepository nodeOperations,
-                             Iterable<Relationship> outbounds, long destinationNodeId, List<String> destinationStationdId,
-                             int costForLastEdge, TramchesterConfig config) {
-        this.parent = parent;
+    protected TraversalState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
+                             long destinationNodeId, List<String> destinationStationdIds,
+                             TramchesterConfig config) {
         this.nodeOperations = nodeOperations;
-        this.outbounds = outbounds;
         this.destinationNodeId = destinationNodeId;
-        this.destinationStationIds = destinationStationdId;
-        this.costForLastEdge = costForLastEdge;
-        this.config = config;
-        parentCost = 0;
-        this.routeStationStateBuilder = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
+        this.destinationStationIds = destinationStationdIds;
+
+        this.costForLastEdge = 0;
+        this.parentCost = 0;
+        this.parent = null;
+        this.outbounds = new ArrayList<>();
+
+        this.builders = new Builders(sortsPositions, destinationStationIds, config);
     }
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeId = parent.destinationNodeId;
         this.destinationStationIds = parent.destinationStationIds;
-        this.config = parent.config;
-        this.routeStationStateBuilder = parent.routeStationStateBuilder;
+        this.builders = parent.builders;
 
         this.parent = parent;
         this.outbounds = outbounds;
@@ -101,8 +99,44 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         return parentCost + getCurrentCost();
     }
 
-    protected int getCurrentCost() {
+    private int getCurrentCost() {
         return costForLastEdge;
+    }
+
+    @Override
+    public String toString() {
+        return "TraversalState{" +
+                "costForLastEdge=" + costForLastEdge +
+                ", parentCost=" + parentCost +
+                ", parent=" + parent +
+                '}';
+    }
+
+    public static class Builders {
+
+        protected final RouteStationState.Builder routeStation;
+        protected final RouteStationStateEndTrip.Builder routeStationEndTrip;
+        protected final RouteStationStateJustBoarded.Builder routeStationJustBoarded;
+        protected final BusStationState.Builder busStation;
+        protected final TramStationState.Builder tramStation;
+        protected final ServiceState.Builder service;
+        protected final PlatformState.Builder platform;
+        protected final WalkingState.Builder walking;
+        protected final MinuteState.Builder minute;
+        protected final HourState.Builder hour;
+
+        public Builders(SortsPositions sortsPositions, List<String> destinationStationIds, TramchesterConfig config) {
+            routeStation = new RouteStationState.Builder(config);
+            routeStationEndTrip = new RouteStationStateEndTrip.Builder(config);
+            routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
+            busStation = new BusStationState.Builder();
+            service = new ServiceState.Builder();
+            platform = new PlatformState.Builder();
+            walking = new WalkingState.Builder();
+            minute = new MinuteState.Builder(config);
+            tramStation = new TramStationState.Builder();
+            hour = new HourState.Builder();
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -17,36 +18,37 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class RouteStationState extends TraversalState implements NodeId {
     private final long routeStationNodeId;
     private final String tripId;
-    private final BusStationState.Builder busStationStateBuilder;
-    private final ServiceState.Builder serviceStateBuilder;
-    private final PlatformState.Builder platformStateBuilder;
+    private final boolean busesEnabled;
 
     public static class Builder {
 
+        private final TramchesterConfig config;
+
+        public Builder(TramchesterConfig config) {
+            this.config = config;
+        }
+
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
                                               String tripId) {
-            return new RouteStationState(minuteState, routeStationOutbound, cost, node.getId(), tripId);
+            return new RouteStationState(minuteState, routeStationOutbound, cost, node.getId(), tripId, config.getBus());
         }
     }
 
     private RouteStationState(TraversalState parent, Iterable<Relationship> relationships, int cost,
-                              long routeStationNodeId, String tripId) {
+                              long routeStationNodeId, String tripId, boolean busesEnabled) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.tripId = tripId;
-        busStationStateBuilder = new BusStationState.Builder();
-        serviceStateBuilder = new ServiceState.Builder();
-        platformStateBuilder = new PlatformState.Builder();
+        this.busesEnabled = busesEnabled;
     }
 
     @Override
     public String toString() {
         return "RouteStationState{" +
                 "routeStationNodeId=" + routeStationNodeId +
-                ", cost=" + super.getCurrentCost() +
                 ", tripId='" + tripId + '\'' +
-                ", parent=" + parent +
-                '}';
+                ", busesEnabled=" + busesEnabled +
+                "} " + super.toString();
     }
 
     @Override
@@ -57,9 +59,9 @@ public class RouteStationState extends TraversalState implements NodeId {
         }
 
         if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return serviceStateBuilder.fromRouteStation(this, tripId, nextNode, cost);
+            return builders.service.fromRouteStation(this, tripId, nextNode, cost);
         }
-        if (config.getBus() && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
+        if (busesEnabled && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
             return toBusStation(nextNode, journeyState, cost);
         }
 
@@ -80,7 +82,7 @@ public class RouteStationState extends TraversalState implements NodeId {
             return new DestinationState(this, cost);
         }
 
-        return busStationStateBuilder.fromRouteStation(this, busStationNode, cost);
+        return builders.busStation.fromRouteStation(this, busStationNode, cost);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
@@ -92,12 +94,12 @@ public class RouteStationState extends TraversalState implements NodeId {
             if (destinationStationIds.size()==1) {
                 for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
                     if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                        return platformStateBuilder.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
+                        return builders.platform.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
                     }
                 }
             }
 
-            return platformStateBuilder.fromRouteStationOnTrip(this, platformNode, cost);
+            return builders.platform.fromRouteStationOnTrip(this, platformNode, cost);
 
         }
         catch (TramchesterException exception) {

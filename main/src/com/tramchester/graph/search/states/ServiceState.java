@@ -30,12 +30,10 @@ public class ServiceState extends TraversalState {
     }
 
     private final ExistingTrip maybeExistingTrip;
-    private final HourState.Builder builder;
 
     private ServiceState(TraversalState parent, Iterable<Relationship> relationships, ExistingTrip maybeExistingTrip,
                          int cost) {
         super(parent, relationships, cost);
-        builder = new HourState.Builder();
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
@@ -43,14 +41,13 @@ public class ServiceState extends TraversalState {
     public String toString() {
         return "ServiceState{" +
                 "maybeExistingTrip=" + maybeExistingTrip +
-                ", parent=" + parent +
-                '}';
+                "} " + super.toString();
     }
 
     @Override
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == GraphBuilder.Labels.HOUR) {
-            return builder.FromService(this, node, cost, maybeExistingTrip);
+            return builders.hour.FromService(this, node, cost, maybeExistingTrip);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }

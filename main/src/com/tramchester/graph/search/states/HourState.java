@@ -14,22 +14,18 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class HourState extends TraversalState {
 
     public static class Builder {
-
         public TraversalState FromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost);
         }
-
     }
 
     private final ExistingTrip maybeExistingTrip;
-    private final MinuteState.Builder minuteStateBuilder;
 
     private HourState(TraversalState parent, Iterable<Relationship> relationships,
                       ExistingTrip maybeExistingTrip, int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
-        minuteStateBuilder = new MinuteState.Builder();
     }
 
     @Override
@@ -49,14 +45,13 @@ public class HourState extends TraversalState {
 
         journeyState.recordTramDetails(time, getTotalCost());
 
-        return minuteStateBuilder.fromHour(this, node, cost, maybeExistingTrip);
+        return builders.minute.fromHour(this, node, cost, maybeExistingTrip);
     }
 
     @Override
     public String toString() {
         return "HourState{" +
                 "maybeExistingTrip=" + maybeExistingTrip +
-                ", parent=" + parent +
-                '}';
+                "} " + super.toString();
     }
 }

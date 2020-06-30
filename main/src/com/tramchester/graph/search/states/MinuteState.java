@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.GraphStaticKeys;
@@ -18,7 +19,15 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
 
+    private final boolean interchangesOnly;
+
     public static class Builder {
+
+        private final TramchesterConfig config;
+
+        public Builder(TramchesterConfig config) {
+            this.config = config;
+        }
 
         public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
@@ -27,32 +36,29 @@ public class MinuteState extends TraversalState {
                 String existingTripId = maybeExistingTrip.getTripId();
                 Iterable<Relationship> filterBySingleTripId = filterBySingleTripId(hourState.nodeOperations,
                         relationships, existingTripId);
-                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost);
+                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, config.getChangeAtInterchangeOnly());
             } else {
                 // starting a brand new journey
                 String newTripId = getTrip(node);
-                return new MinuteState(hourState, relationships, newTripId, cost);
+                return new MinuteState(hourState, relationships, newTripId, cost, config.getChangeAtInterchangeOnly());
             }
         }
     }
 
     private final String tripId;
-    private final RouteStationState.Builder routeStationStateBuilder;
-    private final RouteStationStateEndTrip.Builder routeStationStateEndTripBuilder;
 
-    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
+    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost, boolean interchangesOnly) {
         super(parent, relationships, cost);
         this.tripId = tripId;
-        routeStationStateBuilder = new RouteStationState.Builder();
-        routeStationStateEndTripBuilder = new RouteStationStateEndTrip.Builder();
+        this.interchangesOnly = interchangesOnly;
     }
 
     @Override
     public String toString() {
         return "MinuteState{" +
-                "tripId='" + tripId + '\'' +
-                ", parent=" + parent +
-                '}';
+                "interchangesOnly=" + interchangesOnly +
+                ", tripId='" + tripId + '\'' +
+                "} " + super.toString();
     }
 
     private static String getTrip(Node endNode) {
@@ -77,8 +83,7 @@ public class MinuteState extends TraversalState {
         for (Relationship depart : allDeparts) {
             if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
                 // we've arrived
-                return routeStationStateBuilder.fromMinuteState(this, node, cost,
-                        Collections.singleton(depart), tripId);
+                return builders.routeStation.fromMinuteState(this, node, cost, Collections.singleton(depart), tripId);
             }
         }
 
@@ -86,7 +91,7 @@ public class MinuteState extends TraversalState {
         boolean tripFinishedHere = routeStationOutbound.isEmpty();
 
         // add outgoing to platforms
-        if (config.getChangeAtInterchangeOnly()) {
+        if (interchangesOnly) {
             Iterable<Relationship> interchanges = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
             interchanges.forEach(routeStationOutbound::add);
         } else {
@@ -95,9 +100,9 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // service finished here so don't pass in trip ID
-            return routeStationStateEndTripBuilder.fromMinuteState(this, cost, routeStationOutbound);
+            return builders.routeStationEndTrip.fromMinuteState(this, cost, routeStationOutbound);
         } else {
-            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, tripId);
+            return builders.routeStation.fromMinuteState(this, node, cost, routeStationOutbound, tripId);
         }
     }
 
