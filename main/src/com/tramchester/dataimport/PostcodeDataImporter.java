@@ -111,7 +111,7 @@ public class PostcodeDataImporter {
         Double range = config.getNearestStopRangeKM();
         StationLocations.GridPosition gridPosition = new StationLocations.GridPosition(postcodeData.getEastings(),
                 postcodeData.getNorthings());
-        return !stationLocations.nearestStations(gridPosition,1, range).isEmpty();
+        return !stationLocations.nearestStationsSorted(gridPosition,1, range).isEmpty();
     }
 
     private Stream<PostcodeData> filterDataByBoundedBox(Stream<PostcodeData> stream) {

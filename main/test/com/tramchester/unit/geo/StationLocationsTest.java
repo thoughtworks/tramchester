@@ -84,7 +84,7 @@ class StationLocationsTest {
         long distance = gridA.distanceTo(gridB);
         assertTrue(distance > Math.round(rangeInKM*1000) );
 
-        List<Station> results = stationLocations.nearestStations(place, 3, rangeInKM);
+        List<Station> results = stationLocations.nearestStationsSorted(place, 3, rangeInKM);
 
         assertEquals(1, results.size());
         assertEquals(stationA, results.get(0));
@@ -100,7 +100,7 @@ class StationLocationsTest {
         stationLocations.addStation(stationB);
         stationLocations.addStation(stationC);
 
-        List<Station> results = stationLocations.nearestStations(TestEnv.nearAltrincham, 3, 20);
+        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 3, 20);
         assertEquals(3, results.size());
         assertEquals(stationA, results.get(0));
         assertEquals(stationB, results.get(1));
@@ -117,7 +117,7 @@ class StationLocationsTest {
         stationLocations.addStation(stationB);
         stationLocations.addStation(stationC);
 
-        List<Station> results = stationLocations.nearestStations(TestEnv.nearAltrincham, 1, 20);
+        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 1, 20);
         assertEquals(1, results.size());
         assertEquals(stationA, results.get(0));
     }
@@ -127,10 +127,10 @@ class StationLocationsTest {
         Station testStation = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
         stationLocations.addStation(testStation);
 
-        List<Station> results = stationLocations.nearestStations(TestEnv.nearPiccGardens, 3, 1);
+        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 1);
         assertEquals(0, results.size());
 
-        List<Station> further = stationLocations.nearestStations(TestEnv.nearPiccGardens, 3, 20);
+        List<Station> further = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 20);
         assertEquals(1, further.size());
         assertEquals(testStation, further.get(0));
     }

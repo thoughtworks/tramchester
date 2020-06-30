@@ -10,8 +10,21 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
-    public WalkingState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
+
+    private WalkingState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
         super(parent, relationships, cost);
+    }
+
+    public static TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
+        return new WalkingState(busStationState, node.getRelationships(OUTGOING), cost);
+    }
+
+    public static TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
+        return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
+    }
+
+    public static TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
+        return new WalkingState(tramStationState, node.getRelationships(OUTGOING), cost);
     }
 
     @Override
@@ -30,10 +43,10 @@ public class WalkingState extends TraversalState {
         }
 
         if (GraphBuilder.Labels.TRAM_STATION==nodeLabel)   {
-            return new TramStationState(this, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+            return TramStationState.fromWalking(this, node, cost);
         }
         if (GraphBuilder.Labels.BUS_STATION==nodeLabel) {
-            return new BusStationState(this, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD), cost, node.getId());
+            return BusStationState.fromWalking(this, node, cost);
         }
 
         throw new RuntimeException("Unexpected node type: " + nodeLabel);

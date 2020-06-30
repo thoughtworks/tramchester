@@ -8,23 +8,22 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
-import static com.tramchester.graph.TransportRelationshipTypes.BUS_GOES_TO;
-import static com.tramchester.graph.TransportRelationshipTypes.TRAM_GOES_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
-//    private static final Logger logger = LoggerFactory.getLogger(HourState.class);
 
     private final ExistingTrip maybeExistingTrip;
 
-    public HourState(TraversalState parent, Iterable<Relationship> relationships,
-                     ExistingTrip maybeExistingTrip, int cost) {
+    private HourState(TraversalState parent, Iterable<Relationship> relationships,
+                      ExistingTrip maybeExistingTrip, int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
+    }
+
+    public static TraversalState FromService(ServiceState serviceState, ExistingTrip maybeExistingTrip, Node node, int cost) {
+        Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
+        return new HourState(serviceState, relationships, maybeExistingTrip, cost);
     }
 
     @Override
@@ -42,39 +41,17 @@ public class HourState extends TraversalState {
     private TraversalState toMinute(Node node, JourneyState journeyState, int cost) throws TramchesterException {
         TramTime time = nodeOperations.getTime(node);
 
+        journeyState.recordTramDetails(time, getTotalCost());
+
         if (maybeExistingTrip.isOnTrip()) {
-            // continuing an existing trip
             String existingTripId = maybeExistingTrip.getTripId();
-            journeyState.recordTramDetails(time, getTotalCost());
-            Iterable<Relationship> relationships = filterBySingleTripId(node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO),
-                    existingTripId);
-            return new MinuteState(this, relationships, existingTripId, cost);
+            return MinuteState.fromHourOnTrip(this, existingTripId, node, cost);
         } else {
             // starting a brand new journey
-            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
-            String tripId = getTrip(node);
-            journeyState.recordTramDetails(time, getTotalCost());
-            return new MinuteState(this, relationships, tripId, cost);
+            return MinuteState.fromHour(this, node, cost);
         }
     }
 
-    private String getTrip(Node endNode) {
-        if (!endNode.hasProperty(TRIP_ID)) {
-            return "";
-        }
-        return endNode.getProperty(TRIP_ID).toString().intern();
-    }
-
-    private List<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, String tripId) {
-        List<Relationship> results = new ArrayList<>();
-        relationships.forEach(relationship -> {
-            String trip = nodeOperations.getTrip(relationship);
-            if (trip.equals(tripId)) {
-                results.add(relationship);
-            }
-        });
-        return results;
-    }
 
     @Override
     public String toString() {

@@ -8,9 +8,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.Collections;
-import java.util.List;
-
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -55,7 +52,8 @@ public class RouteStationState extends TraversalState {
         }
 
         if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return toService(nextNode, cost);
+            return ServiceState.fromRouteStation(this, maybeExistingTrip, nextNode, cost);
+
         }
         if (config.getBus() && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
             return toBusStation(nextNode, journeyState, cost);
@@ -78,46 +76,34 @@ public class RouteStationState extends TraversalState {
             return new DestinationState(this, cost);
         }
 
-        List<Relationship> stationRelationships = filterExcludingEndNode(busStationNode.getRelationships(OUTGOING, BOARD,
-                INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
         if (maybeExistingTrip.isOnTrip() || justBoarded) {
-            // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            List<Relationship> filterExcludingEndNode = filterExcludingEndNode(stationRelationships, routeStationNodeId);
-            //return new PlatformState(this, filterExcludingEndNode, platformNode.getId(), cost);
-            return new BusStationState(this, filterExcludingEndNode, cost, busStationNodeId);
+            return BusStationState.fromRouteStationOnTrip(this, routeStationNodeId, busStationNode, cost);
         } else {
-            // end of a trip, may need to go back to this route station to catch new service
-            return new BusStationState(this, stationRelationships, cost, busStationNodeId);
-        }
-    }
+            return BusStationState.fromRouteStation(this, busStationNode, cost);
 
-    private TraversalState toService(Node serviceNode, int cost) {
-        Iterable<Relationship> serviceRelationships = serviceNode.getRelationships(OUTGOING, TO_HOUR);
-        return new ServiceState(this, serviceRelationships, maybeExistingTrip, cost);
+        }
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
         try {
             journeyState.leaveTram(getTotalCost());
 
+            // TODO Push into PlatformState
             // if towards ONE destination just return that one relationship
             if (destinationStationIds.size()==1) {
                 for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
                     if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                        return new PlatformState(this, Collections.singleton(relationship), routeStationNodeId, cost);
+                        return PlatformState.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
                     }
                 }
             }
-            Iterable<Relationship> platformRelationships = platformNode.getRelationships(OUTGOING,
-                    BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
             if (maybeExistingTrip.isOnTrip() || justBoarded) {
-                // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-                List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationNodeId);
-                return new PlatformState(this, filterExcludingEndNode, platformNode.getId(), cost);
+                return PlatformState.fromRouteStationOnTrip(this, routeStationNodeId, platformNode, cost);
+
             } else {
-                // end of a trip, may need to go back to this route station to catch new service
-                return new PlatformState(this, platformRelationships, platformNode.getId(), cost);
+                return PlatformState.fromRouteStation(this, platformNode, cost);
+
             }
         }
         catch (TramchesterException exception) {

@@ -6,16 +6,30 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import static com.tramchester.graph.TransportRelationshipTypes.BOARD;
-import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_BOARD;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class TramStationState extends TraversalState {
     private final long stationNodeId;
 
-    public TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
+    private TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
+    }
+
+    public static TraversalState fromWalking(WalkingState walkingState, Node node, int cost) {
+        return new TramStationState(walkingState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+    }
+
+    public static TraversalState fromPlatform(PlatformState platformState, long platformNodeId, Node node, int cost) {
+        return new TramStationState(platformState,
+                filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformNodeId),
+                cost, node.getId());
+    }
+
+    public static TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
+        return new TramStationState(notStartedState, node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost,
+                node.getId());
     }
 
     @Override
@@ -37,11 +51,11 @@ public class TramStationState extends TraversalState {
         }
 
         if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
-            return new PlatformState(this,
-                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), nodeId, cost);
+            return PlatformState.fromTramStation(this, node, cost);
+
         }
         if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
-            return new WalkingState(this, node.getRelationships(OUTGOING), cost);
+            return WalkingState.fromTramStation(this, node, cost);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

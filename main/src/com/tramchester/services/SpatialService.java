@@ -34,7 +34,7 @@ public class SpatialService {
     public List<StationDTO> reorderNearestStations(LatLong latLong, List<Station> sortedStations) {
         List<Station> seen = new LinkedList<>();
 
-        List<Station> nearestStations = stationLocations.nearestStations(latLong, config.getNumOfNearestStops(),
+        List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong, config.getNumOfNearestStops(),
                 config.getNearestStopRangeKM());
         List<StationDTO> reorderedStations = new ArrayList<>();
 
@@ -58,7 +58,7 @@ public class SpatialService {
     }
 
     public List<Station> getNearestStationsTo(LatLong latLong, int numberOfNearest, double rangeInKM) {
-        List<Station> result = stationLocations.nearestStations(latLong, numberOfNearest, rangeInKM);
+        List<Station> result = stationLocations.nearestStationsSorted(latLong, numberOfNearest, rangeInKM);
         logger.info(format("Found %s stations close to %s", result.size(), latLong));
         return result;
     }

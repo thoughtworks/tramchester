@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.search.JourneyState;
@@ -11,13 +12,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
-//    private static final Logger logger = LoggerFactory.getLogger(MinuteState.class);
 
     private final String tripId;
+
+    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
+        super(parent, relationships, cost);
+        this.tripId = tripId;
+    }
+
+    public static TraversalState fromHourOnTrip(HourState hourState, String tripId, Node node, int cost) {
+        Iterable<Relationship> relationships = filterBySingleTripId(hourState.nodeOperations,
+                node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO),
+                tripId);
+        return new MinuteState(hourState, relationships, tripId, cost);
+    }
+
+    public static TraversalState fromHour(HourState hourState, Node node, int cost) {
+        String newTripId = getTrip(node);
+        Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
+        return new MinuteState(hourState, relationships, newTripId, cost);
+    }
 
     @Override
     public String toString() {
@@ -27,9 +46,11 @@ public class MinuteState extends TraversalState {
                 '}';
     }
 
-    public MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
-        super(parent, relationships, cost);
-        this.tripId = tripId;
+    private static String getTrip(Node endNode) {
+        if (!endNode.hasProperty(TRIP_ID)) {
+            return "";
+        }
+        return endNode.getProperty(TRIP_ID).toString().intern();
     }
 
     @Override
@@ -80,5 +101,18 @@ public class MinuteState extends TraversalState {
         });
         return results;
     }
+
+    private static List<Relationship> filterBySingleTripId(NodeContentsRepository nodeOperations,
+                                                           Iterable<Relationship> relationships, String tripId) {
+        List<Relationship> results = new ArrayList<>();
+        relationships.forEach(relationship -> {
+            String trip = nodeOperations.getTrip(relationship);
+            if (trip.equals(tripId)) {
+                results.add(relationship);
+            }
+        });
+        return results;
+    }
+
 
 }

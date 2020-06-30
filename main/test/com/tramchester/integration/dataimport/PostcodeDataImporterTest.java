@@ -83,7 +83,7 @@ class PostcodeDataImporterTest {
 
     private boolean outsideStationRange(PostcodeData postcode) {
         StationLocations.GridPosition gridPosition = new StationLocations.GridPosition(postcode.getEastings(), postcode.getNorthings());
-        List<Station> found = stationLocations.nearestStations(gridPosition, 1, testConfig.getNearestStopRangeKM());
+        List<Station> found = stationLocations.nearestStationsSorted(gridPosition, 1, testConfig.getNearestStopRangeKM());
         return found.isEmpty();
     }
 }

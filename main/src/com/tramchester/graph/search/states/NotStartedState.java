@@ -36,13 +36,11 @@ public class NotStartedState extends TraversalState {
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
-                return new WalkingState(this, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
+                return WalkingState.fromStart(this, firstNode, cost);
             case TRAM_STATION:
-                return new TramStationState(this, firstNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost,
-                        firstNode.getId());
+                return TramStationState.fromStart(this, firstNode, cost);
             case BUS_STATION:
-                return new BusStationState(this, firstNode.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM), cost,
-                        firstNode.getId());
+                return BusStationState.fromStart(this, firstNode, cost);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }

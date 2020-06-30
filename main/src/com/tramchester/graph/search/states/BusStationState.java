@@ -20,9 +20,36 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class BusStationState extends TraversalState {
     private final long stationNodeId;
 
-    public BusStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
+    private BusStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
+    }
+
+    public static TraversalState fromWalking(WalkingState walkingState, Node node, int cost) {
+        return new BusStationState(walkingState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD), cost, node.getId());
+    }
+
+    public static TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
+        return new BusStationState(notStartedState, node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM), cost,
+                node.getId());
+    }
+
+    public static TraversalState fromRouteStationOnTrip(RouteStationState routeStationState, long routeStationNodeId, Node node, int cost) {
+        List<Relationship> stationRelationships = filterExcludingEndNode(
+                node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
+
+        // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
+        return new BusStationState(routeStationState, stationRelationships, cost, node.getId());
+    }
+
+    public static TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
+        // TODO Was this a bug?
+//        List<Relationship> stationRelationships = filterExcludingEndNode(
+//                node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
+
+        // end of a trip, may need to go back to this route station to catch new service
+        return new BusStationState(routeStationState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM),
+                cost, node.getId());
     }
 
     @Override
@@ -34,7 +61,7 @@ public class BusStationState extends TraversalState {
         }
 
         if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
-            return new WalkingState(this, node.getRelationships(OUTGOING), cost);
+            return WalkingState.fromBusStation(this, node, cost);
         }
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             return toRouteStation(node, journeyState, cost, nodeId);
@@ -54,7 +81,6 @@ public class BusStationState extends TraversalState {
                 DEPART, INTERCHANGE_DEPART), stationNodeId);
 
         outbounds.addAll(orderSvcRelationships(node));
-        //orderSvcRelationships(node).forEach(outbounds::add);
 
         return new RouteStationState(this, outbounds, nodeId, cost, true);
     }
