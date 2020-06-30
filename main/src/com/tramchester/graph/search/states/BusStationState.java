@@ -26,7 +26,7 @@ public class BusStationState extends TraversalState implements NodeId {
                     node.getId());
         }
 
-        public TraversalState fromRouteStationOnTrip(RouteStationState routeStationState, Node node, int cost) {
+        public TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
             List<Relationship> stationRelationships = filterExcludingEndNode(
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM), routeStationState);
 
@@ -34,7 +34,7 @@ public class BusStationState extends TraversalState implements NodeId {
             return new BusStationState(routeStationState, stationRelationships, cost, node.getId());
         }
 
-        public TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
+        public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
             // end of a trip, may need to go back to this route station to catch new service
             return new BusStationState(routeStationState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM),
                     cost, node.getId());
@@ -44,13 +44,11 @@ public class BusStationState extends TraversalState implements NodeId {
 
     private final long stationNodeId;
     private final WalkingState.Builder walkingStateBuilder;
-    private final RouteStationStateJustBoarded.Builder routeStationStateBuilder;
 
     private BusStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
         walkingStateBuilder = new WalkingState.Builder();
-        routeStationStateBuilder = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
     }
 
     @Override
@@ -65,14 +63,14 @@ public class BusStationState extends TraversalState implements NodeId {
             return walkingStateBuilder.fromBusStation(this, node, cost);
         }
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
-            return toRouteStation(node, journeyState, cost, nodeId);
+            return toRouteStation(node, journeyState, cost);
         }
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+        throw new RuntimeException("Unexpected node type: " + nodeLabel);
 
     }
 
     @NotNull
-    private TraversalState toRouteStation(Node node, JourneyState journeyState, int cost, long nodeId) {
+    private TraversalState toRouteStation(Node node, JourneyState journeyState, int cost) {
         try {
             journeyState.boardBus();
         } catch (TramchesterException e) {
@@ -80,12 +78,6 @@ public class BusStationState extends TraversalState implements NodeId {
         }
 
         return routeStationStateBuilder.fromBusStation(this, node, cost);
-//        List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
-//                DEPART, INTERCHANGE_DEPART), this);
-//
-//        outbounds.addAll(orderSvcRelationships(node));
-//
-//        return new RouteStationState(this, outbounds, nodeId, cost, true);
     }
 
     @Override

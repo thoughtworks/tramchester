@@ -8,45 +8,29 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.Collection;
+import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class RouteStationState extends TraversalState implements NodeId {
-    private final long routeStationNodeId;
-    private final String tripId;
+public class RouteStationStateEndTrip extends TraversalState {
+
+    public static class Builder {
+        public TraversalState fromMinuteState(MinuteState minuteState, int cost, List<Relationship> routeStationOutbound) {
+            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost);
+        }
+    }
+
     private final BusStationState.Builder busStationStateBuilder;
     private final ServiceState.Builder serviceStateBuilder;
     private final PlatformState.Builder platformStateBuilder;
 
-    public static class Builder {
-
-        public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
-                                              String tripId) {
-            return new RouteStationState(minuteState, routeStationOutbound, cost, node.getId(), tripId);
-        }
-    }
-
-    private RouteStationState(TraversalState parent, Iterable<Relationship> relationships, int cost,
-                              long routeStationNodeId, String tripId) {
-        super(parent, relationships, cost);
-        this.routeStationNodeId = routeStationNodeId;
-        this.tripId = tripId;
+    private RouteStationStateEndTrip(MinuteState minuteState, List<Relationship> routeStationOutbound, int cost) {
+        super(minuteState, routeStationOutbound, cost);
         busStationStateBuilder = new BusStationState.Builder();
         serviceStateBuilder = new ServiceState.Builder();
         platformStateBuilder = new PlatformState.Builder();
-    }
-
-    @Override
-    public String toString() {
-        return "RouteStationState{" +
-                "routeStationNodeId=" + routeStationNodeId +
-                ", cost=" + super.getCurrentCost() +
-                ", tripId='" + tripId + '\'' +
-                ", parent=" + parent +
-                '}';
     }
 
     @Override
@@ -57,7 +41,7 @@ public class RouteStationState extends TraversalState implements NodeId {
         }
 
         if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return serviceStateBuilder.fromRouteStation(this, tripId, nextNode, cost);
+            return serviceStateBuilder.fromRouteStation(this, nextNode, cost);
         }
         if (config.getBus() && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
             return toBusStation(nextNode, journeyState, cost);
@@ -86,28 +70,22 @@ public class RouteStationState extends TraversalState implements NodeId {
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
         try {
             journeyState.leaveTram(getTotalCost());
-
-            // TODO Push into PlatformState
-            // if towards ONE destination just return that one relationship
-            if (destinationStationIds.size()==1) {
-                for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
-                    if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                        return platformStateBuilder.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
-                    }
-                }
-            }
-
-            return platformStateBuilder.fromRouteStationOnTrip(this, platformNode, cost);
-
         }
         catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process platform", exception);
         }
-    }
 
-    @Override
-    public long nodeId() {
-        return routeStationNodeId;
-    }
+        // TODO Push into PlatformState
+        // if towards ONE destination just return that one relationship
+        if (destinationStationIds.size()==1) {
+            for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
+                if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
+                    return platformStateBuilder.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
+                }
+            }
+        }
 
+        return platformStateBuilder.fromRouteStation(this, platformNode, cost);
+
+    }
 }

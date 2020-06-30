@@ -26,6 +26,10 @@ public class PlatformState extends TraversalState implements NodeId {
             return new PlatformState(routeStationState, Collections.singleton(relationship), platformNode.getId(), cost);
         }
 
+        public TraversalState fromRouteStationTowardsDest(RouteStationStateEndTrip endTrip, Relationship relationship, Node platformNode, int cost) {
+            return new PlatformState(endTrip, Collections.singleton(relationship), platformNode.getId(), cost);
+        }
+
         public TraversalState fromRouteStationOnTrip(RouteStationState routeStationState, Node node, int cost) {
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
@@ -34,7 +38,7 @@ public class PlatformState extends TraversalState implements NodeId {
             return new PlatformState(routeStationState, filterExcludingEndNode, node.getId(), cost);
         }
 
-        public TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
+        public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
@@ -44,13 +48,11 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final long platformNodeId;
     private final TramStationState.Builder tramStationStateBuilder;
-    private final RouteStationStateJustBoarded.Builder routeStationStateBuilder;
 
     private PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId, int cost) {
         super(parent, relationships, cost);
         this.platformNodeId = platformNodeId;
         tramStationStateBuilder = new TramStationState.Builder();
-        routeStationStateBuilder = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
     }
 
     @Override

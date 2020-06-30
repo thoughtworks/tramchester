@@ -38,11 +38,13 @@ public class MinuteState extends TraversalState {
 
     private final String tripId;
     private final RouteStationState.Builder routeStationStateBuilder;
+    private final RouteStationStateEndTrip.Builder routeStationStateEndTripBuilder;
 
     private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
         super(parent, relationships, cost);
         this.tripId = tripId;
         routeStationStateBuilder = new RouteStationState.Builder();
+        routeStationStateEndTripBuilder = new RouteStationStateEndTrip.Builder();
     }
 
     @Override
@@ -76,7 +78,7 @@ public class MinuteState extends TraversalState {
             if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
                 // we've arrived
                 return routeStationStateBuilder.fromMinuteState(this, node, cost,
-                        Collections.singleton(depart), ExistingTrip.onTrip(tripId));
+                        Collections.singleton(depart), tripId);
             }
         }
 
@@ -93,9 +95,9 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // service finished here so don't pass in trip ID
-            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, ExistingTrip.none());
+            return routeStationStateEndTripBuilder.fromMinuteState(this, cost, routeStationOutbound);
         } else {
-            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, ExistingTrip.onTrip(tripId));
+            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, tripId);
         }
     }
 

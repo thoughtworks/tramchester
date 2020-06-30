@@ -13,14 +13,19 @@ public class ServiceState extends TraversalState {
 
     public static class Builder {
 
-        public TraversalState fromRouteStation(RouteStationState routeStationState, ExistingTrip maybeExistingTrip, Node node, int cost) {
+        public TraversalState fromRouteStation(RouteStationState routeStationState, String tripId, Node node, int cost) {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
-            return new ServiceState(routeStationState, serviceRelationships, maybeExistingTrip, cost);
+            return new ServiceState(routeStationState, serviceRelationships, ExistingTrip.onTrip(tripId), cost);
         }
 
         public TraversalState fromRouteStation(RouteStationStateJustBoarded justBoarded, Node node, int cost) {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
             return new ServiceState(justBoarded, serviceRelationships, ExistingTrip.none(), cost);
+        }
+
+        public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, Node node, int cost) {
+            Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
+            return new ServiceState(endTrip, serviceRelationships, ExistingTrip.none(), cost);
         }
     }
 
