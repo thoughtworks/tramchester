@@ -11,20 +11,28 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
+    public static class Builder {
+
+        public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
+            return new WalkingState(busStationState, node.getRelationships(OUTGOING), cost);
+        }
+
+        public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
+            return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
+        }
+
+        public TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
+            return new WalkingState(tramStationState, node.getRelationships(OUTGOING), cost);
+        }
+    }
+
+    private final BusStationState.Builder busStationStateBuilder;
+    private final TramStationState.Builder tramStationStateBuilder;
+
     private WalkingState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
         super(parent, relationships, cost);
-    }
-
-    public static TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
-        return new WalkingState(busStationState, node.getRelationships(OUTGOING), cost);
-    }
-
-    public static TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
-        return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
-    }
-
-    public static TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
-        return new WalkingState(tramStationState, node.getRelationships(OUTGOING), cost);
+        busStationStateBuilder = new BusStationState.Builder();
+        tramStationStateBuilder = new TramStationState.Builder();
     }
 
     @Override
@@ -43,10 +51,10 @@ public class WalkingState extends TraversalState {
         }
 
         if (GraphBuilder.Labels.TRAM_STATION==nodeLabel)   {
-            return TramStationState.fromWalking(this, node, cost);
+            return tramStationStateBuilder.fromWalking(this, node, cost);
         }
         if (GraphBuilder.Labels.BUS_STATION==nodeLabel) {
-            return BusStationState.fromWalking(this, node, cost);
+            return busStationStateBuilder.fromWalking(this, node, cost);
         }
 
         throw new RuntimeException("Unexpected node type: " + nodeLabel);

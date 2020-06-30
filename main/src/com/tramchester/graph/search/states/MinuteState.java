@@ -18,24 +18,27 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
 
+    public static class Builder {
+
+        public TraversalState fromHourOnTrip(HourState hourState, String tripId, Node node, int cost) {
+            Iterable<Relationship> relationships = filterBySingleTripId(hourState.nodeOperations,
+                    node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO),
+                    tripId);
+            return new MinuteState(hourState, relationships, tripId, cost);
+        }
+
+        public TraversalState fromHour(HourState hourState, Node node, int cost) {
+            String newTripId = getTrip(node);
+            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
+            return new MinuteState(hourState, relationships, newTripId, cost);
+        }
+    }
+
     private final String tripId;
 
     private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost) {
         super(parent, relationships, cost);
         this.tripId = tripId;
-    }
-
-    public static TraversalState fromHourOnTrip(HourState hourState, String tripId, Node node, int cost) {
-        Iterable<Relationship> relationships = filterBySingleTripId(hourState.nodeOperations,
-                node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO),
-                tripId);
-        return new MinuteState(hourState, relationships, tripId, cost);
-    }
-
-    public static TraversalState fromHour(HourState hourState, Node node, int cost) {
-        String newTripId = getTrip(node);
-        Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO);
-        return new MinuteState(hourState, relationships, newTripId, cost);
     }
 
     @Override

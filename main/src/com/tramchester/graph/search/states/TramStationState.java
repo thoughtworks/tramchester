@@ -10,26 +10,34 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class TramStationState extends TraversalState {
+
+    public static class Builder {
+        public TraversalState fromWalking(WalkingState walkingState, Node node, int cost) {
+            return new TramStationState(walkingState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+        }
+
+        public TraversalState fromPlatform(PlatformState platformState, Node node, int cost) {
+            return new TramStationState(platformState,
+                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformState),
+                    cost, node.getId());
+        }
+
+        public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
+            return new TramStationState(notStartedState, node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost,
+                    node.getId());
+        }
+    }
+
+    private final WalkingState.Builder walkingStateBuilder;
+    private final PlatformState.Builder platformStateBuilder;
+
     private final long stationNodeId;
 
     private TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
-    }
-
-    public static TraversalState fromWalking(WalkingState walkingState, Node node, int cost) {
-        return new TramStationState(walkingState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
-    }
-
-    public static TraversalState fromPlatform(PlatformState platformState, long platformNodeId, Node node, int cost) {
-        return new TramStationState(platformState,
-                filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformNodeId),
-                cost, node.getId());
-    }
-
-    public static TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
-        return new TramStationState(notStartedState, node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost,
-                node.getId());
+        walkingStateBuilder = new WalkingState.Builder();
+        platformStateBuilder = new PlatformState.Builder();
     }
 
     @Override
@@ -51,11 +59,11 @@ public class TramStationState extends TraversalState {
         }
 
         if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
-            return PlatformState.fromTramStation(this, node, cost);
+            return platformStateBuilder.fromTramStation(this, node, cost);
 
         }
         if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
-            return WalkingState.fromTramStation(this, node, cost);
+            return walkingStateBuilder.fromTramStation(this, node, cost);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);

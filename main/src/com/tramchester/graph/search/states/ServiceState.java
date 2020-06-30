@@ -11,17 +11,22 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
+    public static class Builder {
+
+        public TraversalState fromRouteStation(RouteStationState routeStationState, ExistingTrip maybeExistingTrip, Node node, int cost) {
+            Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
+            return new ServiceState(routeStationState, serviceRelationships, maybeExistingTrip, cost);
+        }
+    }
+
     private final ExistingTrip maybeExistingTrip;
+    private final HourState.Builder builder;
 
     private ServiceState(TraversalState parent, Iterable<Relationship> relationships, ExistingTrip maybeExistingTrip,
                          int cost) {
         super(parent, relationships, cost);
+        builder = new HourState.Builder();
         this.maybeExistingTrip = maybeExistingTrip;
-    }
-
-    public static TraversalState fromRouteStation(RouteStationState routeStationState, ExistingTrip maybeExistingTrip, Node node, int cost) {
-        Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
-        return new ServiceState(routeStationState, serviceRelationships, maybeExistingTrip, cost);
     }
 
     @Override
@@ -35,7 +40,7 @@ public class ServiceState extends TraversalState {
     @Override
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == GraphBuilder.Labels.HOUR) {
-            return HourState.FromService(this, maybeExistingTrip, node, cost);
+            return builder.FromService(this, maybeExistingTrip, node, cost);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }

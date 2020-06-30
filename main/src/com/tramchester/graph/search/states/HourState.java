@@ -13,17 +13,21 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
 
+    public static class Builder {
+
+        public TraversalState FromService(ServiceState serviceState, ExistingTrip maybeExistingTrip, Node node, int cost) {
+            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
+            return new HourState(serviceState, relationships, maybeExistingTrip, cost);
+        }
+
+    }
+
     private final ExistingTrip maybeExistingTrip;
 
     private HourState(TraversalState parent, Iterable<Relationship> relationships,
                       ExistingTrip maybeExistingTrip, int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
-    }
-
-    public static TraversalState FromService(ServiceState serviceState, ExistingTrip maybeExistingTrip, Node node, int cost) {
-        Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
-        return new HourState(serviceState, relationships, maybeExistingTrip, cost);
     }
 
     @Override
@@ -43,12 +47,13 @@ public class HourState extends TraversalState {
 
         journeyState.recordTramDetails(time, getTotalCost());
 
+        MinuteState.Builder builder = new MinuteState.Builder();
         if (maybeExistingTrip.isOnTrip()) {
             String existingTripId = maybeExistingTrip.getTripId();
-            return MinuteState.fromHourOnTrip(this, existingTripId, node, cost);
+            return builder.fromHourOnTrip(this, existingTripId, node, cost);
         } else {
             // starting a brand new journey
-            return MinuteState.fromHour(this, node, cost);
+            return builder.fromHour(this, node, cost);
         }
     }
 

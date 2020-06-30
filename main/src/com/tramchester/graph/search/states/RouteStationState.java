@@ -12,25 +12,33 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class RouteStationState extends TraversalState {
+public class RouteStationState extends TraversalState implements NodeId {
     private final long routeStationNodeId;
     private final boolean justBoarded;
     private final ExistingTrip maybeExistingTrip;
+    private final BusStationState.Builder busStationStateBuilder;
+    private final ServiceState.Builder serviceStateBuilder;
+    private final PlatformState.Builder platformStateBuilder;
 
     public RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId,
                              int cost, boolean justBoarded) {
-        super(parent, relationships, cost);
-        this.routeStationNodeId = routeStationNodeId;
-        this.justBoarded = justBoarded;
-        maybeExistingTrip = ExistingTrip.none();
+        this(parent, relationships, cost, routeStationNodeId, ExistingTrip.none(), justBoarded);
     }
 
     public RouteStationState(TraversalState parent, Iterable<Relationship> relationships,
                              long routeStationNodeId, String tripId, int cost) {
+        this(parent, relationships, cost, routeStationNodeId, ExistingTrip.onTrip(tripId), false);
+    }
+
+    private RouteStationState(TraversalState parent, Iterable<Relationship> relationships, int cost,
+                              long routeStationNodeId, ExistingTrip existingTrip, boolean justBoarded) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
-        this.justBoarded = false;
-        maybeExistingTrip = ExistingTrip.onTrip(tripId);
+        this.justBoarded = justBoarded;
+        this.maybeExistingTrip = existingTrip;
+        busStationStateBuilder = new BusStationState.Builder();
+        serviceStateBuilder = new ServiceState.Builder();
+        platformStateBuilder = new PlatformState.Builder();
     }
 
     @Override
@@ -52,7 +60,7 @@ public class RouteStationState extends TraversalState {
         }
 
         if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return ServiceState.fromRouteStation(this, maybeExistingTrip, nextNode, cost);
+            return serviceStateBuilder.fromRouteStation(this, maybeExistingTrip, nextNode, cost);
 
         }
         if (config.getBus() && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
@@ -77,10 +85,9 @@ public class RouteStationState extends TraversalState {
         }
 
         if (maybeExistingTrip.isOnTrip() || justBoarded) {
-            return BusStationState.fromRouteStationOnTrip(this, routeStationNodeId, busStationNode, cost);
+            return busStationStateBuilder.fromRouteStationOnTrip(this, busStationNode, cost);
         } else {
-            return BusStationState.fromRouteStation(this, busStationNode, cost);
-
+            return busStationStateBuilder.fromRouteStation(this, busStationNode, cost);
         }
     }
 
@@ -93,21 +100,26 @@ public class RouteStationState extends TraversalState {
             if (destinationStationIds.size()==1) {
                 for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
                     if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                        return PlatformState.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
+                        return platformStateBuilder.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
                     }
                 }
             }
 
             if (maybeExistingTrip.isOnTrip() || justBoarded) {
-                return PlatformState.fromRouteStationOnTrip(this, routeStationNodeId, platformNode, cost);
+                return platformStateBuilder.fromRouteStationOnTrip(this, platformNode, cost);
 
             } else {
-                return PlatformState.fromRouteStation(this, platformNode, cost);
+                return platformStateBuilder.fromRouteStation(this, platformNode, cost);
 
             }
         }
         catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process platform", exception);
         }
+    }
+
+    @Override
+    public long nodeId() {
+        return routeStationNodeId;
     }
 }

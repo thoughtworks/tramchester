@@ -13,36 +13,42 @@ import java.util.List;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class PlatformState extends TraversalState {
+public class PlatformState extends TraversalState implements NodeId {
+
+    public static class Builder {
+
+        public TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
+            return new PlatformState(tramStationState,
+                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
+        }
+
+        public TraversalState fromRouteStationTowardsDest(RouteStationState routeStationState, Relationship relationship, Node platformNode, int cost) {
+            return new PlatformState(routeStationState, Collections.singleton(relationship), platformNode.getId(), cost);
+        }
+
+        public TraversalState fromRouteStationOnTrip(RouteStationState routeStationState, Node node, int cost) {
+            Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
+                    BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
+            List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationState);
+            return new PlatformState(routeStationState, filterExcludingEndNode, node.getId(), cost);
+        }
+
+        public TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
+            Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
+                    BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            // end of a trip, may need to go back to this route station to catch new service
+            return new PlatformState(routeStationState, platformRelationships, node.getId(), cost);
+        }
+    }
+
     private final long platformNodeId;
+    private final TramStationState.Builder tramStationStateBuilder;
 
     private PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId, int cost) {
         super(parent, relationships, cost);
         this.platformNodeId = platformNodeId;
-    }
-
-    public static TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
-        return new PlatformState(tramStationState,
-                node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
-    }
-
-    public static TraversalState fromRouteStationTowardsDest(RouteStationState routeStationState, Relationship relationship, Node platformNode, int cost) {
-        return new PlatformState(routeStationState, Collections.singleton(relationship), platformNode.getId(), cost);
-    }
-
-    public static TraversalState fromRouteStationOnTrip(RouteStationState routeStationState, long routeStationNodeId, Node node, int cost) {
-        Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
-                BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
-        // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-        List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationNodeId);
-        return new PlatformState(routeStationState, filterExcludingEndNode, node.getId(), cost);
-    }
-
-    public static TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
-        Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
-                BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
-        // end of a trip, may need to go back to this route station to catch new service
-        return new PlatformState(routeStationState, platformRelationships, node.getId(), cost);
+        tramStationStateBuilder = new TramStationState.Builder();
     }
 
     @Override
@@ -60,10 +66,10 @@ public class PlatformState extends TraversalState {
         long nodeId = node.getId();
 
         if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
-            if (nodeId ==destinationNodeId) {
+            if (nodeId == destinationNodeId) {
                 return new DestinationState(this, cost);
             }
-            return TramStationState.fromPlatform(this, platformNodeId, node, cost);
+            return tramStationStateBuilder.fromPlatform(this, node, cost);
 
         }
 
@@ -73,11 +79,16 @@ public class PlatformState extends TraversalState {
             } catch (TramchesterException e) {
                 throw new RuntimeException("unable to board tram", e);
             }
-            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformNodeId);
+            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), this);
             node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
             return new RouteStationState(this, outbounds, nodeId, cost, true);
         }
 
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
+    }
+
+    @Override
+    public long nodeId() {
+        return platformNodeId;
     }
 }

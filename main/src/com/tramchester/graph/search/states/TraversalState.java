@@ -81,10 +81,11 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     // TODO Return iterable instead
-    protected static List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, long nodeIdToSkip) {
+    protected static List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, NodeId hasNodeId) {
+        long nodeId = hasNodeId.nodeId();
         ArrayList<Relationship> results = new ArrayList<>();
         for (Relationship relationship: relationships) {
-            if (relationship.getEndNode().getId() != nodeIdToSkip) {
+            if (relationship.getEndNode().getId() != nodeId) {
                 results.add(relationship);
             }
         }
