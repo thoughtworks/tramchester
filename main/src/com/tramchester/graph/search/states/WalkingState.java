@@ -54,7 +54,7 @@ public class WalkingState extends TraversalState {
             return tramStationStateBuilder.fromWalking(this, node, cost);
         }
         if (GraphBuilder.Labels.BUS_STATION==nodeLabel) {
-            return busStationStateBuilder.fromWalking(this, node, cost);
+            return busStationStateBuilder.from(this, node, cost);
         }
 
         throw new RuntimeException("Unexpected node type: " + nodeLabel);

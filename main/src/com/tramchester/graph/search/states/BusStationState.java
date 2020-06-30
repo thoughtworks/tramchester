@@ -17,11 +17,11 @@ public class BusStationState extends TraversalState implements NodeId {
 
     public static class Builder {
 
-        public TraversalState fromWalking(WalkingState walkingState, Node node, int cost) {
+        public BusStationState from(WalkingState walkingState, Node node, int cost) {
             return new BusStationState(walkingState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD), cost, node.getId());
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
+        public BusStationState from(NotStartedState notStartedState, Node node, int cost) {
             return new BusStationState(notStartedState, node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM), cost,
                     node.getId());
         }
@@ -35,14 +35,11 @@ public class BusStationState extends TraversalState implements NodeId {
         }
 
         public TraversalState fromRouteStation(RouteStationState routeStationState, Node node, int cost) {
-            // TODO Was this a bug?
-//        List<Relationship> stationRelationships = filterExcludingEndNode(
-//                node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM), routeStationNodeId);
-
             // end of a trip, may need to go back to this route station to catch new service
             return new BusStationState(routeStationState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, WALKS_FROM),
                     cost, node.getId());
         }
+
     }
 
     private final long stationNodeId;

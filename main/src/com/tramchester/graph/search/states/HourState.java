@@ -15,7 +15,7 @@ public class HourState extends TraversalState {
 
     public static class Builder {
 
-        public TraversalState FromService(ServiceState serviceState, ExistingTrip maybeExistingTrip, Node node, int cost) {
+        public TraversalState FromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost);
         }

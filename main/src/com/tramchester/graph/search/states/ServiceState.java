@@ -40,7 +40,7 @@ public class ServiceState extends TraversalState {
     @Override
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == GraphBuilder.Labels.HOUR) {
-            return builder.FromService(this, maybeExistingTrip, node, cost);
+            return builder.FromService(this, node, cost, maybeExistingTrip);
         }
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }

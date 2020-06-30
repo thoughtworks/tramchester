@@ -9,6 +9,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
@@ -74,7 +75,8 @@ public class MinuteState extends TraversalState {
         for (Relationship depart : allDeparts) {
             if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
                 // we've arrived
-                return routeStationStateBuilder.fromMinuteState(this, node, cost, depart, tripId);
+                return routeStationStateBuilder.fromMinuteState(this, node, cost,
+                        Collections.singleton(depart), ExistingTrip.onTrip(tripId));
             }
         }
 
@@ -91,9 +93,9 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // service finished here so don't pass in trip ID
-            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound);
+            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, ExistingTrip.none());
         } else {
-            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, tripId);
+            return routeStationStateBuilder.fromMinuteState(this, node, cost, routeStationOutbound, ExistingTrip.onTrip(tripId));
         }
     }
 

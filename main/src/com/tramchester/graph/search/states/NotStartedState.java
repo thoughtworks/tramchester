@@ -11,9 +11,6 @@ import org.neo4j.graphdb.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static org.neo4j.graphdb.Direction.OUTGOING;
-
 // TODO seperate class for Bus?
 public class NotStartedState extends TraversalState {
     private final BusStationState.Builder busStationStateBuilder;
@@ -46,7 +43,7 @@ public class NotStartedState extends TraversalState {
             case TRAM_STATION:
                 return tramStationStateBuilder.fromStart(this, firstNode, cost);
             case BUS_STATION:
-                return busStationStateBuilder.fromStart(this, firstNode, cost);
+                return busStationStateBuilder.from(this, firstNode, cost);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }

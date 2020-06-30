@@ -35,28 +35,19 @@ public class RouteStationState extends TraversalState implements NodeId {
         public RouteStationState fromPlatformState(PlatformState platformState, Node node, int cost) {
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformState);
             node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
-            return new RouteStationState(platformState, outbounds, node.getId(), cost, true);
+            return new RouteStationState(platformState, outbounds, cost, node.getId(), ExistingTrip.none(), true);
         }
 
         public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
                     DEPART, INTERCHANGE_DEPART), busStationState);
-
             outbounds.addAll(orderSvcRelationships(node));
-
-            return new RouteStationState(busStationState, outbounds, node.getId(), cost, true);
+            return new RouteStationState(busStationState, outbounds, cost, node.getId(), ExistingTrip.none(), true);
         }
 
-        public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Relationship toDest, String tripId) {
-            return new RouteStationState(minuteState, Collections.singleton(toDest), node.getId(), tripId, cost);
-        }
-
-        public RouteStationState fromMinuteState(MinuteState minuteState, Node node, int cost, List<Relationship> routeStationOutbound) {
-            return new RouteStationState(minuteState, routeStationOutbound, node.getId(), cost, false);
-        }
-
-        public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, List<Relationship> routeStationOutbound, String tripId) {
-            return new RouteStationState(minuteState, routeStationOutbound, node.getId(), tripId, cost);
+        public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
+                                              ExistingTrip existingTrip) {
+            return new RouteStationState(minuteState, routeStationOutbound, cost, node.getId(), existingTrip, false);
         }
 
         private Collection<Relationship> orderSvcRelationships(Node node) {
@@ -68,16 +59,6 @@ public class RouteStationState extends TraversalState implements NodeId {
             return sortsPositions.sortedByNearTo(destinationStationIds, relationships);
         }
 
-    }
-
-    private RouteStationState(TraversalState parent, Iterable<Relationship> relationships, long routeStationNodeId,
-                             int cost, boolean justBoarded) {
-        this(parent, relationships, cost, routeStationNodeId, ExistingTrip.none(), justBoarded);
-    }
-
-    private RouteStationState(TraversalState parent, Iterable<Relationship> relationships,
-                             long routeStationNodeId, String tripId, int cost) {
-        this(parent, relationships, cost, routeStationNodeId, ExistingTrip.onTrip(tripId), false);
     }
 
     private RouteStationState(TraversalState parent, Iterable<Relationship> relationships, int cost,

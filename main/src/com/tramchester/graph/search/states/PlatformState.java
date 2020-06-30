@@ -17,7 +17,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
     public static class Builder {
 
-        public TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
+        public PlatformState from(TramStationState tramStationState, Node node, int cost) {
             return new PlatformState(tramStationState,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
         }
