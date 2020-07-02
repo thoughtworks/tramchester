@@ -31,7 +31,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Map<Long, TramTime> previousSuccessfulVisit;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, long destinationNodeId,
-                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, TramchesterConfig config) {
+                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeId = destinationNodeId;
         this.nodeTypeRepository = nodeTypeRepository;
@@ -129,7 +129,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // is even reachable from here?
         if (nodeTypeRepository.isRouteStation(endNode)) {
-            // Note: journeyState.onTram() not true for all tram journeys as we might just be boarding....
             if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }

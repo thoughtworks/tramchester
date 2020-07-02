@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,7 +76,7 @@ public class RouteCalculator implements TramRouteCalculator {
         Node startNode = getStationNodeSafe(txn, startStation);
         Node endNode = getStationNodeSafe(txn, destination);
 
-        List<Station> destinations = Collections.singletonList(destination);
+        Set<Station> destinations = Collections.singleton(destination);
 
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false);
     }
@@ -88,7 +89,7 @@ public class RouteCalculator implements TramRouteCalculator {
         return stationNode;
     }
 
-    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, List<Station> desinationStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, Set<Station> desinationStations,
                                                    JourneyRequest journeyRequest)
     {
         Node startNode = getStationNodeSafe(txn, start);
@@ -99,17 +100,17 @@ public class RouteCalculator implements TramRouteCalculator {
     public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node startOfWalkNode, Station destination,
                                                      JourneyRequest journeyRequest) {
         Node endNode = getStationNodeSafe(txn, destination);
-        List<Station> destinationIds = Collections.singletonList(destination);
-        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinationIds, true);
+        Set<Station> destinations = Collections.singleton(destination);
+        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, true);
     }
 
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode,
-                                                           List<Station> destinationStations, JourneyRequest journeyRequest) {
+                                                           Set<Station> destinationStations, JourneyRequest journeyRequest) {
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, true);
     }
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
-                                             List<Station> destinations, boolean walkAtStart) {
+                                             Set<Station> destinations, boolean walkAtStart) {
 
         RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
 
@@ -133,10 +134,10 @@ public class RouteCalculator implements TramRouteCalculator {
 
     private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, final Node endNode,
                                                final NodeTypeRepository nodeTypeRepository, final ServiceHeuristics serviceHeuristics,
-                                               final List<Station> destinations) {
+                                               final Set<Station> destinations) {
 
         // TODO ->Set
-        List<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toList());
+        Set<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toSet());
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
                 sortsPosition, nodeOperations, endNode, endStationIds, config, nodeTypeRepository);

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -28,7 +28,7 @@ class JourneyStateTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        List<String> destinationStationIds = Collections.singletonList("destinationStationId");
+        Set<String> destinationStationIds = Collections.singleton("destinationStationId");
         StationLocations locations = new StationLocations(new CoordinateTransforms());
         StationRepository repository = new TransportDataForTest(locations);
         SortsPositions sortsPositions = new SortsPositions(repository);
@@ -62,7 +62,7 @@ class JourneyStateTest {
         int currentCost = 10;
         TramTime boardingTime = TramTime.of(9, 30);
         state.boardTram();
-        state.recordTramDetails(boardingTime,currentCost);
+        state.recordVehicleDetails(boardingTime,currentCost);
 
         Assertions.assertTrue(state.onTram());
         Assertions.assertEquals(boardingTime, state.getJourneyClock());
@@ -84,7 +84,7 @@ class JourneyStateTest {
 
         int currentCost = 14;
         state.boardTram();
-        state.recordTramDetails(boardingTime,currentCost);
+        state.recordVehicleDetails(boardingTime,currentCost);
         state.leaveTram(20);
 
         assertThrows(TramchesterException.class, () -> state.leaveTram(25));
@@ -96,7 +96,7 @@ class JourneyStateTest {
 
         TramTime boardingTime = TramTime.of(9, 30);
         state.boardTram();
-        state.recordTramDetails(boardingTime,10);
+        state.recordVehicleDetails(boardingTime,10);
         Assertions.assertEquals(boardingTime, state.getJourneyClock());
 
         state.updateJourneyClock(15); // 15 - 10
@@ -112,7 +112,7 @@ class JourneyStateTest {
         Assertions.assertFalse(state.onTram());
 
         state.boardTram();
-        state.recordTramDetails(TramTime.of(9,30),10);         // 10 mins cost
+        state.recordVehicleDetails(TramTime.of(9,30),10);         // 10 mins cost
         Assertions.assertTrue(state.onTram());
 //        assertEquals("tripId1", state.getTripId());
 
@@ -130,14 +130,14 @@ class JourneyStateTest {
         JourneyState state = new JourneyState(queryTime, traversalState);
 
         state.boardTram();
-        state.recordTramDetails(TramTime.of(9,30),10);         // 10 mins cost
+        state.recordVehicleDetails(TramTime.of(9,30),10);         // 10 mins cost
 //        assertEquals("tripId1", state.getTripId());
 
         state.leaveTram(25);                            // 25 mins cost, offset is 15 mins
         Assertions.assertEquals(TramTime.of(9,45), state.getJourneyClock()); // should be depart tram time
 
         state.boardTram();
-        state.recordTramDetails(TramTime.of(9,50),25);
+        state.recordVehicleDetails(TramTime.of(9,50),25);
         Assertions.assertEquals(TramTime.of(9,50), state.getJourneyClock()); // should be depart tram time
 //        assertEquals("tripId2", state.getTripId());
 
@@ -155,7 +155,7 @@ class JourneyStateTest {
 //        assertTrue(journeyState.getTripId().isEmpty());
 
         newStateA.boardTram();
-        newStateA.recordTramDetails(TramTime.of(8,15), 15);
+        newStateA.recordVehicleDetails(TramTime.of(8,15), 15);
         Assertions.assertEquals(TramTime.of(8,15), newStateA.getJourneyClock());
 
         JourneyState newStateB = JourneyState.fromPrevious(newStateA);

@@ -104,6 +104,7 @@ class CreateNeighboursTest {
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,53), false);
+        //request.setDiag(true);
 
         Station startStation = Stations.Bury;
         Station end = Stations.Shudehill;
@@ -118,7 +119,6 @@ class CreateNeighboursTest {
         });
     }
 
-    @Disabled("Work in progress")
     @Test
     void shouldTramThenWalk() {
         createNeighbours.buildWithNoCommit(txn);
@@ -126,6 +126,7 @@ class CreateNeighboursTest {
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 0);
+        request.setDiag(true);
 
         Station startStation = Stations.Bury;
         Station end = BusStations.ShudehillInterchange;

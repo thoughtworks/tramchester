@@ -7,7 +7,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;

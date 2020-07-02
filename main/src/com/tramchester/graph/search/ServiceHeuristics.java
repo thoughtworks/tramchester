@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphStaticKeys.ID;
@@ -23,7 +24,7 @@ public class ServiceHeuristics {
     private static final boolean debugEnabled = logger.isDebugEnabled();
 
     private final RunningServices runningServices;
-    private final List<Station> endTramStations;
+    private final Set<Station> endTramStations;
     private final TramTime queryTime;
     private final ServiceReasons reasons;
     private final TramReachabilityRepository tramReachabilityRepository;
@@ -35,10 +36,11 @@ public class ServiceHeuristics {
 
     private final int maxWaitMinutes;
     private final int changesLimit;
+    private final boolean tramOnly;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config,
-                             TramTime queryTime, RunningServices runningServices, List<Station> endStations,
+                             TramTime queryTime, RunningServices runningServices, Set<Station> endStations,
                              ServiceReasons reasons, int maxPathLength, int maxChanges) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
@@ -51,9 +53,14 @@ public class ServiceHeuristics {
         this.runningServices = runningServices;
         this.reasons = reasons;
 
-        endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toList());
-        this.maxPathLength = maxPathLength;
+        endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toSet());
 
+        tramOnly = (endTramStations.size() == endStations.size());
+        if (tramOnly) {
+            logger.info("Checking only for tram destinations");
+        }
+
+        this.maxPathLength = maxPathLength;
     }
     
     public ServiceReason checkServiceDate(Node node, Path path) {
@@ -152,7 +159,7 @@ public class ServiceHeuristics {
             throw new RuntimeException(message);
         }
 
-        if (routeStation.isTram()) {
+        if (tramOnly && routeStation.isTram()) {
             for(Station endStation : endTramStations) {
                 if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
                     return valid(path);

@@ -37,7 +37,7 @@ public class JourneyState implements ImmutableJourneyState {
         this.onBus = previousState.onBus;
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
-        if (onTram || onBus) {
+        if (onBoard()) {
             this.boardingTime = previousState.boardingTime;
         }
         this.numberOfBoardings = previousState.numberOfBoardings;
@@ -65,26 +65,29 @@ public class JourneyState implements ImmutableJourneyState {
     public void updateJourneyClock(int currentTotalCost) {
         int costForTrip = currentTotalCost - journeyOffset;
 
-        if (onTram || onBus) {
+        if (onBoard()) {
             journeyClock = boardingTime.plusMinutes(costForTrip);
         } else {
             journeyClock = journeyClock.plusMinutes(costForTrip);
         }
     }
 
-    public void recordTramDetails(TramTime boardingTime, int currentCost) throws TramchesterException {
-        if (!(onTram||onBus)) {
-            throw new TramchesterException("Not on a tram");
+    public void recordVehicleDetails(TramTime boardingTime, int currentCost) throws TramchesterException {
+        if (! (onBoard()) ) {
+            throw new TramchesterException("Not on a bus or tram");
         }
         this.journeyClock = boardingTime;
         this.boardingTime = boardingTime;
         this.journeyOffset = currentCost;
     }
 
+    private boolean onBoard() {
+        return onTram || onBus;
+    }
 
     public void leaveBus(int totalCost) throws TramchesterException {
         if (!onBus) {
-            throw new TramchesterException("Not currently on a tram");
+            throw new TramchesterException("Not currently on a bus");
         }
         leave(totalCost);
         onBus = false;
@@ -107,8 +110,14 @@ public class JourneyState implements ImmutableJourneyState {
         boardingTime = null;
     }
 
+    @Override
     public boolean onTram() {
         return onTram;
+    }
+
+    @Override
+    public boolean onBus() {
+        return onBus;
     }
 
     @Override

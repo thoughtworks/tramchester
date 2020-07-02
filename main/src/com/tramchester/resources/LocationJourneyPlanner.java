@@ -2,7 +2,6 @@ package com.tramchester.resources;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
@@ -17,14 +16,14 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
-import static com.tramchester.geo.CoordinateTransforms.distanceInMiles;
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static java.lang.String.format;
 
@@ -81,7 +80,7 @@ public class LocationJourneyPlanner {
     public Stream<Journey> quickestRouteForLocation(Transaction txn, Station start, LatLong destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", start, destination, journeyRequest));
 
-        List<Station> destinationStations = new ArrayList<>();
+        Set<Station> destinationStations = new HashSet<>();
         List<Relationship> addedRelationships = new LinkedList<>();
 
         List<StationWalk> walksToDest = getStationWalks(destination);
@@ -122,7 +121,7 @@ public class LocationJourneyPlanner {
                 TransportRelationshipTypes.WALKS_TO)));
 
         // Add Walks at the end
-        List<Station> destinationStations = new ArrayList<>();
+        Set<Station> destinationStations = new HashSet<>();
         List<StationWalk> walksToDest = getStationWalks(destLatLong);
         Node midWalkNode = createWalkingNode(txn, destLatLong);
         walksToDest.forEach(stationWalk -> {

@@ -10,7 +10,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -37,7 +37,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, List<Station> destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, Set<Station> destStations,
                                                    JourneyRequest journeyRequest) {
         int costToDest = routeReachable.getApproxCostBetween(txn, start, endOfWalk);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
@@ -54,7 +54,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode, List<Station> destinationStations,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode, Set<Station> destinationStations,
                                                            JourneyRequest journeyRequest) {
         int costToDest = routeReachable.getApproxCostBetween(txn, startNode, endNode);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);

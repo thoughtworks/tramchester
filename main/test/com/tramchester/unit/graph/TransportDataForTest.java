@@ -195,7 +195,7 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
         addTrip(trip);
     }
 
-    private void addStation(Station station) {
+    public void addStation(Station station) {
         stationIdMap.put(station.getId(), station);
         stationNameMap.put(station.getName().toLowerCase(), station);
         stationLocations.addStation(station);

@@ -89,8 +89,11 @@ public class ServiceReasons {
     public void record(final ImmutableJourneyState journeyState) {
         if (journeyState.onTram()) {
             incrementStat(ServiceReason.ReasonCode.OnTram);
-        } else {
-            incrementStat(ServiceReason.ReasonCode.NotOnTram);
+        } if (journeyState.onBus()) {
+            incrementStat(ServiceReason.ReasonCode.OnBus);
+        }
+        else {
+            incrementStat(ServiceReason.ReasonCode.NotOnVehicle);
         }
     }
 

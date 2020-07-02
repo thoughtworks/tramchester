@@ -4,9 +4,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.unit.graph.TransportDataForTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -15,38 +15,80 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SortsPositionsTest {
 
-    @Test
-    void shouldOrderCorrectly() {
+    private TransportDataForTest dataForTest;
+    private Station nearPiccGardens;
+    private Station nearShudehill;
+    private Station nearAltrincham;
+    private Station nearStockportBus;
+    private Station alsoNearAlty;
+
+    @BeforeEach
+    void beforeEachTestRuns() {
         StationLocations stationLocations = new StationLocations(new CoordinateTransforms());
 
-        TransportDataForTest dataForTest = new TransportDataForTest(stationLocations);
-
+        dataForTest = new TransportDataForTest(stationLocations);
         dataForTest.start();
 
-        Station stationA = dataForTest.getSecondStation();
-        Station stationB = dataForTest.getInterchange();
-        Station stationC = dataForTest.getFirst();
+        nearPiccGardens = dataForTest.getSecondStation(); // near PiccGardens
+        nearShudehill = dataForTest.getInterchange();   // near Shudehill
+        nearAltrincham = dataForTest.getFirst();         // near Altrincham
+        nearStockportBus = dataForTest.getFifthStation();  // nearStockportBus
 
-        Station stationD = dataForTest.getFifthStation();
+        alsoNearAlty = new Station("ALSO1122", "area2", "alsoNearAltr", TestEnv.nearAltrincham, true);
+        dataForTest.addStation(alsoNearAlty);
+    }
 
-        List<SortsPositions.HasStationId<Station>> stations = new ArrayList<>();
-        stations.add(new StationFacade(stationA));
-        stations.add(new StationFacade(stationC));
-        stations.add(new StationFacade(stationB));
+    @Test
+    void shouldOrderCorrectlySingleDest() {
+
+        Set<SortsPositions.HasStationId<Station>> stations = new HashSet<>();
+        stations.add(new StationFacade(nearPiccGardens));
+        stations.add(new StationFacade(nearAltrincham));
+        stations.add(new StationFacade(nearShudehill));
+        stations.add(new StationFacade(alsoNearAlty));
 
         SortsPositions sortsPositions = new SortsPositions(dataForTest);
 
-        List<Station> resultsFromD = sortsPositions.sortedByNearTo(Collections.singletonList(stationD.getId()), stations);
+        List<Station> resultsFromD = sortsPositions.sortedByNearTo(Collections.singleton(nearStockportBus.getId()), stations);
+        assertEquals(stations.size(), resultsFromD.size());
 
-        assertEquals(stationA, resultsFromD.get(0));
-        assertEquals(stationB, resultsFromD.get(1));
-        assertEquals(stationC, resultsFromD.get(2));
+        assertEquals(nearPiccGardens, resultsFromD.get(0));
+        assertEquals(nearShudehill, resultsFromD.get(1));
+        assertEquals(nearAltrincham, resultsFromD.get(2));
+        assertEquals(alsoNearAlty, resultsFromD.get(3));
 
-        List<Station> resultsFromA = sortsPositions.sortedByNearTo(Collections.singletonList(stationA.getId()), stations);
+        List<Station> resultsFromA = sortsPositions.sortedByNearTo(Collections.singleton(nearPiccGardens.getId()), stations);
 
-        assertEquals(stationA, resultsFromA.get(0));
-        assertEquals(stationB, resultsFromA.get(1));
-        assertEquals(stationC, resultsFromD.get(2));
+        assertEquals(nearPiccGardens, resultsFromA.get(0));
+        assertEquals(nearShudehill, resultsFromA.get(1));
+        assertEquals(nearAltrincham, resultsFromD.get(2));
+        assertEquals(alsoNearAlty, resultsFromD.get(3));
+
+    }
+
+    @Test
+    void shouldOrderCorrectlyMultipleDests() {
+
+        Set<SortsPositions.HasStationId<Station>> stations = new HashSet<>();
+        stations.add(new StationFacade(nearPiccGardens));
+        stations.add(new StationFacade(nearAltrincham));
+        stations.add(new StationFacade(nearShudehill));
+        stations.add(new StationFacade(alsoNearAlty));
+
+        SortsPositions sortsPositions = new SortsPositions(dataForTest);
+
+        Set<String> places = new HashSet<>();
+        places.add(nearAltrincham.getId());
+        places.add(nearStockportBus.getId());
+
+        List<Station> resultsFromDandA = sortsPositions.sortedByNearTo(places, stations);
+        assertEquals(stations.size(), resultsFromDandA.size());
+
+        assertEquals(nearAltrincham, resultsFromDandA.get(0));
+        assertEquals(alsoNearAlty, resultsFromDandA.get(1));
+        assertEquals(nearPiccGardens, resultsFromDandA.get(2));
+        assertEquals(nearShudehill, resultsFromDandA.get(3));
+
     }
 
     private static class StationFacade implements SortsPositions.HasStationId<Station> {

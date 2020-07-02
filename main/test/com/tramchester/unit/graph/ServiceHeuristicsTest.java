@@ -27,7 +27,7 @@ import org.neo4j.graphdb.Path;
 
 import java.time.LocalTime;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.graph.GraphStaticKeys.HOUR;
 import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
-    private final List<Station> endStationIds = Collections.singletonList(Stations.Deansgate);
+    private final Set<Station> endStationIds = Collections.singleton(Stations.Deansgate);
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private NodeContentsRepository nodeOperations;

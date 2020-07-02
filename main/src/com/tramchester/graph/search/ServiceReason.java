@@ -33,10 +33,9 @@ public abstract class ServiceReason {
         LongerPath,
         PathTooLong,
         OnTram,
-        NotOnTram,
-        RouteAlreadySeen,
-        TooManyChanges,
-        SeenBefore
+        OnBus,
+        NotOnVehicle,
+        TooManyChanges
     }
 
     private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;
@@ -137,41 +136,6 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class SeenBefore extends ServiceReason {
-
-        private final ReasonCode code;
-
-        public SeenBefore(ReasonCode code, Path path) {
-            super(code , path);
-            this.code = code;
-        }
-
-        @Override
-        public String textForGraph() {
-            return code.name();
-        }
-    }
-
-    //////////////
-
-    private static class RouteAlreadySeen extends ServiceReason {
-
-        private final ReasonCode code;
-
-        protected RouteAlreadySeen(ReasonCode code, Path path) {
-            super(code, path);
-            this.code = code;
-        }
-
-        @Override
-        public String textForGraph() {
-            return code.name();
-        }
-    }
-
-
-    //////////////
-
     private static class IsValid extends ServiceReason
     {
         public IsValid(Path path) {
@@ -251,7 +215,7 @@ public abstract class ServiceReason {
 
     private static class DoesNotOperateOnTime extends ServiceReason
     {
-        private TramTime elapsedTime;
+        private final TramTime elapsedTime;
 
         public DoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, Path path) {
             super(reasonCode, path);
@@ -298,10 +262,6 @@ public abstract class ServiceReason {
         return new Unreachable(ReasonCode.NotReachable, path);
     }
 
-    public static ServiceReason RouteAlreadySeen(Path path) {
-        return new RouteAlreadySeen(ReasonCode.RouteAlreadySeen, path);
-    }
-
     public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, Path path) {
         return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, path);
     }
@@ -336,10 +296,6 @@ public abstract class ServiceReason {
 
     public static ServiceReason PathToLong(Path path) {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
-    }
-
-    public static ServiceReason SeenBefore(Path path) {
-        return new SeenBefore(ReasonCode.SeenBefore, path);
     }
 
 }

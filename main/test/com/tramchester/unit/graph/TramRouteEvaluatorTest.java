@@ -6,7 +6,9 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.*;
+import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.testSupport.TestEnv;
@@ -23,13 +25,13 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
-    private final List<String> destinationStationIds = Collections.singletonList("destinationStationId");
+    private final Set<String> destinationStationIds = Collections.singleton("destinationStationId");
     private ServiceHeuristics serviceHeuristics;
     private NodeContentsRepository nodeOperations;
     private Path path;
@@ -60,7 +62,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @NotNull
     private TramRouteEvaluator getEvaluator(long destinationNodeId) {
-        return new TramRouteEvaluator(serviceHeuristics, destinationNodeId, nodeIdLabelMap, reasons, config);
+        return new TramRouteEvaluator(serviceHeuristics, destinationNodeId, nodeIdLabelMap, reasons);
     }
 
     @Test

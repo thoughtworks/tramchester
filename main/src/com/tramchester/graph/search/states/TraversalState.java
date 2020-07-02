@@ -14,6 +14,7 @@ import org.neo4j.graphdb.Relationship;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
@@ -22,7 +23,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private final int parentCost;
     private TraversalState child;
     private final TraversalState parent;
-    private final List<String> destinationStationIds;
+    private final Set<String> destinationStationIds;
 
     protected final NodeContentsRepository nodeOperations;
     protected final long destinationNodeId;
@@ -35,7 +36,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     // initial only
     protected TraversalState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
-                             long destinationNodeId, List<String> destinationStationdIds,
+                             long destinationNodeId, Set<String> destinationStationdIds,
                              TramchesterConfig config) {
         this.nodeOperations = nodeOperations;
         this.destinationNodeId = destinationNodeId;
@@ -140,7 +141,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         protected final HourState.Builder hour;
         protected final DestinationState.Builder destination;
 
-        public Builders(SortsPositions sortsPositions, List<String> destinationStationIds, TramchesterConfig config) {
+        public Builders(SortsPositions sortsPositions, Set<String> destinationStationIds, TramchesterConfig config) {
             routeStation = new RouteStationStateOnTrip.Builder(config);
             routeStationEndTrip = new RouteStationStateEndTrip.Builder(config);
             routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);

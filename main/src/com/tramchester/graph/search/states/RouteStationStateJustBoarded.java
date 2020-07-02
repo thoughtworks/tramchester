@@ -8,9 +8,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -20,9 +18,9 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
     public static class Builder {
         private final SortsPositions sortsPositions;
-        private final List<String> destinationStationIds;
+        private final Set<String> destinationStationIds;
 
-        public Builder(SortsPositions sortsPositions, List<String> destinationStationIds) {
+        public Builder(SortsPositions sortsPositions, Set<String> destinationStationIds) {
             this.sortsPositions = sortsPositions;
             this.destinationStationIds = destinationStationIds;
         }
@@ -36,14 +34,14 @@ public class RouteStationStateJustBoarded extends TraversalState {
         public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
                     DEPART, INTERCHANGE_DEPART), busStationState);
-            outbounds.addAll(orderSvcRelationships(node));
+            outbounds.addAll(orderSvcRelationshipsForBus(node));
             return new RouteStationStateJustBoarded(busStationState, outbounds, cost);
         }
 
-        private Collection<Relationship> orderSvcRelationships(Node node) {
+        private Collection<Relationship> orderSvcRelationshipsForBus(Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
 
-            List<SortsPositions.HasStationId<Relationship>> relationships = new ArrayList<>();
+            Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();
             toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
 
             return sortsPositions.sortedByNearTo(destinationStationIds, relationships);
@@ -75,14 +73,29 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
         private final Relationship relationship;
+        private final String stationId;
 
         private RelationshipFacade(Relationship relationship) {
             this.relationship = relationship;
+            this.stationId =  relationship.getProperty(GraphStaticKeys.TOWARDS_STATION_ID).toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RelationshipFacade that = (RelationshipFacade) o;
+            return stationId.equals(that.stationId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(stationId);
         }
 
         @Override
         public String getStationId() {
-            return relationship.getProperty(GraphStaticKeys.TOWARDS_STATION_ID).toString();
+            return stationId;
         }
 
         @Override

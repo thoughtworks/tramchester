@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -30,14 +31,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final NodeTypeRepository nodeTypeRepository;
     private final TramTime queryTime;
     private final long destinationNodeId;
-    private final List<String> endStationIds;
+    private final Set<String> endStationIds;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, Node destinationNode,
-                                List<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository) {
+                                Set<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.reasons = serviceHeuristics.getReasons();
@@ -53,7 +54,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
-                destinationNodeId, nodeTypeRepository, reasons, config);
+                destinationNodeId, nodeTypeRepository, reasons);
 
         final NotStartedState traversalState = new NotStartedState(sortsPosition, nodeContentsRepository,
                 destinationNodeId, endStationIds, config);
@@ -81,7 +82,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 expand(this, initialJourneyState).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST); // Breadth first hits shortest trips sooner
+                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST); // TODO Breadth first hits shortest trips sooner??
 
         Traverser traverse = traversalDesc.traverse(startNode);
         Spliterator<Path> spliterator = traverse.spliterator();

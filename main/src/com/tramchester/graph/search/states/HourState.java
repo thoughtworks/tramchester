@@ -43,7 +43,7 @@ public class HourState extends TraversalState {
     private TraversalState toMinute(Node node, JourneyState journeyState, int cost) throws TramchesterException {
         TramTime time = nodeOperations.getTime(node);
 
-        journeyState.recordTramDetails(time, getTotalCost());
+        journeyState.recordVehicleDetails(time, getTotalCost());
 
         return builders.minute.fromHour(this, node, cost, maybeExistingTrip);
     }
