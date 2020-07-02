@@ -30,6 +30,8 @@ liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 20
 dataPath: data/bus
 loadPostcodes: true
+createNeighbours: true
+distanceToNeighboursKM: 0.25
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true

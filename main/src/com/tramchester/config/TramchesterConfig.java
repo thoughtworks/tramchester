@@ -97,6 +97,12 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // load postcodes?
     public abstract boolean getLoadPostcodes();
 
+    // add neighbouring stations
+    public abstract boolean getCreateNeighbours();
+
+    // distance for neighbouring stations, in KM
+    public abstract double getDistanceToNeighboursKM() ;
+
     // unpacked location of postcode data
     public abstract Path getPostcodeDataPath();
 

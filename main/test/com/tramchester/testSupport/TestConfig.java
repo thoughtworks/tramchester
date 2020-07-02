@@ -7,6 +7,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -27,7 +28,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     //////
-    private final List<String> closedStations = asList("St Peters Square");
+    private final List<String> closedStations = Collections.singletonList("St Peters Square");
 
     @Override
     public String getInstanceDataUrl() {
@@ -167,5 +168,13 @@ public abstract class TestConfig extends AppConfiguration {
         return factory;
     }
 
+    @Override
+    public boolean getCreateNeighbours() {
+        return false;
+    }
 
+    @Override
+    public double getDistanceToNeighboursKM() {
+        return 0.4;
+    }
 }

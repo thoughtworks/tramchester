@@ -9,6 +9,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class CreateNeighbours {
+public class CreateNeighbours implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(CreateNeighbours.class);
 
     private final GraphDatabase database;
@@ -28,13 +29,13 @@ public class CreateNeighbours {
     private final double rangeInKM;
 
     public CreateNeighbours(GraphDatabase database, GraphQuery graphQuery, StationRepository repository,
-                            StationLocationsRepository stationLocations, TramchesterConfig config, double rangeInKM) {
+                            StationLocationsRepository stationLocations, TramchesterConfig config) {
         this.database = database;
         this.graphQuery = graphQuery;
         this.repository = repository;
         this.stationLocations = stationLocations;
         this.config = config;
-        this.rangeInKM = rangeInKM;
+        this.rangeInKM = config.getDistanceToNeighboursKM();
     }
 
     public void buildWithNoCommit(Transaction txn) {
@@ -57,4 +58,22 @@ public class CreateNeighbours {
         });
     }
 
+    @Override
+    public void start() {
+        logger.info("Start");
+        try(Transaction txn = database.beginTx()) {
+            buildWithNoCommit(txn);
+            logger.info("Commit");
+            txn.commit();
+        }
+        catch (Exception exception) {
+            logger.error("Caught expception during nieghbouring station add", exception);
+        }
+        logger.info("Started");
+    }
+
+    @Override
+    public void stop() {
+        // no-op
+    }
 }

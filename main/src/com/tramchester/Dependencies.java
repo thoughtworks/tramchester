@@ -123,9 +123,7 @@ public class Dependencies {
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);
         picoContainer.addComponent(SortsPositions.class);
-
         picoContainer.addComponent(StagedTransportGraphBuilder.class);
-//        picoContainer.addComponent(TransportGraphBuilder.class);
 
         picoContainer.addComponent(SpatialService.class);
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
@@ -167,6 +165,9 @@ public class Dependencies {
         picoContainer.addComponent(InterchangeRepository.class);
         picoContainer.addComponent(GraphDatabase.class);
         picoContainer.addComponent(RouteCallingStations.class);
+        if (configuration.getCreateNeighbours()) {
+            picoContainer.addComponent(CreateNeighbours.class);
+        }
 
         if (logger.isDebugEnabled()) {
             logger.warn("Debug logging is enabled, server performance will be impacted");

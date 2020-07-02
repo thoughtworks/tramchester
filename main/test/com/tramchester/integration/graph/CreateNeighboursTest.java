@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
+//@Disabled("WIP")
 class CreateNeighboursTest {
 
     private static Dependencies dependencies;
@@ -61,8 +61,7 @@ class CreateNeighboursTest {
         StationRepository repository = dependencies.get(StationRepository.class);
         StationLocationsRepository stationLocations = dependencies.get(StationLocationsRepository.class);
 
-        double rangeInKM = 0.4D; // TODO into config, not same as walking range
-        createNeighbours = new CreateNeighbours(database, graphQuery, repository, stationLocations, testConfig, rangeInKM);
+        createNeighbours = new CreateNeighbours(database, graphQuery, repository, stationLocations, testConfig);
 
         txn = database.beginTx();
     }

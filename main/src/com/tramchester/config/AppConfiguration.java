@@ -132,6 +132,12 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("bus")
     private boolean bus;
 
+    @JsonProperty("createNeighbours")
+    private boolean createNeighbours;
+
+    @JsonProperty("distanceToNeighboursKM")
+    private double distanceToNeighboursKM;
+
     @JsonProperty("maxNumberMissingLiveMessages")
     private int maxNumberMissingLiveMessages;
 
@@ -292,6 +298,16 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean getLoadPostcodes() {
         return loadPostcodes;
+    }
+
+    @Override
+    public boolean getCreateNeighbours() {
+        return createNeighbours;
+    }
+
+    @Override
+    public double getDistanceToNeighboursKM() {
+        return distanceToNeighboursKM;
     }
 
     @Override

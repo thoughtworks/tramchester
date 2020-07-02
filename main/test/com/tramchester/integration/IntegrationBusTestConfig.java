@@ -63,4 +63,8 @@ public class IntegrationBusTestConfig extends TestConfig {
         return 12;
     }
 
+    @Override
+    public double getDistanceToNeighboursKM() {
+        return 0.4;
+    }
 }
