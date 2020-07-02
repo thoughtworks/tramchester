@@ -20,6 +20,7 @@ public abstract class ServiceReason {
     // seems to periodically incorrectly return true for isDebugEnabled()
     private static final boolean debugEnabled = logger.isDebugEnabled() && (System.getenv("CIRCLECI")==null);
 
+
     public enum ReasonCode {
         Valid,
         NotOnQueryDate,
@@ -35,6 +36,7 @@ public abstract class ServiceReason {
         OnTram,
         OnBus,
         NotOnVehicle,
+        SeenBusStationBefore,
         TooManyChanges
     }
 
@@ -174,6 +176,21 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static class SeenBusStationBefore extends HasDiag
+    {
+        public SeenBusStationBefore(Path path) {
+
+            super(ReasonCode.SeenBusStationBefore, "Seen bus station before", path);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof DoesNotRunOnQueryDateWithDiag;
+        }
+    }
+
+    //////////////
+
     private static class DoesNotRunOnQueryDate extends ServiceReason
     {
         public DoesNotRunOnQueryDate() {
@@ -296,6 +313,11 @@ public abstract class ServiceReason {
 
     public static ServiceReason PathToLong(Path path) {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
+    }
+
+
+    public static ServiceReason SeenBusStationBefore(Path path) {
+        return new ServiceReason.SeenBusStationBefore(path);
     }
 
 }

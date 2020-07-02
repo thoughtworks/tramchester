@@ -13,7 +13,6 @@ import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
@@ -54,7 +53,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
-                destinationNodeId, nodeTypeRepository, reasons);
+                destinationNodeId, nodeTypeRepository, reasons, config );
 
         final NotStartedState traversalState = new NotStartedState(sortsPosition, nodeContentsRepository,
                 destinationNodeId, endStationIds, config);

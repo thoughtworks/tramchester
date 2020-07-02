@@ -62,7 +62,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @NotNull
     private TramRouteEvaluator getEvaluator(long destinationNodeId) {
-        return new TramRouteEvaluator(serviceHeuristics, destinationNodeId, nodeIdLabelMap, reasons);
+        return new TramRouteEvaluator(serviceHeuristics, destinationNodeId, nodeIdLabelMap, reasons, config);
     }
 
     @Test

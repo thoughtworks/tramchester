@@ -3,8 +3,12 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.testSupport.Stations;
@@ -13,10 +17,12 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.BusStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -61,6 +67,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHaveAltyToStockJourney() {
         TramTime travelTime = TramTime.of(10, 45);
+
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 10, txn, AltrinchamInterchange,
                 StockportBusStation, travelTime, when, 2);
         // 2 changes means 3 stages or less
@@ -71,6 +78,40 @@ class BusRouteCalculatorTest {
         // algo seems to return very large number of changes even when 2 is possible??
         List<Journey> journeys2Stages = journeysMaxChanges.stream().filter(journey -> journey.getStages().size() <= 3).collect(Collectors.toList());
         assertFalse(journeys2Stages.isEmpty());
+    }
+
+    @Test
+    void shouldFindAltyToKnutfordAtExpectedTime() {
+        TramTime travelTime = TramTime.of(15, 55);
+
+        Stream<Journey> journeyStream = calculator.calculateRoute(txn, AltrinchamInterchange, KnutsfordStationStand3,
+                new JourneyRequest(new TramServiceDate(when), travelTime, false, 8));
+        Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
+        journeyStream.close();
+
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldNotRevisitSameBusStationAltyToKnutsford() {
+        TramTime travelTime = TramTime.of(15, 25);
+
+        Stream<Journey> journeyStream = calculator.calculateRoute(txn, AltrinchamInterchange, KnutsfordStationStand3,
+                new JourneyRequest(new TramServiceDate(when), travelTime, false, 8));
+        Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
+        journeyStream.close();
+
+        journeys.forEach(journey -> {
+            List<Location> seen = new ArrayList<>();
+            journey.getStages().forEach(stage -> {
+                Location actionStation = stage.getActionStation();
+                assertFalse(seen.contains(actionStation), "Already seen " + actionStation + " for " + journey.toString());
+                seen.add(actionStation);
+            });
+        });
+        // Expected no journeys, when working correctly should not find a jounrey at this time,
+        // i.e. we should not loop back around to alty
+        assertTrue(journeys.isEmpty());
     }
 
     @Test

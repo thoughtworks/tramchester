@@ -235,7 +235,7 @@ var app = new Vue({
                     urlParams.lat = place.coords.latitude;
                     urlParams.lon = place.coords.longitude;
                 }
-                axios.get('/api/journey', { params: urlParams, timeout: 11000}).
+                axios.get('/api/journey', { params: urlParams, timeout: 30000}).
                     then(function (response) {
                         app.networkError = false;
                         app.journeyResponse = response.data;

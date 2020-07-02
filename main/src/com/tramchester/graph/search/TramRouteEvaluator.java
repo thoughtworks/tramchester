@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
@@ -23,22 +25,25 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     private final long destinationNodeId;
     private final ServiceHeuristics serviceHeuristics;
-
     private final NodeTypeRepository nodeTypeRepository;
     private final ServiceReasons reasons;
     private int success;
     private int currentLowestCost;
     private final Map<Long, TramTime> previousSuccessfulVisit;
+    private final Set<Long> busStationNodes;
+    private final boolean bus;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, long destinationNodeId,
-                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons) {
+                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeId = destinationNodeId;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
+        bus = config.getBus();
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
         previousSuccessfulVisit = new HashMap<>();
+        busStationNodes = new HashSet<>();
     }
 
     public void dispose() {
@@ -115,6 +120,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         reasons.record(journeyState);
+
+        if (bus) {
+            if (nodeTypeRepository.isBusStation(endNode)) {
+                if (busStationNodes.contains(endNodeId)) {
+                    reasons.recordReason(ServiceReason.SeenBusStationBefore(path));
+                    return Evaluation.EXCLUDE_AND_PRUNE;
+                }
+                busStationNodes.add(endNodeId);
+            }
+        }
 
         // no journey longer than N nodes
         if (path.length()>serviceHeuristics.getMaxPathLength()) {
