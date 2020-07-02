@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("WIP")
 class CreateNeighboursTest {
 
     private static Dependencies dependencies;

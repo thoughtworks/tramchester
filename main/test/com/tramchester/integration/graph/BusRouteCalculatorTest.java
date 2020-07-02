@@ -28,7 +28,7 @@ import static com.tramchester.testSupport.BusStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-//@Disabled("WIP")
+@Disabled("WIP")
 class BusRouteCalculatorTest {
     // TODO this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;

@@ -65,17 +65,17 @@ class TransportDataFromFilesTest {
     }
 
     @Test
-    void shouldGetRoute() {
+    void shouldGetRouteWithHeadsigns() {
         Route result = transportData.getRoute(RoutesForTesting.ASH_TO_ECCLES.getId());
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertEquals("MET:   3:I:",result.getId());
         assertTrue(result.isTram());
 
-        // Eccles - plus some go to cornbrook, mediacity UK and Trafford bar
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals(4, headsigns.size(), "expected headsigns");
+        assertEquals(2, headsigns.size(), "expected headsigns");
         assertTrue(headsigns.contains("Eccles"));
+        assertTrue(headsigns.contains("Trafford Bar"));
     }
 
     @Test
