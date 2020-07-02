@@ -74,9 +74,6 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("walkingMPH")
     private double walkingMPH;
 
-    @JsonProperty("createLocality")
-    private boolean createLocality;
-
     @JsonProperty("secureHost")
     private String secureHost;
 
@@ -247,9 +244,6 @@ public class AppConfiguration extends TramchesterConfig {
     public boolean getRebuildGraph() {
         return rebuildGraph;
     }
-    
-    @Override
-    public boolean getCreateLocality() { return createLocality; }
 
     public String getGraphName() { return graphName; }
 

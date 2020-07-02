@@ -3,14 +3,14 @@ package com.tramchester.domain.presentation.DTO;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.Platform;
 
-public class DTO implements HasId {
+public class PlatformDTO implements HasId {
 
     private String id;
     private String name;
     private String platformNumber;
     private StationDepartureInfoDTO stationDepartureInfo;
 
-    public DTO() {
+    public PlatformDTO() {
         // for deserialisation
     }
 
@@ -24,7 +24,7 @@ public class DTO implements HasId {
                 '}';
     }
 
-    public DTO(Platform original) {
+    public PlatformDTO(Platform original) {
         this.id = original.getId();
         this.name = original.getName();
         this.platformNumber = original.getPlatformNumber();
@@ -55,7 +55,7 @@ public class DTO implements HasId {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DTO that = (DTO) o;
+        PlatformDTO that = (PlatformDTO) o;
 
         return id.equals(that.id);
     }

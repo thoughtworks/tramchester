@@ -50,7 +50,6 @@ dataExpiryThreadhold: 3
 maxNumberMissingLiveMessages: 10
 
 changeAtInterchangeOnly: true
-createLocality: false
 
 swagger:
   resourcePackage: com.tramchester.resources

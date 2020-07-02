@@ -52,11 +52,6 @@ class GraphBuilderTestPerformance {
         }
 
         @Override
-        public boolean getCreateLocality() {
-            return false;
-        }
-
-        @Override
         public Path getDataFolder() {
             return Paths.get("data/all");
         }

@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -97,7 +98,7 @@ class GraphWithSimpleRouteTest {
         journeys.forEach(journey ->{
             List<TransportStage> stages = journey.getStages();
             Assertions.assertEquals(2, stages.size());
-            Assertions.assertTrue(stages.get(0).getMode().isWalk());
+            Assertions.assertEquals(stages.get(0).getMode(), TransportMode.Walk);
         });
     }
 
@@ -112,7 +113,7 @@ class GraphWithSimpleRouteTest {
         journeys.forEach(journey ->{
             List<TransportStage> stages = journey.getStages();
             Assertions.assertEquals(1, stages.size());
-            Assertions.assertTrue(stages.get(0).getMode().isWalk());
+            Assertions.assertEquals(stages.get(0).getMode(), TransportMode.Walk);
         });
     }
 

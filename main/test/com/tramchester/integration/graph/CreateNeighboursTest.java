@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//@Disabled("WIP")
+@Disabled("WIP")
 class CreateNeighboursTest {
 
     private static Dependencies dependencies;
@@ -139,7 +139,7 @@ class CreateNeighboursTest {
             TransportStage first = journey.getStages().get(0);
             assertEquals(TransportMode.Tram, first.getMode());
             TransportStage second = journey.getStages().get(1);
-            assertEquals(TransportMode.Walk, second.getMode());
+            assertEquals(TransportMode.Connect, second.getMode());
         });
     }
 
@@ -156,7 +156,7 @@ class CreateNeighboursTest {
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
             TransportStage stage = journey.getStages().get(0);
-            assertEquals(TransportMode.Walk, stage.getMode());
+            assertEquals(TransportMode.Connect, stage.getMode());
         });
     }
 

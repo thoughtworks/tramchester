@@ -1,6 +1,8 @@
 package com.tramchester.mappers;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
@@ -14,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 public class TramJourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyToDTOMapper.class);
@@ -33,12 +34,26 @@ public class TramJourneyToDTOMapper {
         TramTime queryTime = journey.getQueryTime();
         for(TransportStage rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
-            TravelAction action = rawStage.getMode().isVehicle() ? decideActionTram(stages) : decideWalkingAction(rawStage);
+            TravelAction action = decideTravelAction(stages, rawStage);
             StageDTO stageDTO = stageFactory.build(rawStage, action, queryTime, tramServiceDate);
             stages.add(stageDTO);
         }
 
         return journeyFactory.build(stages, queryTime);
+    }
+
+    private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage rawStage) {
+        switch (rawStage.getMode()) {
+            case Tram:
+            case Bus:
+                return decideActionTram(stages);
+            case Walk:
+                return decideWalkingAction(rawStage);
+            case Connect:
+                return TravelAction.ConnectTo;
+            default:
+                throw new RuntimeException("Not defined for " + rawStage.getMode());
+        }
     }
 
     private TravelAction decideWalkingAction(TransportStage rawStage) {
@@ -50,7 +65,9 @@ public class TramJourneyToDTOMapper {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }
-        if ((stagesSoFar.get(stagesSoFar.size()-1).getMode()==TransportMode.Walk)) {
+        StageDTO previousStage = stagesSoFar.get(stagesSoFar.size() - 1);
+        TransportMode previousMode = previousStage.getMode();
+        if ((previousMode ==TransportMode.Walk) || previousMode ==TransportMode.Connect) {
             return TravelAction.Board;
         }
         return TravelAction.Change;

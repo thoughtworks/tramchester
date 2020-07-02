@@ -94,7 +94,6 @@ public class WalkingStage implements TransportStage {
         return Optional.empty();
     }
 
-
     @Override
     public String toString() {
         return "WalkingStage{" +

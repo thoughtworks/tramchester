@@ -6,7 +6,7 @@ import com.tramchester.App;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.ProximityGroups;
-import com.tramchester.domain.presentation.DTO.DTO;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
@@ -49,7 +49,7 @@ class StationResourceTest {
 
         Assertions.assertEquals(id, result.getId());
 
-        List<DTO> platforms = result.getPlatforms();
+        List<PlatformDTO> platforms = result.getPlatforms();
         Assertions.assertEquals(4, platforms.size());
         Assertions.assertEquals(id+"1", platforms.get(0).getId());
         Assertions.assertEquals(id+"2", platforms.get(1).getId());
@@ -74,9 +74,9 @@ class StationResourceTest {
         StationDTO stationDTO = stations.get(ALL_STOPS_START + 1);
         Assertions.assertEquals("Altrincham", stationDTO.getName());
 
-        List<DTO> platforms = stationDTO.getPlatforms();
+        List<PlatformDTO> platforms = stationDTO.getPlatforms();
         Assertions.assertEquals(1, platforms.size());
-        DTO platformDTO = platforms.get(0);
+        PlatformDTO platformDTO = platforms.get(0);
         Assertions.assertEquals("1", platformDTO.getPlatformNumber());
         Assertions.assertEquals("Altrincham platform 1", platformDTO.getName());
         Assertions.assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());

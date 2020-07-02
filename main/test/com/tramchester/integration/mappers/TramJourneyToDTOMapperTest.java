@@ -14,6 +14,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramJourneyToDTOMapperTest {
     private static GraphDatabase database;
@@ -111,17 +113,17 @@ class TramJourneyToDTOMapperTest {
         stages.add(altToCorn);
         JourneyDTO journeyDTO = mapper.createJourneyDTO(new Journey(stages, TramTime.of(7,0)), tramServiceDate);
 
-        Assertions.assertEquals(1, journeyDTO.getStages().size());
+        assertEquals(1, journeyDTO.getStages().size());
         StageDTO stage = journeyDTO.getStages().get(0);
-        Assertions.assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
-        Assertions.assertEquals(Stations.Cornbrook.getId(),stage.getLastStation().getId());
+        assertEquals(Stations.Altrincham.getId(),stage.getFirstStation().getId());
+        assertEquals(Stations.Cornbrook.getId(),stage.getLastStation().getId());
         Assertions.assertTrue(stage.getDuration()>0);
         Assertions.assertTrue(stage.getFirstDepartureTime().asLocalTime().isAfter(sevenAM));
         Assertions.assertTrue(stage.getFirstDepartureTime().asLocalTime().isBefore(eightAM));
         Assertions.assertTrue(stage.getExpectedArrivalTime().asLocalTime().isAfter(sevenAM));
         Assertions.assertTrue(stage.getExpectedArrivalTime().asLocalTime().isBefore(eightAM));
-        Assertions.assertEquals(8, stage.getPassedStops());
-        Assertions.assertEquals(TramTime.of(7,0), journeyDTO.getQueryTime());
+        assertEquals(8, stage.getPassedStops());
+        assertEquals(TramTime.of(7,0), journeyDTO.getQueryTime());
     }
 
     @Test
@@ -138,15 +140,15 @@ class TramJourneyToDTOMapperTest {
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
-        Assertions.assertEquals(2, journey.getStages().size());
+        assertEquals(2, journey.getStages().size());
 
         StageDTO stage1 = journey.getStages().get(0);
-        Assertions.assertEquals(begin.getId(),stage1.getFirstStation().getId());
-        Assertions.assertEquals(middle.getId(),stage1.getLastStation().getId());
+        assertEquals(begin.getId(),stage1.getFirstStation().getId());
+        assertEquals(middle.getId(),stage1.getLastStation().getId());
 
         StageDTO stage2 = journey.getStages().get(1);
-        Assertions.assertEquals(middle.getId(),stage2.getFirstStation().getId());
-        Assertions.assertEquals(end.getId(),stage2.getLastStation().getId());
+        assertEquals(middle.getId(),stage2.getFirstStation().getId());
+        assertEquals(end.getId(),stage2.getLastStation().getId());
     }
 
     private Route createRoute(String name) {
@@ -161,12 +163,12 @@ class TramJourneyToDTOMapperTest {
         stages.add(walkingStage);
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
-        Assertions.assertEquals(1, journey.getStages().size());
+        assertEquals(1, journey.getStages().size());
 
         StageDTO stage = journey.getStages().get(0);
-        Assertions.assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
-        Assertions.assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
-        Assertions.assertEquals(Stations.MarketStreet.getId(),stage.getActionStation().getId());
+        assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
+        assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
+        assertEquals(Stations.MarketStreet.getId(),stage.getActionStation().getId());
     }
 
     @Test
@@ -177,12 +179,37 @@ class TramJourneyToDTOMapperTest {
         stages.add(walkingStage);
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, pm10), tramServiceDate);
-        Assertions.assertEquals(1, journey.getStages().size());
+        assertEquals(1, journey.getStages().size());
 
         StageDTO stage = journey.getStages().get(0);
-        Assertions.assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
-        Assertions.assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
-        Assertions.assertEquals(Stations.Deansgate.getId(),stage.getActionStation().getId());
+        assertEquals(Stations.Deansgate.getId(),stage.getFirstStation().getId());
+        assertEquals(Stations.MarketStreet.getId(),stage.getLastStation().getId());
+        assertEquals(Stations.Deansgate.getId(),stage.getActionStation().getId());
+    }
+
+    @Test
+    void shouldMapJoruneyWithConnectingStage() {
+        TramTime time = TramTime.of(15,45);
+        ConnectingStage connectingStage = new ConnectingStage(BusStations.AltrinchamInterchange, Stations.Altrincham, 1, time);
+        VehicleStage tramStage = getRawVehicleStage(Stations.Altrincham, Stations.Shudehill, createRoute("route"), time.plusMinutes(1), 35, 9);
+
+        stages.add(connectingStage);
+        stages.add(tramStage);
+
+        JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, time), tramServiceDate);
+        assertEquals(2, journey.getStages().size());
+
+        StageDTO stage1 = journey.getStages().get(0);
+        assertEquals(BusStations.AltrinchamInterchange.getId(), stage1.getActionStation().getId());
+        assertEquals(Stations.Altrincham.getId(), stage1.getLastStation().getId());
+        assertEquals(1, stage1.getDuration());
+        assertEquals("Walk between", stage1.getAction());
+
+        StageDTO stage2 = journey.getStages().get(1);
+        assertEquals(Stations.Altrincham.getId(), stage2.getActionStation().getId());
+        assertEquals(Stations.Shudehill.getId(), stage2.getLastStation().getId());
+        assertEquals(35, stage2.getDuration());
+        assertEquals("Board", stage2.getAction());
     }
 
     @Test
@@ -204,18 +231,18 @@ class TramJourneyToDTOMapperTest {
 
         JourneyDTO journey = mapper.createJourneyDTO(new Journey(stages, am10), tramServiceDate);
 
-        Assertions.assertEquals(3, journey.getStages().size());
+        assertEquals(3, journey.getStages().size());
 
 //        StageDTO stage1 = journey.getStages().get(0);
 
         StageDTO stage2 = journey.getStages().get(1);
-        Assertions.assertEquals(middleB.getId(),stage2.getActionStation().getId());
-        Assertions.assertEquals(middleB.getId(),stage2.getLastStation().getId());
-        Assertions.assertEquals(walkCost, stage2.getDuration());
+        assertEquals(middleB.getId(),stage2.getActionStation().getId());
+        assertEquals(middleB.getId(),stage2.getLastStation().getId());
+        assertEquals(walkCost, stage2.getDuration());
 
         StageDTO stage3 = journey.getStages().get(2);
-        Assertions.assertEquals(middleB.getId(),stage3.getFirstStation().getId());
-        Assertions.assertEquals(end.getId(),stage3.getLastStation().getId());
+        assertEquals(middleB.getId(),stage3.getFirstStation().getId());
+        assertEquals(end.getId(),stage3.getLastStation().getId());
 
         TramTime arrivalTime = stage3.getExpectedArrivalTime();
         Assertions.assertTrue(arrivalTime.asLocalTime().isAfter(LocalTime.of(10,10)));
@@ -239,9 +266,9 @@ class TramJourneyToDTOMapperTest {
 
         JourneyDTO result = mapper.createJourneyDTO(new Journey(stages, startTime), tramServiceDate);
 
-        Assertions.assertEquals(2, result.getStages().size());
+        assertEquals(2, result.getStages().size());
         // +1, leave tram time
-        Assertions.assertEquals(startTime.plusMinutes(18+42+1), result.getExpectedArrivalTime());
+        assertEquals(startTime.plusMinutes(18+42+1), result.getExpectedArrivalTime());
     }
 
     private VehicleStage getRawVehicleStage(Location start, Location finish, Route route, TramTime startTime,

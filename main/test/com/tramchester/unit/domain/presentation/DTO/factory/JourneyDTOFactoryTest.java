@@ -1,6 +1,5 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.tramchester.domain.*;
@@ -257,7 +256,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         departureInfo.addDueTram(new DueTram(station, "Due", wait, "Double",when));
         departureInfo.addDueTram(new DueTram(station, "Due", wait+2, "Double",when));
 
-        DTO platform = new DTO(new Platform("platformId", "platformName"));
+        PlatformDTO platform = new PlatformDTO(new Platform("platformId", "platformName"));
         platform.setDepartureInfo(new StationDepartureInfoDTO(departureInfo));
 
         int durationOfStage = 15;

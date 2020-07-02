@@ -19,7 +19,7 @@ public class StationDTO extends LocationDTO {
         // deserialisation
     }
 
-    public StationDTO(Station station, List<DTO> platformDTOS, ProximityGroup proximityGroup) {
+    public StationDTO(Station station, List<PlatformDTO> platformDTOS, ProximityGroup proximityGroup) {
         super(station, platformDTOS);
         this.proximityGroup = proximityGroup;
     }

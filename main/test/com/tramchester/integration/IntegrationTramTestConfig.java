@@ -5,7 +5,6 @@ import com.tramchester.testSupport.TestConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,11 +36,6 @@ public class IntegrationTramTestConfig extends TestConfig {
     @Override
     public Set<String> getAgencies() {
         return new HashSet<>(Collections.singletonList("MET"));
-    }
-
-    @Override
-    public boolean getCreateLocality() {
-        return false;
     }
 
     @Override

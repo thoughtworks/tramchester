@@ -12,7 +12,7 @@ public class LocationDTO {
     private String name;
     private LatLong latLong;
     private boolean tram;
-    private List<DTO> platforms;
+    private List<PlatformDTO> platforms;
 
     public LocationDTO() {
         // deserialisation
@@ -26,11 +26,11 @@ public class LocationDTO {
         this.area = source.getArea();
         platforms = new LinkedList<>();
         if (source.hasPlatforms()) {
-            source.getPlatforms().forEach(platform -> platforms.add(new DTO(platform)));
+            source.getPlatforms().forEach(platform -> platforms.add(new PlatformDTO(platform)));
         }
     }
 
-    public LocationDTO(Location source, List<DTO> platformDTOS) {
+    public LocationDTO(Location source, List<PlatformDTO> platformDTOS) {
         this.id = source.getId();
         this.name = source.getName();
         this.latLong = source.getLatLong();
@@ -78,7 +78,7 @@ public class LocationDTO {
         return id.hashCode();
     }
 
-    public List<DTO> getPlatforms() {
+    public List<PlatformDTO> getPlatforms() {
         return platforms;
     }
 

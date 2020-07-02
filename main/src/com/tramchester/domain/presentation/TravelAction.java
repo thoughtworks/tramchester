@@ -11,5 +11,9 @@ public enum TravelAction {
         public String toString() {
             return "Walk from";
         }
+    }, ConnectTo {
+        @Override
+        public String toString() { return "Walk between"; }
     }
+
 }

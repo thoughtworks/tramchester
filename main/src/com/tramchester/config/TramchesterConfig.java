@@ -46,10 +46,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // the secure host, the one the certificate matches
     public abstract String getSecureHost();
 
-    // EXPERIMENTAL FOR BUSES /////////
-    // try to create walking links between stations close together
-    public abstract boolean getCreateLocality();
-
     // max time to wait for tram/connection
     public abstract int getMaxWait();
 

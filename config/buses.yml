@@ -48,7 +48,6 @@ recentStopsToShow: 5
 dataExpiryThreadhold: 3
 
 changeAtInterchangeOnly: false
-createLocality: false
 
 swagger:
   resourcePackage: com.tramchester.resources

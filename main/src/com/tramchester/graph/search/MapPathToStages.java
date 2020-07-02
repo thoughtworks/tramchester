@@ -1,10 +1,7 @@
 package com.tramchester.graph.search;
 
 
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.VehicleStage;
-import com.tramchester.domain.WalkingStage;
+import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocationFactory;
@@ -31,7 +28,6 @@ import java.util.Optional;
 import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
-
 
 public class MapPathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
@@ -179,12 +175,12 @@ public class MapPathToStages {
         int cost = getCost(relationship);
 
         String startStationId = relationship.getStartNode().getProperty(ID).toString();
-        Location start = transportData.getStation(startStationId);
+        Station start = transportData.getStation(startStationId);
 
         String endStationId = relationship.getEndNode().getProperty(ID).toString();
-        Location end = transportData.getStation(endStationId);
+        Station end = transportData.getStation(endStationId);
 
-        return new WalkingStage(start, end, cost, walkStartTime, false);
+        return new ConnectingStage(start, end, cost, walkStartTime);
     }
 
     private class State {
