@@ -2,7 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.*;
+import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.search.states.TraversalState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -14,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
@@ -31,8 +29,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private int success;
     private int currentLowestCost;
     private final Map<Long, TramTime> previousSuccessfulVisit;
-    private final Set<Long> busStationNodes;
-    private final boolean bus;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, long destinationNodeId,
                               NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, TramchesterConfig config) {
@@ -40,11 +36,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.destinationNodeId = destinationNodeId;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
-        bus = config.getBus();
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
         previousSuccessfulVisit = new HashMap<>();
-        busStationNodes = new HashSet<>();
     }
 
     public void dispose() {
@@ -121,16 +115,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         reasons.record(journeyState);
-
-        if (bus) {
-            if (nodeTypeRepository.isBusStation(endNode)) {
-                if (busStationNodes.contains(endNodeId)) {
-                    reasons.recordReason(ServiceReason.SeenBefore(path));
-                    return Evaluation.EXCLUDE_AND_PRUNE;
-                }
-                busStationNodes.add(endNodeId);
-            }
-        }
 
         // no journey longer than N nodes
         if (path.length()>serviceHeuristics.getMaxPathLength()) {

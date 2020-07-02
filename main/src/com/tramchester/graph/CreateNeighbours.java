@@ -1,9 +1,13 @@
 package com.tramchester.graph;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +24,16 @@ public class CreateNeighbours {
     private final StationRepository repository;
     private final StationLocationsRepository stationLocations;
     private final GraphQuery graphQuery;
+    private final TramchesterConfig config;
     private final double rangeInKM;
 
     public CreateNeighbours(GraphDatabase database, GraphQuery graphQuery, StationRepository repository,
-                            StationLocationsRepository stationLocations, double rangeInKM) {
+                            StationLocationsRepository stationLocations, TramchesterConfig config, double rangeInKM) {
         this.database = database;
         this.graphQuery = graphQuery;
         this.repository = repository;
         this.stationLocations = stationLocations;
+        this.config = config;
         this.rangeInKM = rangeInKM;
     }
 
@@ -41,11 +47,13 @@ public class CreateNeighbours {
     }
 
     private void addRelationships(Transaction txn, Station station, List<Station> others) {
+        double mph = config.getWalkingMPH();
         Node stationNode = graphQuery.getStationNode(txn, station);
-        others.forEach(otherStation -> {
-            Node otherNode = graphQuery.getStationNode(txn, otherStation);
-            stationNode.createRelationshipTo(otherNode, TransportRelationshipTypes.NEIGHBOUR);
-            //otherNode.createRelationshipTo(stationNode, TransportRelationshipTypes.NEIGHBOUR);
+        others.forEach(other -> {
+            Node otherNode = graphQuery.getStationNode(txn, other);
+            RelationshipType relationType = other.isTram() ? TransportRelationshipTypes.TRAM_NEIGHBOUR : TransportRelationshipTypes.BUS_NEIGHBOUR;
+            Relationship relationship = stationNode.createRelationshipTo(otherNode, relationType);
+            relationship.setProperty(GraphStaticKeys.COST, CoordinateTransforms.calcCostInMinutes(station, other, mph));
         });
     }
 

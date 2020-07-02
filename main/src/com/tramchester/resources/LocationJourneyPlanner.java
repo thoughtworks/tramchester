@@ -6,11 +6,11 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.services.SpatialService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
 import static com.tramchester.geo.CoordinateTransforms.distanceInMiles;
 import static com.tramchester.graph.GraphStaticKeys.COST;
 import static java.lang.String.format;
@@ -30,8 +31,7 @@ import static java.lang.String.format;
 public class LocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
 
-
-    private final SpatialService spatialService;
+    private final StationLocations stationLocations;
     private final TramchesterConfig config;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
@@ -40,10 +40,9 @@ public class LocationJourneyPlanner {
     private final GraphDatabase graphDatabase;
     private final NodeTypeRepository nodeTypeRepository;
 
-    public LocationJourneyPlanner(SpatialService spatialService, TramchesterConfig config, RouteCalculator routeCalculator,
+    public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
                                   GraphQuery graphQuery, GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository) {
-        this.spatialService = spatialService;
         this.config = config;
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
@@ -51,6 +50,7 @@ public class LocationJourneyPlanner {
         this.graphQuery = graphQuery;
         this.graphDatabase = graphDatabase;
         this.nodeTypeRepository = nodeTypeRepository;
+        this.stationLocations = stationLocations;
     }
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong latLong, Station destination, JourneyRequest journeyRequest) {
@@ -58,7 +58,7 @@ public class LocationJourneyPlanner {
 
         List<Relationship> addedRelationships = new LinkedList<>();
 
-        List<StationWalk> walksToStart = getStationWalks(latLong,  config.getNearestStopRangeKM());
+        List<StationWalk> walksToStart = getStationWalks(latLong);
 
         Node startOfWalkNode = createWalkingNode(txn, latLong);
 
@@ -84,7 +84,7 @@ public class LocationJourneyPlanner {
         List<Station> destinationStations = new ArrayList<>();
         List<Relationship> addedRelationships = new LinkedList<>();
 
-        List<StationWalk> walksToDest = getStationWalks(destination,  config.getNearestStopRangeKM());
+        List<StationWalk> walksToDest = getStationWalks(destination);
         Node midWalkNode = createWalkingNode(txn, destination);
 
         walksToDest.forEach(stationWalk -> {
@@ -116,14 +116,14 @@ public class LocationJourneyPlanner {
         List<Relationship> addedRelationships = new LinkedList<>();
 
         // Add Walk at the Start
-        List<StationWalk> walksAtStart = getStationWalks(startLatLong,  config.getNearestStopRangeKM());
+        List<StationWalk> walksAtStart = getStationWalks(startLatLong);
         Node startNode = createWalkingNode(txn, startLatLong);
         walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startNode, stationWalk,
                 TransportRelationshipTypes.WALKS_TO)));
 
         // Add Walks at the end
         List<Station> destinationStations = new ArrayList<>();
-        List<StationWalk> walksToDest = getStationWalks(destLatLong,  config.getNearestStopRangeKM());
+        List<StationWalk> walksToDest = getStationWalks(destLatLong);
         Node midWalkNode = createWalkingNode(txn, destLatLong);
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
@@ -177,7 +177,7 @@ public class LocationJourneyPlanner {
         return startOfWalkNode;
     }
 
-    // TODO Creation and deletion of walk nodes into own facade which can then be autoclosable
+    // TODO Creation and deletion of walk nodes into own facade which can then be auto-closable
     @Deprecated
     private void removeWalkNodeAndRelationships(List<Relationship> relationshipsToDelete, Node... nodesToDelete) {
         logger.info("Removed added walks and walk node(s)");
@@ -190,26 +190,18 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private List<StationWalk> getStationWalks(LatLong latLong, double rangeInKM) {
+    private List<StationWalk> getStationWalks(LatLong latLong) { //, double rangeInKM) {
         int num = config.getNumOfNearestStopsForWalking();
-        List<Station> nearbyStationIds = spatialService.getNearestStationsTo(latLong, num, rangeInKM);
-        List<StationWalk> stationWalks = nearestStations(latLong, nearbyStationIds);
+        double rangeInKM = config.getNearestStopRangeKM();
+        List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, num, rangeInKM);
+        List<StationWalk> stationWalks = createWalks(latLong, nearbyStations);
         logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));
         return stationWalks;
     }
 
-    private List<StationWalk> nearestStations(LatLong latLong, List<Station> startStations) {
+    private List<StationWalk> createWalks(LatLong latLong, List<Station> startStations) {
         return startStations.stream().map(station ->
-                new StationWalk(station, findCostInMinutes(latLong, station))).collect(Collectors.toList());
+                new StationWalk(station, calcCostInMinutes(latLong, station, config.getWalkingMPH()))).collect(Collectors.toList());
     }
-
-    // TODO Use Grid Position instead of LatLong??
-    private int findCostInMinutes(LatLong latLong, Location station) {
-
-        double distanceInMiles = distanceInMiles(latLong, station.getLatLong());
-        double hours = distanceInMiles / config.getWalkingMPH();
-        return (int)Math.ceil(hours * 60D);
-    }
-
 
 }

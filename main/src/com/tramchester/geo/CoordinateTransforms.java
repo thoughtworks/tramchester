@@ -1,5 +1,7 @@
 package com.tramchester.geo;
 
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -67,6 +69,18 @@ public class CoordinateTransforms {
 
         double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return EARTH_RADIUS * fractionOfRadius;
+    }
+
+    public static int calcCostInMinutes(Station stationA, Station stationB, double mph) {
+        return calcCostInMinutes(stationA.getLatLong(), stationB, mph);
+    }
+
+    // TODO Use Grid Position instead of LatLong??
+    public static int calcCostInMinutes(LatLong latLong, Location station, double mph) {
+
+        double distanceInMiles = distanceInMiles(latLong, station.getLatLong());
+        double hours = distanceInMiles / mph;
+        return (int)Math.ceil(hours * 60D);
     }
 
 }

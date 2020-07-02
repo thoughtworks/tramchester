@@ -69,7 +69,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproIssueWithChangesVeloToTraffordBar() {
-        validateAtLeastOneJourney(Stations.VeloPark, Stations.TraffordBar, TramTime.of(8,0), when);
+        validateAtLeastNJourney(1, Stations.VeloPark, Stations.TraffordBar, TramTime.of(8,0), when);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.Deansgate, TramTime.of(10, 15), when);
+        validateAtLeastNJourney(1, Stations.Altrincham, Stations.Deansgate, TramTime.of(10, 15), when);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveLongJourneyAcross() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.Rochdale, TramTime.of(9,0), when);
+        validateAtLeastNJourney(1, Stations.Altrincham, Stations.Rochdale, TramTime.of(9,0), when);
     }
 
     @Test
@@ -200,38 +200,38 @@ public class RouteCalculatorTest {
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightWithChange() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.ManAirport, TramTime.of(23,20), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.ManAirport, TramTime.of(23,20), when);
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), when);
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.TraffordBar, TramTime.of(23,51), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.StPetersSquare, TramTime.of(23,55), when);
+        validateAtLeastNJourney(1, Stations.Altrincham, Stations.TraffordBar, TramTime.of(23,51), when);
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleAfterMidnightDirect() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.NavigationRoad, TramTime.of(0,0), when);
+        validateAtLeastNJourney(1, Stations.Altrincham, Stations.NavigationRoad, TramTime.of(0,0), when);
     }
 
     @Test
     void shouldHaveHeatonParkToBurtonRoad() {
-        validateAtLeastOneJourney(HeatonPark, Stations.BurtonRoad, TramTime.of(7, 30), when);
+        validateAtLeastNJourney(1, HeatonPark, Stations.BurtonRoad, TramTime.of(7, 30), when);
     }
 
     @Test
     void shouldReproIssueRochInterchangeToBury() {
-        validateAtLeastOneJourney(Stations.Rochdale, Stations.Bury, TramTime.of(9, 0), when);
+        validateAtLeastNJourney(1, Stations.Rochdale, Stations.Bury, TramTime.of(9, 0), when);
     }
 
     @Test
     void shouldReproIssueWithMediaCityTrams() {
         TramTime time = TramTime.of(12, 0);
 
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.MediaCityUK, time, when);
-        validateAtLeastOneJourney(Stations.ExchangeSquare, Stations.MediaCityUK, time, when);
+        validateAtLeastNJourney(1, Stations.StPetersSquare, Stations.MediaCityUK, time, when);
+        validateAtLeastNJourney(1, Stations.ExchangeSquare, Stations.MediaCityUK, time, when);
     }
 
 
@@ -246,7 +246,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
         TramTime time = TramTime.of(11, 0);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.StPetersSquare, time, when.plusDays(5));
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.StPetersSquare, time, when.plusDays(5));
     }
 
     @Test
@@ -271,26 +271,26 @@ public class RouteCalculatorTest {
     @Test
     void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
         // catches issue with services, only some of which go to media city, while others direct to broadway
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(8,0), when);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(8,0), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Broadway, TramTime.of(8,0), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Eccles, TramTime.of(8,0), when);
 
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Broadway, TramTime.of(9,0), when);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Broadway, TramTime.of(9,0), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), when);
     }
 
     @Test
     void shouldReproIssueWithJourneysToEccles() {
-        validateAtLeastOneJourney(Stations.Bury, Stations.Broadway, TramTime.of(9,0), when);
-        validateAtLeastOneJourney(Stations.Bury, Stations.Eccles, TramTime.of(9,0), when);
+        validateAtLeastNJourney(1, Stations.Bury, Stations.Broadway, TramTime.of(9,0), when);
+        validateAtLeastNJourney(1, Stations.Bury, Stations.Eccles, TramTime.of(9,0), when);
     }
 
     @Test
     void reproduceIssueEdgePerTrip() {
         // see also RouteCalculatorSubGraphTest
-        validateAtLeastOneJourney(Stations.PiccadillyGardens, Stations.Pomona, TramTime.of(19,48), when);
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), when);
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), when);
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), when);
+        validateAtLeastNJourney(1, Stations.PiccadillyGardens, Stations.Pomona, TramTime.of(19,48), when);
+        validateAtLeastNJourney(1, Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), when);
+        validateAtLeastNJourney(1, Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), when);
     }
 
     @Test
@@ -301,62 +301,62 @@ public class RouteCalculatorTest {
 
     @Test
     void reproduceIssueWithImmediateDepartOffABoardedTram() {
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Ashton, TramTime.of(8,0), when);
+        validateAtLeastNJourney(1, Stations.Deansgate, Stations.Ashton, TramTime.of(8,0), when);
     }
 
     @Test
     void reproduceIssueWithTramsSundayStPetersToDeansgate() {
-        validateAtLeastOneJourney(Stations.StPetersSquare, Stations.Deansgate, TramTime.of(9,0), TestEnv.nextSunday());
+        validateAtLeastNJourney(1, Stations.StPetersSquare, Stations.Deansgate, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
-        validateAtLeastOneJourney(Stations.Ashton, Stations.Eccles, TramTime.of(9,0), TestEnv.nextSunday());
+        validateAtLeastNJourney(1, Stations.Ashton, Stations.Eccles, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), TestEnv.nextSunday());
-        validateAtLeastOneJourney(Stations.Eccles, Stations.Cornbrook, TramTime.of(9,0), TestEnv.nextSunday());
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Eccles, TramTime.of(9,0), TestEnv.nextSunday());
+        validateAtLeastNJourney(1, Stations.Eccles, Stations.Cornbrook, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @Test
     void shouldReproduceIssueCornbrookToAshtonSatursdays() {
-        validateAtLeastOneJourney(Stations.Cornbrook, Stations.Ashton, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Ashton, TramTime.of(9,0), TestEnv.nextSaturday());
     }
 
     @Test
     void shouldFindRouteVeloToHoltTownAt8RangeOfTimes() {
         for(int i=0; i<60; i++) {
             TramTime time = TramTime.of(8,i);
-            validateAtLeastOneJourney(Stations.VeloPark, Stations.HoltTown, time, when);
+            validateAtLeastNJourney(1, Stations.VeloPark, Stations.HoltTown, time, when);
         }
     }
 
     @Test
     void reproIssueRochdaleToEccles() {
-        validateAtLeastOneJourney(Stations.Rochdale, Stations.Eccles, TramTime.of(9,0), when);
+        validateAtLeastNJourney(1, Stations.Rochdale, Stations.Eccles, TramTime.of(9,0), when);
     }
 
     private void checkRouteNextNDays(Station start, Station dest, LocalDate date, TramTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
                 LocalDate testDate = avoidChristmasDate(date.plusDays(day));
-                validateAtLeastOneJourney(start, dest, time, testDate);
+                validateAtLeastNJourney(1, start, dest, time, testDate);
             }
         }
     }
 
-    private void validateAtLeastOneJourney(Station station, Station dest, TramTime time, LocalDate date) {
-        validateAtLeastOneJourney(calculator, txn, station, dest, time, date, 5);
+    private void validateAtLeastNJourney(int maxToReturn, Station station, Station dest, TramTime time, LocalDate date) {
+        validateAtLeastNJourney(calculator, maxToReturn, txn, station, dest, time, date, 5);
     }
 
-    public static Set<Journey> validateAtLeastOneJourney(RouteCalculator theCalculator, Transaction transaction, Station start, Station destination,
-                                                         TramTime time, LocalDate date, int maxChanges) {
+    public static Set<Journey> validateAtLeastNJourney(RouteCalculator theCalculator, int maxToReturn, Transaction transaction, Station start, Station destination,
+                                                       TramTime time, LocalDate date, int maxChanges) {
         TramServiceDate queryDate = new TramServiceDate(date);
         Stream<Journey> journeyStream = theCalculator.calculateRoute(transaction, start, destination, new JourneyRequest(new TramServiceDate(date), time,
                 false, maxChanges));
-        Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
+        Set<Journey> journeys = journeyStream.limit(maxToReturn).collect(Collectors.toSet());
         journeyStream.close();
 
         String message = "from " + start.getName() + " to " + destination.getName() + " at " + time + " on " + queryDate;

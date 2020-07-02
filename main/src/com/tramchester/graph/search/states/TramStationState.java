@@ -18,14 +18,20 @@ public class TramStationState extends TraversalState {
 
         public TraversalState fromPlatform(PlatformState platformState, Node node, int cost) {
             return new TramStationState(platformState,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), platformState),
+                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR), platformState),
                     cost, node.getId());
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
-            return new TramStationState(notStartedState, node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM), cost,
-                    node.getId());
+            return new TramStationState(notStartedState,
+                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR),
+                    cost, node.getId());
         }
+
+        public TraversalState fromNeighbour(BusStationState busStationState, Node node, int cost) {
+            return new TramStationState(busStationState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+        }
+
     }
 
     private final long stationNodeId;
@@ -53,13 +59,16 @@ public class TramStationState extends TraversalState {
 
         if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
             return builders.platform.from(this, node, cost);
-
         }
         if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
             return builders.walking.fromTramStation(this, node, cost);
         }
 
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+        if (nodeLabel == GraphBuilder.Labels.BUS_STATION) {
+            return builders.busStation.fromNeighbour(this, node, cost);
+        }
+
+        throw new RuntimeException("Unexpected node type: "+nodeLabel+ " at " + toString());
 
     }
 }

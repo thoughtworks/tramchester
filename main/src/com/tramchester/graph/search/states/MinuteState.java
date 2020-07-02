@@ -5,6 +5,7 @@ import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.search.JourneyState;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -79,30 +80,30 @@ public class MinuteState extends TraversalState {
     private TraversalState toRouteStation(Node node, int cost) {
         Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
 
-        // towards final destination, just follow this one
-        for (Relationship depart : allDeparts) {
-            if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                // we've arrived
-                return builders.routeStation.fromMinuteState(this, node, cost, Collections.singleton(depart), tripId);
-            }
+        // if towards dest then always follow whether interchange-only enabled or not
+        List<Relationship> towardsDestination = getTowardsDestination(allDeparts);
+        if (!towardsDestination.isEmpty()) {
+            // we've nearly arrived
+            return builders.routeStation.fromMinuteState(this, node, cost, towardsDestination, tripId);
         }
 
-        List<Relationship> routeStationOutbound = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), tripId);
-        boolean tripFinishedHere = routeStationOutbound.isEmpty();
+        // outbound service relationships that continue the current trip
+        List<Relationship> routeStationOutbounds = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), tripId);
+        boolean tripFinishedHere = routeStationOutbounds.isEmpty(); // i.e. no outbound from RS for this tripId
 
-        // add outgoing to platforms
+        // now add outgoing to platforms
         if (interchangesOnly) {
             Iterable<Relationship> interchanges = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
-            interchanges.forEach(routeStationOutbound::add);
+            interchanges.forEach(routeStationOutbounds::add);
         } else {
-            allDeparts.forEach(routeStationOutbound::add);
+            allDeparts.forEach(routeStationOutbounds::add);
         }
 
         if (tripFinishedHere) {
-            // service finished here so don't pass in trip ID
-            return builders.routeStationEndTrip.fromMinuteState(this, cost, routeStationOutbound);
+            // for a change of trip id we need to get off vehicle, then back on to another service
+            return builders.routeStationEndTrip.fromMinuteState(this, cost, routeStationOutbounds);
         } else {
-            return builders.routeStation.fromMinuteState(this, node, cost, routeStationOutbound, tripId);
+            return builders.routeStation.fromMinuteState(this, node, cost, routeStationOutbounds, tripId);
         }
     }
 

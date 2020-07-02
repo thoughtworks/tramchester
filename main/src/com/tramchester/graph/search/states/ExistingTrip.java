@@ -26,4 +26,11 @@ public class ExistingTrip {
     public String getTripId() {
         return tripId;
     }
+
+    @Override
+    public String toString() {
+        return "ExistingTrip{" +
+                "tripId='" + tripId + '\'' +
+                '}';
+    }
 }

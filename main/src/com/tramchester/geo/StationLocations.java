@@ -112,6 +112,14 @@ public class StationLocations implements StationLocationsRepository {
         return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
+    public List<Station> getNearestStationsTo(LatLong latLong, int numberOfNearest, double rangeInKM) {
+        List<Station> result = nearestStationsSorted(latLong, numberOfNearest, rangeInKM);
+        logger.info(format("Found %s stations close to %s", result.size(), latLong));
+        return result;
+    }
+
+
+
     @NotNull
     private Stream<Map.Entry<Station, GridPosition>> getNearbyStream(@NotNull StationLocations.@NotNull GridPosition gridPosition, long rangeInMeters) {
         return positions.entrySet().stream().

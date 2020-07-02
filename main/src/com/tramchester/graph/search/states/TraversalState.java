@@ -2,9 +2,11 @@ package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -20,10 +22,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private final int parentCost;
     private TraversalState child;
     private final TraversalState parent;
+    private final List<String> destinationStationIds;
 
     protected final NodeContentsRepository nodeOperations;
     protected final long destinationNodeId;
-    protected final List<String> destinationStationIds;
     protected final Builders builders;
 
     @Override
@@ -95,6 +97,18 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 //                collect(Collectors.toList());
     }
 
+
+    @NotNull
+    protected List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
+        // towards final destination, just follow this one
+        List<Relationship> towardsDestination = new ArrayList<>();
+        outgoing.forEach(depart -> {if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
+            towardsDestination.add(depart);
+        }
+        });
+        return towardsDestination;
+    }
+
     public int getTotalCost() {
         return parentCost + getCurrentCost();
     }
@@ -107,7 +121,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     public String toString() {
         return "TraversalState{" +
                 "costForLastEdge=" + costForLastEdge +
-                ", parentCost=" + parentCost +
+                ", parentCost=" + parentCost + System.lineSeparator() +
                 ", parent=" + parent +
                 '}';
     }

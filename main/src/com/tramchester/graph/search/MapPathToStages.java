@@ -29,8 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.graph.GraphStaticKeys.*;
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM;
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
 
@@ -106,6 +105,10 @@ public class MapPathToStages {
                 case TO_HOUR:
                 case FINISH_WALK:
                     break;
+                case BUS_NEIGHBOUR:
+                case TRAM_NEIGHBOUR:
+                    results.add(state.walkBetween(relationship));
+                    break;
                 default:
                     throw new RuntimeException(format("Unexpected relationship %s in path %s", type, path));
             }
@@ -126,10 +129,15 @@ public class MapPathToStages {
                     walkStarted.cost, timeWalkStarted, false);
         } else if (relationship.isType(WALKS_FROM)) {
             return createWalkFrom(relationship, timeWalkStarted);
-        } else {
+        }
+        else if (relationship.isType(BUS_NEIGHBOUR) || relationship.isType(TRAM_NEIGHBOUR)) {
+            return createWalkFromNeighbour(relationship, timeWalkStarted);
+        }
+        else {
             throw new RuntimeException("Unexpected single relationship: " +relationship);
         }
     }
+
 
     private int getCost(Relationship relationship) {
         return (int)relationship.getProperty(COST);
@@ -164,6 +172,19 @@ public class MapPathToStages {
         Location walkEnd = myLocationFactory.create(new LatLong(lat,lon));
 
         return new WalkingStage(start, walkEnd, cost, walkStartTime, true);
+    }
+
+    private TransportStage createWalkFromNeighbour(Relationship relationship, TramTime walkStartTime) {
+        // station -> station, neighbours...
+        int cost = getCost(relationship);
+
+        String startStationId = relationship.getStartNode().getProperty(ID).toString();
+        Location start = transportData.getStation(startStationId);
+
+        String endStationId = relationship.getEndNode().getProperty(ID).toString();
+        Location end = transportData.getStation(endStationId);
+
+        return new WalkingStage(start, end, cost, walkStartTime, false);
     }
 
     private class State {
@@ -273,6 +294,17 @@ public class MapPathToStages {
             walkStarted = walkStarted(relationship);
         }
 
+
+        public TransportStage walkBetween(Relationship betweenStations) {
+            TramTime walkStartTime;
+            if (departTime==null) {
+                walkStartTime = queryTime.plusMinutes(platformLeaveCost + departCost);
+            } else {
+                walkStartTime = departTime.plusMinutes(platformLeaveCost + departCost);
+            }
+            return createWalkFromNeighbour(betweenStations, walkStartTime);
+        }
+
         public void enterPlatform(Relationship relationship) {
             platformEnterCost = getCost(relationship);
         }
@@ -283,7 +315,6 @@ public class MapPathToStages {
                 walkStartTime = queryTime.plusMinutes(platformLeaveCost + departCost);
             } else {
                 walkStartTime = departTime.plusMinutes(platformLeaveCost + departCost);
-
             }
             return createWalkFrom(relationship, walkStartTime);
         }
@@ -291,6 +322,7 @@ public class MapPathToStages {
         public void leavePlatform(Relationship relationship) {
             platformLeaveCost = getCost(relationship);
         }
+
     }
 
     private static class WalkStarted {

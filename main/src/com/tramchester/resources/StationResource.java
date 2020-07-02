@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
@@ -16,6 +17,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
@@ -47,18 +49,22 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final StationRepository stationRepository;
     private final MyLocationFactory locationFactory;
     private final ProximityGroups proximityGroups;
+    private final StationLocations stationLocations;
+    private final TramchesterConfig config;
 
     public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
                            ClosedStations closedStations,
                            UpdateRecentJourneys updateRecentJourneys,
                            ObjectMapper mapper,
-                           MyLocationFactory locationFactory, ProvidesNow providesNow, ProximityGroups proximityGroups) {
+                           MyLocationFactory locationFactory, ProvidesNow providesNow, ProximityGroups proximityGroups, StationLocations stationLocations, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
         this.stationRepository = transportData;
         this.locationFactory = locationFactory;
         this.proximityGroups = proximityGroups;
+        this.stationLocations = stationLocations;
+        this.config = config;
         allStationsSorted = new ArrayList<>();
     }
 
@@ -169,7 +175,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         logger.info(format("Get station at %s,%s with recentcookie '%s'", lat, lon, tranchesterRecent));
 
         LatLong latLong = new LatLong(lat,lon);
-        List<Station> nearestStations = spatialService.getNearestStations(latLong);
+        List<Station> nearestStations = stationLocations.getNearestStationsTo(latLong,
+                config.getNumOfNearestStops(), config.getNearestStopRangeKM());
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
         Set<String> recentIds = recentJourneys.getRecentIds().stream().map(Timestamped::getId).collect(Collectors.toSet());

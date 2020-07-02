@@ -22,12 +22,14 @@ public class PlatformState extends TraversalState implements NodeId {
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
         }
 
-        public TraversalState fromRouteStationTowardsDest(RouteStationStateOnTrip routeStationStateOnTrip, Relationship relationship, Node platformNode, int cost) {
-            return new PlatformState(routeStationStateOnTrip, Collections.singleton(relationship), platformNode.getId(), cost);
+        public TraversalState fromRouteStationTowardsDest(RouteStationStateOnTrip routeStationStateOnTrip,
+                                                          Iterable<Relationship> relationships, Node platformNode, int cost) {
+            return new PlatformState(routeStationStateOnTrip, relationships, platformNode.getId(), cost);
         }
 
-        public TraversalState fromRouteStationTowardsDest(RouteStationStateEndTrip endTrip, Relationship relationship, Node platformNode, int cost) {
-            return new PlatformState(endTrip, Collections.singleton(relationship), platformNode.getId(), cost);
+        public TraversalState fromRouteStationTowardsDest(RouteStationStateEndTrip endTrip, Iterable<Relationship> relationships,
+                                                          Node platformNode, int cost) {
+            return new PlatformState(endTrip, relationships, platformNode.getId(), cost);
         }
 
         public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, int cost) {

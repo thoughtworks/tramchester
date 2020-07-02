@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramServiceDate;
@@ -12,10 +13,10 @@ import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.repository.LiveDataSource;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,21 +37,23 @@ import static java.lang.String.format;
 public class DeparturesResource implements APIResource  {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
-    private final SpatialService spatialService;
+    private final StationLocations stationLocations;
     private final LiveDataSource liveDataSource;
     private final DeparturesMapper departuresMapper;
     private final ProvidesNotes providesNotes;
     private final StationRepository stationRepository;
     private final ProvidesNow providesNow;
+    private final TramchesterConfig config;
 
-    public DeparturesResource(SpatialService spatialService, LiveDataSource liveDataSource,
-                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository, ProvidesNow providesNow) {
-        this.spatialService = spatialService;
+    public DeparturesResource(StationLocations stationLocations, LiveDataSource liveDataSource,
+                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository, ProvidesNow providesNow, TramchesterConfig config) {
+        this.stationLocations = stationLocations;
         this.liveDataSource = liveDataSource;
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
         this.providesNow = providesNow;
+        this.config = config;
     }
 
     @GET
@@ -61,7 +64,8 @@ public class DeparturesResource implements APIResource  {
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                          @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
         LatLong latLong = new LatLong(lat,lon);
-        List<Station> nearbyStations = spatialService.getNearestStations(latLong);
+        List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong,
+                config.getNumOfNearestStops(), config.getNearestStopRangeKM());
 
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
 

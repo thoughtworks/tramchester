@@ -10,6 +10,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Collection;
+import java.util.List;
 
 import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
@@ -44,7 +45,7 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
 
     @Override
     public String toString() {
-        return "RouteStationState{" +
+        return "RouteStationStateOnTrip{" +
                 "routeStationNodeId=" + routeStationNodeId +
                 ", tripId='" + tripId + '\'' +
                 ", busesEnabled=" + busesEnabled +
@@ -90,14 +91,19 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
             journeyState.leaveTram(getTotalCost());
 
             // TODO Push into PlatformState
-            // if towards ONE destination just return that one relationship
-            if (destinationStationIds.size()==1) {
-                for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
-                    if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-                        return builders.platform.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
-                    }
-                }
+            List<Relationship> towardsDest = getTowardsDestination(platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM));
+            if (!towardsDest.isEmpty()) {
+                return builders.platform.fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
             }
+
+//            // if towards ONE destination just return that one relationship
+//            if (destinationStationIds.size()==1) {
+//                for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
+//                    if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
+//                        return builders.platform.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
+//                    }
+//                }
+//            }
 
             return builders.platform.fromRouteStationOnTrip(this, platformNode, cost);
 

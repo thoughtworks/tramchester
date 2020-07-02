@@ -13,12 +13,12 @@ public class WalkingState extends TraversalState {
 
     public static class Builder {
 
-        public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
-            return new WalkingState(busStationState, node.getRelationships(OUTGOING), cost);
-        }
-
         public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
             return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
+        }
+
+        public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
+            return new WalkingState(busStationState, node.getRelationships(OUTGOING), cost);
         }
 
         public TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
@@ -49,6 +49,6 @@ public class WalkingState extends TraversalState {
             return builders.busStation.from(this, node, cost);
         }
 
-        throw new RuntimeException("Unexpected node type: " + nodeLabel);
+        throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
     }
 }
