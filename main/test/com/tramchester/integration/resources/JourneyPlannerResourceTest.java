@@ -75,20 +75,24 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
                 arriveBy, 3);
 
-        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        Set<JourneyDTO> journeys = plan.getJourneys();
         Assertions.assertTrue(journeys.size() > 0);
-        JourneyDTO journey = journeys.first();
-        StageDTO firstStage = journey.getStages().get(0);
-        PlatformDTO platform = firstStage.getPlatform();
-        if (arriveBy) {
-            Assertions.assertTrue(journey.getFirstDepartureTime().isBefore(queryTime));
-        } else {
-            Assertions.assertTrue(journey.getFirstDepartureTime().isAfter(queryTime));
-        }
+        //JourneyDTO journey = journeys.first();
 
-        Assertions.assertEquals("1", platform.getPlatformNumber());
-        Assertions.assertEquals("Altrincham platform 1", platform.getName());
-        Assertions.assertEquals(Stations.Altrincham.getId() + "1", platform.getId());
+        journeys.forEach(journey -> {
+            StageDTO firstStage = journey.getStages().get(0);
+            PlatformDTO platform = firstStage.getPlatform();
+            if (arriveBy) {
+                Assertions.assertTrue(journey.getFirstDepartureTime().isBefore(queryTime));
+            } else {
+                Assertions.assertTrue(journey.getFirstDepartureTime().isAfter(queryTime));
+            }
+
+            Assertions.assertEquals("1", platform.getPlatformNumber());
+            Assertions.assertEquals("Altrincham platform 1", platform.getName());
+            Assertions.assertEquals(Stations.Altrincham.getId() + "1", platform.getId());
+        });
+
     }
 
     @Test
@@ -127,17 +131,20 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(now.toLocalDate()), timeForQuery,
                 false, 3);
 
-        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        Set<JourneyDTO> journeys = plan.getJourneys();
         Assertions.assertTrue(journeys.size()>0, "No journeys found, no trams running now??");
-        JourneyDTO journey = journeys.first();
-        StageDTO firstStage = journey.getStages().get(0);
-        PlatformDTO platform = firstStage.getPlatform();
 
-        // depends on up to date departure info and current query time
-        StationDepartureInfoDTO departInfo = platform.getStationDepartureInfo();
-        Assertions.assertNotNull(departInfo, "departInfo was null");
-        String expected = Stations.Altrincham.getId() + "1";
-        Assertions.assertEquals(expected,departInfo.getStationPlatform(), "got "+departInfo.getStationPlatform());
+        journeys.forEach(journey -> {
+            StageDTO firstStage = journey.getStages().get(0);
+            PlatformDTO platform = firstStage.getPlatform();
+
+            // depends on up to date departure info and current query time
+            StationDepartureInfoDTO departInfo = platform.getStationDepartureInfo();
+            Assertions.assertNotNull(departInfo, "departInfo was null");
+            String expected = Stations.Altrincham.getId() + "1";
+            Assertions.assertEquals(expected,departInfo.getStationPlatform(), "got "+departInfo.getStationPlatform());
+        });
+
     }
 
     @Disabled("Temporary: trams finish at 2300")
@@ -147,7 +154,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham, new TramServiceDate(now.toLocalDate()), timeForQuery,
                 false, 3);
 
-        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        Set<JourneyDTO> journeys = plan.getJourneys();
         Assertions.assertTrue(journeys.size()>0);
         journeys.forEach(journeyDTO -> Assertions.assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
@@ -158,26 +165,28 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when), TramTime.of(17,45),
                 false, 3);
 
-        SortedSet<JourneyDTO> journeys = plan.getJourneys();
+        Set<JourneyDTO> journeys = plan.getJourneys();
         Assertions.assertTrue(journeys.size()>0);
-        JourneyDTO journey = journeys.first();
 
-        StageDTO firstStage = journey.getStages().get(0);
-        PlatformDTO platform1 = firstStage.getPlatform();
+        journeys.forEach(journey -> {
+            StageDTO firstStage = journey.getStages().get(0);
+            PlatformDTO platform1 = firstStage.getPlatform();
 
-        Assertions.assertEquals("1", platform1.getPlatformNumber());
-        Assertions.assertEquals( "Altrincham platform 1", platform1.getName());
-        Assertions.assertEquals( Stations.Altrincham.getId()+"1", platform1.getId());
+            Assertions.assertEquals("1", platform1.getPlatformNumber());
+            Assertions.assertEquals( "Altrincham platform 1", platform1.getName());
+            Assertions.assertEquals( Stations.Altrincham.getId()+"1", platform1.getId());
 
-        StageDTO secondStage = journey.getStages().get(1);
-        PlatformDTO platform2 = secondStage.getPlatform();
+            StageDTO secondStage = journey.getStages().get(1);
+            PlatformDTO platform2 = secondStage.getPlatform();
 
-        Assertions.assertEquals("1", platform2.getPlatformNumber());
-        // multiple possible places to change depending on timetable etc
-        assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
-        assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.getId()+"1",
-                Stations.Cornbrook.getId()+"1",
-                Stations.StPetersSquare.getId()+"1")));
+            Assertions.assertEquals("1", platform2.getPlatformNumber());
+            // multiple possible places to change depending on timetable etc
+            assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
+            assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.getId()+"1",
+                    Stations.Cornbrook.getId()+"1",
+                    Stations.StPetersSquare.getId()+"1")));
+        });
+
     }
 
     @Test

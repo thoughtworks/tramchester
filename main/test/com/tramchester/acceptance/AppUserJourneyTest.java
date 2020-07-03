@@ -162,8 +162,8 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        LocalTime planTime = LocalTime.parse("10:00");
-        desiredJourney(appPage, altrincham, deansgate, when, planTime, false);
+        LocalTime queryTime = LocalTime.parse("10:00");
+        desiredJourney(appPage, altrincham, deansgate, when, queryTime, false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable());
@@ -172,12 +172,14 @@ class AppUserJourneyTest extends UserJourneyTest {
         // TODO Lockdown 3->2
         assertTrue(results.size()>=2, "at least 2 results");
 
-        LocalTime previous = planTime;
+        LocalTime previous = queryTime;
         for (SummaryResult result : results) {
-            assertTrue(result.getDepartTime().isAfter(previous));
-            assertTrue(result.getArriveTime().isAfter(result.getDepartTime()));
+            LocalTime currentArrivalTime = result.getArriveTime();
+            assertTrue(currentArrivalTime.isAfter(previous) || currentArrivalTime.equals(previous),
+                    "arrival time order for " + result + " previous: " + previous);
+            assertTrue(currentArrivalTime.isAfter(result.getDepartTime()), "arrived before depart");
             assertEquals("Direct", result.getChanges());
-            previous = result.getDepartTime();
+            previous = currentArrivalTime;
         }
 
         // select first journey
@@ -228,7 +230,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<SummaryResult> results = appPage.getResults();
-        assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
+        assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen), "depart not after " + tenFifteen);
 
         desiredJourney(appPage, altrincham, bury, when, eightFifteen, false);
         appPage.planAJourney();

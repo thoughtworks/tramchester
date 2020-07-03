@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.SortedSet;
+import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 
@@ -45,7 +45,7 @@ class JourneyPlannerPostcodeResourceTest {
 
         Assertions.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
-        SortedSet<JourneyDTO> journeys = results.getJourneys();
+        Set<JourneyDTO> journeys = results.getJourneys();
 
         // TODO WIP
         journeys.forEach(journeyDTO -> Assertions.assertEquals(3,journeyDTO.getStages().size()));
@@ -61,7 +61,7 @@ class JourneyPlannerPostcodeResourceTest {
 
         Assertions.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
-        SortedSet<JourneyDTO> journeys = results.getJourneys();
+        Set<JourneyDTO> journeys = results.getJourneys();
 
         // TODO WIP
         journeys.forEach(journeyDTO -> Assertions.assertEquals(2,journeyDTO.getStages().size()));
@@ -77,7 +77,7 @@ class JourneyPlannerPostcodeResourceTest {
 
         Assertions.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
-        SortedSet<JourneyDTO> journeys = results.getJourneys();
+        Set<JourneyDTO> journeys = results.getJourneys();
 
         // TODO WIP
         journeys.forEach(journeyDTO -> Assertions.assertEquals(2,journeyDTO.getStages().size()));

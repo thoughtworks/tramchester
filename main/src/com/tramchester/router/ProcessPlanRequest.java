@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Stream;
 
@@ -139,6 +140,7 @@ public class ProcessPlanRequest {
             journeys = routeCalculator.calculateRoute(txn, start, dest, journeyRequest);
         }
         // ASSUME: Limit here rely's on search giving lowest cost routes first
+        // TODO Check, ideally remove from here and push down into traverser code?
         JourneyPlanRepresentation journeyPlanRepresentation = createPlan(journeyRequest.getDate(),
                 journeys.limit(config.getMaxNumResults()));
         journeys.close();
@@ -168,7 +170,7 @@ public class ProcessPlanRequest {
     }
 
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeys) {
-        SortedSet<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate, config.getMaxNumResults());
+        Set<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate, config.getMaxNumResults());
         List<Note> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
         return new JourneyPlanRepresentation(journeyDTOs, notes);
     }

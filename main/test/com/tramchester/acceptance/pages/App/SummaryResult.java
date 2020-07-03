@@ -15,6 +15,15 @@ public class SummaryResult {
     private final WebElement row;
     private final WebElement parent;
 
+    @Override
+    public String toString() {
+        return "SummaryResult{" +
+                "departTime=" + departTime +
+                ", arriveTime=" + arriveTime +
+                ", changes='" + changes + '\'' +
+                '}';
+    }
+
     public SummaryResult(WebElement row, WebElement parent) {
         this.row = row;
         this.parent = parent;
