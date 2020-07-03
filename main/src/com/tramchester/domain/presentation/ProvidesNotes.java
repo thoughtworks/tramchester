@@ -31,15 +31,7 @@ public class ProvidesNotes {
         this.liveDataRepository = liveDataRepository;
     }
 
-    @Deprecated
-    public <T extends CallsAtPlatforms> List<Note> createNotesForJourneys(Set<T> journeys, TramServiceDate queryDate) {
-        List<Note> notes = new LinkedList<>();
-        notes.addAll(createNotesForADate(queryDate));
-        notes.addAll(liveNotesForJourneys(journeys, queryDate));
-        return notes;
-    }
-
-    public <T extends CallsAtPlatforms> List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
+    public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
         List<Note> notes = new LinkedList<>();
         notes.addAll(createNotesForADate(queryDate));
         notes.addAll(liveNotesForJourney(journey, queryDate));
@@ -80,21 +72,6 @@ public class ProvidesNotes {
         config.getClosedStations().
                 forEach(stationName -> messages.add(new Note(ClosedStation, format("%s is currently closed. %s", stationName, website))));
         return messages;
-    }
-
-    @Deprecated
-    private <T extends CallsAtPlatforms> List<Note> liveNotesForJourneys(Set<T> journeys, TramServiceDate queryDate) {
-        // Map: Note -> Location
-        Map<Note,String> messageMap = new HashedMap<>();
-
-        // find all the platforms involved in a journey, so board, depart and changes
-        journeys.forEach(journey -> {
-            // add messages for those platforms
-            journey.getCallingPlatformIds().forEach(platform -> addRelevantNote(messageMap, platform, queryDate,
-                    journey.getQueryTime()));
-            });
-
-        return createMessageList(messageMap);
     }
 
     private <T extends CallsAtPlatforms> List<Note> liveNotesForJourney(T journey, TramServiceDate queryDate) {

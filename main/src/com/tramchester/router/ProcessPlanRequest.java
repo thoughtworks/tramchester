@@ -9,8 +9,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
@@ -24,7 +22,6 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,20 +35,18 @@ public class ProcessPlanRequest {
     private final LocationJourneyPlanner locToLocPlanner;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
-    private final ProvidesNotes providesNotes;
     private final TransportData transportData;
     private final PostcodeRepository postcodeRepository;
     private final TramJourneyToDTOMapper tramJourneyToDTOMapper;
 
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
-                              RouteCalculatorArriveBy routeCalculatorArriveBy, ProvidesNotes providesNotes,
-                              TransportData transportData, PostcodeRepository postcodeRepository, TramJourneyToDTOMapper tramJourneyToDTOMapper) {
+                              RouteCalculatorArriveBy routeCalculatorArriveBy, TransportData transportData,
+                              PostcodeRepository postcodeRepository, TramJourneyToDTOMapper tramJourneyToDTOMapper) {
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
 
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
-        this.providesNotes = providesNotes;
         this.transportData = transportData;
         this.postcodeRepository = postcodeRepository;
         this.tramJourneyToDTOMapper = tramJourneyToDTOMapper;
@@ -176,8 +171,7 @@ public class ProcessPlanRequest {
                 limit(config.getMaxNumResults()).
                 collect(Collectors.toSet());
 
-        List<Note> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
-        return new JourneyPlanRepresentation(journeyDTOs, notes);
+        return new JourneyPlanRepresentation(journeyDTOs);
     }
 
 
