@@ -183,7 +183,7 @@ function addPostcodes(postcodes) {
     time: getCurrentTime(),
     date: getCurrentDate(),
     maxChanges: 8,                  // todo from server side
-    journeyResponse: null,
+    journeys: null,
     liveDepartureResponse: null,
     feedinfo: [],
     searchInProgress: false,    // searching for routes
@@ -238,7 +238,7 @@ var app = new Vue({
                 axios.get('/api/journey', { params: urlParams, timeout: 30000}).
                     then(function (response) {
                         app.networkError = false;
-                        app.journeyResponse = response.data;
+                        app.journeys = response.data.journeys;
                         app.updateStations();
                         app.searchInProgress = false;
                         }).

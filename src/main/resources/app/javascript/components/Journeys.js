@@ -93,13 +93,13 @@ export default {
             if (this.journeysresponse==null) {
                 return [];
             }
-            return this.journeysresponse.journeys;
+            return this.journeysresponse;
         },
         noJourneys: function() {
             if (this.journeysresponse==null) {
-                return false;
+                return false; // no query has been done
             }
-            return this.journeysresponse.journeys.length==0;
+            return this.journeysresponse.length==0;
         }
     },
     methods: {
@@ -107,13 +107,13 @@ export default {
             row._showDetails = !row._showDetails;
         },
         earlier() {
-            const current = earliestDepartTime(this.journeysresponse.journeys); //firstJourney.firstDepartureTime;
+            const current = earliestDepartTime(this.journeysresponse); 
             var newTime = moment(current,"HH:mm").subtract(24, 'minutes');
             const newDepartTime = newTime.format("HH:mm");
             this.$emit('earlier-tram', newDepartTime);
         },
         later() {
-            const current = lastDepartTime(this.journeysresponse.journeys); //latestDepartingJourney.firstDepartureTime;
+            const current = lastDepartTime(this.journeysresponse); 
             var newTime = moment(current,"HH:mm").add(1, 'minutes');
             const newDepartTime = newTime.format("HH:mm");
             this.$emit('later-tram', newDepartTime);

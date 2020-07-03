@@ -1,13 +1,26 @@
 
+function consolidateNotes(journeys) {
+    var notes = [];
+    var notesText = [];
+    journeys.forEach(journey => {
+        var journeyNotes = journey.notes;
+        journeyNotes.forEach(journeyNote => {
+            if (!notesText.includes(journeyNote.text)) {
+                notes.push(journeyNote);
+                notesText.push(journeyNote.text);
+            }
+        })
+    });
+    return notes;
+}
+
 export default { 
-    props: ['journeysresponse','livedataresponse']
+    props: ['journeys','livedataresponse']
     ,
     computed: { 
         notes: function() {
-            if (this.journeysresponse!=null) {
-                if (this.journeysresponse.notes.length>0) {
-                    return this.journeysresponse.notes;
-                }
+            if (this.journeys!=null) {
+                return consolidateNotes(this.journeys);
             }
 
             if (this.livedataresponse!=null) {
