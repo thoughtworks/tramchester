@@ -9,13 +9,13 @@ public class Platform implements HasId {
 
     private final String id;
     private final String name;
-    private Set<Route> servesRoutes;
+    private final Set<Route> servesRoutes;
+    private final String platformNumber;
 
     public String getPlatformNumber() {
         return platformNumber;
     }
 
-    private String platformNumber;
 
     public Platform(String id, String name) {
         this.id = id.intern();

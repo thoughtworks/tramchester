@@ -81,7 +81,7 @@ class GraphWithSimpleRouteTest {
     @Test
     void shouldTestSimpleJourneyIsPossible() {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getSecondStation(), journeyRequest).
+                transportData.getSecond(), journeyRequest).
                 collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION, 0, "RouteClass1");
@@ -91,7 +91,7 @@ class GraphWithSimpleRouteTest {
     void shouldHaveJourneyWithLocationBasedStart() {
         LatLong origin = TestEnv.nearAltrincham;
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, origin,  transportData.getSecondStation(),
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, origin,  transportData.getSecond(),
                 new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());
 
         Assertions.assertEquals(1, journeys.size());
@@ -153,7 +153,7 @@ class GraphWithSimpleRouteTest {
 
     @Test
     void shouldTestNoJourneySecondToStart() {
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getSecondStation(),
+        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getSecond(),
                 transportData.getFirst(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertEquals(0,journeys.size());
     }

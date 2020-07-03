@@ -1,8 +1,9 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.tramchester.domain.*;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Location;
@@ -14,8 +15,8 @@ import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.mappers.HeadsignMapper;
+import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,14 +24,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyDTOFactoryTest extends EasyMockSupport {
@@ -60,9 +58,86 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         assertEquals(TramTime.of(10, 8), journeyDTO.getFirstDepartureTime());
         assertEquals(stationA.getId(), journeyDTO.getBegin().getId());
         assertEquals(stationB.getId(), journeyDTO.getEnd().getId());
-
+        assertTrue(journeyDTO.getIsDirect());
         assertEquals(1,journeyDTO.getStages().size());
         assertEquals(transportStage, journeyDTO.getStages().get(0));
+    }
+
+    @Test
+    void shouldCreateJourneyDTOWithTwoStages() {
+
+        StageDTO transportStageA = createStage(TramTime.of(10, 8), TramTime.of(10, 20), 11);
+        StageDTO transportStageB = createStage(TramTime.of(10, 22), TramTime.of(11, 45), 30);
+
+        replayAll();
+        JourneyDTO journeyDTO = factory.build(Arrays.asList(transportStageA, transportStageB), queryTime);
+        verifyAll();
+
+        assertEquals(TramTime.of(10, 8), journeyDTO.getFirstDepartureTime());
+        assertEquals(TramTime.of(11, 45), journeyDTO.getExpectedArrivalTime());
+        assertEquals(stationA.getId(), journeyDTO.getBegin().getId());
+        assertEquals(stationB.getId(), journeyDTO.getEnd().getId());
+        assertFalse(journeyDTO.getIsDirect());
+        assertEquals(2,journeyDTO.getStages().size());
+        assertEquals(transportStageA, journeyDTO.getStages().get(0));
+        assertEquals(transportStageB, journeyDTO.getStages().get(1));
+    }
+
+    @Test
+    void shouldHaveRightSummaryAndHeadingFor2Stage() {
+
+        PlatformDTO boardingPlatformA = new PlatformDTO(new Platform(Stations.Altrincham.getId()+"1", Stations.Altrincham.getName()));
+        StageDTO stageA = new StageDTO(new LocationDTO(Stations.Altrincham), new LocationDTO(Stations.Cornbrook),
+                new LocationDTO(Stations.Altrincham),
+                true, boardingPlatformA, TramTime.of(10, 8), TramTime.of(10, 20),
+                20-8,
+                "headSign", TransportMode.Tram, "cssClass", 9, "routeName",
+                TravelAction.Board, "routeShortName");
+
+        PlatformDTO boardingPlatformB = new PlatformDTO(new Platform(Stations.Cornbrook.getId()+"1", Stations.Cornbrook.getName()));
+        StageDTO stageB = new StageDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.Deansgate),
+                new LocationDTO(Stations.Cornbrook),
+                true, boardingPlatformB, TramTime.of(10, 8), TramTime.of(10, 20),
+                20-8,
+                "headSign", TransportMode.Tram, "cssClass", 9, "routeName",
+                TravelAction.Change, "routeShortName");
+
+        List<StageDTO> stages = Arrays.asList(stageA, stageB);
+
+        replayAll();
+        JourneyDTO journey = factory.build(stages, queryTime);
+        verifyAll();
+
+        assertEquals(2, journey.getStages().size());
+        assertFalse(journey.getIsDirect());
+        assertEquals(Stations.Altrincham.getId(), journey.getBegin().getId());
+        assertEquals(Stations.Deansgate.getId(), journey.getEnd().getId());
+        assertEquals(Collections.singletonList(Stations.Cornbrook.getName()), journey.getChangeStations());
+
+        List<HasId> callingPlatformIds = journey.getCallingPlatformIds();
+        assertEquals(2, callingPlatformIds.size());
+        Set<String> ids = callingPlatformIds.stream().map(HasId::getId).collect(Collectors.toSet());
+        assertTrue(ids.contains(boardingPlatformA.getId()));
+        assertTrue(ids.contains(boardingPlatformB.getId()));
+    }
+
+    @Test
+    void shouldHaveRightSummaryAndHeadingFor3Stage() {
+        List<StageDTO> stages = new LinkedList<>();
+        stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook, 9));
+        stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
+        stages.add(createStage(Stations.Deansgate, TravelAction.Change, Stations.Bury, 1));
+
+
+        replayAll();
+        JourneyDTO journey = factory.build(stages, queryTime);
+        verifyAll();
+
+        assertFalse(journey.getIsDirect());
+        assertEquals(Stations.Altrincham.getId(), journey.getBegin().getId());
+        assertEquals(Stations.Bury.getId(), journey.getEnd().getId());
+        List<String> changes = Arrays.asList(Stations.Cornbrook.getName(), Stations.Deansgate.getName());
+        assertEquals(changes, journey.getChangeStations());
     }
 
     @Test
@@ -120,31 +195,6 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         assertEquals(TramTime.of(8,13), journey.getFirstDepartureTime());
         Assertions.assertTrue(journey.getChangeStations().isEmpty());
         Assertions.assertTrue(journey.getIsDirect());
-    }
-
-    @Test
-    void shouldHaveRightSummaryAndHeadingFor2Stage() {
-        List<StageDTO> stages = new LinkedList<>();
-        stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook, 9));
-        stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
-
-        replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime);
-        verifyAll();
-
-        assertThat(journey.getChangeStations(), contains("Cornbrook"));
-        assertFalse(journey.getIsDirect());
-    }
-
-    @Test
-    void shouldHaveRightSummaryAndHeadingFor3Stage() {
-        List<StageDTO> stages = createThreeStages();
-
-        replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime);
-        verifyAll();
-
-        assertThat(journey.getChangeStations(), contains("Cornbrook", "Victoria"));
     }
 
     @Test
@@ -209,7 +259,6 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
 
         Assertions.assertAll(() -> objectMapper.writeValueAsString(journey));
     }

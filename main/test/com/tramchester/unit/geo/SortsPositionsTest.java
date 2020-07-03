@@ -29,7 +29,7 @@ class SortsPositionsTest {
         dataForTest = new TransportDataForTest(stationLocations);
         dataForTest.start();
 
-        nearPiccGardens = dataForTest.getSecondStation(); // near PiccGardens
+        nearPiccGardens = dataForTest.getSecond(); // near PiccGardens
         nearShudehill = dataForTest.getInterchange();   // near Shudehill
         nearAltrincham = dataForTest.getFirst();         // near Altrincham
         nearStockportBus = dataForTest.getFifthStation();  // nearStockportBus

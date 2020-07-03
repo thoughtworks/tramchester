@@ -3,6 +3,7 @@ package com.tramchester.unit.domain.presentation.DTO.factory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;

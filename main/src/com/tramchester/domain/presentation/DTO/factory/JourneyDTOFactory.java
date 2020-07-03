@@ -17,9 +17,9 @@ import static java.lang.String.format;
 public class JourneyDTOFactory {
     private static final Logger logger = LoggerFactory.getLogger(JourneyDTOFactory.class);
 
-    public static int TIME_LIMIT = 15;
+    private static int INCLUDE_LIVE_TIME_LIMIT = 15;
 
-    private HeadsignMapper headsignMapper;
+    private final HeadsignMapper headsignMapper;
 
     public JourneyDTOFactory(HeadsignMapper headsignMapper) {
         this.headsignMapper = headsignMapper;
@@ -86,7 +86,7 @@ public class JourneyDTOFactory {
     private boolean filterDueTram(String headsign, DepartureDTO dueTram, TramTime firstDepartTime) {
         String destination = dueTram.getDestination().toLowerCase();
 
-        TramTime limit = firstDepartTime.plusMinutes(TIME_LIMIT);
+        TramTime limit = firstDepartTime.plusMinutes(INCLUDE_LIVE_TIME_LIMIT);
         boolean withinTime =  dueTram.getWhen().between(firstDepartTime, limit);
 
 //        boolean withinTime = dueTram.getWhen().isBefore(firstDepartTime.plusMinutes(TIME_LIMIT));

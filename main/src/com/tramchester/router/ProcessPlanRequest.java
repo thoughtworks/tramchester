@@ -172,9 +172,10 @@ public class ProcessPlanRequest {
     private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeyStream) {
 
         Set<JourneyDTO> journeyDTOs = journeyStream.
-                map(rawJourney -> tramJourneyToDTOMapper.createJourneyDTO(rawJourney, queryDate)).
+                map(journey -> tramJourneyToDTOMapper.createJourneyDTO(journey, queryDate)).
                 limit(config.getMaxNumResults()).
                 collect(Collectors.toSet());
+
         List<Note> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
         return new JourneyPlanRepresentation(journeyDTOs, notes);
     }

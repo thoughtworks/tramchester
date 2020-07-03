@@ -24,6 +24,7 @@ import static java.lang.String.format;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class TransportDataForTest implements TransportDataSource, Startable, Disposable {
+    public static final String TRIP_A_ID = "tripAId";
     private Service serviceB;
     private final String serviceAId = "serviceAId";
     private final String serviceBId = "serviceBId";
@@ -112,7 +113,7 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
         services.add(serviceC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip("tripAId", "headSign", serviceA, routeA);
+        Trip tripA = new Trip(TRIP_A_ID, "headSign", serviceA, routeA);
 
         //LatLong latLong = new LatLong(latitude, longitude);
         Station first = new Station(FIRST_STATION, "area1", "startStation", TestEnv.nearAltrincham, true);
@@ -299,9 +300,9 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
         return stationIdMap.get(INTERCHANGE);
     }
 
-    public Station getSecondStation() {
-        return stationIdMap.get(SECOND_STATION);
-    }
+//    public Station getSecondStation() {
+//        return stationIdMap.get(SECOND_STATION);
+//    }
 
     public Station getLast() {
         return stationIdMap.get(LAST_STATION);
