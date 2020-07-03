@@ -53,7 +53,7 @@ export default {
                 {key:'_showDetails',label:'', formatter: rowExpandedFormatter},
                 {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
                 {key:'begin.name',label:'From', sortable:true, tdClass:'station'},
-                {key:'expectedArrivalTime',label:'Arrive', sortable:false, tdClass:'arriveTime'},
+                {key:'expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'},
                 {key:'changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
             stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
@@ -107,6 +107,7 @@ export default {
                 sort-icon-left
                 :items="journeys" small responsive="sm"
                 :fields="journeyFields"
+                sort-by='expectedArrivalTime'
                 select-mode='single' caption-top
                     @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
             <template v-slot:table-caption>
