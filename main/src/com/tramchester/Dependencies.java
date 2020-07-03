@@ -118,7 +118,6 @@ public class Dependencies {
         picoContainer.addComponent(RouteCalculatorArriveBy.class);
         picoContainer.addComponent(ProcessPlanRequest.class);
         picoContainer.addComponent(ProvidesNotes.class);
-        picoContainer.addComponent(JourneysMapper.class);
         picoContainer.addComponent(TramJourneyToDTOMapper.class);
         picoContainer.addComponent(RouteCodeToClassMapper.class);
         picoContainer.addComponent(UpdateRecentJourneys.class);

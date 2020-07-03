@@ -15,7 +15,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.mappers.JourneysMapper;
+import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -38,23 +38,23 @@ public class ProcessPlanRequest {
     private final LocationJourneyPlanner locToLocPlanner;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
-    private final JourneysMapper journeysMapper;
     private final ProvidesNotes providesNotes;
     private final TransportData transportData;
     private final PostcodeRepository postcodeRepository;
+    private final TramJourneyToDTOMapper tramJourneyToDTOMapper;
 
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
-                              RouteCalculatorArriveBy routeCalculatorArriveBy, JourneysMapper journeysMapper,
-                              ProvidesNotes providesNotes, TransportData transportData, PostcodeRepository postcodeRepository) {
+                              RouteCalculatorArriveBy routeCalculatorArriveBy, ProvidesNotes providesNotes,
+                              TransportData transportData, PostcodeRepository postcodeRepository, TramJourneyToDTOMapper tramJourneyToDTOMapper) {
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
 
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
-        this.journeysMapper = journeysMapper;
         this.providesNotes = providesNotes;
         this.transportData = transportData;
         this.postcodeRepository = postcodeRepository;
+        this.tramJourneyToDTOMapper = tramJourneyToDTOMapper;
     }
 
     public JourneyPlanRepresentation directRequest(Transaction txn, String startId, String endId, JourneyRequest journeyRequest,
@@ -169,8 +169,12 @@ public class ProcessPlanRequest {
         return Character.isDigit(startId.charAt(0));
     }
 
-    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeys) {
-        Set<JourneyDTO> journeyDTOs = journeysMapper.createJourneyDTOs(journeys, queryDate, config.getMaxNumResults());
+    private JourneyPlanRepresentation createPlan(TramServiceDate queryDate, Stream<Journey> journeyStream) {
+
+        Set<JourneyDTO> journeyDTOs = journeyStream.
+                map(rawJourney -> tramJourneyToDTOMapper.createJourneyDTO(rawJourney, queryDate)).
+                limit(config.getMaxNumResults()).
+                collect(Collectors.toSet());
         List<Note> notes = providesNotes.createNotesForJourneys(journeyDTOs, queryDate);
         return new JourneyPlanRepresentation(journeyDTOs, notes);
     }
