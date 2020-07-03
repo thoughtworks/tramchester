@@ -46,6 +46,28 @@ function stageRowClass(value, key, item) {
     return item.displayClass;
 }
 
+function earliestDepartTime(journeys) {
+    var earliestDepart = moment('23:59','HH:mm');
+    journeys.forEach(journey => {
+        var currnet = moment(journey.firstDepartureTime,'HH:mm');
+        if (currnet.isBefore(earliestDepart)) {
+            earliestDepart = currnet;
+        }
+    })
+    return earliestDepart;
+}
+
+function lastDepartTime(journeys) {
+    var lastDepart = moment('00:01','HH:mm');
+    journeys.forEach(journey => {
+        var currnet = moment(journey.firstDepartureTime,'HH:mm');
+        if (currnet.isAfter(lastDepart)) {
+            lastDepart = currnet;
+        }
+    })
+    return lastDepart;
+}
+
 export default { 
     data: function () {
         return {
@@ -85,17 +107,14 @@ export default {
             row._showDetails = !row._showDetails;
         },
         earlier() {
-            const firstJourney = this.journeysresponse.journeys[0];
-            const currentEarliest = firstJourney.firstDepartureTime;
-            var newTime = moment(currentEarliest,"HH:mm").subtract(24, 'minutes');
+            const current = earliestDepartTime(this.journeysresponse.journeys); //firstJourney.firstDepartureTime;
+            var newTime = moment(current,"HH:mm").subtract(24, 'minutes');
             const newDepartTime = newTime.format("HH:mm");
             this.$emit('earlier-tram', newDepartTime);
         },
         later() {
-            const indexOfLast = this.journeysresponse.journeys.length - 1;
-            const lastJourney = this.journeysresponse.journeys[indexOfLast];
-            const currentLatest = lastJourney.firstDepartureTime;
-            var newTime = moment(currentLatest,"HH:mm").add(1, 'minutes');
+            const current = lastDepartTime(this.journeysresponse.journeys); //latestDepartingJourney.firstDepartureTime;
+            var newTime = moment(current,"HH:mm").add(1, 'minutes');
             const newDepartTime = newTime.format("HH:mm");
             this.$emit('later-tram', newDepartTime);
         }
