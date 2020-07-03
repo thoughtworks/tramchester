@@ -1,5 +1,8 @@
 package com.tramchester.integration.resources;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
@@ -22,6 +25,7 @@ import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -32,17 +36,22 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.oneOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
@@ -52,11 +61,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
     private LocalDateTime now;
+    private JsonFactory jsonFactory;
 
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         now = TestEnv.LocalNow();
+        jsonFactory = mapper.getFactory();
     }
 
     @Test
@@ -140,7 +151,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
             // depends on up to date departure info and current query time
             StationDepartureInfoDTO departInfo = platform.getStationDepartureInfo();
-            Assertions.assertNotNull(departInfo, "departInfo was null");
+            assertNotNull(departInfo, "departInfo was null");
             String expected = Stations.Altrincham.getId() + "1";
             Assertions.assertEquals(expected,departInfo.getStationPlatform(), "got "+departInfo.getStationPlatform());
         });
@@ -332,10 +343,55 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Assertions.assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
+    @Test
+    void shouldSpikeResultsAsStream() throws IOException {
+        String start = Stations.Bury.getId();
+        String end = Stations.ManAirport.getId();
+        String time = now.toLocalTime().format(TestEnv.timeFormatter);
+        String date = now.toLocalDate().format(dateFormatDashes);
+
+        String queryString = String.format("journey/streamed?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
+                start, end, time, date, false, 3);
+
+        Response response = IntegrationClient.getApiResponse(appExtension, queryString);
+        Assertions.assertEquals(200, response.getStatus());
+
+        InputStream inputStream = response.readEntity(InputStream.class);
+        List<JourneyDTO> journeyDTOS = parseStream(response, inputStream);
+
+        Assertions.assertFalse(journeyDTOS.isEmpty());
+        journeyDTOS.forEach(journeyDTO -> Assertions.assertFalse(journeyDTO.getStages().isEmpty()));
+    }
+
+    @NotNull
+    private List<JourneyDTO> parseStream(Response response, InputStream inputStream) throws IOException {
+        List<JourneyDTO> journeyDTOS = new ArrayList<>();
+
+        try (final JsonParser jsonParser = jsonFactory.createParser(inputStream)) {
+            final JsonToken nextToken = jsonParser.nextToken();
+            if (nextToken == null) {
+                fail("no token");
+            }
+
+            if (!JsonToken.START_ARRAY.equals(nextToken)) {
+               fail("not array start token");
+            }
+
+            // Iterate through the objects of the array.
+            while (JsonToken.START_OBJECT.equals(jsonParser.nextToken())) {
+                final JourneyDTO journeyDTO = jsonParser.readValueAs(JourneyDTO.class);
+                journeyDTOS.add(journeyDTO);
+            }
+        }
+        inputStream.close();
+        response.close();
+        return journeyDTOS;
+    }
+
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {
         Map<String, NewCookie> cookies = response.getCookies();
         NewCookie recent = cookies.get("tramchesterRecent");
-        Assertions.assertNotNull(recent);
+        assertNotNull(recent);
         Assertions.assertEquals("/api",recent.getPath());
         Assertions.assertEquals("localhost", recent.getDomain());
         String value = recent.toCookie().getValue();
