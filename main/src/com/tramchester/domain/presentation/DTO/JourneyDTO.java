@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CallsAtPlatforms;
 import com.tramchester.domain.HasId;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
@@ -24,6 +25,7 @@ public class JourneyDTO implements CallsAtPlatforms {
     private boolean isDirect;
     private List<String> changeStations;
     private TramTime queryTime;
+    private List<Note> notes;
 
     public JourneyDTO() {
         // Deserialization
@@ -31,7 +33,7 @@ public class JourneyDTO implements CallsAtPlatforms {
 
     public JourneyDTO(LocationDTO begin, LocationDTO end, List<StageDTO> stages,
                       TramTime expectedArrivalTime, TramTime firstDepartureTime,
-                      boolean isDirect, List<String> changeStations, TramTime queryTime) {
+                      boolean isDirect, List<String> changeStations, TramTime queryTime, List<Note> notes) {
         this.begin = begin;
         this.end = end;
         this.stages = stages;
@@ -40,6 +42,7 @@ public class JourneyDTO implements CallsAtPlatforms {
         this.isDirect = isDirect;
         this.changeStations = changeStations;
         this.queryTime = queryTime;
+        this.notes = notes;
     }
 
     public List<StageDTO> getStages() {
@@ -107,5 +110,9 @@ public class JourneyDTO implements CallsAtPlatforms {
     @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     public TramTime getQueryTime() {
         return queryTime;
+    }
+
+    public List<Note> getNotes() {
+        return notes;
     }
 }

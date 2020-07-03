@@ -11,6 +11,26 @@ public class Note {
         Live
     }
 
+    private NoteType noteType;
+    private String text;
+
+    public Note() {
+        // deserialisation
+    }
+
+    public Note(NoteType noteType, String text) {
+        this.noteType = noteType;
+        this.text = text;
+    }
+
+    public NoteType getNoteType() {
+        return noteType;
+    }
+
+    public String getText() {
+        return text;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -25,18 +45,6 @@ public class Note {
         return Objects.hash(noteType, text);
     }
 
-    private NoteType noteType;
-    private String text;
-
-    public Note() {
-        // deserialisation
-    }
-
-    public Note(NoteType noteType, String text) {
-        this.noteType = noteType;
-        this.text = text;
-    }
-
     @Override
     public String toString() {
         return "Note{" +
@@ -45,11 +53,4 @@ public class Note {
                 '}';
     }
 
-    public NoteType getNoteType() {
-        return noteType;
-    }
-
-    public String getText() {
-        return text;
-    }
 }

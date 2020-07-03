@@ -22,6 +22,8 @@ public class JourneyPlanRepresentation {
         return journeys;
     }
 
+    // use notes on journeys themselves
+    @Deprecated
     public List<Note> getNotes() {
         return notes;
     }

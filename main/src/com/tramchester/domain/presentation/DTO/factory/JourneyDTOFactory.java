@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.*;
@@ -25,14 +26,14 @@ public class JourneyDTOFactory {
         this.headsignMapper = headsignMapper;
     }
 
-    public JourneyDTO build(List<StageDTO> stages, TramTime queryTime) {
+    public JourneyDTO build(List<StageDTO> stages, TramTime queryTime, List<Note> notes) {
         boolean isDirect = isDirect(stages);
         LocationDTO begin = getBegin(stages);
         LocationDTO end = getEnd(stages);
 
         JourneyDTO journeyDTO = new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages),
                 getFirstDepartureTime(stages),
-                isDirect, getChangeStationNames(stages), queryTime);
+                isDirect, getChangeStationNames(stages), queryTime, notes);
 
         addTopLevelDueTramToJourney(journeyDTO);
 

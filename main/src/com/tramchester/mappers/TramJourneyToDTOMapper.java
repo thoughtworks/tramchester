@@ -7,6 +7,8 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramServiceDate;
@@ -21,10 +23,12 @@ public class TramJourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyToDTOMapper.class);
     private final JourneyDTOFactory journeyFactory;
     private final StageDTOFactory stageFactory;
+    private final ProvidesNotes providesNotes;
 
-    public TramJourneyToDTOMapper(JourneyDTOFactory journeyFactory, StageDTOFactory stageFactory) {
+    public TramJourneyToDTOMapper(JourneyDTOFactory journeyFactory, StageDTOFactory stageFactory, ProvidesNotes providesNotes) {
         this.journeyFactory = journeyFactory;
         this.stageFactory = stageFactory;
+        this.providesNotes = providesNotes;
     }
 
     public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
@@ -39,7 +43,8 @@ public class TramJourneyToDTOMapper {
             stages.add(stageDTO);
         }
 
-        return journeyFactory.build(stages, queryTime);
+        List<Note> notes = providesNotes.createNotesForJourney(journey, tramServiceDate);
+        return journeyFactory.build(stages, queryTime, notes);
     }
 
     private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage rawStage) {
