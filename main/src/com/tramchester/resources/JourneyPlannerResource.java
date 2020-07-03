@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -24,6 +25,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -58,30 +61,34 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                   @QueryParam("maxChanges") @DefaultValue("9999") String maxChangesRaw,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
                                   @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
-                                  @Context UriInfo uriInfo){
+                                  @Context UriInfo uriInfo) {
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));
 
-        LocalDate date = LocalDate.parse(departureDateRaw);
-        TramServiceDate queryDate = new TramServiceDate(date);
-
-        boolean secure = forwardedHeader != null && forwardedHeader.toLowerCase().equals("https");
-        URI baseUri = uriInfo.getBaseUri();
-
-        int maxChanges = Integer.parseInt(maxChangesRaw);
+        Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
+        if (maybeDepartureTime.isEmpty()) {
+            logger.error("Could not parse departure time '" + departureTimeRaw +"'");
+            return Response.serverError().build();
+        }
 
         try {
-            Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
-            if (maybeDepartureTime.isPresent()) {
-                TramTime queryTime = maybeDepartureTime.get();
+            LocalDate date = LocalDate.parse(departureDateRaw);
+            TramServiceDate queryDate = new TramServiceDate(date);
 
-                boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
-                JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges);
+            boolean secure = forwardedHeader != null && forwardedHeader.toLowerCase().equals("https");
+            URI baseUri = uriInfo.getBaseUri();
 
-                JourneyPlanRepresentation planRepresentation;
-                try (Transaction tx = graphDatabaseService.beginTx() ) {
-                    planRepresentation =  processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
-                }
+            int maxChanges = Integer.parseInt(maxChangesRaw);
+            TramTime queryTime = maybeDepartureTime.get();
+
+            boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
+            JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges);
+
+            try (Transaction tx = graphDatabaseService.beginTx() ) {
+                Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
+
+                JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(dtoStream.collect(Collectors.toSet()));
+                dtoStream.close();
 
                 if (planRepresentation.getJourneys().size()==0) {
                     logger.warn(format("No journeys found from %s to %s at %s on %s", startId, endId,departureTimeRaw, departureDateRaw));
@@ -91,6 +98,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                 responseBuilder.cookie(createRecentCookie(cookie, startId, endId, secure, baseUri));
                 return responseBuilder.build();
             }
+
         } catch(Exception exception) {
             logger.error("Problem processing response", exception);
         }
