@@ -1,9 +1,11 @@
 package com.tramchester.domain.liveUpdates;
 
+import com.tramchester.domain.places.Station;
+
 import java.time.LocalDateTime;
 
 public interface HasPlatformMessage {
     String getMessage();
-    String getLocation();
+    Station getStation();
     LocalDateTime getLastUpdate();
 }

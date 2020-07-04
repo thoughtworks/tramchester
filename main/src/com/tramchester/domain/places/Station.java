@@ -1,14 +1,19 @@
 package com.tramchester.domain.places;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@JsonSerialize(using = StationDTO.Serializer.class)
+@JsonDeserialize(using = StationDTO.Deserializer.class)
 public class Station implements Location {
     public static String METROLINK_PREFIX = "9400ZZ";
 

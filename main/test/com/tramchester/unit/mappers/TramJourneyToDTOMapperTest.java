@@ -4,14 +4,11 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
-import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.presentation.ProvidesNotes;
-import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
@@ -60,7 +57,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         stageFactory = createMock(StageDTOFactory.class);
         providesNotes = createMock(ProvidesNotes.class);
 
-        notes = Collections.singletonList(new Note(Note.NoteType.Live, "someText"));
+        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", Stations.StPetersSquare));
 
         mapper = new TramJourneyToDTOMapper(journeyFactory, stageFactory, providesNotes);
         stages = new LinkedList<>();

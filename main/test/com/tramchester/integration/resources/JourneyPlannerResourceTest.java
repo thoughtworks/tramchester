@@ -11,11 +11,8 @@ import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.*;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.presentation.ProvidesNotes;
-import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
@@ -25,7 +22,6 @@ import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import io.swagger.util.Json;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +38,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.assertj.core.api.Fail.fail;
@@ -214,7 +213,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldWarnOnSaturdayAndSundayJourney() throws TramchesterException {
 
-        Note weekendNote = new Note(Note.NoteType.Weekend, "At the weekend your journey may be affected by improvement works." + ProvidesNotes.website);
+        Note weekendNote = new Note("At the weekend your journey may be affected by improvement works." + ProvidesNotes.website, Note.NoteType.Weekend);
 
         JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextSunday());

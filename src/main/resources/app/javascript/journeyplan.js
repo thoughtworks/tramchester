@@ -256,9 +256,6 @@ var app = new Vue({
                     this.date, this.arriveBy,this.maxChanges);
                 displayLiveData(app);
             },
-            // updateStations() {
-            //     updateStationsFromServer();
-            // },
             setCookie() {
                 var cookie = { 'visited' : true };
                 this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");

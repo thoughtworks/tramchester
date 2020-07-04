@@ -14,6 +14,7 @@ import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.HeadsignMapper;
@@ -45,7 +46,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         myLocationFactory = new MyLocationFactory(new ObjectMapper());
         factory = new JourneyDTOFactory(new HeadsignMapper());
-        notes = Collections.singletonList(new Note(Note.NoteType.Live, "someText"));
+        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", Stations.Bury));
     }
 
     @Test

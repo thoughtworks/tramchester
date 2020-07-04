@@ -3,8 +3,8 @@ package com.tramchester.domain.presentation.DTO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class StationDepartureInfoDTO implements HasPlatformMessage {
+public class StationDepartureInfoDTO  {
     private String lineName;
     private String stationPlatform;
     private String message;
@@ -22,8 +22,8 @@ public class StationDepartureInfoDTO implements HasPlatformMessage {
     private String displayId;
     private String location;
 
-    public StationDepartureInfoDTO(String lineName, String stationPlatform, String message, List<DepartureDTO> dueTrams,
-                                   LocalDateTime lastUpdate, String displayId, String location) {
+    private StationDepartureInfoDTO(String lineName, String stationPlatform, String message, List<DepartureDTO> dueTrams,
+                                    LocalDateTime lastUpdate, String displayId, String location) {
         this.lineName = lineName;
         this.stationPlatform = stationPlatform;
         this.message = message;
@@ -37,17 +37,18 @@ public class StationDepartureInfoDTO implements HasPlatformMessage {
         this(info.getLineName(),
                 info.getStationPlatform(),
                 info.getMessage(),
-                mapDueTrams(info.getLocation(), info.getDueTrams()),
+                mapDueTrams(info.getStation(), info.getDueTrams()),
                 info.getLastUpdate(),
                 info.getDisplayId(),
-                info.getLocation());
+                info.getStation().getName());
     }
 
+    @SuppressWarnings("unused")
     public StationDepartureInfoDTO() {
         // deserialisation
     }
 
-    private static List<DepartureDTO> mapDueTrams(String location, List<DueTram> dueTrams) {
+    private static List<DepartureDTO> mapDueTrams(Station location, List<DueTram> dueTrams) {
         return dueTrams.stream().map(dueTram -> new DepartureDTO(location, dueTram)).collect(Collectors.toList());
     }
 

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonTypeName("journey")
-@JsonTypeInfo(include= JsonTypeInfo.As.WRAPPER_OBJECT,use= JsonTypeInfo.Id.NAME)
+@JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
 public class JourneyDTO implements CallsAtPlatforms {
 
     private LocationDTO begin;

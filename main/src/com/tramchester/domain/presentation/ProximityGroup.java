@@ -1,8 +1,5 @@
 package com.tramchester.domain.presentation;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class ProximityGroup {
 
     private int order;

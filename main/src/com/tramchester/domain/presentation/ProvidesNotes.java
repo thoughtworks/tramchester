@@ -1,14 +1,16 @@
 package com.tramchester.domain.presentation;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.CallsAtPlatforms;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
-import org.apache.commons.collections4.map.HashedMap;
+import com.tramchester.repository.StationRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,10 +27,12 @@ public class ProvidesNotes {
 
     private final TramchesterConfig config;
     private final LiveDataRepository liveDataRepository;
+    private final StationRepository stationRepository;
 
-    public ProvidesNotes(TramchesterConfig config, LiveDataRepository liveDataRepository) {
+    public ProvidesNotes(TramchesterConfig config, LiveDataRepository liveDataRepository, StationRepository stationRepository) {
         this.config = config;
         this.liveDataRepository = liveDataRepository;
+        this.stationRepository = stationRepository;
     }
 
     public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
@@ -46,22 +50,21 @@ public class ProvidesNotes {
     }
 
     private List<Note> createLiveNotesForStations(List<Station> stations, TramServiceDate date, TramTime time) {
-        // Map: Note -> Location
-        Map<Note, String> messageMap = new HashedMap<>();
+        List<Note> notes = new ArrayList<>();
 
         stations.forEach(station -> liveDataRepository.departuresFor(station, date, time).forEach(info ->
-                addRelevantNote(messageMap, info)));
+                addRelevantNote(notes, info)));
 
-        return createMessageList(messageMap);
+        return notes;
     }
 
     private List<Note> createNotesForADate(TramServiceDate queryDate) {
         ArrayList<Note> notes = new ArrayList<>();
         if (queryDate.isWeekend()) {
-            notes.add(new Note(Weekend, weekend));
+            notes.add(new Note(weekend, Weekend));
         }
         if (queryDate.isChristmasPeriod()) {
-            notes.add(new Note(Christmas, christmas));
+            notes.add(new Note(christmas, Christmas));
         }
         notes.addAll(createNotesForClosedStations());
         return notes;
@@ -70,23 +73,29 @@ public class ProvidesNotes {
     private Set<Note> createNotesForClosedStations() {
         Set<Note> messages = new HashSet<>();
         config.getClosedStations().
-                forEach(stationName -> messages.add(new Note(ClosedStation, format("%s is currently closed. %s", stationName, website))));
+                forEach(stationId ->
+                {
+                    Station closedStation = stationRepository.getStation(stationId);
+                    String msg = format("%s is currently closed. %s", closedStation.getName(), website);
+                    messages.add(new StationNote(ClosedStation, msg, closedStation));
+                });
         return messages;
     }
 
     private <T extends CallsAtPlatforms> List<Note> liveNotesForJourney(T journey, TramServiceDate queryDate) {
         // Map: Note -> Location
-        Map<Note,String> messageMap = new HashedMap<>();
+        List<Note> notes = new ArrayList<>();
 
         // find all the platforms involved in a journey, so board, depart and changes
         // add messages for those platforms
-        journey.getCallingPlatformIds().forEach(platform -> addRelevantNote(messageMap, platform, queryDate,
+        journey.getCallingPlatformIds().forEach(platform -> addRelevantNote(notes, platform, queryDate,
                 journey.getQueryTime()));
 
-        return createMessageList(messageMap);
+        //return createMessageList(notes);
+        return notes;
     }
 
-    private void addRelevantNote(Map<Note, String> messageMap, HasId platform, TramServiceDate queryDate, TramTime queryTime) {
+    private void addRelevantNote(List<Note> messageMap, HasId platform, TramServiceDate queryDate, TramTime queryTime) {
         Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platform, queryDate, queryTime);
         if (maybe.isEmpty()) {
             return;
@@ -105,33 +114,26 @@ public class ProvidesNotes {
         addRelevantNote(messageMap, info);
     }
 
-    private List<Note> createMessageList(Map<Note, String> messageMap) {
-        List<Note> messages = new ArrayList<>();
-        messageMap.forEach((original,location) -> {
-            if (location.isEmpty()) {
-                messages.add(new Note(original.getNoteType(), format("'%s' - Metrolink", original.getText())));
-            } else {
-                messages.add(new Note(original.getNoteType(), format("'%s' - %s, Metrolink", original.getText(), location)));
-            }
-        });
-        return messages;
-    }
+//    private List<Note> createMessageList(Map<Note, Station> messageMap) {
+//        List<Note> messages = new ArrayList<>();
+//        messageMap.forEach((original,location) -> {
+//            if (location.isEmpty()) {
+//                messages.add(new StationNote(original.getNoteType(), format("'%s' - Metrolink", original.getText())));
+//            } else {
+//                messages.add(new StationNote(original.getNoteType(), format("'%s' - %s, Metrolink", original.getText(), location)));
+//            }
+//        });
+//        return messages;
+//    }
 
-    private void addRelevantNote(Map<Note, String> messageMap, HasPlatformMessage info) {
-        Note original = new Note(Live, info.getMessage());
-        if (usefulNote(original)) {
-            if (messageMap.containsKey(original)) {
-                String existingLocation = messageMap.get(original);
-                if (!existingLocation.equals(info.getLocation())) {
-                    messageMap.put(original, ""); // must be shown at multiple locations, not specific
-                }
-            } else {
-                messageMap.put(original, info.getLocation()); // initially specific to one location only
-            }
+    private void addRelevantNote(List<Note> notes, HasPlatformMessage info) {
+        String message = info.getMessage();
+        if (usefulNote(message)) {
+            notes.add(new StationNote(Live, message, info.getStation()));
         }
     }
 
-    private boolean usefulNote(Note note) {
-        return ! (note.getText().isEmpty() || EMPTY.equals(note.getText()));
+    private boolean usefulNote(String text) {
+        return ! (text.isEmpty() || EMPTY.equals(text));
     }
 }

@@ -100,7 +100,7 @@ class LiveDataParserTest extends EasyMockSupport {
         Assertions.assertEquals("1", departureInfoA.getDisplayId());
         Assertions.assertEquals("Eccles", departureInfoA.getLineName());
         Assertions.assertEquals("9400ZZMAMCU2", departureInfoA.getStationPlatform());
-        Assertions.assertEquals("MediaCityUK", departureInfoA.getLocation());
+        Assertions.assertEquals(Stations.MediaCityUK, departureInfoA.getStation());
         Assertions.assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +
                 "ahead with additional time for travel.", departureInfoA.getMessage());
@@ -136,7 +136,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         Assertions.assertEquals(2, info.size());
         StationDepartureInfo departureInfoB = info.get(1);
-        Assertions.assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
+        Assertions.assertEquals(Stations.ManAirport, departureInfoB.getStation());
         Assertions.assertEquals(2, departureInfoB.getDueTrams().size());
     }
 
@@ -150,7 +150,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         Assertions.assertEquals(2, info.size());
         StationDepartureInfo departureInfoB = info.get(1);
-        Assertions.assertEquals(Stations.ManAirport.getName(), departureInfoB.getLocation());
+        Assertions.assertEquals(Stations.ManAirport, departureInfoB.getStation());
         Assertions.assertEquals(1, departureInfoB.getDueTrams().size());
     }
 

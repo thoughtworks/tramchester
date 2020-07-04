@@ -19,7 +19,6 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.SortedSet;
 
 import static org.junit.jupiter.api.Assertions.*;

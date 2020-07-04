@@ -124,10 +124,15 @@ public class LiveDataParser {
             final int index = i;
             String destinationName = getNumberedField(jsonObject, "Dest", index);
             if (!destinationName.isEmpty()) {
+
+                Optional<Station> maybeStation;
                 if (TERMINATES_HERE.equals(destinationName)) {
-                    destinationName = departureInfo.getLocation();
+                    // replace "terminates here" with the station where this message is displayed
+                    maybeStation = Optional.of(departureInfo.getStation());
+                } else {
+                    // try to look up destination station based on the destination text....
+                    maybeStation = getTramDestination(destinationName);
                 }
-                Optional<Station> maybeStation = getTramDestination(destinationName);
 
                 maybeStation.ifPresent(station -> {
                     String status = getNumberedField(jsonObject, "Status", index);

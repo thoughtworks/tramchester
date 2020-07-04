@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
@@ -20,11 +21,11 @@ class DepartureDTOTest {
     void shouldCreateFromDueTramAndLocation() {
         LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
 
-        String location = "aPlace";
+        Station location = Stations.StPetersSquare;
         DueTram dueTram = new DueTram(Stations.Bury, "status", 42, "carriages", updateTime);
         DepartureDTO departureDTO = new DepartureDTO(location, dueTram);
 
-        Assertions.assertEquals("aPlace", departureDTO.getFrom());
+        Assertions.assertEquals(Stations.StPetersSquare.getName(), departureDTO.getFrom());
         Assertions.assertEquals("Bury", departureDTO.getDestination());
         Assertions.assertEquals("status", departureDTO.getStatus());
         Assertions.assertEquals("carriages", departureDTO.getCarriages());
@@ -35,9 +36,12 @@ class DepartureDTOTest {
     void shouldCompareBasedOnWhenTramDue() {
         LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
 
-        DepartureDTO departureDTOA = new DepartureDTO("station", new DueTram(Stations.Deansgate, "status", 5, "carriages", updateTime));
-        DepartureDTO departureDTOB = new DepartureDTO("station", new DueTram(Stations.Bury, "status", 3, "carriages", updateTime));
-        DepartureDTO departureDTOC = new DepartureDTO("station", new DueTram(Stations.Piccadilly, "status", 12, "carriages", updateTime));
+        DepartureDTO departureDTOA = new DepartureDTO(Stations.StPetersSquare,
+                new DueTram(Stations.Deansgate, "status", 5, "carriages", updateTime));
+        DepartureDTO departureDTOB = new DepartureDTO(Stations.StPetersSquare,
+                new DueTram(Stations.Bury, "status", 3, "carriages", updateTime));
+        DepartureDTO departureDTOC = new DepartureDTO(Stations.StPetersSquare,
+                new DueTram(Stations.Piccadilly, "status", 12, "carriages", updateTime));
 
         Set<DepartureDTO> list = new TreeSet<>();
         list.add(departureDTOA);

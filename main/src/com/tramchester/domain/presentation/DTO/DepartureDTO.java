@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
@@ -18,8 +19,8 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     private TramTime when;
     private int wait;
 
-    public DepartureDTO(String from, DueTram dueTram) {
-        this.from = from;
+    public DepartureDTO(Station from, DueTram dueTram) {
+        this.from = from.getName();
         this.when = dueTram.getWhen();
         this.carriages = dueTram.getCarriages();
         this.status = dueTram.getStatus();
@@ -27,6 +28,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         this.wait = dueTram.getWait();
     }
 
+    @SuppressWarnings("unused")
     public DepartureDTO() {
         // for deserialisation
     }

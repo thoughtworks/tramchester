@@ -15,7 +15,7 @@ public class DeparturesMapper {
 
     public Set<DepartureDTO> mapToDTO(Station station, Collection<DueTram> dueTrams) {
         return dueTrams.stream().
-                    map(dueTram -> new DepartureDTO(station.getName(),dueTram))
+                    map(dueTram -> new DepartureDTO(station,dueTram))
                     .collect(Collectors.toSet());
     }
 }

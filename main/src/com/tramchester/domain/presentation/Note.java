@@ -1,26 +1,24 @@
 package com.tramchester.domain.presentation;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.util.Objects;
 
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = StationNote.class)})
 public class Note {
-
-    public enum NoteType {
-        Weekend,
-        Christmas,
-        ClosedStation,
-        Live
-    }
-
     private NoteType noteType;
     private String text;
 
-    public Note() {
-        // deserialisation
+    public Note(String text, NoteType noteType) {
+        this.text = text;
+        this.noteType = noteType;
     }
 
-    public Note(NoteType noteType, String text) {
-        this.noteType = noteType;
-        this.text = text;
+    public Note() {
+        // deserialisation
     }
 
     public NoteType getNoteType() {
@@ -31,13 +29,20 @@ public class Note {
         return text;
     }
 
+    public enum NoteType {
+        Weekend,
+        Christmas,
+        ClosedStation,
+        Live
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Note note = (Note) o;
         return noteType == note.noteType &&
-                text.equals(note.text);
+                Objects.equals(text, note.text);
     }
 
     @Override
@@ -52,5 +57,4 @@ public class Note {
                 ", text='" + text + '\'' +
                 '}';
     }
-
 }

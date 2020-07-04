@@ -89,8 +89,9 @@ public class StationDepartureInfo implements HasPlatformMessage {
         return displayId;
     }
 
-    public String getLocation() {
-        return station.getName();
+    @Override
+    public Station getStation() {
+        return station;
     }
 
     @Override
