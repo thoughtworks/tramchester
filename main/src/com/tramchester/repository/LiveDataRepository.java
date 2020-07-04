@@ -4,16 +4,15 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.HasId;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
-import org.apache.commons.collections4.keyvalue.TiedMapEntry;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -222,7 +221,8 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats {
 
     @Override
     public List<Pair<String, CacheStats>> stats() {
-        return Arrays.asList(Pair.of("LiveDataRepository:departureInfoCache", departureInfoCache.stats()));
+        return Collections.singletonList(
+                Pair.of("LiveDataRepository:departureInfoCache", departureInfoCache.stats()));
     }
 
 }

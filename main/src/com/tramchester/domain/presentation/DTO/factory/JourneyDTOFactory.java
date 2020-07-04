@@ -4,6 +4,7 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -20,8 +21,8 @@ public class JourneyDTOFactory {
 
     public JourneyDTO build(List<StageDTO> stages, TramTime queryTime, List<Note> notes) {
         boolean isDirect = isDirect(stages);
-        LocationDTO begin = getBegin(stages);
-        LocationDTO end = getEnd(stages);
+        StationRefDTO begin = new StationRefDTO(getBegin(stages));
+        StationRefDTO end = new StationRefDTO(getEnd(stages));
 
         return new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages),
                 getFirstDepartureTime(stages),

@@ -1,10 +1,11 @@
 package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 
 public class StationNote extends Note {
 
-    private Station station;
+    private StationRefDTO stationRef;
 
     public StationNote() {
         // deserialisation
@@ -13,17 +14,18 @@ public class StationNote extends Note {
 
     public StationNote(NoteType noteType, String text, Station location) {
         super(text, noteType);
-        this.station = location;
+        this.stationRef = new StationRefDTO(location);
     }
 
-    public Station getStation() {
-        return station;
+    @SuppressWarnings("WeakerAccess")
+    public StationRefDTO getStationRef() {
+        return stationRef;
     }
 
     @Override
     public String toString() {
         return "StationNote{" +
-                "station=" + station +
+                "station=" + stationRef +
                 "} " + super.toString();
     }
 
@@ -35,13 +37,13 @@ public class StationNote extends Note {
 
         StationNote that = (StationNote) o;
 
-        return getStation() != null ? getStation().equals(that.getStation()) : that.getStation() == null;
+        return getStationRef() != null ? getStationRef().equals(that.getStationRef()) : that.getStationRef() == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (getStation() != null ? getStation().hashCode() : 0);
+        result = 31 * result + (getStationRef() != null ? getStationRef().hashCode() : 0);
         return result;
     }
 }

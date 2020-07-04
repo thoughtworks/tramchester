@@ -12,10 +12,12 @@ import java.util.Objects;
 
 public class DepartureDTO implements Comparable<DepartureDTO> {
 
+    // TOOD Make from and desintaion StationRefDTO
     private String from;
+    private String destination;
+
     private String carriages;
     private String status;
-    private String destination;
     private TramTime when;
     private int wait;
 
