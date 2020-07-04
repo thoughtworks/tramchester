@@ -14,36 +14,26 @@ import com.tramchester.repository.LiveDataRepository;
 
 import java.util.Optional;
 
+// TODO Use superclass and JSON annotations (see Note class) to handle presence or not of platform
 public class StageDTOFactory {
 
-    private final LiveDataRepository liveDataRepository;
-
-    public StageDTOFactory(LiveDataRepository liveDataRepository) {
-        this.liveDataRepository = liveDataRepository;
+    public StageDTOFactory() {
     }
 
-    public StageDTO build(TransportStage source, TravelAction travelAction, TramTime queryTime, TramServiceDate tramServiceDate) {
+    public StageDTO build(TransportStage source, TravelAction travelAction) {
         return new StageDTO(new LocationDTO(source.getFirstStation()),
                 new LocationDTO(source.getLastStation()),
                 new LocationDTO(source.getActionStation()),
                 source.getBoardingPlatform().isPresent(),
-                createPlatform(source.getBoardingPlatform(), queryTime, tramServiceDate),
+                createPlatform(source.getBoardingPlatform()),
                 source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
                 source.getDuration(), source.getHeadSign(),
                 source.getMode(), source.getDisplayClass(),
                 source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
     }
 
-    private PlatformDTO createPlatform(Optional<Platform> maybe, TramTime queryTime, TramServiceDate tramServiceDate) {
-        if (!maybe.isPresent()) {
-            return null;
-        }
-
-        Platform platform = maybe.get();
-        PlatformDTO platformDTO = new PlatformDTO(platform);
-        Optional<StationDepartureInfo> info = liveDataRepository.departuresFor(platform, tramServiceDate, queryTime);
-        info.ifPresent(stationDepartureInfo -> platformDTO.setDepartureInfo(new StationDepartureInfoDTO(stationDepartureInfo)));
-        return platformDTO;
+    private PlatformDTO createPlatform(Optional<Platform> maybe) {
+        return maybe.map(PlatformDTO::new).orElse(null);
 
     }
 }

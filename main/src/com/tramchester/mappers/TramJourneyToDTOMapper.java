@@ -36,7 +36,7 @@ public class TramJourneyToDTOMapper {
         for(TransportStage rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
             TravelAction action = decideTravelAction(stages, rawStage);
-            StageDTO stageDTO = stageFactory.build(rawStage, action, queryTime, tramServiceDate);
+            StageDTO stageDTO = stageFactory.build(rawStage, action);
             stages.add(stageDTO);
         }
 

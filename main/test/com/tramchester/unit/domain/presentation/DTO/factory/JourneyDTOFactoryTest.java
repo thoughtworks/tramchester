@@ -45,7 +45,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         myLocationFactory = new MyLocationFactory(new ObjectMapper());
-        factory = new JourneyDTOFactory(new HeadsignMapper());
+        factory = new JourneyDTOFactory();
         notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", Stations.Bury));
     }
 
@@ -147,44 +147,44 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         assertEquals(changes, journey.getChangeStations());
     }
 
-    @Test
-    void shouldCreateJourneyDTOWithDueTram() {
-        LocalDateTime when = LocalDateTime.of(2017,11,30,18,41);
-
-        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 5);
-
-        replayAll();
-        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
-        verifyAll();
-
-        assertEquals("Double tram Due at 18:46", journeyDTO.getDueTram());
-    }
-
-    @Test
-    void shouldCreateJourneyDTOWithDueTramTimeOutOfRange() {
-
-        LocalDateTime dateTime = LocalDateTime.of(2017,11,30,18,41);
-        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, dateTime, 22);
-
-        replayAll();
-        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
-        verifyAll();
-
-        Assertions.assertNull(journeyDTO.getDueTram());
-    }
-
-    @Test
-    void shouldCreateJourneyDTOWithLaterDueTramMatching() {
-        LocalDateTime when = LocalDateTime.of(2017,11,30, 18,41);
-        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 7);
-
-        replayAll();
-        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
-        verifyAll();
-
-        // select due tram that is closer to stage departure when more than one available
-        assertEquals("Double tram Due at 18:48", journeyDTO.getDueTram());
-    }
+//    @Test
+//    void shouldCreateJourneyDTOWithDueTram() {
+//        LocalDateTime when = LocalDateTime.of(2017,11,30,18,41);
+//
+//        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 5);
+//
+//        replayAll();
+//        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
+//        verifyAll();
+//
+//        assertEquals("Double tram Due at 18:46", journeyDTO.getDueTram());
+//    }
+//
+//    @Test
+//    void shouldCreateJourneyDTOWithDueTramTimeOutOfRange() {
+//
+//        LocalDateTime dateTime = LocalDateTime.of(2017,11,30,18,41);
+//        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, dateTime, 22);
+//
+//        replayAll();
+//        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
+//        verifyAll();
+//
+//        Assertions.assertNull(journeyDTO.getDueTram());
+//    }
+//
+//    @Test
+//    void shouldCreateJourneyDTOWithLaterDueTramMatching() {
+//        LocalDateTime when = LocalDateTime.of(2017,11,30, 18,41);
+//        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 7);
+//
+//        replayAll();
+//        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
+//        verifyAll();
+//
+//        // select due tram that is closer to stage departure when more than one available
+//        assertEquals("Double tram Due at 18:48", journeyDTO.getDueTram());
+//    }
 
     @Test
     void shouldHaveCorrectSummaryAndHeadingForWalkAndTram() {
@@ -301,27 +301,27 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
                 "cssClass", 0, "walking", TravelAction.Board, "routeShortName");
     }
 
-    private StageDTO createStageDTOWithDueTram(Station station, LocalDateTime whenTime, int wait) {
-        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
-                StationDepartureInfo.Direction.Incoming, "platform", station, "message", whenTime);
-
-        LocalTime when = whenTime.toLocalTime();
-
-        departureInfo.addDueTram(new DueTram(Stations.Deansgate, "Due", 10, "Single", when));
-        departureInfo.addDueTram(new DueTram(station, "Departed", 0, "Single",when));
-        departureInfo.addDueTram(new DueTram(station, "Due", wait, "Double",when));
-        departureInfo.addDueTram(new DueTram(station, "Due", wait+2, "Double",when));
-
-        PlatformDTO platform = new PlatformDTO(new Platform("platformId", "platformName"));
-        platform.setDepartureInfo(new StationDepartureInfoDTO(departureInfo));
-
-        int durationOfStage = 15;
-        return new StageDTO(new LocationDTO(stationA),
-                new LocationDTO(stationB), new LocationDTO(stationB),
-                true, platform, TramTime.of(when.plusMinutes(1)),
-                TramTime.of(when.plusMinutes(durationOfStage)),
-                durationOfStage,
-                station.getName(), TransportMode.Tram,
-                "displayClass", 23,"routeName", TravelAction.Board, "routeShortName");
-    }
+//    private StageDTO createStageDTO(Station station, LocalDateTime whenTime, int wait) {
+//        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
+//                StationDepartureInfo.Direction.Incoming, "platform", station, "message", whenTime);
+//
+//        LocalTime when = whenTime.toLocalTime();
+//
+//        departureInfo.addDueTram(new DueTram(Stations.Deansgate, "Due", 10, "Single", when));
+//        departureInfo.addDueTram(new DueTram(station, "Departed", 0, "Single",when));
+//        departureInfo.addDueTram(new DueTram(station, "Due", wait, "Double",when));
+//        departureInfo.addDueTram(new DueTram(station, "Due", wait+2, "Double",when));
+//
+//        PlatformDTO platform = new PlatformDTO(new Platform("platformId", "platformName"));
+////        platform.setDepartureInfo(new StationDepartureInfoDTO(departureInfo));
+//
+//        int durationOfStage = 15;
+//        return new StageDTO(new LocationDTO(stationA),
+//                new LocationDTO(stationB), new LocationDTO(stationB),
+//                true, platform, TramTime.of(when.plusMinutes(1)),
+//                TramTime.of(when.plusMinutes(durationOfStage)),
+//                durationOfStage,
+//                station.getName(), TransportMode.Tram,
+//                "displayClass", 23,"routeName", TravelAction.Board, "routeShortName");
+//    }
 }

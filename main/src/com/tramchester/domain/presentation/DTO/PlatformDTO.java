@@ -8,8 +8,8 @@ public class PlatformDTO implements HasId {
     private String id;
     private String name;
     private String platformNumber;
-    private StationDepartureInfoDTO stationDepartureInfo;
 
+    @SuppressWarnings("unused")
     public PlatformDTO() {
         // for deserialisation
     }
@@ -20,7 +20,6 @@ public class PlatformDTO implements HasId {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", platformNumber='" + platformNumber + '\'' +
-                ", stationDepartureInfo=" + stationDepartureInfo +
                 '}';
     }
 
@@ -40,14 +39,6 @@ public class PlatformDTO implements HasId {
 
     public String getPlatformNumber() {
         return platformNumber;
-    }
-
-    public StationDepartureInfoDTO getStationDepartureInfo() {
-        return stationDepartureInfo;
-    }
-
-    public void setDepartureInfo(StationDepartureInfoDTO stationDepartureInfo) {
-        this.stationDepartureInfo = stationDepartureInfo;
     }
 
     @Override

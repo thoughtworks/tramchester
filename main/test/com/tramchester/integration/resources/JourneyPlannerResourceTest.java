@@ -6,19 +6,23 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocationFactory;
-import com.tramchester.domain.presentation.*;
-import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -36,8 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -126,33 +128,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.ManAirport, new TramServiceDate(when), queryTime,
                 true, 0);
         Assertions.assertTrue(plan.getJourneys().isEmpty());
-    }
-
-    @Test
-    @LiveDataTestCategory
-    void shouldPlanSimpleJourneyFromAltyToCornbrookLiveDepartureInfo() {
-
-        // has to be NOW to get a hit on live data
-        LocalTime currentLocalTime = ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalTime();
-        TramTime timeForQuery = TramTime.of(currentLocalTime);
-
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(now.toLocalDate()), timeForQuery,
-                false, 3);
-
-        Set<JourneyDTO> journeys = plan.getJourneys();
-        Assertions.assertTrue(journeys.size()>0, "No journeys found, no trams running now??");
-
-        journeys.forEach(journey -> {
-            StageDTO firstStage = journey.getStages().get(0);
-            PlatformDTO platform = firstStage.getPlatform();
-
-            // depends on up to date departure info and current query time
-            StationDepartureInfoDTO departInfo = platform.getStationDepartureInfo();
-            assertNotNull(departInfo, "departInfo was null");
-            String expected = Stations.Altrincham.getId() + "1";
-            Assertions.assertEquals(expected,departInfo.getStationPlatform(), "got "+departInfo.getStationPlatform());
-        });
-
     }
 
     @Disabled("Temporary: trams finish at 2300")
