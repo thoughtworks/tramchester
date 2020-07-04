@@ -25,6 +25,7 @@ import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.swagger.util.Json;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,10 +42,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.assertj.core.api.Fail.fail;
@@ -347,8 +345,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     void shouldSpikeResultsAsStream() throws IOException {
         String start = Stations.Bury.getId();
         String end = Stations.ManAirport.getId();
-        String time = now.toLocalTime().format(TestEnv.timeFormatter);
-        String date = now.toLocalDate().format(dateFormatDashes);
+        String time = TramTime.of(11,45).toPattern();
+        String date = when.format(dateFormatDashes);
 
         String queryString = String.format("journey/streamed?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
                 start, end, time, date, false, 3);
@@ -369,19 +367,20 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         try (final JsonParser jsonParser = jsonFactory.createParser(inputStream)) {
             final JsonToken nextToken = jsonParser.nextToken();
-            if (nextToken == null) {
-                fail("no token");
+
+            if (JsonToken.START_ARRAY.equals(nextToken)) {
+                // Iterate through the objects of the array.
+                JsonToken current = jsonParser.nextToken();
+                while (JsonToken.START_OBJECT.equals(current)) {
+                    JsonToken next = jsonParser.nextToken();
+                    if (JsonToken.FIELD_NAME.equals(next)) {
+                        final JourneyDTO journeyDTO = jsonParser.readValueAs(JourneyDTO.class);
+                        journeyDTOS.add(journeyDTO);
+                    }
+                    current = jsonParser.nextToken();
+                }
             }
 
-            if (!JsonToken.START_ARRAY.equals(nextToken)) {
-               fail("not array start token");
-            }
-
-            // Iterate through the objects of the array.
-            while (JsonToken.START_OBJECT.equals(jsonParser.nextToken())) {
-                final JourneyDTO journeyDTO = jsonParser.readValueAs(JourneyDTO.class);
-                journeyDTOS.add(journeyDTO);
-            }
         }
         inputStream.close();
         response.close();

@@ -2,6 +2,8 @@ package com.tramchester.domain.presentation.DTO;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CallsAtPlatforms;
@@ -14,6 +16,8 @@ import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@JsonTypeName("journey")
+@JsonTypeInfo(include= JsonTypeInfo.As.WRAPPER_OBJECT,use= JsonTypeInfo.Id.NAME)
 public class JourneyDTO implements CallsAtPlatforms {
 
     private LocationDTO begin;

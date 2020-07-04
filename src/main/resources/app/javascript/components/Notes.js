@@ -2,7 +2,8 @@
 function consolidateNotes(journeys) {
     var notes = [];
     var notesText = [];
-    journeys.forEach(journey => {
+    journeys.forEach(item => {
+        var journey = item.journey;
         var journeyNotes = journey.notes;
         journeyNotes.forEach(journeyNote => {
             if (!notesText.includes(journeyNote.text)) {

@@ -48,8 +48,8 @@ function stageRowClass(value, key, item) {
 
 function earliestDepartTime(journeys) {
     var earliestDepart = moment('23:59','HH:mm');
-    journeys.forEach(journey => {
-        var currnet = moment(journey.firstDepartureTime,'HH:mm');
+    journeys.forEach(item => {
+        var currnet = moment(item.journey.firstDepartureTime,'HH:mm');
         if (currnet.isBefore(earliestDepart)) {
             earliestDepart = currnet;
         }
@@ -59,8 +59,8 @@ function earliestDepartTime(journeys) {
 
 function lastDepartTime(journeys) {
     var lastDepart = moment('00:01','HH:mm');
-    journeys.forEach(journey => {
-        var currnet = moment(journey.firstDepartureTime,'HH:mm');
+    journeys.forEach(item => {
+        var currnet = moment(item.journey.firstDepartureTime,'HH:mm');
         if (currnet.isAfter(lastDepart)) {
             lastDepart = currnet;
         }
@@ -73,10 +73,10 @@ export default {
         return {
             journeyFields: [
                 {key:'_showDetails',label:'', formatter: rowExpandedFormatter},
-                {key:'firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
-                {key:'begin.name',label:'From', sortable:true, tdClass:'station'},
-                {key:'expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'},
-                {key:'changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
+                {key:'journey.firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
+                {key:'journey.begin.name',label:'From', sortable:true, tdClass:'station'},
+                {key:'journey.expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'},
+                {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
             stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
                 {key:'action', label:'Action',tdClass:'action' },
@@ -126,7 +126,7 @@ export default {
                 sort-icon-left
                 :items="journeys" small responsive="sm"
                 :fields="journeyFields"
-                sort-by='expectedArrivalTime'
+                sort-by='journey.expectedArrivalTime'
                 select-mode='single' caption-top
                     @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
             <template v-slot:table-caption>
@@ -136,7 +136,7 @@ export default {
                 <span v-html="data.value">XXX</span>
             </template>
             <template v-slot:row-details="row">
-                <b-table :items="row.item.stages" :fields="stageFields"
+                <b-table :items="row.item.journey.stages" :fields="stageFields"
                 id="stages" tbody-tr-class='stageSummary' small outlined>
                     <template v-slot:cell(actionStation.name)="data">
                         <span v-html="data.value"></span>

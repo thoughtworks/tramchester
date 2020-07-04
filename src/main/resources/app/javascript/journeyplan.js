@@ -118,6 +118,7 @@ function getStationsFromServer(app) {
     }
 }
 
+// TODO app needed passed in for some browsers?
 function addPostcodes(postcodes) {
     app.stops = app.stops.concat(postcodes);
 }
@@ -135,6 +136,29 @@ function addPostcodes(postcodes) {
             reportError(error);
         });
  }
+
+ function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
+    var urlParams = {
+        start: startStop, end: endStop, departureTime: time, departureDate: date, arriveby: arriveBy, changes
+    };
+    if (startStop == 'MyLocationPlaceholderId' || endStop == 'MyLocationPlaceholderId') {
+        const place = app.location;
+        urlParams.lat = place.coords.latitude;
+        urlParams.lon = place.coords.longitude;
+    }
+    axios.get('/api/journey/', { params: urlParams, timeout: 30000 }).
+        then(function (response) {
+            app.networkError = false;
+            app.journeys = response.data.journeys;
+            updateStationsFromServer();
+            app.searchInProgress = false;
+        }).
+        catch(function (error) {
+            app.ready = true;
+            app.searchInProgress = false;
+            reportError(error);
+        });
+}
 
  function refreshStops(updates) {
     var updatedStops = updates.stations;
@@ -228,30 +252,13 @@ var app = new Vue({
                 });
             },
             queryServer() {
-                var urlParams = { start: this.startStop, end: this.endStop, departureTime: this.time,
-                    departureDate: this.date, arriveby: this.arriveBy, maxChanges: this.maxChanges};
-                if (this.startStop=='MyLocationPlaceholderId' || this.endStop=='MyLocationPlaceholderId') {
-                    const place = app.location;
-                    urlParams.lat = place.coords.latitude;
-                    urlParams.lon = place.coords.longitude;
-                }
-                axios.get('/api/journey', { params: urlParams, timeout: 30000}).
-                    then(function (response) {
-                        app.networkError = false;
-                        app.journeys = response.data.journeys;
-                        app.updateStations();
-                        app.searchInProgress = false;
-                        }).
-                    catch(function (error) {
-                        app.ready = true;
-                        app.searchInProgress = false;
-                        reportError(error);
-                    });
+                queryServerForJourneys(app, this.startStop, this.endStop, this.time,
+                    this.date, this.arriveBy,this.maxChanges);
                 displayLiveData(app);
             },
-            updateStations() {
-                updateStationsFromServer();
-            },
+            // updateStations() {
+            //     updateStationsFromServer();
+            // },
             setCookie() {
                 var cookie = { 'visited' : true };
                 this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");
@@ -308,5 +315,7 @@ var app = new Vue({
             }
         }
     })
+
+
 
 
