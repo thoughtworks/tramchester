@@ -43,8 +43,8 @@ class RouteResourceTest {
         List<StationDTO> ashtonRouteStations = ashtonRoute.getStations();
 
         assertEquals("3", ashtonRoute.getShortName().trim());
-        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Ashton, ProximityGroups.STOPS)));
-        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Eccles, ProximityGroups.STOPS)));
+        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Ashton)));
+        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Eccles)));
     }
 
     @Test

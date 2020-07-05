@@ -6,10 +6,7 @@ import com.tramchester.App;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.ProximityGroups;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.StationDTO;
-import com.tramchester.domain.presentation.DTO.StationListDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -60,10 +57,10 @@ class StationResourceTest {
     @Test
     void shouldGetNearestStations() {
         StationListDTO stationListDTO = getNearest(TestEnv.nearPiccGardens);
-        List<StationDTO> stations = stationListDTO.getStations();
+        List<StationRefWithGroupDTO> stations = stationListDTO.getStations();
 
         Map<ProximityGroup, Long> stationGroups = stations.stream()
-                .collect(Collectors.groupingBy(StationDTO::getProximityGroup, Collectors.counting()));
+                .collect(Collectors.groupingBy(StationRefWithGroupDTO::getProximityGroup, Collectors.counting()));
 
         Long one = 1L;
         Assertions.assertEquals(one, stationGroups.get(ProximityGroups.MY_LOCATION));
@@ -71,15 +68,15 @@ class StationResourceTest {
         int ALL_STOPS_START = 7; // 6 + 1
         Assertions.assertEquals(ProximityGroups.STOPS, stations.get(ALL_STOPS_START).getProximityGroup());
         Assertions.assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
-        StationDTO stationDTO = stations.get(ALL_STOPS_START + 1);
+        StationRefWithGroupDTO stationDTO = stations.get(ALL_STOPS_START + 1);
         Assertions.assertEquals("Altrincham", stationDTO.getName());
 
-        List<PlatformDTO> platforms = stationDTO.getPlatforms();
-        Assertions.assertEquals(1, platforms.size());
-        PlatformDTO platformDTO = platforms.get(0);
-        Assertions.assertEquals("1", platformDTO.getPlatformNumber());
-        Assertions.assertEquals("Altrincham platform 1", platformDTO.getName());
-        Assertions.assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());
+//        List<PlatformDTO> platforms = stationDTO.getPlatforms();
+//        Assertions.assertEquals(1, platforms.size());
+//        PlatformDTO platformDTO = platforms.get(0);
+//        Assertions.assertEquals("1", platformDTO.getPlatformNumber());
+//        Assertions.assertEquals("Altrincham platform 1", platformDTO.getName());
+//        Assertions.assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());
 
         List<ProximityGroup> proximityGroups = stationListDTO.getProximityGroups();
         checkProximityGroupsForTrams(proximityGroups);
@@ -96,14 +93,16 @@ class StationResourceTest {
 
     @Test
     void shouldGetMyLocationPlaceholderStation() {
-        List<StationDTO> stations = getNearest(TestEnv.nearPiccGardens).getStations();
+        List<StationRefWithGroupDTO> stations = getNearest(TestEnv.nearPiccGardens).getStations();
 
-        StationDTO station = stations.get(0);
+        StationRefWithGroupDTO station = stations.get(0);
         Assertions.assertEquals(ProximityGroups.MY_LOCATION, station.getProximityGroup());
         Assertions.assertEquals("MyLocationPlaceholderId", station.getId());
-        String expectedArea = String.format("{\"lat\":%s,\"lon\":%s}",
-                TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon());
-        Assertions.assertEquals(expectedArea, station.getArea());
+
+//        String expectedArea = String.format("{\"lat\":%s,\"lon\":%s}",
+//                TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon());
+        //Assertions.assertEquals(expectedArea, station.getArea());
+
         Assertions.assertEquals("My Location", station.getName());
         // the nearest stops show come next
         Assertions.assertEquals(ProximityGroups.NEAREST_STOPS, stations.get(1).getProximityGroup());
@@ -113,14 +112,14 @@ class StationResourceTest {
     @Test
     void shouldNotGetMyLocationPlaceholderStationWhenGettingAllStations() {
         getNearest(TestEnv.nearPiccGardens);
-        Collection<StationDTO> stations = getAll().getStations();
+        Collection<StationRefWithGroupDTO> stations = getAll().getStations();
 
         stations.forEach(station -> Assertions.assertNotEquals("My Location", station.getName()));
     }
 
     @Test
     void shouldNotGetClosedStations() {
-        Collection<StationDTO> stations = getAll().getStations();
+        Collection<StationRefWithGroupDTO> stations = getAll().getStations();
 
         assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
         assertThat(stations.stream().filter(station -> station.getName().equals(Stations.Altrincham.getName())).count()).isEqualTo(1);
@@ -129,7 +128,7 @@ class StationResourceTest {
     @Test
     void shouldGetAllStationsWithRightOrderAndProxGroup() {
         StationListDTO stationListDTO = getAll();
-        Collection<StationDTO> stations = stationListDTO.getStations();
+        Collection<StationRefWithGroupDTO> stations = stationListDTO.getStations();
 
         assertThat(stations.stream().findFirst().get().getName()).isEqualTo("Abraham Moss");
         stations.forEach(station -> assertThat(station.getProximityGroup()).isEqualTo(ProximityGroups.STOPS));
@@ -144,7 +143,7 @@ class StationResourceTest {
         Cookie cookie = createRecentsCookieFor(alty);
 
         // All
-        List<StationDTO> stations = getAll(cookie).getStations();
+        List<StationRefWithGroupDTO> stations = getAll(cookie).getStations();
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         Assertions.assertEquals(1, stations.size());
         Assertions.assertEquals(ProximityGroups.RECENT, stations.get(0).getProximityGroup());
@@ -156,7 +155,7 @@ class StationResourceTest {
         @NotNull Cookie cookie = createRecentsCookieFor(alty);
 
         // All with nearest
-        List<StationDTO> stations = getNearest(TestEnv.nearPiccGardens, cookie).getStations();
+        List<StationRefWithGroupDTO> stations = getNearest(TestEnv.nearPiccGardens, cookie).getStations();
         stations.removeIf(station -> !station.getId().equals(alty.getId()));
         Assertions.assertEquals(1, stations.size());
         Assertions.assertEquals(ProximityGroups.RECENT, stations.get(0).getProximityGroup());
@@ -199,12 +198,12 @@ class StationResourceTest {
         StationListDTO list = result.readEntity(StationListDTO.class);
         Assertions.assertEquals(2, list.getProximityGroups().size());
 
-        List<StationDTO> recents = list.getStations().stream().
+        List<StationRefWithGroupDTO> recents = list.getStations().stream().
                 filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.RECENT)).collect(Collectors.toList());
         Assertions.assertEquals(1, recents.size());
         Assertions.assertEquals(Stations.Bury.getId(), recents.get(0).getId());
 
-        List<StationDTO> nearby = list.getStations().stream().
+        List<StationRefWithGroupDTO> nearby = list.getStations().stream().
                 filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.NEAREST_STOPS)).collect(Collectors.toList());
         Assertions.assertEquals(6, nearby.size());
 
@@ -231,12 +230,12 @@ class StationResourceTest {
         assertEquals(200, result.getStatus());
 
         list = result.readEntity(StationListDTO.class);
-        List<StationDTO> updatedNearby = list.getStations().stream().
+        List<StationRefWithGroupDTO> updatedNearby = list.getStations().stream().
                 filter(stationDTO -> stationDTO.getProximityGroup().equals(ProximityGroups.NEAREST_STOPS)).collect(Collectors.toList());
         Assertions.assertEquals(2, updatedNearby.size());
 
-        Set<String> firstNearbyIds = nearby.stream().map(LocationDTO::getId).collect(Collectors.toSet());
-        Set<String> updatedNearbyIds = updatedNearby.stream().map(LocationDTO::getId).collect(Collectors.toSet());
+        Set<String> firstNearbyIds = nearby.stream().map(StationRefWithGroupDTO::getId).collect(Collectors.toSet());
+        Set<String> updatedNearbyIds = updatedNearby.stream().map(StationRefWithGroupDTO::getId).collect(Collectors.toSet());
 
         firstNearbyIds.retainAll(updatedNearbyIds);
         Assertions.assertTrue(firstNearbyIds.isEmpty());

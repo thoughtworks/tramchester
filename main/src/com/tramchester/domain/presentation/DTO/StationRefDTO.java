@@ -1,12 +1,12 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.Location;
 
 public class StationRefDTO {
     private String id;
     private String name;
 
-    public StationRefDTO(Station station) {
+    public StationRefDTO(Location station) {
         this.id = station.getId();
         this.name = station.getName();
     }
