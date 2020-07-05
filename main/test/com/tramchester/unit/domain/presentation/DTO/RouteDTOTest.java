@@ -15,9 +15,9 @@ class RouteDTOTest {
 
         List<StationRefWithPosition> stations = new LinkedList<>();
 
-        RouteDTO routeA = new RouteDTO("nameA", "A", stations, "displayClass");
-        RouteDTO routeB = new RouteDTO("nameB", "B", stations, "displayClass");
-        RouteDTO routeC = new RouteDTO("nameA", "C", stations, "displayClass");
+        RouteDTO routeA = new RouteDTO("nameA", "A", stations, "displayClass", true);
+        RouteDTO routeB = new RouteDTO("nameB", "B", stations, "displayClass", true);
+        RouteDTO routeC = new RouteDTO("nameA", "C", stations, "displayClass", true);
 
         Assertions.assertEquals(routeA, routeC);
         Assertions.assertEquals(routeC, routeA);

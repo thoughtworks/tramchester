@@ -1,5 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -9,12 +11,14 @@ public class RouteDTO {
     private String routeName;
     private String displayClass;
     private String shortName;
+    private Boolean tram;
 
-    public RouteDTO(String routeName, String shortName, List<StationRefWithPosition> stations, String displayClass) {
+    public RouteDTO(String routeName, String shortName, List<StationRefWithPosition> stations, String displayClass, boolean tram) {
         this.shortName = shortName;
         this.stations = stations;
         this.routeName = routeName;
         this.displayClass = displayClass;
+        this.tram = tram;
     }
 
     public RouteDTO() {
@@ -51,5 +55,10 @@ public class RouteDTO {
 
     public String getShortName() {
         return shortName;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public Boolean isTram() {
+        return tram;
     }
 }

@@ -40,13 +40,14 @@ class RouteMapperTest {
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
         RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName",
-                new LinkedList<>(), "displayClass");
+                new LinkedList<>(), "displayClass", true);
 
         int index = dtos.indexOf(query);
 
         List<StationRefWithPosition> stations = dtos.get(index).getStations();
         Assertions.assertEquals(Stations.ManAirport.getId(), stations.get(0).getId());
         Assertions.assertEquals(TestEnv.manAirportLocation, stations.get(0).getLatLong());
+        Assertions.assertTrue(stations.get(0).isTram());
         Assertions.assertEquals(Stations.Victoria.getId(), stations.get(stations.size()-1).getId());
     }
 }
