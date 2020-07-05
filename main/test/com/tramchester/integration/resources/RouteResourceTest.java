@@ -4,11 +4,15 @@ import com.tramchester.App;
 import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +21,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,11 +45,12 @@ class RouteResourceTest {
         assertTrue(index>0);
 
         RouteDTO ashtonRoute = routes.get(index);
-        List<StationDTO> ashtonRouteStations = ashtonRoute.getStations();
+        List<StationRefWithPosition> ashtonRouteStations = ashtonRoute.getStations();
 
         assertEquals("3", ashtonRoute.getShortName().trim());
-        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Ashton)));
-        assertTrue(ashtonRouteStations.contains(new StationDTO(Stations.Eccles)));
+        List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
+        assertTrue(ids.contains(Stations.Ashton.getId()));
+        assertTrue(ids.contains(Stations.Eccles.getId()));
     }
 
     @Test
@@ -55,8 +61,12 @@ class RouteResourceTest {
         int index = routes.indexOf(query);
         assertTrue(index>0);
 
-        List<StationDTO> stations = routes.get(index).getStations();
-        assertEquals(Stations.ManAirport.getId(), stations.get(0).getId());
+        List<StationRefWithPosition> stations = routes.get(index).getStations();
+        StationRefWithPosition first = stations.get(0);
+        assertEquals(Stations.ManAirport.getId(), first.getId());
+        assertEquals(TestEnv.manAirportLocation, first.getLatLong());
+        assertTrue(first.isTram());
+
         assertEquals(Stations.Victoria.getId(), stations.get(stations.size()-1).getId());
     }
 

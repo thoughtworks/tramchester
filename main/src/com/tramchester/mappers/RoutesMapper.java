@@ -1,17 +1,19 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class RoutesMapper {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
@@ -36,8 +38,8 @@ public class RoutesMapper {
 
     private void populateDTOFor(Route route, List<RouteDTO> gather) {
         List<Station> calledAtStations = routeCallingStations.getStationsFor(route);
-        List<StationDTO> stationDTOs = new ArrayList<>(calledAtStations.size());
-        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationDTO(calledAtStation)));
+        List<StationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
+        calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationRefWithPosition(calledAtStation)));
         gather.add(new RouteDTO(route.getName(), route.getShortName(), stationDTOs, mapper.map(route)));
     }
 

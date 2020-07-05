@@ -3,10 +3,13 @@ package com.tramchester.integration.mappers;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,8 +44,9 @@ class RouteMapperTest {
 
         int index = dtos.indexOf(query);
 
-        List<StationDTO> stations = dtos.get(index).getStations();
+        List<StationRefWithPosition> stations = dtos.get(index).getStations();
         Assertions.assertEquals(Stations.ManAirport.getId(), stations.get(0).getId());
+        Assertions.assertEquals(TestEnv.manAirportLocation, stations.get(0).getLatLong());
         Assertions.assertEquals(Stations.Victoria.getId(), stations.get(stations.size()-1).getId());
     }
 }

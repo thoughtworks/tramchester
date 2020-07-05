@@ -65,6 +65,12 @@ class TransportDataFromFilesTest {
     }
 
     @Test
+    void shouldHaveCorrectLocationForAirportInTestEnvironment() {
+        Station actualStation = transportData.getStation(Stations.ManAirport.getId());
+        assertEquals(TestEnv.manAirportLocation, actualStation.getLatLong());
+    }
+
+    @Test
     void shouldGetRouteWithHeadsigns() {
         Route result = transportData.getRoute(RoutesForTesting.ASH_TO_ECCLES.getId());
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());

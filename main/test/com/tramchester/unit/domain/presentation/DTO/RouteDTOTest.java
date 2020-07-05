@@ -1,22 +1,19 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 class RouteDTOTest {
 
     @Test
     void shouldUseRouteNameForEquality() {
 
-        List<StationDTO> stations = new LinkedList<>();
+        List<StationRefWithPosition> stations = new LinkedList<>();
 
         RouteDTO routeA = new RouteDTO("nameA", "A", stations, "displayClass");
         RouteDTO routeB = new RouteDTO("nameB", "B", stations, "displayClass");

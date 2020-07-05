@@ -1,15 +1,16 @@
 package com.tramchester.domain.presentation.DTO;
 
 import java.util.List;
+import java.util.Objects;
 
 public class RouteDTO {
 
-    private List<StationDTO> stations;
+    private List<StationRefWithPosition> stations;
     private String routeName;
     private String displayClass;
     private String shortName;
 
-    public RouteDTO(String routeName, String shortName, List<StationDTO> stations, String displayClass) {
+    public RouteDTO(String routeName, String shortName, List<StationRefWithPosition> stations, String displayClass) {
         this.shortName = shortName;
         this.stations = stations;
         this.routeName = routeName;
@@ -24,7 +25,7 @@ public class RouteDTO {
         return routeName;
     }
 
-    public List<StationDTO> getStations() {
+    public List<StationRefWithPosition> getStations() {
         return stations;
     }
 
@@ -35,7 +36,7 @@ public class RouteDTO {
 
         RouteDTO routeDTO = (RouteDTO) o;
 
-        return routeName != null ? routeName.equals(routeDTO.routeName) : routeDTO.routeName == null;
+        return Objects.equals(routeName, routeDTO.routeName);
 
     }
 

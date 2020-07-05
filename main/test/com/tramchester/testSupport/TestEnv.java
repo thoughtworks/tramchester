@@ -31,6 +31,8 @@ public class TestEnv {
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
     public static final LatLong nearStockportBus = new LatLong(53.408735,-2.1656593);
+    public static final LatLong manAirportLocation = new LatLong(53.36535,-2.27247);
+
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
