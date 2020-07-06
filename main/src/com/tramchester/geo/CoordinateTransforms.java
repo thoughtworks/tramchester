@@ -38,13 +38,13 @@ public class CoordinateTransforms {
     }
 
     @NotNull
-    public StationLocations.GridPosition getGridPosition(LatLong position) throws TransformException {
+    public GridPosition getGridPosition(LatLong position) throws TransformException {
         DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
 
         DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
         long easting = Math.round(directPositionGrid.getOrdinate(0));
         long northing = Math.round(directPositionGrid.getOrdinate(1));
-        return new StationLocations.GridPosition(easting, northing);
+        return new GridPosition(easting, northing);
     }
 
     public LatLong getLatLong(long eastings, long northings) throws TransformException {

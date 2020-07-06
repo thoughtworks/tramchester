@@ -188,33 +188,28 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldWarnOnSaturdayAndSundayJourney() throws TramchesterException {
 
-        Note weekendNote = new Note("At the weekend your journey may be affected by improvement works." + ProvidesNotes.website, Note.NoteType.Weekend);
+        Note weekendNote = new Note("At the weekend your journey may be affected by improvement works."
+                + ProvidesNotes.website, Note.NoteType.Weekend);
 
         JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextSunday());
 
         results.getJourneys().forEach(journeyDTO -> {
-            List<Note> notes = journeyDTO.getNotes();
-            Assertions.assertEquals(2, notes.size()); // include station closure message
-            assertThat(notes, hasItem(weekendNote));
+            assertThat(journeyDTO.getNotes(), hasItem(weekendNote));
         });
 
         results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextSaturday());
 
         results.getJourneys().forEach(journeyDTO -> {
-            List<Note> notes = journeyDTO.getNotes();
-            Assertions.assertEquals(2, notes.size());
-            assertThat(notes, hasItem(weekendNote));
+            assertThat(journeyDTO.getNotes(), hasItem(weekendNote));
         });
 
         JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextMonday());
 
         notWeekendResult.getJourneys().forEach(journeyDTO -> {
-            List<Note> notes = journeyDTO.getNotes();
-            Assertions.assertEquals(1, notes.size());
-            assertThat(notes, not(hasItem(weekendNote)));
+            assertThat(journeyDTO.getNotes(), not(hasItem(weekendNote)));
         });
 
     }

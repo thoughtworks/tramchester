@@ -4,6 +4,8 @@ import com.tramchester.Dependencies;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.domain.places.Station;
+import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.junit.jupiter.api.*;
@@ -59,15 +61,17 @@ class PostcodeDataImporterTest {
         // Check bounding box formed by stations plus margin
         long margin = Math.round(testConfig.getNearestStopRangeKM() * 1000D);
 
-        int eastingsMax = loadedPostcodes.stream().map(PostcodeData::getEastings).max(Integer::compareTo).get();
-        int eastingsMin = loadedPostcodes.stream().map(PostcodeData::getEastings).min(Integer::compareTo).get();
-        Assertions.assertTrue(eastingsMax <= stationLocations.getEastingsMax()+margin);
-        Assertions.assertTrue(eastingsMin >= stationLocations.getEastingsMin()-margin);
+        long eastingsMax = loadedPostcodes.stream().map(PostcodeData::getEastings).max(Long::compareTo).get();
+        long eastingsMin = loadedPostcodes.stream().map(PostcodeData::getEastings).min(Long::compareTo).get();
 
-        int northingsMax = loadedPostcodes.stream().map(PostcodeData::getNorthings).max(Integer::compareTo).get();
-        int northingsMin = loadedPostcodes.stream().map(PostcodeData::getNorthings).min(Integer::compareTo).get();
-        Assertions.assertTrue(northingsMax < stationLocations.getNorthingsMax()+margin);
-        Assertions.assertTrue(northingsMin > stationLocations.getNorthingsMin()-margin);
+        BoundingBox bounds = stationLocations.getBounds();
+        Assertions.assertTrue(eastingsMax <= bounds.getMaxEasting()+margin);
+        Assertions.assertTrue(eastingsMin >= bounds.getMinEastings()-margin);
+
+        long northingsMax = loadedPostcodes.stream().map(PostcodeData::getNorthings).max(Long::compareTo).get();
+        long northingsMin = loadedPostcodes.stream().map(PostcodeData::getNorthings).min(Long::compareTo).get();
+        Assertions.assertTrue(northingsMax < bounds.getMaxNorthings()+margin);
+        Assertions.assertTrue(northingsMin > bounds.getMinNorthings()-margin);
 
         loadedPostcodes.clear();
     }
@@ -82,7 +86,7 @@ class PostcodeDataImporterTest {
     }
 
     private boolean outsideStationRange(PostcodeData postcode) {
-        StationLocations.GridPosition gridPosition = new StationLocations.GridPosition(postcode.getEastings(), postcode.getNorthings());
+        GridPosition gridPosition = new GridPosition(postcode.getEastings(), postcode.getNorthings());
         List<Station> found = stationLocations.nearestStationsSorted(gridPosition, 1, testConfig.getNearestStopRangeKM());
         return found.isEmpty();
     }

@@ -3,6 +3,8 @@ package com.tramchester.dataimport;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.dataimport.parsers.PostcodeDataMapper;
+import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +31,12 @@ public class PostcodeDataImporter {
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final Unzipper unzipper;
-    private long eastingsMin;
-    private long eastingsMax;
-    private long northingsMin;
-    private long northingsMax;
+//    private long eastingsMin;
+//    private long eastingsMax;
+//    private long northingsMin;
+//    private long northingsMax;
     private final long margin;
+    private BoundingBox bounds;
 
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper) {
         this.directory = config.getPostcodeDataPath();
@@ -46,10 +49,7 @@ public class PostcodeDataImporter {
     }
 
     public Set<PostcodeData> loadLocalPostcodes() {
-        eastingsMin = stationLocations.getEastingsMin() - margin;
-        eastingsMax = stationLocations.getEastingsMax() + margin;
-        northingsMin = stationLocations.getNorthingsMin() - margin;
-        northingsMax = stationLocations.getNorthingsMax() + margin;
+        bounds = stationLocations.getBounds();
 
         Path postcodeZip = config.getPostcodeZip();
         String unzipTarget = config.getPostcodeZip().toAbsolutePath().toString().replace(".zip","");
@@ -109,17 +109,18 @@ public class PostcodeDataImporter {
 
     private boolean hasNearbyStation(PostcodeData postcodeData) {
         Double range = config.getNearestStopRangeKM();
-        StationLocations.GridPosition gridPosition = new StationLocations.GridPosition(postcodeData.getEastings(),
+        GridPosition gridPosition = new GridPosition(postcodeData.getEastings(),
                 postcodeData.getNorthings());
         return !stationLocations.nearestStationsSorted(gridPosition,1, range).isEmpty();
     }
 
     private Stream<PostcodeData> filterDataByBoundedBox(Stream<PostcodeData> stream) {
         return stream.
-                filter(postcode -> postcode.getEastings() >= eastingsMin).
-                filter(postcode -> postcode.getEastings() <= eastingsMax).
-                filter(postcode -> postcode.getNorthings() >= northingsMin).
-                filter(postcode -> postcode.getNorthings() <= northingsMax);
+                filter(postcode -> bounds.within(postcode, margin));
+//                filter(postcode -> postcode.getEastings() >= eastingsMin).
+//                filter(postcode -> postcode.getEastings() <= eastingsMax).
+//                filter(postcode -> postcode.getNorthings() >= northingsMin).
+//                filter(postcode -> postcode.getNorthings() <= northingsMax);
     }
 
 }

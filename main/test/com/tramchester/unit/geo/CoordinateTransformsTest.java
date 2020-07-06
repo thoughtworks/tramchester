@@ -2,7 +2,7 @@ package com.tramchester.unit.geo;
 
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.GridPosition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -18,7 +18,7 @@ class CoordinateTransformsTest {
 
         LatLong latLong = new LatLong(lat, lon);
 
-        StationLocations.GridPosition result = transforms.getGridPosition(latLong);
+        GridPosition result = transforms.getGridPosition(latLong);
 
         long expectedEasting = 433931;
         long expectedNorthing = 338207;

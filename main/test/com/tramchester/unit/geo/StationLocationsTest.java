@@ -2,8 +2,7 @@ package com.tramchester.unit.geo;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.*;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,21 +24,21 @@ class StationLocationsTest {
 
     @Test
     void shouldHaveGridPositionBehaviours() {
-        StationLocations.GridPosition gridPositionA = new StationLocations.GridPosition(3,4);
+        GridPosition gridPositionA = new GridPosition(3,4);
         assertEquals(3, gridPositionA.getEastings());
         assertEquals(4, gridPositionA.getNorthings());
 
-        StationLocations.GridPosition origin = new StationLocations.GridPosition(0,0);
-        assertEquals(5, origin.distanceTo(gridPositionA));
-        assertEquals(5, gridPositionA.distanceTo(origin));
+        GridPosition origin = new GridPosition(0,0);
+        assertEquals(5, GridPosition.distanceTo(origin, gridPositionA));
+        assertEquals(5, GridPosition.distanceTo(gridPositionA, origin));
 
-        assertFalse(origin.withinDistEasting(gridPositionA, 2));
-        assertTrue(origin.withinDistEasting(gridPositionA, 3));
-        assertTrue(origin.withinDistEasting(gridPositionA, 4));
+        assertFalse(GridPosition.withinDistEasting(origin, gridPositionA, 2));
+        assertTrue(GridPosition.withinDistEasting(origin, gridPositionA, 3));
+        assertTrue(GridPosition.withinDistEasting(origin, gridPositionA, 4));
 
-        assertFalse(origin.withinDistNorthing(gridPositionA, 2));
-        assertTrue(origin.withinDistNorthing(gridPositionA, 4));
-        assertTrue(origin.withinDistNorthing(gridPositionA, 5));
+        assertFalse(GridPosition.withinDistNorthing(origin, gridPositionA, 2));
+        assertTrue(GridPosition.withinDistNorthing(origin, gridPositionA, 4));
+        assertTrue(GridPosition.withinDistNorthing(origin, gridPositionA, 5));
     }
 
     @Test
@@ -73,15 +72,15 @@ class StationLocationsTest {
         stationLocations.addStation(stationC);
         stationLocations.addStation(stationD);
 
-        StationLocations.GridPosition gridA = stationLocations.getStationGridPosition(stationA);
-        StationLocations.GridPosition gridB = stationLocations.getStationGridPosition(stationD);
+        HasGridPosition gridA = stationLocations.getStationGridPosition(stationA);
+        HasGridPosition gridB = stationLocations.getStationGridPosition(stationD);
 
         int rangeInKM = 1;
 
         // validate within range on crude measure, but out of range on calculated position
-        assertTrue(gridA.withinDistNorthing(gridB, 1000));
-        assertTrue(gridA.withinDistEasting(gridB, 1000));
-        long distance = gridA.distanceTo(gridB);
+        assertTrue(GridPosition.withinDistNorthing(gridA, gridB, 1000));
+        assertTrue(GridPosition.withinDistEasting(gridA, gridB, 1000));
+        long distance = GridPosition.distanceTo(gridA, gridB);
         assertTrue(distance > Math.round(rangeInKM*1000) );
 
         List<Station> results = stationLocations.nearestStationsSorted(place, 3, rangeInKM);
@@ -145,14 +144,16 @@ class StationLocationsTest {
         stationLocations.addStation(testStationB);
         stationLocations.addStation(testStationC);
 
-        StationLocations.GridPosition posA = stationLocations.getStationGridPosition(testStationA);
-        StationLocations.GridPosition posB = stationLocations.getStationGridPosition(testStationB);
+        HasGridPosition posA = stationLocations.getStationGridPosition(testStationA);
+        HasGridPosition posB = stationLocations.getStationGridPosition(testStationB);
+
+        BoundingBox bounds = stationLocations.getBounds();
 
         // bottom left
-        assertEquals(posA.getEastings(), stationLocations.getEastingsMin());
-        assertEquals(posA.getNorthings(), stationLocations.getNorthingsMin());
+        assertEquals(posA.getEastings(), bounds.getMinEastings());
+        assertEquals(posA.getNorthings(), bounds.getMinNorthings());
         // top right
-        assertEquals(posB.getEastings(), stationLocations.getEastingsMax());
-        assertEquals(posB.getNorthings(), stationLocations.getNorthingsMax());
+        assertEquals(posB.getEastings(), bounds.getMaxEasting());
+        assertEquals(posB.getNorthings(), bounds.getMaxNorthings());
     }
 }

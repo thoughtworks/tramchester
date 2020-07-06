@@ -1,8 +1,10 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.geo.HasGridPosition;
+
 import java.util.Objects;
 
-public class PostcodeData {
+public class PostcodeData implements HasGridPosition {
     private final String postcode;
     private final int eastings;
     private final int northings;
@@ -17,11 +19,11 @@ public class PostcodeData {
         return postcode;
     }
 
-    public int getEastings() {
+    public long getEastings() {
         return eastings;
     }
 
-    public int getNorthings() {
+    public long getNorthings() {
         return northings;
     }
 
