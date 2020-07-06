@@ -44,14 +44,15 @@ function addStations() {
 function addStationsForRoute(route, stationIcon) {
     var stationLayerGroup = L.featureGroup();
 
-    route.stations.forEach(station => {
-        if (station.tram) {
+    if (route.tram) {
+        route.stations.forEach(station => {
             var lat = station.latLong.lat;
             var lon = station.latLong.lon;
             var marker = new L.marker(L.latLng(lat,lon), { title: station.name, icon: stationIcon })
             stationLayerGroup.addLayer(marker);
-        }
-    });
+        });
+    }
+
     stationLayerGroup.addTo(mapApp.map);
 }
 

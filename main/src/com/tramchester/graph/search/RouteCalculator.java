@@ -126,17 +126,13 @@ public class RouteCalculator implements TramRouteCalculator {
                         timeAndReasons.queryTime, runningServicesIds, destinations, timeAndReasons.reasons, maxPathLength, maxChanges)).
                 flatMap(serviceHeuristics -> findShortestPath(txn, startNode, endNode, nodeTypeRepository, serviceHeuristics,
                         destinations)).
-                map(path -> {
-                    List<TransportStage> stages = pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest);
-                    return new Journey(stages, path.getQueryTime());
-                });
+                map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
     }
 
     private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, final Node endNode,
                                                final NodeTypeRepository nodeTypeRepository, final ServiceHeuristics serviceHeuristics,
                                                final Set<Station> destinations) {
 
-        // TODO ->Set
         Set<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toSet());
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,

@@ -325,7 +325,8 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.file("webpack.config.js")
 
     outputs.file("src/main/resources/app/dist/main.js")
-    outputs.file("src/main/resources/app/dist/map.js")
+    outputs.file("src/main/resources/app/dist/trammap.js")
+    outputs.file("src/main/resources/app/dist/traveltimes.js")
 
     if (isWindows) {
         commandLine "./node_modules/.bin/webpack.cmd"

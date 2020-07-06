@@ -5,7 +5,8 @@ module.exports = {
   mode: 'development',
   entry: {
     main: './src/main/resources/app/javascript/journeyplan.js',
-    map: './src/main/resources/app/javascript/map.js'
+    trammap: './src/main/resources/app/javascript/trammap.js',
+    traveltimes: './src/main/resources/app/javascript/traveltimes.js'
   },
   output: {
     path: path.resolve(__dirname, 'src/main/resources/app/dist/'),
