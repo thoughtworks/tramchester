@@ -38,12 +38,13 @@ public class CoordinateTransforms {
     }
 
     @NotNull
-    public GridPosition getGridPosition(LatLong position) throws TransformException {
+    public HasGridPosition getGridPosition(LatLong position) throws TransformException {
         DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
-
         DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
+
         long easting = Math.round(directPositionGrid.getOrdinate(0));
         long northing = Math.round(directPositionGrid.getOrdinate(1));
+
         return new GridPosition(easting, northing);
     }
 

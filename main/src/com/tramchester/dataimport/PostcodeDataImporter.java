@@ -4,7 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.dataimport.parsers.PostcodeDataMapper;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,32 +94,19 @@ public class PostcodeDataImporter {
     private void loadDataFromFile(Set<PostcodeData> target, PostcodeDataMapper mapper, Path file) {
         logger.debug("Load postcode data from " + file.toAbsolutePath());
         int sizeBefore = target.size();
+        Double range = config.getNearestStopRangeKM();
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
         Stream<PostcodeData> stream = loader.loadFiltered(false);
-        filterDataByBoundedBox(stream).filter(this::hasNearbyStation).forEach(target::add);
+        stream.filter(postcode -> bounds.within(margin, postcode)).
+                filter(postcode -> stationLocations.hasAnyNearby(postcode, range)).
+                forEach(target::add);
 
         int loaded = target.size()-sizeBefore;
         if (loaded>0) {
             logger.info("Loaded " + loaded + " records from " + file.toAbsolutePath());
         }
         stream.close();
-    }
-
-    private boolean hasNearbyStation(PostcodeData postcodeData) {
-        Double range = config.getNearestStopRangeKM();
-        GridPosition gridPosition = new GridPosition(postcodeData.getEastings(),
-                postcodeData.getNorthings());
-        return !stationLocations.nearestStationsSorted(gridPosition,1, range).isEmpty();
-    }
-
-    private Stream<PostcodeData> filterDataByBoundedBox(Stream<PostcodeData> stream) {
-        return stream.
-                filter(postcode -> bounds.within(postcode, margin));
-//                filter(postcode -> postcode.getEastings() >= eastingsMin).
-//                filter(postcode -> postcode.getEastings() <= eastingsMax).
-//                filter(postcode -> postcode.getNorthings() >= northingsMin).
-//                filter(postcode -> postcode.getNorthings() <= northingsMax);
     }
 
 }

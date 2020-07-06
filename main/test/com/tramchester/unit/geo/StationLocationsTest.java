@@ -24,21 +24,21 @@ class StationLocationsTest {
 
     @Test
     void shouldHaveGridPositionBehaviours() {
-        GridPosition gridPositionA = new GridPosition(3,4);
+        HasGridPosition gridPositionA = new GridPosition(3,4);
         assertEquals(3, gridPositionA.getEastings());
         assertEquals(4, gridPositionA.getNorthings());
 
-        GridPosition origin = new GridPosition(0,0);
-        assertEquals(5, GridPosition.distanceTo(origin, gridPositionA));
-        assertEquals(5, GridPosition.distanceTo(gridPositionA, origin));
+        HasGridPosition origin = new GridPosition(0,0);
+        assertEquals(5, GridPositions.distanceTo(origin, gridPositionA));
+        assertEquals(5, GridPositions.distanceTo(gridPositionA, origin));
 
-        assertFalse(GridPosition.withinDistEasting(origin, gridPositionA, 2));
-        assertTrue(GridPosition.withinDistEasting(origin, gridPositionA, 3));
-        assertTrue(GridPosition.withinDistEasting(origin, gridPositionA, 4));
+        assertFalse(GridPositions.withinDistEasting(origin, gridPositionA, 2));
+        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA, 3));
+        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA, 4));
 
-        assertFalse(GridPosition.withinDistNorthing(origin, gridPositionA, 2));
-        assertTrue(GridPosition.withinDistNorthing(origin, gridPositionA, 4));
-        assertTrue(GridPosition.withinDistNorthing(origin, gridPositionA, 5));
+        assertFalse(GridPositions.withinDistNorthing(origin, gridPositionA, 2));
+        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA, 4));
+        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA, 5));
     }
 
     @Test
@@ -78,9 +78,9 @@ class StationLocationsTest {
         int rangeInKM = 1;
 
         // validate within range on crude measure, but out of range on calculated position
-        assertTrue(GridPosition.withinDistNorthing(gridA, gridB, 1000));
-        assertTrue(GridPosition.withinDistEasting(gridA, gridB, 1000));
-        long distance = GridPosition.distanceTo(gridA, gridB);
+        assertTrue(GridPositions.withinDistNorthing(gridA, gridB, 1000));
+        assertTrue(GridPositions.withinDistEasting(gridA, gridB, 1000));
+        long distance = GridPositions.distanceTo(gridA, gridB);
         assertTrue(distance > Math.round(rangeInKM*1000) );
 
         List<Station> results = stationLocations.nearestStationsSorted(place, 3, rangeInKM);

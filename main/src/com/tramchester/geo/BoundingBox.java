@@ -1,7 +1,5 @@
 package com.tramchester.geo;
 
-import com.tramchester.dataimport.data.PostcodeData;
-
 public class BoundingBox {
     private final long minEastings;
     private final long minNorthings;
@@ -32,7 +30,7 @@ public class BoundingBox {
         return maxNorthings;
     }
 
-    public boolean within(HasGridPosition position, long margin) {
+    public boolean within(long margin, HasGridPosition position) {
                 return (position.getEastings() >= minEastings-margin) &&
                         (position.getEastings() <= maxEasting+margin) &&
                         (position.getNorthings() >= minNorthings-margin) &&

@@ -5,7 +5,6 @@ import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.junit.jupiter.api.*;
@@ -86,8 +85,7 @@ class PostcodeDataImporterTest {
     }
 
     private boolean outsideStationRange(PostcodeData postcode) {
-        GridPosition gridPosition = new GridPosition(postcode.getEastings(), postcode.getNorthings());
-        List<Station> found = stationLocations.nearestStationsSorted(gridPosition, 1, testConfig.getNearestStopRangeKM());
+        List<Station> found = stationLocations.nearestStationsSorted(postcode, 1, testConfig.getNearestStopRangeKM());
         return found.isEmpty();
     }
 }
