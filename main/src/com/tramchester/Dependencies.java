@@ -106,7 +106,9 @@ public class Dependencies {
         picoContainer.addComponent(DeparturesMapper.class);
         picoContainer.addComponent(ClosedStations.class);
         picoContainer.addComponent(VersionResource.class);
-        picoContainer.addComponent(JourneysForGridResource.class);
+
+        // WIP
+//        picoContainer.addComponent(JourneysForGridResource.class);
         picoContainer.addComponent(CreateQueryTimes.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(TramPositionsResource.class);
