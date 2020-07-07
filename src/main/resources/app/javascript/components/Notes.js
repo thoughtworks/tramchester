@@ -6,13 +6,24 @@ function consolidateNotes(journeys) {
         var journey = item.journey;
         var journeyNotes = journey.notes;
         journeyNotes.forEach(journeyNote => {
-            if (!notesText.includes(journeyNote.text)) {
+            var text = journeyNote.text;
+            if (!notesText.includes(text)) {
                 notes.push(journeyNote);
-                notesText.push(journeyNote.text);
+                notesText.push(text);
             }
         })
     });
     return notes;
+}
+
+function countItems(text, list) {
+    var count = 0;
+    list.forEach(item => {
+        if (text==item) {
+            count++;
+        }
+    });
+    return count;
 }
 
 export default { 
@@ -20,15 +31,46 @@ export default {
     ,
     computed: { 
         notes: function() {
-            if (this.journeys!=null) {
-                return consolidateNotes(this.journeys);
-            }
 
-            if (this.livedataresponse!=null) {
-                return this.livedataresponse.notes;
+            var allNotes = [];
+            if (this.journeys!=null) {
+                this.journeys.forEach(item => {
+                    item.journey.notes.forEach(note => {
+                        allNotes.push(note);
+                    })
+                });    
+            } else if (this.livedataresponse!=null) {
+                this.livedataresponse.notes.forEach(note => {
+                    allNotes.push(note);
+                });   
             }
-            return [];
             
+            return allNotes;
+        },
+        liveMessages: function() {
+            var messages = [];
+
+            var allContents = [];
+            var produced = [];
+            this.notes.forEach(note => {
+                allContents.push(note.text);
+            });
+            this.notes.forEach(note => {
+                var result = note.text;
+                if (note.noteType=='Live') {
+                    var count = countItems(note.text, allContents);
+                    result = "'" + note.text + "' - Metrolink";
+                    if (count==1) {
+                        result = result + ", " + note.stationRef.name;
+                    } 
+                }
+                if (!produced.includes(result)) {
+                    messages.push({noteType: note.noteType, text: result}); 
+                    produced.push(result);
+                } 
+
+            });
+            return messages;
         }
     },
     template: `
@@ -38,7 +80,7 @@ export default {
                 class="mb-2" >
             <b-card-text>
                 <ul id="NotesList" class="JourneyNotes list-group list-group-flush">
-                    <li v-for="note in notes" id="NoteItem">
+                    <li v-for="note in liveMessages" id="NoteItem">
                         <span :id="note.noteType" v-html="note.text"></span>
                     </li>
                 </ul>
