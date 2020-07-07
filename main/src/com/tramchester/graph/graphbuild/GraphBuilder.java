@@ -33,7 +33,7 @@ public abstract class GraphBuilder implements Startable {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE
+        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE, FEED_INFO
     }
 
     protected final TramchesterConfig config;

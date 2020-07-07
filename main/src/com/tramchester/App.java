@@ -78,7 +78,7 @@ public class App extends Application<AppConfiguration>  {
         bootstrap.addBundle(new ConfiguredAssetsBundle("/app", "/app", "index.html", "app"));
 
         // api/swagger.json and api/swagger
-        bootstrap.addBundle(new SwaggerBundle<AppConfiguration>() {
+        bootstrap.addBundle(new SwaggerBundle<>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
                 SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
@@ -93,7 +93,7 @@ public class App extends Application<AppConfiguration>  {
     }
 
     @Override
-    public void run(AppConfiguration configuration, Environment environment) throws Exception {
+    public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
         try {
             dependencies.initialise(configuration);

@@ -147,22 +147,26 @@ public class ServiceHeuristics {
 
     public ServiceReason canReachDestination(Node endNode, Path path, ServiceReasons reasons) {
 
-        String routeStationId = endNode.getProperty(ID).toString();
-        RouteStation routeStation = stationRepository.getRouteStation(routeStationId);
+        // can only safely does this if uniquely looking at tram journeys
+        // TODO Build full reachability matrix??
+        if (tramOnly) {
+            String routeStationId = endNode.getProperty(ID).toString();
+            RouteStation routeStation = stationRepository.getRouteStation(routeStationId);
 
-        if (routeStation==null) {
-            String message = "Missing routestation " + routeStationId;
-            logger.warn(message);
-            throw new RuntimeException(message);
-        }
-
-        if (tramOnly && routeStation.isTram()) {
-            for(Station endStation : endTramStations) {
-                if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
-                    return valid(path, reasons);
-                }
+            if (routeStation==null) {
+                String message = "Missing routestation " + routeStationId;
+                logger.warn(message);
+                throw new RuntimeException(message);
             }
-            return reasons.recordReason(ServiceReason.StationNotReachable(path));
+
+            if (routeStation.isTram()) {
+                for(Station endStation : endTramStations) {
+                    if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
+                        return valid(path, reasons);
+                    }
+                }
+                return reasons.recordReason(ServiceReason.StationNotReachable(path));
+            }
         }
 
         // TODO can't exclude unless we know for sure not reachable, so include all for buses

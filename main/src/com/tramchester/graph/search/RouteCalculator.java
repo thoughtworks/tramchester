@@ -83,10 +83,10 @@ public class RouteCalculator implements TramRouteCalculator {
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false);
     }
 
-    private Node getStationNodeSafe(Transaction txn, Station startStation) {
-        Node stationNode = graphQuery.getStationNode(txn, startStation);
+    private Node getStationNodeSafe(Transaction txn, Station station) {
+        Node stationNode = graphQuery.getStationNode(txn, station);
         if (stationNode==null) {
-            throw new RuntimeException("Unable to find station node based on " + startStation.getId());
+            throw new RuntimeException("Unable to find station node based on " + station);
         }
         return stationNode;
     }
@@ -128,17 +128,7 @@ public class RouteCalculator implements TramRouteCalculator {
                         endStationIds, new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
                 map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
     }
-
-    private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, Set<Long> destinationNodeIds,
-                                               final ServiceHeuristics serviceHeuristics,
-                                               final Set<String> endStationIds, ServiceReasons reasons) {
-
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
-                sortsPosition, nodeOperations, endStationIds, config, nodeTypeRepository, destinationNodeIds, reasons);
-
-        return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
-    }
-
+    
     public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
                                                   List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
@@ -181,6 +171,16 @@ public class RouteCalculator implements TramRouteCalculator {
             }
         });
 
+    }
+
+    private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, Set<Long> destinationNodeIds,
+                                               final ServiceHeuristics serviceHeuristics,
+                                               final Set<String> endStationIds, ServiceReasons reasons) {
+
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
+                sortsPosition, nodeOperations, endStationIds, config, nodeTypeRepository, destinationNodeIds, reasons);
+
+        return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }
 
     @NotNull

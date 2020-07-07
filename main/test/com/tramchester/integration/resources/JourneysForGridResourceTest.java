@@ -28,7 +28,7 @@ import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("WIP")
+//@Disabled("WIP")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());

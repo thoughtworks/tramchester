@@ -138,7 +138,8 @@ function addPostcodes(postcodes) {
 
  function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
     var urlParams = {
-        start: startStop, end: endStop, departureTime: time, departureDate: date, arriveby: arriveBy, changes
+        start: startStop, end: endStop, departureTime: time, departureDate: date, 
+        arriveby: arriveBy, maxChanges: changes
     };
     if (startStop == 'MyLocationPlaceholderId' || endStop == 'MyLocationPlaceholderId') {
         const place = app.location;

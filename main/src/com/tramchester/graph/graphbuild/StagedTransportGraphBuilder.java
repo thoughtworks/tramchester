@@ -66,6 +66,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         graphDatabase.createIndexs();
 
+        addFeedInfoNode(graphDatabase, transportData.getFeedInfo());
+
         try {
             logger.info("Rebuilding the graph...");
 
@@ -90,6 +92,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         reportStats();
         logMemory("After graph build");
         System.gc();
+    }
+
+    private void addFeedInfoNode(GraphDatabase graphDatabase, FeedInfo feedInfo) {
+        try(Transaction tx = graphDatabase.beginTx()) {
+            Node node = graphDatabase.createNode(tx, Labels.FEED_INFO);
+            node.setProperty(TIME, feedInfo.getVersion());
+
+            tx.commit();
+        }
     }
 
     private void buildGraphForRoutes(GraphDatabase graphDatabase, final GraphFilter filter, Stream<Route> routes) {
