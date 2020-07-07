@@ -3,7 +3,9 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.states.NotStartedState;
@@ -13,7 +15,6 @@ import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
@@ -38,10 +39,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository,
-                                Set<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository, Set<Long> destinationNodeIds) {
+                                Set<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
+                                Set<Long> destinationNodeIds, ServiceReasons reasons) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
-        this.reasons = serviceHeuristics.getReasons();
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
         this.queryTime = serviceHeuristics.getQueryTime();
@@ -49,6 +50,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.endStationIds = endStationIds;
         this.config = config;
         this.nodeTypeRepository = nodeTypeRepository;
+        this.reasons = reasons;
     }
 
     public Stream<Path> findPaths(Transaction txn, Node startNode) {

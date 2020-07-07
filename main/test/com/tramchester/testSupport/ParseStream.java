@@ -30,19 +30,25 @@ public class ParseStream<T> {
             if (JsonToken.START_ARRAY.equals(nextToken)) {
                 // Iterate through the objects of the array.
                 JsonToken current = jsonParser.nextToken();
-                while (JsonToken.START_OBJECT.equals(current)) {
-                    JsonToken next = jsonParser.nextToken();
-                    if (JsonToken.FIELD_NAME.equals(next)) {
-                        final T item = jsonParser.readValueAs(valueType);
-                        received.add(item);
-                    }
-                    current = jsonParser.nextToken();
-                }
+                readObject(valueType, received, jsonParser, current);
+            } else if (JsonToken.START_OBJECT.equals(nextToken)) {
+                readObject(valueType, received, jsonParser, nextToken);
             }
 
         }
         inputStream.close();
         response.close();
         return received;
+    }
+
+    private void readObject(Class<T> valueType, List<T> received, JsonParser jsonParser, JsonToken current) throws IOException {
+        while (JsonToken.START_OBJECT.equals(current)) {
+            JsonToken next = jsonParser.nextToken();
+            if (JsonToken.FIELD_NAME.equals(next)) {
+                final T item = jsonParser.readValueAs(valueType);
+                received.add(item);
+            }
+            current = jsonParser.nextToken();
+        }
     }
 }

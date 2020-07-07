@@ -70,14 +70,14 @@ class RouteCalulcatorForBoundingBoxTest {
         BoundingBox bounds = stationLocations.getBounds();
         long gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
-        Stream<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize);
+        List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,30),
                 false, 3, testConfig.getMaxJourneyDuration());
 
         Set<Station> destinations = Collections.singleton(Stations.StPetersSquare);
 
-        Stream<JourneysForBox> stream = calculator.calculateRoutes(txn, destinations, journeyRequest, grouped);
+        Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped);
         List<JourneysForBox> groupedJourneys = stream.collect(Collectors.toList());
 
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).collect(Collectors.toList());

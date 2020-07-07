@@ -8,13 +8,19 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationLocations;
-import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class FastestRoutesForBoxes {
+    private static final Logger logger = LoggerFactory.getLogger(FastestRoutesForBoxes.class);
+
     private final StationLocations stationLocations;
     private final RouteCalculator calculator;
 
@@ -23,14 +29,16 @@ public class FastestRoutesForBoxes {
         this.calculator = calculator;
     }
 
-    public Stream<BoundingBoxWithCost> findForGridSizeAndDestination(Transaction txn, Station destinaion, long gridSize,
+    public Stream<BoundingBoxWithCost> findForGridSizeAndDestination(Station destination, long gridSize,
                                                                      JourneyRequest journeyRequest) {
 
-        Set<Station> destinations = stationLocations.getStationsRangeInMeters(destinaion, gridSize);
+        Set<Station> destinations = stationLocations.getStationsRangeInMeters(destination, gridSize);
 
-        Stream<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize);
+        logger.info("Creating station groups for gridsize " + gridSize);
+        List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
-        return calculator.calculateRoutes(txn, destinations, journeyRequest, grouped).map(this::cheapest);
+        logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
+        return calculator.calculateRoutes(destinations, journeyRequest, grouped).map(this::cheapest);
     }
 
     private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox) {

@@ -27,27 +27,35 @@ class JsonStreamingOutput<T> implements StreamingOutput {
         jsonFactory = objectMapper.getFactory();
     }
 
+    JsonStreamingOutput(Stream<T> theStream) {
+        this(null, theStream);
+    }
+
     @Override
     public void write(final OutputStream outputStream)  {
+        // NOTE: by default there is an 8K output buffer on outputStream
+
         logger.info("Write stream to response");
 
         theStream.onClose(() -> {
             logger.info("Closed stream");
-            txn.close();
+            if (txn!=null) {
+                txn.close();
+            }
         });
 
         try (final JsonGenerator jsonGenerator = jsonFactory.createGenerator(outputStream)) {
             jsonGenerator.writeStartArray();
             theStream.forEach(item -> {
-                try {
-                    logger.warn("Wrote item");
-                    jsonGenerator.writeObject(item);
-                    jsonGenerator.writeString(System.lineSeparator());
-                    jsonGenerator.writeString(System.lineSeparator());
-                    jsonGenerator.flush();
-//                    outputStream.flush();
-                } catch (IOException e) {
-                    logger.error("Exception during streaming item "+item.toString() ,e);
+                synchronized (jsonGenerator) {
+                    try {
+                        jsonGenerator.writeObject(item);
+                        jsonGenerator.writeString(System.lineSeparator());
+                        jsonGenerator.writeString(System.lineSeparator());
+                        jsonGenerator.flush();
+                    } catch (IOException e) {
+                        logger.error("Exception during streaming item " + item.toString(), e);
+                    }
                 }
             });
             jsonGenerator.writeEndArray();

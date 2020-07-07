@@ -1,21 +1,18 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
-import com.tramchester.repository.RunningServices;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,7 +25,6 @@ public class ServiceHeuristics {
     private final RunningServices runningServices;
     private final Set<Station> endTramStations;
     private final TramTime queryTime;
-    private final ServiceReasons reasons;
     private final TramReachabilityRepository tramReachabilityRepository;
     private final int maxPathLength;
 
@@ -43,7 +39,7 @@ public class ServiceHeuristics {
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config,
                              TramTime queryTime, RunningServices runningServices, Set<Station> endStations,
-                             ServiceReasons reasons, int maxPathLength, JourneyRequest journeyRequest) {
+                             int maxPathLength, JourneyRequest journeyRequest) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.tramReachabilityRepository = tramReachabilityRepository;
@@ -53,7 +49,7 @@ public class ServiceHeuristics {
         this.queryTime = queryTime;
         this.changesLimit = journeyRequest.getMaxChanges();
         this.runningServices = runningServices;
-        this.reasons = reasons;
+//        this.reasons = reasons;
 
         endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toSet());
 
@@ -65,19 +61,19 @@ public class ServiceHeuristics {
         this.maxPathLength = maxPathLength;
     }
     
-    public ServiceReason checkServiceDate(Node node, Path path) {
+    public ServiceReason checkServiceDate(Node node, Path path, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         String nodeServiceId = nodeOperations.getServiceId(node);
 
         if (runningServices.isRunning(nodeServiceId)) {
-            return valid(path);
+            return valid(path, reasons);
         }
 
-        return notOnQueryDate(path, nodeServiceId);
+        return notOnQueryDate(path, reasons);
     }
 
-    public ServiceReason checkServiceTime(Path path, Node node, TramTime currentClock) {
+    public ServiceReason checkServiceTime(Path path, Node node, TramTime currentClock, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         String serviceId = nodeOperations.getServiceId(node);
@@ -92,19 +88,19 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));
         }
 
-        return valid(path);
+        return valid(path, reasons);
     }
 
-    public ServiceReason checkNumberChanges(int currentNumChanges, Path path) {
+    public ServiceReason checkNumberChanges(int currentNumChanges, Path path, ServiceReasons reasons) {
        reasons.incrementTotalChecked();
 
        if (currentNumChanges>changesLimit) {
          return reasons.recordReason(ServiceReason.TooManyChanges(path));
        }
-       return valid(path);
+       return valid(path, reasons);
     }
 
-    public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed) {
+    public ServiceReason checkTime(Path path, Node node, TramTime currentElapsed, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         TramTime nodeTime = nodeOperations.getTime(node);
@@ -113,7 +109,7 @@ public class ServiceHeuristics {
         }
 
         if (operatesWithinTime(nodeTime, currentElapsed)) {
-            return valid(path);
+            return valid(path, reasons);
         }
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
     }
@@ -123,7 +119,7 @@ public class ServiceHeuristics {
         return elapsedTimed.between(earliest, nodeTime);
     }
 
-    public ServiceReason interestedInHour(Path path, Node node, TramTime journeyClockTime) {
+    public ServiceReason interestedInHour(Path path, Node node, TramTime journeyClockTime, ServiceReasons reasons) {
         int hour = nodeOperations.getHour(node);
 
         reasons.incrementTotalChecked();
@@ -131,7 +127,7 @@ public class ServiceHeuristics {
         int queryTimeHour = journeyClockTime.getHourOfDay();
         if (hour == queryTimeHour) {
             // quick win
-            return valid(path);
+            return valid(path, reasons);
         }
 
         // this only works if maxWaitMinutes<60
@@ -142,15 +138,14 @@ public class ServiceHeuristics {
         if (queryTimeHour == previousHour) {
             int timeUntilNextHour = 60 - maxWaitMinutes;
             if (journeyClockTime.getMinuteOfHour() >= timeUntilNextHour) {
-                return valid(path);
+                return valid(path, reasons);
             }
         }
 
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
     }
 
-    // TODO will need re-working once interchange between tram/bus is defined
-    public ServiceReason canReachDestination(Node endNode, Path path) {
+    public ServiceReason canReachDestination(Node endNode, Path path, ServiceReasons reasons) {
 
         String routeStationId = endNode.getProperty(ID).toString();
         RouteStation routeStation = stationRepository.getRouteStation(routeStationId);
@@ -164,40 +159,33 @@ public class ServiceHeuristics {
         if (tramOnly && routeStation.isTram()) {
             for(Station endStation : endTramStations) {
                 if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
-                    return valid(path);
+                    return valid(path, reasons);
                 }
             }
             return reasons.recordReason(ServiceReason.StationNotReachable(path));
         }
 
-        // On bus
-//        Route route = routeStation.getRoute();
-//        if (busRoutesSeen.contains(route)) {
-//            return reasons.recordReason(ServiceReason.RouteAlreadySeen(path));
-//        }
-//        busRoutesSeen.add(route);
-
         // TODO can't exclude unless we know for sure not reachable, so include all for buses
-        return valid(path);
+        return valid(path, reasons);
     }
 
-    public ServiceReason journeyDurationUnderLimit(final int totalCost, final Path path) {
+    public ServiceReason journeyDurationUnderLimit(final int totalCost, final Path path, ServiceReasons reasons) {
         if (totalCost>maxJourneyDuration) {
             return reasons.recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), path));
         }
-        return valid(path);
+        return valid(path, reasons);
     }
 
-    private ServiceReason valid(final Path path) {
+    private ServiceReason valid(final Path path, ServiceReasons reasons) {
         if (debugEnabled) {
             return reasons.recordReason(ServiceReason.IsValid(path));
         }
         return reasons.recordReason(ServiceReason.isValid);
     }
 
-    private ServiceReason notOnQueryDate(Path path, String nodeServiceId) {
+    private ServiceReason notOnQueryDate(Path path, ServiceReasons reasons) {
         if (debugEnabled) {
-            return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(nodeServiceId, path));
+            return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(path));
         }
         return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate());
     }
@@ -206,7 +194,7 @@ public class ServiceHeuristics {
         return queryTime;
     }
 
-    public ServiceReasons getReasons() { return reasons; }
+//    public ServiceReasons getReasons() { return reasons; }
 
     public int getMaxPathLength() {
         return maxPathLength;

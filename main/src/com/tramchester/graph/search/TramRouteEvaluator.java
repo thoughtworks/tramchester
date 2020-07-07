@@ -138,13 +138,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
-        if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), path).isValid()) {
+        if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), path, reasons).isValid()) {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
         // is even reachable from here?
         if (nodeTypeRepository.isRouteStation(endNode)) {
-            if (!serviceHeuristics.canReachDestination(endNode, path).isValid()) {
+            if (!serviceHeuristics.canReachDestination(endNode, path, reasons).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
@@ -152,7 +152,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is the service running today
         boolean isService = nodeTypeRepository.isService(endNode);
         if (isService) {
-            if (!serviceHeuristics.checkServiceDate(endNode, path).isValid()) {
+            if (!serviceHeuristics.checkServiceDate(endNode, path, reasons).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
@@ -169,27 +169,27 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         TramTime visitingTime = journeyState.getJourneyClock();
 
         // journey too long?
-        if (!serviceHeuristics.journeyDurationUnderLimit(traversalState.getTotalCost(), path).isValid()) {
+        if (!serviceHeuristics.journeyDurationUnderLimit(traversalState.getTotalCost(), path, reasons).isValid()) {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
         // service available to catch?
         if (isService) {
-            if (!serviceHeuristics.checkServiceTime(path, endNode, visitingTime).isValid()) {
+            if (!serviceHeuristics.checkServiceTime(path, endNode, visitingTime, reasons).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
 
         // check time, just hour first
         if (nodeTypeRepository.isHour(endNode)) {
-            if (!serviceHeuristics.interestedInHour(path, endNode, visitingTime).isValid()) {
+            if (!serviceHeuristics.interestedInHour(path, endNode, visitingTime, reasons).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }
 
         // check time
         if (nodeTypeRepository.isTime(endNode)) {
-            if (!serviceHeuristics.checkTime(path, endNode, visitingTime).isValid()) {
+            if (!serviceHeuristics.checkTime(path, endNode, visitingTime, reasons).isValid()) {
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }
         }

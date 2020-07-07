@@ -23,14 +23,14 @@ var width = 300;
 var height = 300;
 var margin = 60;
 
-function textFor(trams) {
-    var text = "";
-    for (var i = 0; i < trams.length; i++) {
-        if (i>0) text = text + "\n";
-        text = text + trams[i].destination;
-    }
-    return text;
-}
+// function textFor(trams) {
+//     var text = "";
+//     for (var i = 0; i < trams.length; i++) {
+//         if (i>0) text = text + "\n";
+//         text = text + trams[i].destination;
+//     }
+//     return text;
+// }
 
 function addStations() {
     mapApp.routes.forEach(route => {
@@ -81,7 +81,7 @@ function refreshTrams() {
 }
 
 function addTrams() {
-    var tramIcon =  L.divIcon({className: 'arrow-up', html: 'transform: rotate(20deg);'});
+    //var tramIcon =  L.divIcon({className: 'arrow-up', html: 'transform: rotate(20deg);'});
    
     mapApp.tramLayerGroup.clearLayers();
     mapApp.positionsList.forEach(position => {

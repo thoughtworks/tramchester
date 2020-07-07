@@ -109,6 +109,7 @@ public class Dependencies {
 
         // WIP
 //        picoContainer.addComponent(JourneysForGridResource.class);
+
         picoContainer.addComponent(CreateQueryTimes.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(TramPositionsResource.class);

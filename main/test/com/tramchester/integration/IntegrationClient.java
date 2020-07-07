@@ -1,5 +1,7 @@
 package com.tramchester.integration;
 
+import org.glassfish.jersey.client.ClientProperties;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -16,6 +18,7 @@ public class IntegrationClient {
         Client client = appExtension.client();
         WebTarget target = client.target("http://localhost:" + appExtension.getLocalPort() + "/api/" + endPoint);
         builder = target.request(MediaType.APPLICATION_JSON);
+        builder.property(ClientProperties.READ_TIMEOUT, 10*1000);
     }
 
     private Response invoke() {

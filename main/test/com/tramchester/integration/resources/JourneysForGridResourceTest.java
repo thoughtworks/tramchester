@@ -5,6 +5,7 @@ import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
+import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.ParseStream;
@@ -33,24 +34,27 @@ class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private LocalDate when;
     private ParseStream<BoxWithCostDTO> parseStream;
+    private String time;
+    private String date;
+    private int maxChanges;
+    private int gridSize;
+    private int maxDuration;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        when = TestEnv.testDay();
+        LocalDate when = TestEnv.testDay();
         parseStream = new ParseStream<>(mapper);
+
+        time = TramTime.of(9,15).toPattern();
+        date = when.format(dateFormatDashes);
+        maxChanges = 3;
+        gridSize = 2000;
+        maxDuration = 120;
     }
 
     @Test
     void shouldCreateGrid() throws IOException {
-
-        String time = TramTime.of(9,15).toPattern();
-        String date = when.format(dateFormatDashes);
-        int maxChanges = 3;
-        long gridSize = 2000;
-        int maxDuration = 120;
-
         String destination = Stations.StPetersSquare.getId();
 
         String queryString = String.format("grid?gridSize=%s&destination=%s&departureTime=%s&departureDate=%s&maxChanges=%s&maxDuration=%s",

@@ -97,27 +97,27 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static abstract class HasDiag extends ServiceReason {
-
-        final String diag;
-        final String pathAsString;
-
-        HasDiag(ReasonCode reasonCode, String diagnostics, Path path) {
-            super(reasonCode, path);
-            pathAsString = path.toString();
-            this.diag = diagnostics;
-        }
-
-        @Override
-        public String toString() {
-            return format("diag:'%s' path:'%s'", diag, pathAsString);
-        }
-
-        @Override
-        public String textForGraph() {
-            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), diag);
-        }
-    }
+//    private static abstract class HasDiag extends ServiceReason {
+//
+//        final String diag;
+//        final String pathAsString;
+//
+//        HasDiag(ReasonCode reasonCode, String diagnostics, Path path) {
+//            super(reasonCode, path);
+//            pathAsString = path.toString();
+//            this.diag = diagnostics;
+//        }
+//
+//        @Override
+//        public String toString() {
+//            return format("diag:'%s' path:'%s'", diag, pathAsString);
+//        }
+//
+//        @Override
+//        public String textForGraph() {
+//            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), diag);
+//        }
+//    }
 
     //////////////
 
@@ -161,31 +161,41 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class DoesNotRunOnQueryDateWithDiag extends HasDiag
-    {
-        public DoesNotRunOnQueryDateWithDiag(String nodeServiceId, Path path) {
-
-            super(ReasonCode.NotOnQueryDate, nodeServiceId, path);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof DoesNotRunOnQueryDateWithDiag;
-        }
-    }
+//    private static class DoesNotRunOnQueryDate extends ServiceReason
+//    {
+//        public DoesNotRunOnQueryDate(String nodeServiceId, Path path) {
+//
+//            super(ReasonCode.NotOnQueryDate, path);
+//        }
+//
+//        @Override
+//        public String textForGraph() {
+//            return ReasonCode.NotOnQueryDate.name();
+//        }
+//
+//        @Override
+//        public boolean equals(Object obj) {
+//            return obj instanceof DoesNotRunOnQueryDate;
+//        }
+//    }
 
     //////////////
 
-    private static class SeenBusStationBefore extends HasDiag
+    private static class SeenBusStationBefore extends ServiceReason
     {
         public SeenBusStationBefore(Path path) {
 
-            super(ReasonCode.SeenBusStationBefore, "Seen bus station before", path);
+            super(ReasonCode.SeenBusStationBefore, path);
+        }
+
+        @Override
+        public String textForGraph() {
+            return ReasonCode.SeenBusStationBefore.name();
         }
 
         @Override
         public boolean equals(Object obj) {
-            return obj instanceof DoesNotRunOnQueryDateWithDiag;
+            return obj instanceof DoesNotRunOnQueryDate;
         }
     }
 
@@ -193,6 +203,10 @@ public abstract class ServiceReason {
 
     private static class DoesNotRunOnQueryDate extends ServiceReason
     {
+        public DoesNotRunOnQueryDate(Path path) {
+            super(ReasonCode.NotOnQueryDate, path);
+        }
+
         public DoesNotRunOnQueryDate() {
             super(ReasonCode.NotOnQueryDate);
         }
@@ -267,8 +281,8 @@ public abstract class ServiceReason {
 
     public static IsValid IsValid(Path path) { return new IsValid(path);}
 
-    public static ServiceReason DoesNotRunOnQueryDate(String diag, Path path) {
-        return new DoesNotRunOnQueryDateWithDiag(diag, path);
+    public static ServiceReason DoesNotRunOnQueryDate(Path path) {
+        return new DoesNotRunOnQueryDate(path);
     }
 
     public static ServiceReason DoesNotRunOnQueryDate() {

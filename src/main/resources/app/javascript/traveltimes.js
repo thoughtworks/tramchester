@@ -25,17 +25,26 @@ function getCurrentDate() {
     return moment().format(dateFormat)
 }
 
-function addPostcodes() {
-    var postcodeLayerGroup = L.featureGroup();
 
-    mapApp.postcodes.forEach(postcode => {
-        var lat = postcode.latLong.lat;
-        var lon = postcode.latLong.lon;
-        var marker = new L.circleMarker(L.latLng(lat,lon), {  radius: 1, title: postcode.name })
-        postcodeLayerGroup.addLayer(marker);
-    });
+function addStations() {
+    mapApp.routes.forEach(route => {
+        addStationsForRoute(route);
+    })
+}
 
-    postcodeLayerGroup.addTo(mapApp.map);
+function addStationsForRoute(route) {
+    var stationLayerGroup = L.featureGroup();
+
+    // if (route.tram) {
+        route.stations.forEach(station => {
+            var lat = station.latLong.lat;
+            var lon = station.latLong.lon;
+            var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 1 })
+            stationLayerGroup.addLayer(marker);
+        });
+    // }
+
+    stationLayerGroup.addTo(mapApp.map);
 }
 
 function addRoutes() {
@@ -155,6 +164,7 @@ var mapApp = new Vue({
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
             addRoutes();
+            addStations();
         }
     },
     mounted () {
