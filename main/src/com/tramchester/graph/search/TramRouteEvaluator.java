@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.states.TraversalState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -13,9 +14,7 @@ import org.neo4j.graphdb.traversal.PathEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -27,22 +26,22 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceHeuristics serviceHeuristics;
     private final NodeTypeRepository nodeTypeRepository;
     private final ServiceReasons reasons;
+    private final PreviousSuccessfulVisits previousSuccessfulVisit;
     private int success;
     private int currentLowestCost;
-    private final Map<Long, TramTime> previousSuccessfulVisit;
     private final Set<Long> busStationNodes;
     private final boolean bus;
 
-    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics,  Set<Long> destinationNodeIds,
-                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, TramchesterConfig config) {
+    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
+                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit, TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
+        this.previousSuccessfulVisit = previousSuccessfulVisit;
         bus = config.getBus();
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
-        previousSuccessfulVisit = new HashMap<>();
         busStationNodes = new HashSet<>();
     }
 
@@ -63,28 +62,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         Node endNode = path.endNode();
         long endNodeId = endNode.getId();
 
-        if (previousSuccessfulVisit.containsKey(endNodeId)) {
-            // can *only* safely exclude previous nodes if there is only one outbound path
-
-            TramTime previousVisitTime = previousSuccessfulVisit.get(endNodeId);
-            if (nodeTypeRepository.isTime(endNode)) {
-                // no way to get different response for same service/minute - boarding time has to be same
-                // since time nodes encode a specific time, so the previous time *must* match for this node id
-                reasons.recordReason(ServiceReason.Cached(previousVisitTime, path));
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
-
-            // NOTE: We only cache previous for certain node types
-            if (nodeTypeRepository.isHour(endNode) && previousVisitTime.equals(journeyClock)) {
-                reasons.recordReason(ServiceReason.Cached(previousVisitTime, path));
-                return Evaluation.EXCLUDE_AND_PRUNE; // been here before at exact same time, so no need to continue
-            }
+        if (previousSuccessfulVisit.hasUsableResult(endNode, journeyClock)) {
+            reasons.recordReason(ServiceReason.Cached(journeyClock, path));
+            return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
         Evaluation result = doEvaluate(path, journeyState, endNode, endNodeId);
 
-        if (result.continues() && (nodeTypeRepository.isTime(endNode) || nodeTypeRepository.isHour(endNode))) {
-                previousSuccessfulVisit.put(endNodeId, journeyClock);
+        if (result.continues()) {
+            previousSuccessfulVisit.recordVisitIfUseful(endNode, journeyClock);
         }
         return result;
     }

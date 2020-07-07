@@ -6,6 +6,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.PreviousSuccessfulVisits;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.states.NotStartedState;
@@ -53,10 +54,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.reasons = reasons;
     }
 
-    public Stream<Path> findPaths(Transaction txn, Node startNode) {
+    public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousSuccessfulVisits previousSuccessfulVisit) {
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
-                destinationNodeIds, nodeTypeRepository, reasons, config );
+                destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );
 
         final NotStartedState traversalState = new NotStartedState(sortsPosition, nodeContentsRepository,
                 destinationNodeIds, endStationIds, config);

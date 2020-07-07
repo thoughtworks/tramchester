@@ -10,10 +10,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.NodeContentsRepository;
-import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.*;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.TransportData;
@@ -122,13 +119,18 @@ public class RouteCalculator implements TramRouteCalculator {
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
         Set<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toSet());
 
+        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
+        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
+
         return queryTimes.stream().
                 map(queryTime -> createHeuristics(journeyRequest, runningServicesIds, queryTime, destinations)).
-                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
-                        endStationIds, new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
+                flatMap(serviceHeuristics -> {
+                    return findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
+                            endStationIds, previousSuccessfulVisit, new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow));
+                }).
                 map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
     }
-    
+
     public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
                                                   List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
@@ -147,6 +149,9 @@ public class RouteCalculator implements TramRouteCalculator {
 
         final ServiceHeuristics serviceHeuristics = createHeuristics(journeyRequest, runningServicesIds, time, destinations);
 
+        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
+        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
+
         return grouped.stream().map(box -> {
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             List<Station> startingStations = box.getStaions();
@@ -157,7 +162,7 @@ public class RouteCalculator implements TramRouteCalculator {
                         map(start -> getStationNodeSafe(txn, start)).
                         flatMap(startNode -> {
                             ServiceReasons reasons = new ServiceReasons(journeyRequest, time, providesLocalNow);
-                            return findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics, endStationIds, reasons);
+                            return findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics, endStationIds, previousSuccessfulVisit, reasons);
                         }).
                         map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
 
@@ -175,12 +180,12 @@ public class RouteCalculator implements TramRouteCalculator {
 
     private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, Set<Long> destinationNodeIds,
                                                final ServiceHeuristics serviceHeuristics,
-                                               final Set<String> endStationIds, ServiceReasons reasons) {
+                                               final Set<String> endStationIds, PreviousSuccessfulVisits previousSuccessfulVisit, ServiceReasons reasons) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
                 sortsPosition, nodeOperations, endStationIds, config, nodeTypeRepository, destinationNodeIds, reasons);
 
-        return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
+        return tramNetworkTraverser.findPaths(txn, startNode, previousSuccessfulVisit).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }
 
     @NotNull
