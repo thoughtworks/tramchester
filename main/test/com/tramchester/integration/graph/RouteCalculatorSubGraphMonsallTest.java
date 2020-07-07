@@ -29,6 +29,7 @@ import static org.junit.Assert.assertFalse;
 class RouteCalculatorSubGraphMonsallTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
+    private static SubgraphConfig config;
 
     private RouteCalculator calculator;
     private final LocalDate when = TestEnv.testDay();
@@ -40,7 +41,8 @@ class RouteCalculatorSubGraphMonsallTest {
         graphFilter.addRoute(RoutesForTesting.DIDS_TO_ROCH);
 
         dependencies = new Dependencies(graphFilter);
-        dependencies.initialise(new SubgraphConfig());
+        config = new SubgraphConfig();
+        dependencies.initialise(config);
 
         database = dependencies.get(GraphDatabase.class);
     }
@@ -103,7 +105,7 @@ class RouteCalculatorSubGraphMonsallTest {
 
     private void validateNumberOfStages(Station start, Station destination, TramTime time, LocalDate date, int numStages) {
         Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, new JourneyRequest(new TramServiceDate(date), time,
-                false)).
+                false, 3, config.getMaxJourneyDuration())).
                 collect(Collectors.toSet());
 
         Assertions.assertFalse(

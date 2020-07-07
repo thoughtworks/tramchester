@@ -1,7 +1,6 @@
 
 var moment = require('moment');
 const axios = require('axios');
-var _ = require('lodash');
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));

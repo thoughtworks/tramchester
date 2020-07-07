@@ -6,9 +6,15 @@ import com.tramchester.geo.*;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.internal.batchimport.stats.Stat;
 import org.opengis.referencing.operation.TransformException;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -155,5 +161,42 @@ class StationLocationsTest {
         // top right
         assertEquals(posB.getEastings(), bounds.getMaxEasting());
         assertEquals(posB.getNorthings(), bounds.getMaxNorthings());
+    }
+
+    @Test
+    void shouldGridUpStations() throws TransformException {
+        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
+
+        Station testStationA = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
+        Station testStationB = new Station("id456", "area", "name", TestEnv.nearShudehill, true);
+        Station testStationC = new Station("id789", "area", "nameB", TestEnv.nearPiccGardens, true);
+
+        stationLocations.addStation(testStationA);
+        stationLocations.addStation(testStationB);
+        stationLocations.addStation(testStationC);
+
+        List<BoundingBoxWithStations> boxedStations = stationLocations.getGroupedStations(1000).collect(Collectors.toList());
+
+        assertEquals(2, boxedStations.size());
+
+        // one box should contain the two central stations
+        Optional<BoundingBoxWithStations> maybeCentral = boxedStations.stream().filter(box -> box.getStaions().size() == 2).findFirst();
+        assertTrue(maybeCentral.isPresent());
+        BoundingBoxWithStations centralBox = maybeCentral.get();
+        List<Station> central = centralBox.getStaions();
+        assertEquals(2, central.size());
+        assertTrue(central.containsAll(Arrays.asList(testStationB, testStationC)));
+        assertTrue(centralBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearShudehill)));
+        assertTrue(centralBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearPiccGardens)));
+
+
+        // other box should contain the one non-central
+        Optional<BoundingBoxWithStations> maybeAlty = boxedStations.stream().filter(box -> box.getStaions().size() == 1).findFirst();
+        assertTrue(maybeAlty.isPresent());
+        BoundingBoxWithStations altyBox = maybeAlty.get();
+        List<Station> alty = altyBox.getStaions();
+        assertEquals(1, alty.size());
+        assertTrue(alty.contains(testStationA));
+        assertTrue(altyBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearAltrincham)));
     }
 }

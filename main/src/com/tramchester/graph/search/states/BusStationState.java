@@ -63,7 +63,7 @@ public class BusStationState extends TraversalState implements NodeId {
     @Override
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node next, JourneyState journeyState, int cost) {
         long nodeId = next.getId();
-        if (nodeId == destinationNodeId) {
+        if (destinationNodeIds.contains(nodeId)) {
             // TODO Cost of bus depart?
             return builders.destination.from(this, cost);
         }

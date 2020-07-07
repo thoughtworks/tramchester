@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 
 import java.util.List;
+import java.util.Set;
 
 public interface StationLocationsRepository {
     LatLong getStationPosition(Station station) throws TransformException;
@@ -16,7 +17,7 @@ public interface StationLocationsRepository {
 
     @NotNull List<Station> nearestStationsSorted(@NotNull HasGridPosition gridPosition, int maxToFind, double rangeInKM);
 
-    List<Station> nearestStationsUnsorted(Station station, double rangeInKM);
+    Set<Station> nearestStationsUnsorted(Station station, double rangeInKM);
 
     BoundingBox getBounds();
 

@@ -13,6 +13,7 @@ import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
@@ -29,22 +30,22 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final NodeContentsRepository nodeContentsRepository;
     private final NodeTypeRepository nodeTypeRepository;
     private final TramTime queryTime;
-    private final long destinationNodeId;
+    private final Set<Long> destinationNodeIds;
     private final Set<String> endStationIds;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
-                                SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, Node destinationNode,
-                                Set<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository) {
+                                SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository,
+                                Set<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository, Set<Long> destinationNodeIds) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.reasons = serviceHeuristics.getReasons();
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
         this.queryTime = serviceHeuristics.getQueryTime();
-        this.destinationNodeId = destinationNode.getId();
+        this.destinationNodeIds = destinationNodeIds;
         this.endStationIds = endStationIds;
         this.config = config;
         this.nodeTypeRepository = nodeTypeRepository;
@@ -53,10 +54,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
-                destinationNodeId, nodeTypeRepository, reasons, config );
+                destinationNodeIds, nodeTypeRepository, reasons, config );
 
         final NotStartedState traversalState = new NotStartedState(sortsPosition, nodeContentsRepository,
-                destinationNodeId, endStationIds, config);
+                destinationNodeIds, endStationIds, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Create traversal");
@@ -96,7 +97,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         });
 
         logger.info("Return traversal stream");
-        return stream.filter(path -> path.endNode().getId()==destinationNodeId);
+        return stream.filter(path -> destinationNodeIds.contains(path.endNode().getId()));
     }
 
     @Override

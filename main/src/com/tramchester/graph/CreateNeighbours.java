@@ -13,7 +13,6 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -42,12 +41,12 @@ public class CreateNeighbours implements Startable {
         Set<Station> stations = repository.getStations();
         logger.info(format("Adding neighbouring stations for %s stations and range %s KM", stations.size(), rangeInKM));
         stations.forEach(station -> {
-            List<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM);
-            addRelationships(txn, station,nearby);
+            Set<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM);
+            addRelationships(txn, station, nearby);
         });
     }
 
-    private void addRelationships(Transaction txn, Station station, List<Station> others) {
+    private void addRelationships(Transaction txn, Station station, Set<Station> others) {
         double mph = config.getWalkingMPH();
         Node stationNode = graphQuery.getStationNode(txn, station);
         others.forEach(other -> {

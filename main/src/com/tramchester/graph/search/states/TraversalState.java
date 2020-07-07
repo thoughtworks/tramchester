@@ -26,7 +26,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private final Set<String> destinationStationIds;
 
     protected final NodeContentsRepository nodeOperations;
-    protected final long destinationNodeId;
+    protected final Set<Long> destinationNodeIds;
     protected final Builders builders;
 
     @Override
@@ -36,10 +36,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     // initial only
     protected TraversalState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
-                             long destinationNodeId, Set<String> destinationStationdIds,
+                             Set<Long> destinationNodeIds, Set<String> destinationStationdIds,
                              TramchesterConfig config) {
         this.nodeOperations = nodeOperations;
-        this.destinationNodeId = destinationNodeId;
+        this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStationdIds;
 
         this.costForLastEdge = 0;
@@ -52,7 +52,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.nodeOperations = parent.nodeOperations;
-        this.destinationNodeId = parent.destinationNodeId;
+        this.destinationNodeIds = parent.destinationNodeIds;
         this.destinationStationIds = parent.destinationStationIds;
         this.builders = parent.builders;
 

@@ -23,10 +23,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.graph.search.MapPathToStages;
-import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.graph.search.ServiceHeuristics;
+import com.tramchester.graph.search.*;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.livedata.TramPositionInference;
@@ -109,12 +106,14 @@ public class Dependencies {
         picoContainer.addComponent(DeparturesMapper.class);
         picoContainer.addComponent(ClosedStations.class);
         picoContainer.addComponent(VersionResource.class);
+        picoContainer.addComponent(JourneysForGridResource.class);
         picoContainer.addComponent(CreateQueryTimes.class);
         picoContainer.addComponent(JourneyPlannerResource.class);
         picoContainer.addComponent(TramPositionsResource.class);
         picoContainer.addComponent(ServiceHeuristics.class);
 
         picoContainer.addComponent(RouteCalculator.class);
+        picoContainer.addComponent(FastestRoutesForBoxes.class);
         picoContainer.addComponent(RouteCalculatorArriveBy.class);
         picoContainer.addComponent(ProcessPlanRequest.class);
         picoContainer.addComponent(ProvidesNotes.class);

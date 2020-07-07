@@ -7,10 +7,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,16 +57,16 @@ public class StationLocations implements StationLocationsRepository {
         long eastings = gridPosition.getEastings();
         long northings = gridPosition.getNorthings();
 
-        if (eastings<minEastings) {
+        if (eastings < minEastings) {
             minEastings = eastings;
         }
-        if (eastings>maxEasting) {
+        if (eastings > maxEasting) {
             maxEasting = eastings;
         }
-        if (northings<minNorthings) {
+        if (northings < minNorthings) {
             minNorthings = northings;
         }
-        if (northings>maxNorthings) {
+        if (northings > maxNorthings) {
             maxNorthings = northings;
         }
     }
@@ -98,7 +95,7 @@ public class StationLocations implements StationLocationsRepository {
         Stream<Map.Entry<Station, HasGridPosition>> unsorted = getNearbyStream(gridPosition, rangeInMeters);
 
         @NotNull List<Station> stationList;
-        if (maxToFind>1) {
+        if (maxToFind > 1) {
             // only sort if more than one, as sorting expensive
             stationList = unsorted.sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
                     limit(maxToFind).
@@ -113,9 +110,14 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public List<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
+    public Set<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
-        return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toList());
+        return getStationsRangeInMeters(station, rangeInMeters);
+    }
+
+    @NotNull
+    public Set<Station> getStationsRangeInMeters(Station station, long rangeInMeters) {
+        return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     public List<Station> getNearestStationsTo(LatLong latLong, int numberOfNearest, double rangeInKM) {
@@ -147,5 +149,32 @@ public class StationLocations implements StationLocationsRepository {
     public boolean hasAnyNearby(HasGridPosition hasGridPosition, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
         return getNearbyStream(hasGridPosition, rangeInMeters).findAny().isPresent();
+    }
+
+    public Stream<BoundingBoxWithStations> getGroupedStations(long gridSize) {
+        if (gridSize <= 0) {
+            throw new RuntimeException("Invalid grid size of " + gridSize);
+        }
+
+        logger.info("Getting groupded stations for grid size " + gridSize);
+
+        List<BoundingBox> boxes = new ArrayList<>();
+        for (long x = minEastings; x <= maxEasting; x = x + gridSize) {
+            for (long y = minNorthings; y <= maxNorthings; y = y + gridSize) {
+                BoundingBox box = new BoundingBox(x, y, x + gridSize, y + gridSize);
+                boxes.add(box);
+            }
+        }
+
+        return boxes.stream().map(box -> new BoundingBoxWithStations(box, getStationsWithin(box))).
+                filter(BoundingBoxWithStations::hasStations);
+    }
+
+    private List<Station> getStationsWithin(BoundingBox box) {
+        // TODO need more efficient way to do this?
+        return positions.entrySet().stream().
+                filter(entry -> box.contained(entry.getValue())).
+                map(Map.Entry::getKey).
+                collect(Collectors.toList());
     }
 }

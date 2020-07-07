@@ -1,7 +1,6 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -10,7 +9,6 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Postcodes;
@@ -45,6 +43,7 @@ class PostcodeJourneyPlannerTest {
     private static GraphDatabase database;
 
     private static final LocalDate when = TestEnv.testDay();
+    private static WithPostcodesEnabled testConfig;
     private Transaction txn;
     private LocationJourneyPlanner planner;
     private PostcodeRepository repository;
@@ -54,7 +53,7 @@ class PostcodeJourneyPlannerTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        TramchesterConfig testConfig = new WithPostcodesEnabled();
+        testConfig = new WithPostcodesEnabled();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
@@ -80,8 +79,8 @@ class PostcodeJourneyPlannerTest {
 
     private static Stream<JourneyRequest> getRequest() {
         return Stream.of(
-                new JourneyRequest(new TramServiceDate(when), planningTime, false),
-                new JourneyRequest(new TramServiceDate(when), planningTime, true));
+                new JourneyRequest(new TramServiceDate(when), planningTime, false, 8, testConfig.getMaxJourneyDuration()),
+                new JourneyRequest(new TramServiceDate(when), planningTime, true, 8, testConfig.getMaxJourneyDuration()));
     }
 
     @ParameterizedTest

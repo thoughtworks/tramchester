@@ -1,6 +1,5 @@
 
 const axios = require('axios');
-var _ = require('lodash');
 
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
@@ -19,7 +18,6 @@ require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
 
 import Footer from './components/Footer';
-import { map } from 'lodash';
 
 var width = 300;
 var height = 300;

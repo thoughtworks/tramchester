@@ -103,7 +103,8 @@ class CreateNeighboursTest {
         createNeighbours.buildWithNoCommit(txn);
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,53), false);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
+                TramTime.of(11,53), false, 8, testConfig.getMaxJourneyDuration());
         //request.setDiag(true);
 
         Station startStation = Stations.Bury;
@@ -125,7 +126,7 @@ class CreateNeighboursTest {
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 0);
+                TramTime.of(11,53), false, 0, testConfig.getMaxJourneyDuration());
         request.setDiag(true);
 
         Station startStation = Stations.Bury;
@@ -147,7 +148,9 @@ class CreateNeighboursTest {
         createNeighbours.buildWithNoCommit(txn);
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45), false);
+        JourneyRequest request =
+                new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
+                        false, 0, testConfig.getMaxJourneyDuration());
 
         Stream<Journey> stream = routeCalculator.calculateRoute(txn, startStation, end, request);
 

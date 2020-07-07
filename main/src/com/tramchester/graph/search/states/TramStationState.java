@@ -52,7 +52,7 @@ public class TramStationState extends TraversalState {
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node,
                                           JourneyState journeyState, int cost) {
         long nodeId = node.getId();
-        if (nodeId == destinationNodeId) {
+        if (destinationNodeIds.contains(nodeId)) {
             // TODO Cost of platform depart?
             return builders.destination.from(this, cost);
         }

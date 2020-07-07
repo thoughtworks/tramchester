@@ -2,10 +2,8 @@ package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -72,7 +70,7 @@ public class RouteStationStateEndTrip extends TraversalState {
 
         // if bus station then may have arrived
         long busStationNodeId = busStationNode.getId();
-        if (busStationNodeId == destinationNodeId) {
+        if (destinationNodeIds.contains(busStationNodeId)) {
             return builders.destination.from(this, cost);
         }
 

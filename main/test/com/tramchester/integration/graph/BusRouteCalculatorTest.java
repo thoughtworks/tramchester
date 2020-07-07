@@ -1,10 +1,8 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -35,6 +33,7 @@ class BusRouteCalculatorTest {
 
     private static Dependencies dependencies;
     private static GraphDatabase database;
+    private static IntegrationBusTestConfig testConfig;
 
     private RouteCalculator calculator;
     private final LocalDate when = TestEnv.testDay();
@@ -43,7 +42,7 @@ class BusRouteCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        TramchesterConfig testConfig = new IntegrationBusTestConfig();
+        testConfig = new IntegrationBusTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
@@ -69,12 +68,12 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(10, 45);
 
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 10, txn, AltrinchamInterchange,
-                StockportBusStation, travelTime, when, 2);
+                StockportBusStation, travelTime, when, 2, testConfig.getMaxJourneyDuration());
         // 2 changes means 3 stages or less
         journeys.forEach(journey -> assertTrue(journey.getStages().size()<=3, journey.getStages().toString()));
 
         Set<Journey> journeysMaxChanges = RouteCalculatorTest.validateAtLeastNJourney(calculator, 10, txn, AltrinchamInterchange,
-                StockportBusStation, travelTime, when, 8);
+                StockportBusStation, travelTime, when, 8, testConfig.getMaxJourneyDuration());
         // algo seems to return very large number of changes even when 2 is possible??
         List<Journey> journeys2Stages = journeysMaxChanges.stream().filter(journey -> journey.getStages().size() <= 3).collect(Collectors.toList());
         assertFalse(journeys2Stages.isEmpty());
@@ -85,7 +84,7 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(15, 55);
 
         Stream<Journey> journeyStream = calculator.calculateRoute(txn, AltrinchamInterchange, KnutsfordStationStand3,
-                new JourneyRequest(new TramServiceDate(when), travelTime, false, 8));
+                new JourneyRequest(new TramServiceDate(when), travelTime, false, 8, testConfig.getMaxJourneyDuration()));
         Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
 
@@ -97,7 +96,7 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(15, 25);
 
         Stream<Journey> journeyStream = calculator.calculateRoute(txn, AltrinchamInterchange, KnutsfordStationStand3,
-                new JourneyRequest(new TramServiceDate(when), travelTime, false, 8));
+                new JourneyRequest(new TramServiceDate(when), travelTime, false, 8, testConfig.getMaxJourneyDuration()));
         Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
 
@@ -119,7 +118,7 @@ class BusRouteCalculatorTest {
         int maxChanges = 2;
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn,
                 ShudehillInterchange, StockportBusStation,
-                TramTime.of(8, 0), when, maxChanges);
+                TramTime.of(8, 0), when, maxChanges, testConfig.getMaxJourneyDuration());
         journeys.forEach(journey -> Assertions.assertTrue(journey.getStages().size()<=(maxChanges+1)));
     }
 
@@ -127,6 +126,6 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHaveSimpleTramJourney() {
         RouteCalculatorTest.validateAtLeastNJourney(calculator, 1, txn, Stations.Altrincham, Stations.Cornbrook,
-                TramTime.of(8, 0), when, 5);
+                TramTime.of(8, 0), when, 5, testConfig.getMaxJourneyDuration());
     }
 }

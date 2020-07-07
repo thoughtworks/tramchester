@@ -1,10 +1,9 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -24,8 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -43,13 +40,15 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
     private final ProcessPlanRequest processPlanRequest;
     private final GraphDatabase graphDatabaseService;
+    private final TramchesterConfig config;
 
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, GraphDatabase graphDatabaseService,
-                                  ProvidesNow providesNow, ProcessPlanRequest processPlanRequest) {
+                                  ProvidesNow providesNow, ProcessPlanRequest processPlanRequest, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, objectMapper);
         this.processPlanRequest = processPlanRequest;
         this.graphDatabaseService = graphDatabaseService;
+        this.config = config;
     }
 
     @GET
@@ -81,7 +80,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         URI baseUri = uriInfo.getBaseUri();
 
         try(Transaction tx = graphDatabaseService.beginTx() ) {
-            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChangesRaw, queryTime);
+            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChangesRaw,
+                    queryTime, config.getMaxJourneyDuration());
 
             Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
             JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(dtoStream.collect(Collectors.toSet()));
@@ -134,17 +134,12 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Transaction tx = graphDatabaseService.beginTx();
 
         try {
-            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChangesRaw, queryTime);
+            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChangesRaw,
+                    queryTime, config.getMaxJourneyDuration());
             Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
 
-            dtoStream.onClose(() -> {
-                logger.info("Closed stream");
-                tx.close();
-            });
+            JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream);
 
-            JsonStreamingOutput jsonStreamingOutput = new JsonStreamingOutput(dtoStream);
-
-            logger.info("Responding with stream");
             Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
             responseBuilder.cookie(createRecentCookie(cookie, startId, endId, secure, baseUri));
             return responseBuilder.build();
@@ -155,51 +150,16 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
     }
 
-    private static class JsonStreamingOutput implements StreamingOutput {
-        private final Stream<JourneyDTO> theStream;
-
-        private final JsonFactory jsonFactory ;
-
-        private JsonStreamingOutput(Stream<JourneyDTO> theStream) {
-            this.theStream = theStream;
-            ObjectMapper objectMapper = new ObjectMapper();
-            jsonFactory = objectMapper.getFactory();
-        }
-
-        @Override
-        public void write(final OutputStream outputStream)  {
-
-            try (final JsonGenerator jsonGenerator = jsonFactory.createGenerator(outputStream)) {
-                jsonGenerator.writeStartArray();
-                theStream.forEach(journeyDTO -> {
-                    try {
-                        logger.info("Write response");
-                        jsonGenerator.writeObject(journeyDTO);
-                        jsonGenerator.flush();
-                    } catch (IOException e) {
-                        logger.error("Exception during streaming item",e);
-                    }
-                });
-                jsonGenerator.writeEndArray();
-                jsonGenerator.flush();
-            } catch (IOException e) {
-               logger.warn("Exception during streaming", e);
-            } finally {
-                logger.info("Stream finished");
-                theStream.close();
-            }
-        }
-    }
-
     @NotNull
-    private JourneyRequest createJourneyRequest(String departureDateRaw, String arriveByRaw, String maxChangesRaw, TramTime queryTime) {
+    private JourneyRequest createJourneyRequest(String departureDateRaw, String arriveByRaw, String maxChangesRaw,
+                                                TramTime queryTime, int maxJourneyDuration) {
         LocalDate date = LocalDate.parse(departureDateRaw);
         TramServiceDate queryDate = new TramServiceDate(date);
 
         int maxChanges = Integer.parseInt(maxChangesRaw);
 
         boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
-        return new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges);
+        return new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges, maxJourneyDuration);
     }
 
 

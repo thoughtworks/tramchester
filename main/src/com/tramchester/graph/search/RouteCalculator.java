@@ -1,12 +1,14 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
@@ -15,15 +17,15 @@ import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.TransportData;
+import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -117,38 +119,71 @@ public class RouteCalculator implements TramRouteCalculator {
         logger.info("Found " + runningServicesIds.count() + " running services for " +journeyRequest.getDate());
 
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
-
-        int maxChanges = journeyRequest.getMaxChanges();
+        Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         return queryTimes.stream().
-                map(time -> new TimeAndReasons(time, new ServiceReasons(journeyRequest, time, providesLocalNow))).
-                map(timeAndReasons -> new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
-                        timeAndReasons.queryTime, runningServicesIds, destinations, timeAndReasons.reasons, maxPathLength, maxChanges)).
-                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, endNode, nodeTypeRepository, serviceHeuristics,
+                //map(time -> new TimeAndReasons(time, new ServiceReasons(journeyRequest, time, providesLocalNow))).
+                map(queryTime -> createHeuristics(journeyRequest, runningServicesIds, queryTime, destinations)).
+//                        new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
+//                        timeAndReasons.queryTime, runningServicesIds, destinations, timeAndReasons.reasons, maxPathLength, maxChanges)).
+                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, nodeTypeRepository, serviceHeuristics,
                         destinations)).
                 map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
     }
 
-    private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, final Node endNode,
+    private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, Set<Long> destinationNodeIds,
                                                final NodeTypeRepository nodeTypeRepository, final ServiceHeuristics serviceHeuristics,
                                                final Set<Station> destinations) {
 
         Set<String> endStationIds = destinations.stream().map(Station::getId).collect(Collectors.toSet());
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
-                sortsPosition, nodeOperations, endNode, endStationIds, config, nodeTypeRepository);
+                sortsPosition, nodeOperations, endStationIds, config, nodeTypeRepository, destinationNodeIds);
 
         return tramNetworkTraverser.findPaths(txn, startNode).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }
 
-    private static class TimeAndReasons {
-        private final TramTime queryTime;
-        private final ServiceReasons reasons;
+    public Stream<JourneysForBox> calculateRoutes(Transaction txn, Set<Station> destinations, JourneyRequest journeyRequest,
+                                                Stream<BoundingBoxWithStations> grouped) {
+        logger.info("Finding routes for bounding boxes");
 
-        private TimeAndReasons(TramTime queryTime, ServiceReasons reasons) {
-            this.queryTime = queryTime;
-            this.reasons = reasons;
-        }
+        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
+        TramTime time = journeyRequest.getTime();
+
+        Set<Long> destinationNodeIds = destinations.stream().
+                map(station -> getStationNodeSafe(txn, station)).
+                map(Entity::getId).
+                collect(Collectors.toSet());
+
+        return grouped.map(box -> {
+
+            logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
+            List<Station> startingStations = box.getStaions();
+            Stream<Journey> journeys = startingStations.stream().
+                    filter(start -> !destinations.contains(start)).
+                    map(start -> getStationNodeSafe(txn, start)).
+                    flatMap(startNode -> findShortestPath(txn, startNode, destinationNodeIds, nodeTypeRepository,
+                            createHeuristics(journeyRequest, runningServicesIds, time, destinations), destinations)).
+                    map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
+
+            List<Journey> collect = journeys.collect(Collectors.toList());
+            if (collect.isEmpty() && !destinations.containsAll(startingStations)) {
+                logger.warn(format("Unable to find any journeys from %s to %s using %s",
+                        HasId.asIds(startingStations), HasId.asIds(destinations), journeyRequest));
+            }
+            return new JourneysForBox(box, collect);
+
+        });
+
+    }
+
+    @NotNull
+    private ServiceHeuristics createHeuristics(JourneyRequest journeyRequest, RunningServices runningServicesIds,
+                                               TramTime time, Set<Station> destinations) {
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, time, providesLocalNow);
+        return new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
+                time, runningServicesIds, destinations, reasons,
+                maxPathLength, journeyRequest);
     }
 
     private static class TimedPath {

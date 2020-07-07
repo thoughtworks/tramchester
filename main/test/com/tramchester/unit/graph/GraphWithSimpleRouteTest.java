@@ -68,7 +68,7 @@ class GraphWithSimpleRouteTest {
     void beforeEachTestRuns() {
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
-        journeyRequest = new JourneyRequest(queryDate, queryTime, false);
+        journeyRequest = new JourneyRequest(queryDate, queryTime, false, 3, config.getMaxJourneyDuration());
         txn = database.beginTx();
     }
 
@@ -92,7 +92,7 @@ class GraphWithSimpleRouteTest {
         LatLong origin = TestEnv.nearAltrincham;
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, origin,  transportData.getSecond(),
-                new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());
+                new JourneyRequest(queryDate, TramTime.of(7,55), false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
 
         Assertions.assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -107,7 +107,7 @@ class GraphWithSimpleRouteTest {
         LatLong origin = TestEnv.nearShudehill;
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, transportData.getSecond(), origin,
-                new JourneyRequest(queryDate, TramTime.of(7,55), false)).collect(Collectors.toSet());
+                new JourneyRequest(queryDate, TramTime.of(7,55), false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
 
         Assertions.assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -136,7 +136,7 @@ class GraphWithSimpleRouteTest {
     void shouldTestSimpleJourneyIsNotPossible() {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(),  new JourneyRequest(queryDate, TramTime.of(9, 0),
-                        false)).collect(Collectors.toSet());
+                        false,3,config.getMaxJourneyDuration())).collect(Collectors.toSet());
         Assertions.assertEquals(0, journeys.size());
     }
 
@@ -163,8 +163,9 @@ class GraphWithSimpleRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertFalse(journeys.size()>=1);
+        JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(8, 10), false, 3, config.getMaxJourneyDuration());
         journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
-                transportData.getFifthStation(),  new JourneyRequest(queryDate, TramTime.of(8, 10), false)).collect(Collectors.toSet());
+                transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertTrue(journeys.size()>=1);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
     }

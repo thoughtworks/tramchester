@@ -13,16 +13,31 @@ public class JourneyRequest {
     private final int maxChanges;
     private final UUID uid;
     private boolean diagnostics;
+    private final int maxJourneyDuration;
 
-    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy) {
-        this(date, time, arriveBy, Integer.MAX_VALUE);
+    @Override
+    public String toString() {
+        return "JourneyRequest{" +
+                "date=" + date +
+                ", time=" + time +
+                ", arriveBy=" + arriveBy +
+                ", maxChanges=" + maxChanges +
+                ", uid=" + uid +
+                ", diagnostics=" + diagnostics +
+                ", maxJourneyDuration=" + maxJourneyDuration +
+                '}';
     }
 
-    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy, int maxChanges) {
+//    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy) {
+//        this(date, time, arriveBy, Integer.MAX_VALUE, maxJourneyDuration);
+//    }
+
+    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration) {
         this.date = date;
         this.time = time;
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
+        this.maxJourneyDuration = maxJourneyDuration;
         this.uid = UUID.randomUUID();
         diagnostics = false;
     }
@@ -44,30 +59,27 @@ public class JourneyRequest {
     }
 
     @Override
-    public String toString() {
-        return "JourneyRequest{" +
-                "uuid=" + uid.toString() +
-                " date=" + date +
-                ", time=" + time +
-                ", arriveBy=" + arriveBy +
-                ", maxChanges=" + maxChanges +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         JourneyRequest that = (JourneyRequest) o;
-        return arriveBy == that.arriveBy &&
-                maxChanges == that.maxChanges &&
-                date.equals(that.date) &&
-                time.equals(that.time);
+
+        if (getArriveBy() != that.getArriveBy()) return false;
+        if (getMaxChanges() != that.getMaxChanges()) return false;
+        if (getMaxJourneyDuration() != that.getMaxJourneyDuration()) return false;
+        if (!getDate().equals(that.getDate())) return false;
+        return getTime().equals(that.getTime());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, time, arriveBy, maxChanges);
+        int result = getDate().hashCode();
+        result = 31 * result + getTime().hashCode();
+        result = 31 * result + (getArriveBy() ? 1 : 0);
+        result = 31 * result + getMaxChanges();
+        result = 31 * result + getMaxJourneyDuration();
+        return result;
     }
 
     public boolean getDiagnosticsEnabled() {
@@ -77,5 +89,9 @@ public class JourneyRequest {
     public JourneyRequest setDiag(boolean flag) {
         diagnostics = flag;
         return this;
+    }
+
+    public int getMaxJourneyDuration() {
+        return maxJourneyDuration;
     }
 }

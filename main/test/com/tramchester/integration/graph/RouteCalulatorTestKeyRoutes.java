@@ -76,7 +76,8 @@ class RouteCalulatorTestKeyRoutes {
         Optional<Pair<Pair<Station, Station>, JourneyOrNot>> failed = combinations.parallelStream().
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
-                        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false);
+                        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
+                                3, testConfig.getMaxJourneyDuration());
                         journeyRequest.setDiag(diag);
                         Optional<Journey> optionalJourney = calculator.calculateRoute(txn, requested.getLeft(), requested.getRight(),
                                 journeyRequest).limit(1).findAny();
@@ -154,7 +155,7 @@ class RouteCalulatorTestKeyRoutes {
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
                         Optional<Journey> optionalJourney = calculator.calculateRoute(txn, requested.getLeft(), requested.getRight(),
-                                new JourneyRequest(new TramServiceDate(queryDate), queryTime, false).setDiag(diag)).limit(1).findAny();
+                                new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3, testConfig.getMaxJourneyDuration()).setDiag(diag)).limit(1).findAny();
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
                     }

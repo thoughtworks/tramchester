@@ -25,6 +25,7 @@ import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -46,10 +47,12 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         nodeOperations = new CachedNodeOperations();
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
-        JourneyRequest journeyRequest = new JourneyRequest(
-                TramServiceDate.of(TestEnv.nextSaturday()), TramTime.of(8,15), false);
-        reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesLocalNow);
         config = TestEnv.GET();
+
+        JourneyRequest journeyRequest = new JourneyRequest(
+                TramServiceDate.of(TestEnv.nextSaturday()), TramTime.of(8,15), false,
+                3, config.getMaxJourneyDuration());
+        reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesLocalNow);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
         sortsPositions = createMock(SortsPositions.class);
@@ -62,7 +65,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @NotNull
     private TramRouteEvaluator getEvaluator(long destinationNodeId) {
-        return new TramRouteEvaluator(serviceHeuristics, destinationNodeId, nodeIdLabelMap, reasons, config);
+        Set<Long> destinationNodeIds = new HashSet<>();
+        destinationNodeIds.add(destinationNodeId);
+        return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, nodeIdLabelMap, reasons, config);
     }
 
     @Test

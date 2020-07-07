@@ -29,6 +29,7 @@ import static java.lang.String.format;
 class RouteCalculatorSubGraphMediaCityTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
+    private static SubgraphConfig config;
 
     private RouteCalculator calculator;
     private final LocalDate when = TestEnv.testDay();
@@ -57,7 +58,8 @@ class RouteCalculatorSubGraphMediaCityTest {
         stations.forEach(graphFilter::addStation);
 
         dependencies = new Dependencies(graphFilter);
-        dependencies.initialise(new SubgraphConfig());
+        config = new SubgraphConfig();
+        dependencies.initialise(config);
 
         database = dependencies.get(GraphDatabase.class);
     }
@@ -96,7 +98,8 @@ class RouteCalculatorSubGraphMediaCityTest {
                 if (!start.equals(destination)) {
                     for (int i = 0; i < DAYS_AHEAD; i++) {
                         LocalDate day = when.plusDays(i);
-                        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0), false);
+                        JourneyRequest journeyRequest =
+                                new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0), false, 3, config.getMaxJourneyDuration());
                         Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
@@ -123,7 +126,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void shouldHaveSimpleJourney() {
         Set<Journey> results = calculator.calculateRoute(txn, Stations.Pomona, Stations.MediaCityUK,
-                new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false)).collect(Collectors.toSet());
+                new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }
 
@@ -149,6 +152,6 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private void validateAtLeastOneJourney(Station start, Station dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator, 1, txn, start, dest, time, date, 5);
+        RouteCalculatorTest.validateAtLeastNJourney(calculator, 1, txn, start, dest, time, date, 5, config.getMaxJourneyDuration());
     }
 }

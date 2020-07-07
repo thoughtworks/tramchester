@@ -1,13 +1,12 @@
 
 const axios = require('axios');
-var _ = require('lodash');
 
+var moment = require('moment');
 var Vue = require('vue');
-Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
+var oboe = require('oboe');
 
 var L = require('leaflet');
-require('leaflet-arrowheads')
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -19,18 +18,12 @@ require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
 
 import Footer from './components/Footer';
-import { map } from 'lodash';
 
-var width = 300;
-var height = 300;
-var margin = 60;
+const dateFormat = "YYYY-MM-DD";
 
-// function addStations() {
-//     mapApp.routes.forEach(route => {
-//         var stationIcon = L.divIcon({className: 'station-icon '+route.displayClass, iconSize:[12,12]});
-//         addStationsForRoute(route, stationIcon);
-//     })
-// }
+function getCurrentDate() {
+    return moment().format(dateFormat)
+}
 
 function addPostcodes() {
     var postcodeLayerGroup = L.featureGroup();
@@ -60,45 +53,51 @@ function addRoutes() {
     routeLayerGroup.addTo(mapApp.map);
 }
 
-// function addTrams() {
-//     var tramIcon =  L.divIcon({className: 'arrow-up', html: 'transform: rotate(20deg);'});
-   
-//     mapApp.tramLayerGroup.clearLayers();
-//     mapApp.positionsList.forEach(position => {
-//         var latBegin = position.first.latLong.lat;
-//         var lonBegin = position.first.latLong.lon;
-//         var latNext = position.second.latLong.lat;
-//         var lonNext = position.second.latLong.lon;
-        
-//         // unit vector based on cost between the stations
-//         var vectorLat = (latNext-latBegin)/position.cost;
-//         var vectorLon = (lonNext-lonBegin)/position.cost;
+function addBoxWithCost(boxWithCost) {
+    const bounds = [[boxWithCost.bottomLeft.lat, boxWithCost.bottomLeft.lon], 
+        [boxWithCost.topRight.lat, boxWithCost.topRight.lon]];
 
-//         position.trams.forEach(tram => {
-//             var dist = (position.cost-tram.wait); // approx current dist travelled based on wait at next station
-//             var latCurrent = latBegin + ( dist * vectorLat );
-//             var lonCurrent = lonBegin + ( dist * vectorLon );
-//             if (tram.wait>0) {
-//                 var latTorwards = latCurrent + (vectorLat*0.8);
-//                 var lonTowards = lonCurrent + (vectorLon*0.8);
-//                 var linePoints = [ [latCurrent,lonCurrent] , [latTorwards,lonTowards] ];
 
-//                 var line = L.polyline(linePoints, { color: 'black', opacity: 0.6, weight: 4, pane: mapApp.tramPane}).
-//                     arrowheads({ opacity: 1, fill: false, size: '8px', pane: mapApp.tramPane, yaw: 90 });
-//                 line.bindTooltip(getTramTitle(tram, position));
-//                 mapApp.tramLayerGroup.addLayer(line);
-//             } else {
-//                 var circle = L.circle([latCurrent, lonCurrent], {radius: 50, color: 'black', weight: 2, pane: mapApp.tramPane});
-//                 circle.bindTooltip(getTramTitle(tram, position));
-//                 mapApp.tramLayerGroup.addLayer(circle);
-//             }
+    var colour = getColourForCost(boxWithCost);     
+    var rectangle = L.rectangle(bounds, {weight: 1, fillColor: colour, fill: true, fillOpacity: 0.7});
+    rectangle.addTo(mapApp.map);
+}
 
-            
-//         })
-//         mapApp.tramLayerGroup.addTo(mapApp.map);
-//     });
-// }
+function getColourForCost(boxWithCost) {
+    if (boxWithCost.minutes < 0) {
+        return "#ff0000";
+    }
+    var greenString = "00";
+    if (boxWithCost.minutes > 0) {
+        var red = Math.floor((255 / 112) * (112 - boxWithCost.minutes));
+        greenString = red.toString(16);
+        if (greenString.length == 1) {
+            greenString = '0' + greenString;
+        }
+    }
+    return '#00'+greenString+'00';
+}
 
+function addBoxs() {
+    mapApp.grid.forEach(item => addBoxWithCost(item.BoxWithCost));
+}
+
+function queryForGrid(gridSize, destination, departureTime, departureDate, maxChanges, maxDuration) {
+    var urlParams = {
+        destination: destination, gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
+        maxChanges: maxChanges, maxDuration: maxDuration};
+
+    const searchParams = new URLSearchParams(urlParams);
+
+    oboe('/api/grid?'+searchParams.toString())
+        .node('BoxWithCost', function(box) {
+            addBoxWithCost(box)
+        })
+        .fail(function (errorReport) {
+            console.log("Failed to load grid '" + errorReport.toString() + "'");
+        });
+
+    }
 
 function findAndSetMapBounds() {
     let minLat = 1000;
@@ -138,12 +137,12 @@ var mapApp = new Vue({
     data() {
         return {
             map: null,
+            grid: null,
             networkError: false,
             routes: [],
             postcodes: [],
             postcodeLayerGroup: null,
             feedinfo: [],
-            // tramPane: null
         }
     },
     methods: {
@@ -152,9 +151,6 @@ var mapApp = new Vue({
         },
         draw() {
             findAndSetMapBounds();
-            // mapApp.tramPane = mapApp.map.createPane("tramPane");
-            // mapApp.tramPane.style.zIndex = 610; // above marker plane, below popups and tooltips
-            // mapApp.tramLayerGroup = L.featureGroup();
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
@@ -177,19 +173,20 @@ var mapApp = new Vue({
                 mapApp.networkError = false;
                 mapApp.routes = response.data;
                 mapApp.draw();
+                queryForGrid(500, "9400ZZMAAIR", "9:15", getCurrentDate(), "3", "60");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
             });
-        axios.get('/api/postcodes')
-            .then(function (response) {
-                mapApp.networkError = false;
-                mapApp.postcodes = response.data;
-                addPostcodes();
-            }).catch(function (error) {
-                mapApp.networkError = true;
-                console.log(error);
-            });
+        // axios.get('/api/postcodes')
+        //     .then(function (response) {
+        //         mapApp.networkError = false;
+        //         mapApp.postcodes = response.data;
+        //         addPostcodes();
+        //     }).catch(function (error) {
+        //         mapApp.networkError = true;
+        //         console.log(error);
+        //     });
     }, 
     computed: {
         havePos: function () {

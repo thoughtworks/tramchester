@@ -67,7 +67,7 @@ public class PlatformState extends TraversalState implements NodeId {
         long nodeId = node.getId();
 
         if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
-            if (nodeId == destinationNodeId) {
+            if (destinationNodeIds.contains(nodeId)) {
                 return builders.destination.from(this, cost);
             } else {
                 return builders.tramStation.fromPlatform(this, node, cost);

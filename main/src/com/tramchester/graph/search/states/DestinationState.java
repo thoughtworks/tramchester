@@ -45,12 +45,12 @@ public class DestinationState extends TraversalState
         if (this == o) return true;
         if (!(o instanceof DestinationState)) return false;
         TraversalState that = (TraversalState) o;
-        return that.destinationNodeId == this.destinationNodeId;
+        return that.destinationNodeIds == this.destinationNodeIds;
     }
 
     @Override
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        throw new RuntimeException("Already at destination, id is " + destinationNodeId);
+        throw new RuntimeException("Already at destination, id is " + destinationNodeIds);
     }
 
     @Override

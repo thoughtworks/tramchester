@@ -36,6 +36,7 @@ class RouteCalculatorTestAllJourneys {
     private static GraphDatabase database;
 
     private static final boolean circleCi = TestEnv.isCircleci();
+    private static IntegrationTramTestConfig testConfig;
 
     private RouteCalculator calculator;
     private final LocalDate when = TestEnv.testDay();
@@ -43,7 +44,7 @@ class RouteCalculatorTestAllJourneys {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        TramchesterConfig testConfig = new IntegrationTramTestConfig();
+        testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
@@ -100,7 +101,8 @@ class RouteCalculatorTestAllJourneys {
     private Map<Pair<Station, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(
             LocalDate queryDate, Set<Pair<Station, Station>> combinations, TramTime queryTime) {
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
+                3, testConfig.getMaxJourneyDuration());
 
         final ConcurrentMap<Pair<Station, Station>, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
         combinations.forEach(pair -> results.put(pair, Optional.empty()));

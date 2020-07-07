@@ -23,7 +23,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
 
-    private final long destinationNodeId;
+    private final Set<Long> destinationNodeIds;
     private final ServiceHeuristics serviceHeuristics;
     private final NodeTypeRepository nodeTypeRepository;
     private final ServiceReasons reasons;
@@ -33,10 +33,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Set<Long> busStationNodes;
     private final boolean bus;
 
-    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, long destinationNodeId,
+    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics,  Set<Long> destinationNodeIds,
                               NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
-        this.destinationNodeId = destinationNodeId;
+        this.destinationNodeIds = destinationNodeIds;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         bus = config.getBus();
@@ -92,7 +92,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private Evaluation doEvaluate(Path path, ImmutableJourneyState journeyState, Node endNode, long endNodeId) {
 
         TraversalState traversalState = journeyState.getTraversalState();
-        if (endNodeId==destinationNodeId) {
+        if (destinationNodeIds.contains(endNodeId)) {
             // we've arrived
             int totalCost = traversalState.getTotalCost();
             if (totalCost <= currentLowestCost) {

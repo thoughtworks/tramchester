@@ -1,6 +1,8 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -41,15 +43,15 @@ public class ServiceHeuristics {
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config,
                              TramTime queryTime, RunningServices runningServices, Set<Station> endStations,
-                             ServiceReasons reasons, int maxPathLength, int maxChanges) {
+                             ServiceReasons reasons, int maxPathLength, JourneyRequest journeyRequest) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.tramReachabilityRepository = tramReachabilityRepository;
 
         this.maxWaitMinutes = config.getMaxWait();
-        this.maxJourneyDuration = config.getMaxJourneyDuration();
+        this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         this.queryTime = queryTime;
-        this.changesLimit = maxChanges;
+        this.changesLimit = journeyRequest.getMaxChanges();
         this.runningServices = runningServices;
         this.reasons = reasons;
 

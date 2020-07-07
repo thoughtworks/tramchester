@@ -1,8 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
@@ -23,10 +20,10 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -60,13 +57,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
     private LocalDateTime now;
-    private JsonFactory jsonFactory;
+    private ParseStream<JourneyDTO> parseStream;
 
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         now = TestEnv.LocalNow();
-        jsonFactory = mapper.getFactory();
+        parseStream = new ParseStream<>(mapper);
     }
 
     @Test
@@ -324,36 +321,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Assertions.assertEquals(200, response.getStatus());
 
         InputStream inputStream = response.readEntity(InputStream.class);
-        List<JourneyDTO> journeyDTOS = parseStream(response, inputStream);
+        List<JourneyDTO> journeyDTOS = parseStream.receive(response, inputStream, JourneyDTO.class);
 
         Assertions.assertFalse(journeyDTOS.isEmpty());
         journeyDTOS.forEach(journeyDTO -> Assertions.assertFalse(journeyDTO.getStages().isEmpty()));
-    }
-
-    @NotNull
-    private List<JourneyDTO> parseStream(Response response, InputStream inputStream) throws IOException {
-        List<JourneyDTO> journeyDTOS = new ArrayList<>();
-
-        try (final JsonParser jsonParser = jsonFactory.createParser(inputStream)) {
-            final JsonToken nextToken = jsonParser.nextToken();
-
-            if (JsonToken.START_ARRAY.equals(nextToken)) {
-                // Iterate through the objects of the array.
-                JsonToken current = jsonParser.nextToken();
-                while (JsonToken.START_OBJECT.equals(current)) {
-                    JsonToken next = jsonParser.nextToken();
-                    if (JsonToken.FIELD_NAME.equals(next)) {
-                        final JourneyDTO journeyDTO = jsonParser.readValueAs(JourneyDTO.class);
-                        journeyDTOS.add(journeyDTO);
-                    }
-                    current = jsonParser.nextToken();
-                }
-            }
-
-        }
-        inputStream.close();
-        response.close();
-        return journeyDTOS;
     }
 
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {
