@@ -69,9 +69,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         Evaluation result = doEvaluate(path, journeyState, endNode, endNodeId);
 
-        if (result.continues()) {
-            previousSuccessfulVisit.recordVisitIfUseful(endNode, journeyClock);
-        }
+        previousSuccessfulVisit.recordVisitIfUseful(result, endNode, journeyClock);
+
         return result;
     }
 

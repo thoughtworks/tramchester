@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.traversal.Evaluation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,9 +52,11 @@ public class PreviousSuccessfulVisits {
         return false;
     }
 
-    public void recordVisitIfUseful(Node endNode, TramTime journeyClock) {
-        if (nodeTypeRepository.isTime(endNode) || nodeTypeRepository.isHour(endNode) ) {
-            recordVisit(endNode.getId(), journeyClock);
+    public void recordVisitIfUseful(Evaluation result, Node endNode, TramTime journeyClock) {
+        if (result.continues()) {
+            if (nodeTypeRepository.isTime(endNode) || nodeTypeRepository.isHour(endNode)) {
+                recordVisit(endNode.getId(), journeyClock);
+            }
         }
     }
 }

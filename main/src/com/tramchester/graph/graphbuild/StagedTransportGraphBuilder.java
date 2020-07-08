@@ -35,8 +35,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(StagedTransportGraphBuilder.class);
 
     ///
-    // Station-[enter]-> Platform-[board] -> RouteStation-[toSvc] -> Service ->Hour-[toMinute]
-    //          -> Minute -> RouteStation-[depart]->Platform-[leave]->Station
+    // Station -[enter]-> Platform -[board]-> RouteStation -[toSvc]-> Service -> Hour-[toMinute]->
+    //          -> Minute -> RouteStation-[depart]-> Platform -[leave]-> Station
     //
     // RouteStation-[onRoute]->RouteStation
     //

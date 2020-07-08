@@ -98,6 +98,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         state.setState(new JourneyState(time, traversalState));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.INCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -119,6 +121,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andReturn(201);
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -141,6 +145,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotRunOnQueryDate(path));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         TramTime time = TramTime.of(8, 15);
@@ -171,6 +177,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.canReachDestination(node, path, reasons)).
                 andReturn(ServiceReason.StationNotReachable(path));
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -204,7 +212,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(ServiceReason.IsValid(path));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-        previousSuccessfulVisit.recordVisitIfUseful(node, TramTime.of(8,15));
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.INCLUDE_AND_CONTINUE, node, TramTime.of(8,15));
         EasyMock.expectLastCall();
 
         replayAll();
@@ -232,7 +240,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         NotStartedState traversalState = getNotStartedState();
         state.setState(new JourneyState(time, traversalState));
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-        previousSuccessfulVisit.recordVisitIfUseful(node, TramTime.of(8,15));
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.INCLUDE_AND_CONTINUE, node, TramTime.of(8,15));
         EasyMock.expectLastCall();
 
         replayAll();
@@ -262,7 +270,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         NotStartedState traversalState = getNotStartedState();
         state.setState(new JourneyState(time, traversalState));
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -284,6 +293,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         NotStartedState traversalState = getNotStartedState();
         state.setState(new JourneyState(time, traversalState));
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -316,6 +327,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotOperateOnTime(time, path));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -348,7 +361,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotOperateOnTime(time, path));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -383,6 +397,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotOperateOnTime(time, path));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.EXCLUDE_AND_PRUNE, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -414,7 +430,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,path, reasons)).andReturn(ServiceReason.IsValid(path));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-        previousSuccessfulVisit.recordVisitIfUseful(node, TramTime.of(8,15));
+        previousSuccessfulVisit.recordVisitIfUseful(Evaluation.INCLUDE_AND_CONTINUE, node, TramTime.of(8,15));
         EasyMock.expectLastCall();
 
         replayAll();
