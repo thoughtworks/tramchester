@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -36,18 +37,18 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     // initial only
     protected TraversalState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
-                             Set<Long> destinationNodeIds, Set<String> destinationStationdIds,
-                             TramchesterConfig config) {
+                             Set<Long> destinationNodeIds, Set<String> destinationStationIds,
+                             LatLong destinationLatLonHint, TramchesterConfig config) {
         this.nodeOperations = nodeOperations;
         this.destinationNodeIds = destinationNodeIds;
-        this.destinationStationIds = destinationStationdIds;
+        this.destinationStationIds = destinationStationIds;
 
         this.costForLastEdge = 0;
         this.parentCost = 0;
         this.parent = null;
         this.outbounds = new ArrayList<>();
 
-        this.builders = new Builders(sortsPositions, destinationStationIds, config);
+        this.builders = new Builders(sortsPositions, destinationStationIds, destinationLatLonHint, config);
     }
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
@@ -92,10 +93,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             }
         }
         return results;
-
-//        return  StreamSupport.stream(relationships.spliterator(), false).
-//                filter(relationship -> relationship.getEndNode().getId()!= nodeIdToSkip).
-//                collect(Collectors.toList());
     }
 
 
@@ -141,10 +138,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         protected final HourState.Builder hour;
         protected final DestinationState.Builder destination;
 
-        public Builders(SortsPositions sortsPositions, Set<String> destinationStationIds, TramchesterConfig config) {
+        public Builders(SortsPositions sortsPositions, Set<String> destinationStationIds, LatLong destinationLatLon, TramchesterConfig config) {
             routeStation = new RouteStationStateOnTrip.Builder(config);
             routeStationEndTrip = new RouteStationStateEndTrip.Builder(config);
-            routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds);
+            routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds, destinationLatLon);
             busStation = new BusStationState.Builder();
             service = new ServiceState.Builder();
             platform = new PlatformState.Builder();

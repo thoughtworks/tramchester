@@ -1,38 +1,35 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations, Set<Long> destinationNodeIds,
                            Set<String> destinationStationIds,
-                           TramchesterConfig config) {
-        super(sortsPositions, nodeOperations, destinationNodeIds, destinationStationIds, config);
+                           LatLong destinationLatLonHint, TramchesterConfig config) {
+        super(sortsPositions, nodeOperations, destinationNodeIds, destinationStationIds, destinationLatLonHint, config);
     }
 
-    public NotStartedState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations, long destinationNodeId,
-                           Set<String> destinationStationIds, TramchesterConfig get) {
-        super(sortsPositions, nodeOperations, asSet(destinationNodeId), destinationStationIds, get);
-    }
-
-    @NotNull
-    private static HashSet<Long> asSet(long destinationNodeId) {
-        HashSet<Long> destIds = new HashSet<>();
-        destIds.add(destinationNodeId);
-        return destIds;
-    }
+//    public NotStartedState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations, long destinationNodeId,
+//                           Set<String> destinationStationIds, TramchesterConfig get) {
+//        super(sortsPositions, nodeOperations, asSet(destinationNodeId), destinationStationIds, destinationLatLon, get);
+//    }
+//
+//    @NotNull
+//    private static HashSet<Long> asSet(long destinationNodeId) {
+//        HashSet<Long> destIds = new HashSet<>();
+//        destIds.add(destinationNodeId);
+//        return destIds;
+//    }
 
     @Override
     public String toString() {

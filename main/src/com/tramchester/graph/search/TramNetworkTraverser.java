@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -59,8 +60,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
                 destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );
 
+        LatLong destinationLatLon = sortsPosition.midPointFrom(endStationIds);
         final NotStartedState traversalState = new NotStartedState(sortsPosition, nodeContentsRepository,
-                destinationNodeIds, endStationIds, config);
+                destinationNodeIds, endStationIds, destinationLatLon, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Create traversal");

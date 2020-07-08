@@ -7,7 +7,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.StationLocations;
+import org.jetbrains.annotations.NotNull;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,25 +27,45 @@ public class FastestRoutesForBoxes {
 
     private final StationLocations stationLocations;
     private final RouteCalculator calculator;
+    private final CoordinateTransforms coordinateTransforms;
 
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator, CoordinateTransforms coordinateTransforms) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;
+        this.coordinateTransforms = coordinateTransforms;
     }
 
     public Stream<BoundingBoxWithCost> findForGridSizeAndDestination(Station destination, long gridSize,
-                                                                     JourneyRequest journeyRequest) {
+                                                                     JourneyRequest journeyRequest)  {
 
-        Set<Station> destinations = stationLocations.getStationsRangeInMeters(destination, gridSize);
+        HasGridPosition destinationGrid = getGridPosition(destination);
+
+        Set<Station> destinations = stationLocations.getStationsRangeInMetersSquare(destination, gridSize);
 
         logger.info("Creating station groups for gridsize " + gridSize);
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
-        return calculator.calculateRoutes(destinations, journeyRequest, grouped).map(this::cheapest);
+        return calculator.calculateRoutes(destinations, journeyRequest, grouped).map(box->cheapest(box, destinationGrid));
     }
 
-    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox) {
+    @NotNull
+    private HasGridPosition getGridPosition(Station destination) {
+        try {
+            return coordinateTransforms.getGridPosition(destination.getLatLong());
+        } catch (TransformException exception) {
+            String msg = "Unable to get grid for " + destination;
+            logger.error(msg);
+            throw new RuntimeException(msg, exception);
+        }
+    }
+
+    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, HasGridPosition destination) {
+
+        if (journeysForBox.getBox().contained(destination)) {
+            return new BoundingBoxWithCost(journeysForBox.getBox(), 0);
+        }
+
         int currentQuickest = Integer.MAX_VALUE;
 
         for (Journey journey: journeysForBox.getJourneys()) {

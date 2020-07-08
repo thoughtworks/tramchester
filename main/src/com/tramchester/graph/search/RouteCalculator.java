@@ -149,10 +149,12 @@ public class RouteCalculator implements TramRouteCalculator {
 
         final ServiceHeuristics serviceHeuristics = createHeuristics(journeyRequest, runningServicesIds, time, destinations);
 
-        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
+
 
         return grouped.stream().map(box -> {
+            // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
+            PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
+
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             List<Station> startingStations = box.getStaions();
 
@@ -167,10 +169,11 @@ public class RouteCalculator implements TramRouteCalculator {
                         map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
 
                 List<Journey> collect = journeys.collect(Collectors.toList());
-                if (collect.isEmpty() && !destinations.containsAll(startingStations)) {
-                    logger.warn(format("Unable to find any journeys from %s to %s using %s",
-                            HasId.asIds(startingStations), HasId.asIds(destinations), journeyRequest));
-                }
+
+//                if (collect.isEmpty() && !destinations.containsAll(startingStations)) {
+//                    logger.warn(format("Unable to find any journeys from %s to %s using %s",
+//                            HasId.asIds(startingStations), HasId.asIds(destinations), journeyRequest));
+//                }
                 // yielding
                 return new JourneysForBox(box, collect);
             }

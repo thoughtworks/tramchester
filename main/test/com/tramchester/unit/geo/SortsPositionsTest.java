@@ -1,6 +1,7 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,6 +100,30 @@ class SortsPositionsTest {
 
         assertEquals(nearPiccGardens, resultsFromDandA.get(2));
         assertEquals(nearShudehill, resultsFromDandA.get(3));
+
+    }
+
+    @Test
+    void shouldCalculateMidPointOf() {
+        SortsPositions sortsPositions = new SortsPositions(dataForTest);
+        Set<Station> stations = new HashSet<>();
+        stations.add(nearPiccGardens);
+        stations.add(nearAltrincham);
+        stations.add(nearShudehill);
+
+        Set<String> destIds = stations.stream().map(Station::getId).collect(Collectors.toSet());
+        LatLong result = sortsPositions.midPointFrom(destIds);
+
+        double expectedLat = (nearPiccGardens.getLatLong().getLat() +
+                nearAltrincham.getLatLong().getLat() +
+                nearShudehill.getLatLong().getLat()) / 3D;
+
+        double expectedLon = (nearPiccGardens.getLatLong().getLon() +
+                nearAltrincham.getLatLong().getLon() +
+                nearShudehill.getLatLong().getLon()) / 3D;
+
+        assertEquals(expectedLat, result.getLat());
+        assertEquals(expectedLon, result.getLon());
 
     }
 

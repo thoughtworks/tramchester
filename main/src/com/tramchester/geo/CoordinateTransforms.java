@@ -57,7 +57,7 @@ public class CoordinateTransforms {
         return new LatLong(lat, lon);
     }
 
-    public static double distanceInMiles(LatLong point1, LatLong point2) {
+    private static double distanceInMiles(LatLong point1, LatLong point2) {
         double lat1 = point1.getLat();
         double lat2 = point2.getLat();
         double diffLat = Math.toRadians(lat2-lat1);
@@ -70,6 +70,15 @@ public class CoordinateTransforms {
 
         double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return EARTH_RADIUS * fractionOfRadius;
+    }
+
+    // crude but good enough for distance ranking during searches
+    public static double distanceFlat(LatLong point1, LatLong point2) {
+        double deltaLat = Math.abs(point1.getLat()-point2.getLat());
+        double deltaLon = Math.abs(point1.getLon()-point2.getLon());
+
+        return Math.sqrt((deltaLat*deltaLat)+(deltaLon*deltaLon));
+
     }
 
     public static int calcCostInMinutes(Station stationA, Station stationB, double mph) {

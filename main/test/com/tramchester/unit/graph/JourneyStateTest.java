@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.SortsPositions;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,12 +30,17 @@ class JourneyStateTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
+        LatLong latLongHint = TestEnv.manAirportLocation;
+        Set<Long> destinationNodeIds = new HashSet<>();
+        destinationNodeIds.add(42L);
+
         Set<String> destinationStationIds = Collections.singleton("destinationStationId");
         StationLocations locations = new StationLocations(new CoordinateTransforms());
         StationRepository repository = new TransportDataForTest(locations);
         SortsPositions sortsPositions = new SortsPositions(repository);
+
         traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(),
-                42, destinationStationIds, TestEnv.GET());
+                destinationNodeIds, destinationStationIds, latLongHint, TestEnv.GET());
         queryTime = TramTime.of(9, 15);
     }
 

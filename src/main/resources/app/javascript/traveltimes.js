@@ -68,11 +68,14 @@ function addBoxWithCost(boxWithCost) {
 
 
     var colour = getColourForCost(boxWithCost);     
-    var rectangle = L.rectangle(bounds, {weight: 1, fillColor: colour, fill: true, fillOpacity: 0.7});
+    var rectangle = L.rectangle(bounds, {weight: 1, color: colour, fillColor: colour, fill: true, fillOpacity: 0.5});
     rectangle.addTo(mapApp.map);
 }
 
 function getColourForCost(boxWithCost) {
+    if (boxWithCost.minutes==0) {
+        return "#0000ff";
+    }
     if (boxWithCost.minutes < 0) {
         return "#ff0000";
     }
@@ -85,10 +88,6 @@ function getColourForCost(boxWithCost) {
         }
     }
     return '#00'+greenString+'00';
-}
-
-function addBoxs() {
-    mapApp.grid.forEach(item => addBoxWithCost(item.BoxWithCost));
 }
 
 function queryForGrid(gridSize, destination, departureTime, departureDate, maxChanges, maxDuration) {
@@ -183,20 +182,12 @@ var mapApp = new Vue({
                 mapApp.networkError = false;
                 mapApp.routes = response.data;
                 mapApp.draw();
-                queryForGrid(500, "9400ZZMAAIR", "9:15", getCurrentDate(), "3", "60");
+                // 9400ZZMASTP 9400ZZMAAIR
+                queryForGrid(2000, "9400ZZMASTP", "9:15", getCurrentDate(), "3", "120");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
             });
-        // axios.get('/api/postcodes')
-        //     .then(function (response) {
-        //         mapApp.networkError = false;
-        //         mapApp.postcodes = response.data;
-        //         addPostcodes();
-        //     }).catch(function (error) {
-        //         mapApp.networkError = true;
-        //         console.log(error);
-        //     });
     }, 
     computed: {
         havePos: function () {

@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -18,11 +19,12 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
     public static class Builder {
         private final SortsPositions sortsPositions;
-        private final Set<String> destinationStationIds;
+        private final LatLong destinationLatLon;
 
-        public Builder(SortsPositions sortsPositions, Set<String> destinationStationIds) {
+        public Builder(SortsPositions sortsPositions, Set<String> destinationStationIds, LatLong destinationLatLon) {
             this.sortsPositions = sortsPositions;
-            this.destinationStationIds = destinationStationIds;
+//            this.destinationLatLon = sortsPositions.midPointFrom(destinationStationIds);
+            this.destinationLatLon = destinationLatLon;
         }
 
         public TraversalState fromPlatformState(PlatformState platformState, Node node, int cost) {
@@ -44,7 +46,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();
             toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
 
-            return sortsPositions.sortedByNearTo(destinationStationIds, relationships);
+            return sortsPositions.sortedByNearTo(destinationLatLon, relationships);
         }
     }
 

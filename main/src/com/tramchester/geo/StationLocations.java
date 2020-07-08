@@ -112,12 +112,11 @@ public class StationLocations implements StationLocationsRepository {
     @Override
     public Set<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
-        return getStationsRangeInMeters(station, rangeInMeters);
+        return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
-    @NotNull
-    public Set<Station> getStationsRangeInMeters(Station station, long rangeInMeters) {
-        return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toSet());
+    public Set<Station> getStationsRangeInMetersSquare(Station station, long size) {
+        return getNearbyStreamSquare(getStationGridPosition(station), size).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     public List<Station> getNearestStationsTo(LatLong latLong, int numberOfNearest, double rangeInKM) {
@@ -128,12 +127,16 @@ public class StationLocations implements StationLocationsRepository {
 
     @NotNull
     private Stream<Map.Entry<Station, HasGridPosition>> getNearbyStream(@NotNull HasGridPosition otherPosition, long rangeInMeters) {
+        return getNearbyStreamSquare(otherPosition, rangeInMeters).
+                        filter(entry -> GridPositions.withinDist(otherPosition, entry.getValue(), rangeInMeters));
+    }
+
+    @NotNull
+    private Stream<Map.Entry<Station, HasGridPosition>> getNearbyStreamSquare(@NotNull HasGridPosition otherPosition, long rangeInMeters) {
         return positions.entrySet().stream().
                 // crude filter initially
                         filter(entry -> GridPositions.withinDistEasting(otherPosition, entry.getValue(), rangeInMeters)).
-                        filter(entry -> GridPositions.withinDistNorthing(otherPosition, entry.getValue(), rangeInMeters)).
-                // now filter on actual distance
-                        filter(entry -> GridPositions.withinDist(otherPosition, entry.getValue(), rangeInMeters));
+                        filter(entry -> GridPositions.withinDistNorthing(otherPosition, entry.getValue(), rangeInMeters));
     }
 
     private int compareDistances(HasGridPosition origin, HasGridPosition first, HasGridPosition second) {
@@ -177,4 +180,5 @@ public class StationLocations implements StationLocationsRepository {
                 map(Map.Entry::getKey).
                 collect(Collectors.toList());
     }
+
 }
