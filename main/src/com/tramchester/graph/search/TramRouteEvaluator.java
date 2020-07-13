@@ -67,14 +67,39 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
-        Evaluation result = doEvaluate(path, journeyState, endNode, endNodeId);
+        ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, endNode, endNodeId);
+        Evaluation result = decideEvaluationAction(reasonCode);
 
         previousSuccessfulVisit.recordVisitIfUseful(result, endNode, journeyClock);
 
         return result;
     }
 
-    private Evaluation doEvaluate(Path path, ImmutableJourneyState journeyState, Node endNode, long endNodeId) {
+    public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
+        switch (code) {
+            case Valid:
+                return Evaluation.INCLUDE_AND_CONTINUE;
+            case Arrived:
+                return Evaluation.INCLUDE_AND_PRUNE;
+            case LongerPath:
+            case SeenBusStationBefore:
+            case PathTooLong:
+            case TooManyChanges:
+            case NotReachable:
+            case TookTooLong:
+            case ServiceNotRunningAtTime:
+            case NotAtHour:
+            case NotAtQueryTime:
+            case NotOnQueryDate:
+            case AlreadyDeparted:
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            default:
+                throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
+
+        }
+    }
+
+    private ServiceReason.ReasonCode doEvaluate(Path path, ImmutableJourneyState journeyState, Node endNode, long endNodeId) {
 
         TraversalState traversalState = journeyState.getTraversalState();
         if (destinationNodeIds.contains(endNodeId)) {
@@ -88,11 +113,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 success = success + 1;
                 currentLowestCost = totalCost;
                 reasons.recordSuccess();
-                return Evaluation.INCLUDE_AND_PRUNE;
+                return ServiceReason.ReasonCode.Arrived;
             } else {
                 // found a route, but longer than current shortest
                 reasons.recordReason(ServiceReason.Longer(path));
-                return Evaluation.EXCLUDE_AND_PRUNE;
+                return ServiceReason.ReasonCode.LongerPath;
             }
         } else if (success>0) {
             // Not arrived, but we do have at least one successful route to our destination
@@ -100,7 +125,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             if (totalCost>currentLowestCost) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(path));
-                return Evaluation.EXCLUDE_AND_PRUNE;
+                return ServiceReason.ReasonCode.LongerPath;
             }
         }
 
@@ -110,7 +135,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             if (nodeTypeRepository.isBusStation(endNode)) {
                 if (busStationNodes.contains(endNodeId)) {
                     reasons.recordReason(ServiceReason.SeenBusStationBefore(path));
-                    return Evaluation.EXCLUDE_AND_PRUNE;
+                    return ServiceReason.ReasonCode.SeenBusStationBefore;
                 }
                 busStationNodes.add(endNodeId);
             }
@@ -120,17 +145,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (path.length()>serviceHeuristics.getMaxPathLength()) {
             logger.warn("Hit max path length");
             reasons.recordReason(ServiceReason.PathToLong(path));
-            return Evaluation.EXCLUDE_AND_PRUNE;
+            return ServiceReason.ReasonCode.PathTooLong;
         }
 
         if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), path, reasons).isValid()) {
-            return Evaluation.EXCLUDE_AND_PRUNE;
+            return ServiceReason.ReasonCode.TooManyChanges;
         }
 
         // is even reachable from here?
         if (nodeTypeRepository.isRouteStation(endNode)) {
             if (!serviceHeuristics.canReachDestination(endNode, path, reasons).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
+                return ServiceReason.ReasonCode.NotReachable;
             }
         }
 
@@ -138,7 +163,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         boolean isService = nodeTypeRepository.isService(endNode);
         if (isService) {
             if (!serviceHeuristics.checkServiceDate(endNode, path, reasons).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
+                return ServiceReason.ReasonCode.NotOnQueryDate;
             }
         }
 
@@ -147,7 +172,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO)) {
-                return Evaluation.INCLUDE_AND_CONTINUE;
+                return ServiceReason.ReasonCode.Valid;
             }
         }
 
@@ -155,31 +180,30 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // journey too long?
         if (!serviceHeuristics.journeyDurationUnderLimit(traversalState.getTotalCost(), path, reasons).isValid()) {
-            return Evaluation.EXCLUDE_AND_PRUNE;
+            return ServiceReason.ReasonCode.TookTooLong;
         }
 
         // service available to catch?
         if (isService) {
             if (!serviceHeuristics.checkServiceTime(path, endNode, visitingTime, reasons).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
+                return ServiceReason.ReasonCode.ServiceNotRunningAtTime;
             }
         }
 
         // check time, just hour first
         if (nodeTypeRepository.isHour(endNode)) {
             if (!serviceHeuristics.interestedInHour(path, endNode, visitingTime, reasons).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
+                return ServiceReason.ReasonCode.NotAtHour;
             }
         }
 
         // check time
         if (nodeTypeRepository.isTime(endNode)) {
-            if (!serviceHeuristics.checkTime(path, endNode, visitingTime, reasons).isValid()) {
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
+            ServiceReason serviceReason = serviceHeuristics.checkTime(path, endNode, visitingTime, reasons);
+            return serviceReason.getReasonCode();
         }
 
-        return Evaluation.INCLUDE_AND_CONTINUE;
+        return ServiceReason.ReasonCode.Valid;
     }
 
 }

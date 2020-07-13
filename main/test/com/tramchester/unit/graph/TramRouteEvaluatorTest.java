@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
@@ -87,6 +88,28 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldHaveReasonsThatInclude() {
+        assertEquals(Evaluation.INCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.Arrived));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.Valid));
+    }
+
+    @Test
+    void shouldHaveReasonsThatExclude() {
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.LongerPath));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.SeenBusStationBefore));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.PathTooLong));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.TooManyChanges));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotReachable));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotOnQueryDate));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.TookTooLong));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.ServiceNotRunningAtTime));
+
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotAtHour));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.AlreadyDeparted));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotAtQueryTime));
+    }
+
+    @Test
     void shouldMatchDestination() {
         long destinationNodeId = 42;
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
@@ -103,7 +126,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -126,7 +149,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -154,7 +177,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         state.setState(new JourneyState(time, traversalState));
 
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -182,7 +205,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -217,7 +240,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
 
@@ -245,7 +268,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
 
@@ -275,7 +298,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -298,7 +321,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -332,7 +355,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -366,7 +389,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -402,7 +425,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
 
@@ -435,7 +458,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
-        Assertions.assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
 

@@ -37,7 +37,8 @@ public abstract class ServiceReason {
         OnBus,
         NotOnVehicle,
         SeenBusStationBefore,
-        TooManyChanges
+        TooManyChanges,
+        Arrived
     }
 
     private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;
