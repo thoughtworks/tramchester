@@ -84,7 +84,7 @@ public class LocationJourneyPlanner {
         List<Relationship> addedRelationships = new LinkedList<>();
 
         List<StationWalk> walksToDest = getStationWalks(destination);
-        Node midWalkNode = createWalkingNode(txn, destination);
+        Node midWalkNode = createMidWalkingNode(txn, destination);
 
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
@@ -173,6 +173,14 @@ public class LocationJourneyPlanner {
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
+        return startOfWalkNode;
+    }
+
+    private Node createMidWalkingNode(Transaction txn, LatLong origin) {
+        Node startOfWalkNode = nodeTypeRepository.createQueryNodeMidPoint(graphDatabase, txn);
+        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
+        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
+        logger.info(format("Adding mid walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }
 

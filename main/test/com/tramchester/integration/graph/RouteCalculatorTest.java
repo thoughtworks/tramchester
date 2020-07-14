@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.VehicleStage;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -90,7 +91,14 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        validateAtLeastNJourney(1, Stations.Altrincham, Stations.Deansgate, TramTime.of(10, 15), when);
+        Set<Journey> results = validateAtLeastNJourney(1, Stations.Altrincham, Stations.Deansgate,
+                TramTime.of(10, 15), when);
+        results.forEach(journey -> {
+            List<Location> callingPoints = journey.getPath();
+            assertEquals(11, callingPoints.size());
+            assertEquals(Stations.Altrincham, callingPoints.get(0));
+            assertEquals(Stations.Deansgate, callingPoints.get(10));
+        });
     }
 
     @Test
@@ -348,8 +356,8 @@ public class RouteCalculatorTest {
         }
     }
 
-    private void validateAtLeastNJourney(int maxToReturn, Station station, Station dest, TramTime time, LocalDate date) {
-        validateAtLeastNJourney(calculator, maxToReturn, txn, station, dest, time, date, 5, config.getMaxJourneyDuration());
+    private Set<Journey> validateAtLeastNJourney(int maxToReturn, Station station, Station dest, TramTime time, LocalDate date) {
+        return validateAtLeastNJourney(calculator, maxToReturn, txn, station, dest, time, date, 5, config.getMaxJourneyDuration());
     }
 
     public static Set<Journey> validateAtLeastNJourney(RouteCalculator theCalculator, int maxToReturn, Transaction transaction, Station start, Station destination,

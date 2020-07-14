@@ -32,6 +32,7 @@ class JourneyPlannerPostcodeResourceTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
+        // TODO NOT NOW
         now = TestEnv.LocalNow();
     }
 
@@ -80,7 +81,7 @@ class JourneyPlannerPostcodeResourceTest {
         Set<JourneyDTO> journeys = results.getJourneys();
 
         // TODO WIP
-        journeys.forEach(journeyDTO -> Assertions.assertEquals(2,journeyDTO.getStages().size()));
+        journeys.forEach(journeyDTO -> Assertions.assertEquals(3, journeyDTO.getStages().size()));
     }
 
 }

@@ -57,7 +57,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         replayAll();
         List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(),
-                TramTime.of(11,45)), queryDate);
+                TramTime.of(11,45), Collections.emptyList()), queryDate);
         verifyAll();
 
         assertThat(result, hasItem(new StationNote(Note.NoteType.ClosedStation,
@@ -70,7 +70,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
 
         replayAll();
-        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45)), queryDate);
+        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45), Collections.emptyList()), queryDate);
         verifyAll();
 
         assertThat(result, hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend)));
@@ -81,7 +81,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,30));
 
         replayAll();
-        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45)), queryDate);
+        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45), Collections.emptyList()), queryDate);
         verifyAll();
 
         assertThat(result, hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend)));
@@ -92,7 +92,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
 
         replayAll();
-        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45)), queryDate);
+        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45), Collections.emptyList()), queryDate);
         verifyAll();
 
         assertThat(result, not(hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend))));
@@ -104,7 +104,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         LocalDate date = LocalDate.of(year, 12, 23);
         Note christmasNote = new Note(ProvidesNotes.christmas, Note.NoteType.Christmas);
 
-        Journey journey = new Journey(Collections.emptyList(), TramTime.of(11, 45));
+        Journey journey = new Journey(Collections.emptyList(), TramTime.of(11, 45), Collections.emptyList());
 
         replayAll();
 
@@ -140,7 +140,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "<no message>");
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime);
+        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
 
         replayAll();
         List<Note> notes = provider.createNotesForJourney(journey, serviceDate);
@@ -164,7 +164,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "a message");
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), serviceDate, queryTime)).andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime);
+        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
 
         replayAll();
         List<Note> notes = provider.createNotesForJourney(journey, serviceDate);
@@ -192,7 +192,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get(), queryDate, queryTime))
                 .andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime);
+        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
 
         replayAll();
         List<Note> notes = provider.createNotesForJourney(journey, queryDate);
@@ -232,7 +232,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         List<TransportStage> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
-        Journey journey = new Journey(stages, queryTime);
+        Journey journey = new Journey(stages, queryTime, Collections.emptyList());
 
         replayAll();
         List<Note> notes = provider.createNotesForJourney(journey, serviceDate);

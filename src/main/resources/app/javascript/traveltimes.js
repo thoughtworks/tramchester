@@ -63,11 +63,13 @@ function addRoutes() {
 function boxClicked(event) {
     mapApp.journeyLayer.clearLayers();
     var journey = this.journey.journey;
-    journey.stages.forEach(stage => {
-        var line = L.polyline([ [stage.firstStation.latLong.lat, stage.firstStation.latLong.lon ], 
-                [stage.lastStation.latLong.lat, stage.lastStation.latLong.lon] ], { color: 'red' });
-                mapApp.journeyLayer.addLayer(line);
+    var steps = [];
+
+    journey.path.forEach(item => {
+        steps.push([item.latLong.lat, item.latLong.lon]);
     })
+    var line = L.polyline( steps, { color: 'red' });
+    mapApp.journeyLayer.addLayer(line);
     mapApp.journeyLayer.addTo(mapApp.map);
 }
 
@@ -197,7 +199,7 @@ var mapApp = new Vue({
                 mapApp.routes = response.data;
                 mapApp.draw();
                 // 9400ZZMASTP 9400ZZMAAIR
-                queryForGrid(2000, "9400ZZMAAIR", "9:15", getCurrentDate(), "3", "120");
+                queryForGrid(2000, "9400ZZMAAIR", "9:15", getCurrentDate(), "5", "360");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);

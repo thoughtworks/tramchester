@@ -101,6 +101,12 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
         queryNodes.put(result.getId(),true);
         return result;
     }
+    // for creating query nodes, to support MyLocation journeys
+    public Node createQueryNodeMidPoint(GraphDatabase graphDatabase, Transaction txn) {
+        Node result = graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE_MID);
+        queryNodes.put(result.getId(),true);
+        return result;
+    }
 
     // for deleting query nodes, to support MyLocation journeys
     public void deleteQueryNode(Node node) {

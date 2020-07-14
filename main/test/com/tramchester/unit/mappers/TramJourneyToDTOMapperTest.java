@@ -7,6 +7,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.time.TramServiceDate;
@@ -20,15 +21,13 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.unit.graph.TransportDataForTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -80,9 +79,10 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo)).andReturn(stageDTOA);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes)).andReturn(journeyDTO);
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(Stations.Deansgate));
+        EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes, refWithPositions)).andReturn(journeyDTO);
 
-        Journey journey = new Journey(stages, pm10);
+        Journey journey = new Journey(stages, pm10, Collections.singletonList(Stations.Deansgate));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -104,9 +104,10 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom)).andReturn(stageDTOA);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes)).andReturn(journeyDTO);
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(Stations.Deansgate));
+        EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes, refWithPositions)).andReturn(journeyDTO);
 
-        Journey journey = new Journey(stages, pm10);
+        Journey journey = new Journey(stages, pm10, Collections.singletonList(Stations.Deansgate));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -135,9 +136,11 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change)).andReturn(stageDTOB);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        EasyMock.expect(journeyFactory.build(dtoStages,time, notes)).andReturn(journeyDTO);
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(Stations.Altrincham));
 
-        Journey journey = new Journey(stages, time);
+        EasyMock.expect(journeyFactory.build(dtoStages,time, notes, refWithPositions)).andReturn(journeyDTO);
+
+        Journey journey = new Journey(stages, time, Collections.singletonList(Stations.Altrincham));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -176,9 +179,11 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change)).andReturn(stageDTOC);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        EasyMock.expect(journeyFactory.build(dtoStages, am10, notes)).andReturn(journeyDTO);
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(begin));
 
-        Journey journey = new Journey(stages, am10);
+        EasyMock.expect(journeyFactory.build(dtoStages, am10, notes, refWithPositions)).andReturn(journeyDTO);
+
+        Journey journey = new Journey(stages, am10, Collections.singletonList(begin));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -211,9 +216,11 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change)).andReturn(stageDTOB);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        EasyMock.expect(journeyFactory.build(dtoStages, startTime, notes)).andReturn(journeyDTO);
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(start));
+        EasyMock.expect(journeyFactory.build(dtoStages, startTime, notes, refWithPositions)).andReturn(journeyDTO);
 
-        Journey journey = new Journey(stages, startTime);
+
+        Journey journey = new Journey(stages, startTime, Collections.singletonList(start));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();

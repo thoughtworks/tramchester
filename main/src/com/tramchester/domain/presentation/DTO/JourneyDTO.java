@@ -30,14 +30,16 @@ public class JourneyDTO implements CallsAtPlatforms {
     private List<String> changeStations;
     private TramTime queryTime;
     private List<Note> notes;
+    private List<StationRefWithPosition> path;
 
     public JourneyDTO() {
         // Deserialization
     }
 
     public JourneyDTO(StationRefWithPosition begin, StationRefWithPosition end, List<StageDTO> stages,
-                      TramTime expectedArrivalTime, TramTime firstDepartureTime,
-                      boolean isDirect, List<String> changeStations, TramTime queryTime, List<Note> notes) {
+                      TramTime expectedArrivalTime, TramTime firstDepartureTime, boolean isDirect,
+                      List<String> changeStations, TramTime queryTime, List<Note> notes,
+                      List<StationRefWithPosition> path) {
         this.begin = begin;
         this.end = end;
         this.stages = stages;
@@ -47,6 +49,7 @@ public class JourneyDTO implements CallsAtPlatforms {
         this.changeStations = changeStations;
         this.queryTime = queryTime;
         this.notes = notes;
+        this.path = path;
     }
 
     public List<StageDTO> getStages() {
@@ -118,5 +121,9 @@ public class JourneyDTO implements CallsAtPlatforms {
 
     public List<Note> getNotes() {
         return notes;
+    }
+
+    public List<StationRefWithPosition> getPath() {
+        return path;
     }
 }

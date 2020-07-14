@@ -12,6 +12,7 @@ public interface NodeTypeRepository {
     boolean isService(Node node);
 
     Node createQueryNode(GraphDatabase graphDatabase, Transaction txn);
+    Node createQueryNodeMidPoint(GraphDatabase graphDatabase, Transaction txn);
     void deleteQueryNode(Node queryNode);
 
     void populateNodeLabelMap(GraphDatabase graphDatabase);

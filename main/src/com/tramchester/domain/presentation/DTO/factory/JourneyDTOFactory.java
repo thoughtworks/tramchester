@@ -16,14 +16,15 @@ public class JourneyDTOFactory {
     public JourneyDTOFactory() {
     }
 
-    public JourneyDTO build(List<StageDTO> stages, TramTime queryTime, List<Note> notes) {
+    public JourneyDTO build(List<StageDTO> stages, TramTime queryTime, List<Note> notes,
+                            List<StationRefWithPosition> path) {
         boolean isDirect = isDirect(stages);
         StationRefWithPosition begin = getBegin(stages);
         StationRefWithPosition end = getEnd(stages);
 
         return new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages),
                 getFirstDepartureTime(stages),
-                isDirect, getChangeStationNames(stages), queryTime, notes);
+                isDirect, getChangeStationNames(stages), queryTime, notes, path);
     }
 
 

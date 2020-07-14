@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 
@@ -10,12 +11,14 @@ import java.util.stream.Collectors;
 
 public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
 
+    private final List<Location> path;
     private final List<TransportStage> stages;
     private final TramTime queryTime;
 
-    public Journey(List<TransportStage> stages, TramTime queryTime) {
+    public Journey(List<TransportStage> stages, TramTime queryTime, List<Location> path) {
         this.stages = stages;
         this.queryTime = queryTime;
+        this.path = path;
     }
     
     public Iterator<TransportStage> iterator() {
@@ -40,10 +43,14 @@ public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
 
     @Override
     public String toString() {
-        return "RawJourney{" +
-                "stages=" + stages +
+        return "Journey{" +
+                "path=" + HasId.asIds(path) +
+                ", stages=" + stages +
                 ", queryTime=" + queryTime +
                 '}';
     }
 
+    public List<Location> getPath() {
+        return path;
+    }
 }

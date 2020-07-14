@@ -48,12 +48,13 @@ public class RouteCalculator implements TramRouteCalculator {
     private final GraphQuery graphQuery;
     private final int maxPathLength;
     private final SortsPositions sortsPosition;
+    private final MapPathToLocations mapPathToLocations;
 
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
                            CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
-                           SortsPositions sortsPosition) {
+                           SortsPositions sortsPosition, MapPathToLocations mapPathToLocations) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
@@ -67,6 +68,7 @@ public class RouteCalculator implements TramRouteCalculator {
 
         maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
         this.sortsPosition = sortsPosition;
+        this.mapPathToLocations = mapPathToLocations;
     }
 
     @Override
@@ -125,11 +127,10 @@ public class RouteCalculator implements TramRouteCalculator {
 
         return queryTimes.stream().
                 map(queryTime -> createHeuristics(journeyRequest, runningServicesIds, queryTime, destinations)).
-                flatMap(serviceHeuristics -> {
-                    return findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
-                            endStationIds, previousSuccessfulVisit, new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow));
-                }).
-                map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
+                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
+                        endStationIds, previousSuccessfulVisit, new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
+                map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest),
+                        path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath())));
     }
 
     public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
@@ -165,7 +166,9 @@ public class RouteCalculator implements TramRouteCalculator {
                             ServiceReasons reasons = new ServiceReasons(journeyRequest, time, providesLocalNow);
                             return findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics, endStationIds, previousSuccessfulVisit, reasons);
                         }).
-                        map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest), path.getQueryTime()));
+                        map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest),
+                                path.getQueryTime(),
+                                mapPathToLocations.mapToLocations(path.getPath())));
 
                 List<Journey> collect = journeys.collect(Collectors.toList());
 

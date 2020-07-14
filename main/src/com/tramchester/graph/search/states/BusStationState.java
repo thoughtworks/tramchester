@@ -68,7 +68,7 @@ public class BusStationState extends TraversalState implements NodeId {
             return builders.destination.from(this, cost);
         }
 
-        if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
+        if (nodeLabel == GraphBuilder.Labels.QUERY_NODE || nodeLabel == GraphBuilder.Labels.QUERY_NODE_MID) {
             return builders.walking.fromBusStation(this, next, cost);
         }
 

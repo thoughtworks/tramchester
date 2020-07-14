@@ -6,6 +6,7 @@ import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.time.TramServiceDate;
@@ -13,8 +14,10 @@ import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TramJourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyToDTOMapper.class);
@@ -29,9 +32,10 @@ public class TramJourneyToDTOMapper {
     }
 
     public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
-        List<TransportStage> rawJourneyStages = journey.getStages();
-        List<StageDTO> stages = new LinkedList<>();
+        List<StageDTO> stages = new ArrayList<>();
+        List<StationRefWithPosition> path = new ArrayList<>();
 
+        List<TransportStage> rawJourneyStages = journey.getStages();
         TramTime queryTime = journey.getQueryTime();
         for(TransportStage rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
@@ -40,8 +44,10 @@ public class TramJourneyToDTOMapper {
             stages.add(stageDTO);
         }
 
+        List<StationRefWithPosition> mappedPath = journey.getPath().stream().map(StationRefWithPosition::new).collect(Collectors.toList());
+
         List<Note> notes = providesNotes.createNotesForJourney(journey, tramServiceDate);
-        return journeyFactory.build(stages, queryTime, notes);
+        return journeyFactory.build(stages, queryTime, notes, mappedPath);
     }
 
     private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage rawStage) {

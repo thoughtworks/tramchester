@@ -23,7 +23,6 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
         public Builder(SortsPositions sortsPositions, Set<String> destinationStationIds, LatLong destinationLatLon) {
             this.sortsPositions = sortsPositions;
-//            this.destinationLatLon = sortsPositions.midPointFrom(destinationStationIds);
             this.destinationLatLon = destinationLatLon;
         }
 

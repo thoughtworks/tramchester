@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
@@ -28,8 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.nearAltrincham;
-import static com.tramchester.testSupport.TestEnv.nearPiccGardens;
+import static com.tramchester.testSupport.TestEnv.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LocationJourneyPlannerTest {
@@ -81,6 +81,13 @@ class LocationJourneyPlannerTest {
             WalkingStage first = (WalkingStage) stages.get(0);
             assertEquals(nearPiccGardens, first.getStart().getLatLong());
             assertEquals(Stations.PiccadillyGardens, first.getDestination());
+        });
+
+        unsortedResults.forEach(journey -> {
+            List<Location> callingPoints = journey.getPath();
+            assertEquals(2, callingPoints.size());
+            assertEquals(nearPiccGardens, callingPoints.get(0).getLatLong());
+            assertEquals(Stations.PiccadillyGardens, callingPoints.get(1));
         });
     }
 
@@ -138,6 +145,26 @@ class LocationJourneyPlannerTest {
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
         results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
+
+        results.forEach(result -> {
+            assertTrue(result.getPath().size()==11 || result.getPath().size()==12);
+        });
+
+        // via nav road
+        results.stream().filter(journey -> journey.getPath().size()==11).forEach(journey -> {
+            List<Location> callingPoints = journey.getPath();
+            assertEquals(nearAltrincham, callingPoints.get(0).getLatLong());
+            assertEquals(Stations.NavigationRoad, callingPoints.get(1));
+            assertEquals(Stations.Deansgate, callingPoints.get(10));
+        });
+
+        // via alty
+        results.stream().filter(journey -> journey.getPath().size()==12).forEach(journey -> {
+            List<Location> callingPoints = journey.getPath();
+            assertEquals(nearAltrincham, callingPoints.get(0).getLatLong());
+            assertEquals(Stations.Altrincham, callingPoints.get(1));
+            assertEquals(Stations.Deansgate, callingPoints.get(11));
+        });
     }
 
     @Test
@@ -158,21 +185,35 @@ class LocationJourneyPlannerTest {
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertTrue(journey.getQueryTime().isBefore(queryTime)));
+
+        results.forEach(journey -> {
+            List<Location> callingPoints = journey.getPath();
+            assertEquals(11, callingPoints.size());
+            assertEquals(Stations.Deansgate, callingPoints.get(0));
+            assertEquals(Stations.NavigationRoad, callingPoints.get(9));
+            assertEquals(nearAltrincham, callingPoints.get(10).getLatLong());
+        });
     }
 
     @Test
-    void shouldFindJourneyWithWalkingAtEndNearShudehill() {
+    void shouldFindJourneyWithWalkingDirectAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);
-        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Shudehill, TestEnv.nearShudehill,
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Shudehill, nearShudehill,
                 queryTime, false);
         assertFalse(results.isEmpty());
+
+        results.forEach(journey -> {
+            List<Location> callingPoints = journey.getPath();
+            assertEquals(2, callingPoints.size());
+            assertEquals(Stations.Shudehill, callingPoints.get(0));
+            assertEquals(nearShudehill, callingPoints.get(1).getLatLong());
+        });
     }
 
-    @Disabled("No longer passing due to increased wait times")
     @Test
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
-        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Altrincham, TestEnv.nearShudehill,
+        List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Altrincham, nearShudehill,
                 queryTime, false);
 
         assertFalse(results.isEmpty());
@@ -180,14 +221,16 @@ class LocationJourneyPlannerTest {
         // find the lowest cost journey, should be tram to shudehill and then a walk
         Journey lowestCostJourney = results.get(0);
 
-        // 33 -> 41
-        assertEquals(33, RouteCalculatorTest.costOfJourney(lowestCostJourney), lowestCostJourney.toString());
+        // 33 -> 39
+        assertEquals(39, RouteCalculatorTest.costOfJourney(lowestCostJourney), lowestCostJourney.toString());
 
         List<TransportStage> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);
-        // lowest cost should be walk from shudehill
-        assertEquals(Stations.Shudehill, stages.get(0).getLastStation());
-        assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
+//        assertEquals(Stations.Shudehill, stages.get(0).getLastStation());
+//        assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
+        // Post lock down, no direct trams, walk from exchange after change at deansgate
+        assertEquals(Stations.Deansgate, stages.get(0).getLastStation());
+        assertEquals(Stations.ExchangeSquare, stages.get(1).getLastStation());
     }
 
     @Disabled("Temporary: trams finish at 2300")

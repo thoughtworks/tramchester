@@ -60,10 +60,9 @@ public class TramStationState extends TraversalState {
         if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
             return builders.platform.from(this, node, cost);
         }
-        if (nodeLabel == GraphBuilder.Labels.QUERY_NODE) {
+        if (nodeLabel == GraphBuilder.Labels.QUERY_NODE || nodeLabel == GraphBuilder.Labels.QUERY_NODE_MID) {
             return builders.walking.fromTramStation(this, node, cost);
         }
-
         if (nodeLabel == GraphBuilder.Labels.BUS_STATION) {
             return builders.busStation.fromNeighbour(this, node, cost);
         }
