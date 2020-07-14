@@ -9,10 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.internal.batchimport.stats.Stat;
 import org.opengis.referencing.operation.TransformException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -183,7 +180,7 @@ class StationLocationsTest {
         Optional<BoundingBoxWithStations> maybeCentral = boxedStations.stream().filter(box -> box.getStaions().size() == 2).findFirst();
         assertTrue(maybeCentral.isPresent());
         BoundingBoxWithStations centralBox = maybeCentral.get();
-        List<Station> central = centralBox.getStaions();
+        Set<Station> central = centralBox.getStaions();
         assertEquals(2, central.size());
         assertTrue(central.containsAll(Arrays.asList(testStationB, testStationC)));
         assertTrue(centralBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearShudehill)));
@@ -194,7 +191,7 @@ class StationLocationsTest {
         Optional<BoundingBoxWithStations> maybeAlty = boxedStations.stream().filter(box -> box.getStaions().size() == 1).findFirst();
         assertTrue(maybeAlty.isPresent());
         BoundingBoxWithStations altyBox = maybeAlty.get();
-        List<Station> alty = altyBox.getStaions();
+        Set<Station> alty = altyBox.getStaions();
         assertEquals(1, alty.size());
         assertTrue(alty.contains(testStationA));
         assertTrue(altyBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearAltrincham)));

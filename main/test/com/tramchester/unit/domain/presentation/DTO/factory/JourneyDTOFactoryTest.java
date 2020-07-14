@@ -4,28 +4,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.mappers.HeadsignMapper;
 import com.tramchester.testSupport.Stations;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,16 +92,16 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     void shouldHaveRightSummaryAndHeadingFor2Stage() {
 
         PlatformDTO boardingPlatformA = new PlatformDTO(new Platform(Stations.Altrincham.getId()+"1", Stations.Altrincham.getName()));
-        StageDTO stageA = new StageDTO(new LocationDTO(Stations.Altrincham), new LocationDTO(Stations.Cornbrook),
-                new LocationDTO(Stations.Altrincham),
+        StageDTO stageA = new StageDTO(new StationRefWithPosition(Stations.Altrincham), new StationRefWithPosition(Stations.Cornbrook),
+                new StationRefWithPosition(Stations.Altrincham),
                 true, boardingPlatformA, TramTime.of(10, 8), TramTime.of(10, 20),
                 20-8,
                 "headSign", TransportMode.Tram, "cssClass", 9, "routeName",
                 TravelAction.Board, "routeShortName");
 
         PlatformDTO boardingPlatformB = new PlatformDTO(new Platform(Stations.Cornbrook.getId()+"1", Stations.Cornbrook.getName()));
-        StageDTO stageB = new StageDTO(new LocationDTO(Stations.Cornbrook), new LocationDTO(Stations.Deansgate),
-                new LocationDTO(Stations.Cornbrook),
+        StageDTO stageB = new StageDTO(new StationRefWithPosition(Stations.Cornbrook), new StationRefWithPosition(Stations.Deansgate),
+                new StationRefWithPosition(Stations.Cornbrook),
                 true, boardingPlatformB, TramTime.of(10, 8), TramTime.of(10, 20),
                 20-8,
                 "headSign", TransportMode.Tram, "cssClass", 9, "routeName",
@@ -279,14 +277,14 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     private StageDTO createStage(Location firstStation, TravelAction travelAction, Location lastStation, int passedStops) {
-        return new StageDTO(new LocationDTO(firstStation), new LocationDTO(lastStation), new LocationDTO(firstStation),
+        return new StageDTO(new StationRefWithPosition(firstStation), new StationRefWithPosition(lastStation), new StationRefWithPosition(firstStation),
                 false, null, TramTime.of(10, 8), TramTime.of(10, 20), 20-8,
                 "headSign", TransportMode.Tram,
                 "cssClass", passedStops, "routeName", travelAction, "routeShortName");
     }
 
     private StageDTO createStage(TramTime departs, TramTime arrivesEnd, int passedStops) {
-        return new StageDTO(new LocationDTO(stationA), new LocationDTO(stationB), new LocationDTO(stationA),
+        return new StageDTO(new StationRefWithPosition(stationA), new StationRefWithPosition(stationB), new StationRefWithPosition(stationA),
                 false, null, departs, arrivesEnd, 42,
                 "headSign", TransportMode.Tram,
                 "cssClass", passedStops, "routeName", TravelAction.Board, "routeShortName");
@@ -295,7 +293,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
     private StageDTO createWalkingStage(Location start, Location destination, TramTime departs, TramTime arrivesEnd) {
 
-        return new StageDTO(new LocationDTO(start), new LocationDTO(destination), new LocationDTO(stationA),
+        return new StageDTO(new StationRefWithPosition(start), new StationRefWithPosition(destination), new StationRefWithPosition(stationA),
                 false, null, departs, arrivesEnd, 9,
                 "walking", TransportMode.Walk,
                 "cssClass", 0, "walking", TravelAction.Board, "routeShortName");

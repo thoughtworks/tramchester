@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.IntegrationAppExtension;
-import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.ParseStream;
@@ -14,7 +14,6 @@ import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

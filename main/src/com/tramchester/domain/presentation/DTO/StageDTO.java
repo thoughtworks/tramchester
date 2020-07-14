@@ -9,9 +9,9 @@ import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 public class StageDTO {
-    private LocationDTO firstStation;
-    private LocationDTO lastStation;
-    private LocationDTO actionStation;
+    private StationRefWithPosition firstStation;
+    private StationRefWithPosition lastStation;
+    private StationRefWithPosition actionStation;
 
     private boolean hasPlatform;
     private PlatformDTO platform;
@@ -29,7 +29,7 @@ public class StageDTO {
     private String routeShortName;
     private String action;
 
-    public StageDTO(LocationDTO firstStation, LocationDTO lastStation, LocationDTO actionStation, boolean hasPlatform,
+    public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation, boolean hasPlatform,
                     PlatformDTO boardingPlatform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, String displayClass, int passedStops,
                     String routeName, TravelAction action, String routeShortName) {
@@ -58,15 +58,15 @@ public class StageDTO {
         return headSign;
     }
 
-    public LocationDTO getActionStation() {
+    public StationRefWithPosition getActionStation() {
         return actionStation;
     }
 
-    public LocationDTO getLastStation() {
+    public StationRefWithPosition getLastStation() {
         return lastStation;
     }
 
-    public LocationDTO getFirstStation() {
+    public StationRefWithPosition getFirstStation() {
         return firstStation;
     }
 

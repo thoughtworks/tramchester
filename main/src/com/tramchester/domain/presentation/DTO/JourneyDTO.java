@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
 public class JourneyDTO implements CallsAtPlatforms {
 
-    private StationRefDTO begin;
-    private StationRefDTO end;
+    private StationRefWithPosition begin;
+    private StationRefWithPosition end;
     private List<StageDTO> stages;
     private TramTime expectedArrivalTime;
     private TramTime firstDepartureTime;
@@ -35,7 +35,7 @@ public class JourneyDTO implements CallsAtPlatforms {
         // Deserialization
     }
 
-    public JourneyDTO(StationRefDTO begin, StationRefDTO end, List<StageDTO> stages,
+    public JourneyDTO(StationRefWithPosition begin, StationRefWithPosition end, List<StageDTO> stages,
                       TramTime expectedArrivalTime, TramTime firstDepartureTime,
                       boolean isDirect, List<String> changeStations, TramTime queryTime, List<Note> notes) {
         this.begin = begin;

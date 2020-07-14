@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class DepartureDTO implements Comparable<DepartureDTO> {
 
-    // TOOD Make from and desintaion StationRefDTO
+    // TODO Make from and destintaion StationRefDTO?
     private String from;
     private String destination;
 

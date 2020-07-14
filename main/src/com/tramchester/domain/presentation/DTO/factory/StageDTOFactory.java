@@ -3,6 +3,7 @@ package com.tramchester.domain.presentation.DTO.factory;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 
@@ -14,9 +15,9 @@ public class StageDTOFactory {
 
     public StageDTO build(TransportStage source, TravelAction travelAction) {
 
-        return new StageDTO(new LocationDTO(source.getFirstStation()),
-                new LocationDTO(source.getLastStation()),
-                new LocationDTO(source.getActionStation()),
+        return new StageDTO(new StationRefWithPosition(source.getFirstStation()),
+                new StationRefWithPosition(source.getLastStation()),
+                new StationRefWithPosition(source.getActionStation()),
                 source.getBoardingPlatform().isPresent(),
                 source.getBoardingPlatform().map(PlatformDTO::new).orElse(null),
                 source.getFirstDepartureTime(), source.getExpectedArrivalTime(),

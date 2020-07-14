@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,10 +41,18 @@ public class FastestRoutesForBoxes {
 
         HasGridPosition destinationGrid = getGridPosition(destination);
 
-        Set<Station> destinations = stationLocations.getStationsRangeInMetersSquare(destination, gridSize);
+        //Set<Station> destinations = stationLocations.getStationsRangeInMetersSquare(destination, gridSize);
 
         logger.info("Creating station groups for gridsize " + gridSize);
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
+
+        Optional<BoundingBoxWithStations> searchBoxWithDest = grouped.stream().
+                filter(box -> box.contained(destinationGrid)).findFirst();
+
+        if (searchBoxWithDest.isEmpty()) {
+            throw new RuntimeException("Unable to find destination in any boxes " + destination);
+        }
+        Set<Station> destinations = searchBoxWithDest.get().getStaions();
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
         return calculator.calculateRoutes(destinations, journeyRequest, grouped).map(box->cheapest(box, destinationGrid));

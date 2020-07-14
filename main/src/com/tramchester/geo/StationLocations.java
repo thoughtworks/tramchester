@@ -115,10 +115,6 @@ public class StationLocations implements StationLocationsRepository {
         return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
-    public Set<Station> getStationsRangeInMetersSquare(Station station, long size) {
-        return getNearbyStreamSquare(getStationGridPosition(station), size).map(Map.Entry::getKey).collect(Collectors.toSet());
-    }
-
     public List<Station> getNearestStationsTo(LatLong latLong, int numberOfNearest, double rangeInKM) {
         List<Station> result = nearestStationsSorted(latLong, numberOfNearest, rangeInKM);
         logger.info(format("Found %s stations close to %s", result.size(), latLong));
@@ -173,12 +169,12 @@ public class StationLocations implements StationLocationsRepository {
                 filter(BoundingBoxWithStations::hasStations);
     }
 
-    private List<Station> getStationsWithin(BoundingBox box) {
+    private Set<Station> getStationsWithin(BoundingBox box) {
         // TODO need more efficient way to do this?
         return positions.entrySet().stream().
                 filter(entry -> box.contained(entry.getValue())).
                 map(Map.Entry::getKey).
-                collect(Collectors.toList());
+                collect(Collectors.toSet());
     }
 
 }

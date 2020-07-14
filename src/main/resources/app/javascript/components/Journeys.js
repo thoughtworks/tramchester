@@ -78,7 +78,7 @@ export default {
                 {key:'journey.expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'},
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
-            stageFields: [{key:'firstDepartureTime',label:'Time',tdClass:'departTime'},
+            stageFields: [{key:'firstDepartureTime', label:'Time', tdClass:'departTime'},
                 {key:'action', label:'Action',tdClass:'action' },
                 {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: stationFormatter},
                 {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},

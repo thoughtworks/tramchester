@@ -1,10 +1,7 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -21,8 +18,8 @@ public class JourneyDTOFactory {
 
     public JourneyDTO build(List<StageDTO> stages, TramTime queryTime, List<Note> notes) {
         boolean isDirect = isDirect(stages);
-        StationRefDTO begin = new StationRefDTO(getBegin(stages));
-        StationRefDTO end = new StationRefDTO(getEnd(stages));
+        StationRefWithPosition begin = getBegin(stages);
+        StationRefWithPosition end = getEnd(stages);
 
         return new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages),
                 getFirstDepartureTime(stages),
@@ -30,7 +27,7 @@ public class JourneyDTOFactory {
     }
 
 
-    private LocationDTO getBegin(List<StageDTO> allStages) {
+    private StationRefWithPosition getBegin(List<StageDTO> allStages) {
         if (firstStageIsWalk(allStages)) {
             if (allStages.size()>1) {
                 // the first station
@@ -42,7 +39,7 @@ public class JourneyDTOFactory {
         return getFirstStage(allStages).getFirstStation();
     }
 
-    private LocationDTO getEnd(List<StageDTO> allStages) {
+    private StationRefWithPosition getEnd(List<StageDTO> allStages) {
         return getLastStage(allStages).getLastStation();
     }
 

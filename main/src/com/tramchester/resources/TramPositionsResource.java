@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
 import com.tramchester.domain.presentation.TramPositionDTO;
 import com.tramchester.domain.time.TramServiceDate;
@@ -54,8 +55,8 @@ public class TramPositionsResource implements APIResource {
         List<TramPositionDTO> dtoList = results.stream().
                 filter(pos -> unfilteredFlag || (!pos.getTrams().isEmpty())).
                 map(pos -> new TramPositionDTO(
-                        new LocationDTO(pos.getFirst()),
-                        new LocationDTO(pos.getSecond()),
+                        new StationRefWithPosition(pos.getFirst()),
+                        new StationRefWithPosition(pos.getSecond()),
                         depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams()),
                         pos.getCost())).
                 collect(Collectors.toList());

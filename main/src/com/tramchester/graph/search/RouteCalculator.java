@@ -1,7 +1,6 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
@@ -22,7 +21,9 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -154,7 +155,7 @@ public class RouteCalculator implements TramRouteCalculator {
             PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
-            List<Station> startingStations = box.getStaions();
+            Set<Station> startingStations = box.getStaions();
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().

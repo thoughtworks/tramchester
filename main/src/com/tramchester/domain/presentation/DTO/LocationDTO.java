@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 
@@ -51,6 +52,7 @@ public class LocationDTO {
         return latLong;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public boolean isTram() {
         return tram;
     }
@@ -59,6 +61,7 @@ public class LocationDTO {
         return area;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public boolean hasPlatforms() {
         return !platforms.isEmpty();
     }
@@ -78,6 +81,7 @@ public class LocationDTO {
         return id.hashCode();
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public List<PlatformDTO> getPlatforms() {
         return platforms;
     }

@@ -14,12 +14,6 @@ public class StationRefDTO {
         this.tram = station.isTram();
     }
 
-    public StationRefDTO(LocationDTO locationDTO) {
-        this.id = locationDTO.getId();
-        this.name = locationDTO.getName();
-        this.tram = locationDTO.isTram();
-    }
-
     @SuppressWarnings("unused")
     public StationRefDTO() {
         // deserialization

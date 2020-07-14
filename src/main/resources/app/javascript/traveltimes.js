@@ -35,14 +35,12 @@ function addStations() {
 function addStationsForRoute(route) {
     var stationLayerGroup = L.featureGroup();
 
-    // if (route.tram) {
-        route.stations.forEach(station => {
-            var lat = station.latLong.lat;
-            var lon = station.latLong.lon;
-            var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 1 })
-            stationLayerGroup.addLayer(marker);
-        });
-    // }
+    route.stations.forEach(station => {
+        var lat = station.latLong.lat;
+        var lon = station.latLong.lon;
+        var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 1 })
+        stationLayerGroup.addLayer(marker);
+    });
 
     stationLayerGroup.addTo(mapApp.map);
 }
@@ -62,13 +60,27 @@ function addRoutes() {
     routeLayerGroup.addTo(mapApp.map);
 }
 
+function boxClicked(event) {
+    mapApp.journeyLayer.clearLayers();
+    var journey = this.journey.journey;
+    journey.stages.forEach(stage => {
+        var line = L.polyline([ [stage.firstStation.latLong.lat, stage.firstStation.latLong.lon ], 
+                [stage.lastStation.latLong.lat, stage.lastStation.latLong.lon] ], { color: 'red' });
+                mapApp.journeyLayer.addLayer(line);
+    })
+    mapApp.journeyLayer.addTo(mapApp.map);
+}
+
 function addBoxWithCost(boxWithCost) {
     const bounds = [[boxWithCost.bottomLeft.lat, boxWithCost.bottomLeft.lon], 
         [boxWithCost.topRight.lat, boxWithCost.topRight.lon]];
 
-
     var colour = getColourForCost(boxWithCost);     
     var rectangle = L.rectangle(bounds, {weight: 1, color: colour, fillColor: colour, fill: true, fillOpacity: 0.5});
+    if (boxWithCost.minutes>0) {
+        rectangle.bindTooltip('cost ' + boxWithCost.minutes);
+        rectangle.on('click', boxClicked, boxWithCost);
+    }
     rectangle.addTo(mapApp.map);
 }
 
@@ -146,6 +158,7 @@ var mapApp = new Vue({
         return {
             map: null,
             grid: null,
+            journeyLayer: null,
             networkError: false,
             routes: [],
             postcodes: [],
@@ -164,6 +177,7 @@ var mapApp = new Vue({
             }).addTo(mapApp.map);
             addRoutes();
             addStations();
+            mapApp.journeyLayer = L.featureGroup()
         }
     },
     mounted () {
@@ -183,7 +197,7 @@ var mapApp = new Vue({
                 mapApp.routes = response.data;
                 mapApp.draw();
                 // 9400ZZMASTP 9400ZZMAAIR
-                queryForGrid(2000, "9400ZZMASTP", "9:15", getCurrentDate(), "3", "120");
+                queryForGrid(2000, "9400ZZMAAIR", "9:15", getCurrentDate(), "3", "120");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
