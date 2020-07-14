@@ -149,8 +149,6 @@ public class RouteCalculator implements TramRouteCalculator {
 
         final ServiceHeuristics serviceHeuristics = createHeuristics(journeyRequest, runningServicesIds, time, destinations);
 
-
-
         return grouped.stream().map(box -> {
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
             PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
@@ -170,10 +168,6 @@ public class RouteCalculator implements TramRouteCalculator {
 
                 List<Journey> collect = journeys.collect(Collectors.toList());
 
-//                if (collect.isEmpty() && !destinations.containsAll(startingStations)) {
-//                    logger.warn(format("Unable to find any journeys from %s to %s using %s",
-//                            HasId.asIds(startingStations), HasId.asIds(destinations), journeyRequest));
-//                }
                 // yielding
                 return new JourneysForBox(box, collect);
             }

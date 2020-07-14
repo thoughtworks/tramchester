@@ -19,8 +19,14 @@ import java.util.stream.Collectors;
 import static com.tramchester.graph.GraphStaticKeys.ID;
 
 public class ServiceHeuristics {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceHeuristics.class);
-    private static final boolean debugEnabled = logger.isDebugEnabled();
+
+    private static final Logger logger;
+    private static final boolean debugEnabled;
+
+    static {
+        logger = LoggerFactory.getLogger(ServiceReasons.class);
+        debugEnabled = logger.isDebugEnabled();
+    }
 
     private final RunningServices runningServices;
     private final Set<Station> endTramStations;

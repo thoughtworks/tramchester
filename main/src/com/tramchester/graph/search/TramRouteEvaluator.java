@@ -30,16 +30,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private int success;
     private int currentLowestCost;
     private final Set<Long> busStationNodes;
-    private final boolean bus;
+    private final boolean busEnabled;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
-                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit, TramchesterConfig config) {
+                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit,
+                              TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
-        bus = config.getBus();
+        busEnabled = config.getBus();
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
         busStationNodes = new HashSet<>();
@@ -59,18 +60,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         ImmutableJourneyState journeyState = state.getState();
         TramTime journeyClock = journeyState.getJourneyClock();
 
-        Node endNode = path.endNode();
-        long endNodeId = endNode.getId();
+        Node nextNode = path.endNode();
 
-        if (previousSuccessfulVisit.hasUsableResult(endNode, journeyClock)) {
+        if (previousSuccessfulVisit.hasUsableResult(nextNode, journeyClock)) {
             reasons.recordReason(ServiceReason.Cached(journeyClock, path));
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
-        ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, endNode, endNodeId);
+        ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
         Evaluation result = decideEvaluationAction(reasonCode);
 
-        previousSuccessfulVisit.recordVisitIfUseful(result, endNode, journeyClock);
+        previousSuccessfulVisit.recordVisitIfUseful(reasonCode, nextNode, journeyClock);
 
         return result;
     }
@@ -99,12 +99,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
     }
 
-    private ServiceReason.ReasonCode doEvaluate(Path path, ImmutableJourneyState journeyState, Node endNode, long endNodeId) {
+    private ServiceReason.ReasonCode doEvaluate(Path path, ImmutableJourneyState journeyState, Node nextNode) {
 
-        TraversalState traversalState = journeyState.getTraversalState();
-        if (destinationNodeIds.contains(endNodeId)) {
+        long nextNodeId = nextNode.getId();
+
+        TraversalState previousTraversalState = journeyState.getTraversalState();
+        if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
-            int totalCost = traversalState.getTotalCost();
+            int totalCost = previousTraversalState.getTotalCost();
             if (totalCost <= currentLowestCost) {
                 // a better route than seen so far
                 // <= equals so we include multiple options and routes in the results
@@ -121,7 +123,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         } else if (success>0) {
             // Not arrived, but we do have at least one successful route to our destination
-            int totalCost = traversalState.getTotalCost();
+            int totalCost = previousTraversalState.getTotalCost();
             if (totalCost>currentLowestCost) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(path));
@@ -131,16 +133,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         reasons.record(journeyState);
 
-        if (bus) {
-            if (nodeTypeRepository.isBusStation(endNode)) {
-                if (busStationNodes.contains(endNodeId)) {
-                    reasons.recordReason(ServiceReason.SeenBusStationBefore(path));
-                    return ServiceReason.ReasonCode.SeenBusStationBefore;
-                }
-                busStationNodes.add(endNodeId);
-            }
-        }
-
         // no journey longer than N nodes
         if (path.length()>serviceHeuristics.getMaxPathLength()) {
             logger.warn("Hit max path length");
@@ -148,22 +140,39 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return ServiceReason.ReasonCode.PathTooLong;
         }
 
+        // number of changes?
         if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), path, reasons).isValid()) {
             return ServiceReason.ReasonCode.TooManyChanges;
         }
 
+        // journey too long?
+        if (!serviceHeuristics.journeyDurationUnderLimit(previousTraversalState.getTotalCost(), path, reasons).isValid()) {
+            return ServiceReason.ReasonCode.TookTooLong;
+        }
+
         // is even reachable from here?
-        if (nodeTypeRepository.isRouteStation(endNode)) {
-            if (!serviceHeuristics.canReachDestination(endNode, path, reasons).isValid()) {
+        if (nodeTypeRepository.isRouteStation(nextNode)) {
+            if (!serviceHeuristics.canReachDestination(nextNode, path, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;
             }
         }
 
-        // is the service running today
-        boolean isService = nodeTypeRepository.isService(endNode);
+        // is the service running today?
+        boolean isService = nodeTypeRepository.isService(nextNode);
         if (isService) {
-            if (!serviceHeuristics.checkServiceDate(endNode, path, reasons).isValid()) {
+            if (!serviceHeuristics.checkServiceDate(nextNode, path, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotOnQueryDate;
+            }
+        }
+
+        // seeing loops?
+        if (busEnabled) {
+            if (nodeTypeRepository.isBusStation(nextNode)) {
+                if (busStationNodes.contains(nextNodeId)) {
+                    reasons.recordReason(ServiceReason.SeenBusStationBefore(path));
+                    return ServiceReason.ReasonCode.SeenBusStationBefore;
+                }
+                busStationNodes.add(nextNodeId);
             }
         }
 
@@ -178,29 +187,24 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         TramTime visitingTime = journeyState.getJourneyClock();
 
-        // journey too long?
-        if (!serviceHeuristics.journeyDurationUnderLimit(traversalState.getTotalCost(), path, reasons).isValid()) {
-            return ServiceReason.ReasonCode.TookTooLong;
-        }
-
         // service available to catch?
         if (isService) {
-            if (!serviceHeuristics.checkServiceTime(path, endNode, visitingTime, reasons).isValid()) {
+            if (!serviceHeuristics.checkServiceTime(path, nextNode, visitingTime, reasons).isValid()) {
                 return ServiceReason.ReasonCode.ServiceNotRunningAtTime;
             }
         }
 
         // check time, just hour first
-        if (nodeTypeRepository.isHour(endNode)) {
-            if (!serviceHeuristics.interestedInHour(path, endNode, visitingTime, reasons).isValid()) {
+        if (nodeTypeRepository.isHour(nextNode)) {
+            if (!serviceHeuristics.interestedInHour(path, nextNode, visitingTime, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
             }
         }
 
         // check time
-        if (nodeTypeRepository.isTime(endNode)) {
-            ServiceReason serviceReason = serviceHeuristics.checkTime(path, endNode, visitingTime, reasons);
-            return serviceReason.getReasonCode();
+        if (nodeTypeRepository.isTime(nextNode)) {
+            ServiceReason serviceReason = serviceHeuristics.checkTime(path, nextNode, visitingTime, reasons);
+            return serviceReason.getReasonCode(); // valid, or not at time
         }
 
         return ServiceReason.ReasonCode.Valid;

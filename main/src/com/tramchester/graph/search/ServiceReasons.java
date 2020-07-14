@@ -14,8 +14,13 @@ import static java.lang.String.format;
 
 public class ServiceReasons {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceReasons.class);
-    private static final boolean createDotFile = logger.isDebugEnabled();
+    private static final Logger logger;
+    private static final boolean createDotFile;
+
+    static {
+        logger = LoggerFactory.getLogger(ServiceReasons.class);
+        createDotFile = logger.isDebugEnabled();
+    }
 
     private final TramTime queryTime;
     private final ProvidesLocalNow providesLocalNow;

@@ -9,6 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.graph.search.JourneyRequest;
+import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.repository.StationRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,11 +38,14 @@ public class JourneysForGridResource implements APIResource {
     private final StationRepository repository;
     private final FastestRoutesForBoxes search;
     private final CoordinateTransforms coordinateTransforms;
+    private final TramJourneyToDTOMapper mapper;
 
-    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, CoordinateTransforms coordinateTransforms) {
+    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, CoordinateTransforms coordinateTransforms,
+                                   TramJourneyToDTOMapper mapper) {
         this.repository = repository;
         this.search = search;
         this.coordinateTransforms = coordinateTransforms;
+        this.mapper = mapper;
     }
 
     // TOOD Cache lifetime could potentially be quite long here, but makes testing harder.....
@@ -69,13 +73,14 @@ public class JourneysForGridResource implements APIResource {
         TramTime queryTime = maybeDepartureTime.get();
         LocalDate date = LocalDate.parse(departureDateRaw);
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), queryTime,
+        TramServiceDate tramServiceDate = new TramServiceDate(date);
+        JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, queryTime,
                 false, maxChanges, maxDuration);
 
         logger.info("Create search");
         Stream<BoxWithCostDTO> results = search.
                 findForGridSizeAndDestination(destination, gridSize, journeyRequest).
-                map(this::transformToDTO);
+                map(box -> transformToDTO(box, tramServiceDate));
         logger.info("Creating stream");
         JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results);
 
@@ -85,9 +90,9 @@ public class JourneysForGridResource implements APIResource {
 
     }
 
-    private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box) {
+    private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramServiceDate serviceDate) {
         try {
-            return BoxWithCostDTO.createFrom(coordinateTransforms, box);
+            return BoxWithCostDTO.createFrom(mapper, serviceDate, coordinateTransforms, box);
         } catch (TransformException exception) {
             throw new RuntimeException("Unable to convert coordinates ", exception);
         }

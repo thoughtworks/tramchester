@@ -63,24 +63,26 @@ public class FastestRoutesForBoxes {
     private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, HasGridPosition destination) {
 
         if (journeysForBox.getBox().contained(destination)) {
-            return new BoundingBoxWithCost(journeysForBox.getBox(), 0);
+            return new BoundingBoxWithCost(journeysForBox.getBox(), 0, null);
         }
 
-        int currentQuickest = Integer.MAX_VALUE;
+        int currentLowestCost = Integer.MAX_VALUE;
+        Journey currentBest = null;
 
         for (Journey journey: journeysForBox.getJourneys()) {
             TramTime depart = getFirstDepartureTime(journey.getStages());
             TramTime arrive = getExpectedArrivalTime(journey.getStages());
             int duration = TramTime.diffenceAsMinutes(depart, arrive);
-            if (duration < currentQuickest) {
-                currentQuickest = duration;
+            if (duration < currentLowestCost) {
+                currentBest = journey;
+                currentLowestCost = duration;
             }
         }
         if (journeysForBox.getJourneys().isEmpty()) {
-            currentQuickest = -1;
+            currentLowestCost = -1;
         }
 
-        return new BoundingBoxWithCost(journeysForBox.getBox(), currentQuickest);
+        return new BoundingBoxWithCost(journeysForBox.getBox(), currentLowestCost, currentBest);
     }
 
     // TODO into journey???
