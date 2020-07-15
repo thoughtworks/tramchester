@@ -7,12 +7,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import static java.lang.String.format;
+import java.util.List;
 
 public class FeedInfoDataMapper extends CSVEntryMapper<FeedInfo> {
     private static final Logger logger = LoggerFactory.getLogger(FeedInfoDataMapper.class);
+    private int indexOfPublisherName = -1;
+    private int indexOfPublisherURL = -1;
+    private int indexOfTimezone = -1;
+    private int indexOfLang = -1;
+    private int indexOfValidFrom = -1;
+    private int indexOfValidTo = -1;
+    private int indexOfVersion = -1;
+
+    private enum Columns implements ColumnDefination {
+        feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version
+    }
 
     private final ProvidesNow providesNow;
 
@@ -22,13 +31,13 @@ public class FeedInfoDataMapper extends CSVEntryMapper<FeedInfo> {
 
     @Override
     public FeedInfo parseEntry(CSVRecord data) {
-        String publisherName = data.get(0);
-        String publisherUrl = data.get(1);
-        String timezone = data.get(2);
-        String lang = data.get(3);
-        LocalDate validFrom = parseDate(data.get(4), providesNow.getDate(), logger);
-        LocalDate validTo = parseDate(data.get(5), providesNow.getDate(), logger);
-        String version = data.get(6);
+        String publisherName = data.get(indexOfPublisherName);
+        String publisherUrl = data.get(indexOfPublisherURL);
+        String timezone = data.get(indexOfTimezone);
+        String lang = data.get(indexOfLang);
+        LocalDate validFrom = parseDate(data.get(indexOfValidFrom), providesNow.getDate(), logger);
+        LocalDate validTo = parseDate(data.get(indexOfValidTo), providesNow.getDate(), logger);
+        String version = data.get(indexOfVersion);
 
         return new FeedInfo(publisherName, publisherUrl, timezone, lang, validFrom, validTo, version);
     }
@@ -38,5 +47,20 @@ public class FeedInfoDataMapper extends CSVEntryMapper<FeedInfo> {
         return true;
     }
 
+    @Override
+    protected ColumnDefination[] getColumns() {
+        return Columns.values();
+    }
+
+    @Override
+    protected void initColumnIndex(List<String> headers) {
+        indexOfPublisherName = findIndexOf(headers, Columns.feed_publisher_name);
+        indexOfPublisherURL = findIndexOf(headers, Columns.feed_publisher_url);
+        indexOfTimezone = findIndexOf(headers, Columns.feed_timezone);
+        indexOfLang = findIndexOf(headers, Columns.feed_lang);
+        indexOfValidFrom = findIndexOf(headers, Columns.feed_valid_from);
+        indexOfValidTo = findIndexOf(headers, Columns.feed_valid_to);
+        indexOfVersion = findIndexOf(headers, Columns.feed_version);
+    }
 
 }

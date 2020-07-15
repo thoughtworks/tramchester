@@ -14,12 +14,12 @@ class TrainDataLoadSpike {
 
     private final Path dataPath = Path.of("data", "gb-rail-latest");
 
-    @Disabled("SPIKE")
+    @Disabled("spike")
     @Test
     void testShouldLoadTheData() {
         TransportDataLoader provider = () -> {
             DataLoaderFactory factory = new DataLoaderFactory(dataPath, ".txt");
-            return new TransportDataReader(factory, false);
+            return new TransportDataReader(factory);
         };
         ProvidesLocalNow providesNow = new ProvidesLocalNow();
         StationLocations stationLocations = new StationLocations(new CoordinateTransforms());

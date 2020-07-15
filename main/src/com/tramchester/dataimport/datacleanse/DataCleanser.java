@@ -67,6 +67,7 @@ public class DataCleanser {
         Stream<CalendarData> calendar = dataReaderFactory.getForCleanser().getCalendar(calendarDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("calendar");
+        calendarDataMapper.writeHeader(writer);
         calendar.forEach(calendarData -> {writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                         calendarData.getServiceId(),
                         runsOnDay(calendarData.isMonday()),
@@ -93,6 +94,7 @@ public class DataCleanser {
         Stream<CalendarDateData> calendarDates = dataReaderFactory.getForCleanser().getCalendarDates(calendarDatesDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("calendar_dates");
+        calendarDatesDataMapper.writeHeader(writer);
         calendarDates.forEach(calendarDateData -> {
             writer.writeLine(String.format("%s,%s,%s",
                     calendarDateData.getServiceId(),
@@ -112,6 +114,7 @@ public class DataCleanser {
 
         Stream<StopTimeData> stopTimes = dataReaderFactory.getForCleanser().getStopTimes(stopTimeDataMapper);
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stop_times");
+        stopTimeDataMapper.writeHeader(writer);
 
         stopTimes.forEach(stopTime -> {
             writer.writeLine(stopTime.asOutputLine());
@@ -131,7 +134,7 @@ public class DataCleanser {
         Stream<TripData> trips = dataReaderFactory.getForCleanser().getTrips(tripDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("trips");
-
+        tripDataMapper.writeHeader(writer);
         trips.forEach(trip -> {
             writer.writeLine(String.format("%s,%s,%s,%s",
                     trip.getRouteId(),
@@ -193,6 +196,7 @@ public class DataCleanser {
         Stream<RouteData> routes = dataReaderFactory.getForCleanser().getRoutes(routeDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("routes");
+        routeDataMapper.writeHeader(writer);
         routes.forEach(route -> addRoute(routeCodes, writer, route));
 
         writer.close();
@@ -230,6 +234,7 @@ public class DataCleanser {
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("feed_info");
 
+        feedInfoDataMapper.writeHeader(writer);
         feedInfo.forEach(info -> writer.writeLine(String.format("%s,%s,%s,%s,%s,%s,%s",
                 info.getPublisherName(),
                 info.getPublisherUrl(),

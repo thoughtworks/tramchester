@@ -20,6 +20,8 @@ class CalendarDataParserTest {
     void shouldParseCalendarEntry() throws IOException {
         CalendarDataMapper calendarDataMapper = new CalendarDataMapper(Collections.emptySet());
 
+        calendarDataMapper.initColumnIndex(ParserBuilder.getRecordFor("service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date"));
+
         CSVRecord recordFor = ParserBuilder.getRecordFor(calendar);
         assertThat(calendarDataMapper.shouldInclude(recordFor)).isEqualTo(true);
 

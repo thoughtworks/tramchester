@@ -29,6 +29,7 @@ class RouteDataParserTest {
     @Test
     void shouldParseRoute() throws IOException {
         RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet(), true);
+        routeDataParser.initColumnIndex(ParserBuilder.getRecordFor("route_id,agency_id,route_short_name,route_long_name,route_type"));
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(routeA));
 
@@ -41,6 +42,7 @@ class RouteDataParserTest {
     @Test
     void shouldParseBusRoute() throws IOException {
         RouteDataMapper routeDataParser = new RouteDataMapper(Collections.emptySet(), true);
+        routeDataParser.initColumnIndex(ParserBuilder.getRecordFor("route_id,agency_id,route_short_name,route_long_name,route_type"));
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(problemBusRoute));
 

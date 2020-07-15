@@ -1,3 +1,4 @@
+trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type
 Trip000001,06:41:00,06:41:00,9400ZZMAABM1,0001,0,1
 Trip000001,06:43:00,06:43:00,9400ZZMACRU1,0002,0,0
 Trip000001,06:45:00,06:45:00,9400ZZMABOW1,0003,0,0

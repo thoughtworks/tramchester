@@ -19,6 +19,7 @@ class FeedInfoDataParserTest {
     void shouldParserFeedInfo() throws IOException {
         ProvidesNow providesNow = new ProvidesLocalNow();
         FeedInfoDataMapper feedInfoDataParser = new FeedInfoDataMapper(providesNow);
+        feedInfoDataParser.initColumnIndex(ParserBuilder.getRecordFor("feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version"));
 
         FeedInfo info = feedInfoDataParser.parseEntry(ParserBuilder.getRecordFor(feedInfo));
         assertThat(info.getPublisherName()).isEqualTo("feed_publisher_name");

@@ -20,6 +20,7 @@ class TripDataParserTest {
     @Test
     void shouldFilter() throws IOException {
         TripDataMapper tripParserTest = new TripDataMapper(Collections.singleton("MET:MET1:I:"));
+        tripParserTest.initColumnIndex(ParserBuilder.getRecordFor("route_id,service_id,trip_id,trip_headsign"));
 
         Assertions.assertTrue(tripParserTest.shouldInclude(ParserBuilder.getRecordFor(tripA)));
         Assertions.assertFalse(tripParserTest.shouldInclude(ParserBuilder.getRecordFor(tripB)));
@@ -28,6 +29,7 @@ class TripDataParserTest {
     @Test
     void shouldParseTrip() throws IOException {
         TripDataMapper tripParserTest = new TripDataMapper(Collections.emptySet());
+        tripParserTest.initColumnIndex(ParserBuilder.getRecordFor("route_id,service_id,trip_id,trip_headsign"));
 
         CSVRecord record = ParserBuilder.getRecordFor(tripA);
 

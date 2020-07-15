@@ -1,3 +1,4 @@
+service_id, date, exception_type
 Serv000001,20141120,1
 Serv000002,20141121,1
 Serv000003,20141122,1

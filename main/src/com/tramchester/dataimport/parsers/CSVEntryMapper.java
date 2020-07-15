@@ -3,20 +3,25 @@ package com.tramchester.dataimport.parsers;
 import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.String.format;
 
 public abstract class CSVEntryMapper<T> {
+    private static final Logger logger = LoggerFactory.getLogger(CSVEntryMapper.class);
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     public abstract T parseEntry(CSVRecord data);
 
     public abstract boolean shouldInclude(CSVRecord data);
 
-    protected LocalDate parseDate(String str, LocalDate theDefault, Logger logger) {
+    protected final LocalDate parseDate(String str, LocalDate theDefault, Logger logger) {
         try {
             return LocalDate.parse(str, formatter);
         } catch (IllegalArgumentException unableToParse) {
@@ -25,13 +30,39 @@ public abstract class CSVEntryMapper<T> {
         }
     }
 
-    // TODO Make abstract once all mappers finished
-    public void writeHeader(TransportDataWriter writer) {
-        // noop
+    public final void writeHeader(TransportDataWriter writer) {
+        ColumnDefination[] cols = getColumns();
+        StringBuilder header = new StringBuilder();
+        for (int i = 0; i < cols.length; i++) {
+            if (i>0) {
+                header.append(',');
+            }
+            header.append(cols[i].name());
+        }
+        writer.writeLine(header.toString());
     }
 
-    // TODO Make abstract once all mappers finished
-    public void initColumnIndex(CSVRecord header) {
-        // noop
+    protected abstract ColumnDefination[] getColumns();
+
+    public final void initColumnIndex(CSVRecord csvRecord) {
+        List<String> headers = new ArrayList<>(csvRecord.size());
+        csvRecord.forEach(item -> headers.add(item.trim()));
+        initColumnIndex(headers);
+    }
+
+    protected abstract void initColumnIndex(List<String> headers);
+
+    protected final int findIndexOf(List<String> headers, ColumnDefination column) {
+        int result = headers.indexOf(column.name());
+        if (result==-1) {
+            String msg = "Unable to find index for " + column.name() + " in " + headers;
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+        return result;
+    }
+
+    public interface ColumnDefination  {
+        String name();
     }
 }

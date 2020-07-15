@@ -17,13 +17,17 @@ class StopTimeDataParserTest {
     private StopTimeDataMapper stopTimeDataParser;
 
     @BeforeEach
-    void beforeEachTestRuns() {
+    void beforeEachTestRuns() throws IOException {
+
         stopTimeDataParser = new StopTimeDataMapper(Collections.emptySet());
+        stopTimeDataParser.initColumnIndex(ParserBuilder.getRecordFor("trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type"));
+
     }
 
     @Test
     void shouldFilter() throws IOException {
         StopTimeDataMapper filteringMapper = new StopTimeDataMapper(Collections.singleton("Trip000001"));
+        filteringMapper.initColumnIndex(ParserBuilder.getRecordFor("trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type"));
         String stopA = "Trip000001,06:41:00,06:42:00,9400ZZMAABM1,0001,0,1\n";
         String stopB = "Trip000002,06:41:00,06:42:00,9400ZZMAABM1,0001,0,1\n";
 

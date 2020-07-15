@@ -15,29 +15,24 @@ public class TransportDataReader {
 
     private final DataLoaderFactory factory;
 
-    @Deprecated
-    private final boolean skipFirstLine;
-
-    @Deprecated
-    public TransportDataReader(DataLoaderFactory factory, boolean skipFirstLine) {
+    public TransportDataReader(DataLoaderFactory factory) {
         this.factory = factory;
-        this.skipFirstLine = skipFirstLine;
     }
 
     public Stream<CalendarData> getCalendar(CalendarDataMapper calendarDataMapper) {
-        return factory.getLoaderFor(InputFiles.calendar, calendarDataMapper, true).loadFiltered(skipFirstLine);
+        return factory.getLoaderFor(InputFiles.calendar, calendarDataMapper, true).loadFiltered(true);
     }
 
     public Stream<CalendarDateData> getCalendarDates(CalendarDatesDataMapper calendarDatesMapper) {
-        return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper, true).loadFiltered(skipFirstLine);
+        return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper, true).loadFiltered(true);
     }
 
     public Stream<StopTimeData> getStopTimes(StopTimeDataMapper stopTimeDataMapper) {
-        return factory.getLoaderFor(InputFiles.stop_times, stopTimeDataMapper, true).loadFiltered(skipFirstLine);
+        return factory.getLoaderFor(InputFiles.stop_times, stopTimeDataMapper, true).loadFiltered(true);
     }
 
     public Stream<TripData> getTrips(TripDataMapper tripDataMapper) {
-        return factory.getLoaderFor(InputFiles.trips, tripDataMapper, true).loadFiltered(skipFirstLine);
+        return factory.getLoaderFor(InputFiles.trips, tripDataMapper, true).loadFiltered(true);
     }
 
     public Stream<StopData> getStops(StopDataMapper stopDataMapper) {
@@ -45,10 +40,10 @@ public class TransportDataReader {
     }
 
     public Stream<RouteData> getRoutes(RouteDataMapper routeDataMapper) {
-        return factory.getLoaderFor(InputFiles.routes, routeDataMapper, true).loadFiltered(skipFirstLine);
+        return factory.getLoaderFor(InputFiles.routes, routeDataMapper, true).loadFiltered(true);
     }
 
     public Stream<FeedInfo> getFeedInfo(boolean mandatory, FeedInfoDataMapper feedInfoDataMapper) {
-        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper, mandatory).loadFiltered(skipFirstLine);
+        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper, mandatory).loadFiltered(true);
     }
 }

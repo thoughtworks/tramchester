@@ -93,7 +93,7 @@ public class PostcodeDataImporter {
         Double range = config.getNearestStopRangeKM();
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
-        Stream<PostcodeData> stream = loader.loadFiltered(false);
+        Stream<PostcodeData> stream = loader.loadFiltered(true);
         stream.filter(postcode -> bounds.within(margin, postcode)).
                 filter(postcode -> stationLocations.hasAnyNearby(postcode, range)).
                 forEach(target::add);

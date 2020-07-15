@@ -22,6 +22,8 @@ class CalendarDatesParserTest {
 
         CalendarDatesDataMapper mapper = new CalendarDatesDataMapper(Collections.emptySet());
 
+        mapper.initColumnIndex(ParserBuilder.getRecordFor("service_id,date,exception_type"));
+
         CalendarDateData result = mapper.parseEntry(ParserBuilder.getRecordFor(example));
 
         Assertions.assertEquals(result.getServiceId(), "Serv000001");

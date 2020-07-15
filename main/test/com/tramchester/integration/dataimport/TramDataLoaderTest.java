@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TramDataLoaderTest {
-    private final boolean skipHeader = false;
 
     // the test data files currently manually maintained, copy over from data/tram as needed
 
@@ -25,7 +24,7 @@ class TramDataLoaderTest {
     void shouldLoadRouteData() {
         HashSet<String> agencies = new HashSet<>(Collections.singletonList("MET"));
         DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), new RouteDataMapper(agencies, true));
-        List<RouteData> routeData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
+        List<RouteData> routeData = dataLoader.loadFiltered(true).collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);
         RouteData theRoute = routeData.get(0);
@@ -38,7 +37,7 @@ class TramDataLoaderTest {
     @Test
     void shouldLoadCalendarData() {
         DataLoader<CalendarData> dataLoader = new DataLoader<>(Path.of("data/test/calendar.txt"), new CalendarDataMapper(Collections.emptySet()));
-        List<CalendarData> calendarData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
+        List<CalendarData> calendarData = dataLoader.loadFiltered(true).collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(3);
         assertThat(calendarData.get(0).getServiceId()).isEqualTo("Serv000001");
@@ -66,7 +65,7 @@ class TramDataLoaderTest {
     void shouldLoadStopTimeData() {
         DataLoader<StopTimeData> dataLoader = new DataLoader<>(Path.of("data/test/stop_times.txt"),
                 new StopTimeDataMapper(Collections.emptySet()));
-        List<StopTimeData> stopTimeData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
+        List<StopTimeData> stopTimeData = dataLoader.loadFiltered(true).collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(40);
         StopTimeData stopTime = stopTimeData.get(0);
@@ -81,7 +80,7 @@ class TramDataLoaderTest {
     @Test
     void shouldLoadTripData() {
         DataLoader<TripData> dataLoader = new DataLoader<>(Path.of("data/test/trips.txt"), new TripDataMapper(Collections.emptySet()));
-        List<TripData> tripData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
+        List<TripData> tripData = dataLoader.loadFiltered(true).collect(Collectors.toList());
 
         assertThat(tripData).hasSize(6);
         TripData theTrip = tripData.get(0);

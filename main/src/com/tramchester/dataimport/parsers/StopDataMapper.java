@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopData;
-import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
@@ -15,8 +14,13 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
     private int indexStopLon = -1;
     private int indexStopLat = -1;
 
-    private enum Columns {
-        stop_id,stop_code,stop_name,stop_lat,stop_lon
+    private enum Columns implements ColumnDefination {
+        stop_id, stop_code, stop_name, stop_lat, stop_lon
+    }
+
+    @Override
+    protected ColumnDefination[] getColumns() {
+        return Columns.values();
     }
 
     public static String tramStation = " (Manchester Metrolink)";
@@ -29,31 +33,12 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
     }
 
     @Override
-    public void writeHeader(TransportDataWriter writer) {
-        Columns[] cols = Columns.values();
-        StringBuilder header = new StringBuilder();
-        for (int i = 0; i < cols.length; i++) {
-            if (i>0) {
-                header.append(',');
-            }
-            header.append(cols[i].name());
-        }
-        writer.writeLine(header.toString());
-    }
-
-    @Override
-    public void initColumnIndex(CSVRecord csvRecord) {
-        List<String> headers = new ArrayList<>(csvRecord.size());
-        csvRecord.forEach(headers::add);
+    protected void initColumnIndex(List<String> headers) {
         indexStopId = findIndexOf(headers, Columns.stop_id);
         indexStopCode = findIndexOf(headers, Columns.stop_code);
         indexStopName = findIndexOf(headers, Columns.stop_name);
         indexStopLon = findIndexOf(headers, Columns.stop_lon);
         indexStopLat = findIndexOf(headers, Columns.stop_lat);
-    }
-
-    private int findIndexOf(List<String> headers, Columns column) {
-        return headers.indexOf(column.name());
     }
 
     public StopData parseEntry(CSVRecord data) {
@@ -108,4 +93,5 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         }
         return stopIds.contains(data.get(indexStopId));
     }
+
 }

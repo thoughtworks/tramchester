@@ -17,8 +17,12 @@ class PostcodeDataMapperTest {
     private PostcodeDataMapper mapper;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+
         mapper = new PostcodeDataMapper();
+        mapper.initColumnIndex(ParserBuilder.getRecordFor("Postcode,Positional_quality_indicator,Eastings,Northings,Country_code,NHS_regional_HA_code," +
+                "NHS_HA_code,Admin_county_code,Admin_district_code,Admin_ward_code"));
+
     }
 
     @Test
