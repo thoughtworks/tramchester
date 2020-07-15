@@ -28,4 +28,14 @@ public class TripData {
     public String getTripHeadsign() {
         return tripHeadsign;
     }
+
+    @Override
+    public String toString() {
+        return "TripData{" +
+                "routeId='" + routeId + '\'' +
+                ", serviceId='" + serviceId + '\'' +
+                ", tripId='" + tripId + '\'' +
+                ", tripHeadsign='" + tripHeadsign + '\'' +
+                '}';
+    }
 }

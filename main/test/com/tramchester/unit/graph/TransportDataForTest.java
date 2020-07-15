@@ -87,7 +87,7 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
         routes.put(routeB.getId(), routeB);
         routes.put(routeC.getId(), routeC);
 
-        agency = new Agency("MET");
+        agency = new Agency("MET", "agencyName");
         routes.values().forEach(agency::addRoute);
 
         Service serviceA = new Service(serviceAId, routeA);

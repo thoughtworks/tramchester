@@ -16,7 +16,7 @@ import static java.lang.String.format;
 public class Service implements HasId {
 
     private final String serviceId;
-    private final Route route;
+    private final Set<Route> routes;
     private final Set<Trip> trips;
     private TramServiceDate startDate;
     private TramServiceDate endDate;
@@ -30,7 +30,8 @@ public class Service implements HasId {
 
     public Service(String serviceId, Route route) {
         this.serviceId = serviceId.intern();
-        this.route = route;
+        this.routes = new HashSet<>();
+        this.routes.add(route);
         this.trips = new LinkedHashSet<>();
         this.days = new HashSet<>();
         this.additional = new HashSet<>();
@@ -91,7 +92,7 @@ public class Service implements HasId {
     public String toString() {
         return "Service{" +
                 "serviceId='" + serviceId + '\'' +
-                ", route=" + route +
+                ", route=" + HasId.asIds(routes) +
                 ", trips=" + HasId.asIds(trips) +
                 ", days=" + days +
                 ", startDate=" + startDate +
@@ -103,13 +104,13 @@ public class Service implements HasId {
                 '}';
     }
 
-    public Route getRoute() {
-        return route;
+    public Set<Route> getRoutes() {
+        return routes;
     }
 
-    public String getRouteId() {
-        return route.getId();
-    }
+//    public String getRouteId() {
+//        return route.getId();
+//    }
 
     public void setServiceDateRange(LocalDate startDate, LocalDate endDate) {
         this.startDate = new TramServiceDate(startDate);

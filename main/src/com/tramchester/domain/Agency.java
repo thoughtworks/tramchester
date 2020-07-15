@@ -5,9 +5,11 @@ import java.util.*;
 public class Agency implements HasId {
     private final Set<Route> routes;
     private final String agencyId;
+    private final String agencyName;
 
-    public Agency(String agencyId) {
+    public Agency(String agencyId, String agencyName) {
         this.agencyId = agencyId;
+        this.agencyName = agencyName;
         routes = new HashSet<>();
     }
 
@@ -22,8 +24,9 @@ public class Agency implements HasId {
     @Override
     public String toString() {
         return "Agency{" +
-                "routes=" + HasId.asIds(routes) +
-                ", agencyName='" + agencyId + '\'' +
+                "agencyId='" + agencyId + '\'' +
+                ", agencyName='" + agencyName + '\'' +
+                ", routes=" + HasId.asIds(routes) +
                 '}';
     }
 
@@ -42,5 +45,9 @@ public class Agency implements HasId {
 
     public String getId() {
         return agencyId;
+    }
+
+    public String getName() {
+        return agencyName;
     }
 }

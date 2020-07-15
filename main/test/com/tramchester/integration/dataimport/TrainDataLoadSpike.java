@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
+@Disabled("spike")
 class TrainDataLoadSpike {
 
     private final Path dataPath = Path.of("data", "gb-rail-latest");
 
-    @Disabled("spike")
     @Test
     void testShouldLoadTheData() {
         TransportDataLoader provider = () -> {

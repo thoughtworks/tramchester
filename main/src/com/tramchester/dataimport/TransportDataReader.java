@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class TransportDataReader {
 
     public enum InputFiles {
-        trips, stops, routes, feed_info, calendar, stop_times, calendar_dates;
+        trips, stops, routes, feed_info, calendar, stop_times, calendar_dates, agency;
     }
 
     private final DataLoaderFactory factory;
@@ -45,5 +45,9 @@ public class TransportDataReader {
 
     public Stream<FeedInfo> getFeedInfo(boolean mandatory, FeedInfoDataMapper feedInfoDataMapper) {
         return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper, mandatory).loadFiltered(true);
+    }
+
+    public Stream<AgencyData> getAgencies(AgencyDataMapper agencyDataMapper) {
+        return factory.getLoaderFor(InputFiles.agency, agencyDataMapper, true).loadFiltered(true);
     }
 }

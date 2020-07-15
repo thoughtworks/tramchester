@@ -46,12 +46,19 @@ class TramTimeTest {
         checkCorrectTimePresent(TramTime.parse("00:15"), 0, 15);
         checkCorrectTimePresent(TramTime.parse("23:35"), 23, 35);
         checkCorrectTimePresent(TramTime.parse("23:47"), 23, 47);
+    }
 
+    @Test
+    void shouldRecordIsFollowingDay() {
+        Optional<TramTime> result = TramTime.parse("25:11");
+        assertTrue(result.isPresent());
+        Assertions.fail("todo");
+        //assertTrue(result.get().getFollowingDay());
     }
 
     @Test
     void shouldParseEmptyIfInvalid() {
-        Assertions.assertFalse(TramTime.parse("43:12").isPresent());
+        Assertions.assertFalse(TramTime.parse("49:12").isPresent());
         Assertions.assertFalse(TramTime.parse("12:99").isPresent());
     }
 

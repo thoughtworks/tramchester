@@ -1,10 +1,14 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.domain.GTFSTransportationType;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class RouteData {
-    public static final String BUS_TYPE = "3";
-    public static final String TRAM_TYPE = "0";
+
+
 
     private final String id;
     private final String shortName;

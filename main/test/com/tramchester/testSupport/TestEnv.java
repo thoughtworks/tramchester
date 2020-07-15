@@ -37,7 +37,7 @@ public class TestEnv {
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
-    private static final Agency MET = new Agency("MET");
+    private static final Agency MET = new Agency("MET", "agencyName");
 
     public static AppConfiguration GET() {
         return new TestConfig() {

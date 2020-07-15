@@ -38,9 +38,11 @@ public class DataCleanser {
     public ErrorCount run() throws IOException {
         ErrorCount count = new ErrorCount();
 
-        Set<String> agencies = config.getAgencies();
+        Set<String> agencyFilter = config.getAgencies();
 
-        Set<String> routeCodes = cleanseRoutes(new RouteDataMapper(agencies, true));
+        cleanseAgencies(new AgencyDataMapper(agencyFilter));
+
+        Set<String> routeCodes = cleanseRoutes(new RouteDataMapper(agencyFilter, true));
 
         ServicesAndTrips servicesAndTrips = cleanseTrips(new TripDataMapper(routeCodes));
 
@@ -106,6 +108,8 @@ public class DataCleanser {
         calendarDates.close();
         logger.info("**** End cleansing calendar dates. Loaded "+count.get()+"\n");
     }
+
+
 
     public Set<String> cleanseStoptimes(StopTimeDataMapper stopTimeDataMapper) throws IOException {
         logger.info("**** Start cleansing stop times.");
@@ -203,6 +207,25 @@ public class DataCleanser {
         routes.close();
         logger.info("**** End cleansing routes. Loaded " + routeCodes.size()+"\n");
         return routeCodes;
+    }
+
+    private void cleanseAgencies(AgencyDataMapper agencyDataMapper) throws IOException {
+        logger.info("**** Start cleansing agency.");
+        AtomicInteger count = new AtomicInteger();
+
+        Stream<AgencyData> agencies = dataReaderFactory.getForCleanser().getAgencies(agencyDataMapper);
+
+        TransportDataWriter writer = transportDataWriterFactory.getWriter("agency");
+        agencyDataMapper.writeHeader(writer);
+        agencies.forEach(agencyData -> {
+            writer.writeLine(String.format("%s,%s",
+                    agencyData.getId(),
+                    agencyData.getName()));
+            count.getAndIncrement();
+        });
+        writer.close();
+        agencies.close();
+        logger.info("**** End cleansing agency. Loaded "+count.get()+"\n");
     }
 
     private void addRoute(Set<String> routeCodes, TransportDataWriter writer, RouteData route) {

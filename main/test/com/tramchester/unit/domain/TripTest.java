@@ -43,7 +43,7 @@ class TripTest {
 
         Trip tripA = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
         assertTrue(tripA.getTram());
-        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", new Agency("BUS"), TransportMode.Bus);
+        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", new Agency("BUS", "agencyName"), TransportMode.Bus);
         Trip tripB = new Trip("tripId", "headSign", service, busRoute);
         assertFalse(tripB.getTram());
     }

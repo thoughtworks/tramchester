@@ -37,9 +37,10 @@ public class TransportDataFromFileFactory {
         Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes(new StopTimeDataMapper(includeAll));
         Stream<CalendarData> calendarData = transportDataReader.getCalendar(new CalendarDataMapper(includeAll));
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
+        Stream<AgencyData> agencyData = transportDataReader.getAgencies(new AgencyDataMapper(includeAll));
 
         TransportDataFromFiles.TransportDataStreams transportDataStreams =
-                new TransportDataFromFiles.TransportDataStreams(stopData, routeData, tripData,
+                new TransportDataFromFiles.TransportDataStreams(agencyData, stopData, routeData, tripData,
                     stopTimeData, calendarData, feedInfoData, calendarsDates);
 
         return new TransportDataFromFiles(stationLocations, transportDataStreams);

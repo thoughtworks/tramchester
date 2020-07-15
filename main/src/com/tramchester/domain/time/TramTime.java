@@ -7,7 +7,10 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 
+
 public class  TramTime implements Comparable<TramTime> {
+
+    // TODO Need to handle hours>24 flag as next day
 
     private final int hour;
     private final int minute;
@@ -40,15 +43,16 @@ public class  TramTime implements Comparable<TramTime> {
         String[] split = text.split(":",3);
 
         int hour = Integer.parseInt(split[0]);
-        // Received Tram data contains 24 and 25 as an hour
-        if (hour==24) {
-            hour = 0;
+        // gtfs standard represents service next day by time > 24:00:00
+        if (hour>=24) {
+            hour = hour - 24;
         }
-        if (hour==25) {
-            hour = 1;
+        if (hour>23) {
+            // spanning 2 days, cannot handle yet
+            return Optional.empty();
         }
         int minutes = Integer.parseInt(split[1]);
-        if (hour>23 || minutes>59) {
+        if (minutes > 59) {
             return Optional.empty();
         }
         return Optional.of(TramTime.of(hour,minutes));

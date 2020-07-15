@@ -61,7 +61,9 @@ class TestDataCleanser extends EasyMockSupport {
 
         RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet(), true);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
-        validateWriter("routes", "\"R1\",\"MET\",\"CODE1\",\"AtoB name with issue\",\"0\"");
+        validateWriter("routes",
+                "route_id,agency_id,route_short_name,route_long_name,route_type",
+                "\"R1\",\"MET\",\"CODE1\",\"AtoB name with issue\",\"0\"");
 
         replayAll();
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
@@ -81,7 +83,9 @@ class TestDataCleanser extends EasyMockSupport {
 
         RouteDataMapper routeDataMapper = new RouteDataMapper(Collections.emptySet(), true);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
-        validateWriter("routes", "\"R2\",\"GMS\",\"X58\",\"Altrincham - Strockport\",\"3\"");
+        validateWriter("routes",
+                "route_id,agency_id,route_short_name,route_long_name,route_type",
+                "\"R2\",\"GMS\",\"X58\",\"Altrincham - Strockport\",\"3\"");
 
         replayAll();
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
@@ -102,7 +106,9 @@ class TestDataCleanser extends EasyMockSupport {
 
         RouteDataMapper routeDataMapper = new RouteDataMapper(agencyCodes, true);
         EasyMock.expect(reader.getRoutes(routeDataMapper)).andReturn(routes);
-        validateWriter("routes", "\"R1\",\"XYX\",\"CODE1\",\"AtoB\",\"3\"", "\"R2\",\"ANY\",\"CODE2\",\"CtoD\",\"0\"");
+        validateWriter("routes",
+                "route_id,agency_id,route_short_name,route_long_name,route_type",
+                "\"R1\",\"XYX\",\"CODE1\",\"AtoB\",\"3\"", "\"R2\",\"ANY\",\"CODE2\",\"CtoD\",\"0\"");
 
         replayAll();
         Set<String> routeCodes = cleanser.cleanseRoutes(routeDataMapper);
@@ -161,7 +167,10 @@ class TestDataCleanser extends EasyMockSupport {
 
         TripDataMapper tripDataMapper = new TripDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getTrips(tripDataMapper)).andReturn(trips);
-        validateWriter("trips", "METrouteIdB,svcIdB,tripIdB,headsignB", "METrouteIdB,svcIdB,tripIdC,headsignC");
+        validateWriter("trips",
+                "route_id,service_id,trip_id,trip_headsign",
+                "METrouteIdB,svcIdB,tripIdB,headsignB",
+                "METrouteIdB,svcIdB,tripIdC,headsignC");
 
         replayAll();
         ServicesAndTrips servicesAndTrips = cleanser.cleanseTrips(tripDataMapper);
@@ -190,8 +199,9 @@ class TestDataCleanser extends EasyMockSupport {
         StopTimeDataMapper stopTimeDataMapper = new StopTimeDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getStopTimes(stopTimeDataMapper)).andReturn(stopTimes);
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
-        validateWriter("stop_times", String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB",
-                arrivalTime.format(formatter), departureTime.format(formatter)));
+        validateWriter("stop_times",
+                "trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type",
+                String.format("tripIdB,%s,%s,9400stopIdB,stopSeqB,pickupB,dropB", arrivalTime.format(formatter), departureTime.format(formatter)));
 
         replayAll();
 
@@ -216,7 +226,9 @@ class TestDataCleanser extends EasyMockSupport {
 
         CalendarDataMapper calendarDataMapper = new CalendarDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getCalendar(calendarDataMapper)).andReturn(calendar);
-        validateWriter("calendar", "svcIDA,0,0,0,0,0,0,0,20151025,20151026",
+        validateWriter("calendar",
+                "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date",
+                "svcIDA,0,0,0,0,0,0,0,20151025,20151026",
                 "svcIDB,1,1,1,1,1,1,1,20151025,20151026",
                 "svcIDC,0,1,0,0,0,0,0,20151025,20151026");
 
@@ -239,7 +251,9 @@ class TestDataCleanser extends EasyMockSupport {
 
         CalendarDatesDataMapper calendarDataMapper = new CalendarDatesDataMapper(Collections.emptySet());
         EasyMock.expect(reader.getCalendarDates(calendarDataMapper)).andReturn(dataStream);
-        validateWriter("calendar_dates", "svcIDA,20151025,1",
+        validateWriter("calendar_dates",
+                "service_id,date,exception_type",
+                "svcIDA,20151025,1",
                 "svcIDB,20151025,2",
                 "svcIDC,20151025,3");
 
@@ -259,7 +273,9 @@ class TestDataCleanser extends EasyMockSupport {
 
         FeedInfoDataMapper feedInfoDataMapper = new FeedInfoDataMapper(providesNow);
         EasyMock.expect(reader.getFeedInfo(true, feedInfoDataMapper)).andReturn(feedInfoStream);
-        validateWriter("feed_info",  "pubA,urlA,tzA,landA,20161129,20161130,versionA");
+        validateWriter("feed_info",
+                "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version",
+                "pubA,urlA,tzA,landA,20161129,20161130,versionA");
 
         replayAll();
         Assertions.assertAll(() -> cleanser.cleanFeedInfo(feedInfoDataMapper));

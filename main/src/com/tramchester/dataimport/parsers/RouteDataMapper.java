@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
+import com.tramchester.domain.GTFSTransportationType;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.dataimport.data.RouteData.BUS_TYPE;
-import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
 import static java.lang.String.format;
 
 public class RouteDataMapper extends CSVEntryMapper<RouteData> {
@@ -24,7 +23,7 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
         route_id,agency_id,route_short_name,route_long_name,route_type
     }
 
-    private final Set<String> agencies;
+    private final Set<String> agencyFilter;
     private final boolean includeAll;
 
     @Override
@@ -36,16 +35,17 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
         indexOfType = findIndexOf(headers, Columns.route_type);
     }
 
-    public RouteDataMapper(Set<String> agencies, boolean cleaning) {
-        this.agencies = agencies;
-        if (agencies.size()==0) {
+    public RouteDataMapper(Set<String> agencyFilter, boolean cleaning) {
+        this.agencyFilter = agencyFilter;
+        if (agencyFilter.size()==0) {
             if (cleaning) {
-                logger.warn("Loading all agencies and routes");
+                logger.warn("Loading all routes");
             }
             includeAll = true;
         } else {
             includeAll = false;
         }
+
     }
 
     public RouteData parseEntry(CSVRecord data) {
@@ -55,8 +55,8 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
         String longName = data.get(indexOfLongName);
         String routeType = data.get(indexOfType);
 
-        if (! ( BUS_TYPE.equals(routeType) || TRAM_TYPE.equals(routeType))) {
-            String msg = format("Unexected tram type %s from %s ", routeType, data);
+        if (!GTFSTransportationType.validType(routeType)) {
+            String msg = format("Unexpected transport type %s from %s ", routeType, data);
             logger.error(msg);
             throw new RuntimeException(msg);
         }
@@ -69,13 +69,12 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
         if (includeAll) {
             return true;
         }
-        return agencies.contains(data.get(1));
+        return agencyFilter.contains(data.get(1));
     }
 
     @Override
     protected ColumnDefination[] getColumns() {
         return Columns.values();
     }
-
 
 }

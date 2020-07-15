@@ -17,7 +17,7 @@ class RouteTest {
         Route route = new Route("id","code","name", TestEnv.MetAgency(), TransportMode.Tram);
         Assertions.assertTrue(route.isTram());
 
-        route = new Route("id","code","name", new Agency("GMS"), TransportMode.Bus);
+        route = new Route("id","code","name", new Agency("GMS", "agencyName"), TransportMode.Bus);
         Assertions.assertFalse(route.isTram());
     }
 

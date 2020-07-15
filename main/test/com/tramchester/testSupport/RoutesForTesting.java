@@ -6,9 +6,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static java.lang.String.format;
 
 public class RoutesForTesting {
@@ -39,7 +36,7 @@ public class RoutesForTesting {
 
     // BUS
     public static final Route ALTY_TO_STOCKPORT = new Route("GMS: 11A:I:", "11A", "Alty to Stockport",
-        new Agency("GMS"), TransportMode.Bus);
+        new Agency("GMS", "agencyName"), TransportMode.Bus);
 
     @NotNull
     private static Route createTramRoute(String shortName, String direction, String longName) {

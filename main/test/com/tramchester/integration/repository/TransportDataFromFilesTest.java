@@ -34,7 +34,6 @@ import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TransportDataFromFilesTest {
-    private static final List<String> ashtonRoutes = Collections.singletonList(RoutesForTesting.ASH_TO_ECCLES.getId());
 
     private static Dependencies dependencies;
 
@@ -68,6 +67,14 @@ class TransportDataFromFilesTest {
     void shouldHaveCorrectLocationForAirportInTestEnvironment() {
         Station actualStation = transportData.getStation(Stations.ManAirport.getId());
         assertEquals(TestEnv.manAirportLocation, actualStation.getLatLong());
+    }
+
+    @Test
+    void shouldGetAgenciesWithNames() {
+        List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
+        assertEquals(1, agencies.size()); // just MET for trams
+        assertEquals("MET", agencies.get(0).getId());
+        assertEquals("Metrolink", agencies.get(0).getName());
     }
 
     @Test
@@ -144,9 +151,9 @@ class TransportDataFromFilesTest {
         Collection<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
                 filter(svc -> !svc.operatesOn(queryDate)).collect(Collectors.toSet());
-        Set<String> routes = expiringServices.stream().map(Service::getRouteId).collect(Collectors.toSet());
+        Set<Route> routes = expiringServices.stream().map(Service::getRoutes).flatMap(Collection::stream).collect(Collectors.toSet());
 
-        assertEquals(Collections.emptySet(), expiringServices, routes.toString() + " with expiring svcs " +HasId.asIds(expiringServices));
+        assertEquals(Collections.emptySet(), expiringServices, HasId.asIds(routes) + " with expiring svcs " +HasId.asIds(expiringServices));
     }
 
     @DataExpiryCategory
@@ -316,6 +323,7 @@ class TransportDataFromFilesTest {
     @Test
     void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
         Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark);
+        //List<String> ashtonXRoutes = Collections.singletonList(RoutesForTesting.ASH_TO_ECCLES.getId());
 
         LocalDate aMonday = TestEnv.nextMonday();
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
@@ -323,7 +331,7 @@ class TransportDataFromFilesTest {
         // TOOD Due to exception dates makes no sense to use getDays
         Set<String> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.operatesOn(aMonday))
-                .filter(svc -> ashtonRoutes.contains(svc.getRouteId()))
+                .filter(svc -> svc.getRoutes().contains(RoutesForTesting.ASH_TO_ECCLES))
                 .map(Service::getId)
                 .collect(Collectors.toSet());
 

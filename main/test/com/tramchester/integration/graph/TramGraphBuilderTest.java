@@ -148,7 +148,7 @@ class TramGraphBuilderTest {
                 collect(Collectors.toList());
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
-                filter(svc -> svc.getRouteId().equals(route.getId())).
+                filter(svc -> svc.getRoutes().contains(route)).
                 //filter(Service::isRunning).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
@@ -184,7 +184,7 @@ class TramGraphBuilderTest {
 
         Set<Trip> callingTrips = transportData.getServices().stream().
                 //filter(svc -> svc.isRunning()).
-                filter(svc -> svc.getRouteId().equals(route.getId())).
+                filter(svc -> svc.getRoutes().contains(route)).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.getStops().callsAt(station)). // calls at , but not starts at because no inbound for these

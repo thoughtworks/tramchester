@@ -20,8 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.dataimport.data.RouteData.BUS_TYPE;
-import static com.tramchester.dataimport.data.RouteData.TRAM_TYPE;
+
 import static java.lang.String.format;
 
 public class TransportDataFromFiles implements TransportDataSource, Startable, Disposable {
@@ -36,6 +35,12 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     private final HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
     private final HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
     private final HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
+
+    // keep track of excluded due to transport type filters so can log ones missing for other reasons
+    private final Set<String> excludedRoutes;
+    private final Set<String> excludedTrips;
+    private final Set<String> excludedServices;
+
     private final StationLocations stationLocations;
 
     private FeedInfo feedInfo = null;
@@ -43,6 +48,9 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     public TransportDataFromFiles(StationLocations stationLocations, TransportDataStreams transportDataStreams) {
         this.stationLocations = stationLocations;
         this.transportDataStreams = transportDataStreams;
+        this.excludedRoutes = new HashSet<>();
+        this.excludedTrips = new HashSet<>();
+        this.excludedServices = new HashSet<>();
     }
 
     @Override
@@ -56,6 +64,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             logger.warn("Did not find feedinfo");
         }
 
+        populateAgencies(transportDataStreams.agencies);
         populateStationsAndAreas(transportDataStreams.stops);
         populateRoutes(transportDataStreams.routes);
         populateTrips(transportDataStreams.trips);
@@ -75,6 +84,8 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
         transportDataStreams.closeAll();
         logger.info("Finished loading transport data");
     }
+
+
 
     private void updateTimesForServices() {
         // Cannot do this until after all stops loaded into trips
@@ -99,11 +110,15 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
         routeStations.clear();
         agencies.clear();
         routes.clear();
+        excludedRoutes.clear();
+        excludedTrips.clear();
+        excludedServices.clear();
     }
 
     private void populateCalendars(Stream<CalendarData> calendars, Stream<CalendarDateData> calendarsDates) {
         calendars.forEach(calendar -> {
-            Service service = services.get(calendar.getServiceId());
+            String serviceId = calendar.getServiceId();
+            Service service = services.get(serviceId);
 
             if (service != null) {
                 service.setDays(
@@ -117,15 +132,21 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
                 );
                 service.setServiceDateRange(calendar.getStartDate(), calendar.getEndDate());
             } else {
-                logger.warn("Failed to match service id " + calendar.getServiceId());
+                if (!excludedServices.contains(serviceId)) {
+                    logger.warn("Failed to match service id " + serviceId + " for calendar");
+                }
             }
         });
+
         calendarsDates.forEach(date -> {
-            Service service = services.get(date.getServiceId());
+            String serviceId = date.getServiceId();
+            Service service = services.get(serviceId);
             if (service != null) {
                 service.addExceptionDate(date.getDate(), date.getExceptionType());
             } else {
-                logger.warn("Failed to match service id " + date.getServiceId());
+                if (!excludedServices.contains(serviceId)) {
+                    logger.warn("Failed to find service id "+serviceId+" for calendar_dates");
+                }
             }
         });
     }
@@ -133,7 +154,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     private void populateStopTimes(Stream<StopTimeData> stopTimes) {
         logger.info("Loading stop times");
         AtomicInteger count = new AtomicInteger();
-        stopTimes.forEach((stopTimeData) -> {
+        stopTimes.filter(stopTimeData -> !excludedTrips.contains(stopTimeData.getTripId())).forEach((stopTimeData) -> {
             Trip trip = getTrip(stopTimeData.getTripId());
             String platformId = stopTimeData.getStopId();
             String stationId = Station.formId(platformId);
@@ -189,37 +210,50 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
                 route.addService(service);
                 route.addHeadsign(trip.getHeadsign());
             } else {
-                logger.warn(format("Unable to find RouteId '%s' for trip id '%s", routeId, tripData.getTripId()));
+                if (excludedRoutes.contains(routeId)) {
+                    excludedTrips.add(tripData.getTripId());
+                    if (services.containsKey(serviceId)) {
+                        excludedServices.add(serviceId);
+                    }
+                } else {
+                    logger.warn(format("Unable to find RouteId '%s' for trip '%s", routeId, tripData));
+                }
             }
         });
         logger.info("Loaded " + count.get());
     }
 
+    private void populateAgencies(Stream<AgencyData> agencyDataStream) {
+        logger.info("Loading agencies");
+        agencyDataStream.forEach(agencyData -> {
+            agencies.put(agencyData.getId(), new Agency(agencyData.getId(), agencyData.getName()));
+        });
+        logger.info("Loaded " + agencies.size());
+    }
+
     private void populateRoutes(Stream<RouteData> routeDataStream) {
-        logger.info("Loading routes and agencies");
+        logger.info("Loading routes");
         routeDataStream.forEach(routeData -> {
             String agencyId = routeData.getAgency();
             if (!agencies.containsKey(agencyId)) {
-                logger.info("Adding agency " + agencyId);
-                agencies.put(agencyId, new Agency(agencyId));
+                logger.error("Missing agency " + agencyId);
+                //agencies.put(agencyId, new Agency(agencyId, agencyName));
             }
-            Agency agency = agencies.get(agencyId);
-            Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeData.getLongName(), agency,
-                    getMode(routeData.getRouteType()));
-            routes.put(route.getId(), route);
-            agencies.get(agencyId).addRoute(route);
-        });
-        logger.info("Loaded " + agencies.size() + " agencies " + routes.size() + " routes");
-    }
 
-    private TransportMode getMode(String routeType) {
-        if (BUS_TYPE.equals(routeType)) {
-            return TransportMode.Bus;
-        }
-        if (TRAM_TYPE.equals(routeType)) {
-            return TransportMode.Tram;
-        }
-        throw new RuntimeException("Unexpected route type " + routeType);
+            GTFSTransportationType routeType = GTFSTransportationType.getType(routeData.getRouteType());
+
+            if (GTFSTransportationType.supportedType(routeType)) {
+                Agency agency = agencies.get(agencyId);
+                Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeData.getLongName(), agency,
+                        TransportMode.fromGTFS(routeType));
+                routes.put(route.getId(), route);
+                agencies.get(agencyId).addRoute(route);
+            } else {
+                excludedRoutes .add(routeData.getId());
+                logger.info("Unsupported GTFS transport type: " + routeType + " agency:" + routeData.getAgency() + " routeId: " + routeData.getId());
+            }
+        });
+        logger.info("Loaded " + routes.size() + " routes");
     }
 
     private void populateStationsAndAreas(Stream<StopData> stops) {
@@ -275,12 +309,9 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     private Service getOrInsertService(String serviceId, Route route) {
         if (!services.containsKey(serviceId)) {
             services.put(serviceId, new Service(serviceId, route));
+            excludedServices.remove(serviceId);
         }
-        Service matched = services.get(serviceId);
-        if (matched.getRoute()!=route) {
-            logger.error("Mismatch on route for route " + route + " on service " + matched);
-        }
-        return matched;
+        return services.get(serviceId);
     }
 
     public Collection<Route> getRoutes() {
@@ -384,10 +415,12 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
         final Stream<CalendarData> calendars;
         final Stream<FeedInfo> feedInfo;
         final Stream<CalendarDateData> calendarsDates;
+        final Stream<AgencyData> agencies;
 
-        public TransportDataStreams(Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
+        public TransportDataStreams(Stream<AgencyData> agencies, Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
                                     Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
                                     Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates) {
+            this.agencies = agencies;
             this.stops = stops;
             this.routes = routes;
             this.trips = trips;
@@ -405,6 +438,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             calendars.close();
             feedInfo.close();
             calendarsDates.close();
+            agencies.close();
         }
     }
 
