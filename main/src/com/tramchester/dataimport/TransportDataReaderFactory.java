@@ -4,7 +4,7 @@ import com.tramchester.config.DownloadConfig;
 
 import java.nio.file.Path;
 
-public class TransportDataReaderFactory {
+public class TransportDataReaderFactory implements TransportDataLoader {
     private final DownloadConfig config;
     private TransportDataReader readerForCleanser;
     private TransportDataReader readerForLoader;

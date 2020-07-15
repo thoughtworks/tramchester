@@ -1,3 +1,4 @@
+stop_id,stop_code,stop_name,stop_lat,stop_lon
 9400ZZMAABM1,mantpmaw,"Cheetham Hill,Abraham Moss (Manchester Metrolink)",53.51046,-2.2355
 9400ZZMAABM2,mantpmda,"Cheetham Hill,Abraham Moss (Manchester Metrolink)",53.51091,-2.23611
 9400ZZMAAIR1,mantwjmp,"Manchester Airport,Manchester Airport (Manchester Metrolink)",53.36537,-2.27247

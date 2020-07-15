@@ -17,27 +17,30 @@ public class TransportDataFromFileFactory {
     private final ProvidesNow providesNow;
     private final StationLocations stationLocations;
 
-    public TransportDataFromFileFactory(TransportDataReaderFactory factory, ProvidesNow providesNow,
+    public TransportDataFromFileFactory(TransportDataLoader providesLoader, ProvidesNow providesNow,
                                         StationLocations stationLocations) {
-        this.transportDataReader = factory.getForLoader();
+        this.transportDataReader = providesLoader.getForLoader();
         this.providesNow = providesNow;
         this.stationLocations = stationLocations;
     }
 
-    public TransportDataFromFiles create() {
+    // feedinfo is not mandatory in the standard
+    public TransportDataFromFiles create(boolean expectFeedinfo) {
         Set<String> includeAll = Collections.emptySet();
 
         // streams, so no data read yet
+        Stream<FeedInfo> feedInfoData = transportDataReader.getFeedInfo(expectFeedinfo, new FeedInfoDataMapper(providesNow));
+
         Stream<StopData> stopData = transportDataReader.getStops(new StopDataMapper(includeAll));
         Stream<RouteData> routeData = transportDataReader.getRoutes(new RouteDataMapper(includeAll, false));
         Stream<TripData> tripData = transportDataReader.getTrips(new TripDataMapper(includeAll));
         Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes(new StopTimeDataMapper(includeAll));
         Stream<CalendarData> calendarData = transportDataReader.getCalendar(new CalendarDataMapper(includeAll));
-        Stream<FeedInfo> feedInfoData = transportDataReader.getFeedInfo(new FeedInfoDataMapper(providesNow));
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
 
-        TransportDataFromFiles.TransportDataStreams transportDataStreams = new TransportDataFromFiles.TransportDataStreams(stopData, routeData, tripData,
-                stopTimeData, calendarData, feedInfoData, calendarsDates);
+        TransportDataFromFiles.TransportDataStreams transportDataStreams =
+                new TransportDataFromFiles.TransportDataStreams(stopData, routeData, tripData,
+                    stopTimeData, calendarData, feedInfoData, calendarsDates);
 
         return new TransportDataFromFiles(stationLocations, transportDataStreams);
 

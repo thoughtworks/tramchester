@@ -155,6 +155,7 @@ public class DataCleanser {
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("stops");
 
+        stopDataMapper.writeHeader(writer);
         stops.forEach(stop -> {
             String tramPrefix = stop.isTram() ? StopDataMapper.tramStation : "";
             if (unexpectedIdFormat(stop)) {
@@ -225,7 +226,7 @@ public class DataCleanser {
 
     public void cleanFeedInfo(FeedInfoDataMapper feedInfoDataMapper) throws IOException {
         logger.info("**** Start cleansing feed info.");
-        Stream<FeedInfo> feedInfo = dataReaderFactory.getForCleanser().getFeedInfo(feedInfoDataMapper);
+        Stream<FeedInfo> feedInfo = dataReaderFactory.getForCleanser().getFeedInfo(true, feedInfoDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("feed_info");
 

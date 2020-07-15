@@ -43,7 +43,7 @@ public class StationLocations implements StationLocationsRepository {
             updateBoundingBox(gridPosition);
             logger.debug("Added station " + station.getId() + " at grid " + gridPosition);
         } catch (TransformException e) {
-            logger.error("Unable to store station as cannot convert location", e);
+            logger.error("Unable to store station as cannot convert location " + position, e);
         }
     }
 

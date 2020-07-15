@@ -1,11 +1,23 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopData;
+import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import org.apache.commons.csv.CSVRecord;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class StopDataMapper extends CSVEntryMapper<StopData> {
+    private int indexStopId = -1;
+    private int indexStopCode = -1;
+    private int indexStopName = -1;
+    private int indexStopLon = -1;
+    private int indexStopLat = -1;
+
+    private enum Columns {
+        stop_id,stop_code,stop_name,stop_lat,stop_lon
+    }
 
     public static String tramStation = " (Manchester Metrolink)";
     private final boolean includeAll;
@@ -16,10 +28,38 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         this.stopIds = stopIds;
     }
 
+    @Override
+    public void writeHeader(TransportDataWriter writer) {
+        Columns[] cols = Columns.values();
+        StringBuilder header = new StringBuilder();
+        for (int i = 0; i < cols.length; i++) {
+            if (i>0) {
+                header.append(',');
+            }
+            header.append(cols[i].name());
+        }
+        writer.writeLine(header.toString());
+    }
+
+    @Override
+    public void initColumnIndex(CSVRecord csvRecord) {
+        List<String> headers = new ArrayList<>(csvRecord.size());
+        csvRecord.forEach(headers::add);
+        indexStopId = findIndexOf(headers, Columns.stop_id);
+        indexStopCode = findIndexOf(headers, Columns.stop_code);
+        indexStopName = findIndexOf(headers, Columns.stop_name);
+        indexStopLon = findIndexOf(headers, Columns.stop_lon);
+        indexStopLat = findIndexOf(headers, Columns.stop_lat);
+    }
+
+    private int findIndexOf(List<String> headers, Columns column) {
+        return headers.indexOf(column.name());
+    }
+
     public StopData parseEntry(CSVRecord data) {
-        String id = getStopId(data);
-        String code = data.get(1);
-        String name = data.get(2);
+        String id = data.get(indexStopId);
+        String code = data.get(indexStopCode);
+        String name = data.get(indexStopName);
 
         String[] nameParts = name.split(",");
         String area;
@@ -46,13 +86,13 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         }
 
         double latitude = 0;
-        String latStr = data.get(3);
+        String latStr = data.get(indexStopLat);
         if (latStr.contains(".")) {
             latitude = Double.parseDouble(latStr);
         }
 
         double longitude = 0;
-        String longStr = data.get(4);
+        String longStr = data.get(indexStopLon);
         if (longStr.contains(".")) {
             longitude = Double.parseDouble(longStr);
         }
@@ -60,15 +100,12 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         return new StopData(id, code, area, stopName, latitude, longitude, isTram);
     }
 
-    private String getStopId(CSVRecord data) {
-        return data.get(0);
-    }
 
     @Override
     public boolean shouldInclude(CSVRecord data) {
         if (includeAll) {
             return true;
         }
-        return stopIds.contains(getStopId(data));
+        return stopIds.contains(data.get(indexStopId));
     }
 }

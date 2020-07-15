@@ -82,7 +82,7 @@ public class Dependencies {
         cleanseData();
 
         TransportDataFromFileFactory transportDataImporter = get(TransportDataFromFileFactory.class);
-        TransportDataSource transportData = transportDataImporter.create();
+        TransportDataSource transportData = transportDataImporter.create(true);
 
         initialise(configuration, transportData);
     }

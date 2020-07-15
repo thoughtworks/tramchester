@@ -151,10 +151,11 @@ public class RouteCalculator implements TramRouteCalculator {
 
         final ServiceHeuristics serviceHeuristics = createHeuristics(journeyRequest, runningServicesIds, time, destinations);
 
-        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
-
         return grouped.parallelStream().map(box -> {
+
+            // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
+            // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
+            final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
@@ -169,8 +170,7 @@ public class RouteCalculator implements TramRouteCalculator {
                                     previousSuccessfulVisit, reasons);
                         }).
                         map(timedPath -> new Journey(pathToStages.mapDirect(timedPath.getPath(), timedPath.getQueryTime(), journeyRequest),
-                                timedPath.getQueryTime(), mapPathToLocations.mapToLocations(timedPath.getPath())))
-                        .filter(journey -> journey.getStages().size()>0);
+                                timedPath.getQueryTime(), mapPathToLocations.mapToLocations(timedPath.getPath())));
 
                 List<Journey> collect = journeys.collect(Collectors.toList());
 

@@ -14,38 +14,41 @@ public class TransportDataReader {
     }
 
     private final DataLoaderFactory factory;
-    private final boolean skipHeaders;
 
-    public TransportDataReader(DataLoaderFactory factory, boolean skipHeaders) {
+    @Deprecated
+    private final boolean skipFirstLine;
+
+    @Deprecated
+    public TransportDataReader(DataLoaderFactory factory, boolean skipFirstLine) {
         this.factory = factory;
-        this.skipHeaders = skipHeaders;
+        this.skipFirstLine = skipFirstLine;
     }
 
     public Stream<CalendarData> getCalendar(CalendarDataMapper calendarDataMapper) {
-        return factory.getLoaderFor(InputFiles.calendar, calendarDataMapper).loadFiltered(skipHeaders);
+        return factory.getLoaderFor(InputFiles.calendar, calendarDataMapper, true).loadFiltered(skipFirstLine);
     }
 
     public Stream<CalendarDateData> getCalendarDates(CalendarDatesDataMapper calendarDatesMapper) {
-        return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper).loadFiltered(skipHeaders);
+        return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper, true).loadFiltered(skipFirstLine);
     }
 
     public Stream<StopTimeData> getStopTimes(StopTimeDataMapper stopTimeDataMapper) {
-        return factory.getLoaderFor(InputFiles.stop_times, stopTimeDataMapper).loadFiltered(skipHeaders);
+        return factory.getLoaderFor(InputFiles.stop_times, stopTimeDataMapper, true).loadFiltered(skipFirstLine);
     }
 
     public Stream<TripData> getTrips(TripDataMapper tripDataMapper) {
-        return factory.getLoaderFor(InputFiles.trips, tripDataMapper).loadFiltered(skipHeaders);
+        return factory.getLoaderFor(InputFiles.trips, tripDataMapper, true).loadFiltered(skipFirstLine);
     }
 
     public Stream<StopData> getStops(StopDataMapper stopDataMapper) {
-        return factory.getLoaderFor(InputFiles.stops, stopDataMapper).loadFiltered(skipHeaders);
+        return factory.getLoaderFor(InputFiles.stops, stopDataMapper, true).loadFiltered(true);
     }
 
     public Stream<RouteData> getRoutes(RouteDataMapper routeDataMapper) {
-        return factory.getLoaderFor(InputFiles.routes, routeDataMapper).loadFiltered(skipHeaders);
+        return factory.getLoaderFor(InputFiles.routes, routeDataMapper, true).loadFiltered(skipFirstLine);
     }
 
-    public Stream<FeedInfo> getFeedInfo(FeedInfoDataMapper feedInfoDataMapper) {
-        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper).loadFiltered(skipHeaders);
+    public Stream<FeedInfo> getFeedInfo(boolean mandatory, FeedInfoDataMapper feedInfoDataMapper) {
+        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper, mandatory).loadFiltered(skipFirstLine);
     }
 }

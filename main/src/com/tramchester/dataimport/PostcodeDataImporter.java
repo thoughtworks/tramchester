@@ -30,10 +30,6 @@ public class PostcodeDataImporter {
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final Unzipper unzipper;
-//    private long eastingsMin;
-//    private long eastingsMax;
-//    private long northingsMin;
-//    private long northingsMax;
     private final long margin;
     private BoundingBox bounds;
 

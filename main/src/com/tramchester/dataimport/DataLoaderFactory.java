@@ -13,8 +13,8 @@ public class DataLoaderFactory {
         this.extension = extension;
     }
 
-    public <T> DataLoader<T> getLoaderFor(TransportDataReader.InputFiles theType, CSVEntryMapper<T> mapper) {
-        return new DataLoader<>(formPath(theType), mapper);
+    public <T> DataLoader<T> getLoaderFor(TransportDataReader.InputFiles theType, CSVEntryMapper<T> mapper, boolean mandatory) {
+        return new DataLoader<>(formPath(theType), mapper, mandatory);
     }
 
     private Path formPath(TransportDataReader.InputFiles theType) {

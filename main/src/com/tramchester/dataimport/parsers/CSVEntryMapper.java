@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.parsers;
 
+import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 
@@ -22,5 +23,15 @@ public abstract class CSVEntryMapper<T> {
             logger.warn(format("Unable to parse %s as a date", str), unableToParse);
             return theDefault;
         }
+    }
+
+    // TODO Make abstract once all mappers finished
+    public void writeHeader(TransportDataWriter writer) {
+        // noop
+    }
+
+    // TODO Make abstract once all mappers finished
+    public void initColumnIndex(CSVRecord header) {
+        // noop
     }
 }

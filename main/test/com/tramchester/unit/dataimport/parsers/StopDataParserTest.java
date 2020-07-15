@@ -25,6 +25,8 @@ class StopDataParserTest {
     void shouldFilterCorrectly() throws IOException {
         StopDataMapper stopDataParser = new StopDataMapper(Collections.singleton("9400ZZMAWYT2"));
 
+        stopDataParser.initColumnIndex(ParserBuilder.getRecordFor("stop_id,stop_code,stop_name,stop_lat,stop_lon"));
+
         Assertions.assertTrue(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(stopA)));
         Assertions.assertFalse(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(stopB)));
     }
@@ -33,6 +35,7 @@ class StopDataParserTest {
     void shouldParseTramStop() throws IOException {
         StopDataMapper stopDataParser = new StopDataMapper(Collections.emptySet());
 
+        stopDataParser.initColumnIndex(ParserBuilder.getRecordFor("stop_id,stop_code,stop_name,stop_lat,stop_lon"));
         StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(stopA));
 
         assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT2");
@@ -47,6 +50,8 @@ class StopDataParserTest {
     @Test
     void shouldParseTramStopMultipleCommas() throws IOException {
         StopDataMapper stopDataParser = new StopDataMapper(Collections.emptySet());
+
+        stopDataParser.initColumnIndex(ParserBuilder.getRecordFor("stop_id,stop_code,stop_name,stop_lat,stop_lon"));
 
         StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(stopB));
 

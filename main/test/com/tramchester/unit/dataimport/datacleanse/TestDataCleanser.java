@@ -120,7 +120,9 @@ class TestDataCleanser extends EasyMockSupport {
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
         EasyMock.expect(reader.getStops(stopDataMapper)).andReturn(Stream.of(stopData));
 
-        validateWriter("stops", "9400IdB,codeB,\"areaB,nameB (Manchester Metrolink)\",0.33,0.44");
+        validateWriter("stops",
+                "stop_id,stop_code,stop_name,stop_lat,stop_lon",
+                "9400IdB,codeB,\"areaB,nameB (Manchester Metrolink)\",0.33,0.44");
 
         replayAll();
         Assertions.assertAll(() -> cleanser.cleanseStops(stopDataMapper));
@@ -141,6 +143,7 @@ class TestDataCleanser extends EasyMockSupport {
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
         EasyMock.expect(reader.getStops(stopDataMapper)).andReturn(stops);
         validateWriter("stops",
+                "stop_id,stop_code,stop_name,stop_lat,stop_lon",
                 "1800EB05551,mantdwgj,\"Rusholme,Anson Road/St. Anselm Hall (Stop B)\",53.45412,-2.21209");
 
         replayAll();
@@ -255,7 +258,7 @@ class TestDataCleanser extends EasyMockSupport {
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         FeedInfoDataMapper feedInfoDataMapper = new FeedInfoDataMapper(providesNow);
-        EasyMock.expect(reader.getFeedInfo(feedInfoDataMapper)).andReturn(feedInfoStream);
+        EasyMock.expect(reader.getFeedInfo(true, feedInfoDataMapper)).andReturn(feedInfoStream);
         validateWriter("feed_info",  "pubA,urlA,tzA,landA,20161129,20161130,versionA");
 
         replayAll();

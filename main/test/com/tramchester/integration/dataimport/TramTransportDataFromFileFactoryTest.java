@@ -57,7 +57,7 @@ class TramTransportDataFromFileFactoryTest {
         TransportDataFromFileFactory transportDataImporter = new TransportDataFromFileFactory(factory, providesNow,
                 stationLocations);
 
-        TransportDataFromFiles transportData = transportDataImporter.create();
+        TransportDataFromFiles transportData = transportDataImporter.create(true);
         transportData.start();
 
         assertThat(transportData.getRoutes()).hasSize(2);

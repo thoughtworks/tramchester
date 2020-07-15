@@ -4,8 +4,10 @@ import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.unit.dataimport.parsers.ParserBuilder;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,8 +48,10 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadStopData() {
-        DataLoader<StopData> dataLoader = new DataLoader<>(Path.of("data/test/stops.txt"), new StopDataMapper(Collections.emptySet()));
-        List<StopData> stopData = dataLoader.loadFiltered(skipHeader).collect(Collectors.toList());
+        StopDataMapper stopDataMapper = new StopDataMapper(Collections.emptySet());
+        DataLoader<StopData> dataLoader = new DataLoader<>(Path.of("data/test/stops.txt"), stopDataMapper);
+
+        List<StopData> stopData = dataLoader.loadFiltered(true).collect(Collectors.toList());
 
         assertThat(stopData).hasSize(178);
         StopData theStop = stopData.get(0);

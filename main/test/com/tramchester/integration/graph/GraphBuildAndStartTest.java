@@ -47,7 +47,7 @@ class GraphBuildAndStartTest {
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
         TransportDataFromFileFactory fileFactory = new TransportDataFromFileFactory(new TransportDataReaderFactory(config),
                 providesNow, stationLocations);
-        TransportDataFromFiles transportData = fileFactory.create();
+        TransportDataFromFiles transportData = fileFactory.create(true);
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 
         GraphDatabase graphDatabase = new GraphDatabase(config);
