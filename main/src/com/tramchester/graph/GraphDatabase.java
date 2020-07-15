@@ -113,9 +113,10 @@ public class GraphDatabase implements Startable {
             schema.indexFor(GraphBuilder.Labels.BUS_STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
             schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphStaticKeys.ID).create();
-            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphStaticKeys.ID).create();
-            schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphStaticKeys.ID).create();
-            schema.indexFor(GraphBuilder.Labels.MINUTE).on(GraphStaticKeys.ID).create();
+
+            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphStaticKeys.SERVICE_ID).create();
+            schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphStaticKeys.HOUR).create();
+            schema.indexFor(GraphBuilder.Labels.MINUTE).on(GraphStaticKeys.TIME).create();
 
             // doesn't help graph build performance....
 //            schema.indexFor(TransportRelationshipTypes.TO_SERVICE).on(GraphStaticKeys.TRIPS).

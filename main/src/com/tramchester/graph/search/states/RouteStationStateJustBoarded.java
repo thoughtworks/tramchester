@@ -21,7 +21,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
         private final SortsPositions sortsPositions;
         private final LatLong destinationLatLon;
 
-        public Builder(SortsPositions sortsPositions, Set<String> destinationStationIds, LatLong destinationLatLon) {
+        public Builder(SortsPositions sortsPositions, LatLong destinationLatLon) {
             this.sortsPositions = sortsPositions;
             this.destinationLatLon = destinationLatLon;
         }
@@ -33,12 +33,14 @@ public class RouteStationStateJustBoarded extends TraversalState {
         }
 
         public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
-            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING,
-                    DEPART, INTERCHANGE_DEPART), busStationState);
+            List<Relationship> outbounds = filterExcludingEndNode(
+                    node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART), busStationState);
             outbounds.addAll(orderSvcRelationshipsForBus(node));
+            //node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
             return new RouteStationStateJustBoarded(busStationState, outbounds, cost);
         }
 
+        // significant overall performance increase
         private Collection<Relationship> orderSvcRelationshipsForBus(Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
 
@@ -54,7 +56,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private RouteStationStateJustBoarded(TraversalState traversalState, List<Relationship> outbounds, int cost) {
+    private RouteStationStateJustBoarded(TraversalState traversalState, Iterable<Relationship> outbounds, int cost) {
         super(traversalState, outbounds, cost);
     }
 
@@ -78,7 +80,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
         private RelationshipFacade(Relationship relationship) {
             this.relationship = relationship;
-            this.stationId =  relationship.getProperty(GraphStaticKeys.TOWARDS_STATION_ID).toString();
+            this.stationId = relationship.getEndNode().getProperty(GraphStaticKeys.TOWARDS_STATION_ID).toString();
         }
 
         @Override

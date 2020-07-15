@@ -14,6 +14,7 @@ public class JourneyRequest {
     private final UUID uid;
     private boolean diagnostics;
     private final int maxJourneyDuration;
+    private boolean warnIfNoResults;
 
     @Override
     public String toString() {
@@ -28,10 +29,6 @@ public class JourneyRequest {
                 '}';
     }
 
-//    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy) {
-//        this(date, time, arriveBy, Integer.MAX_VALUE, maxJourneyDuration);
-//    }
-
     public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration) {
         this.date = date;
         this.time = time;
@@ -39,7 +36,9 @@ public class JourneyRequest {
         this.maxChanges = maxChanges;
         this.maxJourneyDuration = maxJourneyDuration;
         this.uid = UUID.randomUUID();
+        
         diagnostics = false;
+        warnIfNoResults = true;
     }
 
     public TramServiceDate getDate() {
@@ -93,5 +92,13 @@ public class JourneyRequest {
 
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
+    }
+
+    public boolean getWarnIfNoResults() {
+        return warnIfNoResults;
+    }
+
+    public void setWarnIfNoResults(boolean flag) {
+        warnIfNoResults = flag;
     }
 }

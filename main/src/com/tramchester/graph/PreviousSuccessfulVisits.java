@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PreviousSuccessfulVisits {
     private final Map<Long, TramTime> hourVisits;
@@ -17,8 +18,8 @@ public class PreviousSuccessfulVisits {
 
     public PreviousSuccessfulVisits(NodeTypeRepository nodeTypeRepository) {
         this.nodeTypeRepository = nodeTypeRepository;
-        hourVisits = new HashMap<>();
-        timeVisits = new HashSet<>();
+        hourVisits = new ConcurrentHashMap<>();
+        timeVisits = ConcurrentHashMap.newKeySet();
     }
 
     public void clear() {

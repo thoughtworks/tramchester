@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
@@ -26,22 +26,21 @@ class JourneyPlannerPostcodeResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new WithPostcodesEnabled());
 
-    private LocalDate when;
-    private LocalDateTime now;
+    private LocalDate day;
+    private LocalTime time;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        when = TestEnv.testDay();
-        // TODO NOT NOW
-        now = TestEnv.LocalNow();
+        day = TestEnv.testDay();
+        time = LocalTime.of(9,35);
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcode() {
-        String date = when.format(dateFormatDashes);
-        String time = now.format(TestEnv.timeFormatter);
+        String date = day.format(dateFormatDashes);
+        String timeString = time.format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, Postcodes.CentralBury,
-                Postcodes.NearPiccadily, time, date,
+                Postcodes.NearPiccadily, timeString, date,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());
@@ -54,10 +53,10 @@ class JourneyPlannerPostcodeResourceTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToStation() {
-        String date = when.format(dateFormatDashes);
-        String time = now.format(TestEnv.timeFormatter);
+        String date = day.format(dateFormatDashes);
+        String timeString = time.format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, Postcodes.CentralBury,
-                Stations.Piccadilly.getId(), time, date,
+                Stations.Piccadilly.getId(), timeString, date,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());
@@ -70,18 +69,17 @@ class JourneyPlannerPostcodeResourceTest {
 
     @Test
     void shouldPlanJourneyFromStationToPostcode() {
-        String date = when.format(dateFormatDashes);
-        String time = now.format(TestEnv.timeFormatter);
+        String date = day.format(dateFormatDashes);
+        String timeString = time.format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, Stations.Piccadilly.getId(),
-                Postcodes.CentralBury, time, date,
+                Postcodes.CentralBury, timeString, date,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        // TODO WIP
-        journeys.forEach(journeyDTO -> Assertions.assertEquals(3, journeyDTO.getStages().size()));
+        journeys.forEach(journeyDTO -> Assertions.assertEquals(2, journeyDTO.getStages().size()));
     }
 
 }

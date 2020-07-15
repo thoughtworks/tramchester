@@ -188,6 +188,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         svcNode.setProperty(GraphStaticKeys.ID, beginSvcNodeId);
         svcNode.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
         svcNode.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
+        svcNode.setProperty(GraphStaticKeys.TOWARDS_STATION_ID, end.getId());
 
         routeBuilderCache.putService(service, begin, end, svcNode);
 
@@ -196,7 +197,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         svcRelationship.setProperty(GraphStaticKeys.SERVICE_ID, service.getId());
         svcRelationship.setProperty(COST, 0);
         svcRelationship.setProperty(GraphStaticKeys.ROUTE_ID, route.getId());
-        svcRelationship.setProperty(GraphStaticKeys.TOWARDS_STATION_ID, end.getId());
         svcRelationship.setProperty(GraphStaticKeys.TRIPS, "");
 
     }

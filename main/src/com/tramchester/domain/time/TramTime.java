@@ -1,8 +1,5 @@
 package com.tramchester.domain.time;
 
-import com.tramchester.domain.exceptions.TramchesterException;
-
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -17,7 +14,7 @@ public class  TramTime implements Comparable<TramTime> {
     private final int hash;
     private final String toPattern;
 
-    private static TramTime[][] tramTimes = new TramTime[24][60];
+    private static final TramTime[][] tramTimes = new TramTime[24][60];
 
     static {
         for(int hour=0; hour<24; hour++) {
@@ -27,19 +24,9 @@ public class  TramTime implements Comparable<TramTime> {
         }
     }
 
-    // method only used during cut over from minutes past minute refactoring
-    @Deprecated
-    public static TramTime create(int hours, int minutes) throws TramchesterException {
-        if (hours>23|| minutes>59) {
-            throw new TramchesterException(format("Unable to create time from hour:%s and minutes:%s", hours,minutes));
-        }
-        return tramTimes[hours][minutes];
-    }
-
     public static TramTime of(LocalTime time) {
         return tramTimes[time.getHour()][time.getMinute()];
     }
-
 
     public static TramTime of(LocalDateTime dateAndTime) {
         return of(dateAndTime.toLocalTime());

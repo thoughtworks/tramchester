@@ -62,7 +62,7 @@ public class ServiceReasons {
     }
 
     private void reportStats() {
-        if (!success) {
+        if ((!success) && journeyRequest.getWarnIfNoResults()) {
             logger.warn("No result found for " + journeyRequest.toString() + " at " + queryTime);
         }
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());

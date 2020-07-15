@@ -48,7 +48,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parent = null;
         this.outbounds = new ArrayList<>();
 
-        this.builders = new Builders(sortsPositions, destinationStationIds, destinationLatLonHint, config);
+        this.builders = new Builders(sortsPositions, destinationLatLonHint, config);
     }
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
@@ -83,7 +83,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         return outbounds;
     }
 
-    // TODO Return iterable instead
+    // TODO Return iterable instead?
     protected static List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, NodeId hasNodeId) {
         long nodeId = hasNodeId.nodeId();
         ArrayList<Relationship> results = new ArrayList<>();
@@ -95,14 +95,15 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         return results;
     }
 
-
     @NotNull
     protected List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
         // towards final destination, just follow this one
         List<Relationship> towardsDestination = new ArrayList<>();
-        outgoing.forEach(depart -> {if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-            towardsDestination.add(depart);
-        }
+        outgoing.forEach(depart ->
+        {
+            if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
+                towardsDestination.add(depart);
+            }
         });
         return towardsDestination;
     }
@@ -138,10 +139,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         protected final HourState.Builder hour;
         protected final DestinationState.Builder destination;
 
-        public Builders(SortsPositions sortsPositions, Set<String> destinationStationIds, LatLong destinationLatLon, TramchesterConfig config) {
+        public Builders(SortsPositions sortsPositions, LatLong destinationLatLon, TramchesterConfig config) {
             routeStation = new RouteStationStateOnTrip.Builder(config);
             routeStationEndTrip = new RouteStationStateEndTrip.Builder(config);
-            routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationStationIds, destinationLatLon);
+            routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationLatLon);
             busStation = new BusStationState.Builder();
             service = new ServiceState.Builder();
             platform = new PlatformState.Builder();

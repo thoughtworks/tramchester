@@ -60,4 +60,14 @@ public class BoxWithCostDTO {
     public JourneyDTO getJourney() {
         return journey;
     }
+
+    @Override
+    public String toString() {
+        return "BoxWithCostDTO{" +
+                "bottomLeft=" + bottomLeft +
+                ", topRight=" + topRight +
+                ", minutes=" + minutes +
+                ", journey=" + journey +
+                '}';
+    }
 }

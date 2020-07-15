@@ -50,7 +50,8 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
 
     @NonNull
     private <T> Cache<Long, T> createCache(int maximumSize) {
-        return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(10, TimeUnit.MINUTES).
+        // TODO cache expiry time into Config
+        return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(30, TimeUnit.MINUTES).
                 recordStats().build();
     }
 

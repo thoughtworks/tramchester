@@ -76,6 +76,7 @@ public class JourneysForGridResource implements APIResource {
         TramServiceDate tramServiceDate = new TramServiceDate(date);
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, queryTime,
                 false, maxChanges, maxDuration);
+        journeyRequest.setWarnIfNoResults(false);
 
         logger.info("Create search");
         Stream<BoxWithCostDTO> results = search.

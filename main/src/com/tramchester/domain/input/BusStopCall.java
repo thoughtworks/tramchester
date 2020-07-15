@@ -10,6 +10,6 @@ public class BusStopCall extends StopCall {
 
     @Override
     public String getPlatformId() {
-        throw new RuntimeException("BUs stops don't have platforms");
+        throw new RuntimeException("Bus stops don't have platforms");
     }
 }

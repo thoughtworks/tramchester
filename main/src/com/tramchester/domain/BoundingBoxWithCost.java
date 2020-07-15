@@ -5,7 +5,7 @@ import com.tramchester.geo.BoundingBox;
 
 public class BoundingBoxWithCost extends BoundingBox {
 
-   private final int minutes;
+    private final int minutes;
     private final Journey journey;
 
     public BoundingBoxWithCost(BoundingBox box, int minutes, Journey journey) {

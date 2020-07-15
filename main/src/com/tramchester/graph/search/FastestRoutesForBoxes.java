@@ -55,7 +55,8 @@ public class FastestRoutesForBoxes {
         Set<Station> destinations = searchBoxWithDest.get().getStaions();
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
-        return calculator.calculateRoutes(destinations, journeyRequest, grouped).map(box->cheapest(box, destinationGrid));
+        return calculator.calculateRoutes(destinations, journeyRequest, grouped).
+                map(box->cheapest(box, destinationGrid));
     }
 
     @NotNull
@@ -75,6 +76,11 @@ public class FastestRoutesForBoxes {
             return new BoundingBoxWithCost(journeysForBox.getBox(), 0, null);
         }
 
+        if (journeysForBox.getJourneys().isEmpty()) {
+            logger.warn("No journeys for " + journeysForBox.getBox());
+            return new BoundingBoxWithCost(journeysForBox.getBox(), -1, null);
+        }
+
         int currentLowestCost = Integer.MAX_VALUE;
         Journey currentBest = null;
 
@@ -86,9 +92,6 @@ public class FastestRoutesForBoxes {
                 currentBest = journey;
                 currentLowestCost = duration;
             }
-        }
-        if (journeysForBox.getJourneys().isEmpty()) {
-            currentLowestCost = -1;
         }
 
         return new BoundingBoxWithCost(journeysForBox.getBox(), currentLowestCost, currentBest);

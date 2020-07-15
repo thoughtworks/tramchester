@@ -178,7 +178,7 @@ var mapApp = new Vue({
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
             addRoutes();
-            addStations();
+            //addStations();
             mapApp.journeyLayer = L.featureGroup()
         }
     },
