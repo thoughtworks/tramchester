@@ -25,7 +25,6 @@ public class JourneyDTO implements CallsAtPlatforms {
     private List<StageDTO> stages;
     private TramTime expectedArrivalTime;
     private TramTime firstDepartureTime;
-    private String dueTram;
     private boolean isDirect;
     private List<String> changeStations;
     private TramTime queryTime;
@@ -76,14 +75,6 @@ public class JourneyDTO implements CallsAtPlatforms {
         return end;
     }
 
-    public String getDueTram() {
-        return dueTram;
-    }
-
-    public void setDueTram(String dueTram) {
-        this.dueTram = dueTram;
-    }
-
     public boolean getIsDirect() {
         return isDirect;
     }
@@ -100,7 +91,6 @@ public class JourneyDTO implements CallsAtPlatforms {
                 ", stages=" + stages +
                 ", expectedArrivalTime=" + expectedArrivalTime +
                 ", firstDepartureTime=" + firstDepartureTime +
-                ", dueTram='" + dueTram + '\'' +
                 ", isDirect=" + isDirect +
                 ", changeStations=" + changeStations +
                 ", queryTime=" + queryTime +

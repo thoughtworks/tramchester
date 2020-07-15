@@ -51,11 +51,10 @@ public class ServiceHeuristics {
         this.tramReachabilityRepository = tramReachabilityRepository;
 
         this.maxWaitMinutes = config.getMaxWait();
-        this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         this.queryTime = queryTime;
         this.changesLimit = journeyRequest.getMaxChanges();
+        this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         this.runningServices = runningServices;
-//        this.reasons = reasons;
 
         endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toSet());
 
@@ -203,8 +202,6 @@ public class ServiceHeuristics {
     public TramTime getQueryTime() {
         return queryTime;
     }
-
-//    public ServiceReasons getReasons() { return reasons; }
 
     public int getMaxPathLength() {
         return maxPathLength;

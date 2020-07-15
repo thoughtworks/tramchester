@@ -9,9 +9,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class PreviousSuccessfulVisits {
-    private final Map<Long, TramTime> hourVisits;
+    private final ConcurrentMap<Long, TramTime> hourVisits;
     private final Set<Long> timeVisits;
 
     private final NodeTypeRepository nodeTypeRepository;
@@ -38,14 +39,14 @@ public class PreviousSuccessfulVisits {
             // Time nodes encode a specific time, so the previous time *must* match for this node id
             return true;
         }
-        if (hourVisits.containsKey(nodeId)) {
-            TramTime previousVisitTime = hourVisits.get(nodeId);
-            if (previousVisitTime.equals(journeyClock)) {
-                return true; // been here before at exact same time, so no need to continue
-            }
+
+        TramTime previousTime = hourVisits.getOrDefault(nodeId, null);
+
+        if (previousTime==null) {
+            return false;
         }
 
-        return false;
+        return previousTime.equals(journeyClock); // been here before at exact same time, so no need to continue
     }
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node endNode, TramTime journeyClock) {
@@ -56,7 +57,7 @@ public class PreviousSuccessfulVisits {
             if (nodeTypeRepository.isTime(endNode))  {
                 timeVisits.add(endNode.getId());
             } else if (nodeTypeRepository.isHour(endNode)) {
-                hourVisits.put(endNode.getId(), journeyClock);
+                hourVisits.putIfAbsent(endNode.getId(), journeyClock);
             }
         }
     }

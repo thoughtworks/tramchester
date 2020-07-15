@@ -151,10 +151,10 @@ public class RouteCalculator implements TramRouteCalculator {
 
         final ServiceHeuristics serviceHeuristics = createHeuristics(journeyRequest, runningServicesIds, time, destinations);
 
+        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
+        final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
 
         return grouped.parallelStream().map(box -> {
-            // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-            final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();

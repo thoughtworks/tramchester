@@ -44,24 +44,26 @@ class JsonStreamingOutput<T> implements StreamingOutput {
             }
         });
 
+
         try (final JsonGenerator jsonGenerator = jsonFactory.createGenerator(outputStream)) {
             jsonGenerator.writeStartArray();
             theStream.forEach(item -> {
-                synchronized (jsonGenerator) {
+                synchronized (outputStream) {
                     try {
                         jsonGenerator.writeObject(item);
                         jsonGenerator.writeString(System.lineSeparator());
                         jsonGenerator.writeString(System.lineSeparator());
                         jsonGenerator.flush();
-                    } catch (IOException e) {
-                        logger.error("Exception during streaming item " + item.toString(), e);
+                    } catch (IOException innerException) {
+                        logger.error("Exception during streaming item " + item.toString(), innerException);
                     }
                 }
             });
             jsonGenerator.writeEndArray();
             jsonGenerator.flush();
-        } catch (IOException e) {
-           logger.warn("Exception during streaming", e);
+        }
+        catch (IOException ioException) {
+           logger.warn("Exception during streaming", ioException);
         } finally {
             theStream.close();
             logger.info("Stream closed");
