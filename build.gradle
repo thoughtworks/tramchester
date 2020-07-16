@@ -115,7 +115,7 @@ task cleanGraph() {
         delete 'databases/integrationBusTest' ,
                 'databases/integrationTramTest',
                 'databases/tramchesterAcceptance.db',
-                'tramchester.db', 'buses.db'
+                'tramchester.db', 'buses.db', 'trains.db'
     }
 }
 
@@ -143,7 +143,6 @@ clean {
 }
 
 run {
-    //jvmArgs '-verbose:class'
     dependsOn 'webpack'
     args 'server', 'config/local.yml'
 }
@@ -177,7 +176,15 @@ task blockhost(dependsOn: cfnassist) {
 task buses(type:JavaExec, dependsOn: 'webpack') {
     main = mainClassName
     classpath = sourceSets.main.runtimeClasspath
+    maxHeapSize = "3g"
     args 'server', 'config/buses.yml'
+}
+
+task trains(type:JavaExec, dependsOn: 'webpack') {
+    main = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    maxHeapSize = "3g"
+    args 'server', 'config/trains.yml'
 }
 
 task dev(type:JavaExec, dependsOn: 'webpack') {
