@@ -3,9 +3,11 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.repository.TransportDataFromFiles;
-import org.junit.jupiter.api.*;
+import com.tramchester.repository.TransportData;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 
@@ -15,7 +17,7 @@ class SummaryOfRoutesAndServicesTest {
 
     private static Dependencies dependencies;
 
-    private TransportDataFromFiles transportData;
+    private TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
@@ -30,7 +32,7 @@ class SummaryOfRoutesAndServicesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(TransportDataFromFiles.class);
+        transportData = dependencies.get(TransportData.class);
     }
 
     @Test

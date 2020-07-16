@@ -5,27 +5,27 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFilesBuilder;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class TransportDataFromFileFactory {
+public class TransportDataBuilderFactory {
 
     private final TransportDataReader transportDataReader;
     private final ProvidesNow providesNow;
     private final StationLocations stationLocations;
 
-    public TransportDataFromFileFactory(TransportDataLoader providesLoader, ProvidesNow providesNow,
-                                        StationLocations stationLocations) {
+    public TransportDataBuilderFactory(TransportDataLoader providesLoader, ProvidesNow providesNow,
+                                       StationLocations stationLocations) {
         this.transportDataReader = providesLoader.getForLoader();
         this.providesNow = providesNow;
         this.stationLocations = stationLocations;
     }
 
     // feedinfo is not mandatory in the standard
-    public TransportDataFromFiles create(boolean expectFeedinfo) {
+    public TransportDataFromFilesBuilder create(boolean expectFeedinfo) {
         // streams, so no data read yet
 
         Set<String> includeAll = Collections.emptySet();
@@ -43,11 +43,11 @@ public class TransportDataFromFileFactory {
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
         Stream<AgencyData> agencyData = transportDataReader.getAgencies(new AgencyDataMapper(includeAll));
 
-        TransportDataFromFiles.TransportDataStreams transportDataStreams =
-                new TransportDataFromFiles.TransportDataStreams(agencyData, stopData, routeData, tripData,
+        TransportDataFromFilesBuilder.TransportDataStreams transportDataStreams =
+                new TransportDataFromFilesBuilder.TransportDataStreams(agencyData, stopData, routeData, tripData,
                     stopTimeData, calendarData, feedInfoData, calendarsDates, expectFeedinfo);
 
-        return new TransportDataFromFiles(stationLocations, transportDataStreams);
+        return new TransportDataFromFilesBuilder(transportDataStreams, stationLocations);
 
     }
 }

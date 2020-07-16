@@ -20,7 +20,6 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -53,15 +52,14 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final StationLocations stationLocations;
     private final TramchesterConfig config;
 
-    public StationResource(TransportDataFromFiles transportData, SpatialService spatialService,
-                           ClosedStations closedStations,
-                           UpdateRecentJourneys updateRecentJourneys,
-                           ObjectMapper mapper,
-                           MyLocationFactory locationFactory, ProvidesNow providesNow, ProximityGroups proximityGroups, StationLocations stationLocations, TramchesterConfig config) {
+    public StationResource(StationRepository stationRepository, SpatialService spatialService,
+                           ClosedStations closedStations, UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
+                           MyLocationFactory locationFactory, ProvidesNow providesNow, ProximityGroups proximityGroups,
+                           StationLocations stationLocations, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
         this.spatialService = spatialService;
         this.closedStations = closedStations;
-        this.stationRepository = transportData;
+        this.stationRepository = stationRepository;
         this.locationFactory = locationFactory;
         this.proximityGroups = proximityGroups;
         this.stationLocations = stationLocations;

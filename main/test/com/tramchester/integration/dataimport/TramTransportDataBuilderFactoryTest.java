@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DownloadConfig;
-import com.tramchester.dataimport.TransportDataFromFileFactory;
+import com.tramchester.dataimport.TransportDataBuilderFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.Route;
@@ -10,11 +10,11 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFilesBuilder;
+import com.tramchester.repository.TransportDataSource;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TramTransportDataFromFileFactoryTest {
+class TramTransportDataBuilderFactoryTest {
 
     private final DownloadConfig config = new DownloadConfig() {
 
@@ -55,11 +55,12 @@ class TramTransportDataFromFileFactoryTest {
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
 
-        TransportDataFromFileFactory transportDataImporter = new TransportDataFromFileFactory(factory, providesNow,
+        TransportDataBuilderFactory transportDataImporter = new TransportDataBuilderFactory(factory, providesNow,
                 stationLocations);
 
-        TransportDataFromFiles transportData = transportDataImporter.create(true);
-        transportData.start();
+        TransportDataFromFilesBuilder builder = transportDataImporter.create(true);
+        builder.load();
+        TransportDataSource transportData = builder.getData();
 
         assertThat(transportData.getRoutes()).hasSize(2);
 

@@ -5,17 +5,15 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,7 +24,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static junit.framework.TestCase.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LiveDataHTTPFetcherTest {
@@ -36,7 +33,7 @@ class LiveDataHTTPFetcherTest {
     private static String payload;
     private static IntegrationTramTestConfig configuration;
 
-    private TransportDataFromFiles transportData;
+    private TransportDataSource transportData;
     private LiveDataParser parser;
 
     @BeforeAll
@@ -56,7 +53,7 @@ class LiveDataHTTPFetcherTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(TransportDataFromFiles.class);
+        transportData = dependencies.get(TransportDataSource.class);
         parser = dependencies.get(LiveDataParser.class);
     }
 

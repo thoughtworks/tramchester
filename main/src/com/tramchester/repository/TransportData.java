@@ -8,7 +8,6 @@ import com.tramchester.domain.time.TramServiceDate;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public interface TransportData extends ProvidesFeedInfo, StationRepository {
     Collection<Service> getServices();
@@ -23,4 +22,6 @@ public interface TransportData extends ProvidesFeedInfo, StationRepository {
     Collection<Agency> getAgencies();
 
     String getVersion();
+
+    Service getServiceById(String serviceId);
 }

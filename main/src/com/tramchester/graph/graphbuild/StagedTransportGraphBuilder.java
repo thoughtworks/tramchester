@@ -230,7 +230,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createRouteRelationships(Transaction tx, GraphFilter filter, Route route, RouteBuilderCache routeBuilderCache) {
         Stream<Service> services = getServices(filter, route);
 
-        Map<Pair<Station, Station>, RouteLinkInfo> pairs = new HashMap<>();
+        Map<Pair<Station, Station>, Integer> pairs = new HashMap<>();
         services.forEach(service -> {
 
             service.getTripsFor(route).forEach(trip -> {
@@ -242,28 +242,16 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         if (includeBothStops(filter, currentStop, nextStop)) {
                             if (!pairs.containsKey(Pair.of(currentStop.getStation(), nextStop.getStation()))) {
                                 int cost = ServiceTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
-                                pairs.put(Pair.of(currentStop.getStation(), nextStop.getStation()), new RouteLinkInfo(service,trip,cost));
+                                pairs.put(Pair.of(currentStop.getStation(), nextStop.getStation()), cost);
                             }
                         }
                     }
                 });
         });
-        pairs.forEach((pair, info) -> createRouteRelationship(
+        pairs.forEach((pair, cost) -> createRouteRelationship(
                 routeBuilderCache.getRouteStation(tx, route, pair.getLeft()),
-                routeBuilderCache.getRouteStation(tx, route, pair.getRight()), route, info.cost));
+                routeBuilderCache.getRouteStation(tx, route, pair.getRight()), route, cost));
 
-    }
-
-    private static class RouteLinkInfo {
-        private final Service service;
-        private Trip trip;
-        private int cost;
-
-        public RouteLinkInfo(Service service, Trip trip, int cost) {
-            this.service = service;
-            this.trip = trip;
-            this.cost = cost;
-        }
     }
 
     private boolean includeBothStops(GraphFilter filter, StopCall currentStop, StopCall nextStop) {

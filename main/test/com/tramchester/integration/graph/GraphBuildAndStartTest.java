@@ -14,7 +14,8 @@ import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.repository.TransportDataFromFilesBuilder;
+import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -45,26 +46,27 @@ class GraphBuildAndStartTest {
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
-        TransportDataFromFileFactory fileFactory = new TransportDataFromFileFactory(new TransportDataReaderFactory(config),
+        TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config),
                 providesNow, stationLocations);
-        TransportDataFromFiles transportData = fileFactory.create(true);
+        TransportDataFromFilesBuilder builder = fileFactory.create(true);
+
+        builder.load();
+        TransportDataSource transportData = builder.getData();
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 
         GraphDatabase graphDatabase = new GraphDatabase(config);
         GraphQuery graphQuery = new GraphQuery(graphDatabase);
 
-        GraphBuilder transportGraphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, new IncludeAllFilter(),
+        GraphBuilder graphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, new IncludeAllFilter(),
                 graphQuery, nodeIdLabelMap, transportData, interchangeRepository);
 
-        transportData.start();
         interchangeRepository.start();
         graphDatabase.start();
         Assertions.assertTrue(graphDatabase.isAvailable(2000));
-        transportGraphBuilder.start();
+        graphBuilder.start();
 
         graphDatabase.stop();
         interchangeRepository.dispose();
-        transportData.dispose();
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

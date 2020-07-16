@@ -23,10 +23,11 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Deprecated
 public class TransportDataFromFiles implements TransportDataSource, Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
-    private final TransportDataStreams transportDataStreams;
+    private final TransportDataFromFilesBuilder.TransportDataStreams transportDataStreams;
     private final HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private final HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
     private final HashMap<String, Station> stationsByName = new HashMap<>();  // station id -> station
@@ -35,6 +36,8 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     private final HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
     private final HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
     private final HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
+    private FeedInfo feedInfo = null;
+    private String version;
 
     // keep track of excluded due to transport type filters so can log ones missing for other reasons
     private final Set<String> excludedRoutes;
@@ -43,10 +46,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
 
     private final StationLocations stationLocations;
 
-    private FeedInfo feedInfo = null;
-    private String version;
-
-    public TransportDataFromFiles(StationLocations stationLocations, TransportDataStreams transportDataStreams) {
+    public TransportDataFromFiles(StationLocations stationLocations, TransportDataFromFilesBuilder.TransportDataStreams transportDataStreams) {
         this.stationLocations = stationLocations;
         this.transportDataStreams = transportDataStreams;
         this.excludedRoutes = new HashSet<>();
@@ -375,7 +375,6 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             throw new RuntimeException(msg);
         }
         return stationsById.get(stationId);
-
     }
 
     @Override
@@ -422,47 +421,5 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
         return services.values().stream().
                 filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toUnmodifiableSet());
     }
-
-    public static class TransportDataStreams {
-        final Stream<StopData> stops;
-        final Stream<RouteData> routes;
-        final Stream<TripData> trips;
-        final Stream<StopTimeData> stopTimes;
-        final Stream<CalendarData> calendars;
-        final Stream<FeedInfo> feedInfo;
-        final Stream<CalendarDateData> calendarsDates;
-        final Stream<AgencyData> agencies;
-        final private boolean expectFeedInfo;
-
-        public TransportDataStreams(Stream<AgencyData> agencies, Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
-                                    Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
-                                    Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates, boolean expectFeedInfo) {
-            this.agencies = agencies;
-            this.stops = stops;
-            this.routes = routes;
-            this.trips = trips;
-            this.stopTimes = stopTimes;
-            this.calendars = calendars;
-            this.feedInfo = feedInfo;
-            this.calendarsDates = calendarsDates;
-            this.expectFeedInfo = expectFeedInfo;
-        }
-
-        public void closeAll() {
-            stops.close();
-            routes.close();
-            trips.close();
-            stopTimes.close();
-            calendars.close();
-            feedInfo.close();
-            calendarsDates.close();
-            agencies.close();
-        }
-
-        public boolean hasFeedInfo() {
-            return expectFeedInfo;
-        }
-    }
-
 
 }

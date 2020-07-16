@@ -74,17 +74,18 @@ public class Dependencies {
         picoContainer.addComponent(DataCleanser.class);
         picoContainer.addComponent(URLDownloader.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
-        picoContainer.addComponent(TransportDataFromFileFactory.class);
+        picoContainer.addComponent(TransportDataBuilderFactory.class);
 
         FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
         Unzipper unzipper = get(Unzipper.class);
         fetcher.fetchData(unzipper);
         cleanseData();
 
-        TransportDataFromFileFactory transportDataImporter = get(TransportDataFromFileFactory.class);
-        TransportDataSource transportData = transportDataImporter.create(true);
+        TransportDataBuilderFactory builderFactory = get(TransportDataBuilderFactory.class);
+        TransportDataFromFilesBuilder builder = builderFactory.create(true);
+        builder.load();
 
-        initialise(configuration, transportData);
+        initialise(configuration, builder.getData());
     }
 
     // init dependencies but possibly with alternative source of transport data

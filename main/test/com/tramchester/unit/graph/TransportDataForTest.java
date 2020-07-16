@@ -22,6 +22,8 @@ import java.util.*;
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
 import static java.lang.String.format;
 
+// TOOD Use TransportDataContainer instead
+
 @SuppressWarnings("FieldCanBeLocal")
 public class TransportDataForTest implements TransportDataSource, Startable, Disposable {
     public static final String TRIP_A_ID = "tripAId";
@@ -261,6 +263,11 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
     @Override
     public String getVersion() {
         return "version";
+    }
+
+    @Override
+    public Service getServiceById(String serviceId) {
+        return services.stream().filter(service -> service.getId().equals(serviceId)).findAny().get();
     }
 
     @Override
