@@ -5,6 +5,7 @@ import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,9 +29,9 @@ class TramStopCallsTest {
         stationC = new Station("statC", "areaC", "nameC", new LatLong(-3,3), false);
         stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
 
-        stopA = new TramStopCall(from("statA1"), stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
-        stopB = new TramStopCall(from("statB1"), stationB, (byte) 2, TramTime.of(10, 2), TramTime.of(10, 3));
-        stopC = new TramStopCall(from("statC1"), stationC, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        stopA = new TramStopCall(from("statA1"), stationA, (byte) 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
+        stopB = new TramStopCall(from("statB1"), stationB, (byte) 2, ServiceTime.of(10, 2), ServiceTime.of(10, 3));
+        stopC = new TramStopCall(from("statC1"), stationC, (byte) 3, ServiceTime.of(10, 10), ServiceTime.of(10, 10));
     }
 
     @Test

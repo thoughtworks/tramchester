@@ -9,25 +9,17 @@ import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
 import java.time.LocalDate;
 
-public class FeedInfoDTO {
+public class DataVersionDTO {
     private boolean bus;
     private String version;
     private LocalDate validFrom;
     private LocalDate validUntil;
-    private String publisherName;
-    private String publisherUrl;
-    private String timezone;
-    private String lang;
 
-    public FeedInfoDTO() {
+    public DataVersionDTO() {
         // for JSON deserialisation
     }
 
-    public FeedInfoDTO(FeedInfo feedInfo, TramchesterConfig config) {
-        this.publisherName = feedInfo.getPublisherName();
-        this.publisherUrl = feedInfo.getPublisherUrl();
-        this.timezone = feedInfo.getTimezone();
-        this.lang = feedInfo.getLang();
+    public DataVersionDTO(FeedInfo feedInfo, TramchesterConfig config) {
         this.validFrom = feedInfo.validFrom();
         this.validUntil = feedInfo.validUntil();
         this.version = feedInfo.getVersion();
@@ -48,22 +40,6 @@ public class FeedInfoDTO {
     @JsonDeserialize(using = LocalDateJsonDeserializer.class)
     public LocalDate validUntil() {
         return validUntil;
-    }
-
-    public String getPublisherName() {
-        return publisherName;
-    }
-
-    public String getPublisherUrl() {
-        return publisherUrl;
-    }
-
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public String getLang() {
-        return lang;
     }
 
     public boolean getBus() {

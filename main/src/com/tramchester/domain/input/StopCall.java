@@ -1,26 +1,27 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 
 public abstract class StopCall {
     protected final Station station;
-    protected final TramTime arrivalTime;
-    protected final TramTime departureTime;
+    protected final ServiceTime arrivalTime;
+    protected final ServiceTime departureTime;
     protected final byte sequenceNumber;
 
-    public StopCall(Station station, TramTime arrivalTime, TramTime departureTime, byte sequenceNumber) {
+    public StopCall(Station station, ServiceTime arrivalTime, ServiceTime departureTime, byte sequenceNumber) {
         this.station = station;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.sequenceNumber = sequenceNumber;
     }
 
-    public TramTime getArrivalTime() {
+    public ServiceTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public TramTime getDepartureTime() {
+    public ServiceTime getDepartureTime() {
         return departureTime;
     }
 

@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.unit.dataimport.parsers.ParserBuilder;
 import org.junit.jupiter.api.Test;
@@ -73,8 +74,8 @@ class TramDataLoaderTest {
         assertThat(stopTime.getTripId()).isEqualTo("Trip000001");
         assertThat(stopTime.getDropOffType()).isEqualTo("1");
         assertThat(stopTime.getStopSequence()).isEqualTo("0001");
-        assertThat(stopTime.getArrivalTime()).isEqualTo(TramTime.of(6,41));
-        assertThat(stopTime.getDepartureTime()).isEqualTo(TramTime.of(6,41));
+        assertThat(stopTime.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
+        assertThat(stopTime.getDepartureTime()).isEqualTo(ServiceTime.of(6,41));
     }
 
     @Test

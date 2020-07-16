@@ -43,8 +43,8 @@ public class TransportDataReader {
         return factory.getLoaderFor(InputFiles.routes, routeDataMapper, true).loadFiltered(true);
     }
 
-    public Stream<FeedInfo> getFeedInfo(boolean mandatory, FeedInfoDataMapper feedInfoDataMapper) {
-        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper, mandatory).loadFiltered(true);
+    public Stream<FeedInfo> getFeedInfo(FeedInfoDataMapper feedInfoDataMapper) {
+        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper, true).loadFiltered(true);
     }
 
     public Stream<AgencyData> getAgencies(AgencyDataMapper agencyDataMapper) {

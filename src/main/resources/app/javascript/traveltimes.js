@@ -199,7 +199,7 @@ var mapApp = new Vue({
                 mapApp.routes = response.data;
                 mapApp.draw();
                 // 9400ZZMASTP 9400ZZMAAIR
-                queryForGrid(2000, "9400ZZMAAIR", "9:15", getCurrentDate(), "5", "360");
+                queryForGrid(2000, "9400ZZMAAIR", "8:15", getCurrentDate(), "7", "360");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);

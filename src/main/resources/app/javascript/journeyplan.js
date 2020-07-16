@@ -277,7 +277,7 @@ var app = new Vue({
             if (cookie==null) {
                 this.$refs.cookieModal.show();
             }
-            axios.get('/api/feedinfo')
+            axios.get('/api/datainfo')
                 .then(function (response) {
                     app.networkError = false;
                     app.feedinfo = response.data;

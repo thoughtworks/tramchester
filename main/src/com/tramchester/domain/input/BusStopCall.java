@@ -1,10 +1,11 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 
 public class BusStopCall extends StopCall {
-    public BusStopCall(Station station, byte sequenceNumber, TramTime arrivalTime, TramTime departureTime) {
+    public BusStopCall(Station station, byte sequenceNumber, ServiceTime arrivalTime, ServiceTime departureTime) {
         super(station, arrivalTime, departureTime, sequenceNumber);
     }
 

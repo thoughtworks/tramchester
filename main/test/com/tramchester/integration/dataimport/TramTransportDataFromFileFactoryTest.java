@@ -9,6 +9,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.geo.CoordinateTransforms;
@@ -68,17 +69,17 @@ class TramTransportDataFromFileFactoryTest {
 
         Service service = route.getServices().stream().findFirst().get();
         assertThat(service.getId()).isEqualTo("Serv000001");
-        assertThat(service.getTrips()).hasSize(3);
+        assertThat(service.getAllTrips()).hasSize(3);
         assertThat(service.operatesOn(LocalDate.of(2014,11,1)));
         assertThat(!service.operatesOn(LocalDate.of(2014,11,20)));
 
-        Trip trip = service.getTrips().stream().findFirst().get();
+        Trip trip = service.getAllTrips().stream().findFirst().get();
         assertThat(trip.getId()).isEqualTo("Trip000001");
         assertThat(trip.getStops()).hasSize(9);
 
         StopCall stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
-        assertThat(stop.getArrivalTime()).isEqualTo(TramTime.of(06,41));
+        assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(06,41));
         assertThat(Byte.toUnsignedInt(stop.getGetSequenceNumber())).isEqualTo(1);
 
         FeedInfo feedInfo = transportData.getFeedInfo();

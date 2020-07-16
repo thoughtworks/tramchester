@@ -58,7 +58,7 @@ public class  TramTime implements Comparable<TramTime> {
         return Optional.of(TramTime.of(hour,minutes));
     }
 
-    private TramTime(int hour, int minute) {
+    protected TramTime(int hour, int minute) {
         this.hour = hour;
         this.minute = minute;
         this.hash = Objects.hash(hour, minute);
@@ -204,6 +204,10 @@ public class  TramTime implements Comparable<TramTime> {
         return (this.equals(end) || isBefore(end));
     }
 
+    public boolean between(ServiceTime start, ServiceTime end) {
+        return ServiceTime.isBetween(this, start, end);
+    }
+
     public boolean isBefore(TramTime other) {
         if (this.equals(other)) {
             return false;
@@ -223,7 +227,6 @@ public class  TramTime implements Comparable<TramTime> {
         }
 
         return other.isAfterBasic(this);
-
     }
 
     public boolean isAfter(TramTime other) {
@@ -280,4 +283,5 @@ public class  TramTime implements Comparable<TramTime> {
         int newHours = (hour + hoursToAdd) % 24;
         return TramTime.of(newHours, newMins);
     }
+
 }

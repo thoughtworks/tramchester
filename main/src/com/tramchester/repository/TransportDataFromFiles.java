@@ -44,6 +44,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     private final StationLocations stationLocations;
 
     private FeedInfo feedInfo = null;
+    private String version;
 
     public TransportDataFromFiles(StationLocations stationLocations, TransportDataStreams transportDataStreams) {
         this.stationLocations = stationLocations;
@@ -57,11 +58,13 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     public void start() {
         logger.info("Loading transport data from files");
 
-        Optional<FeedInfo> maybeFeedInfo = transportDataStreams.feedInfo.limit(1).findFirst();
-        if (maybeFeedInfo.isPresent()) {
-            this.feedInfo = maybeFeedInfo.get();
+        if(transportDataStreams.hasFeedInfo()) {
+            this.feedInfo = transportDataStreams.feedInfo.findFirst().get();
+            this.version = feedInfo.getVersion();
         } else {
-            logger.warn("Did not find feedinfo");
+            // TODO Base on file mod time??
+            this.version = UUID.randomUUID().toString();
+            logger.warn("Do no have feedinfo for this data source");
         }
 
         populateAgencies(transportDataStreams.agencies);
@@ -84,8 +87,6 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
         transportDataStreams.closeAll();
         logger.info("Finished loading transport data");
     }
-
-
 
     private void updateTimesForServices() {
         // Cannot do this until after all stops loaded into trips
@@ -116,6 +117,8 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     }
 
     private void populateCalendars(Stream<CalendarData> calendars, Stream<CalendarDateData> calendarsDates) {
+
+        Set<String> missingCalendar = new HashSet<>();
         calendars.forEach(calendar -> {
             String serviceId = calendar.getServiceId();
             Service service = services.get(serviceId);
@@ -133,11 +136,15 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
                 service.setServiceDateRange(calendar.getStartDate(), calendar.getEndDate());
             } else {
                 if (!excludedServices.contains(serviceId)) {
-                    logger.warn("Failed to match service id " + serviceId + " for calendar");
+                    missingCalendar.add(serviceId);
                 }
             }
         });
+        if (!missingCalendar.isEmpty()) {
+            logger.warn("Failed to match service id " + missingCalendar.toString() + " for calendar");
+        }
 
+        Set<String> missingCalendarDates = new HashSet<>();
         calendarsDates.forEach(date -> {
             String serviceId = date.getServiceId();
             Service service = services.get(serviceId);
@@ -145,10 +152,13 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
                 service.addExceptionDate(date.getDate(), date.getExceptionType());
             } else {
                 if (!excludedServices.contains(serviceId)) {
-                    logger.warn("Failed to find service id "+serviceId+" for calendar_dates");
+                    missingCalendarDates.add(serviceId);
                 }
             }
         });
+        if (!missingCalendarDates.isEmpty()) {
+            logger.warn("Failed to find service id " + missingCalendarDates.toString() + " for calendar_dates");
+        }
     }
 
     private void populateStopTimes(Stream<StopTimeData> stopTimes) {
@@ -212,7 +222,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             } else {
                 if (excludedRoutes.contains(routeId)) {
                     excludedTrips.add(tripData.getTripId());
-                    if (services.containsKey(serviceId)) {
+                    if (!services.containsKey(serviceId)) {
                         excludedServices.add(serviceId);
                     }
                 } else {
@@ -225,9 +235,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
 
     private void populateAgencies(Stream<AgencyData> agencyDataStream) {
         logger.info("Loading agencies");
-        agencyDataStream.forEach(agencyData -> {
-            agencies.put(agencyData.getId(), new Agency(agencyData.getId(), agencyData.getName()));
-        });
+        agencyDataStream.forEach(agencyData -> agencies.put(agencyData.getId(), new Agency(agencyData.getId(), agencyData.getName())));
         logger.info("Loaded " + agencies.size());
     }
 
@@ -237,7 +245,6 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             String agencyId = routeData.getAgency();
             if (!agencies.containsKey(agencyId)) {
                 logger.error("Missing agency " + agencyId);
-                //agencies.put(agencyId, new Agency(agencyId, agencyName));
             }
 
             GTFSTransportationType routeType = GTFSTransportationType.getType(routeData.getRouteType());
@@ -249,7 +256,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
                 routes.put(route.getId(), route);
                 agencies.get(agencyId).addRoute(route);
             } else {
-                excludedRoutes .add(routeData.getId());
+                excludedRoutes.add(routeData.getId());
                 logger.info("Unsupported GTFS transport type: " + routeType + " agency:" + routeData.getAgency() + " routeId: " + routeData.getId());
             }
         });
@@ -272,6 +279,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
                 station = stationsById.get(stationId);
             }
 
+            // TODO Trains?
             if (stop.isTram()) {
                 Platform platform;
                 if (!platforms.containsKey(stopId)) {
@@ -311,7 +319,9 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             services.put(serviceId, new Service(serviceId, route));
             excludedServices.remove(serviceId);
         }
-        return services.get(serviceId);
+        Service service = services.get(serviceId);
+        service.addRoute(route);
+        return service;
     }
 
     public Collection<Route> getRoutes() {
@@ -337,6 +347,11 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
     }
 
     @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
     public Set<RouteStation> getRouteStations() {
         return new HashSet<>(routeStations.values());
     }
@@ -346,6 +361,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
         return routeStations.get(routeStationId);
     }
 
+    @Deprecated
     @Override
     public FeedInfo getFeedInfo() {
         return feedInfo;
@@ -416,10 +432,11 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
         final Stream<FeedInfo> feedInfo;
         final Stream<CalendarDateData> calendarsDates;
         final Stream<AgencyData> agencies;
+        final private boolean expectFeedInfo;
 
         public TransportDataStreams(Stream<AgencyData> agencies, Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
                                     Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
-                                    Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates) {
+                                    Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates, boolean expectFeedInfo) {
             this.agencies = agencies;
             this.stops = stops;
             this.routes = routes;
@@ -428,6 +445,7 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             this.calendars = calendars;
             this.feedInfo = feedInfo;
             this.calendarsDates = calendarsDates;
+            this.expectFeedInfo = expectFeedInfo;
         }
 
         public void closeAll() {
@@ -439,6 +457,10 @@ public class TransportDataFromFiles implements TransportDataSource, Startable, D
             feedInfo.close();
             calendarsDates.close();
             agencies.close();
+        }
+
+        public boolean hasFeedInfo() {
+            return expectFeedInfo;
         }
     }
 

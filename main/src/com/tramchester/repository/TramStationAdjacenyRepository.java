@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -38,7 +39,7 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
                 StopCall nextStop = stops.get(i + 1);
                 Pair<Station, Station> pair = formId(currentStop.getStation(), nextStop.getStation());
                 if (!matrix.containsKey(pair)) {
-                    int cost = TramTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
+                    int cost = ServiceTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
                     matrix.put(pair, cost);
                 }
             }

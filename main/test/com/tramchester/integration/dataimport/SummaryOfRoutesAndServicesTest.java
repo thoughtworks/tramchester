@@ -46,7 +46,7 @@ class SummaryOfRoutesAndServicesTest {
                 printStream.println(format("Service ID:%s  (%s)",svc.getId(), route.getName()));
                 svc.summariseDates(printStream);
 
-                svc.getTrips().forEach(trip ->{
+                svc.getTripsFor(route).forEach(trip ->{
                     StopCalls stops = trip.getStops();
                     String from = stops.get(0).getStation().getName();
                     String to = stops.get(stops.size()-1).getStation().getName();

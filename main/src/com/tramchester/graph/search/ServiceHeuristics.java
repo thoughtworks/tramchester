@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.repository.RunningServices;
@@ -84,10 +85,10 @@ public class ServiceHeuristics {
         String serviceId = nodeOperations.getServiceId(node);
 
         // prepared to wait up to max wait for start of a service...
-        TramTime serviceStart = runningServices.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
+        ServiceTime serviceStart = runningServices.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
 
         // BUT if arrive after service finished there is nothing to be done...
-        TramTime serviceEnd = runningServices.getServiceLatest(serviceId);
+        ServiceTime serviceEnd = runningServices.getServiceLatest(serviceId);
 
         if (!currentClock.between(serviceStart, serviceEnd)) {
             return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));

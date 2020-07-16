@@ -3,13 +3,15 @@ package com.tramchester.domain;
 
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
+import org.checkerframework.checker.regex.RegexUtil;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -25,8 +27,8 @@ public class Service implements HasId {
     private final Set<LocalDate> additional;
     private final Set<LocalDate> removed;
 
-    private TramTime earliestDepart;
-    private TramTime latestDepart;
+    private ServiceTime earliestDepart;
+    private ServiceTime latestDepart;
 
     public Service(String serviceId, Route route) {
         this.serviceId = serviceId.intern();
@@ -44,12 +46,19 @@ public class Service implements HasId {
         return serviceId;
     }
 
-    public Set<Trip> getTrips() {
+    public Set<Trip> getAllTrips() {
         return trips;
     }
 
     public void addTrip(Trip trip) {
+        if (!routes.contains(trip.getRoute())) {
+            throw new RuntimeException("Service does not contain route " + trip.getRoute());
+        }
         trips.add(trip); // stop population not done at this stage, see updateTimings
+    }
+
+    public void addRoute(Route route) {
+        routes.add(route);
     }
 
     public void updateTimings() {
@@ -57,14 +66,14 @@ public class Service implements HasId {
     }
 
     private void updateEarliestAndLatest(Trip trip) {
-        TramTime tripEarliest = trip.earliestDepartTime();
+        ServiceTime tripEarliest = trip.earliestDepartTime();
         if (earliestDepart==null) {
             earliestDepart = tripEarliest;
         } else if (tripEarliest.isBefore(earliestDepart)) {
             earliestDepart = tripEarliest;
         }
 
-        TramTime tripLatest = trip.latestDepartTime();
+        ServiceTime tripLatest = trip.latestDepartTime();
         if (latestDepart==null) {
             latestDepart = tripLatest;
         } else if (tripLatest.isAfter(latestDepart)) {
@@ -108,9 +117,9 @@ public class Service implements HasId {
         return routes;
     }
 
-//    public String getRouteId() {
-//        return route.getId();
-//    }
+    public Set<Trip> getTripsFor(Route route) {
+        return trips.stream().filter(trip->trip.getRoute().equals(route)).collect(Collectors.toSet());
+    }
 
     public void setServiceDateRange(LocalDate startDate, LocalDate endDate) {
         this.startDate = new TramServiceDate(startDate);
@@ -170,11 +179,11 @@ public class Service implements HasId {
         return false;
     }
 
-    public TramTime earliestDepartTime() {
+    public ServiceTime earliestDepartTime() {
         return earliestDepart;
     }
 
-    public TramTime latestDepartTime() {
+    public ServiceTime latestDepartTime() {
         return latestDepart;
     }
 

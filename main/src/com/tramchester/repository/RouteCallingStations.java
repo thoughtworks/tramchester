@@ -40,7 +40,7 @@ public class RouteCallingStations implements Startable, Disposable {
         Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route -> {
             Set<Service> services = route.getServices();
-            Set<Trip> trips = services.stream().map(Service::getTrips).flatMap(Collection::stream).collect(Collectors.toSet());
+            Set<Trip> trips = services.stream().map(service -> service.getTripsFor(route)).flatMap(Collection::stream).collect(Collectors.toSet());
 
             // ASSUME: longest trips correspond to full end to end journeys on the whole route
             trips.stream().max(Comparator.comparingInt(a -> a.getStops().size())).ifPresent(longestTrip -> {

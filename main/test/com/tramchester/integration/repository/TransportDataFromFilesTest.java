@@ -10,6 +10,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -262,7 +263,7 @@ class TransportDataFromFilesTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        Set<String> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getTrips).
+        Set<String> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getAllTrips).
                 flatMap(Collection::stream).
                 map(Trip::getId).collect(Collectors.toSet());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
@@ -312,7 +313,7 @@ class TransportDataFromFilesTest {
                 filter(service -> service.operatesOn(nextTuesday)).
                 collect(Collectors.toSet());
 
-        TramTime time = TramTime.of(12, 0);
+        ServiceTime time = ServiceTime.of(12, 0);
 
         Set<Service> onTime = onDay.stream().filter(svc -> svc.latestDepartTime().isAfter(time) && svc.earliestDepartTime().isBefore(time)).collect(Collectors.toSet());
 
@@ -328,7 +329,7 @@ class TransportDataFromFilesTest {
         LocalDate aMonday = TestEnv.nextMonday();
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
 
-        // TOOD Due to exception dates makes no sense to use getDays
+        // TODO Due to exception dates makes no sense to use getDays
         Set<String> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.operatesOn(aMonday))
                 .filter(svc -> svc.getRoutes().contains(RoutesForTesting.ASH_TO_ECCLES))
@@ -352,7 +353,7 @@ class TransportDataFromFilesTest {
 
         // finally check there are trams stopping within 15 mins of 8AM on Monday
         stoppingAtVelopark.removeIf(stop -> {
-            TramTime arrivalTime = stop.getArrivalTime();
+            ServiceTime arrivalTime = stop.getArrivalTime();
             return arrivalTime.asLocalTime().isAfter(LocalTime.of(7,59)) &&
                     arrivalTime.asLocalTime().isBefore(LocalTime.of(8,16));
         });

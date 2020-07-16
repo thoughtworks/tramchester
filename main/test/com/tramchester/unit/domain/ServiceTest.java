@@ -5,6 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -76,21 +77,23 @@ class ServiceTest {
 
         Service service = new Service("SVC002", TestEnv.getTestRoute());
         Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
-        trip.addStop(new TramStopCall(from("stopId1"), Stations.Deansgate, (byte) 3, TramTime.of(9,5), TramTime.of(9,6)));
-        trip.addStop(new TramStopCall(from("stopId2"), Stations.Deansgate, (byte) 2, TramTime.of(8,15), TramTime.of(8,16)));
-        trip.addStop(new TramStopCall(from("stopId3"), Stations.Deansgate, (byte) 4, TramTime.of(10,25), TramTime.of(10,26)));
-        trip.addStop(new TramStopCall(from("stopId4"), Stations.Deansgate, (byte) 5, TramTime.of(0,1), TramTime.of(0,1)));
-        trip.addStop(new TramStopCall(from("stopId5"), Stations.Deansgate, (byte) 1, TramTime.of(6,30), TramTime.of(6,30)));
+        trip.addStop(new TramStopCall(from("stopId1"), Stations.Deansgate, (byte) 3, ServiceTime.of(9,5), ServiceTime.of(9,6)));
+        trip.addStop(new TramStopCall(from("stopId2"), Stations.Deansgate, (byte) 2, ServiceTime.of(8,15), ServiceTime.of(8,16)));
+        trip.addStop(new TramStopCall(from("stopId3"), Stations.Deansgate, (byte) 4, ServiceTime.of(10,25), ServiceTime.of(10,26)));
+        trip.addStop(new TramStopCall(from("stopId4"), Stations.Deansgate, (byte) 5, ServiceTime.of(0,1), ServiceTime.of(0,1)));
+        trip.addStop(new TramStopCall(from("stopId5"), Stations.Deansgate, (byte) 1, ServiceTime.of(6,30), ServiceTime.of(6,30)));
 
         service.addTrip(trip);
 
-        assertThat(service.getTrips()).hasSize(1);
-        assertThat(service.getTrips()).contains(trip);
+        assertThat(service.getAllTrips()).hasSize(1);
+        assertThat(service.getAllTrips()).contains(trip);
+        assertThat(service.getTripsFor(TestEnv.getTestRoute())).hasSize(1);
+        assertThat(service.getTripsFor(TestEnv.getTestRoute()).contains(trip));
 
         service.updateTimings();
 
-        Assertions.assertEquals(TramTime.of(6,30), service.earliestDepartTime());
-        Assertions.assertEquals(TramTime.of(0,1), service.latestDepartTime());
+        Assertions.assertEquals(ServiceTime.of(6,30), service.earliestDepartTime());
+        Assertions.assertEquals(ServiceTime.of(0,1), service.latestDepartTime());
     }
 
     @Test
@@ -113,6 +116,11 @@ class ServiceTest {
         assertThat(service.getRoutes().size()).isEqualTo(1);
         assertTrue(service.getRoutes().contains(route66));
         assertThat(service.getId()).isEqualTo("SRV001");
+
+        Route another = TestEnv.getTestRoute("another");
+        service.addRoute(another);
+
+        assertThat(service.getRoutes()).hasSize(2);
     }
 
     @Test

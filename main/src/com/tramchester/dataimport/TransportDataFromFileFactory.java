@@ -26,10 +26,14 @@ public class TransportDataFromFileFactory {
 
     // feedinfo is not mandatory in the standard
     public TransportDataFromFiles create(boolean expectFeedinfo) {
+        // streams, so no data read yet
+
         Set<String> includeAll = Collections.emptySet();
 
-        // streams, so no data read yet
-        Stream<FeedInfo> feedInfoData = transportDataReader.getFeedInfo(expectFeedinfo, new FeedInfoDataMapper(providesNow));
+        Stream<FeedInfo> feedInfoData = Stream.empty();
+        if (expectFeedinfo) {
+            feedInfoData = transportDataReader.getFeedInfo(new FeedInfoDataMapper(providesNow));
+        }
 
         Stream<StopData> stopData = transportDataReader.getStops(new StopDataMapper(includeAll));
         Stream<RouteData> routeData = transportDataReader.getRoutes(new RouteDataMapper(includeAll, false));
@@ -41,7 +45,7 @@ public class TransportDataFromFileFactory {
 
         TransportDataFromFiles.TransportDataStreams transportDataStreams =
                 new TransportDataFromFiles.TransportDataStreams(agencyData, stopData, routeData, tripData,
-                    stopTimeData, calendarData, feedInfoData, calendarsDates);
+                    stopTimeData, calendarData, feedInfoData, calendarsDates, expectFeedinfo);
 
         return new TransportDataFromFiles(stationLocations, transportDataStreams);
 

@@ -135,7 +135,7 @@ public class Dependencies {
         picoContainer.addComponent(MapPathToLocations.class);
         picoContainer.addComponent(LocationJourneyPlanner.class);
         picoContainer.addComponent(SendMetricsToCloudWatch.class);
-        picoContainer.addComponent(FeedInfoResource.class);
+        picoContainer.addComponent(DataVersionResource.class);
         picoContainer.addComponent(RoutesMapper.class);
         picoContainer.addComponent(RouteResource.class);
         picoContainer.addComponent(LiveDataHTTPFetcher.class);

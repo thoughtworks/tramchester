@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -51,8 +52,8 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
 
     public StopTimeData parseEntry(CSVRecord data) {
         String tripId = getTripId(data);
-        Optional<TramTime> arrivalTime;
-        Optional<TramTime> departureTime;
+        Optional<ServiceTime> arrivalTime;
+        Optional<ServiceTime> departureTime;
 
         String fieldOne = data.get(indexOfArrival);
         arrivalTime = parseTimeField(fieldOne, tripId);
@@ -78,10 +79,10 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
         return data.get(indexOfId);
     }
 
-    private Optional<TramTime> parseTimeField(String fieldOne, String tripId) {
-        Optional<TramTime> time = Optional.empty();
+    private Optional<ServiceTime> parseTimeField(String fieldOne, String tripId) {
+        Optional<ServiceTime> time = Optional.empty();
         if (fieldOne.contains(":")) {
-            time = TramTime.parse(fieldOne);
+            time = ServiceTime.parseTime(fieldOne);
         }
         if (time.isEmpty()) {
             logger.error(format("Failed to parse time '%s' for tripId '%s'",fieldOne,tripId));

@@ -3,6 +3,7 @@ package com.tramchester.domain.input;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 
 public class Trip implements HasId {
@@ -12,8 +13,8 @@ public class Trip implements HasId {
     private final Service service;
     private final Route route;
     private final StopCalls stops;
-    private TramTime earliestDepart = null;
-    private TramTime latestDepart = null;
+    private ServiceTime earliestDepart = null;
+    private ServiceTime latestDepart = null;
     private byte lastIndex;
 
     public Trip(String tripId, String headSign, Service service, Route route) {
@@ -51,7 +52,7 @@ public class Trip implements HasId {
 
         // use stop index as avoids issues with crossing day boundaries
         byte stopIndex = stop.getGetSequenceNumber();
-        TramTime departureTime = stop.getDepartureTime();
+        ServiceTime departureTime = stop.getDepartureTime();
 
         if (stopIndex == 1) {
             earliestDepart = departureTime;
@@ -85,14 +86,14 @@ public class Trip implements HasId {
         return route;
     }
 
-    public TramTime earliestDepartTime() {
+    public ServiceTime earliestDepartTime() {
         if (earliestDepart==null) {
             throw new RuntimeException("earliestDepart not set for " + tripId);
         }
         return earliestDepart;
     }
 
-    public TramTime latestDepartTime() {
+    public ServiceTime latestDepartTime() {
         if (latestDepart==null) {
             throw new RuntimeException("earliestDepart not set for " + tripId);
         }

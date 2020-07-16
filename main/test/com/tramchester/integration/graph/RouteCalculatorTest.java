@@ -391,10 +391,12 @@ public class RouteCalculatorTest {
     private List<TramTime> checkRangeOfTimes(Station start, Station dest) {
 
         // TODO Lockdown TEMPORARY 23 Changed to 21
+        // TODO lockdown services after 6.10
+        int minsOffset = 10;
         List<TramTime> missing = new LinkedList<>();
         int latestHour = 21;
         for (int hour = 6; hour < latestHour; hour++) {
-            for (int minutes = 0; minutes < 59; minutes=minutes+5) {
+            for (int minutes = minsOffset; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
                 Stream<Journey> journeys = calculator.calculateRoute(txn, start, dest,
                         new JourneyRequest(new TramServiceDate(when), time, false, 3, config.getMaxJourneyDuration()));
@@ -403,6 +405,7 @@ public class RouteCalculatorTest {
                 }
                 journeys.close();
             }
+            minsOffset = 0;
         }
         return missing;
     }

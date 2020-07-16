@@ -253,7 +253,7 @@ public class DataCleanser {
 
     public void cleanFeedInfo(FeedInfoDataMapper feedInfoDataMapper) throws IOException {
         logger.info("**** Start cleansing feed info.");
-        Stream<FeedInfo> feedInfo = dataReaderFactory.getForCleanser().getFeedInfo(true, feedInfoDataMapper);
+        Stream<FeedInfo> feedInfo = dataReaderFactory.getForCleanser().getFeedInfo(feedInfoDataMapper);
 
         TransportDataWriter writer = transportDataWriterFactory.getWriter("feed_info");
 

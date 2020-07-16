@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Service;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.HashMap;
@@ -10,8 +11,8 @@ import java.util.Set;
 
 public class RunningServices {
     private final Set<String> serviceIds;
-    private final Map<String, TramTime> latestTimeMap;
-    private final Map<String, TramTime> earliestTimeMap;
+    private final Map<String, ServiceTime> latestTimeMap;
+    private final Map<String, ServiceTime> earliestTimeMap;
 
     public RunningServices(Set<Service> services) {
         serviceIds = new HashSet<>();
@@ -30,11 +31,11 @@ public class RunningServices {
         return serviceIds.contains(serviceId);
     }
 
-    public TramTime getServiceLatest(String svcId) {
+    public ServiceTime getServiceLatest(String svcId) {
         return latestTimeMap.get(svcId);
     }
 
-    public TramTime getServiceEarliest(String svcId) {
+    public ServiceTime getServiceEarliest(String svcId) {
         return earliestTimeMap.get(svcId);
     }
 

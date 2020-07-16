@@ -6,7 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
-import com.tramchester.integration.resources.FeedInfoResourceTest;
+import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -374,10 +374,10 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertEquals("2."+build, result);
 
         String dataBegin = appPage.getValidFrom();
-        assertEquals(FeedInfoResourceTest.validFrom.format(dateFormatDashes), dataBegin, "valid from");
+        assertEquals(DataVersionResourceTest.validFrom.format(dateFormatDashes), dataBegin, "valid from");
 
         String dataEnd = appPage.getValidUntil();
-        assertEquals(FeedInfoResourceTest.validUntil.format(dateFormatDashes), dataEnd, "valid until");
+        assertEquals(DataVersionResourceTest.validUntil.format(dateFormatDashes), dataEnd, "valid until");
 
     }
 

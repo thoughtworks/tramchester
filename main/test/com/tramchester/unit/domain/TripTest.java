@@ -8,6 +8,7 @@ import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -51,15 +52,15 @@ class TripTest {
     @Test
     void shouldModelCircularTripsCorrectly() {
 
-        TramStopCall firstStop = new TramStopCall(from("statA1"), stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
-        TramStopCall secondStop = new TramStopCall(from("statB1"), stationB, (byte) 2, TramTime.of(10, 5), TramTime.of(10, 6));
-        TramStopCall thirdStop = new TramStopCall(from("statA1"), stationA, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
+        TramStopCall firstStop = new TramStopCall(from("statA1"), stationA, (byte) 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
+        TramStopCall secondStop = new TramStopCall(from("statB1"), stationB, (byte) 2, ServiceTime.of(10, 5), ServiceTime.of(10, 6));
+        TramStopCall thirdStop = new TramStopCall(from("statA1"), stationA, (byte) 3, ServiceTime.of(10, 10), ServiceTime.of(10, 10));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
 
-        assertEquals(TramTime.of(10, 1), trip.earliestDepartTime());
+        assertEquals(ServiceTime.of(10, 1), trip.earliestDepartTime());
 
         // sequence respected
         List<Byte> seqNums = new LinkedList<>();
@@ -72,37 +73,37 @@ class TripTest {
     @Test
     void shouldFindEarliestDepartCorrectlyCrossingMidnight() {
 
-        TramStopCall firstStop = new TramStopCall(from("stop1"), stationA, (byte) 2, TramTime.of(23, 45), TramTime.of(23, 46));
-        TramStopCall secondStop = new TramStopCall(from("stop2"), stationB, (byte) 3, TramTime.of(23, 59), TramTime.of(0, 1));
-        TramStopCall thirdStop = new TramStopCall(from("stop3"), stationC, (byte) 4, TramTime.of(0,10), TramTime.of(0, 11));
-        TramStopCall fourthStop = new TramStopCall(from("stop4"), stationC, (byte) 1, TramTime.of(6,30), TramTime.of(6, 30));
+        TramStopCall firstStop = new TramStopCall(from("stop1"), stationA, (byte) 2, ServiceTime.of(23, 45), ServiceTime.of(23, 46));
+        TramStopCall secondStop = new TramStopCall(from("stop2"), stationB, (byte) 3, ServiceTime.of(23, 59), ServiceTime.of(0, 1));
+        TramStopCall thirdStop = new TramStopCall(from("stop3"), stationC, (byte) 4, ServiceTime.of(0,10), ServiceTime.of(0, 11));
+        TramStopCall fourthStop = new TramStopCall(from("stop4"), stationC, (byte) 1, ServiceTime.of(6,30), ServiceTime.of(6, 30));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        assertEquals(TramTime.of(6,30), trip.earliestDepartTime());
+        assertEquals(ServiceTime.of(6,30), trip.earliestDepartTime());
     }
 
     @Test
     void shouldFindEarliestDepartCorrectly() {
 
-        TramStopCall thirdStop = new TramStopCall(from("stop3"), stationC, (byte) 3, TramTime.of(0,10), TramTime.of(0, 11));
-        TramStopCall fourthStop = new TramStopCall(from("stop4"), stationC, (byte) 1, TramTime.of(6,30), TramTime.of(6, 31));
+        TramStopCall thirdStop = new TramStopCall(from("stop3"), stationC, (byte) 3, ServiceTime.of(0,10), ServiceTime.of(0, 11));
+        TramStopCall fourthStop = new TramStopCall(from("stop4"), stationC, (byte) 1, ServiceTime.of(6,30), ServiceTime.of(6, 31));
 
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        assertEquals(TramTime.of(6,31), trip.earliestDepartTime());
+        assertEquals(ServiceTime.of(6,31), trip.earliestDepartTime());
     }
 
     @Test
     void shouldFindLatestDepartCorrectly() {
-        trip.addStop(new TramStopCall(from("stopId3"), Stations.Deansgate, (byte) 3, TramTime.of(10,25), TramTime.of(10,26)));
-        trip.addStop(new TramStopCall(from("stopId4"), Stations.Deansgate, (byte) 4, TramTime.of(0,1), TramTime.of(0,1)));
+        trip.addStop(new TramStopCall(from("stopId3"), Stations.Deansgate, (byte) 3, ServiceTime.of(10,25), ServiceTime.of(10,26)));
+        trip.addStop(new TramStopCall(from("stopId4"), Stations.Deansgate, (byte) 4, ServiceTime.of(0,1), ServiceTime.of(0,1)));
 
-        assertEquals(TramTime.of(0,1), trip.latestDepartTime());
+        assertEquals(ServiceTime.of(0,1), trip.latestDepartTime());
 
     }
 

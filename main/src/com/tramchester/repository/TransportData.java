@@ -22,4 +22,5 @@ public interface TransportData extends ProvidesFeedInfo, StationRepository {
 
     Collection<Agency> getAgencies();
 
+    String getVersion();
 }

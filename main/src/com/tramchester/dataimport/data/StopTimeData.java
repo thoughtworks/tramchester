@@ -1,13 +1,14 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.Optional;
 
 public class StopTimeData {
     private final String tripId;
-    private final TramTime arrivalTime ;
-    private final TramTime departureTime;
+    private final ServiceTime arrivalTime ;
+    private final ServiceTime departureTime;
     private final String stopId;
     private final String stopSequence;
     private final String pickupType;
@@ -16,7 +17,7 @@ public class StopTimeData {
     private static final String COMMA = ",";
 
 
-    public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
+    public StopTimeData(String tripId, ServiceTime arrivalTime, ServiceTime departureTime, String stopId,
                         String stopSequence, String pickupType, String dropOffType) {
         this.tripId = tripId;
         this.stopId = stopId;
@@ -45,11 +46,11 @@ public class StopTimeData {
         return tripId;
     }
 
-    public TramTime getArrivalTime() {
+    public ServiceTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public TramTime getDepartureTime() {
+    public ServiceTime getDepartureTime() {
         return departureTime;
     }
 

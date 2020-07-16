@@ -12,7 +12,7 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -190,7 +189,7 @@ class TestDataCleanser extends EasyMockSupport {
         LocalTime arrivalTime = LocalTime.parse("11:10:00");
         LocalTime departureTime = LocalTime.parse("12:09:00");
 
-        StopTimeData stopTimeB = new StopTimeData("tripIdB", TramTime.of(arrivalTime), TramTime.of(departureTime),
+        StopTimeData stopTimeB = new StopTimeData("tripIdB", ServiceTime.of(arrivalTime), ServiceTime.of(departureTime),
                 "9400stopIdB", "stopSeqB", "pickupB", "dropB");
 
         Stream<StopTimeData> stopTimes = Stream.of(stopTimeB);
@@ -272,7 +271,7 @@ class TestDataCleanser extends EasyMockSupport {
         EasyMock.expect(readerFactory.getForCleanser()).andReturn(reader);
 
         FeedInfoDataMapper feedInfoDataMapper = new FeedInfoDataMapper(providesNow);
-        EasyMock.expect(reader.getFeedInfo(true, feedInfoDataMapper)).andReturn(feedInfoStream);
+        EasyMock.expect(reader.getFeedInfo(feedInfoDataMapper)).andReturn(feedInfoStream);
         validateWriter("feed_info",
                 "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version",
                 "pubA,urlA,tzA,landA,20161129,20161130,versionA");

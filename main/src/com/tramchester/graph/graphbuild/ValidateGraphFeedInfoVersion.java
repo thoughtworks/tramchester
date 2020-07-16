@@ -28,27 +28,27 @@ public class ValidateGraphFeedInfoVersion implements Startable {
 
     @Override
     public void start() {
-        String dataVersion = transportData.getFeedInfo().getVersion();
+        String dataVersion = transportData.getVersion();
 
-        logger.info("Checking graph feedinfo version against " + dataVersion);
+        logger.info("Checking graph version against " + dataVersion);
 
         try(Transaction transaction = graphDatabase.beginTx()) {
-            ResourceIterator<Node> query = graphDatabase.findNodes(transaction, GraphBuilder.Labels.FEED_INFO);
+            ResourceIterator<Node> query = graphDatabase.findNodes(transaction, GraphBuilder.Labels.VERSION);
             List<Node> nodes = query.stream().collect(Collectors.toList());
 
             if (nodes.isEmpty()) {
-                logger.error("Missing FEED_INFO node, cannot check versions");
+                logger.error("Missing VERSION node, cannot check versions");
             }
             if (nodes.size()>1) {
-                logger.error("Too many FEED_INFO nodes");
+                logger.error("Too many VERSION nodes");
             }
 
             Node expected = nodes.get(0);
             String graphValue = expected.getProperty(TIME).toString();
             if (!dataVersion.equals(graphValue)) {
-                logger.error(format("Mismatch on graph FEED_INFO, got '%s' expected '%s'", graphValue, dataVersion));
+                logger.error(format("Mismatch on graph VERSION, got '%s' expected '%s'", graphValue, dataVersion));
             } else {
-                logger.info("Got correct FEED_INFO node value of " + graphValue);
+                logger.info("Got correct VERSION node value of " + graphValue);
             }
 
         }
