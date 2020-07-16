@@ -145,6 +145,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public boolean getTrain() {
+        return false;
+    }
+
+    @Override
     public boolean getLoadPostcodes() {
         return false;
     }

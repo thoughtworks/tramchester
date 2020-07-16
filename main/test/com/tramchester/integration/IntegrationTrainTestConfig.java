@@ -22,8 +22,13 @@ public class IntegrationTrainTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean getBus() {
+    public boolean getTrain() {
         return true;
+    }
+
+    @Override
+    public boolean getBus() {
+        return false;
     }
 
     @Override

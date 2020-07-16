@@ -129,6 +129,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("bus")
     private boolean bus;
 
+    @JsonProperty("train")
+    private boolean train;
+
     @JsonProperty("createNeighbours")
     private boolean createNeighbours;
 
@@ -312,6 +315,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Path getPostcodeZip() {
         return postcodeZip;
+    }
+
+    @Override
+    public boolean getTrain() {
+        return train;
     }
 
 }

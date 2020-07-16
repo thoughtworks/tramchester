@@ -14,9 +14,11 @@ public class TransportDataReader {
     }
 
     private final DataLoaderFactory factory;
+    private final boolean expectFeedinfo;
 
-    public TransportDataReader(DataLoaderFactory factory) {
+    public TransportDataReader(DataLoaderFactory factory, boolean expectFeedinfo) {
         this.factory = factory;
+        this.expectFeedinfo = expectFeedinfo;
     }
 
     public Stream<CalendarData> getCalendar(CalendarDataMapper calendarDataMapper) {
@@ -49,5 +51,9 @@ public class TransportDataReader {
 
     public Stream<AgencyData> getAgencies(AgencyDataMapper agencyDataMapper) {
         return factory.getLoaderFor(InputFiles.agency, agencyDataMapper, true).loadFiltered(true);
+    }
+
+    public boolean getExpectFeedinfo() {
+        return expectFeedinfo;
     }
 }

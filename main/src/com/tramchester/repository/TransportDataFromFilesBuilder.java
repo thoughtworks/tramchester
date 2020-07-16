@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +24,7 @@ import static java.lang.String.format;
 public class TransportDataFromFilesBuilder {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFilesBuilder.class);
 
-    private final TransportDataStreams transportDataStreams;
+    private final List<TransportDataStreams> transportDataStreams;
     private final StationLocations stationLocations;
 
     private final Set<String> excludedRoutes;
@@ -31,7 +32,7 @@ public class TransportDataFromFilesBuilder {
     private final Set<String> excludedServices;
     private TransportDataContainer buildable;
 
-    public TransportDataFromFilesBuilder(TransportDataStreams transportDataStreams, StationLocations stationLocations) {
+    public TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations) {
         this.transportDataStreams = transportDataStreams;
         this.stationLocations = stationLocations;
         this.excludedRoutes = new HashSet<>();
@@ -49,9 +50,14 @@ public class TransportDataFromFilesBuilder {
 
         buildable = new TransportDataContainer();
 
-        if(transportDataStreams.hasFeedInfo()) {
+        transportDataStreams.forEach(this::load);
 
-            FeedInfo feedInfo = transportDataStreams.feedInfo.findFirst().get();
+        logger.info("Finished loading transport data");
+    }
+
+    private void load(TransportDataStreams streams) {
+        if(streams.hasFeedInfo()) {
+            FeedInfo feedInfo = streams.feedInfo.findFirst().get();
             buildable.SetFeedInfo(feedInfo);
             buildable.SetVersion(feedInfo.getVersion());
         } else {
@@ -60,12 +66,12 @@ public class TransportDataFromFilesBuilder {
             logger.warn("Do no have feedinfo for this data source");
         }
 
-        populateAgencies(buildable, transportDataStreams.agencies);
-        populateStationsAndAreas(buildable, transportDataStreams.stops);
-        populateRoutes(buildable, transportDataStreams.routes);
-        populateTrips(buildable, transportDataStreams.trips);
-        populateStopTimes(buildable, transportDataStreams.stopTimes);
-        populateCalendars(buildable, transportDataStreams.calendars, transportDataStreams.calendarsDates);
+        populateAgencies(buildable, streams.agencies);
+        populateStationsAndAreas(buildable, streams.stops);
+        populateRoutes(buildable, streams.routes);
+        populateTrips(buildable, streams.trips);
+        populateStopTimes(buildable, streams.stopTimes);
+        populateCalendars(buildable, streams.calendars, streams.calendarsDates);
         buildable.updateTimesForServices();
 
         buildable.reportNumbers();
@@ -74,8 +80,7 @@ public class TransportDataFromFilesBuilder {
         buildable.getServices().stream().filter(Service::HasMissingDates).forEach(
                 svc -> logger.warn(format("Service %s has missing date data or runs on zero days", svc.getId()))
         );
-        transportDataStreams.closeAll();
-        logger.info("Finished loading transport data");
+        streams.closeAll();
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars, Stream<CalendarDateData> calendarsDates) {
@@ -283,6 +288,7 @@ public class TransportDataFromFilesBuilder {
         buildable.addTrip(trip);
         return trip;
     }
+
     public static class TransportDataStreams {
         final Stream<StopData> stops;
         final Stream<RouteData> routes;

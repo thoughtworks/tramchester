@@ -48,7 +48,7 @@ class GraphBuildAndStartTest {
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
         TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config),
                 providesNow, stationLocations);
-        TransportDataFromFilesBuilder builder = fileFactory.create(true);
+        TransportDataFromFilesBuilder builder = fileFactory.create();
 
         builder.load();
         TransportDataSource transportData = builder.getData();

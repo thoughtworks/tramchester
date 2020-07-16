@@ -82,7 +82,7 @@ public class Dependencies {
         cleanseData();
 
         TransportDataBuilderFactory builderFactory = get(TransportDataBuilderFactory.class);
-        TransportDataFromFilesBuilder builder = builderFactory.create(true);
+        TransportDataFromFilesBuilder builder = builderFactory.create();
         builder.load();
 
         initialise(configuration, builder.getData());

@@ -20,13 +20,13 @@ import static org.junit.Assert.assertFalse;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DataVersionResourceTest {
-    public static LocalDate validFrom = LocalDate.of(2020, 7, 9); // year, month, day
-    public static LocalDate validUntil = LocalDate.of(2020, 9, 9);
+    public static LocalDate validFrom = LocalDate.of(2020, 7, 16); // year, month, day
+    public static LocalDate validUntil = LocalDate.of(2020, 9, 16);
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     @Test
-    void shouldGetFeedinfoCorrectly() {
+    void shouldGetDataVersionCorrectly() {
         String endPoint = "datainfo";
 
         Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);

@@ -276,7 +276,8 @@ class TransportDataFromFilesTest {
         Set<String> servicesToLoad = allServices.stream().map(Service::getId).collect(Collectors.toSet());
 
         TransportDataReaderFactory dataReaderFactory = dependencies.get(TransportDataReaderFactory.class);
-        TransportDataReader transportDataReader = dataReaderFactory.getForLoader();
+        List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
+        TransportDataReader transportDataReader = transportDataReaders.get(0);
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(servicesToLoad));
 
         calendarsDates.forEach(exception -> {

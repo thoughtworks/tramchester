@@ -1,15 +1,22 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.config.DownloadConfig;
+import com.tramchester.config.TramchesterConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransportDataReaderFactory implements TransportDataLoader {
-    private final DownloadConfig config;
-    private TransportDataReader readerForCleanser;
-    private TransportDataReader readerForLoader;
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataReaderFactory.class);
 
-    public TransportDataReaderFactory(DownloadConfig config) {
+    private final TramchesterConfig config;
+    private TransportDataReader readerForCleanser;
+    private final List<TransportDataReader> dataReaders;
+
+    public TransportDataReaderFactory(TramchesterConfig config) {
+        dataReaders = new ArrayList<>();
         this.config = config;
     }
 
@@ -17,16 +24,25 @@ public class TransportDataReaderFactory implements TransportDataLoader {
         if (readerForCleanser==null) {
             Path path = config.getDataPath().resolve(config.getUnzipPath());
             DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
-            readerForCleanser = new TransportDataReader(factory);
+            readerForCleanser = new TransportDataReader(factory, true);
         }
         return readerForCleanser;
     }
 
-    public TransportDataReader getForLoader() {
-        if (readerForLoader==null) {
+    public List<TransportDataReader> getReaders() {
+        if (dataReaders.isEmpty()) {
             DataLoaderFactory factory = new DataLoaderFactory(config.getDataPath(), ".txt");
-            readerForLoader = new TransportDataReader(factory);
+            TransportDataReader transportLoader = new TransportDataReader(factory, true);
+            dataReaders.add(transportLoader);
+            if (config.getTrain()) {
+                // TODO Highly experiemental
+                logger.warn("Trains enabled");
+                Path dataPath = Path.of("data", "gb-rail-latest");
+                DataLoaderFactory trainReaderFactory = new DataLoaderFactory(dataPath, ".txt");
+                TransportDataReader trainLoader = new TransportDataReader(trainReaderFactory, false);
+                dataReaders.add(trainLoader);
+            }
         }
-        return readerForLoader;
+        return dataReaders;
     }
 }

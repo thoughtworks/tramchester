@@ -15,6 +15,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataFromFilesBuilder;
 import com.tramchester.repository.TransportDataSource;
+import com.tramchester.testSupport.TestConfig;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TramTransportDataBuilderFactoryTest {
 
-    private final DownloadConfig config = new DownloadConfig() {
+    private class DownloadConfig extends TestConfig {
 
         @Override
         public String getTramDataUrl() {
@@ -43,6 +44,11 @@ class TramTransportDataBuilderFactoryTest {
         }
 
         @Override
+        public Path getDataFolder() {
+            return null;
+        }
+
+        @Override
         public Path getUnzipPath() {
             return Paths.get("test");
         }
@@ -50,6 +56,8 @@ class TramTransportDataBuilderFactoryTest {
 
     @Test
     void shouldLoadTransportData() {
+        DownloadConfig config = new DownloadConfig();
+
         TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
         ProvidesNow providesNow = new ProvidesLocalNow();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
@@ -58,7 +66,7 @@ class TramTransportDataBuilderFactoryTest {
         TransportDataBuilderFactory transportDataImporter = new TransportDataBuilderFactory(factory, providesNow,
                 stationLocations);
 
-        TransportDataFromFilesBuilder builder = transportDataImporter.create(true);
+        TransportDataFromFilesBuilder builder = transportDataImporter.create();
         builder.load();
         TransportDataSource transportData = builder.getData();
 

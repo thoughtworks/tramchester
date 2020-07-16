@@ -299,7 +299,7 @@ public class RouteCalculatorTest {
         validateAtLeastNJourney(1, Stations.PiccadillyGardens, Stations.Pomona, TramTime.of(19,48), when);
         validateAtLeastNJourney(1, Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,51), when);
         validateAtLeastNJourney(1, Stations.StPetersSquare, Stations.Pomona, TramTime.of(19,56), when);
-        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Eccles, TramTime.of(6,1), when);
+        validateAtLeastNJourney(1, Stations.Cornbrook, Stations.Eccles, TramTime.of(6,10), when);
     }
 
     @Test

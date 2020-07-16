@@ -104,4 +104,7 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // location of zip file containing postcode
     public abstract Path getPostcodeZip();
+
+    // experimental train data
+    public abstract boolean getTrain();
 }
