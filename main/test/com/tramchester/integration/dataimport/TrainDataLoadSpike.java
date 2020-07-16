@@ -2,63 +2,44 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.DataLoaderFactory;
-import com.tramchester.dataimport.TransportDataBuilderFactory;
-import com.tramchester.dataimport.TransportDataLoader;
-import com.tramchester.dataimport.TransportDataReader;
-import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTrainTestConfig;
-import com.tramchester.repository.TransportDataFromFilesBuilder;
-import com.tramchester.repository.TransportDataSource;
-import org.junit.jupiter.api.Disabled;
+import com.tramchester.repository.TransportData;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
-import java.util.Collections;
+import java.io.IOException;
 
-@Disabled("spike")
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 class TrainDataLoadSpike {
 
-    private final Path dataPath = Path.of("data", "gb-rail-latest");
+    private static TramchesterConfig testConfig;
+    private static Dependencies dependencies;
+    private TransportData data;
 
-    @Test
-    void testShouldLoadTheData() {
+    @BeforeAll
+    static void beforeClass() throws IOException {
+        testConfig = new IntegrationTrainTestConfig();
 
-        TransportDataLoader provider = () -> {
-            DataLoaderFactory factory = new DataLoaderFactory(dataPath, ".txt");
-            return Collections.singletonList(new TransportDataReader(factory, false));
-        };
-        ProvidesLocalNow providesNow = new ProvidesLocalNow();
-        StationLocations stationLocations = new StationLocations(new CoordinateTransforms());
+        dependencies = new Dependencies();
+        dependencies.initialise(testConfig);
+    }
 
-        TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(provider, providesNow, stationLocations);
-
-        TransportDataFromFilesBuilder builder = fileFactory.create();
-        builder.load();
-
+    @BeforeEach
+    void beforeEachTestRuns() {
+        data = dependencies.get(TransportData.class);
     }
 
     @Test
-    void shouldInitDependencies() {
-        Dependencies dependencies = new Dependencies();
-        TramchesterConfig testConfig = new IntegrationTrainTestConfig();
+    void shouldCheckStations() {
+        data.getStations().forEach(station -> {
+            LatLong latlong = station.getLatLong();
+            assertNotEquals(0, latlong.getLat(), station.getId());
+            assertNotEquals(0, latlong.getLon(), station.getId());
 
-        TransportDataLoader provider = () -> {
-            DataLoaderFactory factory = new DataLoaderFactory(dataPath, ".txt");
-            return Collections.singletonList(new TransportDataReader(factory, false));
-        };
-        ProvidesLocalNow providesNow = new ProvidesLocalNow();
-        StationLocations stationLocations = dependencies.get(StationLocations.class);
+        });
 
-        TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(provider, providesNow, stationLocations);
-        TransportDataFromFilesBuilder builder = fileFactory.create();
-        builder.load();
-
-        TransportDataSource transportDataFromFiles = builder.getData();
-        dependencies.initialise(testConfig, transportDataFromFiles);
-
-        dependencies.close();
     }
 }

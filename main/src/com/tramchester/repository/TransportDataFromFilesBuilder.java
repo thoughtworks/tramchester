@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.BusStopCall;
@@ -12,10 +13,7 @@ import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -26,36 +24,29 @@ public class TransportDataFromFilesBuilder {
 
     private final List<TransportDataStreams> transportDataStreams;
     private final StationLocations stationLocations;
+    private final TramchesterConfig config;
 
-    private final Set<String> excludedRoutes;
-    private final Set<String> excludedTrips;
-    private final Set<String> excludedServices;
-    private TransportDataContainer buildable;
+    private TransportDataContainer toBuild;
 
-    public TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations) {
+    public TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations, TramchesterConfig config) {
         this.transportDataStreams = transportDataStreams;
         this.stationLocations = stationLocations;
-        this.excludedRoutes = new HashSet<>();
-        this.excludedTrips = new HashSet<>();
-        this.excludedServices = new HashSet<>();
-        buildable = null;
+        this.config = config;
+        toBuild = null;
     }
 
     public TransportDataSource getData() {
-        return buildable;
+        return toBuild;
     }
 
     public void load() {
+        toBuild = new TransportDataContainer();
         logger.info("Loading transport data from files");
-
-        buildable = new TransportDataContainer();
-
-        transportDataStreams.forEach(this::load);
-
+        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, toBuild));
         logger.info("Finished loading transport data");
     }
 
-    private void load(TransportDataStreams streams) {
+    private void load(TransportDataStreams streams, TransportDataContainer buildable) {
         if(streams.hasFeedInfo()) {
             FeedInfo feedInfo = streams.feedInfo.findFirst().get();
             buildable.SetFeedInfo(feedInfo);
@@ -63,15 +54,16 @@ public class TransportDataFromFilesBuilder {
         } else {
             // TODO Base on file mod time??
             buildable.SetVersion(UUID.randomUUID().toString());
-            logger.warn("Do no have feedinfo for this data source");
+            logger.warn("Do not have feedinfo for this data source");
         }
 
-        populateAgencies(buildable, streams.agencies);
-        populateStationsAndAreas(buildable, streams.stops);
-        populateRoutes(buildable, streams.routes);
-        populateTrips(buildable, streams.trips);
-        populateStopTimes(buildable, streams.stopTimes);
-        populateCalendars(buildable, streams.calendars, streams.calendarsDates);
+        Map<String, Agency> allAgencies = populateAgencies(streams.agencies);
+        Set<String> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies);
+        Map<String, Station> allStations = loadStations(streams.stops);
+
+        ExcludedTripAndServices excludedTripsAndServices = populateTripsAndServices(buildable, streams.trips, excludedRoutes);
+        populateStopTimes(buildable, streams.stopTimes, allStations, excludedTripsAndServices.excludedTrips);
+        populateCalendars(buildable, streams.calendars, streams.calendarsDates, excludedTripsAndServices.excludedServices);
         buildable.updateTimesForServices();
 
         buildable.reportNumbers();
@@ -83,8 +75,10 @@ public class TransportDataFromFilesBuilder {
         streams.closeAll();
     }
 
-    private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars, Stream<CalendarDateData> calendarsDates) {
+    private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
+                                   Stream<CalendarDateData> calendarsDates, Set<String> excludedServices) {
 
+        logger.info("Loading calendars");
         Set<String> missingCalendar = new HashSet<>();
         calendars.forEach(calendar -> {
             String serviceId = calendar.getServiceId();
@@ -111,6 +105,7 @@ public class TransportDataFromFilesBuilder {
             logger.warn("Failed to match service id " + missingCalendar.toString() + " for calendar");
         }
 
+        logger.info("Loading calendar dates");
         Set<String> missingCalendarDates = new HashSet<>();
         calendarsDates.forEach(date -> {
             String serviceId = date.getServiceId();
@@ -128,7 +123,8 @@ public class TransportDataFromFilesBuilder {
         }
     }
 
-    private void populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes) {
+    private void populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
+                                   Map<String, Station> allStations, Set<String> excludedTrips) {
         logger.info("Loading stop times");
         AtomicInteger count = new AtomicInteger();
         stopTimes.filter(stopTimeData -> !excludedTrips.contains(stopTimeData.getTripId())).forEach((stopTimeData) -> {
@@ -136,28 +132,23 @@ public class TransportDataFromFilesBuilder {
             String platformId = stopTimeData.getStopId();
             String stationId = Station.formId(platformId);
 
-            if (buildable.hasStationId(stationId)) {
+            if (allStations.containsKey(stationId)) {
                 Route route = trip.getRoute();
-                Station station =  buildable.getStation(stationId);
-                station.addRoute(route);
-                RouteStation routeStation = new RouteStation(station, route);
-                if (!buildable.hasRouteStation(routeStation.getId())) {
-                    buildable.addRouteStation(routeStation);
-                }
-                byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
+                Station station = allStations.get(stationId);
+                addStation(buildable, route, station);
 
+                byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
                 StopCall stop;
                 if (route.isTram()) {
                     if (buildable.hasPlatformId(platformId)) {
                         Platform platform = buildable.getPlatform(platformId);
                         platform.addRoute(route);
                     } else {
-                        logger.error("Missing platform " +platformId);
+                        logger.error("Missing platform " + platformId);
                     }
                     Platform platform = buildable.getPlatform(platformId);
                     stop = new TramStopCall(platform, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
-                } else
-                {
+                } else {
                     stop = new BusStopCall(station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 }
                 count.getAndIncrement();
@@ -170,17 +161,37 @@ public class TransportDataFromFilesBuilder {
         logger.info("Loaded " + count.get() + " stop times");
     }
 
-    private void populateTrips(TransportDataContainer buildable, Stream<TripData> trips) {
+    private void addStation(TransportDataContainer buildable, Route route, Station station) {
+        String stationId = station.getId();
+        stationLocations.addStation(station);
+        station.addRoute(route);
+        if (!buildable.hasStationId(stationId)) {
+            buildable.addStation(station);
+            if (station.hasPlatforms()) {
+                station.getPlatforms().forEach(buildable::addPlatform);
+            }
+        }
+        RouteStation routeStation = new RouteStation(station, route);
+        if (!buildable.hasRouteStation(routeStation.getId())) {
+            buildable.addRouteStation(routeStation);
+        }
+    }
+
+    private ExcludedTripAndServices populateTripsAndServices(TransportDataContainer buildable, Stream<TripData> trips,
+                                          Set<String> excludedRoutes) {
         logger.info("Loading trips");
+        Set<String> excludedTrips = new HashSet<>();
+        Set<String> excludedServices = new HashSet<>();
         AtomicInteger count = new AtomicInteger();
 
         trips.forEach((tripData) -> {
             String serviceId = tripData.getServiceId();
             String routeId = tripData.getRouteId();
-            Route route = buildable.getRoute(routeId);
 
-            if (route != null) {
-                Service service = getOrInsertService(buildable, serviceId, route);
+            if (buildable.hasRouteId(routeId)) {
+                Route route = buildable.getRoute(routeId);
+
+                Service service = getOrInsertService(buildable, serviceId, route, excludedServices);
                 Trip trip = getOrCreateTrip(buildable, tripData.getTripId(), tripData.getTripHeadsign(), service, route );
                 count.getAndIncrement();
                 service.addTrip(trip);
@@ -198,74 +209,112 @@ public class TransportDataFromFilesBuilder {
             }
         });
         logger.info("Loaded " + count.get());
+        return new ExcludedTripAndServices(excludedTrips, excludedServices);
     }
 
-    private void populateAgencies(TransportDataContainer buildable, Stream<AgencyData> agencyDataStream) {
-        logger.info("Loading agencies");
-        agencyDataStream.forEach(agencyData -> buildable.addAgency(new Agency(agencyData.getId(), agencyData.getName())));
+    private  Map<String,Agency> populateAgencies(Stream<AgencyData> agencyDataStream) {
+        logger.info("Loading all agencies");
+        Map<String,Agency> agencies = new HashMap<>();
+        agencyDataStream.forEach(agencyData -> agencies.put(agencyData.getId(), new Agency(agencyData.getId(), agencyData.getName())));
+        logger.info("Loaded " + agencies.size() + " agencies");
+        return agencies;
     }
 
-    private void populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream) {
-        logger.info("Loading routes");
+    private Set<String> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream, Map<String,Agency> allAgencies) {
+        List<GTFSTransportationType> transportModes = config.getTransportModes();
+        AtomicInteger count = new AtomicInteger();
+
+        logger.info("Loading routes for transport modes " + transportModes.toString());
+        Set<String> excludedRoutes = new HashSet<>();
         routeDataStream.forEach(routeData -> {
             String agencyId = routeData.getAgency();
-            if (!buildable.hasAgencyId(agencyId)) {
+            if (!allAgencies.containsKey(agencyId)) {
                 logger.error("Missing agency " + agencyId);
             }
 
             GTFSTransportationType routeType = GTFSTransportationType.getType(routeData.getRouteType());
 
-            if (GTFSTransportationType.supportedType(routeType)) {
-                Agency agency = buildable.getAgency(agencyId);
-                Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeData.getLongName(), agency,
+            String routeName = routeData.getLongName();
+            if (config.getRemoveRouteNameSuffix()) {
+                int indexOf = routeName.indexOf("(");
+                if (indexOf > -1) {
+                    routeName = routeName.substring(0,indexOf).trim();
+                }
+            }
+
+            if (transportModes.contains(routeType)) {
+                count.getAndIncrement();
+                Agency agency = allAgencies.get(agencyId);
+                Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeName, agency,
                         TransportMode.fromGTFS(routeType));
+                buildable.addAgency(agency);
                 buildable.addRoute(route);
                 buildable.addRouteToAgency(agency, route);
             } else {
                 excludedRoutes.add(routeData.getId());
-                logger.info("Unsupported GTFS transport type: " + routeType + " agency:" + routeData.getAgency() + " routeId: " + routeData.getId());
             }
         });
+        logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ excludedRoutes.size());
+        return excludedRoutes;
     }
 
-    private void populateStationsAndAreas(TransportDataContainer buildable, Stream<StopData> stops) {
-        logger.info("Loading stops");
+    private HashMap<String, Station> loadStations(Stream<StopData> stops) {
+        logger.info("Loading all stops");
+        HashMap<String, Station> allStations = new HashMap<>();
+
         stops.forEach((stop) -> {
+            if (unexpectedIdFormat(stop)) {
+                logger.warn("Assumption all stations start with digit broken by " + stop.getId());
+            }
+
             String stopId = stop.getId();
             Station station;
             String stationId = Station.formId(stopId);
 
-            if (!buildable.hasStationId(stationId)) {
-                station = new Station(stationId, stop.getArea(), stop.getName(), stop.getLatLong(), stop.isTram());
-                buildable.addStation(station);
-                stationLocations.addStation(station);
+            if (!allStations.containsKey(stationId)) {
+                station = new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong(), stop.isTram());
+                allStations.put(station.getId(), station);
             } else {
-                station = buildable.getStation(stationId);
+                station = allStations.get(stationId);
             }
+
 
             // TODO Trains?
             if (stop.isTram()) {
-                Platform platform;
-                if (!buildable.hasPlatformId(stopId)) {
-                    platform = formPlatform(stop);
-                    buildable.addPlatform(platform);
-                } else {
-                    platform = buildable.getPlatform(stopId);
-                }
+//                Platform platform;
+//                if (!buildable.hasPlatformId(stopId)) {
+//                    buildable.addPlatform(platform);
+//                } else {
+//                    platform = buildable.getPlatform(stopId);
+//                }
+
+                Platform platform = formPlatform(stop);
                 if (!station.getPlatforms().contains(platform)) {
                     station.addPlatform(platform);
                 }
             }
+
         });
+        logger.info("Loaded " + allStations.size() + " stations");
+        return allStations;
+    }
+
+    private boolean unexpectedIdFormat(StopData stop) {
+        return !Character.isDigit(stop.getId().charAt(0));
+    }
+
+    private String workAroundName(String name) {
+        if ("St Peters Square".equals(name)) {
+            return "St Peter's Square";
+        }
+        return name;
     }
 
     private Platform formPlatform(StopData stop) {
         return new Platform(stop.getId(), stop.getName());
     }
 
-
-
-    private Service getOrInsertService(TransportDataContainer buildable, String serviceId, Route route) {
+    private Service getOrInsertService(TransportDataContainer buildable, String serviceId, Route route, Set<String> excludedServices) {
         if (!buildable.hasServiceId(serviceId)) {
             buildable.addService(new Service(serviceId, route));
             excludedServices.remove(serviceId);
@@ -330,4 +379,13 @@ public class TransportDataFromFilesBuilder {
         }
     }
 
+    private static class ExcludedTripAndServices {
+        private final Set<String> excludedTrips;
+        private final Set<String> excludedServices;
+
+        public ExcludedTripAndServices(Set<String> excludedTrips, Set<String> excludedServices) {
+            this.excludedTrips = excludedTrips;
+            this.excludedServices = excludedServices;
+        }
+    }
 }

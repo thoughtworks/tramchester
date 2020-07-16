@@ -1,14 +1,12 @@
 package com.tramchester.integration;
 
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.testSupport.TestConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class IntegrationBusTestConfig extends TestConfig {
     private final Path dbPath;
@@ -29,10 +27,8 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
-    public Set<String> getAgencies() {
-            //return new HashSet<>(Arrays.asList("MET","GMS"));
-        // Empty set means all
-        return Collections.emptySet();
+    public List<GTFSTransportationType> getTransportModes() {
+        return Arrays.asList(GTFSTransportationType.tram,GTFSTransportationType.bus);
     }
 
     @Override

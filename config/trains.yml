@@ -20,8 +20,7 @@ graphName: trains.db
 unzipPath: gtdf-out
 closedStations: []
 bus: false
-train: true
-agencies: []
+transportModes: [ train, tram ]
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 tramDataCheckUrl: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip

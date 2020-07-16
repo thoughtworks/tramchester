@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
@@ -47,14 +48,19 @@ public class CreateNeighbours implements Startable {
     }
 
     private void addRelationships(Transaction txn, Station station, Set<Station> others) {
+        logger.info("Adding neighbour relations from " + station.getId() + " to " + HasId.asIds(others));
         double mph = config.getWalkingMPH();
-        Node stationNode = graphQuery.getStationNode(txn, station);
-        others.forEach(other -> {
-            Node otherNode = graphQuery.getStationNode(txn, other);
-            RelationshipType relationType = other.isTram() ? TransportRelationshipTypes.TRAM_NEIGHBOUR : TransportRelationshipTypes.BUS_NEIGHBOUR;
-            Relationship relationship = stationNode.createRelationshipTo(otherNode, relationType);
-            relationship.setProperty(GraphStaticKeys.COST, CoordinateTransforms.calcCostInMinutes(station, other, mph));
-        });
+        final Node stationNode = graphQuery.getStationNode(txn, station);
+        if (stationNode!=null) {
+            others.forEach(other -> {
+                Node otherNode = graphQuery.getStationNode(txn, other);
+                RelationshipType relationType = other.isTram() ? TransportRelationshipTypes.TRAM_NEIGHBOUR : TransportRelationshipTypes.BUS_NEIGHBOUR;
+                Relationship relationship = stationNode.createRelationshipTo(otherNode, relationType);
+                relationship.setProperty(GraphStaticKeys.COST, CoordinateTransforms.calcCostInMinutes(station, other, mph));
+            });
+        } else {
+            logger.warn("Cannot add neighbours for station, no node found, station: "+station.getId());
+        }
     }
 
     @Override

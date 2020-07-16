@@ -34,11 +34,6 @@ public class IntegrationTramTestConfig extends TestConfig {
     }
 
     @Override
-    public Set<String> getAgencies() {
-        return new HashSet<>(Collections.singletonList("MET"));
-    }
-
-    @Override
     public Path getDataFolder() {
         return Paths.get("data/tram");
     }

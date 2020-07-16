@@ -1,6 +1,5 @@
 package com.tramchester.integration.dataimport;
 
-import com.tramchester.config.DownloadConfig;
 import com.tramchester.dataimport.TransportDataBuilderFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.FeedInfo;
@@ -40,7 +39,7 @@ class TramTransportDataBuilderFactoryTest {
 
         @Override
         public Path getDataPath() {
-            return Paths.get("data","test");
+            return Paths.get("data");
         }
 
         @Override
@@ -64,7 +63,7 @@ class TramTransportDataBuilderFactoryTest {
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
 
         TransportDataBuilderFactory transportDataImporter = new TransportDataBuilderFactory(factory, providesNow,
-                stationLocations);
+                stationLocations, config);
 
         TransportDataFromFilesBuilder builder = transportDataImporter.create();
         builder.load();
@@ -88,7 +87,7 @@ class TramTransportDataBuilderFactoryTest {
 
         StopCall stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
-        assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(06,41));
+        assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
         assertThat(Byte.toUnsignedInt(stop.getGetSequenceNumber())).isEqualTo(1);
 
         FeedInfo feedInfo = transportData.getFeedInfo();

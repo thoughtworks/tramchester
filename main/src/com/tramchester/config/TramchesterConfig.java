@@ -1,5 +1,6 @@
 package com.tramchester.config;
 
+import com.tramchester.domain.GTFSTransportationType;
 import io.dropwizard.Configuration;
 import io.dropwizard.bundles.assets.AssetsBundleConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -22,8 +23,8 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // a list of currently close stations
     public abstract List<String> getClosedStations();
 
-    // transport agencies to load data for, empty list [] means all
-    public abstract Set<String> getAgencies();
+    // transport modes to load
+    public abstract List<GTFSTransportationType> getTransportModes();
 
     // are bus routes includes, see also agencies list
     public abstract boolean getBus();
@@ -105,6 +106,4 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // location of zip file containing postcode
     public abstract Path getPostcodeZip();
 
-    // experimental train data
-    public abstract boolean getTrain();
 }

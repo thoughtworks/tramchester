@@ -2,6 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.GTFSTransportationType;
 import io.dropwizard.bundles.assets.AssetsConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
@@ -10,9 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -37,9 +36,6 @@ public class AppConfiguration extends TramchesterConfig {
 
     @JsonProperty("tramDataCheckUrl")
     private String tramDataCheckUrl;
-
-    @JsonProperty("agencies")
-    private List<String> agencies;
 
     @JsonProperty("filterData")
     private boolean filterData;
@@ -129,9 +125,6 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("bus")
     private boolean bus;
 
-    @JsonProperty("train")
-    private boolean train;
-
     @JsonProperty("createNeighbours")
     private boolean createNeighbours;
 
@@ -140,6 +133,9 @@ public class AppConfiguration extends TramchesterConfig {
 
     @JsonProperty("maxNumberMissingLiveMessages")
     private int maxNumberMissingLiveMessages;
+
+    @JsonProperty("transportModes")
+    private List<GTFSTransportationType> transportModes;
 
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -255,8 +251,8 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public Set<String> getAgencies() {
-        return new HashSet<>(agencies);
+    public List<GTFSTransportationType> getTransportModes() {
+        return transportModes;
     }
 
     @Override
@@ -282,6 +278,7 @@ public class AppConfiguration extends TramchesterConfig {
         return maxJourneyDuration;
     }
 
+    @Deprecated
     @Override
     public boolean getBus() {
         return bus;
@@ -315,11 +312,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Path getPostcodeZip() {
         return postcodeZip;
-    }
-
-    @Override
-    public boolean getTrain() {
-        return train;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
@@ -15,12 +16,14 @@ public class TransportDataBuilderFactory {
     private final List<TransportDataReader> transportDataReaders;
     private final ProvidesNow providesNow;
     private final StationLocations stationLocations;
+    private final TramchesterConfig config;
 
     public TransportDataBuilderFactory(TransportDataLoader providesLoader, ProvidesNow providesNow,
-                                       StationLocations stationLocations) {
+                                       StationLocations stationLocations, TramchesterConfig config) {
         this.transportDataReaders = providesLoader.getReaders();
         this.providesNow = providesNow;
         this.stationLocations = stationLocations;
+        this.config = config;
     }
 
     // feedinfo is not mandatory in the standard
@@ -51,7 +54,7 @@ public class TransportDataBuilderFactory {
             dataStreams.add(transportDataStreams);
         });
 
-        return new TransportDataFromFilesBuilder(dataStreams, stationLocations);
+        return new TransportDataFromFilesBuilder(dataStreams, stationLocations, config);
     }
 }
 

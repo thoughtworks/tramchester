@@ -6,6 +6,8 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -14,7 +16,7 @@ import java.util.List;
 public class GraphQuery {
 
     // TODO REFACTOR Methods only used for tests into own class
-    // private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
+    private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
     private final GraphDatabase graphDatabase;
 
@@ -31,7 +33,11 @@ public class GraphQuery {
     }
 
     private Node getNodeByLabel(Transaction txn, String id, GraphBuilder.Labels label) {
-        return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id);
+        Node node = graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id);
+//        if (node==null) {
+//            logger.warn("Failed to find node for label " + label + " and id '"+id+"'");
+//        }
+        return node;
     }
 
     public List<Relationship> getRouteStationRelationships(Transaction txn, String routeStationId, Direction direction) {

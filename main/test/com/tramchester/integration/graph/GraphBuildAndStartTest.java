@@ -47,7 +47,7 @@ class GraphBuildAndStartTest {
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
         TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config),
-                providesNow, stationLocations);
+                providesNow, stationLocations, config);
         TransportDataFromFilesBuilder builder = fileFactory.create();
 
         builder.load();

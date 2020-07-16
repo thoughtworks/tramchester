@@ -19,11 +19,11 @@ import static java.lang.String.format;
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
-    private Path downloadDirectory;
-    private URLDownloader downloader;
+    private final Path downloadDirectory;
+    private final URLDownloader downloader;
 
     public static String ZIP_FILENAME = "data.zip";
-    private String url;
+    private final String url;
 
     public FetchDataFromUrl(URLDownloader downloader, DownloadConfig config) {
         this.downloader = downloader;

@@ -45,11 +45,10 @@ class GraphBuilderTestPerformance {
             return "perf_test_tramchester.db";
         }
 
-        @Override
-        public Set<String> getAgencies() {
-
-            return new HashSet<>(Collections.singletonList("MET")); // , "GMS", "GMN"));
-        }
+//        @Override
+//        public Set<String> getAgencies() {
+//            return new HashSet<>(Collections.singletonList("MET")); // , "GMS", "GMN"));
+//        }
 
         @Override
         public Path getDataFolder() {

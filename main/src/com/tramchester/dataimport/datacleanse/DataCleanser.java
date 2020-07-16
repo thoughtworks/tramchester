@@ -10,14 +10,17 @@ import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.DecimalMax;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 
+@Deprecated
 public class DataCleanser {
     private static final Logger logger = LoggerFactory.getLogger(DataCleanser.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("YYYMMdd");
@@ -38,7 +41,7 @@ public class DataCleanser {
     public ErrorCount run() throws IOException {
         ErrorCount count = new ErrorCount();
 
-        Set<String> agencyFilter = config.getAgencies();
+        Set<String> agencyFilter = Collections.emptySet(); // config.getAgencies();
 
         cleanseAgencies(new AgencyDataMapper(agencyFilter));
 
@@ -108,8 +111,6 @@ public class DataCleanser {
         calendarDates.close();
         logger.info("**** End cleansing calendar dates. Loaded "+count.get()+"\n");
     }
-
-
 
     public Set<String> cleanseStoptimes(StopTimeDataMapper stopTimeDataMapper) throws IOException {
         logger.info("**** Start cleansing stop times.");

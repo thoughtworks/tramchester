@@ -71,7 +71,7 @@ public class Dependencies {
 
         picoContainer.addComponent(TransportDataReaderFactory.class);
         picoContainer.addComponent(TransportDataWriterFactory.class);
-        picoContainer.addComponent(DataCleanser.class);
+        //picoContainer.addComponent(DataCleanser.class);
         picoContainer.addComponent(URLDownloader.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
         picoContainer.addComponent(TransportDataBuilderFactory.class);
@@ -79,7 +79,7 @@ public class Dependencies {
         FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
         Unzipper unzipper = get(Unzipper.class);
         fetcher.fetchData(unzipper);
-        cleanseData();
+        //cleanseData();
 
         TransportDataBuilderFactory builderFactory = get(TransportDataBuilderFactory.class);
         TransportDataFromFilesBuilder builder = builderFactory.create();

@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ public class TransportDataReaderFactory implements TransportDataLoader {
         this.config = config;
     }
 
+    @Deprecated
     public TransportDataReader getForCleanser() {
         if (readerForCleanser==null) {
             Path path = config.getDataPath().resolve(config.getUnzipPath());
@@ -31,18 +33,24 @@ public class TransportDataReaderFactory implements TransportDataLoader {
 
     public List<TransportDataReader> getReaders() {
         if (dataReaders.isEmpty()) {
-            DataLoaderFactory factory = new DataLoaderFactory(config.getDataPath(), ".txt");
+            //Path path = config.getDataPath();
+            Path path = config.getDataPath().resolve(config.getUnzipPath());
+            DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
             TransportDataReader transportLoader = new TransportDataReader(factory, true);
             dataReaders.add(transportLoader);
-            if (config.getTrain()) {
-                // TODO Highly experiemental
-                logger.warn("Trains enabled");
-                Path dataPath = Path.of("data", "gb-rail-latest");
-                DataLoaderFactory trainReaderFactory = new DataLoaderFactory(dataPath, ".txt");
-                TransportDataReader trainLoader = new TransportDataReader(trainReaderFactory, false);
-                dataReaders.add(trainLoader);
+            if (config.getTransportModes().contains(GTFSTransportationType.train)) {
+                createTrainReaders();
             }
         }
         return dataReaders;
+    }
+
+    private void createTrainReaders() {
+        // TODO Highly experiemental
+        logger.warn("Trains enabled");
+        Path dataPath = Path.of("data", "gb-rail-latest");
+        DataLoaderFactory trainReaderFactory = new DataLoaderFactory(dataPath, ".txt");
+        TransportDataReader trainLoader = new TransportDataReader(trainReaderFactory, false);
+        dataReaders.add(trainLoader);
     }
 }

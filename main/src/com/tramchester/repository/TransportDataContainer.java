@@ -36,12 +36,12 @@ public class TransportDataContainer implements TransportDataSource {
     }
 
     public void reportNumbers() {
-        logger.info(format("%s stations", stationsById.size()));
+        logger.info(format("%s agencies", agencies.size()));
         logger.info(format("%s routes", routes.size()));
+        logger.info(stationsById.size() + " stations " + platforms.size() + " platforms ");
+        logger.info(format("%s route stations", routeStations.size()));
         logger.info(format("%s services", services.size()));
         logger.info(format("%s trips", trips.size()));
-        logger.info(format("%s agencies", agencies.size()));
-        logger.info(stationsById.size() + " stations " + platforms.size() + " platforms ");
     }
 
     @Override
@@ -214,5 +214,9 @@ public class TransportDataContainer implements TransportDataSource {
     public Set<Service> getServicesOnDate(TramServiceDate date) {
         return services.values().stream().
                 filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toUnmodifiableSet());
+    }
+
+    public boolean hasRouteId(String routeId) {
+        return routes.containsKey(routeId);
     }
 }

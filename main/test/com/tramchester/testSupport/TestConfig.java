@@ -1,16 +1,16 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.GTFSTransportationType;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 public abstract class TestConfig extends AppConfiguration {
 
@@ -145,8 +145,8 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public boolean getTrain() {
-        return false;
+    public List<GTFSTransportationType> getTransportModes() {
+        return Arrays.asList(GTFSTransportationType.tram);
     }
 
     @Override
