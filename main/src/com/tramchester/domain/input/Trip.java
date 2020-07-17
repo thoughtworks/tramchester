@@ -26,6 +26,11 @@ public class Trip implements HasId {
         lastIndex = 0;
     }
 
+    // test memory support
+    public void dispose() {
+        stops.dispose();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

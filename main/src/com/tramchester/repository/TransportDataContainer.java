@@ -29,15 +29,14 @@ public class TransportDataContainer implements TransportDataSource {
 
     @Override
     public void dispose() {
+        trips.values().forEach(Trip::dispose);
         trips.clear();
         stationsById.clear();
-        trips.clear();
         tramStationsByName.clear();
-        trips.clear();
         services.clear();
         routes.clear();
-        services.clear();
         platforms.clear();
+        routeStations.clear();
         agencies.clear();
     }
 

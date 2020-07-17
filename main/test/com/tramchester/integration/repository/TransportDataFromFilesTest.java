@@ -82,7 +82,7 @@ class TransportDataFromFilesTest {
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertEquals("MET:   3:I:",result.getId());
-        assertTrue(result.isTram());
+        assertTrue(TransportMode.isTram(result));
 
         Set<String> headsigns = result.getHeadsigns();
         assertEquals(2, headsigns.size(), "expected headsigns");
@@ -113,16 +113,6 @@ class TransportDataFromFilesTest {
         results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
         assertTrue(results.isEmpty());
     }
-
-//    @Test
-//    void shouldThrowOnMissingSvc() {
-//        try {
-//            transportData.getServiceById("doesnotExist");
-//            fail("Should have thrown");
-//        } catch (NoSuchElementException expected) {
-//            // no-op expected
-//        }
-//    }
 
     @Test
     void shouldHaveSundayServicesFromCornbrook() {

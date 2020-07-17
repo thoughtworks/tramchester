@@ -28,7 +28,8 @@ public class TransportDataFromFilesBuilder {
 
     private TransportDataContainer toBuild;
 
-    public TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations, TramchesterConfig config) {
+    public TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations,
+                                         TramchesterConfig config) {
         this.transportDataStreams = transportDataStreams;
         this.stationLocations = stationLocations;
         this.config = config;
@@ -59,17 +60,20 @@ public class TransportDataFromFilesBuilder {
 
         Map<String, Agency> allAgencies = populateAgencies(streams.agencies);
         Set<String> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies);
-        Map<String, Station> allStations = loadStations(streams.stops);
+        allAgencies.clear();
 
         ExcludedTripAndServices excludedTripsAndServices = populateTripsAndServices(buildable, streams.trips, excludedRoutes);
+        excludedRoutes.clear();
+
+        Map<String, Station> allStations = loadStations(streams.stops);
         populateStopTimes(buildable, streams.stopTimes, allStations, excludedTripsAndServices.excludedTrips);
+        allStations.clear();
 
         populateCalendars(buildable, streams.calendars, streams.calendarsDates, excludedTripsAndServices.excludedServices);
+        excludedTripsAndServices.clear();
+
         buildable.updateTimesForServices();
         buildable.reportNumbers();
-
-        allAgencies.clear();
-        allStations.clear();
 
         // update svcs where calendar data is missing
         buildable.getServices().stream().filter(Service::HasMissingDates).forEach(
@@ -132,25 +136,24 @@ public class TransportDataFromFilesBuilder {
         AtomicInteger count = new AtomicInteger();
         stopTimes.filter(stopTimeData -> !excludedTrips.contains(stopTimeData.getTripId())).forEach((stopTimeData) -> {
             Trip trip = buildable.getTrip(stopTimeData.getTripId());
-            String platformId = stopTimeData.getStopId();
-            String stationId = Station.formId(platformId);
+            String stopId = stopTimeData.getStopId();
+            String stationId = Station.formId(stopId);
 
             if (allStations.containsKey(stationId)) {
                 Route route = trip.getRoute();
                 Station station = allStations.get(stationId);
                 addStation(buildable, route, station);
-                allStations.remove(stationId);
 
                 byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
                 StopCall stop;
                 if (TransportMode.isTram(route)) {
-                    if (buildable.hasPlatformId(platformId)) {
-                        Platform platform = buildable.getPlatform(platformId);
+                    if (buildable.hasPlatformId(stopId)) {
+                        Platform platform = buildable.getPlatform(stopId);
                         platform.addRoute(route);
                     } else {
-                        logger.error("Missing platform " + platformId);
+                        logger.error("Missing platform " + stopId);
                     }
-                    Platform platform = buildable.getPlatform(platformId);
+                    Platform platform = buildable.getPlatform(stopId);
                     stop = new TramStopCall(platform, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
                 } else {
                     stop = new BusStopCall(station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
@@ -159,16 +162,17 @@ public class TransportDataFromFilesBuilder {
 
                 trip.addStop(stop);
             } else {
-                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, platformId));
+                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));
             }
         });
         logger.info("Loaded " + count.get() + " stop times");
     }
 
     private void addStation(TransportDataContainer buildable, Route route, Station station) {
-        String stationId = station.getId();
         stationLocations.addStation(station);
         station.addRoute(route);
+
+        String stationId = station.getId();
         if (!buildable.hasStationId(stationId)) {
             buildable.addStation(station);
             if (station.hasPlatforms()) {
@@ -383,6 +387,11 @@ public class TransportDataFromFilesBuilder {
         public ExcludedTripAndServices(Set<String> excludedTrips, Set<String> excludedServices) {
             this.excludedTrips = excludedTrips;
             this.excludedServices = excludedServices;
+        }
+
+        public void clear() {
+            excludedServices.clear();
+            excludedTrips.clear();
         }
     }
 }

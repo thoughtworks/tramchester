@@ -35,6 +35,7 @@ class BusInterchangeRepositoryTest {
     static void OnceAfterAllTestsAreFinished() {
         dependencies.close();
     }
+
     @BeforeEach
     void onceBeforeEachTestRuns() {
         repository = dependencies.get(InterchangeRepository.class);

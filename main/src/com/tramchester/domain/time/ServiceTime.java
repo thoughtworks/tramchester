@@ -5,6 +5,18 @@ import java.util.Optional;
 
 public class ServiceTime {
 
+    private static final ServiceTime[][][] serviceTimes = new ServiceTime[2][24][60];
+
+    static {
+        for(int day=0; day < 2; day++) {
+            for (int hour = 0; hour < 24; hour++) {
+                for (int minute = 0; minute < 60; minute++) {
+                    serviceTimes[day][hour][minute] = new ServiceTime(TramTime.of(hour,minute), day==1);
+                }
+            }
+        }
+    }
+
     private final boolean followingDay;
     private final TramTime tramTime;
 
@@ -13,24 +25,20 @@ public class ServiceTime {
         this.followingDay = followingDay;
     }
 
-    private ServiceTime(int hour, int minute, boolean followingDay) {
-        this(TramTime.of(hour, minute), followingDay);
-    }
-
-    private ServiceTime(int hour, int minute) {
-        this(TramTime.of(hour, minute), false);
+    private static ServiceTime of(TramTime time, boolean followingDay) {
+        return of(time.getHourOfDay(), time.getMinuteOfHour(), followingDay);
     }
 
     public static ServiceTime of(int hours, int minutes) {
-        return new ServiceTime(hours, minutes);
+        return serviceTimes[0][hours][minutes];
     }
 
     public static ServiceTime of(int hours, int minutes, boolean followingDay) {
-        return new ServiceTime(hours, minutes, followingDay);
+        return serviceTimes[followingDay?1:0][hours][minutes];
     }
 
     public static ServiceTime of(LocalTime time) {
-        return new ServiceTime(time.getHour(),time.getMinute());
+        return serviceTimes[0][time.getHour()][time.getMinute()];
     }
 
     public static Optional<ServiceTime> parseTime(String text) {
@@ -51,7 +59,7 @@ public class ServiceTime {
         if (minutes > 59) {
             return Optional.empty();
         }
-        return Optional.of(new ServiceTime(hour, minutes, nextDay));
+        return Optional.of(ServiceTime.of(hour, minutes, nextDay));
     }
 
     // TODO Use following day flag
@@ -117,7 +125,7 @@ public class ServiceTime {
     }
 
     public ServiceTime minusMinutes(int amount) {
-        return new ServiceTime(tramTime.minusMinutes(amount), followingDay);
+        return ServiceTime.of(tramTime.minusMinutes(amount), followingDay);
     }
 
     public boolean getFollowingDay() {

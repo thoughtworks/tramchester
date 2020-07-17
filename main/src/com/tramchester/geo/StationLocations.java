@@ -4,6 +4,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
+import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class StationLocations implements StationLocationsRepository {
+public class StationLocations implements StationLocationsRepository, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
     private final CoordinateTransforms coordinateTransforms;
 
@@ -33,6 +34,12 @@ public class StationLocations implements StationLocationsRepository {
         maxEasting = Long.MIN_VALUE;
         minNorthings = Long.MAX_VALUE;
         maxNorthings = Long.MIN_VALUE;
+    }
+
+
+    @Override
+    public void dispose() {
+        positions.clear();
     }
 
     public void addStation(Station station) {

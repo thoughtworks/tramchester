@@ -19,7 +19,6 @@ public class InterchangeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
     private final TransportDataSource dataSource;
-    private final TramchesterConfig config;
 
     // id -> Station
     private Map<String, Station> busInterchanges;
@@ -28,7 +27,6 @@ public class InterchangeRepository implements Disposable, Startable {
 
     public InterchangeRepository(TransportDataSource dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
-        this.config = config;
         // both of these empty for trams
         busInterchanges = Collections.emptyMap();
         busMultiagencyStations = Collections.emptySet();
@@ -37,6 +35,7 @@ public class InterchangeRepository implements Disposable, Startable {
 
     @Override
     public void dispose() {
+        busMultiagencyStations.clear();
         busInterchanges.clear();
     }
 

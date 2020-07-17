@@ -18,6 +18,10 @@ public class StopCalls implements Iterable<StopCall> {
         stops = new ArrayList<>();
     }
 
+    public void dispose() {
+        stops.clear();
+    }
+
     public void add(StopCall stop) {
         Station station = stop.getStation();
         if (station==null) {
@@ -37,7 +41,7 @@ public class StopCalls implements Iterable<StopCall> {
     }
 
     public boolean callsAt(Location location) {
-        return stops.stream().anyMatch(stopCall -> stopCall.getStation().getId().equals(location.getId()));
+        return stops.stream().anyMatch(stopCall -> stopCall.getStation().equals(location));
     }
 
     @Override
@@ -55,4 +59,5 @@ public class StopCalls implements Iterable<StopCall> {
                 "stops=" + stops +
                 '}';
     }
+
 }

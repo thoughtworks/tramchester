@@ -29,12 +29,12 @@ public class LiveDataParser {
 
     private static final String DIRECTION_BOTH = "Incoming/Outgoing";
     private static final String TERMINATES_HERE = "Terminates Here";
-    private TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
+    private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
     private final StationRepository stationRepository;
-    private static List<String> NotADestination = Arrays.asList("See Tram Front", "Not in Service");
+    private static final List<String> NotADestination = Arrays.asList("See Tram Front", "Not in Service");
 
     // live data api has limit in number of results
-    private int MAX_DUE_TRAMS = 4;
+    private final int MAX_DUE_TRAMS = 4;
 
     public LiveDataParser(StationRepository stationRepository) {
         this.stationRepository = stationRepository;
