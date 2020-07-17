@@ -13,7 +13,6 @@ public class LocationDTO {
     private String id;
     private String name;
     private LatLong latLong;
-    private boolean tram;
     private List<PlatformDTO> platforms;
     private TransportMode transportMode;
 
@@ -25,7 +24,6 @@ public class LocationDTO {
         this.id = source.getId();
         this.name = source.getName();
         this.latLong = source.getLatLong();
-        this.tram = source.isTram();
         this.transportMode = source.getTransportMode();
         this.area = source.getArea();
         platforms = new LinkedList<>();
@@ -48,7 +46,7 @@ public class LocationDTO {
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public boolean isTram() {
-        return tram;
+        return transportMode.equals(TransportMode.Tram);
     }
 
     public String getArea() {
@@ -87,7 +85,6 @@ public class LocationDTO {
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
-                ", tram=" + tram +
                 ", platforms=" + platforms +
                 ", transportMode=" + transportMode +
                 '}';

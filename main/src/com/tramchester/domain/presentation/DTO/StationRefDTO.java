@@ -1,17 +1,17 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Location;
 
 public class StationRefDTO {
     private String id;
     private String name;
-    private Boolean tram;
+    private TransportMode transportMode;
 
     public StationRefDTO(Location station) {
         this.id = station.getId();
         this.name = station.getName();
-        this.tram = station.isTram();
+        this.transportMode = station.getTransportMode();
     }
 
     @SuppressWarnings("unused")
@@ -27,14 +27,12 @@ public class StationRefDTO {
         return name;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    public Boolean isTram() { return tram; }
-
     @Override
     public String toString() {
         return "StationRefDTO{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", transportMode=" + transportMode +
                 '}';
     }
 
@@ -51,5 +49,9 @@ public class StationRefDTO {
     @Override
     public int hashCode() {
         return getId().hashCode();
+    }
+
+    public TransportMode getTransportMode() {
+        return transportMode;
     }
 }

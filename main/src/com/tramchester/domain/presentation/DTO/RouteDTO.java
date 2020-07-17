@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tramchester.domain.TransportMode;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,17 +11,18 @@ public class RouteDTO {
     private List<StationRefWithPosition> stations;
     private String routeName;
     private String displayClass;
+    private TransportMode transportMode;
     private String shortName;
-    private Boolean tram;
 
-    public RouteDTO(String routeName, String shortName, List<StationRefWithPosition> stations, String displayClass, boolean tram) {
+    public RouteDTO(String routeName, String shortName, List<StationRefWithPosition> stations, String displayClass, TransportMode transportMode) {
         this.shortName = shortName;
         this.stations = stations;
         this.routeName = routeName;
         this.displayClass = displayClass;
-        this.tram = tram;
+        this.transportMode = transportMode;
     }
 
+    @SuppressWarnings("unused")
     public RouteDTO() {
         // deserialisation
     }
@@ -57,8 +59,13 @@ public class RouteDTO {
         return shortName;
     }
 
+    // use TransportMode
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public Boolean isTram() {
-        return tram;
+        return transportMode.equals(TransportMode.Tram);
+    }
+
+    public TransportMode getTransportMode() {
+        return transportMode;
     }
 }

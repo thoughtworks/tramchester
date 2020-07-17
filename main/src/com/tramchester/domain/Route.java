@@ -3,7 +3,7 @@ package com.tramchester.domain;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Route implements HasId {
+public class Route implements HasId, HasTransportMode {
 
     private final String id;
     private final String shortName;
@@ -67,6 +67,8 @@ public class Route implements HasId {
         return id != null ? id.hashCode() : 0;
     }
 
+    // prefer get transport mode
+    @Deprecated
     public boolean isTram() {
         return transportMode.equals(TransportMode.Tram);
     }
@@ -75,7 +77,7 @@ public class Route implements HasId {
         return shortName;
     }
 
-    public TransportMode getMode() {
+    public TransportMode getTransportMode() {
         return transportMode;
     }
 

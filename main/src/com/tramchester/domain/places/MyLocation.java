@@ -46,12 +46,6 @@ public class MyLocation implements Location {
         return latLong;
     }
 
-    @Deprecated
-    @Override
-    public boolean isTram() {
-        return false;
-    }
-
     @Override
     public String getArea() {
         return area;

@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.TramInterchanges;
 import org.picocontainer.Disposable;
@@ -51,7 +52,7 @@ public class InterchangeRepository implements Disposable, Startable {
 
     private Set<Station> createMultiAgency(Set<Station> allStations) {
         return allStations.stream().
-            filter(station -> !station.isTram()).
+//            filter(station -> !station.isTram()).
             filter(station -> station.getAgencies().size()>=2).
             collect(Collectors.toSet());
     }
@@ -65,7 +66,7 @@ public class InterchangeRepository implements Disposable, Startable {
         logger.info("Finding bus interchanges based on names");
 
         return allStations.stream().
-                filter(station -> !station.isTram()).
+                filter(TransportMode::isBus).
                 filter(station -> checkForBusInterchange(station.getName())).
                 collect(Collectors.toMap(Station::getId, (station -> station)));
     }
@@ -86,7 +87,7 @@ public class InterchangeRepository implements Disposable, Startable {
     }
 
     public boolean isInterchange(Station station) {
-        if (station.isTram()) {
+        if (TransportMode.isTram(station)) {
             return TramInterchanges.has(station);
         }
         return busInterchanges.containsValue(station);

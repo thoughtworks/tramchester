@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
@@ -57,7 +58,9 @@ public class ServiceHeuristics {
         this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         this.runningServices = runningServices;
 
-        endTramStations = endStations.stream().filter(Station::isTram).collect(Collectors.toSet());
+        endTramStations = endStations.stream().
+                filter(TransportMode::isTram).
+                collect(Collectors.toSet());
 
         tramOnly = (endTramStations.size() == endStations.size());
         if (tramOnly) {
@@ -165,7 +168,7 @@ public class ServiceHeuristics {
                 throw new RuntimeException(message);
             }
 
-            if (routeStation.isTram()) {
+            if (TransportMode.isTram(routeStation)) {
                 for(Station endStation : endTramStations) {
                     if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
                         return valid(path, reasons);

@@ -27,7 +27,7 @@ class StationTest {
         Assertions.assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         Assertions.assertEquals(2.3, tramStation.getLatLong().getLon(),0);
         Assertions.assertEquals("area", tramStation.getArea());
-        Assertions.assertTrue(tramStation.isTram());
+        Assertions.assertTrue(TransportMode.isTram(tramStation));
     }
 
     @Test
@@ -40,7 +40,7 @@ class StationTest {
         Assertions.assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         Assertions.assertEquals(2.3, busStation.getLatLong().getLon(),0);
         Assertions.assertEquals("area", busStation.getArea());
-        Assertions.assertFalse(busStation.isTram());
+        Assertions.assertTrue(TransportMode.isBus(busStation));
     }
 
     @Test

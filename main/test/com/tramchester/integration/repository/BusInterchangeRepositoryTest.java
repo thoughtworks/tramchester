@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationBusTestConfig;
@@ -10,6 +11,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.BusTest;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@Disabled("Experimental")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusInterchangeRepositoryTest {
     private static Dependencies dependencies;
     private InterchangeRepository repository;
@@ -53,7 +55,7 @@ class BusInterchangeRepositoryTest {
         Collection<Station> interchanges = repository.getBusInterchanges();
 
         for (Station interchange : interchanges) {
-            assertFalse(interchange.isTram());
+            assertFalse(TransportMode.isTram(interchange));
         }
 
         assertFalse(interchanges.isEmpty());

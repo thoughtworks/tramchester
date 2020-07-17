@@ -12,6 +12,7 @@ import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -26,7 +27,7 @@ import static com.tramchester.testSupport.BusStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("WIP")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorTest {
     // TODO this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -81,7 +82,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldFindAltyToKnutfordAtExpectedTime() {
-        TramTime travelTime = TramTime.of(15, 55);
+        TramTime travelTime = TramTime.of(9, 55);
 
         Stream<Journey> journeyStream = calculator.calculateRoute(txn, AltrinchamInterchange, KnutsfordStationStand3,
                 new JourneyRequest(new TramServiceDate(when), travelTime, false, 8, testConfig.getMaxJourneyDuration()));

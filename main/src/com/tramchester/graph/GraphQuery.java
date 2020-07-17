@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Direction;
@@ -51,19 +52,11 @@ public class GraphQuery {
     }
 
     public Node getStationNode(Transaction txn, Station station) {
-        String stationId = station.getId();
-        if (station.isTram()) {
-            return getTramStationNode(txn, stationId);
-        } else {
-            return getBusStationNode(txn, stationId);
-        }
+        return getStationNode(txn, station.getId(), station.getTransportMode());
     }
 
-    private Node getTramStationNode(Transaction txn, String stationId) {
-        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.TRAM_STATION);
+    private Node getStationNode(Transaction txn, String stationId, TransportMode transportMode) {
+        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.forMode(transportMode));
     }
 
-    private Node getBusStationNode(Transaction txn, String stationId) {
-        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.BUS_STATION);
-    }
 }

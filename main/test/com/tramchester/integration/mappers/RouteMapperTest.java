@@ -1,6 +1,7 @@
 package com.tramchester.integration.mappers;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
@@ -40,14 +41,15 @@ class RouteMapperTest {
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
         RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName",
-                new LinkedList<>(), "displayClass", true);
+                new LinkedList<>(), "displayClass", TransportMode.Tram);
 
         int index = dtos.indexOf(query);
 
         List<StationRefWithPosition> stations = dtos.get(index).getStations();
-        Assertions.assertEquals(Stations.ManAirport.getId(), stations.get(0).getId());
-        Assertions.assertEquals(TestEnv.manAirportLocation, stations.get(0).getLatLong());
-        Assertions.assertTrue(stations.get(0).isTram());
+        StationRefWithPosition stationRefWithPosition = stations.get(0);
+        Assertions.assertEquals(Stations.ManAirport.getId(), stationRefWithPosition.getId());
+        Assertions.assertEquals(TestEnv.manAirportLocation, stationRefWithPosition.getLatLong());
+        Assertions.assertEquals(TransportMode.Tram, stationRefWithPosition.getTransportMode());
         Assertions.assertEquals(Stations.Victoria.getId(), stations.get(stations.size()-1).getId());
     }
 }

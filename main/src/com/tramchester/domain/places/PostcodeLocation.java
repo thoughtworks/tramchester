@@ -32,12 +32,6 @@ public class PostcodeLocation implements Location {
         return LatLong;
     }
 
-    @Deprecated
-    @Override
-    public boolean isTram() {
-        return false;
-    }
-
     @Override
     public String getArea() {
         if (id.length()==5) {

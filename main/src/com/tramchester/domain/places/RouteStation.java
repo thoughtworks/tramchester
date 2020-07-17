@@ -1,12 +1,10 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 
-public class RouteStation implements HasId {
+public class RouteStation implements HasId, HasTransportMode {
     // A station that serves a specific route
 
     private final Station station;
@@ -25,10 +23,6 @@ public class RouteStation implements HasId {
 
     public Agency getAgency() {
         return route.getAgency();
-    }
-
-    public boolean isTram() {
-        return route.isTram();
     }
 
     @Override
@@ -55,5 +49,10 @@ public class RouteStation implements HasId {
 
     public Station getStation() {
         return station;
+    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        return route.getTransportMode();
     }
 }

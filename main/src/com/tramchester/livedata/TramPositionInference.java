@@ -61,7 +61,7 @@ public class TramPositionInference {
     }
 
     private Set<DueTram> getDueTrams(Station start, Station neighbour, TramServiceDate date, TramTime time, int cost) {
-        if (! (start.isTram() && neighbour.isTram()) ) {
+        if (! (TransportMode.isTram(start) && TransportMode.isTram(neighbour)) ) {
             logger.info(format("Not both tram stations %s and %s", start, neighbour));
             return Collections.emptySet();
         }

@@ -12,6 +12,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.RoutesForTesting;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.BusStations.*;
 
-@Disabled("WIP")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteReachableTest {
     private static Dependencies dependencies;
 
@@ -57,11 +58,11 @@ class BusRouteReachableTest {
     @Test
     void shouldFindCostsCorrectlyForBusJourneys() {
         Assertions.assertEquals(37, reachable.getApproxCostBetween(txn, AltrinchamInterchange, StockportBusStation));
-        Assertions.assertEquals(36, reachable.getApproxCostBetween(txn, StockportBusStation, AltrinchamInterchange));
+        Assertions.assertEquals(37, reachable.getApproxCostBetween(txn, StockportBusStation, AltrinchamInterchange));
         Assertions.assertEquals(58, reachable.getApproxCostBetween(txn, ShudehillInterchange, AltrinchamInterchange));
-        Assertions.assertEquals(57, reachable.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
-        Assertions.assertEquals(39, reachable.getApproxCostBetween(txn, ShudehillInterchange, StockportBusStation));
-        Assertions.assertEquals(40, reachable.getApproxCostBetween(txn, StockportBusStation, ShudehillInterchange));
+        Assertions.assertEquals(54, reachable.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
+        Assertions.assertEquals(41, reachable.getApproxCostBetween(txn, ShudehillInterchange, StockportBusStation));
+        Assertions.assertEquals(33, reachable.getApproxCostBetween(txn, StockportBusStation, ShudehillInterchange));
     }
 
     @BusTest

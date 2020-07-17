@@ -290,7 +290,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boolean isInterchange = interchangeRepository.isInterchange(station);
 
         // If bus we board to/from station, for trams its from the platform
-        Node boardingNode = station.isTram() ? routeBuilderCache.getPlatform(tx, stop.getPlatformId()) : routeBuilderCache.getStation(tx, station);
+        Node boardingNode = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stop.getPlatformId())
+                : routeBuilderCache.getStation(tx, station);
         String routeStationId = RouteStation.formId(station, route);
         Node routeStationNode = routeBuilderCache.getRouteStation(tx, route, stop.getStation());
 

@@ -1,12 +1,10 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.places.ProximityGroups;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -40,7 +38,7 @@ class RouteResourceTest {
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
         RouteDTO query = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
-                "shortName", new LinkedList<>(), "displayClass", true);
+                "shortName", new LinkedList<>(), "displayClass", TransportMode.Tram);
         int index = routes.indexOf(query);
         assertTrue(index>0);
 
@@ -58,7 +56,8 @@ class RouteResourceTest {
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
-        RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName", new LinkedList<>(), "displayClass", true);
+        RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName", new LinkedList<>(), "displayClass",
+                TransportMode.Tram);
         int index = routes.indexOf(query);
         assertTrue(index>0);
 
@@ -66,7 +65,7 @@ class RouteResourceTest {
         StationRefWithPosition first = stations.get(0);
         assertEquals(Stations.ManAirport.getId(), first.getId());
         assertEquals(TestEnv.manAirportLocation, first.getLatLong());
-        assertTrue(first.isTram());
+        assertEquals(TransportMode.Tram, first.getTransportMode());
 
         assertEquals(Stations.Victoria.getId(), stations.get(stations.size()-1).getId());
     }

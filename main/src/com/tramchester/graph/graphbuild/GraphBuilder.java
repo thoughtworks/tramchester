@@ -2,6 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.*;
@@ -33,7 +34,19 @@ public abstract class GraphBuilder implements Startable {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE, VERSION, QUERY_NODE_MID
+        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE, VERSION, QUERY_NODE_MID;
+
+        public static Labels forMode(TransportMode mode) {
+            switch (mode) {
+                case Tram:
+                    return TRAM_STATION;
+                case Bus:
+                    return BUS_STATION;
+                default:
+                    throw new RuntimeException("Unsupported mode " + mode);
+            }
+        }
+
     }
 
     protected final TramchesterConfig config;
@@ -71,10 +84,9 @@ public abstract class GraphBuilder implements Startable {
 
     @NotNull
     protected Node createStationNode(Transaction tx, Location station) {
-        boolean tram = station.isTram();
         String id = station.getId();
 
-        Labels label = tram ? Labels.TRAM_STATION : Labels.BUS_STATION;
+        Labels label = Labels.forMode(station.getTransportMode());
         logger.debug(format("Creating station node: %s with label: %s ", station, label));
         Node stationNode = createGraphNode(tx, label);
         stationNode.setProperty(GraphStaticKeys.ID, id);

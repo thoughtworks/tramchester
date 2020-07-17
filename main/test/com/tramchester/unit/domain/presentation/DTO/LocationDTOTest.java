@@ -24,7 +24,7 @@ class LocationDTOTest {
         LocationDTO dto = new LocationDTO(testStation);
 
         Assertions.assertEquals(testStation.getId(), dto.getId());
-        Assertions.assertEquals(testStation.isTram(), dto.isTram());
+        Assertions.assertEquals(testStation.getTransportMode(), dto.getTransportMode());
         Assertions.assertEquals(testStation.getName(), dto.getName());
         Assertions.assertEquals(testStation.getLatLong(), dto.getLatLong());
 

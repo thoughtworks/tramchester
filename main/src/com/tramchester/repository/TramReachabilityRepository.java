@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.RouteReachable;
@@ -33,10 +34,10 @@ public class TramReachabilityRepository {
         logger.info("Build repository");
 
         Set<RouteStation> routeStations = transportData.getRouteStations().stream().
-                filter(RouteStation::isTram).
+                filter(TransportMode::isTram).
                 collect(Collectors.toSet());
         Set<Station> tramStations = transportData.getStations().stream().
-                filter(Station::isTram).
+                filter(TransportMode::isTram).
                 collect(Collectors.toSet());
 
         tramStations.forEach(uniqueStation -> tramStationIndexing.add(uniqueStation.getId()));
@@ -67,7 +68,7 @@ public class TramReachabilityRepository {
     }
 
     public boolean stationReachable(RouteStation routeStation, Station destinationStation) {
-        if (routeStation.isTram() && destinationStation.isTram()) {
+        if (TransportMode.isTram(routeStation) && TransportMode.isTram(destinationStation)) {
             // route station is a tram station
             int index = tramStationIndexing.indexOf(destinationStation.getId());
             if (index<0) {

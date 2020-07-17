@@ -73,11 +73,6 @@ public class Station implements Location {
     }
 
     @Override
-    public boolean isTram() {
-        return TransportMode.isTram(transportMode);
-    }
-
-    @Override
     public String getArea() {
         return area;
     }
@@ -138,8 +133,8 @@ public class Station implements Location {
     public void addRoute(Route route) {
         servesRoutes.add(route);
         if (transportMode.equals(TransportMode.NotSet)) {
-            transportMode = route.getMode();
-        } else if (!transportMode.equals(route.getMode())) {
+            transportMode = route.getTransportMode();
+        } else if (!transportMode.equals(route.getTransportMode())) {
             throw new RuntimeException("Here to detect if multi-mode stations exist");
         }
 

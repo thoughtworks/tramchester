@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import org.junit.jupiter.api.Assertions;
@@ -15,9 +16,9 @@ class RouteDTOTest {
 
         List<StationRefWithPosition> stations = new LinkedList<>();
 
-        RouteDTO routeA = new RouteDTO("nameA", "A", stations, "displayClass", true);
-        RouteDTO routeB = new RouteDTO("nameB", "B", stations, "displayClass", true);
-        RouteDTO routeC = new RouteDTO("nameA", "C", stations, "displayClass", true);
+        RouteDTO routeA = new RouteDTO("nameA", "A", stations, "displayClass", TransportMode.Tram);
+        RouteDTO routeB = new RouteDTO("nameB", "B", stations, "displayClass", TransportMode.Tram);
+        RouteDTO routeC = new RouteDTO("nameA", "C", stations, "displayClass", TransportMode.Tram);
 
         Assertions.assertEquals(routeA, routeC);
         Assertions.assertEquals(routeC, routeA);

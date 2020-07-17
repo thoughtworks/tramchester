@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.repository.StationRepository;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -54,12 +55,25 @@ public class CreateNeighbours implements Startable {
         if (stationNode!=null) {
             others.forEach(other -> {
                 Node otherNode = graphQuery.getStationNode(txn, other);
-                RelationshipType relationType = other.isTram() ? TransportRelationshipTypes.TRAM_NEIGHBOUR : TransportRelationshipTypes.BUS_NEIGHBOUR;
+                RelationshipType relationType = getRelationType(other);
                 Relationship relationship = stationNode.createRelationshipTo(otherNode, relationType);
                 relationship.setProperty(GraphStaticKeys.COST, CoordinateTransforms.calcCostInMinutes(station, other, mph));
             });
         } else {
             logger.warn("Cannot add neighbours for station, no node found, station: "+station.getId());
+        }
+    }
+
+    @NotNull
+    private TransportRelationshipTypes getRelationType(Station station) {
+        switch (station.getTransportMode()) {
+            case Tram:
+                return TransportRelationshipTypes.TRAM_NEIGHBOUR;
+            case Bus:
+                return TransportRelationshipTypes.BUS_NEIGHBOUR;
+            default:
+                // TODO Train
+                throw new RuntimeException("Unsupported mode " + station.getTransportMode());
         }
     }
 
