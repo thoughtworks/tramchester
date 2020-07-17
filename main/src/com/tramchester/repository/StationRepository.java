@@ -10,8 +10,10 @@ public interface StationRepository {
     boolean hasStationId(String stationId);
 
     Station getStation(String stationId);
-    Optional<Station> getStationByName(String name);
     Set<Station> getStations();
+
+    // live data association
+    Optional<Station> getTramStationByName(String name);
 
     Set<RouteStation> getRouteStations();
     RouteStation getRouteStation(String routeStationId);

@@ -278,12 +278,6 @@ public class AppConfiguration extends TramchesterConfig {
         return maxJourneyDuration;
     }
 
-    @Deprecated
-    @Override
-    public boolean getBus() {
-        return bus;
-    }
-
     @Override
     public int getMaxNumberMissingLiveMessages() {
         return maxNumberMissingLiveMessages;

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
@@ -23,7 +24,7 @@ public class DataVersionDTO {
         this.validFrom = feedInfo.validFrom();
         this.validUntil = feedInfo.validUntil();
         this.version = feedInfo.getVersion();
-        this.bus = config.getBus();
+        this.bus = config.getTransportModes().contains(GTFSTransportationType.bus);
     }
 
     public String getVersion() {

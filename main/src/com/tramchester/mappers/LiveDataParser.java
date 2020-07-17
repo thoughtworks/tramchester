@@ -169,7 +169,7 @@ public class LiveDataParser {
             return Optional.empty();
         }
 
-        return stationRepository.getStationByName(destinationName);
+        return stationRepository.getTramStationByName(destinationName);
     }
 
     private String mapLiveAPIToTimetableDataNames(String destinationName) {

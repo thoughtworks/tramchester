@@ -18,7 +18,7 @@ public class TransportDataContainer implements TransportDataSource {
 
     private final HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
     private final HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
-    private final HashMap<String, Station> stationsByName = new HashMap<>();  // station id -> station
+    private final HashMap<String, Station> tramStationsByName = new HashMap<>();  // station id -> station
     private final HashMap<String, Service> services = new HashMap<>();  // service id -> service
     private final HashMap<String, Route> routes = new HashMap<>();      // route id -> route
     private final HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
@@ -32,7 +32,7 @@ public class TransportDataContainer implements TransportDataSource {
         trips.clear();
         stationsById.clear();
         trips.clear();
-        stationsByName.clear();
+        tramStationsByName.clear();
         trips.clear();
         services.clear();
         routes.clear();
@@ -158,7 +158,9 @@ public class TransportDataContainer implements TransportDataSource {
     public void addStation(Station station) {
         String stationId = station.getId();
         stationsById.put(stationId, station);
-        stationsByName.put(station.getName().toLowerCase(), station);
+        if (TransportMode.isTram(station)) {
+            tramStationsByName.put(station.getName().toLowerCase(), station);
+        }
     }
 
     public void addPlatform(Platform platform) {
@@ -202,10 +204,10 @@ public class TransportDataContainer implements TransportDataSource {
     }
 
     @Override
-    public Optional<Station> getStationByName(String name) {
+    public Optional<Station> getTramStationByName(String name) {
         String lowerCase = name.toLowerCase();
-        if (stationsByName.containsKey(lowerCase)) {
-            return Optional.of(stationsByName.get(lowerCase));
+        if (tramStationsByName.containsKey(lowerCase)) {
+            return Optional.of(tramStationsByName.get(lowerCase));
         } else {
             return Optional.empty();
         }

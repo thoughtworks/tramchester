@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -210,7 +211,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         JourneyState journeyState = new JourneyState(time, traversalState);
-        journeyState.boardTram();
+        journeyState.board(TransportMode.Tram);
         state.setState(journeyState);
 
         EasyMock.expect(path.length()).andReturn(50);
@@ -239,7 +240,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         JourneyState journeyState = new JourneyState(time, traversalState);
-        journeyState.boardBus();
+        journeyState.board(TransportMode.Bus);
         state.setState(journeyState);
 
         Relationship relationship = createMock(Relationship.class);

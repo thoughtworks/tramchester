@@ -63,10 +63,13 @@ public class TransportDataFromFilesBuilder {
 
         ExcludedTripAndServices excludedTripsAndServices = populateTripsAndServices(buildable, streams.trips, excludedRoutes);
         populateStopTimes(buildable, streams.stopTimes, allStations, excludedTripsAndServices.excludedTrips);
+
         populateCalendars(buildable, streams.calendars, streams.calendarsDates, excludedTripsAndServices.excludedServices);
         buildable.updateTimesForServices();
-
         buildable.reportNumbers();
+
+        allAgencies.clear();
+        allStations.clear();
 
         // update svcs where calendar data is missing
         buildable.getServices().stream().filter(Service::HasMissingDates).forEach(
@@ -136,10 +139,11 @@ public class TransportDataFromFilesBuilder {
                 Route route = trip.getRoute();
                 Station station = allStations.get(stationId);
                 addStation(buildable, route, station);
+                allStations.remove(stationId);
 
                 byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
                 StopCall stop;
-                if (route.isTram()) {
+                if (TransportMode.isTram(route)) {
                     if (buildable.hasPlatformId(platformId)) {
                         Platform platform = buildable.getPlatform(platformId);
                         platform.addRoute(route);
@@ -263,9 +267,6 @@ public class TransportDataFromFilesBuilder {
         HashMap<String, Station> allStations = new HashMap<>();
 
         stops.forEach((stop) -> {
-            if (unexpectedIdFormat(stop)) {
-                logger.warn("Assumption all stations start with digit broken by " + stop.getId());
-            }
 
             String stopId = stop.getId();
             Station station;
@@ -297,10 +298,6 @@ public class TransportDataFromFilesBuilder {
         });
         logger.info("Loaded " + allStations.size() + " stations");
         return allStations;
-    }
-
-    private boolean unexpectedIdFormat(StopData stop) {
-        return !Character.isDigit(stop.getId().charAt(0));
     }
 
     private String workAroundName(String name) {

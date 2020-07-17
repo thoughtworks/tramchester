@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
@@ -61,7 +62,8 @@ public class TramPositionsResource implements APIResource {
                         pos.getCost())).
                 collect(Collectors.toList());
 
-        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList, config.getBus());
+        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList,
+                config.getTransportModes().contains(GTFSTransportationType.bus));
         return Response.ok(dto).build();
     }
 

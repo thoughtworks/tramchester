@@ -7,6 +7,7 @@ import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.search.JourneyRequest;
@@ -75,8 +76,8 @@ public class ProcessPlanRequest {
     private Stream<Journey> createJourneyPlan(Transaction txn, String startId, String endId, JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", startId, endId, journeyRequest));
 
-        boolean firstIsStation = startsWithDigit(startId);
-        boolean secondIsStation = startsWithDigit(endId);
+        boolean firstIsStation = !startId.startsWith(PostcodeDTO.PREFIX);
+        boolean secondIsStation = !endId.startsWith(PostcodeDTO.PREFIX);
 
         if (firstIsStation && secondIsStation) {
             Station start = getStation(startId, "start");
@@ -132,7 +133,8 @@ public class ProcessPlanRequest {
         return journeys;
     }
 
-    private PostcodeLocation getPostcode(String locationId, String diagnostic) {
+    private PostcodeLocation getPostcode(String text, String diagnostic) {
+        String locationId = text.replaceFirst(PostcodeDTO.PREFIX, "");
         if (!postcodeRepository.hasPostcode(locationId)) {
             String msg = "Unable to find " + diagnostic +" postcode from:  "+ locationId;
             logger.warn(msg);
@@ -148,10 +150,6 @@ public class ProcessPlanRequest {
             throw new RuntimeException(msg);
         }
         return transportData.getStation(locationId);
-    }
-
-    private boolean startsWithDigit(String startId) {
-        return Character.isDigit(startId.charAt(0));
     }
 
     private boolean isFromUserLocation(String startId) {

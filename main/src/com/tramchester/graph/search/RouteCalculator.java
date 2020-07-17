@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
@@ -32,8 +33,9 @@ import static java.lang.String.format;
 public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    private static final int BUSES_MAX_PATH_LENGTH = 1000;
+    private static final int BUSES_MAX_PATH_LENGTH = 1000; // todo right value?
     private static final int TRAMS_MAX_PATH_LENGTH = 400;
+    private static final int TRAINS_MAX_PATH_LENGTH = 2000; // todo right value?
 
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
@@ -66,9 +68,23 @@ public class RouteCalculator implements TramRouteCalculator {
         this.graphQuery = graphQuery;
         this.nodeTypeRepository = nodeTypeRepository;
 
-        maxPathLength = config.getBus() ? BUSES_MAX_PATH_LENGTH : TRAMS_MAX_PATH_LENGTH;
+        maxPathLength = getMaxPathLength();
         this.sortsPosition = sortsPosition;
         this.mapPathToLocations = mapPathToLocations;
+    }
+
+    private int getMaxPathLength() {
+        return config.getTransportModes().stream().map(this::getPathMaxFor).max(Integer::compareTo).get();
+    }
+
+    private int getPathMaxFor(GTFSTransportationType mode) {
+        switch (mode) {
+            case tram: return TRAMS_MAX_PATH_LENGTH;
+            case bus: return BUSES_MAX_PATH_LENGTH;
+            case train: return TRAINS_MAX_PATH_LENGTH;
+            default:
+                throw new RuntimeException("Unexpected transport mode " + mode);
+        }
     }
 
     @Override

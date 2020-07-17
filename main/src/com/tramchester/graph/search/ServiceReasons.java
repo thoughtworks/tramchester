@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -92,13 +93,16 @@ public class ServiceReasons {
     }
 
     public void record(final ImmutableJourneyState journeyState) {
-        if (journeyState.onTram()) {
-            incrementStat(ServiceReason.ReasonCode.OnTram);
-        } if (journeyState.onBus()) {
-            incrementStat(ServiceReason.ReasonCode.OnBus);
-        }
-        else {
-            incrementStat(ServiceReason.ReasonCode.NotOnVehicle);
+        ServiceReason.ReasonCode reason = getReasonCode(journeyState.getTransportMode());
+        incrementStat(reason);
+    }
+
+    private ServiceReason.ReasonCode getReasonCode(TransportMode transportMode) {
+        switch (transportMode) {
+            case Tram: return ServiceReason.ReasonCode.OnTram;
+            case Bus: return ServiceReason.ReasonCode.OnBus;
+            case Train: return ServiceReason.ReasonCode.OnTrain;
+            default: return ServiceReason.ReasonCode.NotOnVehicle;
         }
     }
 

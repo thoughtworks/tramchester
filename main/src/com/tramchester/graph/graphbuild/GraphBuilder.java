@@ -34,7 +34,7 @@ public abstract class GraphBuilder implements Startable {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, TRAM_STATION, BUS_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE, VERSION, QUERY_NODE_MID;
+        ROUTE_STATION, TRAM_STATION, BUS_STATION, TRAIN_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE, VERSION, QUERY_NODE_MID;
 
         public static Labels forMode(TransportMode mode) {
             switch (mode) {
@@ -42,6 +42,8 @@ public abstract class GraphBuilder implements Startable {
                     return TRAM_STATION;
                 case Bus:
                     return BUS_STATION;
+                case Train:
+                    return TRAIN_STATION;
                 default:
                     throw new RuntimeException("Unsupported mode " + mode);
             }

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphStaticKeys;
@@ -125,12 +126,21 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 '}';
     }
 
+    public static TransportMode modeFromLabel(GraphBuilder.Labels nodeLabel) {
+        switch (nodeLabel) {
+            case BUS_STATION: return TransportMode.Bus;
+            case TRAIN_STATION: return TransportMode.Train;
+            default:
+                throw new RuntimeException("Cannot create NoPlatformStation from label " + nodeLabel);
+        }
+    }
+
     public static class Builders {
 
         protected final RouteStationStateOnTrip.Builder routeStation;
         protected final RouteStationStateEndTrip.Builder routeStationEndTrip;
         protected final RouteStationStateJustBoarded.Builder routeStationJustBoarded;
-        protected final BusStationState.Builder busStation;
+        protected final NoPlatformStation.Builder noPlatformStation;
         protected final TramStationState.Builder tramStation;
         protected final ServiceState.Builder service;
         protected final PlatformState.Builder platform;
@@ -140,10 +150,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         protected final DestinationState.Builder destination;
 
         public Builders(SortsPositions sortsPositions, LatLong destinationLatLon, TramchesterConfig config) {
-            routeStation = new RouteStationStateOnTrip.Builder(config);
-            routeStationEndTrip = new RouteStationStateEndTrip.Builder(config);
+            routeStation = new RouteStationStateOnTrip.Builder();
+            routeStationEndTrip = new RouteStationStateEndTrip.Builder();
             routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationLatLon);
-            busStation = new BusStationState.Builder();
+            noPlatformStation = new NoPlatformStation.Builder();
             service = new ServiceState.Builder();
             platform = new PlatformState.Builder();
             walking = new WalkingState.Builder();

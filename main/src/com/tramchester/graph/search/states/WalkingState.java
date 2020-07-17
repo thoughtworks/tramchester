@@ -6,7 +6,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
@@ -17,8 +17,8 @@ public class WalkingState extends TraversalState {
             return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
         }
 
-        public TraversalState fromBusStation(BusStationState busStationState, Node node, int cost) {
-            return new WalkingState(busStationState, node.getRelationships(OUTGOING), cost);
+        public TraversalState fromNoPlatformStation(NoPlatformStation noPlatformStation, Node node, int cost) {
+            return new WalkingState(noPlatformStation, node.getRelationships(OUTGOING), cost);
         }
 
         public TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
@@ -42,13 +42,15 @@ public class WalkingState extends TraversalState {
             return builders.destination.from(this, cost);
         }
 
-        if (GraphBuilder.Labels.TRAM_STATION==nodeLabel)   {
-            return builders.tramStation.fromWalking(this, node, cost);
-        }
-        if (GraphBuilder.Labels.BUS_STATION==nodeLabel) {
-            return builders.busStation.from(this, node, cost);
+        switch (nodeLabel) {
+            case TRAM_STATION:
+                return builders.tramStation.fromWalking(this, node, cost);
+            case BUS_STATION:
+            case TRAIN_STATION:
+                return builders.noPlatformStation.from(this, node, cost, nodeLabel);
+            default:
+                throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
         }
 
-        throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
     }
 }

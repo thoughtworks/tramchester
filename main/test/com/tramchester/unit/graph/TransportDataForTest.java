@@ -280,7 +280,7 @@ public class TransportDataForTest implements TransportDataSource, Startable {
     }
 
     @Override
-    public Optional<Station> getStationByName(String name) {
+    public Optional<Station> getTramStationByName(String name) {
         return Optional.of(stationNameMap.get(name.toLowerCase()));
     }
 

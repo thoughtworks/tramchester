@@ -41,16 +41,16 @@ class LiveDataParserTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.getStation(Stations.MediaCityUK.getId())).andStubReturn(Stations.MediaCityUK);
         EasyMock.expect(stationRepository.getStation(Stations.ManAirport.getId())).andStubReturn(Stations.ManAirport);
 
-        EasyMock.expect(stationRepository.getStationByName("Piccadilly")).andStubReturn(Optional.of(Stations.Piccadilly));
+        EasyMock.expect(stationRepository.getTramStationByName("Piccadilly")).andStubReturn(Optional.of(Stations.Piccadilly));
         EasyMock.expect(stationRepository.hasStationId(Stations.MediaCityUK.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getStationByName("MediaCityUK")).andStubReturn(Optional.of(Stations.MediaCityUK));
+        EasyMock.expect(stationRepository.getTramStationByName("MediaCityUK")).andStubReturn(Optional.of(Stations.MediaCityUK));
 
         EasyMock.expect(stationRepository.hasStationId(Stations.ManAirport.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getStationByName("Manchester Airport")).andStubReturn(Optional.of(Stations.ManAirport));
+        EasyMock.expect(stationRepository.getTramStationByName("Manchester Airport")).andStubReturn(Optional.of(Stations.ManAirport));
 
-        EasyMock.expect(stationRepository.getStationByName("")).andStubReturn(Optional.empty());
-        EasyMock.expect(stationRepository.getStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(Stations.Deansgate));
-        EasyMock.expect(stationRepository.getStationByName("See Tram Front")).andStubReturn(Optional.empty());
+        EasyMock.expect(stationRepository.getTramStationByName("")).andStubReturn(Optional.empty());
+        EasyMock.expect(stationRepository.getTramStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(Stations.Deansgate));
+        EasyMock.expect(stationRepository.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
     }
 
     @Test

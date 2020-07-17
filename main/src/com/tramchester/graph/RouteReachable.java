@@ -201,7 +201,6 @@ public class RouteReachable {
                 Set<String> routeIds = new HashSet<>();
                 routeRelat.forEach(relationship -> routeIds.add(relationship.getProperty(ROUTE_ID).toString()));
 
-                //String id = routeRelat.getProperty(ROUTE_ID).toString();
                 if (routeIds.contains(routeId)) {
                     return Evaluation.EXCLUDE_AND_CONTINUE; // if have routeId then only follow if on same route
                 } else {

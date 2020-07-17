@@ -14,6 +14,7 @@ import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -22,7 +23,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-@Disabled("WIP")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteCalculatorFromPostcodeSpike {
     private static Dependencies dependencies;
     private static GraphDatabase database;

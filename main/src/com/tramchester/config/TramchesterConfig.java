@@ -8,7 +8,6 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Set;
 
 public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration, DownloadConfig {
 
@@ -25,9 +24,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // transport modes to load
     public abstract List<GTFSTransportationType> getTransportModes();
-
-    // are bus routes includes, see also agencies list
-    public abstract boolean getBus();
 
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();

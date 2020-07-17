@@ -35,6 +35,7 @@ public abstract class ServiceReason {
         PathTooLong,
         OnTram,
         OnBus,
+        OnTrain,
         NotOnVehicle,
         SeenBusStationBefore,
         TooManyChanges,

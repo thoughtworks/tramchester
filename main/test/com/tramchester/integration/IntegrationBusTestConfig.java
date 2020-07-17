@@ -22,11 +22,6 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean getBus() {
-        return true;
-    }
-
-    @Override
     public List<GTFSTransportationType> getTransportModes() {
         return Arrays.asList(GTFSTransportationType.tram,GTFSTransportationType.bus);
     }

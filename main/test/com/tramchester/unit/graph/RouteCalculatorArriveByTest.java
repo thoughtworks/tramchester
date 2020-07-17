@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,7 +54,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Stream<Journey> journeyStream = Stream.empty();
 
-        EasyMock.expect(config.getBus()).andReturn(false);
+        //EasyMock.expect(config.getTransportModes()).andReturn(Arrays.asList(GTFSTransportationType.tram));
 
         EasyMock.expect(routeReachable.getApproxCostBetween(txn, start, destinationId)).andReturn(costBetweenStartDest);
         TramTime requiredDepartTime = arriveBy.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2

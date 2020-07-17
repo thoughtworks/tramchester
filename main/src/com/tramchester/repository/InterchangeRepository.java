@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.TramInterchanges;
@@ -22,14 +23,16 @@ public class InterchangeRepository implements Disposable, Startable {
 
     // id -> Station
     private Map<String, Station> busInterchanges;
-    private Set<Station> multiAgency;
+    private Set<Station> busMultiagencyStations;
+    private final boolean busesEnabled;
 
     public InterchangeRepository(TransportDataSource dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
         this.config = config;
         // both of these empty for trams
         busInterchanges = Collections.emptyMap();
-        multiAgency = Collections.emptySet();
+        busMultiagencyStations = Collections.emptySet();
+        busesEnabled = config.getTransportModes().contains(GTFSTransportationType.bus);
     }
 
     @Override
@@ -39,12 +42,12 @@ public class InterchangeRepository implements Disposable, Startable {
 
     @Override
     public void start() {
-        if (config.getBus()) {
+        if (busesEnabled) {
             Set<Station> allStations = dataSource.getStations();
             busInterchanges = createBusInterchangeList(allStations);
             logger.info(format("Added %s bus interchanges", busInterchanges.size()));
-            multiAgency = createMultiAgency(allStations);
-            logger.info(format("Added %s stations to multiagency list", multiAgency.size()));
+            busMultiagencyStations = createMultiAgency(allStations);
+            logger.info(format("Added %s stations to multiagency list", busMultiagencyStations.size()));
         } else {
             logger.info("Buses disabled");
         }
@@ -52,7 +55,7 @@ public class InterchangeRepository implements Disposable, Startable {
 
     private Set<Station> createMultiAgency(Set<Station> allStations) {
         return allStations.stream().
-//            filter(station -> !station.isTram()).
+            filter(TransportMode::isBus).
             filter(station -> station.getAgencies().size()>=2).
             collect(Collectors.toSet());
     }
@@ -97,14 +100,14 @@ public class InterchangeRepository implements Disposable, Startable {
         if (TramInterchanges.has(stationId)) {
             return true;
         }
-        if (config.getBus()) {
+        if (busesEnabled) {
             return busInterchanges.containsKey(stationId);
         }
         return false;
     }
 
 
-    public Set<Station> getMultiAgencyStations() {
-        return multiAgency;
+    public Set<Station> getBusMultiAgencyStations() {
+        return busMultiagencyStations;
     }
 }

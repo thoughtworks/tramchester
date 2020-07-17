@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
@@ -76,7 +77,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             try {
-                journeyState.boardTram();
+                journeyState.board(TransportMode.Tram);
             } catch (TramchesterException e) {
                 throw new RuntimeException("unable to board tram", e);
             }

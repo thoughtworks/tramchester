@@ -65,11 +65,12 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveAltyToStockJourney() {
-        TramTime travelTime = TramTime.of(10, 45);
+    void shouldHaveStockToALtyJourney() {
+        TramTime travelTime = TramTime.of(8, 30);
+        LocalDate nextMonday = TestEnv.nextMonday();
 
-        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 10, txn, AltrinchamInterchange,
-                StockportBusStation, travelTime, when, 2, testConfig.getMaxJourneyDuration());
+        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 10, txn, StockportBusStation,
+                AltrinchamInterchange, travelTime, nextMonday, 2, testConfig.getMaxJourneyDuration());
         // 2 changes means 3 stages or less
         journeys.forEach(journey -> assertTrue(journey.getStages().size()<=3, journey.getStages().toString()));
 

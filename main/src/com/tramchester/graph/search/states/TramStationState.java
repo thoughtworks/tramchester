@@ -28,8 +28,8 @@ public class TramStationState extends TraversalState {
                     cost, node.getId());
         }
 
-        public TraversalState fromNeighbour(BusStationState busStationState, Node node, int cost) {
-            return new TramStationState(busStationState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+        public TraversalState fromNeighbour(NoPlatformStation noPlatformStation, Node node, int cost) {
+            return new TramStationState(noPlatformStation, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
         }
 
     }
@@ -57,17 +57,18 @@ public class TramStationState extends TraversalState {
             return builders.destination.from(this, cost);
         }
 
-        if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
-            return builders.platform.from(this, node, cost);
-        }
-        if (nodeLabel == GraphBuilder.Labels.QUERY_NODE || nodeLabel == GraphBuilder.Labels.QUERY_NODE_MID) {
-            return builders.walking.fromTramStation(this, node, cost);
-        }
-        if (nodeLabel == GraphBuilder.Labels.BUS_STATION) {
-            return builders.busStation.fromNeighbour(this, node, cost);
-        }
+        switch (nodeLabel) {
+            case PLATFORM:
+                return builders.platform.from(this, node, cost);
+            case QUERY_NODE:
+            case QUERY_NODE_MID:
+                return builders.walking.fromTramStation(this, node, cost);
+            case BUS_STATION:
+            case TRAM_STATION:
+                return builders.noPlatformStation.fromNeighbour(this, node, cost, nodeLabel);
+            default:
+                throw new RuntimeException("Unexpected node type: "+nodeLabel+ " at " + toString());
 
-        throw new RuntimeException("Unexpected node type: "+nodeLabel+ " at " + toString());
-
+        }
     }
 }

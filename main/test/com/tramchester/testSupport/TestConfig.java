@@ -140,11 +140,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public boolean getBus() {
-        return false;
-    }
-
-    @Override
     public List<GTFSTransportationType> getTransportModes() {
         return Arrays.asList(GTFSTransportationType.tram);
     }

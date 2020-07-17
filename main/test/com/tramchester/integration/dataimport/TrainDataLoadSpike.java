@@ -7,23 +7,22 @@ import com.tramchester.integration.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@Disabled("spike")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainDataLoadSpike {
 
-    private static TramchesterConfig testConfig;
     private static Dependencies dependencies;
     private TransportData data;
 
     @BeforeAll
     static void beforeClass() throws IOException {
-        testConfig = new IntegrationTrainTestConfig();
+        TramchesterConfig testConfig = new IntegrationTrainTestConfig();
 
         dependencies = new Dependencies();
         dependencies.initialise(testConfig);

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.NodeContentsRepository;
@@ -19,18 +20,6 @@ public class NotStartedState extends TraversalState {
         super(sortsPositions, nodeOperations, destinationNodeIds, destinationStationIds, destinationLatLonHint, config);
     }
 
-//    public NotStartedState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations, long destinationNodeId,
-//                           Set<String> destinationStationIds, TramchesterConfig get) {
-//        super(sortsPositions, nodeOperations, asSet(destinationNodeId), destinationStationIds, destinationLatLon, get);
-//    }
-//
-//    @NotNull
-//    private static HashSet<Long> asSet(long destinationNodeId) {
-//        HashSet<Long> destIds = new HashSet<>();
-//        destIds.add(destinationNodeId);
-//        return destIds;
-//    }
-
     @Override
     public String toString() {
         return "NotStartedState{}";
@@ -48,7 +37,8 @@ public class NotStartedState extends TraversalState {
             case TRAM_STATION:
                 return builders.tramStation.fromStart(this, firstNode, cost);
             case BUS_STATION:
-                return builders.busStation.from(this, firstNode, cost);
+            case TRAIN_STATION:
+                return builders.noPlatformStation.from(this, firstNode, cost, nodeLabel);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }

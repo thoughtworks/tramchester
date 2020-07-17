@@ -22,7 +22,7 @@ public class ProximityGroups {
     }
 
     public List<ProximityGroup> getGroups() {
-        if (config.getBus()) {
+        if (config.getLoadPostcodes()) {
             return Arrays.asList(MY_LOCATION,RECENT,NEAREST_STOPS, STOPS, POSTCODES);
         } else {
             return Arrays.asList(MY_LOCATION,RECENT,NEAREST_STOPS, STOPS);

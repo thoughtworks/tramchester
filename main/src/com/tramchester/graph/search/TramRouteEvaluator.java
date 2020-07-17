@@ -1,6 +1,8 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.PreviousSuccessfulVisits;
@@ -40,7 +42,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
-        busEnabled = config.getBus();
+        busEnabled = config.getTransportModes().contains(GTFSTransportationType.bus);
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
         busStationNodes = new HashSet<>();
@@ -165,6 +167,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
+        // TODO needed for trains?
         // seeing loops?
         if (busEnabled) {
             if (nodeTypeRepository.isBusStation(nextNode)) {

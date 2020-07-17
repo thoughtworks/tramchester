@@ -1,7 +1,6 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
@@ -67,7 +66,7 @@ class BusInterchangeRepositoryTest {
     @Test
     void shouldFindSharedStationsUsedByMultipleAgencies() {
 
-        Set<Station> shared = repository.getMultiAgencyStations();
+        Set<Station> shared = repository.getBusMultiAgencyStations();
 
         assertFalse(shared.isEmpty());
 

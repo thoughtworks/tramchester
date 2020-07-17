@@ -5,6 +5,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.VersionRepository;
@@ -95,6 +96,11 @@ public class App extends Application<AppConfiguration>  {
     @Override
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
+        if (configuration.getChangeAtInterchangeOnly() &&
+                configuration.getTransportModes().contains(GTFSTransportationType.train)) {
+            throw new RuntimeException("Interchange only is not currenty compatible with enabling train");
+        }
+
         try {
             dependencies.initialise(configuration);
         }
@@ -145,22 +151,26 @@ public class App extends Application<AppConfiguration>  {
                 dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
-        // refresh live data
-        int initialDelay = 10;
-        ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
-            try {
-                liveDataRepository.refreshRespository();
-            } catch (Exception exeception) {
-                logger.error("Unable to refresh live data", exeception);
-            }
-        }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
+        // only enable live data if tram's enabled
+        if (configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
+            // refresh live data
+            int initialDelay = 10;
+            ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
+                try {
+                    liveDataRepository.refreshRespository();
+                } catch (Exception exeception) {
+                    logger.error("Unable to refresh live data", exeception);
+                }
+            }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
 
-        // archive live data in S3
-        UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
-        liveDataRepository.observeUpdates(observer);
+            // archive live data in S3
+            UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
+            liveDataRepository.observeUpdates(observer);
+
+            environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
+        }
 
         // health check registration
-        environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
         dependencies.getHealthChecks().forEach(tramchesterHealthCheck ->
                 environment.healthChecks().register(tramchesterHealthCheck.getName(), tramchesterHealthCheck));
 

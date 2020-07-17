@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
@@ -18,28 +19,20 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class RouteStationStateOnTrip extends TraversalState implements NodeId {
     private final long routeStationNodeId;
     private final String tripId;
-    private final boolean busesEnabled;
 
     public static class Builder {
 
-        private final TramchesterConfig config;
-
-        public Builder(TramchesterConfig config) {
-            this.config = config;
-        }
-
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
                                               String tripId) {
-            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId, config.getBus());
+            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId);
         }
     }
 
     private RouteStationStateOnTrip(TraversalState parent, Iterable<Relationship> relationships, int cost,
-                                    long routeStationNodeId, String tripId, boolean busesEnabled) {
+                                    long routeStationNodeId, String tripId) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.tripId = tripId;
-        this.busesEnabled = busesEnabled;
     }
 
     @Override
@@ -47,65 +40,52 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
         return "RouteStationStateOnTrip{" +
                 "routeStationNodeId=" + routeStationNodeId +
                 ", tripId='" + tripId + '\'' +
-                ", busesEnabled=" + busesEnabled +
                 "} " + super.toString();
     }
 
     @Override
     public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
-        if (nodeLabel == GraphBuilder.Labels.PLATFORM) {
-            return toPlatform(nextNode, journeyState, cost);
+        switch (nodeLabel) {
+            case PLATFORM:
+                return toPlatform(nextNode, journeyState, cost);
+            case SERVICE:
+                return builders.service.fromRouteStation(this, tripId, nextNode, cost);
+            case BUS_STATION:
+            case TRAIN_STATION:
+                return toStation(nextNode, journeyState, cost, nodeLabel);
+            default:
+                throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
         }
-
-        if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return builders.service.fromRouteStation(this, tripId, nextNode, cost);
-        }
-        if (busesEnabled && (nodeLabel == GraphBuilder.Labels.BUS_STATION)) {
-            return toBusStation(nextNode, journeyState, cost);
-        }
-
-        throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
     }
 
-    private TraversalState toBusStation(Node busStationNode, JourneyState journeyState, int cost) {
+    private TraversalState toStation(Node stationNode, JourneyState journeyState, int cost, GraphBuilder.Labels label) {
         // no platforms in bus network, direct to station
         try {
-            journeyState.leaveBus(getTotalCost());
+            journeyState.leave(modeFromLabel(label), getTotalCost());
         } catch (TramchesterException e) {
             throw new RuntimeException("Unable to depart tram",e);
         }
 
         // if bus station then may have arrived
-        long busStationNodeId = busStationNode.getId();
+        long busStationNodeId = stationNode.getId();
         if (destinationNodeIds.contains(busStationNodeId)) {
             return builders.destination.from(this, cost);
         }
 
-        return builders.busStation.fromRouteStation(this, busStationNode, cost);
+        return builders.noPlatformStation.fromRouteStation(this, stationNode, cost, label);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
         try {
-            journeyState.leaveTram(getTotalCost());
+            journeyState.leave(TransportMode.Tram, getTotalCost());
 
             // TODO Push into PlatformState
             List<Relationship> towardsDest = getTowardsDestination(platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM));
             if (!towardsDest.isEmpty()) {
                 return builders.platform.fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
             }
-
-//            // if towards ONE destination just return that one relationship
-//            if (destinationStationIds.size()==1) {
-//                for (Relationship relationship : platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM)) {
-//                    if (destinationStationIds.contains(relationship.getProperty(GraphStaticKeys.STATION_ID).toString())) {
-//                        return builders.platform.fromRouteStationTowardsDest(this, relationship, platformNode,  cost);
-//                    }
-//                }
-//            }
-
             return builders.platform.fromRouteStationOnTrip(this, platformNode, cost);
-
         }
         catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process platform", exception);
