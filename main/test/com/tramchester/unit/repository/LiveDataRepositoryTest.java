@@ -1,6 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -57,7 +58,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
-        Station station = new Station("stationId", "area", "stopName", new LatLong(1,1), true);
+        Station station = Station.forTest("stationId", "area", "stopName",
+                new LatLong(1,1), TransportMode.Tram);
         Platform platform = new Platform("platformId", "platformName");
         station.addPlatform(platform);
 
@@ -84,7 +86,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
-        Station station = new Station("stationId", "area", "stopName", new LatLong(1,1), true);
+        Station station = Station.forTest("stationId", "area", "stopName", new LatLong(1,1), TransportMode.Tram);
         Platform platform = new Platform("platformId", "platformName");
         station.addPlatform(platform);
 

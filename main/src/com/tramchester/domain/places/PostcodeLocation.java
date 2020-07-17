@@ -1,6 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class PostcodeLocation implements Location {
         return LatLong;
     }
 
+    @Deprecated
     @Override
     public boolean isTram() {
         return false;
@@ -58,6 +60,11 @@ public class PostcodeLocation implements Location {
     @Override
     public List<Platform> getPlatforms() {
         return null;
+    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        return TransportMode.Walk;
     }
 
     @Override

@@ -55,10 +55,5 @@ public class TripDataMapper extends CSVEntryMapper<TripData> {
         return routeCodes.contains(data.get(indexOfRoute));
     }
 
-    @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
 
 }

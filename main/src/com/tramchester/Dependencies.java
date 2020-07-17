@@ -5,8 +5,6 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.cloud.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
-import com.tramchester.dataimport.datacleanse.DataCleanser;
-import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.MyLocationFactory;
@@ -29,7 +27,6 @@ import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.mappers.*;
-import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.router.ProcessPlanRequest;
@@ -70,8 +67,6 @@ public class Dependencies {
         picoContainer.addComponent(TramchesterConfig.class, configuration);
 
         picoContainer.addComponent(TransportDataReaderFactory.class);
-        picoContainer.addComponent(TransportDataWriterFactory.class);
-        //picoContainer.addComponent(DataCleanser.class);
         picoContainer.addComponent(URLDownloader.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
         picoContainer.addComponent(TransportDataBuilderFactory.class);
@@ -79,7 +74,6 @@ public class Dependencies {
         FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
         Unzipper unzipper = get(Unzipper.class);
         fetcher.fetchData(unzipper);
-        //cleanseData();
 
         TransportDataBuilderFactory builderFactory = get(TransportDataBuilderFactory.class);
         TransportDataFromFilesBuilder builder = builderFactory.create();
@@ -182,15 +176,6 @@ public class Dependencies {
 
         TramReachabilityRepository tramReachabilityRepository = get(TramReachabilityRepository.class);
         tramReachabilityRepository.buildRepository();
-    }
-
-    private void cleanseData() throws IOException {
-        ErrorCount count = get(DataCleanser.class).run();
-
-        if (!count.noErrors()) {
-            logger.warn("Errors found during parsing data " + count);
-        }
-        logger.info("Data cleansing finished");
     }
 
     public <T> T get(Class<T> klass) {

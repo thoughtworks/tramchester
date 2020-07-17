@@ -3,6 +3,7 @@ package com.tramchester.domain.places;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class MyLocation implements Location {
         return latLong;
     }
 
+    @Deprecated
     @Override
     public boolean isTram() {
         return false;
@@ -63,5 +65,10 @@ public class MyLocation implements Location {
     @Override
     public List<Platform> getPlatforms() {
         return null;
+    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        return TransportMode.Walk;
     }
 }

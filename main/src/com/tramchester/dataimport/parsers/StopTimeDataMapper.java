@@ -35,11 +35,6 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
     }
 
     @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
-    @Override
     protected void initColumnIndex(List<String> headers) {
         indexOfId = findIndexOf(headers, Columns.trip_id);
         indexOfArrival = findIndexOf(headers, Columns.arrival_time);

@@ -1,5 +1,6 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 
@@ -63,7 +64,7 @@ public class Stations {
             TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
 
     public static Station createStation(String id, String area, String name) {
-        return new Station(id, area, name, position, true);
+        return Station.forTest(id, area, name, position, TransportMode.Tram);
     }
 
 }

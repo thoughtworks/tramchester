@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 
@@ -14,6 +15,7 @@ public class LocationDTO {
     private LatLong latLong;
     private boolean tram;
     private List<PlatformDTO> platforms;
+    private TransportMode transportMode;
 
     public LocationDTO() {
         // deserialisation
@@ -24,20 +26,12 @@ public class LocationDTO {
         this.name = source.getName();
         this.latLong = source.getLatLong();
         this.tram = source.isTram();
+        this.transportMode = source.getTransportMode();
         this.area = source.getArea();
         platforms = new LinkedList<>();
         if (source.hasPlatforms()) {
             source.getPlatforms().forEach(platform -> platforms.add(new PlatformDTO(platform)));
         }
-    }
-
-    public LocationDTO(Location source, List<PlatformDTO> platformDTOS) {
-        this.id = source.getId();
-        this.name = source.getName();
-        this.latLong = source.getLatLong();
-        this.tram = source.isTram();
-        this.area = source.getArea();
-        platforms = platformDTOS;
     }
 
     public String getId() {
@@ -95,6 +89,11 @@ public class LocationDTO {
                 ", latLong=" + latLong +
                 ", tram=" + tram +
                 ", platforms=" + platforms +
+                ", transportMode=" + transportMode +
                 '}';
+    }
+
+    public TransportMode getTransportMode() {
+        return transportMode;
     }
 }

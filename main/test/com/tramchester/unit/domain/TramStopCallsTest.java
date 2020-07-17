@@ -1,12 +1,12 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,10 +24,10 @@ class TramStopCallsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationA = new Station("statA", "areaA", "nameA", new LatLong(-1,1), false);
-        stationB = new Station("statB", "areaB", "nameB", new LatLong(-2,2), false);
-        stationC = new Station("statC", "areaC", "nameC", new LatLong(-3,3), false);
-        stationD = new Station("statD", "areaC", "nameC", new LatLong(-3,3), false);
+        stationA = Station.forTest("statA", "areaA", "nameA", new LatLong(-1,1), TransportMode.Bus);
+        stationB = Station.forTest("statB", "areaB", "nameB", new LatLong(-2,2), TransportMode.Bus);
+        stationC = Station.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
+        stationD = Station.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
 
         stopA = new TramStopCall(from("statA1"), stationA, (byte) 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
         stopB = new TramStopCall(from("statB1"), stationB, (byte) 2, ServiceTime.of(10, 2), ServiceTime.of(10, 3));

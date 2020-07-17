@@ -2,13 +2,13 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
-import com.tramchester.dataimport.datacleanse.DataCleanser;
-import com.tramchester.dataimport.datacleanse.TransportDataWriterFactory;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -39,9 +39,6 @@ class GraphBuildAndStartTest {
         Unzipper unzipper = new Unzipper();
         fetcher.fetchData(unzipper);
         ProvidesNow providesNow = new ProvidesLocalNow();
-        DataCleanser dataCleaner = new DataCleanser(new TransportDataReaderFactory(config), new TransportDataWriterFactory(config),
-                providesNow, config);
-        dataCleaner.run();
 
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();

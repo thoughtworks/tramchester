@@ -48,11 +48,6 @@ public class FeedInfoDataMapper extends CSVEntryMapper<FeedInfo> {
     }
 
     @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
-    @Override
     protected void initColumnIndex(List<String> headers) {
         indexOfPublisherName = findIndexOf(headers, Columns.feed_publisher_name);
         indexOfPublisherURL = findIndexOf(headers, Columns.feed_publisher_url);

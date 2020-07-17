@@ -272,7 +272,7 @@ public class TransportDataFromFilesBuilder {
             String stationId = Station.formId(stopId);
 
             if (!allStations.containsKey(stationId)) {
-                station = new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong(), stop.isTram());
+                station = new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong());
                 allStations.put(station.getId(), station);
             } else {
                 station = allStations.get(stationId);

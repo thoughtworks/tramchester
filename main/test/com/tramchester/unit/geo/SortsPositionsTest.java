@@ -1,5 +1,6 @@
 package com.tramchester.unit.geo;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
@@ -36,7 +37,7 @@ class SortsPositionsTest {
         nearAltrincham = dataForTest.getFirst();         // near Altrincham
         nearStockportBus = dataForTest.getFifthStation();  // nearStockportBus
 
-        alsoNearAlty = new Station("ALSO1122", "area2", "alsoNearAltr", TestEnv.nearAltrincham, true);
+        alsoNearAlty = Station.forTest("ALSO1122", "area2", "alsoNearAltr", TestEnv.nearAltrincham, TransportMode.Tram);
         dataForTest.addStation(alsoNearAlty);
     }
 

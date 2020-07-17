@@ -48,11 +48,6 @@ public class CalendarDatesDataMapper extends  CSVEntryMapper<CalendarDateData> {
     }
 
     @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
-    @Override
     public void initColumnIndex(List<String> headers) {
         indexOfServiceId = findIndexOf(headers, Columns.service_id);
         indexOfDate = findIndexOf(headers, Columns.date);

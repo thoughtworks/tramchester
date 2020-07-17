@@ -1,5 +1,6 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 
@@ -13,6 +14,6 @@ public class BusStations {
     public static Station KnutsfordStationStand3 = createStation("0600MA6022", "Knutsford", "Knutsford,Bus Station (Stand 3)");
 
     private static Station createStation(String id, String area, String name) {
-        return new Station(id, area, name, position, false);
+        return Station.forTest(id, area, name, position, TransportMode.Bus);
     }
 }

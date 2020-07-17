@@ -70,8 +70,4 @@ public class CalendarDataMapper extends CSVEntryMapper<CalendarData> {
         return serviceIds.contains(data.get(0));
     }
 
-    @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
 }

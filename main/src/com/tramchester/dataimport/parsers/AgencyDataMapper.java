@@ -38,11 +38,6 @@ public class AgencyDataMapper extends CSVEntryMapper<AgencyData> {
     }
 
     @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
-    @Override
     protected void initColumnIndex(List<String> headers) {
         indexOfId = findIndexOf(headers, Columns.agency_id);
         indexOfName = findIndexOf(headers, Columns.agency_name);

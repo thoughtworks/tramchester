@@ -1,9 +1,6 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.HashSet;
@@ -19,7 +16,7 @@ public class Station implements Location {
     private String id;
     private String name;
     private LatLong latLong;
-    private boolean tram;
+    private TransportMode transportMode;
     private final List<Platform> platforms;
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
@@ -31,23 +28,22 @@ public class Station implements Location {
         servesAgencies = new HashSet<>();
     }
 
-    public Station(String id, String area, String stationName, LatLong latLong, boolean tram) {
+    public Station(String id, String area, String stationName, LatLong latLong) {
         platforms = new LinkedList<>();
         servesRoutes = new HashSet<>();
         servesAgencies = new HashSet<>();
 
         this.id = id.intern();
-        if (tram) {
-            this.name = stationName.intern();
-        } else if (area.isEmpty()) {
-            this.name = stationName.intern();
-        } else {
-            this.name = String.format("%s,%s", area, stationName);
-        }
+        this.name = stationName;
+        this.transportMode = TransportMode.NotSet; // can't determine reliably until know the route
         this.latLong = latLong;
-        this.tram = tram;
         this.area = area;
+    }
 
+    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) {
+        Station station = new Station(id, area, stationName, latLong);
+        station.transportMode = mode;
+        return station;
     }
 
     @Override
@@ -78,7 +74,7 @@ public class Station implements Location {
 
     @Override
     public boolean isTram() {
-        return tram;
+        return TransportMode.isTram(transportMode);
     }
 
     @Override
@@ -94,6 +90,11 @@ public class Station implements Location {
     @Override
     public List<Platform> getPlatforms() {
         return platforms;
+    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        return transportMode;
     }
 
     public List<Platform> getPlatformsForRoute(Route route) {
@@ -128,7 +129,7 @@ public class Station implements Location {
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
-                ", tram=" + tram +
+                ", mode=" + transportMode +
                 ", platforms=" + HasId.asIds(platforms) +
                 ", servesRoutes=" + HasId.asIds(servesRoutes) +
                 '}';
@@ -136,6 +137,12 @@ public class Station implements Location {
 
     public void addRoute(Route route) {
         servesRoutes.add(route);
+        if (transportMode.equals(TransportMode.NotSet)) {
+            transportMode = route.getMode();
+        } else if (!transportMode.equals(route.getMode())) {
+            throw new RuntimeException("Here to detect if multi-mode stations exist");
+        }
+
         servesAgencies.add(route.getAgency());
     }
 

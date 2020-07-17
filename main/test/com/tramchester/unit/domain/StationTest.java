@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -18,7 +19,8 @@ class StationTest {
 
     @Test
     void testShouldSetTramNameCorrecly() {
-        Location tramStation = new Station("id", "area", "stopName", new LatLong(-2.0, 2.3), true);
+        Location tramStation = Station.forTest("id", "area", "stopName",
+                new LatLong(-2.0, 2.3), TransportMode.Tram);
 
         Assertions.assertEquals("stopName", tramStation.getName());
         Assertions.assertEquals("id", tramStation.getId());
@@ -30,9 +32,10 @@ class StationTest {
 
     @Test
     void testShouldSetBusNameCorrecly() {
-        Location busStation = new Station("id", "area", "stopName",new LatLong(-2.0, 2.3), false);
+        Location busStation = Station.forTest("id", "area", "stopName",
+                new LatLong(-2.0, 2.3), TransportMode.Bus);
 
-        Assertions.assertEquals("area,stopName", busStation.getName());
+        Assertions.assertEquals("stopName", busStation.getName());
         Assertions.assertEquals("id", busStation.getId());
         Assertions.assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         Assertions.assertEquals(2.3, busStation.getLatLong().getLon(),0);

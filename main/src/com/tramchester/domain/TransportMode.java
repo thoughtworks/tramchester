@@ -1,7 +1,7 @@
 package com.tramchester.domain;
 
 public enum TransportMode {
-    Bus, Tram, Depart, Board, Walk, Connect, Train;
+    Bus, Tram, Depart, Board, Walk, Connect, Train, NotSet;
 
     public static TransportMode fromGTFS(GTFSTransportationType routeType) {
         switch (routeType) {
@@ -11,5 +11,10 @@ public enum TransportMode {
             default:
                 throw new RuntimeException("Unexpected route type " + routeType);
         }
+
+    }
+
+    public static boolean isTram(TransportMode transportMode) {
+        return transportMode.equals(TransportMode.Tram);
     }
 }

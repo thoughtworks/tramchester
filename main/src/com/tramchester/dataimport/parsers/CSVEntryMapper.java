@@ -1,6 +1,5 @@
 package com.tramchester.dataimport.parsers;
 
-import com.tramchester.dataimport.datacleanse.TransportDataWriter;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,20 +28,6 @@ public abstract class CSVEntryMapper<T> {
             return theDefault;
         }
     }
-
-    public final void writeHeader(TransportDataWriter writer) {
-        ColumnDefination[] cols = getColumns();
-        StringBuilder header = new StringBuilder();
-        for (int i = 0; i < cols.length; i++) {
-            if (i>0) {
-                header.append(',');
-            }
-            header.append(cols[i].name());
-        }
-        writer.writeLine(header.toString());
-    }
-
-    protected abstract ColumnDefination[] getColumns();
 
     public final void initColumnIndex(CSVRecord csvRecord) {
         List<String> headers = new ArrayList<>(csvRecord.size());

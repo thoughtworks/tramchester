@@ -12,7 +12,6 @@ import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 
 import java.time.LocalDate;
@@ -25,7 +24,7 @@ import static java.lang.String.format;
 // TOOD Use TransportDataContainer instead
 
 @SuppressWarnings("FieldCanBeLocal")
-public class TransportDataForTest implements TransportDataSource, Startable, Disposable {
+public class TransportDataForTest implements TransportDataSource, Startable {
     public static final String TRIP_A_ID = "tripAId";
     private Service serviceB;
     private final String serviceAId = "serviceAId";
@@ -118,25 +117,25 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
         Trip tripA = new Trip(TRIP_A_ID, "headSign", serviceA, routeA);
 
         //LatLong latLong = new LatLong(latitude, longitude);
-        Station first = new Station(FIRST_STATION, "area1", "startStation", TestEnv.nearAltrincham, true);
+        Station first = new Station(FIRST_STATION, "area1", "startStation", TestEnv.nearAltrincham);
         addStation(first);
         addRouteStation(first, routeA);
         TramStopCall stopA = createStop(first, ServiceTime.of(8, 0), ServiceTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
-        Station second = new Station(SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens, true);
+        Station second = new Station(SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens);
         addStation(second);
         addRouteStation(second, routeA);
         TramStopCall stopB = createStop(second, ServiceTime.of(8, 11), ServiceTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
-        Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill, true);
+        Station interchangeStation = new Station(INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill);
         addStation(interchangeStation);
         addRouteStation(interchangeStation, routeA);
         TramStopCall stopC = createStop(interchangeStation, ServiceTime.of(8, 20), ServiceTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
-        Station last = new Station(LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens, true);
+        Station last = new Station(LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens);
         addStation(last);
         addRouteStation(last, routeA);
         TramStopCall stopD = createStop(last, ServiceTime.of(8, 40), ServiceTime.of(8, 40), 4);
@@ -145,10 +144,10 @@ public class TransportDataForTest implements TransportDataSource, Startable, Dis
         // service A
         serviceA.addTrip(tripA);
 
-        Station stationFour = new Station(STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens, true);
+        Station stationFour = new Station(STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens);
         addStation(stationFour);
 
-        Station stationFive = new Station(STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus, true);
+        Station stationFive = new Station(STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus);
         addStation(stationFive);
 
         //

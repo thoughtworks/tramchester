@@ -1,9 +1,11 @@
 package com.tramchester.unit.geo;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.*;
 import com.tramchester.testSupport.TestEnv;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.internal.batchimport.stats.Stat;
@@ -46,8 +48,8 @@ class StationLocationsTest {
 
     @Test
     void shouldGetLatLongForStation() throws TransformException {
-        Station stationA = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
-        Station stationB = new Station("id789", "area", "nameC", TestEnv.nearShudehill, true);
+        Station stationA = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
+        Station stationB = createTestStation("id789", "nameC", TestEnv.nearShudehill);
         stationLocations.addStation(stationA);
         stationLocations.addStation(stationB);
 
@@ -61,14 +63,19 @@ class StationLocationsTest {
 
     }
 
+    @NotNull
+    private Station createTestStation(String id, String name, LatLong location) {
+        return Station.forTest(id, "area", name, location, TransportMode.Tram);
+    }
+
     @Test
     void shouldFindNearbyStation() {
         LatLong place = TestEnv.nearAltrincham;
-        Station stationA = new Station("id123", "area", "nameA", place, true);
-        Station stationB = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
-        Station stationC = new Station("id789", "area", "nameC", TestEnv.nearShudehill, true);
+        Station stationA = createTestStation("id123", "nameA", place);
+        Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
+        Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
         LatLong closePlace = new LatLong(place.getLat()+0.008, place.getLon()+0.008);
-        Station stationD = new Station("idABC", "area", "name", closePlace, true);
+        Station stationD = createTestStation("idABC", "name", closePlace);
 
         stationLocations.addStation(stationA);
         stationLocations.addStation(stationB);
@@ -94,9 +101,9 @@ class StationLocationsTest {
 
     @Test
     void shouldOrderClosestFirst() {
-        Station stationA = new Station("id123", "area", "nameA", TestEnv.nearAltrincham, true);
-        Station stationB = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
-        Station stationC = new Station("id789", "area", "nameC", TestEnv.nearShudehill, true);
+        Station stationA = createTestStation("id123", "nameA", TestEnv.nearAltrincham);
+        Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
+        Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
         stationLocations.addStation(stationA);
         stationLocations.addStation(stationB);
@@ -111,9 +118,9 @@ class StationLocationsTest {
 
     @Test
     void shouldRespectLimitOnNumberResults() {
-        Station stationA = new Station("id123", "area", "nameA", TestEnv.nearAltrincham, true);
-        Station stationB = new Station("id456", "area", "nameB", TestEnv.nearPiccGardens, true);
-        Station stationC = new Station("id789", "area", "nameC", TestEnv.nearShudehill, true);
+        Station stationA = createTestStation("id123", "nameA", TestEnv.nearAltrincham);
+        Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
+        Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
         stationLocations.addStation(stationA);
         stationLocations.addStation(stationB);
@@ -126,7 +133,7 @@ class StationLocationsTest {
 
     @Test
     void shouldFindNearbyStationRespectingRange() {
-        Station testStation = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
+        Station testStation = createTestStation("id123", "name", TestEnv.nearAltrincham);
         stationLocations.addStation(testStation);
 
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 1);
@@ -139,9 +146,9 @@ class StationLocationsTest {
 
     @Test
     void shouldCaptureBoundingAreaForStations() {
-        Station testStationA = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
-        Station testStationB = new Station("id456", "area", "name", TestEnv.nearShudehill, true);
-        Station testStationC = new Station("id789", "area", "nameB", TestEnv.nearPiccGardens, true);
+        Station testStationA = createTestStation("id123", "name", TestEnv.nearAltrincham);
+        Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
+        Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
         stationLocations.addStation(testStationA);
         stationLocations.addStation(testStationB);
@@ -164,9 +171,9 @@ class StationLocationsTest {
     void shouldGridUpStations() throws TransformException {
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
 
-        Station testStationA = new Station("id123", "area", "name", TestEnv.nearAltrincham, true);
-        Station testStationB = new Station("id456", "area", "name", TestEnv.nearShudehill, true);
-        Station testStationC = new Station("id789", "area", "nameB", TestEnv.nearPiccGardens, true);
+        Station testStationA = createTestStation("id123", "name", TestEnv.nearAltrincham);
+        Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
+        Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
         stationLocations.addStation(testStationA);
         stationLocations.addStation(testStationB);

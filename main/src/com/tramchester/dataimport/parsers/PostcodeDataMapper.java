@@ -38,11 +38,6 @@ public class PostcodeDataMapper extends CSVEntryMapper<PostcodeData> {
     }
 
     @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
-    @Override
     protected void initColumnIndex(List<String> headers) {
         // No headers on postcode csv files
     }

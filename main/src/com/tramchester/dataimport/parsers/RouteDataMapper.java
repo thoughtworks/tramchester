@@ -72,9 +72,4 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
         return agencyFilter.contains(data.get(1));
     }
 
-    @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
 }

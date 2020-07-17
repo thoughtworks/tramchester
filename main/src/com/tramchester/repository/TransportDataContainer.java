@@ -27,6 +27,20 @@ public class TransportDataContainer implements TransportDataSource {
     private FeedInfo feedInfo = null;
     private String version;
 
+    @Override
+    public void dispose() {
+        trips.clear();
+        stationsById.clear();
+        trips.clear();
+        stationsByName.clear();
+        trips.clear();
+        services.clear();
+        routes.clear();
+        services.clear();
+        platforms.clear();
+        agencies.clear();
+    }
+
     public void SetFeedInfo(FeedInfo feedInfo) {
         this.feedInfo = feedInfo;
     }
@@ -124,21 +138,13 @@ public class TransportDataContainer implements TransportDataSource {
         return services.get(serviceId);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasServiceId(String serviceId) {
-
         return services.containsKey(serviceId);
     }
 
     public void addAgency(Agency agency) {
         agencies.put(agency.getId(), agency);
-    }
-
-    public boolean hasAgencyId(String agencyId) {
-        return agencies.containsKey(agencyId);
-    }
-
-    public Agency getAgency(String agencyId) {
-        return agencies.get(agencyId);
     }
 
     public void addRoute(Route route) {
@@ -219,4 +225,6 @@ public class TransportDataContainer implements TransportDataSource {
     public boolean hasRouteId(String routeId) {
         return routes.containsKey(routeId);
     }
+
+
 }

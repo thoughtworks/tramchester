@@ -18,12 +18,7 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         stop_id, stop_code, stop_name, stop_lat, stop_lon
     }
 
-    @Override
-    protected ColumnDefination[] getColumns() {
-        return Columns.values();
-    }
-
-    public static String tramStation = " (Manchester Metrolink)";
+    private static String tramStation = " (Manchester Metrolink)";
     private final boolean includeAll;
     private final Set<String> stopIds;
 

@@ -32,14 +32,14 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyDTOFactoryTest extends EasyMockSupport {
-    private final Location stationA = new Station("stationA", "area", "nameA", new LatLong(-2, -1), false);
-    private final Location stationB = new Station("stationB", "area", "nameB", new LatLong(-3, 1), false);
+    private final Location stationA = Station.forTest("stationA", "area", "nameA", new LatLong(-2, -1), TransportMode.Tram);
+    private final Location stationB = Station.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
     private JourneyDTOFactory factory;
     private MyLocationFactory myLocationFactory;
 
     private final TramTime queryTime = TramTime.of(8,46);
     private List<Note> notes;
-    private List<StationRefWithPosition> path = new ArrayList<>();
+    private final List<StationRefWithPosition> path = new ArrayList<>();
 
     @BeforeEach
     void beforeEachTestRuns() {
