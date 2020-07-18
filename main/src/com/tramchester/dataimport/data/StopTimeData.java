@@ -1,24 +1,19 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.domain.GTFSPickupDropoffType;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
-
-import java.util.Optional;
 
 public class StopTimeData {
     private final String tripId;
     private final ServiceTime arrivalTime ;
     private final ServiceTime departureTime;
     private final String stopId;
-    private final String stopSequence;
-    private final String pickupType;
-    private final String dropOffType;
-
-    private static final String COMMA = ",";
-
+    private final int stopSequence;
+    private final GTFSPickupDropoffType pickupType;
+    private final GTFSPickupDropoffType dropOffType;
 
     public StopTimeData(String tripId, ServiceTime arrivalTime, ServiceTime departureTime, String stopId,
-                        String stopSequence, String pickupType, String dropOffType) {
+                        int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
         this.tripId = tripId;
         this.stopId = stopId;
 
@@ -58,26 +53,16 @@ public class StopTimeData {
         return stopId;
     }
 
-    public String getStopSequence() {
+    public int getStopSequence() {
         return stopSequence;
     }
 
-    public String getPickupType() {
+    public GTFSPickupDropoffType getPickupType() {
         return pickupType;
     }
 
-    public String getDropOffType() {
+    public GTFSPickupDropoffType getDropOffType() {
         return dropOffType;
-    }
-
-    public String asOutputLine() {
-        return tripId+ COMMA +
-                arrivalTime.tramDataFormat()+ COMMA +
-                departureTime.tramDataFormat()+ COMMA +
-                stopId+ COMMA +
-                stopSequence + COMMA +
-                pickupType+ COMMA +
-                dropOffType;
     }
 
 }

@@ -2,21 +2,17 @@ package com.tramchester.dataimport.data;
 
 import com.tramchester.domain.GTFSTransportationType;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class RouteData {
-
-
 
     private final String id;
     private final String shortName;
     private final String longName;
     private final String agency;
-    private final String routeType;
+    private final GTFSTransportationType routeType;
 
-    public RouteData(String id, String agency, String shortName, String longName, String routeType) {
+    public RouteData(String id, String agency, String shortName, String longName, GTFSTransportationType routeType) {
         this.id = id.intern();
         this.shortName = shortName;
         this.longName = longName;
@@ -40,7 +36,7 @@ public class RouteData {
         return agency;
     }
 
-    public String getRouteType() {
+    public GTFSTransportationType getRouteType() {
         return routeType;
     }
 

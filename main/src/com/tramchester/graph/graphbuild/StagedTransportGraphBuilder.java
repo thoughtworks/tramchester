@@ -265,13 +265,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createBoardingAndDeparts(Transaction tx, GraphFilter filter, Route route, Trip trip, RouteBuilderCache routeBuilderCache) {
         StopCalls stops = trip.getStops();
-        byte lastStopNum = (byte) stops.size(); // sequence runs from 1
+        int lastStopNum = stops.size(); // sequence runs from 1
 
         for (int stopIndex = 0; stopIndex < stops.size(); stopIndex++) {
             StopCall currentStop = stops.get(stopIndex);
 
             if (filter.shouldInclude(currentStop)) {
-                boolean isFirstStop = (currentStop.getGetSequenceNumber() == (byte)1); //stop seq num, not index
+                boolean isFirstStop = (currentStop.getGetSequenceNumber() == 1); //stop seq num, not index
                 boolean isLastStop = currentStop.getGetSequenceNumber() == lastStopNum;
 
                 createBoardingAndDepart(tx, routeBuilderCache, currentStop, route, isFirstStop, isLastStop);
@@ -411,8 +411,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         ServiceTime departureTime = beginStop.getDepartureTime();
 
-        TransportRelationshipTypes transportRelationshipType =
-                route.isTram() ? TransportRelationshipTypes.TRAM_GOES_TO : TransportRelationshipTypes.BUS_GOES_TO;
+        TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.from(route.getTransportMode());
 
         Node routeStationEnd = routeBuilderCache.getRouteStation(tx, route, endStop.getStation());
 

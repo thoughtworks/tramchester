@@ -1,10 +1,13 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.domain.*;
+import com.tramchester.domain.input.TramStopCall;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import org.slf4j.LoggerFactory;
 
@@ -125,6 +128,17 @@ public class TestEnv {
 
     public static boolean isCircleci() {
         return System.getenv("CIRCLECI") != null;
+    }
+
+    public static TramStopCall createTramStopCall(String tripId, String stopId, Station station, int seq, ServiceTime arrive, ServiceTime depart) {
+        Platform platform = createPlatform(stopId);
+        GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
+        StopTimeData stopTimeData = new StopTimeData(tripId, arrive, depart, stopId, seq, pickupDropoff, pickupDropoff);
+        return new TramStopCall(platform, station, stopTimeData);
+    }
+
+    private static Platform createPlatform(String id) {
+        return new Platform(id, "name:"+ id);
     }
 
 }

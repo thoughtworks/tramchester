@@ -48,6 +48,7 @@ public class StopData {
         return area;
     }
 
+    @Deprecated
     public boolean isTram() {
         return isTram;
     }
@@ -66,7 +67,6 @@ public class StopData {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id);
     }
 }

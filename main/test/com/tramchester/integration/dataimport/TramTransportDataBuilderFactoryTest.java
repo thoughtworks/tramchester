@@ -51,7 +51,7 @@ class TramTransportDataBuilderFactoryTest {
         public Path getUnzipPath() {
             return Paths.get("test");
         }
-    };
+    }
 
     @Test
     void shouldLoadTransportData() {
@@ -88,7 +88,7 @@ class TramTransportDataBuilderFactoryTest {
         StopCall stop = trip.getStops().get(0);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
         assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
-        assertThat(Byte.toUnsignedInt(stop.getGetSequenceNumber())).isEqualTo(1);
+        assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
 
         FeedInfo feedInfo = transportData.getFeedInfo();
         assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");

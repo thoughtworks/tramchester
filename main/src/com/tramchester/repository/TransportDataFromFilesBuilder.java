@@ -3,10 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.BusStopCall;
-import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.input.TramStopCall;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationLocations;
@@ -144,28 +141,42 @@ public class TransportDataFromFilesBuilder {
                 Station station = allStations.get(stationId);
                 addStation(buildable, route, station);
 
-                byte stopSequence = Byte.parseByte(stopTimeData.getStopSequence());
-                StopCall stop;
-                if (TransportMode.isTram(route)) {
-                    if (buildable.hasPlatformId(stopId)) {
-                        Platform platform = buildable.getPlatform(stopId);
-                        platform.addRoute(route);
-                    } else {
-                        logger.error("Missing platform " + stopId);
-                    }
-                    Platform platform = buildable.getPlatform(stopId);
-                    stop = new TramStopCall(platform, station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
-                } else {
-                    stop = new BusStopCall(station, stopSequence, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime());
-                }
+                addStop(buildable, stopTimeData, trip, stopId, route, station);
+
                 count.getAndIncrement();
 
-                trip.addStop(stop);
             } else {
                 logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));
             }
         });
         logger.info("Loaded " + count.get() + " stop times");
+    }
+
+    private void addStop(TransportDataContainer buildable, StopTimeData stopTimeData, Trip trip, String stopId, Route route, Station station) {
+        StopCall stop;
+        switch (route.getTransportMode()) {
+            case Tram:
+                if (buildable.hasPlatformId(stopId)) {
+                    Platform platform = buildable.getPlatform(stopId);
+                    platform.addRoute(route);
+                } else {
+                    logger.error("Missing platform " + stopId);
+                }
+                Platform platform = buildable.getPlatform(stopId);
+                stop = new TramStopCall(platform, station, stopTimeData);
+                break;
+            case Bus:
+                stop = new BusStopCall(station, stopTimeData);
+                break;
+            case Train:
+                stop = new TrainStopCall(station, stopTimeData);
+                break;
+            default:
+                throw new RuntimeException("Unexpected transport mode " + route.getTransportMode());
+
+        }
+
+        trip.addStop(stop);
     }
 
     private void addStation(TransportDataContainer buildable, Route route, Station station) {
@@ -240,7 +251,6 @@ public class TransportDataFromFilesBuilder {
                 logger.error("Missing agency " + agencyId);
             }
 
-            GTFSTransportationType routeType = GTFSTransportationType.getType(routeData.getRouteType());
 
             String routeName = routeData.getLongName();
             if (config.getRemoveRouteNameSuffix()) {
@@ -249,6 +259,8 @@ public class TransportDataFromFilesBuilder {
                     routeName = routeName.substring(0,indexOf).trim();
                 }
             }
+
+            GTFSTransportationType routeType = routeData.getRouteType();
 
             if (transportModes.contains(routeType)) {
                 count.getAndIncrement();

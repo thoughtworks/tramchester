@@ -130,7 +130,7 @@ public class RouteCalculator implements TramRouteCalculator {
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              Set<Station> destinations, boolean walkAtStart) {
 
-        RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
+        final RunningServices runningServicesIds = new RunningServices(transportData.getServicesOnDate(journeyRequest.getDate()));
 
         logger.info("Found " + runningServicesIds.count() + " running services for " +journeyRequest.getDate());
 

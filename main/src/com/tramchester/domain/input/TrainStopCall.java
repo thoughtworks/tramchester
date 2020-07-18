@@ -3,9 +3,9 @@ package com.tramchester.domain.input;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.places.Station;
 
-public class BusStopCall extends StopCall {
+public class TrainStopCall extends StopCall {
 
-    public BusStopCall(Station station, StopTimeData stopTimeData) {
+    public TrainStopCall(Station station, StopTimeData stopTimeData) {
         super(station, stopTimeData);
     }
 

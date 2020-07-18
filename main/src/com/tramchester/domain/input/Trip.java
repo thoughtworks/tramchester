@@ -1,12 +1,9 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 
-public class Trip implements HasId {
+public class Trip implements HasId, HasTransportMode {
 
     private final String tripId;
     private final String headSign;
@@ -15,7 +12,7 @@ public class Trip implements HasId {
     private final StopCalls stops;
     private ServiceTime earliestDepart = null;
     private ServiceTime latestDepart = null;
-    private byte lastIndex;
+    private int lastIndex;
 
     public Trip(String tripId, String headSign, Service service, Route route) {
         this.tripId = tripId.intern();
@@ -56,7 +53,7 @@ public class Trip implements HasId {
         stops.add(stop);
 
         // use stop index as avoids issues with crossing day boundaries
-        byte stopIndex = stop.getGetSequenceNumber();
+        int stopIndex = stop.getGetSequenceNumber();
         ServiceTime departureTime = stop.getDepartureTime();
 
         if (stopIndex == 1) {
@@ -105,7 +102,12 @@ public class Trip implements HasId {
         return latestDepart;
     }
 
-    public boolean getTram() {
-        return route.isTram();
+//    public boolean getTram() {
+//        return route.isTram();
+//    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        return route.getTransportMode();
     }
 }

@@ -1,9 +1,9 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import org.apache.commons.lang3.tuple.Pair;
@@ -32,7 +32,7 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
     public void start() {
         logger.info("Build adjacency matrix");
         Collection<Trip> trips = transportDataSource.getTrips();
-        trips.stream().filter(Trip::getTram).forEach(trip -> {
+        trips.stream().filter(TransportMode::isTram).forEach(trip -> {
             StopCalls stops = trip.getStops();
             for (int i = 0; i < stops.size() - 1; i++) {
                 StopCall currentStop = stops.get(i);

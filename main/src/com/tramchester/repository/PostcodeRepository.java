@@ -32,7 +32,6 @@ public class PostcodeRepository implements Disposable, Startable {
         postcodes = new HashMap<>();
     }
 
-
     public PostcodeLocation getPostcode(String postcodeId) {
         return postcodes.get(postcodeId);
     }

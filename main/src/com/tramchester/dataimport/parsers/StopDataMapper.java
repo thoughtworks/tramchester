@@ -18,6 +18,8 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         stop_id, stop_code, stop_name, stop_lat, stop_lon
     }
 
+    // not used
+    @Deprecated
     private static String tramStation = " (Manchester Metrolink)";
     private final boolean includeAll;
     private final Set<String> stopIds;

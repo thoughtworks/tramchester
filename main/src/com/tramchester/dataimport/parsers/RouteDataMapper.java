@@ -6,10 +6,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 public class RouteDataMapper extends CSVEntryMapper<RouteData> {
     private static final Logger logger = LoggerFactory.getLogger(RouteDataMapper.class);
@@ -49,19 +48,20 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
     }
 
     public RouteData parseEntry(CSVRecord data) {
-        String id = data.get(indexOfId);
-        String agency = data.get(indexOfAgencyId);
-        String shortName = data.get(indexOfShortName);
-        String longName = data.get(indexOfLongName);
-        String routeType = data.get(indexOfType);
+        try {
+            String id = data.get(indexOfId);
+            String agency = data.get(indexOfAgencyId);
+            String shortName = data.get(indexOfShortName);
+            String longName = data.get(indexOfLongName);
+            String routeTypeText = data.get(indexOfType);
+            GTFSTransportationType transportationType = GTFSTransportationType.parser.parse(routeTypeText);
 
-        if (!GTFSTransportationType.validType(routeType)) {
-            String msg = format("Unexpected transport type %s from %s ", routeType, data);
+            return new RouteData(id, agency, shortName, longName, transportationType);
+        } catch (ParseException parseException) {
+            String msg = "Unable to parse " + data.toString();
             logger.error(msg);
-            throw new RuntimeException(msg);
+            throw new RuntimeException(msg, parseException);
         }
-
-        return new RouteData(id, agency, shortName, longName, routeType);
     }
 
     @Override

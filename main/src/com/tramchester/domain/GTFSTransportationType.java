@@ -15,35 +15,22 @@ public enum GTFSTransportationType {
     trolleyBus("11"),
     monorail("12");
 
-    private static final Map<String, GTFSTransportationType> transportationTypes;
-    private static final List<GTFSTransportationType> supported;
+    public final static EnumParser<GTFSTransportationType> parser;
+    private static final Map<String, GTFSTransportationType> textMap;
 
     static {
-        transportationTypes = new HashMap<>();
+        textMap = new HashMap<>();
         GTFSTransportationType[] valid = GTFSTransportationType.values();
-        for (GTFSTransportationType GTFSTransportationType : valid) {
-            transportationTypes.put(GTFSTransportationType.getText(), GTFSTransportationType);
+        for (GTFSTransportationType value : valid) {
+            textMap.put(value.getText(), value);
         }
-        supported = new ArrayList<>();
-        supported.addAll(Arrays.asList(tram, bus, train));
+        parser = new EnumParser<>(textMap);
     }
-
-    public static boolean validType(String routeType) {
-        return transportationTypes.containsKey(routeType);
-    }
-
-    public static GTFSTransportationType getType(String text) {
-        return transportationTypes.get(text);
-    }
-
 
     private final String text;
-    GTFSTransportationType(String text) {
-        this.text = text;
-    }
 
-    public static boolean supportedType(GTFSTransportationType routeType) {
-        return supported.contains(routeType);
+    GTFSTransportationType(String theText) {
+        this.text = theText;
     }
 
     public String getText() {

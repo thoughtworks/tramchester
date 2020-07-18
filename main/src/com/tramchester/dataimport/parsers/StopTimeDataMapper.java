@@ -1,12 +1,13 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.domain.GTFSPickupDropoffType;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,43 +47,42 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
     }
 
     public StopTimeData parseEntry(CSVRecord data) {
-        String tripId = getTripId(data);
-        Optional<ServiceTime> arrivalTime;
-        Optional<ServiceTime> departureTime;
+        try {
+            String tripId = getTripId(data);
 
-        String fieldOne = data.get(indexOfArrival);
-        arrivalTime = parseTimeField(fieldOne, tripId);
+            ServiceTime arrivalTime = parseTimeField(data.get(indexOfArrival));
+            ServiceTime departureTime = parseTimeField(data.get(indexOfDepart));
 
-        String fieldTwo = data.get(indexOfDepart);
-        departureTime = parseTimeField(fieldTwo, tripId);
+            String stopId = data.get(indexOfStopId);
+            int stopSequence = Integer.parseInt(data.get(indexOfStopSeq));
 
-        String stopId = data.get(indexOfStopId);
+            GTFSPickupDropoffType pickupType = GTFSPickupDropoffType.parser.parse(data.get(indexOfPickup));
+            GTFSPickupDropoffType dropOffType = GTFSPickupDropoffType.parser.parse(data.get(indexOfDropOff));
 
-        String stopSequence = data.get(indexOfStopSeq);
-        String pickupType = data.get(indexOfPickup);
-        String dropOffType = data.get(indexOfDropOff);
+            return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
 
-        if (arrivalTime.isEmpty() || departureTime.isEmpty()) {
-            logger.error("Failed to parse arrival time from fields " + data);
-            throw new RuntimeException("Unable to parse time for " + data);
         }
-
-        return new StopTimeData(tripId, arrivalTime.get(), departureTime.get(), stopId, stopSequence, pickupType, dropOffType);
+        catch(ParseException|NumberFormatException parseException) {
+            logger.error("Failed to parse arrival time from fields " + data);
+            throw new RuntimeException("Unable to parse time for " + data, parseException);
+        }
     }
 
     private String getTripId(CSVRecord data) {
         return data.get(indexOfId);
     }
 
-    private Optional<ServiceTime> parseTimeField(String fieldOne, String tripId) {
+    private ServiceTime parseTimeField(String theText) throws ParseException {
         Optional<ServiceTime> time = Optional.empty();
-        if (fieldOne.contains(":")) {
-            time = ServiceTime.parseTime(fieldOne);
+        if (theText.contains(":")) {
+            time = ServiceTime.parseTime(theText);
         }
         if (time.isEmpty()) {
-            logger.error(format("Failed to parse time '%s' for tripId '%s'",fieldOne,tripId));
+            String msg = format("Failed to parse time '%s' ", theText);
+            logger.error(msg);
+            throw new ParseException(msg, 0);
         }
-        return time;
+        return time.get();
     }
 
     @Override

@@ -32,16 +32,16 @@ public class RouteStationStateJustBoarded extends TraversalState {
             return new RouteStationStateJustBoarded(platformState, outbounds, cost);
         }
 
-        public TraversalState fromBusStation(NoPlatformStation noPlatformStation, Node node, int cost) {
+        public TraversalState fromNoPlatformStation(NoPlatformStation noPlatformStation, Node node, int cost) {
             List<Relationship> outbounds = filterExcludingEndNode(
                     node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART), noPlatformStation);
-            outbounds.addAll(orderSvcRelationshipsForBus(node));
+            outbounds.addAll(orderSvcRelationships(node));
             //node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
             return new RouteStationStateJustBoarded(noPlatformStation, outbounds, cost);
         }
 
         // significant overall performance increase
-        private Collection<Relationship> orderSvcRelationshipsForBus(Node node) {
+        private Collection<Relationship> orderSvcRelationships(Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
 
             Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();

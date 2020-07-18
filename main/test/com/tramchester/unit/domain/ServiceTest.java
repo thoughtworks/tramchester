@@ -3,10 +3,8 @@ package com.tramchester.unit.domain;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static com.tramchester.domain.Platform.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -77,11 +74,12 @@ class ServiceTest {
 
         Service service = new Service("SVC002", TestEnv.getTestRoute());
         Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
-        trip.addStop(new TramStopCall(from("stopId1"), Stations.Deansgate, (byte) 3, ServiceTime.of(9,5), ServiceTime.of(9,6)));
-        trip.addStop(new TramStopCall(from("stopId2"), Stations.Deansgate, (byte) 2, ServiceTime.of(8,15), ServiceTime.of(8,16)));
-        trip.addStop(new TramStopCall(from("stopId3"), Stations.Deansgate, (byte) 4, ServiceTime.of(10,25), ServiceTime.of(10,26)));
-        trip.addStop(new TramStopCall(from("stopId4"), Stations.Deansgate, (byte) 5, ServiceTime.of(0,1), ServiceTime.of(0,1)));
-        trip.addStop(new TramStopCall(from("stopId5"), Stations.Deansgate, (byte) 1, ServiceTime.of(6,30), ServiceTime.of(6,30)));
+        String tripId = trip.getId();
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", Stations.Deansgate,3, ServiceTime.of(9,5), ServiceTime.of(9,6)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId2", Stations.Deansgate, 2, ServiceTime.of(8,15), ServiceTime.of(8,16)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId3", Stations.Deansgate, 4, ServiceTime.of(10,25), ServiceTime.of(10,26)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId4", Stations.Deansgate,  5, ServiceTime.of(0,1), ServiceTime.of(0,1)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId5", Stations.Deansgate, 1, ServiceTime.of(6,30), ServiceTime.of(6,30)));
 
         service.addTrip(trip);
 

@@ -29,6 +29,7 @@ public class StopCalls implements Iterable<StopCall> {
         } else {
             stops.add(stop);
         }
+        // keep in sequence number order, don't want to assume always in correct order from input files
         stops.sort(Comparator.comparingInt(StopCall::getGetSequenceNumber));
     }
 

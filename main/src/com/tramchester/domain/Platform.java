@@ -16,7 +16,6 @@ public class Platform implements HasId {
         return platformNumber;
     }
 
-
     public Platform(String id, String name) {
         this.id = id.intern();
         this.name = name.intern();
@@ -65,8 +64,4 @@ public class Platform implements HasId {
         return servesRoutes;
     }
 
-    // for testing
-    public static Platform from(String id) {
-        return new Platform(id, "name:"+ id);
-    }
 }

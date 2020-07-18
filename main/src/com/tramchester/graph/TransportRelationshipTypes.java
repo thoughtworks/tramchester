@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.TransportMode;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.*;
@@ -7,6 +8,7 @@ import java.util.*;
 public enum TransportRelationshipTypes implements RelationshipType {
     TRAM_GOES_TO,
     BUS_GOES_TO,
+    TRAIN_GOES_TO,
     BOARD,
     DEPART,
     INTERCHANGE_BOARD,
@@ -36,5 +38,14 @@ public enum TransportRelationshipTypes implements RelationshipType {
         return forPlanning;
     }
 
+    public static TransportRelationshipTypes from(TransportMode transportMode) {
+        switch (transportMode) {
+            case Train: return TRAIN_GOES_TO;
+            case Bus: return BUS_GOES_TO;
+            case Tram: return TRAM_GOES_TO;
+            default:
+                throw new RuntimeException("Unexpected travel mode " + transportMode);
+        }
+    }
 }
 

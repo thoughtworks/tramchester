@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
+import com.tramchester.domain.GTFSPickupDropoffType;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.unit.dataimport.parsers.ParserBuilder;
@@ -72,8 +73,9 @@ class TramDataLoaderTest {
         StopTimeData stopTime = stopTimeData.get(0);
         assertThat(stopTime.getStopId()).isEqualTo("9400ZZMAABM1");
         assertThat(stopTime.getTripId()).isEqualTo("Trip000001");
-        assertThat(stopTime.getDropOffType()).isEqualTo("1");
-        assertThat(stopTime.getStopSequence()).isEqualTo("0001");
+        assertThat(stopTime.getDropOffType()).isEqualTo(GTFSPickupDropoffType.None);
+        assertThat(stopTime.getPickupType()).isEqualTo(GTFSPickupDropoffType.Regular);
+        assertThat(stopTime.getStopSequence()).isEqualTo(1);
         assertThat(stopTime.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
         assertThat(stopTime.getDepartureTime()).isEqualTo(ServiceTime.of(6,41));
     }

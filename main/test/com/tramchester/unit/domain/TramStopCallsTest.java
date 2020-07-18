@@ -7,10 +7,10 @@ import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.tramchester.domain.Platform.from;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramStopCallsTest {
@@ -29,9 +29,9 @@ class TramStopCallsTest {
         stationC = Station.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
         stationD = Station.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
 
-        stopA = new TramStopCall(from("statA1"), stationA, (byte) 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
-        stopB = new TramStopCall(from("statB1"), stationB, (byte) 2, ServiceTime.of(10, 2), ServiceTime.of(10, 3));
-        stopC = new TramStopCall(from("statC1"), stationC, (byte) 3, ServiceTime.of(10, 10), ServiceTime.of(10, 10));
+        stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
+        stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, ServiceTime.of(10, 2), ServiceTime.of(10, 3));
+        stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 3, ServiceTime.of(10, 10), ServiceTime.of(10, 10));
     }
 
     @Test

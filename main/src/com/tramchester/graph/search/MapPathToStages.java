@@ -81,6 +81,7 @@ public class MapPathToStages {
                     break;
                 case TRAM_GOES_TO:
                 case BUS_GOES_TO:
+                case TRAIN_GOES_TO:
                     state.passStop(relationship);
                     break;
                 case WALKS_TO:

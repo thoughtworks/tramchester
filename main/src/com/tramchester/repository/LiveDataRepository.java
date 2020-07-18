@@ -15,6 +15,7 @@ import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class LiveDataRepository implements LiveDataSource, ReportsCacheStats {
+public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataRepository.class);
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
@@ -52,6 +53,13 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats {
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
         uniquePlatformsSeen = new HashSet<>();
         observers = new LinkedList<>();
+    }
+
+    @Override
+    public void dispose() {
+        departureInfoCache.invalidateAll();
+        uniquePlatformsSeen.clear();
+        observers.clear();
     }
 
     public void refreshRespository()  {
