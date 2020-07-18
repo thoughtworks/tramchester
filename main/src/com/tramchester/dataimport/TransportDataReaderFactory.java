@@ -32,13 +32,16 @@ public class TransportDataReaderFactory implements TransportDataLoader {
     }
 
     public List<TransportDataReader> getReaders() {
+        List<GTFSTransportationType> transportModes = config.getTransportModes();
+
         if (dataReaders.isEmpty()) {
-            //Path path = config.getDataPath();
-            Path path = config.getDataPath().resolve(config.getUnzipPath());
-            DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
-            TransportDataReader transportLoader = new TransportDataReader(factory, true);
-            dataReaders.add(transportLoader);
-            if (config.getTransportModes().contains(GTFSTransportationType.train)) {
+            if (transportModes.contains(GTFSTransportationType.bus) || transportModes.contains(GTFSTransportationType.tram)) {
+                Path path = config.getDataPath().resolve(config.getUnzipPath());
+                DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
+                TransportDataReader transportLoader = new TransportDataReader(factory, true);
+                dataReaders.add(transportLoader);
+            }
+            if (transportModes.contains(GTFSTransportationType.train)) {
                 createTrainReaders();
             }
         }

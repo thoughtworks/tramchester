@@ -1,28 +1,25 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.domain.GTFSPickupDropoffType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
 
 public abstract class StopCall {
     protected final Station station;
-    protected final ServiceTime arrivalTime;
+    private final ServiceTime arrivalTime;
     protected final ServiceTime departureTime;
-    protected final int sequenceNumber;
+    private final int sequenceNumber;
+    private final GTFSPickupDropoffType pickupType;
+    private final GTFSPickupDropoffType dropoffType;
 
     public StopCall(Station station, StopTimeData stopTimeData) {
         this.station = station;
         this.arrivalTime = stopTimeData.getArrivalTime();
         this.departureTime = stopTimeData.getDepartureTime();
         this.sequenceNumber = stopTimeData.getStopSequence();
-    }
-
-    @Deprecated
-    public StopCall(Station station, ServiceTime arrivalTime, ServiceTime departureTime, int sequenceNumber) {
-        this.station = station;
-        this.arrivalTime = arrivalTime;
-        this.departureTime = departureTime;
-        this.sequenceNumber = sequenceNumber;
+        this.pickupType = stopTimeData.getPickupType();
+        this.dropoffType = stopTimeData.getDropOffType();
     }
 
     public ServiceTime getArrivalTime() {
@@ -43,4 +40,25 @@ public abstract class StopCall {
 
     public abstract String getPlatformId();
 
+    public GTFSPickupDropoffType getPickupType() {
+        return pickupType;
+    }
+
+    public GTFSPickupDropoffType getDropoffType() {
+        return dropoffType;
+    }
+
+    @Override
+    public String toString() {
+        return "StopCall{" +
+                "station=" + station +
+                ", arrivalTime=" + arrivalTime +
+                ", departureTime=" + departureTime +
+                ", sequenceNumber=" + sequenceNumber +
+                ", pickupType=" + pickupType +
+                ", dropoffType=" + dropoffType +
+                '}';
+    }
+
+    public abstract boolean hasPlatfrom();
 }

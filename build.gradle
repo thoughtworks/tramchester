@@ -114,6 +114,7 @@ task cleanGraph() {
     doLast {
         delete 'databases/integrationBusTest' ,
                 'databases/integrationTramTest',
+                'databases/integrationTrainTest',
                 'databases/tramchesterAcceptance.db',
                 'tramchester.db', 'buses.db', 'trains.db'
     }

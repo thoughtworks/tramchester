@@ -67,12 +67,6 @@ public class Route implements HasId, HasTransportMode {
         return id != null ? id.hashCode() : 0;
     }
 
-    // prefer get transport mode
-    @Deprecated
-    public boolean isTram() {
-        return transportMode.equals(TransportMode.Tram);
-    }
-
     public String getShortName() {
         return shortName;
     }

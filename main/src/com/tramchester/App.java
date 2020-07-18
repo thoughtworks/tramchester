@@ -132,16 +132,18 @@ public class App extends Application<AppConfiguration>  {
         // TOOD This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
 
-        // initial load of live data
-        LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
-        liveDataRepository.refreshRespository();
-
-        // custom metrics for live data and messages
         MetricRegistry metricRegistry = environment.metrics();
-        metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "number"),
-                (Gauge<Integer>) liveDataRepository::upToDateEntries);
-        metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
-                (Gauge<Integer>) liveDataRepository::entriesWithMessages);
+
+        if (configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
+            // initial load of live data
+            LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
+            liveDataRepository.refreshRespository();
+            // custom metrics for live data and messages
+            metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "number"),
+                    (Gauge<Integer>) liveDataRepository::upToDateEntries);
+            metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
+                    (Gauge<Integer>) liveDataRepository::entriesWithMessages);
+        }
 
         CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
         cacheMetrics.prepare();
@@ -153,6 +155,7 @@ public class App extends Application<AppConfiguration>  {
 
         // only enable live data if tram's enabled
         if (configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
+            LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
             // refresh live data
             int initialDelay = 10;
             ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {

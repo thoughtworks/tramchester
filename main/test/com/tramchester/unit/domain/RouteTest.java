@@ -15,10 +15,10 @@ class RouteTest {
     @Test
     void shouldHaveTramRoute() {
         Route route = new Route("id","code","name", TestEnv.MetAgency(), TransportMode.Tram);
-        Assertions.assertTrue(route.isTram());
+        Assertions.assertTrue(TransportMode.isTram(route));
 
         route = new Route("id","code","name", new Agency("GMS", "agencyName"), TransportMode.Bus);
-        Assertions.assertFalse(route.isTram());
+        Assertions.assertFalse(TransportMode.isTram(route));
     }
 
     @Test

@@ -217,7 +217,7 @@ public class MapPathToStages {
             boardingStation = transportData.getStation(relationship.getProperty(STATION_ID).toString());
             routeCode = relationship.getProperty(ROUTE_ID).toString();
             route = transportData.getRoute(routeCode);
-            if (route.isTram()) {
+            if (boardingStation.hasPlatforms()) {
                 String stopId = relationship.getProperty(PLATFORM_ID).toString();
                 boardingPlatform = platformRepository.getPlatformById(stopId);
             }

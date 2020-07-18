@@ -10,12 +10,6 @@ import com.tramchester.domain.time.TramTime;
 public class TramStopCall extends StopCall {
     private final Platform callingPlatform;
 
-    @Deprecated
-    public TramStopCall(Platform callingPlatform, Station station, int sequenceNumber, ServiceTime arrivalTime, ServiceTime departureTime) {
-        super(station, arrivalTime, departureTime, sequenceNumber);
-        this.callingPlatform = callingPlatform;
-    }
-
     public TramStopCall(Platform platform, Station station, StopTimeData stopTimeData) {
         super(station, stopTimeData);
         this.callingPlatform = platform;
@@ -28,11 +22,12 @@ public class TramStopCall extends StopCall {
     @Override
     public String toString() {
         return "TramStopCall{" +
-                "callingPlatform=" + HasId.asId(callingPlatform) +
-                ", station=" + HasId.asId(station) +
-                ", arrivalTime=" + arrivalTime +
-                ", departureTime=" + departureTime +
-                ", sequenceNumber=" + sequenceNumber +
-                '}';
+                "callingPlatform=" + callingPlatform +
+                "} " + super.toString();
+    }
+
+    @Override
+    public boolean hasPlatfrom() {
+        return true;
     }
 }

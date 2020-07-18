@@ -112,7 +112,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         routes.forEach(route -> {
             RouteBuilderCache routeBuilderCache = new RouteBuilderCache();
             String asId = route.getId();
-            logger.info("Adding route " + asId);
+            logger.debug("Adding route " + asId);
 
             try(Transaction tx = graphDatabase.beginTx()) {
                 // create or cache stations and platforms for route, create route stations
@@ -128,7 +128,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             buildGraphForServices(graphDatabase, filter, route, routeBuilderCache, services);
 
             routeBuilderCache.clear();
-            logger.info("Route " + asId + " added ");
+            logger.debug("Route " + asId + " added ");
         });
     }
 
@@ -271,37 +271,53 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             StopCall currentStop = stops.get(stopIndex);
 
             if (filter.shouldInclude(currentStop)) {
-                boolean isFirstStop = (currentStop.getGetSequenceNumber() == 1); //stop seq num, not index
-                boolean isLastStop = currentStop.getGetSequenceNumber() == lastStopNum;
-
-                createBoardingAndDepart(tx, routeBuilderCache, currentStop, route, isFirstStop, isLastStop);
+                createBoardingAndDepart(tx, routeBuilderCache, currentStop, route, lastStopNum);
             }
 
         }
     }
 
-    private void createBoardingAndDepart(Transaction tx, RouteBuilderCache routeBuilderCache, StopCall stop,
-                                         Route route, boolean isFirstStop, boolean isLastStop) {
+    private void createBoardingAndDepart(Transaction tx, RouteBuilderCache routeBuilderCache, StopCall stopCall,
+                                         Route route, int lastStopNum) {
+
+        boolean isFirstStop = (stopCall.getGetSequenceNumber() == 1); //stop seq num, not index
+        boolean isLastStop = stopCall.getGetSequenceNumber() == lastStopNum;
+
         if (isFirstStop && isLastStop) {
-            throw new RuntimeException("first and last true for " + stop);
+            throw new RuntimeException("first and last true for " + stopCall);
         }
 
-        Station station = stop.getStation();
+        boolean pickup = stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular);
+        boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
+
+        if (isFirstStop && dropoff) {
+            String msg = "Drop off at first station for stop " + stopCall.toString();
+            logger.error(msg);
+            // TODO THROW
+        }
+
+        if (isLastStop && pickup) {
+            String msg = "Pick up at last station for stop " + stopCall.toString();
+            logger.error(msg);
+            // TODO THROW
+        }
+
+        Station station = stopCall.getStation();
         boolean isInterchange = interchangeRepository.isInterchange(station);
 
         // If bus we board to/from station, for trams its from the platform
-        Node boardingNode = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stop.getPlatformId())
+        Node boardingNode = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stopCall.getPlatformId())
                 : routeBuilderCache.getStation(tx, station);
         String routeStationId = RouteStation.formId(station, route);
-        Node routeStationNode = routeBuilderCache.getRouteStation(tx, route, stop.getStation());
+        Node routeStationNode = routeBuilderCache.getRouteStation(tx, route, stopCall.getStation());
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
-        if ((!isLastStop) && !routeBuilderCache.hasBoarding(boardingNode.getId(), routeStationNode.getId())) {
-            createBoarding(routeBuilderCache, stop, route, station, isInterchange, boardingNode, routeStationId, routeStationNode);
+        if (pickup && !routeBuilderCache.hasBoarding(boardingNode.getId(), routeStationNode.getId())) {
+            createBoarding(routeBuilderCache, stopCall, route, station, isInterchange, boardingNode, routeStationId, routeStationNode);
         }
 
         // leave: route station -> platform/station , NOTE: no towardsStation at first stop of a trip
-        if ((!isFirstStop) && !routeBuilderCache.hasDeparts(routeStationNode.getId(), boardingNode.getId()) ) {
+        if (dropoff && !routeBuilderCache.hasDeparts(routeStationNode.getId(), boardingNode.getId()) ) {
             createDeparts(routeBuilderCache, station, isInterchange, boardingNode, routeStationId, routeStationNode);
         }
     }
@@ -328,7 +344,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boardRelationship.setProperty(ROUTE_ID, route.getId());
         boardRelationship.setProperty(STATION_ID, station.getId());
         // No platform ID on buses
-        if (route.isTram()) {
+        if (stop.hasPlatfrom()) {
             boardRelationship.setProperty(PLATFORM_ID, stop.getPlatformId());
         }
         routeBuilderCache.putBoarding(boardingNode.getId(), routeStationNode.getId());
@@ -350,20 +366,21 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {
         Set<Node> endNodes = new HashSet<>();
-        // relative infrequence occurance, so performance hit not large
-        if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
-            // legit for some routes when trams return to depot, or at media city where they branch, etc
-            Iterable<Relationship> relationships = from.getRelationships(OUTGOING, ON_ROUTE);
 
-            for (Relationship current : relationships) {
-                endNodes.add(current.getEndNode());
-                logger.info(format("Existing outbounds at %s for same route %s currently has %s, new is %s",
-                        from.getProperty(STATION_ID), route.getId(),
-                        current.getEndNode().getProperty(STATION_ID),
-                        to.getProperty(STATION_ID)));
-            }
-
-        }
+        // normal situation, where (especially) trains go via different paths even thought route is the "same"
+//        if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
+//            // legit for some routes when trams return to depot, or at media city where they branch, etc
+//            Iterable<Relationship> relationships = from.getRelationships(OUTGOING, ON_ROUTE);
+//
+//            for (Relationship current : relationships) {
+//                endNodes.add(current.getEndNode());
+//                logger.info(format("Existing outbounds at %s for same route %s currently has %s, new is %s",
+//                        from.getProperty(STATION_ID), route.getId(),
+//                        current.getEndNode().getProperty(STATION_ID),
+//                        to.getProperty(STATION_ID)));
+//            }
+//
+//        }
         if (!endNodes.contains(to)) {
             Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
             onRoute.setProperty(ROUTE_ID, route.getId());

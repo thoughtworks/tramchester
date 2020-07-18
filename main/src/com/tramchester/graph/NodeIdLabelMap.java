@@ -11,8 +11,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.BUS_STATION;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 
 public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);
@@ -21,9 +20,13 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     private final Map<GraphBuilder.Labels, Set<Long>> map;
     private final ConcurrentMap<Long, Boolean> queryNodes;
 
+    private final Set<GraphBuilder.Labels> nodesToCache = new HashSet<>(Arrays.asList(
+            ROUTE_STATION, TRAM_STATION, BUS_STATION, TRAIN_STATION, PLATFORM, SERVICE, HOUR, MINUTE
+    ));
+
     public NodeIdLabelMap() {
         map = new EnumMap<>(GraphBuilder.Labels.class);
-        for (GraphBuilder.Labels label: GraphBuilder.Labels.values()) {
+        for (GraphBuilder.Labels label: nodesToCache) {
             if (label != GraphBuilder.Labels.QUERY_NODE) {
                 map.put(label, new HashSet<>(getCapacity(label), 1.0F));
             }
@@ -31,20 +34,23 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
         queryNodes = new ConcurrentHashMap<>();
     }
 
-    // called when loaded from disc, instead of rebuild
+    // called when DB loaded from disc, instead of rebuild
     public void populateNodeLabelMap(GraphDatabase graphDatabase) {
         logger.info("Rebuilding node->label index");
-        GraphBuilder.Labels[] labels = GraphBuilder.Labels.values();
         try (Transaction tx = graphDatabase.beginTx()) {
-            for (GraphBuilder.Labels label : labels) {
+            for (GraphBuilder.Labels label : nodesToCache) {
                 graphDatabase.findNodes(tx, label).stream().forEach(node -> put(node.getId(), label));
             }
         }
-        for (GraphBuilder.Labels label : labels) {
-            if (label != GraphBuilder.Labels.QUERY_NODE) {
-                logger.info("Loaded " + map.get(label).size() + " for label " + label);
+        for (GraphBuilder.Labels label : nodesToCache) {
+            int size = map.get(label).size();
+            if (size>0) {
+                logger.info("Loaded " + size + " for label " + label);
+            } else {
+                logger.warn("Loaded zero nodes for label " + label);
             }
         }
+
         logger.info("Finished populating map");
     }
 
@@ -60,6 +66,7 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
         switch (label) {
             case ROUTE_STATION: return 282;
             case TRAM_STATION: return 93;
+            case TRAIN_STATION: return 3000;
             case PLATFORM: return 185;
             case SERVICE: return 8680;
             case HOUR: return 62525;

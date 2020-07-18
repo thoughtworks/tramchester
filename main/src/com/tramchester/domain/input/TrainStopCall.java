@@ -13,4 +13,14 @@ public class TrainStopCall extends StopCall {
     public String getPlatformId() {
         throw new RuntimeException("Bus stops don't have platforms");
     }
+
+    @Override
+    public String toString() {
+        return "TrainStopCall{} " + super.toString();
+    }
+
+    @Override
+    public boolean hasPlatfrom() {
+        return false;
+    }
 }

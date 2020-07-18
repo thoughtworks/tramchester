@@ -19,7 +19,6 @@ rebuildGraph: true
 graphName: tramchester.db
 unzipPath: gtdf-out
 closedStations: []
-bus: false
 transportModes: [ tram ]
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}

@@ -24,7 +24,7 @@ public class IntegrationTrainTestConfig extends TestConfig {
 
     @Override
     public List<GTFSTransportationType> getTransportModes() {
-        return Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.train);
+        return Arrays.asList(GTFSTransportationType.train);
     }
 
     @Override

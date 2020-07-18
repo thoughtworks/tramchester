@@ -19,8 +19,7 @@ rebuildGraph: true
 graphName: trains.db
 unzipPath: gtdf-out
 closedStations: []
-bus: false
-transportModes: [ train, tram ]
+transportModes: [ train ]
 instanceDataUrl: http://169.254.169.254
 tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
 tramDataCheckUrl: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
@@ -36,8 +35,8 @@ postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
 maxWait: 25
-numberQueries: 3
-queryInterval: 12
+numberQueries: 5
+queryInterval: 10
 maxNumberResults: 5
 maxJourneyDuration: 112
 nearestStopRangeKM: 1.6
@@ -48,7 +47,7 @@ recentStopsToShow: 5
 dataExpiryThreadhold: 3
 maxNumberMissingLiveMessages: 10
 
-changeAtInterchangeOnly: true
+changeAtInterchangeOnly: false
 
 swagger:
   resourcePackage: com.tramchester.resources
@@ -59,15 +58,15 @@ logging:
 
   appenders:
     - type: console
-      threshold: WARN
+      threshold: INFO
     - type: syslog
       host: localhost
       port: 514
     - type: file
-      currentLogFilename: logs/tramchester_local.log
+      currentLogFilename: logs/tramchester_trains.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/tramchester_local-%d.log
+      archivedLogFilenamePattern: logs/tramchester_trains-%d.log
       archivedFileCount: 5
       timeZone: UTC
 

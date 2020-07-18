@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.tramchester.domain.GTFSPickupDropoffType.Regular;
 import static java.lang.String.format;
 
 public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
@@ -59,8 +60,12 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
             GTFSPickupDropoffType pickupType = GTFSPickupDropoffType.parser.parse(data.get(indexOfPickup));
             GTFSPickupDropoffType dropOffType = GTFSPickupDropoffType.parser.parse(data.get(indexOfDropOff));
 
-            return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
+            // seems normal for the train data, has all stations even ones don't stop at
+//            if (pickupType!=Regular && dropOffType!=Regular) {
+//                logger.info("No drop-off or pickup for trip " + tripId + " and stop " + stopId);
+//            }
 
+            return new StopTimeData(tripId, arrivalTime, departureTime, stopId, stopSequence, pickupType, dropOffType);
         }
         catch(ParseException|NumberFormatException parseException) {
             logger.error("Failed to parse arrival time from fields " + data);
