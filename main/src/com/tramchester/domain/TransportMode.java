@@ -14,11 +14,15 @@ public enum TransportMode {
 
     }
 
-    public static boolean isTram(HasTransportMode station) {
-        return station.getTransportMode().equals(TransportMode.Tram);
+    public static boolean isTram(HasTransportMode item) {
+        return item.getTransportMode().equals(TransportMode.Tram);
     }
 
-    public static boolean isBus(HasTransportMode station) {
-        return station.getTransportMode().equals(TransportMode.Bus);
+    public static boolean isBus(HasTransportMode item) {
+        return item.getTransportMode().equals(TransportMode.Bus);
+    }
+
+    public static boolean isTrain(HasTransportMode item) {
+        return item.getTransportMode().equals(TransportMode.Train);
     }
 }

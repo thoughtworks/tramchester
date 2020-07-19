@@ -50,15 +50,14 @@ public class PreviousSuccessfulVisits {
     }
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node endNode, TramTime journeyClock) {
-        if (result ==  ServiceReason.ReasonCode.NotAtQueryTime) {
-            timeVisits.add(endNode.getId());
-        }
-        if (result == ServiceReason.ReasonCode.Valid) {
-            if (nodeTypeRepository.isTime(endNode))  {
+        switch (result) {
+            case NotAtQueryTime:
+            case TimeOk:
                 timeVisits.add(endNode.getId());
-            } else if (nodeTypeRepository.isHour(endNode)) {
+                break;
+            case HourOk:
                 hourVisits.putIfAbsent(endNode.getId(), journeyClock);
-            }
+                break;
         }
     }
 }

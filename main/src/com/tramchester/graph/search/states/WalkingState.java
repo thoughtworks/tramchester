@@ -17,7 +17,7 @@ public class WalkingState extends TraversalState {
             return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
         }
 
-        public TraversalState fromNoPlatformStation(NoPlatformStation noPlatformStation, Node node, int cost) {
+        public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
             return new WalkingState(noPlatformStation, node.getRelationships(OUTGOING), cost);
         }
 

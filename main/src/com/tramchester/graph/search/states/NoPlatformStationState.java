@@ -14,38 +14,38 @@ import java.util.List;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class NoPlatformStation extends TraversalState implements NodeId {
+public class NoPlatformStationState extends TraversalState implements NodeId {
 
     public static class Builder {
 
-        public NoPlatformStation from(WalkingState walkingState, Node node, int cost, GraphBuilder.Labels nodeLabel) {
-            return new NoPlatformStation(walkingState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
+        public NoPlatformStationState from(WalkingState walkingState, Node node, int cost, GraphBuilder.Labels nodeLabel) {
+            return new NoPlatformStationState(walkingState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
                     cost, node.getId(), modeFromLabel(nodeLabel));
         }
 
-        public NoPlatformStation from(NotStartedState notStartedState, Node node, int cost, GraphBuilder.Labels nodeLabel) {
-            return new NoPlatformStation(notStartedState, getAll(node),
+        public NoPlatformStationState from(NotStartedState notStartedState, Node node, int cost, GraphBuilder.Labels nodeLabel) {
+            return new NoPlatformStationState(notStartedState, getAll(node),
                     cost, node.getId(), modeFromLabel(nodeLabel));
         }
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost,  GraphBuilder.Labels nodeLabel) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
             List<Relationship> stationRelationships = filterExcludingEndNode(getAll(node), onTrip);
-            return new NoPlatformStation(onTrip, stationRelationships, cost, node.getId(), modeFromLabel(nodeLabel));
+            return new NoPlatformStationState(onTrip, stationRelationships, cost, node.getId(), modeFromLabel(nodeLabel));
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost,  GraphBuilder.Labels nodeLabel) {
             // end of a trip, may need to go back to this route station to catch new service
-            return new NoPlatformStation(routeStationState, getAll(node), cost, node.getId(), modeFromLabel(nodeLabel));
+            return new NoPlatformStationState(routeStationState, getAll(node), cost, node.getId(), modeFromLabel(nodeLabel));
         }
 
-        public TraversalState fromNeighbour(NoPlatformStation noPlatformStation, Node node, int cost, GraphBuilder.Labels nodeLabel) {
-            return new NoPlatformStation(noPlatformStation, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
+        public TraversalState fromNeighbour(NoPlatformStationState noPlatformStation, Node node, int cost, GraphBuilder.Labels nodeLabel) {
+            return new NoPlatformStationState(noPlatformStation, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
                     cost, node.getId(), modeFromLabel(nodeLabel));
         }
 
         public TraversalState fromNeighbour(TramStationState tramStationState, Node node, int cost,  GraphBuilder.Labels nodeLabel) {
-            return new NoPlatformStation(tramStationState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
+            return new NoPlatformStationState(tramStationState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
                     cost, node.getId(), modeFromLabel(nodeLabel));
         }
 
@@ -57,7 +57,7 @@ public class NoPlatformStation extends TraversalState implements NodeId {
     private final long stationNodeId;
     private final TransportMode mode;
 
-    private NoPlatformStation(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId, TransportMode mode) {
+    private NoPlatformStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId, TransportMode mode) {
         super(parent, relationships, cost);
         this.stationNodeId = stationNodeId;
         this.mode = mode;

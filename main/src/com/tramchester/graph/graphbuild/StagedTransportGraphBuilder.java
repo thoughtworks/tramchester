@@ -320,6 +320,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (dropoff && !routeBuilderCache.hasDeparts(routeStationNode.getId(), boardingNode.getId()) ) {
             createDeparts(routeBuilderCache, station, isInterchange, boardingNode, routeStationId, routeStationNode);
         }
+
+        if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
+            logger.warn("No pickup or dropoff for " + stopCall.toString());
+        }
     }
 
     private void createDeparts(RouteBuilderCache routeBuilderCache, Station station, boolean isInterchange,

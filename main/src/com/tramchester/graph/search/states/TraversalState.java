@@ -140,7 +140,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         protected final RouteStationStateOnTrip.Builder routeStation;
         protected final RouteStationStateEndTrip.Builder routeStationEndTrip;
         protected final RouteStationStateJustBoarded.Builder routeStationJustBoarded;
-        protected final NoPlatformStation.Builder noPlatformStation;
+        protected final NoPlatformStationState.Builder noPlatformStation;
         protected final TramStationState.Builder tramStation;
         protected final ServiceState.Builder service;
         protected final PlatformState.Builder platform;
@@ -153,7 +153,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             routeStation = new RouteStationStateOnTrip.Builder();
             routeStationEndTrip = new RouteStationStateEndTrip.Builder();
             routeStationJustBoarded = new RouteStationStateJustBoarded.Builder(sortsPositions, destinationLatLon);
-            noPlatformStation = new NoPlatformStation.Builder();
+            noPlatformStation = new NoPlatformStationState.Builder();
             service = new ServiceState.Builder();
             platform = new PlatformState.Builder();
             walking = new WalkingState.Builder();

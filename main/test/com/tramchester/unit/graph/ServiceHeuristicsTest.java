@@ -13,6 +13,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.ServiceReason;
 import com.tramchester.graph.search.ServiceReasons;
+import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.StationRepository;
@@ -43,7 +44,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private NodeContentsRepository nodeOperations;
     private RunningServices runningServices;
-    private Path path;
+    private HowIGotHere path;
     private TramReachabilityRepository tramReachabilityRepository;
     private final int maxPathLength = 400;
     private StationRepository stationRepository;
@@ -54,7 +55,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         nodeOperations = new CachedNodeOperations();
         runningServices = createMock(RunningServices.class);
-        path = createMock(Path.class);
+        path = createMock(HowIGotHere.class);
         providesLocalNow = new ProvidesLocalNow();
         tramReachabilityRepository = createMock(TramReachabilityRepository.class);
         stationRepository = createMock(StationRepository.class);

@@ -1,28 +1,20 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.domain.time.TramTime;
-import org.neo4j.graphdb.Path;
+import com.tramchester.graph.search.states.HowIGotHere;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import static java.lang.String.format;
 
 public abstract class ServiceReason {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceReason.class);
-
-    public static final IsValid isValid = new IsValid();
-
-    // seems to periodically incorrectly return true for isDebugEnabled()
-    private static final boolean debugEnabled = logger.isDebugEnabled() && (System.getenv("CIRCLECI")==null);
 
 
     public enum ReasonCode {
-        Valid,
+        //Valid,
+        ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk, WalkOk, Continue,
         NotOnQueryDate,
         NotAtQueryTime,
         NotReachable,
@@ -42,22 +34,34 @@ public abstract class ServiceReason {
         Arrived
     }
 
-    private final Set<PathToGraphViz.RenderLater> pathToRenderAsString;
+    private static final Logger logger;
+    //public static final ServiceReason isValid;
+    private static final boolean debugEnabled;
+
+    private final HowIGotHere howIGotHere;
     private final ReasonCode code;
 
-    public ServiceReason(ReasonCode code) {
-        this.code = code;
-        pathToRenderAsString = Collections.emptySet();
+    static {
+        logger = LoggerFactory.getLogger(ServiceReason.class);
+        debugEnabled = logger.isDebugEnabled() && (System.getenv("CIRCLECI") == null);
+        if (debugEnabled) {
+            logger.warn("Debug enabled here, performance impact");
+        }
+        //isValid = new IsValid();
     }
 
-    protected ServiceReason(ReasonCode code, Path path) {
+    public HowIGotHere getHowIGotHere() {
+        return howIGotHere;
+    }
+
+    private ServiceReason(ReasonCode code) {
         this.code = code;
-        if (debugEnabled) {
-            pathToRenderAsString = new HashSet<>();
-            pathToRenderAsString.addAll(PathToGraphViz.map(path, this, this.isValid()));
-        } else {
-            pathToRenderAsString = Collections.emptySet();
-        }
+        howIGotHere = HowIGotHere.None();
+    }
+
+    protected ServiceReason(ReasonCode code, HowIGotHere path) {
+        this.code = code;
+        this.howIGotHere = path;
     }
 
     public abstract String textForGraph();
@@ -71,13 +75,6 @@ public abstract class ServiceReason {
         return false;
     }
 
-    public void recordPath(Set<String> builder) {
-        if (debugEnabled) {
-            logger.warn("Debug enabled here, performance impact");
-        }
-        pathToRenderAsString.forEach(renderLater -> builder.add(renderLater.render()));
-    }
-
     @Override
     public String toString() {
         return code.toString();
@@ -88,46 +85,20 @@ public abstract class ServiceReason {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ServiceReason that = (ServiceReason) o;
-        return Objects.equals(pathToRenderAsString, that.pathToRenderAsString) &&
+        return Objects.equals(howIGotHere, that.howIGotHere) &&
                 code == that.code;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pathToRenderAsString, code);
+        return Objects.hash(howIGotHere, code);
     }
-
-    //////////////
-
-//    private static abstract class HasDiag extends ServiceReason {
-//
-//        final String diag;
-//        final String pathAsString;
-//
-//        HasDiag(ReasonCode reasonCode, String diagnostics, Path path) {
-//            super(reasonCode, path);
-//            pathAsString = path.toString();
-//            this.diag = diagnostics;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return format("diag:'%s' path:'%s'", diag, pathAsString);
-//        }
-//
-//        @Override
-//        public String textForGraph() {
-//            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), diag);
-//        }
-//    }
-
-    //////////////
 
     private static class Unreachable extends ServiceReason {
 
         private final ReasonCode code;
 
-        public Unreachable(ReasonCode code, Path path) {
+        public Unreachable(ReasonCode code, HowIGotHere path) {
                 super(code , path);
             this.code = code;
         }
@@ -142,17 +113,17 @@ public abstract class ServiceReason {
 
     private static class IsValid extends ServiceReason
     {
-        public IsValid(Path path) {
-            super(ReasonCode.Valid, path);
+        public IsValid(ReasonCode code, HowIGotHere path) {
+            super(code, path);
         }
 
-        public IsValid() {
-            super(ReasonCode.Valid);
+        public IsValid(ReasonCode code) {
+            super(code);
         }
 
         @Override
         public String textForGraph() {
-            return ReasonCode.Valid.name();
+            return getReasonCode().name();
         }
 
         @Override
@@ -161,31 +132,9 @@ public abstract class ServiceReason {
         }
     }
 
-    //////////////
-
-//    private static class DoesNotRunOnQueryDate extends ServiceReason
-//    {
-//        public DoesNotRunOnQueryDate(String nodeServiceId, Path path) {
-//
-//            super(ReasonCode.NotOnQueryDate, path);
-//        }
-//
-//        @Override
-//        public String textForGraph() {
-//            return ReasonCode.NotOnQueryDate.name();
-//        }
-//
-//        @Override
-//        public boolean equals(Object obj) {
-//            return obj instanceof DoesNotRunOnQueryDate;
-//        }
-//    }
-
-    //////////////
-
     private static class SeenBusStationBefore extends ServiceReason
     {
-        public SeenBusStationBefore(Path path) {
+        public SeenBusStationBefore(HowIGotHere path) {
 
             super(ReasonCode.SeenBusStationBefore, path);
         }
@@ -205,12 +154,11 @@ public abstract class ServiceReason {
 
     private static class DoesNotRunOnQueryDate extends ServiceReason
     {
-        public DoesNotRunOnQueryDate(Path path) {
-            super(ReasonCode.NotOnQueryDate, path);
-        }
+        private final String nodeServiceId;
 
-        public DoesNotRunOnQueryDate() {
-            super(ReasonCode.NotOnQueryDate);
+        public DoesNotRunOnQueryDate(HowIGotHere path, String nodeServiceId) {
+            super(ReasonCode.NotOnQueryDate, path);
+            this.nodeServiceId = nodeServiceId;
         }
 
         @Override
@@ -220,7 +168,7 @@ public abstract class ServiceReason {
 
         @Override
         public String textForGraph() {
-            return ReasonCode.NotOnQueryDate.name();
+            return format("%s%s%s", ReasonCode.NotOnQueryDate.name(), System.lineSeparator(), nodeServiceId);
         }
     }
 
@@ -228,7 +176,7 @@ public abstract class ServiceReason {
 
     private static class TooManyChanges extends ServiceReason {
 
-        public TooManyChanges(Path path) {
+        public TooManyChanges(HowIGotHere path) {
             super(ReasonCode.TooManyChanges, path);
         }
 
@@ -250,7 +198,7 @@ public abstract class ServiceReason {
     {
         private final TramTime elapsedTime;
 
-        public DoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, Path path) {
+        public DoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, HowIGotHere path) {
             super(reasonCode, path);
             if (elapsedTime==null) {
                 throw new RuntimeException("Must provide time");
@@ -281,58 +229,57 @@ public abstract class ServiceReason {
     ///////////////////////////////////
     /// convenience methods
 
-    public static IsValid IsValid(Path path) { return new IsValid(path);}
+    public static IsValid IsValid(ReasonCode code, HowIGotHere path) { return new IsValid( code, path);}
 
-    public static ServiceReason DoesNotRunOnQueryDate(Path path) {
-        return new DoesNotRunOnQueryDate(path);
+    public static ServiceReason IsValid(ReasonCode code) {
+        return new IsValid(code);
     }
 
-    public static ServiceReason DoesNotRunOnQueryDate() {
-        return new DoesNotRunOnQueryDate();
+    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, String nodeServiceId) {
+        return new DoesNotRunOnQueryDate(path, nodeServiceId);
     }
 
-    public static ServiceReason StationNotReachable(Path path) {
+    public static ServiceReason StationNotReachable(HowIGotHere path) {
         return new Unreachable(ReasonCode.NotReachable, path);
     }
 
-    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, Path path) {
+    public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, path);
     }
 
-    public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, Path path) {
+    public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed, path) ;
     }
 
-    public static ServiceReason TooManyChanges(Path path) {
+    public static ServiceReason TooManyChanges(HowIGotHere path) {
         return new TooManyChanges(path);
     }
 
-    public static ServiceReason TookTooLong(TramTime currentElapsed, Path path) {
+    public static ServiceReason TookTooLong(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.TookTooLong, currentElapsed, path);
     }
 
-    public static ServiceReason DoesNotOperateAtHour(TramTime currentElapsed, Path path) {
+    public static ServiceReason DoesNotOperateAtHour(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.NotAtHour, currentElapsed, path);
     }
 
-    public static ServiceReason AlreadyDeparted(TramTime currentElapsed, Path path) {
+    public static ServiceReason AlreadyDeparted(TramTime currentElapsed, HowIGotHere path) {
         return new DoesNotOperateOnTime(ReasonCode.AlreadyDeparted, currentElapsed, path);
     }
 
-    public static ServiceReason Cached(TramTime currentElapsed, Path path) {
+    public static ServiceReason Cached(TramTime currentElapsed, HowIGotHere path) {
         return new ServiceReason.DoesNotOperateOnTime(ServiceReason.ReasonCode.Cached, currentElapsed, path);
     }
 
-    public static ServiceReason Longer(Path path) {
+    public static ServiceReason Longer(HowIGotHere path) {
         return new ServiceReason.Unreachable(ReasonCode.LongerPath, path);
     }
 
-    public static ServiceReason PathToLong(Path path) {
+    public static ServiceReason PathToLong(HowIGotHere path) {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
     }
 
-
-    public static ServiceReason SeenBusStationBefore(Path path) {
+    public static ServiceReason SeenBusStationBefore(HowIGotHere path) {
         return new ServiceReason.SeenBusStationBefore(path);
     }
 

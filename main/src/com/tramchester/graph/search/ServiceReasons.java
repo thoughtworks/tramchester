@@ -3,6 +3,8 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
+import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,9 +52,9 @@ public class ServiceReasons {
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons() {
+    public void reportReasons(Transaction transaction) {
         if (createDotFile) {
-            createGraphFile();
+            createGraphFile(transaction);
         }
 
         if (!success || statsOn) {
@@ -92,7 +94,7 @@ public class ServiceReasons {
         success = true;
     }
 
-    public void record(final ImmutableJourneyState journeyState) {
+    public void recordStat(final ImmutableJourneyState journeyState) {
         ServiceReason.ReasonCode reason = getReasonCode(journeyState.getTransportMode());
         incrementStat(reason);
     }
@@ -106,10 +108,8 @@ public class ServiceReasons {
         }
     }
 
-    private void createGraphFile() {
-        String fileName = format("%s%s_at_%s.dot", queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
-                providesLocalNow.getDateTime().toLocalDate().toString());
-        fileName = fileName.replaceAll(":","");
+    private void createGraphFile(Transaction transaction) {
+        String fileName = createFilename();
 
         if (reasons.isEmpty()) {
             logger.warn(format("Not creating dot file %s, reasons empty", fileName));
@@ -122,9 +122,13 @@ public class ServiceReasons {
             StringBuilder builder = new StringBuilder();
             builder.append("digraph G {\n");
             Set<String> paths = new HashSet<>();
-            reasons.stream().forEach(reason -> reason.recordPath(paths));
 
-            paths.forEach(builder::append);
+            ReasonsToGraphViz reasonsToGraphViz = new ReasonsToGraphViz(builder, transaction);
+
+            reasons.stream().forEach(reason -> {
+                reasonsToGraphViz.add(reason);
+            });
+
             builder.append("}");
 
             FileWriter writer = new FileWriter(fileName);
@@ -135,6 +139,18 @@ public class ServiceReasons {
         catch (IOException e) {
             logger.warn("Unable to create diagnostic graph file", e);
         }
+    }
+
+    @NotNull
+    private String createFilename() {
+        String postfix = journeyRequest.getUid().toString();
+        String dateString = providesLocalNow.getDateTime().toLocalDate().toString();
+        String status = success ? "found" : "notfound";
+        String fileName = format("%s_%s%s_at_%s_%s.dot", status,
+                queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
+                dateString, postfix);
+        fileName = fileName.replaceAll(":","");
+        return fileName;
     }
 
 

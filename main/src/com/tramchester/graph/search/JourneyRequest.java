@@ -19,11 +19,11 @@ public class JourneyRequest {
     @Override
     public String toString() {
         return "JourneyRequest{" +
-                "date=" + date +
+                "uid=" + uid +
+                ", date=" + date +
                 ", time=" + time +
                 ", arriveBy=" + arriveBy +
                 ", maxChanges=" + maxChanges +
-                ", uid=" + uid +
                 ", diagnostics=" + diagnostics +
                 ", maxJourneyDuration=" + maxJourneyDuration +
                 '}';
@@ -100,5 +100,9 @@ public class JourneyRequest {
 
     public void setWarnIfNoResults(boolean flag) {
         warnIfNoResults = flag;
+    }
+
+    public UUID getUid() {
+        return uid;
     }
 }

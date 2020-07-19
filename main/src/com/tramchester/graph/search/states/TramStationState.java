@@ -28,7 +28,7 @@ public class TramStationState extends TraversalState {
                     cost, node.getId());
         }
 
-        public TraversalState fromNeighbour(NoPlatformStation noPlatformStation, Node node, int cost) {
+        public TraversalState fromNeighbour(NoPlatformStationState noPlatformStation, Node node, int cost) {
             return new TramStationState(noPlatformStation, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
         }
 

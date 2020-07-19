@@ -13,6 +13,7 @@ import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.*;
+import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -39,6 +40,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private ServiceHeuristics serviceHeuristics;
     private NodeContentsRepository nodeOperations;
     private Path path;
+    private HowIGotHere howIGotHere;
     private Node node;
     private NodeIdLabelMap nodeIdLabelMap;
     private ServiceReasons reasons;
@@ -47,6 +49,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private PreviousSuccessfulVisits previousSuccessfulVisit;
     private LatLong latLongHint;
     private Long destinationNodeId;
+    private Relationship lastRelationship;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -68,9 +71,16 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         sortsPositions = createMock(SortsPositions.class);
         path = createMock(Path.class);
         node = createMock(Node.class);
+        lastRelationship = createMock(Relationship.class);
+
+        howIGotHere = HowIGotHere.forTest(42L, 24L);
+
+        EasyMock.expect(node.getId()).andStubReturn(42L);
+        EasyMock.expect(lastRelationship.getId()).andStubReturn(24L);
 
         EasyMock.expect(path.endNode()).andStubReturn(node);
-        EasyMock.expect(node.getId()).andStubReturn(42L);
+        EasyMock.expect(path.lastRelationship()).andStubReturn(lastRelationship);
+
     }
 
     @NotNull
@@ -90,7 +100,16 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     @Test
     void shouldHaveReasonsThatInclude() {
         assertEquals(Evaluation.INCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.Arrived));
-        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.Valid));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.ServiceDateOk));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.ServiceTimeOk));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NumChangesOK));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.TimeOk));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.HourOk));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.Reachable));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.ReachableNoCheck));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.DurationOk));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.WalkOk));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.Continue));
     }
 
     @Test
@@ -175,16 +194,18 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     void shouldExcludeIfServiceNotRunningToday() {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
 
         EasyMock.expect(path.length()).andReturn(50);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(nodeIdLabelMap.isRouteStation(node)).andReturn(false);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andStubReturn(true);
 
-        EasyMock.expect(serviceHeuristics.checkServiceDate(node, path, reasons)).
-                andReturn(ServiceReason.DoesNotRunOnQueryDate(path));
+        EasyMock.expect(serviceHeuristics.checkServiceDate(node, howIGotHere, reasons)).
+                andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, "nodeServiceId"));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.NotOnQueryDate, node, TramTime.of(8,15));
@@ -205,8 +226,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
@@ -217,8 +240,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isRouteStation(node)).andReturn(true);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, path, reasons)).
-                andReturn(ServiceReason.StationNotReachable(path));
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
+                andReturn(ServiceReason.StationNotReachable(howIGotHere));
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.NotReachable, node, TramTime.of(8,15));
         EasyMock.expectLastCall();
@@ -234,8 +257,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
@@ -243,20 +268,17 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         journeyState.board(TransportMode.Bus);
         state.setState(journeyState);
 
-        Relationship relationship = createMock(Relationship.class);
-
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isRouteStation(node)).andReturn(true);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andReturn(false);
-        EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(true);
 
-        EasyMock.expect(path.lastRelationship()).andReturn(relationship);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, path, reasons)).
-                andReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Valid, node, TramTime.of(8,15));
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.WalkOk, node, TramTime.of(8,15));
         EasyMock.expectLastCall();
 
         replayAll();
@@ -270,22 +292,22 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
 
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andReturn(false);
         EasyMock.expect(nodeIdLabelMap.isRouteStation(node)).andReturn(false);
 
-        Relationship relationship = createMock(Relationship.class);
-        EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(true);
-        EasyMock.expect(path.lastRelationship()).andReturn(relationship);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         state.setState(new JourneyState(time, traversalState));
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Valid, node, TramTime.of(8,15));
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.WalkOk, node, TramTime.of(8,15));
         EasyMock.expectLastCall();
 
         replayAll();
@@ -302,10 +324,12 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andReturn(50);
 
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
 
         TramTime time = TramTime.of(8, 15);
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,path, reasons)).andReturn(ServiceReason.TookTooLong(time, path));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,howIGotHere, reasons)).
+                andReturn(ServiceReason.TookTooLong(time, howIGotHere));
 
         NotStartedState traversalState = getNotStartedState();
         state.setState(new JourneyState(time, traversalState));
@@ -328,7 +352,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
 
         TramTime time = TramTime.of(8, 15);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.TooManyChanges(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).andStubReturn(ServiceReason.TooManyChanges(howIGotHere));
 
         NotStartedState traversalState = getNotStartedState();
         state.setState(new JourneyState(time, traversalState));
@@ -347,24 +371,25 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
 
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andReturn(true);
         EasyMock.expect(nodeIdLabelMap.isRouteStation(node)).andReturn(false);
 
-        Relationship relationship = createMock(Relationship.class);
-        EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
-        EasyMock.expect(path.lastRelationship()).andReturn(relationship);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(false);
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
 
         state.setState(new JourneyState(time, traversalState));
-        EasyMock.expect(serviceHeuristics.checkServiceDate(node, path, reasons)).andReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,path, reasons)).andReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.checkServiceTime(path, node, time, reasons)).
-                andReturn(ServiceReason.DoesNotOperateOnTime(time, path));
+        EasyMock.expect(serviceHeuristics.checkServiceDate(node, howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.ServiceDateOk, howIGotHere));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
+        EasyMock.expect(serviceHeuristics.checkServiceTime(howIGotHere, node, time, reasons)).
+                andReturn(ServiceReason.DoesNotOperateOnTime(time, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.ServiceNotRunningAtTime, node, TramTime.of(8,15));
@@ -381,24 +406,24 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
 
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andReturn(false);
         EasyMock.expect(nodeIdLabelMap.isRouteStation(node)).andReturn(false);
         EasyMock.expect(nodeIdLabelMap.isHour(node)).andReturn(true);
 
-        Relationship relationship = createMock(Relationship.class);
-        EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
-        EasyMock.expect(path.lastRelationship()).andReturn(relationship);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(false);
 
         NotStartedState traversalState = getNotStartedState();
         TramTime time = TramTime.of(8, 15);
 
         state.setState(new JourneyState(time, traversalState));
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,path, reasons)).andReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.interestedInHour(path, node, time, reasons)).
-                andReturn(ServiceReason.DoesNotOperateOnTime(time, path));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
+        EasyMock.expect(serviceHeuristics.interestedInHour(howIGotHere, node, time, reasons)).
+                andReturn(ServiceReason.DoesNotOperateOnTime(time, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.NotAtHour, node, TramTime.of(8,15));
@@ -415,7 +440,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
 
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andReturn(false);
@@ -423,18 +449,17 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(nodeIdLabelMap.isHour(node)).andReturn(false);
         EasyMock.expect(nodeIdLabelMap.isTime(node)).andReturn(true);
 
-        Relationship relationship = createMock(Relationship.class);
-        EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
-        EasyMock.expect(path.lastRelationship()).andReturn(relationship);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(false);
 
         NotStartedState traversalState = getNotStartedState();
         TramTime time = TramTime.of(8, 15);
         state.setState(new JourneyState(time, traversalState));
 
         //TramTime tramTime = TramTime.of(time);
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0 ,path, reasons)).andReturn(ServiceReason.IsValid(path));
-        EasyMock.expect(serviceHeuristics.checkTime(path, node, time, reasons)).
-                andReturn(ServiceReason.DoesNotOperateOnTime(time, path));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0 ,howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
+        EasyMock.expect(serviceHeuristics.checkTime(howIGotHere, node, time, reasons)).
+                andReturn(ServiceReason.DoesNotOperateOnTime(time, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.NotAtQueryTime, node, TramTime.of(8,15));
@@ -451,7 +476,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
-        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, path, reasons)).andStubReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
 
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andReturn(false);
@@ -459,18 +485,17 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(nodeIdLabelMap.isHour(node)).andStubReturn(false);
         EasyMock.expect(nodeIdLabelMap.isTime(node)).andStubReturn(false);
 
-        Relationship relationship = createMock(Relationship.class);
-        EasyMock.expect(relationship.isType(WALKS_TO)).andReturn(false);
-        EasyMock.expect(path.lastRelationship()).andReturn(relationship);
+        EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(false);
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         state.setState(new JourneyState(time, traversalState));
 
-        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,path, reasons)).andReturn(ServiceReason.IsValid(path));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
-        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Valid, node, TramTime.of(8,15));
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Continue, node, TramTime.of(8,15));
         EasyMock.expectLastCall();
 
         replayAll();

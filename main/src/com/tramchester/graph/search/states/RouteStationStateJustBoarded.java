@@ -32,7 +32,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             return new RouteStationStateJustBoarded(platformState, outbounds, cost);
         }
 
-        public TraversalState fromNoPlatformStation(NoPlatformStation noPlatformStation, Node node, int cost) {
+        public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
             List<Relationship> outbounds = filterExcludingEndNode(
                     node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART), noPlatformStation);
             outbounds.addAll(orderSvcRelationships(node));

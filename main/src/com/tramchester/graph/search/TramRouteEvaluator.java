@@ -2,10 +2,10 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.GTFSTransportationType;
-import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.PreviousSuccessfulVisits;
+import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.TraversalState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -65,7 +65,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         Node nextNode = path.endNode();
 
         if (previousSuccessfulVisit.hasUsableResult(nextNode, journeyClock)) {
-            reasons.recordReason(ServiceReason.Cached(journeyClock, path));
+            HowIGotHere howIGotHere = new HowIGotHere(path);
+            reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
@@ -79,7 +80,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
         switch (code) {
-            case Valid:
+            case ServiceDateOk:
+            case ServiceTimeOk:
+            case NumChangesOK:
+            case TimeOk:
+            case HourOk:
+            case Reachable:
+            case ReachableNoCheck:
+            case DurationOk:
+            case WalkOk:
+            case Continue:
                 return Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived:
                 return Evaluation.INCLUDE_AND_PRUNE;
@@ -101,11 +111,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
     }
 
-    private ServiceReason.ReasonCode doEvaluate(Path path, ImmutableJourneyState journeyState, Node nextNode) {
+    private ServiceReason.ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode) {
 
         long nextNodeId = nextNode.getId();
 
         TraversalState previousTraversalState = journeyState.getTraversalState();
+        HowIGotHere howIGotHere = new HowIGotHere(thePath);
         if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
             int totalCost = previousTraversalState.getTotalCost();
@@ -120,7 +131,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ServiceReason.ReasonCode.Arrived;
             } else {
                 // found a route, but longer than current shortest
-                reasons.recordReason(ServiceReason.Longer(path));
+                reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
         } else if (success>0) {
@@ -128,33 +139,33 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             int totalCost = previousTraversalState.getTotalCost();
             if (totalCost>currentLowestCost) {
                 // already longer that current shortest, no need to continue
-                reasons.recordReason(ServiceReason.Longer(path));
+                reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
         }
 
-        reasons.record(journeyState);
+        reasons.recordStat(journeyState);
 
         // no journey longer than N nodes
-        if (path.length()>serviceHeuristics.getMaxPathLength()) {
+        if (thePath.length()>serviceHeuristics.getMaxPathLength()) {
             logger.warn("Hit max path length");
-            reasons.recordReason(ServiceReason.PathToLong(path));
+            reasons.recordReason(ServiceReason.PathToLong(howIGotHere));
             return ServiceReason.ReasonCode.PathTooLong;
         }
 
         // number of changes?
-        if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), path, reasons).isValid()) {
+        if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), howIGotHere, reasons).isValid()) {
             return ServiceReason.ReasonCode.TooManyChanges;
         }
 
         // journey too long?
-        if (!serviceHeuristics.journeyDurationUnderLimit(previousTraversalState.getTotalCost(), path, reasons).isValid()) {
+        if (!serviceHeuristics.journeyDurationUnderLimit(previousTraversalState.getTotalCost(), howIGotHere, reasons).isValid()) {
             return ServiceReason.ReasonCode.TookTooLong;
         }
 
         // is even reachable from here?
         if (nodeTypeRepository.isRouteStation(nextNode)) {
-            if (!serviceHeuristics.canReachDestination(nextNode, path, reasons).isValid()) {
+            if (!serviceHeuristics.canReachDestination(nextNode, howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;
             }
         }
@@ -162,7 +173,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // is the service running today?
         boolean isService = nodeTypeRepository.isService(nextNode);
         if (isService) {
-            if (!serviceHeuristics.checkServiceDate(nextNode, path, reasons).isValid()) {
+            if (!serviceHeuristics.checkServiceDate(nextNode, howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotOnQueryDate;
             }
         }
@@ -172,19 +183,20 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (busEnabled) {
             if (nodeTypeRepository.isBusStation(nextNode)) {
                 if (busStationNodes.contains(nextNodeId)) {
-                    reasons.recordReason(ServiceReason.SeenBusStationBefore(path));
+                    reasons.recordReason(ServiceReason.SeenBusStationBefore(howIGotHere));
                     return ServiceReason.ReasonCode.SeenBusStationBefore;
                 }
                 busStationNodes.add(nextNodeId);
             }
         }
 
-        Relationship inboundRelationship = path.lastRelationship();
+        Relationship inboundRelationship = thePath.lastRelationship();
 
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO)) {
-                return ServiceReason.ReasonCode.Valid;
+                // TODO Record with different reason?
+                return ServiceReason.ReasonCode.WalkOk;
             }
         }
 
@@ -192,25 +204,25 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // service available to catch?
         if (isService) {
-            if (!serviceHeuristics.checkServiceTime(path, nextNode, visitingTime, reasons).isValid()) {
+            if (!serviceHeuristics.checkServiceTime(howIGotHere, nextNode, visitingTime, reasons).isValid()) {
                 return ServiceReason.ReasonCode.ServiceNotRunningAtTime;
             }
         }
 
         // check time, just hour first
         if (nodeTypeRepository.isHour(nextNode)) {
-            if (!serviceHeuristics.interestedInHour(path, nextNode, visitingTime, reasons).isValid()) {
+            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
             }
         }
 
         // check time
         if (nodeTypeRepository.isTime(nextNode)) {
-            ServiceReason serviceReason = serviceHeuristics.checkTime(path, nextNode, visitingTime, reasons);
+            ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons);
             return serviceReason.getReasonCode(); // valid, or not at time
         }
 
-        return ServiceReason.ReasonCode.Valid;
+        return ServiceReason.ReasonCode.Continue;
     }
 
 }

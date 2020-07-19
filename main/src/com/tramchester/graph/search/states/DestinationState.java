@@ -11,7 +11,7 @@ public class DestinationState extends TraversalState
 {
     public static class Builder {
 
-        public TraversalState from(NoPlatformStation noPlatformStation, int cost) {
+        public TraversalState from(NoPlatformStationState noPlatformStation, int cost) {
             return new DestinationState(noPlatformStation, cost);
         }
 
