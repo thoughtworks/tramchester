@@ -87,13 +87,19 @@ public class RouteStationStateJustBoarded extends TraversalState {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+
             RelationshipFacade that = (RelationshipFacade) o;
-            return stationId.equals(that.stationId);
+
+            if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null)
+                return false;
+            return getStationId() != null ? getStationId().equals(that.getStationId()) : that.getStationId() == null;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(stationId);
+            int result = relationship != null ? relationship.hashCode() : 0;
+            result = 31 * result + (getStationId() != null ? getStationId().hashCode() : 0);
+            return result;
         }
 
         @Override

@@ -36,11 +36,14 @@ public class ValidateGraphFeedInfoVersion implements Startable {
             ResourceIterator<Node> query = graphDatabase.findNodes(transaction, GraphBuilder.Labels.VERSION);
             List<Node> nodes = query.stream().collect(Collectors.toList());
 
-            if (nodes.isEmpty()) {
-                logger.error("Missing VERSION node, cannot check versions");
-            }
+
             if (nodes.size()>1) {
                 logger.error("Too many VERSION nodes");
+            }
+
+            if (nodes.isEmpty()) {
+                logger.error("Missing VERSION node, cannot check versions");
+                return;
             }
 
             Node expected = nodes.get(0);

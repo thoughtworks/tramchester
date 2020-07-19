@@ -354,7 +354,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         routeBuilderCache.putBoarding(boardingNode.getId(), routeStationNode.getId());
     }
 
-    private void createTripRelationships(Transaction tx, GraphFilter filter, Route route, Service service, Trip trip, RouteBuilderCache routeBuilderCache,
+    private void createTripRelationships(Transaction tx, GraphFilter filter, Route route, Service service, Trip trip,
+                                         RouteBuilderCache routeBuilderCache,
                                          Map<Pair<Station, ServiceTime>, Node> timeNodes) {
         StopCalls stops = trip.getStops();
 
@@ -371,20 +372,21 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {
         Set<Node> endNodes = new HashSet<>();
 
-        // normal situation, where (especially) trains go via different paths even thought route is the "same"
-//        if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
-//            // legit for some routes when trams return to depot, or at media city where they branch, etc
-//            Iterable<Relationship> relationships = from.getRelationships(OUTGOING, ON_ROUTE);
-//
-//            for (Relationship current : relationships) {
-//                endNodes.add(current.getEndNode());
+        if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
+            // legit for some routes when trams return to depot, or at media city where they branch, etc
+            Iterable<Relationship> relationships = from.getRelationships(OUTGOING, ON_ROUTE);
+
+            for (Relationship current : relationships) {
+                endNodes.add(current.getEndNode());
+                // normal situation, where (especially) trains go via different paths even thought route is the "same"
 //                logger.info(format("Existing outbounds at %s for same route %s currently has %s, new is %s",
 //                        from.getProperty(STATION_ID), route.getId(),
 //                        current.getEndNode().getProperty(STATION_ID),
 //                        to.getProperty(STATION_ID)));
-//            }
-//
-//        }
+            }
+
+        }
+
         if (!endNodes.contains(to)) {
             Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
             onRoute.setProperty(ROUTE_ID, route.getId());
