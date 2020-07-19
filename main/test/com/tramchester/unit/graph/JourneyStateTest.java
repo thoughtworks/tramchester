@@ -2,6 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
@@ -11,6 +12,7 @@ import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,13 +37,13 @@ class JourneyStateTest {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(42L);
 
-        Set<String> destinationStationIds = Collections.singleton("destinationStationId");
+        Set<Station> destinations = Collections.singleton(Stations.createStation("destinationStationId", "area", "name"));
         StationLocations locations = new StationLocations(new CoordinateTransforms());
         StationRepository repository = new TransportDataForTest(locations);
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(),
-                destinationNodeIds, destinationStationIds, latLongHint, TestEnv.GET());
+                destinationNodeIds, destinations, latLongHint, TestEnv.GET());
         queryTime = TramTime.of(9, 15);
     }
 

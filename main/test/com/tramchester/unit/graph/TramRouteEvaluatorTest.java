@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -15,6 +16,7 @@ import com.tramchester.graph.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
+import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -36,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
-    private final Set<String> destinationStationIds = Collections.singleton("destinationStationId");
+    private final Set<Station> destinationStationIds = Collections.singleton(Stations.createStation("destinationStationId", "area", "name"));
     private ServiceHeuristics serviceHeuristics;
     private NodeContentsRepository nodeOperations;
     private Path path;

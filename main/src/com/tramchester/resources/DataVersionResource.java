@@ -21,11 +21,12 @@ import java.util.concurrent.TimeUnit;
 @Produces(MediaType.APPLICATION_JSON)
 public class DataVersionResource implements APIResource {
 
-    private final DataVersionDTO dataVersionDTO;
+    private final TramchesterConfig config;
+    private final ProvidesFeedInfo providesFeedInfo;
 
-    public DataVersionResource(TramchesterConfig config, ProvidesFeedInfo dataFromFiles) {
-        FeedInfo original = dataFromFiles.getFeedInfo();
-        dataVersionDTO = new DataVersionDTO(original, config);
+    public DataVersionResource(TramchesterConfig config, ProvidesFeedInfo providesFeedInfo) {
+        this.config = config;
+        this.providesFeedInfo = providesFeedInfo;
     }
 
     @GET
@@ -35,6 +36,8 @@ public class DataVersionResource implements APIResource {
             response = FeedInfo.class)
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
+        FeedInfo original = providesFeedInfo.getFeedInfo();
+        DataVersionDTO dataVersionDTO = new DataVersionDTO(original, config);
         return Response.ok(dataVersionDTO).build();
     }
 }

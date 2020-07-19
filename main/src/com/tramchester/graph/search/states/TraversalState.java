@@ -1,7 +1,9 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphStaticKeys;
@@ -13,16 +15,15 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
+    private final Set<String> destinationRouteIds;
     private TraversalState child;
     private final TraversalState parent;
     private final Set<String> destinationStationIds;
@@ -38,11 +39,15 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     // initial only
     protected TraversalState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
-                             Set<Long> destinationNodeIds, Set<String> destinationStationIds,
+                             Set<Long> destinationNodeIds, Set<Station> destinationStations,
                              LatLong destinationLatLonHint, TramchesterConfig config) {
         this.nodeOperations = nodeOperations;
         this.destinationNodeIds = destinationNodeIds;
-        this.destinationStationIds = destinationStationIds;
+        this.destinationStationIds = destinationStations.stream().map(Station::getId).collect(Collectors.toSet());
+        this.destinationRouteIds = destinationStations.stream().
+                map(Station::getRoutes).
+                flatMap(Collection::stream).
+                map(Route::getId).collect(Collectors.toSet());
 
         this.costForLastEdge = 0;
         this.parentCost = 0;
@@ -56,6 +61,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.nodeOperations = parent.nodeOperations;
         this.destinationNodeIds = parent.destinationNodeIds;
         this.destinationStationIds = parent.destinationStationIds;
+        this.destinationRouteIds = parent.destinationRouteIds;
         this.builders = parent.builders;
 
         this.parent = parent;
@@ -133,6 +139,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             default:
                 throw new RuntimeException("Cannot create NoPlatformStation from label " + nodeLabel);
         }
+    }
+
+    public boolean destinationRoute(String routeId) {
+        return destinationRouteIds.contains(routeId);
     }
 
     public static class Builders {

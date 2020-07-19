@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphStaticKeys;
@@ -27,26 +28,47 @@ public class RouteStationStateJustBoarded extends TraversalState {
         }
 
         public TraversalState fromPlatformState(PlatformState platformState, Node node, int cost) {
-            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM), platformState);
+            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
+                    platformState);
             node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
             return new RouteStationStateJustBoarded(platformState, outbounds, cost);
         }
 
-        public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
-            List<Relationship> outbounds = filterExcludingEndNode(
-                    node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART), noPlatformStation);
-            outbounds.addAll(orderSvcRelationships(node));
-            //node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
+        public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost, TransportMode mode) {
+            List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART),
+                    noPlatformStation);
+            if (TransportMode.isBus(mode)) {
+                outbounds.addAll(orderByDistance(node));
+            } else {
+                outbounds.addAll(orderByRoute(noPlatformStation, node));
+            }
+
             return new RouteStationStateJustBoarded(noPlatformStation, outbounds, cost);
         }
 
+        private Collection<Relationship> orderByRoute(TraversalState state, Node node) {
+            Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
+            ArrayList<Relationship> highPriority = new ArrayList<>();
+            ArrayList<Relationship> lowPriority = new ArrayList<>();
+
+            toServices.forEach(relationship -> {
+                String routeId = relationship.getProperty(GraphStaticKeys.ROUTE_ID).toString();
+                if (state.destinationRoute(routeId)) {
+                    highPriority.add(relationship);
+                } else {
+                    lowPriority.add(relationship);
+                }
+            });
+            highPriority.addAll(lowPriority);
+            return highPriority;
+        }
+
         // significant overall performance increase
-        private Collection<Relationship> orderSvcRelationships(Node node) {
+        private Collection<Relationship> orderByDistance(Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
 
             Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();
             toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
-
             return sortsPositions.sortedByNearTo(destinationLatLon, relationships);
         }
     }

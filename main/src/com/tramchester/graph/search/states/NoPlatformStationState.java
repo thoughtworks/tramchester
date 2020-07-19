@@ -95,7 +95,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             throw new RuntimeException("unable to board bus", e);
         }
 
-        return builders.routeStationJustBoarded.fromNoPlatformStation(this, node, cost);
+        return builders.routeStationJustBoarded.fromNoPlatformStation(this, node, cost, mode);
     }
 
     @Override

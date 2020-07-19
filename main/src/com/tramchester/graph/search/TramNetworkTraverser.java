@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
@@ -34,14 +35,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final NodeTypeRepository nodeTypeRepository;
     private final TramTime queryTime;
     private final Set<Long> destinationNodeIds;
-    private final Set<String> endStationIds;
+    private final Set<Station> endStations;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository,
-                                Set<String> endStationIds, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
+                                Set<Station> endStations, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
@@ -49,7 +50,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.nodeContentsRepository = nodeContentsRepository;
         this.queryTime = serviceHeuristics.getQueryTime();
         this.destinationNodeIds = destinationNodeIds;
-        this.endStationIds = endStationIds;
+        this.endStations = endStations;
         this.config = config;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
@@ -60,9 +61,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
                 destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );
 
-        LatLong destinationLatLon = sortsPosition.midPointFrom(endStationIds);
+        LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
         final NotStartedState traversalState = new NotStartedState(sortsPosition, nodeContentsRepository,
-                destinationNodeIds, endStationIds, destinationLatLon, config);
+                destinationNodeIds, endStations, destinationLatLon, config);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Create traversal");

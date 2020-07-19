@@ -61,8 +61,8 @@ public class SortsPositions {
 
     }
 
-    public LatLong midPointFrom(Set<String> destinationStationIds) {
-        Set<LatLong> dests = destinationStationIds.stream().map(repository::getStation).map(Station::getLatLong).collect(Collectors.toSet());
+    public LatLong midPointFrom(Set<Station> destinationStation) {
+        Set<LatLong> dests = destinationStation.stream().map(Station::getLatLong).collect(Collectors.toSet());
         int size = dests.size();
 
         return dests.stream().

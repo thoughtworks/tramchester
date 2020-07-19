@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-public enum TransportMode {
+public enum TransportMode implements HasTransportMode {
     Bus, Tram, Depart, Board, Walk, Connect, Train, NotSet;
 
     public static TransportMode fromGTFS(GTFSTransportationType routeType) {
@@ -24,5 +24,10 @@ public enum TransportMode {
 
     public static boolean isTrain(HasTransportMode item) {
         return item.getTransportMode().equals(TransportMode.Train);
+    }
+
+    @Override
+    public TransportMode getTransportMode() {
+        return this;
     }
 }

@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,8 @@ public class TramJourneyToDTOMapper {
         switch (rawStage.getMode()) {
             case Tram:
             case Bus:
-                return decideActionTram(stages);
+            case Train:
+                return decideActionForStations(stages);
             case Walk:
                 return decideWalkingAction(rawStage);
             case Connect:
@@ -69,7 +69,7 @@ public class TramJourneyToDTOMapper {
         return walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo;
     }
 
-    private TravelAction decideActionTram(List<StageDTO> stagesSoFar) {
+    private TravelAction decideActionForStations(List<StageDTO> stagesSoFar) {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -112,8 +111,7 @@ class SortsPositionsTest {
         stations.add(nearAltrincham);
         stations.add(nearShudehill);
 
-        Set<String> destIds = stations.stream().map(Station::getId).collect(Collectors.toSet());
-        LatLong result = sortsPositions.midPointFrom(destIds);
+        LatLong result = sortsPositions.midPointFrom(stations);
 
         double expectedLat = (nearPiccGardens.getLatLong().getLat() +
                 nearAltrincham.getLatLong().getLat() +

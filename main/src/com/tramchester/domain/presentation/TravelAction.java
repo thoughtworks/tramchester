@@ -13,7 +13,7 @@ public enum TravelAction {
         }
     }, ConnectTo {
         @Override
-        public String toString() { return "Walk between"; }
+        public String toString() { return "Walk from"; }
     }
 
 }

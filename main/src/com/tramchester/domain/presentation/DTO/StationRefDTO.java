@@ -6,12 +6,14 @@ import com.tramchester.domain.places.Location;
 public class StationRefDTO {
     private String id;
     private String name;
+    private String area;
     private TransportMode transportMode;
 
     public StationRefDTO(Location station) {
         this.id = station.getId();
         this.name = station.getName();
         this.transportMode = station.getTransportMode();
+        this.area = station.getArea();
     }
 
     @SuppressWarnings("unused")
@@ -32,6 +34,7 @@ public class StationRefDTO {
         return "StationRefDTO{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", area='" + area + '\'' +
                 ", transportMode=" + transportMode +
                 '}';
     }
@@ -53,5 +56,9 @@ public class StationRefDTO {
 
     public TransportMode getTransportMode() {
         return transportMode;
+    }
+
+    public String getArea() {
+        return area;
     }
 }

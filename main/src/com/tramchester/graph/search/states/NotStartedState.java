@@ -2,6 +2,7 @@ package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.NodeContentsRepository;
@@ -15,9 +16,9 @@ import java.util.Set;
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations, Set<Long> destinationNodeIds,
-                           Set<String> destinationStationIds,
+                           Set<Station> destinationStation,
                            LatLong destinationLatLonHint, TramchesterConfig config) {
-        super(sortsPositions, nodeOperations, destinationNodeIds, destinationStationIds, destinationLatLonHint, config);
+        super(sortsPositions, nodeOperations, destinationNodeIds, destinationStation, destinationLatLonHint, config);
     }
 
     @Override
