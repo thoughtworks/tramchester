@@ -146,7 +146,7 @@ function addPostcodes(postcodes) {
         urlParams.lat = place.coords.latitude;
         urlParams.lon = place.coords.longitude;
     }
-    axios.get('/api/journey/', { params: urlParams, timeout: 30000 }).
+    axios.get('/api/journey/', { params: urlParams, timeout: 60000 }).
         then(function (response) {
             app.networkError = false;
             app.journeys = response.data.journeys;

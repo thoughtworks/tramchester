@@ -20,11 +20,23 @@ function changesFormatter(value, key, row) {
     return result;
 }
 
+function fromFormatter(value, key, row) {
+    return nameForStation(value);
+
+}
+
+function nameForStation(station) {
+    var name = station.name;
+    if (!name.includes(station.area)) {
+        name = station.area + " " + name;
+    }
+    return name;
+}
 
 function stationFormatter(value, key, row) {
-    var url = 'https://www.google.com/maps/search/?api=1&query='
-        + row.actionStation.latLong.lat + ',' + row.actionStation.latLong.lon;
-    return `<a href='${url}' target="_blank">${row.actionStation.name}</a>`
+    var name = nameForStation(row.actionStation);
+    var url = 'https://www.google.com/maps/search/?api=1&query='+ row.actionStation.latLong.lat + ',' + row.actionStation.latLong.lon;
+    return `<a href='${url}' target="_blank">${name}</a>`
 }
 
 function stageHeadsignClass(value, key, item) {
@@ -74,7 +86,7 @@ export default {
             journeyFields: [
                 {key:'_showDetails',label:'', formatter: rowExpandedFormatter},
                 {key:'journey.firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
-                {key:'journey.begin.name',label:'From', sortable:true, tdClass:'station'},
+                {key:'journey.begin',label:'From', sortable:true, tdClass:'station', formatter: fromFormatter},
                 {key:'journey.expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'},
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],

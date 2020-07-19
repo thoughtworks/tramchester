@@ -27,7 +27,11 @@ export default {
             if (item.transportMode=='Tram' || item.transportMode=='Walk') {
                 return item.name;
             }
-            return item.name + " ("+item.transportMode+")";
+            var name = item.name;
+            if (!name.includes(item.area)) {
+                name = item.area + " " + name;
+            }
+            return name + " ("+item.transportMode+")";
         }
     },
     template: `
