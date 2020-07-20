@@ -60,13 +60,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     @Override
     protected void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase) {
-        logger.info("Building graph from " + transportData.getVersion());
+        logger.info("Building graph from " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
         long start = System.currentTimeMillis();
 
         graphDatabase.createIndexs();
 
-        addVersionNode(graphDatabase, transportData.getVersion());
+        addVersionNode(graphDatabase, transportData.getDataSourceInfo());
 
         try {
             logger.info("Rebuilding the graph...");
@@ -94,11 +94,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         System.gc();
     }
 
-    // todo change to version
-    private void addVersionNode(GraphDatabase graphDatabase, String version) {
+    private void addVersionNode(GraphDatabase graphDatabase, DataSourceInfo infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, Labels.VERSION);
-            node.setProperty(TIME, version);
+
+            infos.getVersions().forEach(nameAndVersion -> node.setProperty(nameAndVersion.getName(), nameAndVersion.getVersion()));
 
             tx.commit();
         }

@@ -3,11 +3,14 @@ package com.tramchester.dataimport;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
 
 import java.util.stream.Stream;
 
 public class TransportDataReader {
+
+    private final DataSourceInfo.NameAndVersion nameAndVersion;
 
     public enum InputFiles {
         trips, stops, routes, feed_info, calendar, stop_times, calendar_dates, agency;
@@ -16,9 +19,14 @@ public class TransportDataReader {
     private final DataLoaderFactory factory;
     private final boolean expectFeedinfo;
 
-    public TransportDataReader(DataLoaderFactory factory, boolean expectFeedinfo) {
+    public TransportDataReader(DataSourceInfo.NameAndVersion nameAndVersion, DataLoaderFactory factory, boolean expectFeedinfo) {
+        this.nameAndVersion = nameAndVersion;
         this.factory = factory;
         this.expectFeedinfo = expectFeedinfo;
+    }
+
+    public DataSourceInfo.NameAndVersion getNameAndVersion() {
+        return nameAndVersion;
     }
 
     public Stream<CalendarData> getCalendar(CalendarDataMapper calendarDataMapper) {

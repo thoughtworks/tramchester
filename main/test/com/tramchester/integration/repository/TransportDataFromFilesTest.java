@@ -56,11 +56,11 @@ class TransportDataFromFilesTest {
         allServices = transportData.getServices();
     }
 
-    @Test
-    void shouldGetFeedInfo() {
-        FeedInfo result = transportData.getFeedInfo();
-        assertEquals("http://www.tfgm.com", result.getPublisherUrl());
-    }
+//    @Test
+//    void shouldGetFeedInfo() {
+//        FeedInfo result = transportData.getFeedInfo();
+//        assertEquals("http://www.tfgm.com", result.getPublisherUrl());
+//    }
 
     @Test
     void shouldHaveCorrectLocationForAirportInTestEnvironment() {
@@ -109,7 +109,7 @@ class TransportDataFromFilesTest {
         long onCorrectDate = results.stream().filter(svc -> svc.operatesOn(nextSaturday)).count();
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
-        LocalDate noTramsDate = transportData.getFeedInfo().validUntil().plusMonths(12);
+        LocalDate noTramsDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
         results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
         assertTrue(results.isEmpty());
     }

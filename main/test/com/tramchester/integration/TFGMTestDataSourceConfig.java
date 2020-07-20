@@ -20,7 +20,7 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
 
     @Override
     public String getTramDataCheckUrl() {
-        return null;
+        return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
     }
 
     @Override
@@ -40,6 +40,11 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
 
     @Override
     public String getName() {
-        return "TFGMTestDataSourceConfig";
+        return "tfgm";
+    }
+
+    @Override
+    public boolean getHasFeedInfo() {
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
@@ -9,7 +10,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import java.util.Collection;
 import java.util.Set;
 
-public interface TransportData extends ProvidesFeedInfo, StationRepository {
+public interface TransportData extends StationRepository, ProvidesFeedInfo {
     Collection<Service> getServices();
     Set<Service> getServicesOnDate(TramServiceDate date);
 
@@ -21,7 +22,7 @@ public interface TransportData extends ProvidesFeedInfo, StationRepository {
 
     Collection<Agency> getAgencies();
 
-    String getVersion();
-
     Service getServiceById(String serviceId);
+
+    DataSourceInfo getDataSourceInfo();
 }

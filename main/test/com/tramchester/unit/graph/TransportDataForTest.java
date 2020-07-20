@@ -17,6 +17,7 @@ import org.picocontainer.Startable;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
@@ -255,21 +256,27 @@ public class TransportDataForTest implements TransportDataSource, Startable {
         return routeStations.get(routeStationId);
     }
 
-    @Override
-    public FeedInfo getFeedInfo() {
-        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
-                LocalDate.of(2016, 5, 25),
-                LocalDate.of(2016, 6, 30), "version");
-    }
-
-    @Override
-    public String getVersion() {
-        return "version";
-    }
+//    @Override
+//    public FeedInfo getFeedInfo() {
+//        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
+//                LocalDate.of(2016, 5, 25),
+//                LocalDate.of(2016, 6, 30), "version");
+//    }
+//
+//    @Override
+//    public String getVersion() {
+//        return "version";
+//    }
 
     @Override
     public Service getServiceById(String serviceId) {
         return services.stream().filter(service -> service.getId().equals(serviceId)).findAny().get();
+    }
+
+    @Override
+    public DataSourceInfo getDataSourceInfo() {
+        return new DataSourceInfo(Collections.singleton(new DataSourceInfo.NameAndVersion("testData",
+                TestEnv.LocalNow().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))));
     }
 
     @Override
@@ -330,4 +337,14 @@ public class TransportDataForTest implements TransportDataSource, Startable {
         return stationIdMap.get(STATION_FOUR);
     }
 
+    @Override
+    public Map<String, FeedInfo> getFeedInfos() {
+        FeedInfo info = new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
+                LocalDate.of(2016, 5, 25),
+                LocalDate.of(2016, 6, 30), "version");
+
+        Map<String, FeedInfo> result = new HashMap<>();
+        result.put("TransportDataForTest", info);
+        return result;
+    }
 }

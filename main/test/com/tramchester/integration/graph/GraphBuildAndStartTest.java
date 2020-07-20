@@ -40,10 +40,11 @@ class GraphBuildAndStartTest {
         fetcher.fetchData(unzipper);
         ProvidesNow providesNow = new ProvidesLocalNow();
 
-        NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
+        NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap(config);
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
-        TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config),
+        FetchFileModTime fetchFileModTime = new FetchFileModTime();
+        TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config, fetchFileModTime),
                 providesNow, stationLocations, config);
         TransportDataFromFilesBuilder builder = fileFactory.create();
 

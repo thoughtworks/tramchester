@@ -39,11 +39,6 @@ public class IntegrationBusTestConfig extends TestConfig {
         return false;
     }
 
-//    @Override
-//    public Path getDataFolder() {
-//        return Paths.get("data/bus");
-//    }
-
     @Override
     public boolean getRebuildGraph() {
         return !exists;

@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class NewDataAvailableHealthCheckFactory implements Startable, Disposable {
+public class NewDataAvailableHealthCheckFactory implements Startable, Disposable, HealthCheckFactory {
 
     private final TramchesterConfig config;
     private final URLDownloadAndModTime urlDownloader;
     private final FetchFileModTime fileModTime;
-    private final List<NewDataAvailableHealthCheck> healthCheckList;
+    private final List<TramchesterHealthCheck> healthCheckList;
 
     public NewDataAvailableHealthCheckFactory(TramchesterConfig config, URLDownloadAndModTime urlDownloader, FetchFileModTime fileModTime) {
         this.config = config;
@@ -24,7 +24,7 @@ public class NewDataAvailableHealthCheckFactory implements Startable, Disposable
         healthCheckList = new ArrayList<>();
     }
 
-    public Collection<NewDataAvailableHealthCheck> getHealthChecks() {
+    public Collection<TramchesterHealthCheck> getHealthChecks() {
         return healthCheckList;
     }
 

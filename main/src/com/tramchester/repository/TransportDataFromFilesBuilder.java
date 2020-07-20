@@ -45,14 +45,17 @@ public class TransportDataFromFilesBuilder {
     }
 
     private void load(TransportDataStreams streams, TransportDataContainer buildable) {
+        String sourceName = streams.nameAndVersion.getName();
+        logger.info("Loading data for " + sourceName);
+        DataSourceInfo.NameAndVersion fromStreams = streams.getNameAndVersion();
         if(streams.hasFeedInfo()) {
             FeedInfo feedInfo = streams.feedInfo.findFirst().get();
-            buildable.SetFeedInfo(feedInfo);
-            buildable.SetVersion(feedInfo.getVersion());
+            String name = fromStreams.getName();
+            buildable.addNameAndVersion(new DataSourceInfo.NameAndVersion(name, feedInfo.getVersion()));
+            buildable.addFeedInfo(name, feedInfo);
         } else {
-            // TODO Base on file mod time??
-            buildable.SetVersion(UUID.randomUUID().toString());
-            logger.warn("Do not have feedinfo for this data source");
+            logger.warn("No feedinfo for " + sourceName);
+            buildable.addNameAndVersion(fromStreams);
         }
 
         Map<String, Agency> allAgencies = populateAgencies(streams.agencies);
@@ -74,9 +77,11 @@ public class TransportDataFromFilesBuilder {
 
         // update svcs where calendar data is missing
         buildable.getServices().stream().filter(Service::HasMissingDates).forEach(
-                svc -> logger.warn(format("Service %s has missing date data or runs on zero days", svc.getId()))
+                svc -> logger.warn(format("source %s Service %s has missing date data or runs on zero days",
+                        sourceName, svc.getId()))
         );
         streams.closeAll();
+        logger.info("Finishing Loading data for " + sourceName);
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
@@ -361,10 +366,12 @@ public class TransportDataFromFilesBuilder {
         final Stream<CalendarDateData> calendarsDates;
         final Stream<AgencyData> agencies;
         final private boolean expectFeedInfo;
+        final private DataSourceInfo.NameAndVersion nameAndVersion;
 
-        public TransportDataStreams(Stream<AgencyData> agencies, Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
+        public TransportDataStreams(DataSourceInfo.NameAndVersion nameAndVersion, Stream<AgencyData> agencies, Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
                                     Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
                                     Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates, boolean expectFeedInfo) {
+            this.nameAndVersion = nameAndVersion;
             this.agencies = agencies;
             this.stops = stops;
             this.routes = routes;
@@ -389,6 +396,10 @@ public class TransportDataFromFilesBuilder {
 
         public boolean hasFeedInfo() {
             return expectFeedInfo;
+        }
+
+        public DataSourceInfo.NameAndVersion getNameAndVersion() {
+            return nameAndVersion;
         }
     }
 

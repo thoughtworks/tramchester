@@ -66,6 +66,11 @@ class FetchDataFromUrlTest extends EasyMockSupport {
             public String getName() {
                 return "FetchDataFromUrlTest";
             }
+
+            @Override
+            public boolean getHasFeedInfo() {
+                return true;
+            }
         };
 
         TramchesterConfig config = new TestConfig() {

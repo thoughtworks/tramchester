@@ -22,15 +22,13 @@ class DataExpiryHealthCheckTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        ProvidesFeedInfo providesFeedInfo = createMock(ProvidesFeedInfo.class);
         ProvidesLocalNow providesLocalNow = createMock(ProvidesLocalNow.class);
 
         localDate = TestEnv.LocalNow().toLocalDate();
         FeedInfo feedInfo = createFeedInfo(localDate.minusDays(30), localDate.plusDays(3));
-        EasyMock.expect(providesFeedInfo.getFeedInfo()).andReturn(feedInfo);
         EasyMock.expect(providesLocalNow.getDate()).andStubReturn(localDate);
 
-        healthCheck = new DataExpiryHealthCheck(providesFeedInfo, providesLocalNow, TestEnv.GET());
+        healthCheck = new DataExpiryHealthCheck(feedInfo, "feedName", providesLocalNow, TestEnv.GET());
     }
 
     @Test

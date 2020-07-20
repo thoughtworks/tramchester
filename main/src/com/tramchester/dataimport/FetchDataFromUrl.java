@@ -76,6 +76,11 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             public String getName() {
                 return "commandLine";
             }
+
+            @Override
+            public boolean getHasFeedInfo() {
+                return true;
+            }
         };
         URLDownloadAndModTime downloader = new URLDownloadAndModTime();
         FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, Collections.singletonList(dataSourceConfig));
@@ -114,25 +119,26 @@ public class FetchDataFromUrl implements TransportDataFetcher {
 
         Path destination = downloadDirectory.resolve(targetFile);
 
+        String name = config.getName();
         if (Files.exists(destination)) {
             try {
                 // check mod times
                 LocalDateTime serverMod = downloader.getModTime(url);
                 LocalDateTime localMod = getFileModLocalTime(destination);
-                logger.info(format("Server mod time: %s File mod time: %s ", serverMod, localMod));
+                logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
 
                 if (serverMod.isAfter(localMod)) {
-                    logger.warn("Server time is after local, downing new data");
+                    logger.warn(name + ": server time is after local, downing new data");
                     downloader.downloadTo(destination, url);
                 } else {
-                    logger.info("No newer data");
+                    logger.info(name + ": no newer data");
                 }
             }
             catch (UnknownHostException disconnected) {
-                logger.error("Cannot connect to check or refresh data", disconnected);
+                logger.error("Cannot connect to check or refresh data " + config, disconnected);
             }
         } else {
-            logger.info("No local file " + destination + " so down loading new data");
+            logger.info(name + ": no local file " + destination + " so down loading new data");
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
             downloader.downloadTo(destination, url);
         }

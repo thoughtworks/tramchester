@@ -24,8 +24,8 @@ public class TransportDataContainer implements TransportDataSource {
     private final HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
     private final HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
     private final HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
-    private FeedInfo feedInfo = null;
-    private String version;
+    private final Set<DataSourceInfo.NameAndVersion> nameAndVersions = new HashSet<>();
+    private final Map<String, FeedInfo> feedInfoMap = new HashMap<>();
 
     @Override
     public void dispose() {
@@ -38,23 +38,18 @@ public class TransportDataContainer implements TransportDataSource {
         platforms.clear();
         routeStations.clear();
         agencies.clear();
-    }
-
-    public void SetFeedInfo(FeedInfo feedInfo) {
-        this.feedInfo = feedInfo;
-    }
-
-    public void SetVersion(String version) {
-        this.version = version;
+        feedInfoMap.clear();
     }
 
     public void reportNumbers() {
+        logger.info("From " + nameAndVersions.toString());
         logger.info(format("%s agencies", agencies.size()));
         logger.info(format("%s routes", routes.size()));
         logger.info(stationsById.size() + " stations " + platforms.size() + " platforms ");
         logger.info(format("%s route stations", routeStations.size()));
         logger.info(format("%s services", services.size()));
         logger.info(format("%s trips", trips.size()));
+        logger.info(format("%s feedinfos", feedInfoMap.size()));
     }
 
     @Override
@@ -128,13 +123,13 @@ public class TransportDataContainer implements TransportDataSource {
     }
 
     @Override
-    public String getVersion() {
-        return version;
+    public Service getServiceById(String serviceId) {
+        return services.get(serviceId);
     }
 
     @Override
-    public Service getServiceById(String serviceId) {
-        return services.get(serviceId);
+    public DataSourceInfo getDataSourceInfo() {
+        return new DataSourceInfo(nameAndVersions);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -213,11 +208,6 @@ public class TransportDataContainer implements TransportDataSource {
     }
 
     @Override
-    public FeedInfo getFeedInfo() {
-        return feedInfo;
-    }
-
-    @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
         return services.values().stream().
                 filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toUnmodifiableSet());
@@ -227,5 +217,16 @@ public class TransportDataContainer implements TransportDataSource {
         return routes.containsKey(routeId);
     }
 
+    public void addNameAndVersion(DataSourceInfo.NameAndVersion nameAndVersion) {
+        nameAndVersions.add(nameAndVersion);
+    }
 
+    @Override
+    public Map<String, FeedInfo> getFeedInfos() {
+        return feedInfoMap;
+    }
+
+    public void addFeedInfo(String name, FeedInfo feedInfo) {
+        feedInfoMap.put(name, feedInfo);
+    }
 }

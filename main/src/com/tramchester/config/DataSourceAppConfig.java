@@ -28,9 +28,18 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     @JsonProperty("unzipPath")
     private Path unzipPath;
 
+    @NotNull
+    @JsonProperty("hasFeedInfo")
+    private boolean hasFeedInfo;
+
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean getHasFeedInfo() {
+        return hasFeedInfo;
     }
 
     @Override

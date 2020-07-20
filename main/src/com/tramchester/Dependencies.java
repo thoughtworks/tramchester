@@ -61,6 +61,8 @@ public class Dependencies {
         picoContainer.addComponent(GraphFilter.class, graphFilter);
         picoContainer.addComponent(Unzipper.class);
         picoContainer.addComponent(URLDownloadAndModTime.class);
+        picoContainer.addComponent(FetchFileModTime.class);
+
     }
 
     // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
@@ -94,7 +96,6 @@ public class Dependencies {
         picoContainer.addComponent(TransportDataSource.class, transportData);
 
         picoContainer.addComponent(PostcodeRepository.class);
-        picoContainer.addComponent(FetchFileModTime.class);
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(PostcodeResource.class);
@@ -157,7 +158,7 @@ public class Dependencies {
         picoContainer.addComponent(HeadsignMapper.class);
         picoContainer.addComponent(TramPositionInference.class);
         picoContainer.addComponent(GraphHealthCheck.class);
-        picoContainer.addComponent(DataExpiryHealthCheck.class);
+        picoContainer.addComponent(DataExpiryHealthCheckFactory.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);
         picoContainer.addComponent(NewDataAvailableHealthCheckFactory.class);
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
@@ -223,8 +224,11 @@ public class Dependencies {
 
     public List<TramchesterHealthCheck> getHealthChecks() {
         List<TramchesterHealthCheck> healthChecks = new ArrayList<>(picoContainer.getComponents(TramchesterHealthCheck.class));
-        NewDataAvailableHealthCheckFactory newDataAvailableHealthCheckFactory = get(NewDataAvailableHealthCheckFactory.class);
-        healthChecks.addAll(newDataAvailableHealthCheckFactory.getHealthChecks());
+        List<HealthCheckFactory> healthCheckFactorys = picoContainer.getComponents(HealthCheckFactory.class);
+        healthCheckFactorys.forEach(healthCheckFactory -> {
+            healthChecks.addAll(healthCheckFactory.getHealthChecks());
+        });
+
         return healthChecks;
     }
 

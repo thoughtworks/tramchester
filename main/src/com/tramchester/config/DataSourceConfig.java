@@ -26,4 +26,6 @@ public interface DataSourceConfig {
     String getZipFilename();
 
     String getName();
+
+    boolean getHasFeedInfo();
 }

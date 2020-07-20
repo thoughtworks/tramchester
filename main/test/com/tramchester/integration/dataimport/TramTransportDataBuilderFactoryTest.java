@@ -1,9 +1,10 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.TransportDataBuilderFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
-import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
@@ -21,8 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramTransportDataBuilderFactoryTest {
 
@@ -57,6 +60,11 @@ class TramTransportDataBuilderFactoryTest {
         public String getName() {
             return "TramTransportDataBuilderFactoryTest.DownloadConfig";
         }
+
+        @Override
+        public boolean getHasFeedInfo() {
+            return true;
+        }
     }
 
     @Test
@@ -71,7 +79,8 @@ class TramTransportDataBuilderFactoryTest {
 
 //        DownloadConfig downloadConfig = new DownloadConfig();
 
-        TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig);
+        FetchFileModTime fetchFileModTime = new FetchFileModTime();
+        TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig, fetchFileModTime);
 
         ProvidesNow providesNow = new ProvidesLocalNow();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
@@ -105,13 +114,19 @@ class TramTransportDataBuilderFactoryTest {
         assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
 
-        FeedInfo feedInfo = transportData.getFeedInfo();
-        assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");
-        assertThat(feedInfo.getPublisherUrl()).isEqualTo("http://www.tfgm.com");
-        assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");
-        assertThat(feedInfo.getLang()).isEqualTo("en");
-        assertThat(feedInfo.getVersion()).isEqualTo("20150617");
-        assertThat(feedInfo.validFrom()).isEqualTo(LocalDate.of(2015,6,18));
-        assertThat(feedInfo.validUntil()).isEqualTo(LocalDate.of(2015,8,18));
+        DataSourceInfo feedInfo = transportData.getDataSourceInfo();
+        Set<DataSourceInfo.NameAndVersion> versions = feedInfo.getVersions();
+        assertEquals(1, versions.size());
+        DataSourceInfo.NameAndVersion result = versions.iterator().next();
+        assertThat(result.getVersion()).isEqualTo("20150617");
+        assertThat(result.getName()).isEqualTo("TramTransportDataBuilderFactoryTest.DownloadConfig");
+
+//        assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");
+//        assertThat(feedInfo.getPublisherUrl()).isEqualTo("http://www.tfgm.com");
+//        assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");
+//        assertThat(feedInfo.getLang()).isEqualTo("en");
+//        assertThat(feedInfo.getVersion()).isEqualTo("20150617");
+//        assertThat(feedInfo.validFrom()).isEqualTo(LocalDate.of(2015,6,18));
+//        assertThat(feedInfo.validUntil()).isEqualTo(LocalDate.of(2015,8,18));
     }
 }

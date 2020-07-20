@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
@@ -26,10 +25,9 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     @Override
     protected Result check() {
         try {
-            Path dataPath = config.getDataPath();
-            Path latestZipFile = dataPath.resolve(config.getZipFilename());
+
             LocalDateTime serverModTime = urlDownloader.getModTime(config.getTramDataCheckUrl());
-            LocalDateTime zipModTime = fetchFileModTime.getFor(latestZipFile);
+            LocalDateTime zipModTime = fetchFileModTime.getFor(config);
 
             String diag = String.format("Local zip mod time: %s Server mod time: %s", zipModTime, serverModTime);
             if (serverModTime.isAfter(zipModTime)) {

@@ -49,7 +49,8 @@ public class TransportDataBuilderFactory {
             Stream<AgencyData> agencyData = transportDataReader.getAgencies(new AgencyDataMapper(includeAll));
 
             TransportDataFromFilesBuilder.TransportDataStreams transportDataStreams =
-                    new TransportDataFromFilesBuilder.TransportDataStreams(agencyData, stopData, routeData, tripData,
+                    new TransportDataFromFilesBuilder.TransportDataStreams(transportDataReader.getNameAndVersion(),
+                            agencyData, stopData, routeData, tripData,
                             stopTimeData, calendarData, feedInfoData, calendarsDates, expectFeedinfo);
             dataStreams.add(transportDataStreams);
         });

@@ -1,5 +1,7 @@
 package com.tramchester.graph;
 
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -21,15 +23,19 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     private final ConcurrentMap<Long, Boolean> queryNodes;
 
     private final Set<GraphBuilder.Labels> nodesToCache = new HashSet<>(Arrays.asList(
-            ROUTE_STATION, TRAM_STATION, BUS_STATION, TRAIN_STATION, PLATFORM, SERVICE, HOUR, MINUTE
+            ROUTE_STATION, PLATFORM, SERVICE, HOUR, MINUTE
+//            TRAM_STATION, BUS_STATION, TRAIN_STATION
     ));
 
-    public NodeIdLabelMap() {
+    public NodeIdLabelMap(TramchesterConfig config) {
         map = new EnumMap<>(GraphBuilder.Labels.class);
+        config.getTransportModes().forEach(mode -> nodesToCache.add(GraphBuilder.Labels.forMode(TransportMode.fromGTFS(mode))));
+
         for (GraphBuilder.Labels label: nodesToCache) {
             map.put(label, new HashSet<>(getCapacity(label), 1.0F));
         }
         queryNodes = new ConcurrentHashMap<>();
+
     }
 
     // called when DB loaded from disc, instead of rebuild

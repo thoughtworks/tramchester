@@ -39,11 +39,6 @@ public class IntegrationTrainTestConfig extends TestConfig {
         return false;
     }
 
-//    @Override
-//    public Path getDataFolder() {
-//        return Paths.get("data/gb-rail-latest");
-//    }
-
     @Override
     public boolean getRebuildGraph() {
         return !exists;
@@ -68,35 +63,43 @@ public class IntegrationTrainTestConfig extends TestConfig {
     }
 
     private static class RailTestDataSourceConfig implements DataSourceConfig {
+        public static final String RAIL_LATEST_ZIP = "https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip";
+
+        // https://planar.network/projects/feeds
 
         @Override
         public String getTramDataUrl() {
-            return null;
+            return RAIL_LATEST_ZIP;
         }
 
         @Override
         public String getTramDataCheckUrl() {
-            return null;
+            return RAIL_LATEST_ZIP;
         }
 
         @Override
         public Path getDataPath() {
-            return Paths.get("data/gb-rail-latest");
+            return Paths.get("data/trains");
         }
 
         @Override
         public Path getUnzipPath() {
-            return null;
+            return Paths.get("./");
         }
 
         @Override
         public String getZipFilename() {
-            return null;
+            return "data.zip";
         }
 
         @Override
         public String getName() {
-            return "RailTestDataSourceConfig";
+            return "rail";
+        }
+
+        @Override
+        public boolean getHasFeedInfo() {
+            return false;
         }
     }
 }
