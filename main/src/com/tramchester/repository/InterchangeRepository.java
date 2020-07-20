@@ -19,44 +19,44 @@ public class InterchangeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
     private final TransportDataSource dataSource;
+    private final List<GTFSTransportationType> modes;
 
     // id -> Station
     private Map<String, Station> busInterchanges;
-    private Set<Station> busMultiagencyStations;
-    private final boolean busesEnabled;
+    // id -> Station
+    private Map<String, Station> trainInterchanges;
 
     public InterchangeRepository(TransportDataSource dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
         // both of these empty for trams
         busInterchanges = Collections.emptyMap();
-        busMultiagencyStations = Collections.emptySet();
-        busesEnabled = config.getTransportModes().contains(GTFSTransportationType.bus);
+        trainInterchanges = Collections.emptyMap();
+        modes = config.getTransportModes();
     }
 
     @Override
     public void dispose() {
-        busMultiagencyStations.clear();
+        trainInterchanges.clear();
         busInterchanges.clear();
     }
 
     @Override
     public void start() {
-        if (busesEnabled) {
-            Set<Station> allStations = dataSource.getStations();
-            busInterchanges = createBusInterchangeList(allStations);
+        if (modes.contains(GTFSTransportationType.bus)) {
+            busInterchanges = createBusInterchangeList();
             logger.info(format("Added %s bus interchanges", busInterchanges.size()));
-            busMultiagencyStations = createMultiAgency(allStations);
-            logger.info(format("Added %s stations to multiagency list", busMultiagencyStations.size()));
-        } else {
-            logger.info("Buses disabled");
+        }
+        if (modes.contains(GTFSTransportationType.train)) {
+            trainInterchanges = createTrainMultiAgencyStationList();
+            logger.info(format("Added %s train interchanges", trainInterchanges.size()));
         }
     }
 
-    private Set<Station> createMultiAgency(Set<Station> allStations) {
-        return allStations.stream().
-            filter(TransportMode::isBus).
+    private Map<String, Station> createTrainMultiAgencyStationList() {
+        return dataSource.getStations().stream().
+            filter(TransportMode::isTrain).
             filter(station -> station.getAgencies().size()>=2).
-            collect(Collectors.toSet());
+            collect(Collectors.toMap(Station::getId, (station -> station)));
     }
 
     @Override
@@ -64,23 +64,21 @@ public class InterchangeRepository implements Disposable, Startable {
         // no op
     }
 
-    private Map<String, Station> createBusInterchangeList(Set<Station> allStations) {
+    private Map<String, Station> createBusInterchangeList() {
         logger.info("Finding bus interchanges based on names");
-
-        return allStations.stream().
+        return dataSource.getStations().stream().
                 filter(TransportMode::isBus).
                 filter(station -> checkForBusInterchange(station.getName())).
                 collect(Collectors.toMap(Station::getId, (station -> station)));
     }
 
     // TODO WIP
+    // Very crude - need better way
     private boolean checkForBusInterchange(String name) {
         String lower = name.toLowerCase();
-
         if (lower.contains("interchange")) {
             return true;
         }
-
         return lower.contains("bus station") && (!lower.contains("adj bus station"));
     }
 
@@ -92,21 +90,24 @@ public class InterchangeRepository implements Disposable, Startable {
         if (TransportMode.isTram(station)) {
             return TramInterchanges.has(station);
         }
-        return busInterchanges.containsValue(station);
+        if (TransportMode.isBus(station)) {
+            return busInterchanges.containsValue(station);
+        }
+        if (TransportMode.isTrain(station)) {
+            return trainInterchanges.containsValue(station);
+        }
+        logger.warn("Interchanges not defined for station of type " +station.getTransportMode() + " id was " + station.getId());
+        return false;
     }
 
     public boolean isInterchange(String stationId) {
         if (TramInterchanges.has(stationId)) {
             return true;
         }
-        if (busesEnabled) {
-            return busInterchanges.containsKey(stationId);
+        if (busInterchanges.containsKey(stationId)) {
+            return true;
         }
-        return false;
+        return trainInterchanges.containsKey(stationId);
     }
 
-
-    public Set<Station> getBusMultiAgencyStations() {
-        return busMultiagencyStations;
-    }
 }

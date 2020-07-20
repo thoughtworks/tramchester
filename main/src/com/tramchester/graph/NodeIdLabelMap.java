@@ -27,9 +27,7 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     public NodeIdLabelMap() {
         map = new EnumMap<>(GraphBuilder.Labels.class);
         for (GraphBuilder.Labels label: nodesToCache) {
-            if (label != GraphBuilder.Labels.QUERY_NODE) {
-                map.put(label, new HashSet<>(getCapacity(label), 1.0F));
-            }
+            map.put(label, new HashSet<>(getCapacity(label), 1.0F));
         }
         queryNodes = new ConcurrentHashMap<>();
     }
@@ -83,11 +81,16 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
         return has(GraphBuilder.Labels.SERVICE, nodeId.getId());
     }
 
-    public boolean isHour(Node node) {
-        return has(GraphBuilder.Labels.HOUR, node.getId());
+    @Override
+    public boolean isTrainStation(Node node) {
+        return has(TRAIN_STATION, node.getId());
     }
 
-    public boolean isTime(Node node) { return has(GraphBuilder.Labels.MINUTE, node.getId()); }
+    public boolean isHour(Node node) {
+        return has(HOUR, node.getId());
+    }
+
+    public boolean isTime(Node node) { return has(MINUTE, node.getId()); }
 
     public boolean isRouteStation(Node node) {
         return has(ROUTE_STATION, node.getId());

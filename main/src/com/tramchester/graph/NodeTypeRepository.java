@@ -10,6 +10,7 @@ public interface NodeTypeRepository {
     boolean isBusStation(Node node);
     boolean isRouteStation(Node node);
     boolean isService(Node node);
+    boolean isTrainStation(Node node);
 
     Node createQueryNode(GraphDatabase graphDatabase, Transaction txn);
     Node createQueryNodeMidPoint(GraphDatabase graphDatabase, Transaction txn);
@@ -17,4 +18,5 @@ public interface NodeTypeRepository {
 
     void populateNodeLabelMap(GraphDatabase graphDatabase);
     void put(long id, GraphBuilder.Labels label);
+
 }

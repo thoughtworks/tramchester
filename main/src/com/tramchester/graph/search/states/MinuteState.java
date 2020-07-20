@@ -33,15 +33,16 @@ public class MinuteState extends TraversalState {
         public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO);
 
+            boolean changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
             if (maybeExistingTrip.isOnTrip()) {
                 String existingTripId = maybeExistingTrip.getTripId();
                 Iterable<Relationship> filterBySingleTripId = filterBySingleTripId(hourState.nodeOperations,
                         relationships, existingTripId);
-                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, config.getChangeAtInterchangeOnly());
+                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
                 // starting a brand new journey
                 String newTripId = getTrip(node);
-                return new MinuteState(hourState, relationships, newTripId, cost, config.getChangeAtInterchangeOnly());
+                return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
             }
         }
     }

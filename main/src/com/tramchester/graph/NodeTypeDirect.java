@@ -31,6 +31,11 @@ public class NodeTypeDirect implements NodeTypeRepository {
         return node.hasLabel(GraphBuilder.Labels.SERVICE);
     }
 
+    @Override
+    public boolean isTrainStation(Node node) {
+        return node.hasLabel(GraphBuilder.Labels.TRAIN_STATION);
+    }
+
     // for creating query nodes, to support MyLocation journeys
     public Node createQueryNode(GraphDatabase graphDatabase, Transaction txn) {
         return graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE);

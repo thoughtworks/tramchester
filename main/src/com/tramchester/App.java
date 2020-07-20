@@ -96,10 +96,6 @@ public class App extends Application<AppConfiguration>  {
     @Override
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
-        if (configuration.getChangeAtInterchangeOnly() &&
-                configuration.getTransportModes().contains(GTFSTransportationType.train)) {
-            throw new RuntimeException("Interchange only is not currenty compatible with enabling train");
-        }
 
         try {
             dependencies.initialise(configuration);

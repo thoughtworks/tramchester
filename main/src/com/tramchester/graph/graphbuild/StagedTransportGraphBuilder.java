@@ -291,13 +291,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
 
         if (isFirstStop && dropoff) {
-            String msg = "Drop off at first station for stop " + stopCall.toString();
+            String msg = "Drop off at first station for stop " + stopCall.getStation().getId() + " dep time " + stopCall.getDepartureTime();
             logger.error(msg);
             // TODO THROW
         }
 
         if (isLastStop && pickup) {
-            String msg = "Pick up at last station for stop " + stopCall.toString();
+            String msg = "Pick up at last station for stop " + stopCall.getStation().getId() + " dep time " + stopCall.getDepartureTime();
             logger.error(msg);
             // TODO THROW
         }

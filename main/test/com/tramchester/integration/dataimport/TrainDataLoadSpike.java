@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
@@ -50,6 +51,9 @@ class TrainDataLoadSpike {
 
         assertEquals(0, data.getStations().stream().filter(TransportMode::isTram).count());
         assertEquals(0, data.getStations().stream().filter(TransportMode::isBus).count());
+
+        long result = data.getStations().stream().filter(station -> station.getAgencies().size() < 2).count();
+        assertNotEquals(0,result);
 
         // TODO some staions in train data have 0,0 positions
 //        data.getStations().forEach(station -> {

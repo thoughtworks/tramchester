@@ -63,20 +63,20 @@ class BusInterchangeRepositoryTest {
         assertTrue(interchangeIds.contains(BusStations.AltrinchamInterchange.getId()));
     }
 
-    @BusTest
-    @Test
-    void shouldFindSharedStationsUsedByMultipleAgencies() {
-
-        Set<Station> shared = repository.getBusMultiAgencyStations();
-
-        assertFalse(shared.isEmpty());
-
-        assertTrue(shared.contains(BusStations.AltrinchamInterchange));
-        assertTrue(shared.contains(BusStations.StockportBusStation));
-        assertTrue(shared.contains(BusStations.ShudehillInterchange));
-
-        StationRepository stationRepos = dependencies.get(StationRepository.class);
-        assertNotEquals(stationRepos.getStations().size(), shared.size());
-    }
+//    @BusTest
+//    @Test
+//    void shouldFindSharedStationsUsedByMultipleAgencies() {
+//
+//        Set<Station> shared = repository.getBusMultiAgencyStations();
+//
+//        assertFalse(shared.isEmpty());
+//
+//        assertTrue(shared.contains(BusStations.AltrinchamInterchange));
+//        assertTrue(shared.contains(BusStations.StockportBusStation));
+//        assertTrue(shared.contains(BusStations.ShudehillInterchange));
+//
+//        StationRepository stationRepos = dependencies.get(StationRepository.class);
+//        assertNotEquals(stationRepos.getStations().size(), shared.size());
+//    }
 
 }

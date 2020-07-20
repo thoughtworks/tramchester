@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -31,8 +32,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final PreviousSuccessfulVisits previousSuccessfulVisit;
     private int success;
     private int currentLowestCost;
-    private final Set<Long> busStationNodes;
-    private final boolean busEnabled;
+    private final Set<Long> stationNodes;
+    private final boolean loopDetection;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit,
@@ -42,10 +43,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
-        busEnabled = config.getTransportModes().contains(GTFSTransportationType.bus);
+        List<GTFSTransportationType> transportModes = config.getTransportModes();
+        loopDetection = transportModes.contains(GTFSTransportationType.bus) || transportModes.contains(GTFSTransportationType.train);
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
-        busStationNodes = new HashSet<>();
+        stationNodes = new HashSet<>();
     }
 
     public void dispose() {
@@ -178,15 +180,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
-        // TODO needed for trains?
         // seeing loops?
-        if (busEnabled) {
-            if (nodeTypeRepository.isBusStation(nextNode)) {
-                if (busStationNodes.contains(nextNodeId)) {
+        if (loopDetection) {
+            if (nodeTypeRepository.isBusStation(nextNode) || nodeTypeRepository.isTrainStation(nextNode)) {
+                if (stationNodes.contains(nextNodeId)) {
                     reasons.recordReason(ServiceReason.SeenBusStationBefore(howIGotHere));
                     return ServiceReason.ReasonCode.SeenBusStationBefore;
                 }
-                busStationNodes.add(nextNodeId);
+                stationNodes.add(nextNodeId);
             }
         }
 

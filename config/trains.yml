@@ -15,7 +15,7 @@ server:
 
 secureHost: tramchester.com
 
-rebuildGraph: true
+rebuildGraph: false
 graphName: trains.db
 unzipPath: gtdf-out
 closedStations: []
@@ -34,11 +34,11 @@ distanceToNeighboursKM: 0.25
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
-maxWait: 25
-numberQueries: 5
-queryInterval: 10
+maxWait: 35
+numberQueries: 8
+queryInterval: 15
 maxNumberResults: 5
-maxJourneyDuration: 112
+maxJourneyDuration: 840
 nearestStopRangeKM: 1.6
 numOfNearestStops: 5
 numOfNearestStopsForWalking: 3
@@ -47,7 +47,7 @@ recentStopsToShow: 5
 dataExpiryThreadhold: 3
 maxNumberMissingLiveMessages: 10
 
-changeAtInterchangeOnly: false
+changeAtInterchangeOnly: true
 
 swagger:
   resourcePackage: com.tramchester.resources

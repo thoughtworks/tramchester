@@ -31,7 +31,6 @@ public class TramReachabilityRepository implements Disposable {
         matrix = new HashMap<>();
     }
 
-
     @Override
     public void dispose() {
         matrix.clear();
