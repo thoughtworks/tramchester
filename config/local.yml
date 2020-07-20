@@ -27,6 +27,7 @@ dataSources:
     checkURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
     dataPath: data/tram
     unzipPath: gtdf-out
+    hasFeedInfo: true
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata

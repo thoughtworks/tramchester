@@ -12,6 +12,7 @@ import static java.lang.String.format;
 public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfiguration> {
 
     // if SERVER_URL env var not set then run against localhost
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private final Optional<String> serverURLFromEnv;
     private final String localRunHost;
 
@@ -27,6 +28,7 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
 
         if (android.isPresent()) {
             if (android.get().equals("true")) {
+                // ip of emulator
                 return "10.0.2.2";
             }
         }
@@ -36,6 +38,7 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
     @Override
     public void before() throws Exception {
         if (localRun()) {
+            // start local server
             super.before();
         }
     }
@@ -47,6 +50,7 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
     @Override
     public void after() {
         if (localRun()) {
+            // stop local server
             super.after();
         }
     }

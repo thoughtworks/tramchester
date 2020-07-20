@@ -1,13 +1,9 @@
 package com.tramchester.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import javax.validation.Valid;
 import java.nio.file.Path;
 
-@Valid
-@JsonIgnoreProperties(ignoreUnknown = false)
 @JsonDeserialize(as=DataSourceAppConfig.class)
 public interface DataSourceConfig {
     // url to load timetable data from

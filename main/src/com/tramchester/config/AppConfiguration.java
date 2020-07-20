@@ -9,18 +9,24 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 
+@SuppressWarnings("unused")
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class AppConfiguration extends TramchesterConfig {
 
+    /////////
+    //
+    // Use Boxed types here to get @NotNull checking (i.e. Boolean not boolean)
+    //
+    ////////
+
     @NotNull
     @JsonProperty("rebuildGraph")
-    private boolean rebuildGraph;
+    private Boolean rebuildGraph;
 
     @NotNull
     @JsonProperty("graphName")
@@ -35,7 +41,7 @@ public class AppConfiguration extends TramchesterConfig {
 
     @NotNull
     @JsonProperty("loadPostcodes")
-    private boolean loadPostcodes;
+    private Boolean loadPostcodes;
 
     @JsonProperty("postcodeDataPath")
     private Path postcodeDataPath;
@@ -49,42 +55,40 @@ public class AppConfiguration extends TramchesterConfig {
 
     @NotNull
     @JsonProperty("numOfNearestStops")
-    private int numOfNearestStops;
+    private Integer numOfNearestStops;
 
     @NotNull
     @JsonProperty("numOfNearestStopsForWalking")
-    private int numOfNearestStopsForWalking;
+    private Integer numOfNearestStopsForWalking;
 
     @NotNull
     @JsonProperty("walkingMPH")
-    private double walkingMPH;
+    private Double walkingMPH;
 
+    @NotNull
     @JsonProperty("secureHost")
     private String secureHost;
 
-    @Deprecated
-    @JsonProperty("addWalkingRoutes")
-    private boolean addWalkingRoutes;
-
     @NotNull
     @JsonProperty("maxWait")
-    private int maxWait;
+    private Integer maxWait;
 
     @NotNull
     @JsonProperty("queryInterval")
-    private int queryInterval;
+    private Integer queryInterval;
 
     @NotNull
     @JsonProperty("recentStopsToShow")
-    private int recentStopsToShow;
+    private Integer recentStopsToShow;
 
     @Valid
     @JsonProperty("swagger")
     private SwaggerBundleConfiguration swaggerBundleConfiguration;
 
     @JsonProperty("dataExpiryThreadhold")
-    private int dataExpiryThreadhold;
+    private Integer dataExpiryThreadhold;
 
+    @NotNull
     @JsonProperty("liveDataUrl")
     private String liveDataUrl;
 
@@ -92,41 +96,44 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveDataSubscriptionKey")
     private String liveDataSubscriptionKey;
 
+    @NotNull
     @JsonProperty("liveDataS3Bucket")
     private String liveDataS3Bucket;
 
+    @NotNull
     @JsonProperty("removeRouteNameSuffix")
-    private boolean removeRouteNameSuffix;
+    private Boolean removeRouteNameSuffix;
 
+    @NotNull
     @JsonProperty("liveDataRefreshPeriodSeconds")
-    private long liveDataRefreshPeriodSeconds;
+    private Long liveDataRefreshPeriodSeconds;
 
     @NotNull
     @JsonProperty("maxJourneyDuration")
-    private int maxJourneyDuration;
+    private Integer maxJourneyDuration;
 
     @NotNull
     @JsonProperty("changeAtInterchangeOnly")
-    private boolean changeAtInterchangeOnly;
+    private Boolean changeAtInterchangeOnly;
 
     @NotNull
     @JsonProperty("maxNumberResults")
-    private int maxNumberResults;
+    private Integer maxNumberResults;
 
     @JsonProperty("numberQueries")
-    private int numberQueries;
+    private Integer numberQueries;
 
     @NotNull
     @JsonProperty("createNeighbours")
-    private boolean createNeighbours;
+    private Boolean createNeighbours;
 
     @NotNull
     @JsonProperty("distanceToNeighboursKM")
-    private double distanceToNeighboursKM;
+    private Double distanceToNeighboursKM;
 
     @NotNull
     @JsonProperty("maxNumberMissingLiveMessages")
-    private int maxNumberMissingLiveMessages;
+    private Integer maxNumberMissingLiveMessages;
 
     @JsonProperty("transportModes")
     private List<GTFSTransportationType> transportModes;
@@ -135,6 +142,7 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("dataSources")
     private List<DataSourceConfig> dataSourceConfig;
 
+    @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
     }
@@ -222,8 +230,10 @@ public class AppConfiguration extends TramchesterConfig {
         return rebuildGraph;
     }
 
+    @Override
     public String getGraphName() { return graphName; }
 
+    @Override
     public List<String> getClosedStations() {
         return closedStations == null ? new ArrayList<>() : closedStations;
     }
@@ -286,6 +296,7 @@ public class AppConfiguration extends TramchesterConfig {
         return postcodeZip;
     }
 
+    @Valid
     @Override
     public List<DataSourceConfig> getDataSourceConfig() {
         return dataSourceConfig;

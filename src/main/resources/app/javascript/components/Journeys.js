@@ -27,8 +27,11 @@ function fromFormatter(value, key, row) {
 
 function nameForStation(station) {
     var name = station.name;
+    if (station.transportMode=='Tram') {
+        return name; // tram names unambiguous so no need for area prefx
+    }
     if (!name.includes(station.area)) {
-        name = station.area + " " + name;
+        name = station.area + " " + name; // add prefix if not included in name
     }
     return name;
 }

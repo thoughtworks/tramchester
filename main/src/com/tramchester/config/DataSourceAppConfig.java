@@ -1,11 +1,16 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 
+@SuppressWarnings("unused")
+@Valid
+@JsonIgnoreProperties(ignoreUnknown = false)
 public class DataSourceAppConfig extends Configuration implements DataSourceConfig  {
 
     @NotNull
@@ -30,7 +35,7 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
 
     @NotNull
     @JsonProperty("hasFeedInfo")
-    private boolean hasFeedInfo;
+    private Boolean hasFeedInfo;
 
     @Override
     public String getName() {
