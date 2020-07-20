@@ -69,7 +69,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
 
             @Override
             public String getZipFilename() {
-                return "data.zip";
+                return zipFilename;
             }
 
             @Override

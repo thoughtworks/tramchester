@@ -40,7 +40,7 @@ class GraphBuildAndStartTest {
         fetcher.fetchData(unzipper);
         ProvidesNow providesNow = new ProvidesLocalNow();
 
-        NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap(config);
+        NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
         FetchFileModTime fetchFileModTime = new FetchFileModTime();

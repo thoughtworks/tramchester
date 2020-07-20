@@ -130,6 +130,8 @@ public class App extends Application<AppConfiguration>  {
 
         MetricRegistry metricRegistry = environment.metrics();
 
+        // only enable live data if tram's enabled
+
         if (configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
             // initial load of live data
             LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
@@ -139,19 +141,7 @@ public class App extends Application<AppConfiguration>  {
                     (Gauge<Integer>) liveDataRepository::upToDateEntries);
             metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
                     (Gauge<Integer>) liveDataRepository::entriesWithMessages);
-        }
 
-        CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
-        cacheMetrics.prepare();
-
-        // report specific metrics to AWS cloudwatch
-        final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
-                dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
-        cloudWatchReporter.start(1, TimeUnit.MINUTES);
-
-        // only enable live data if tram's enabled
-        if (configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
-            LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
             // refresh live data
             int initialDelay = 10;
             ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
@@ -168,6 +158,14 @@ public class App extends Application<AppConfiguration>  {
 
             environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
         }
+
+        CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
+        cacheMetrics.prepare();
+
+        // report specific metrics to AWS cloudwatch
+        final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
+                dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
+        cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
         // health check registration
         dependencies.getHealthChecks().forEach(healthCheck ->

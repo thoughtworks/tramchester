@@ -13,7 +13,7 @@ public class TransportDataReader {
     private final DataSourceInfo.NameAndVersion nameAndVersion;
 
     public enum InputFiles {
-        trips, stops, routes, feed_info, calendar, stop_times, calendar_dates, agency;
+        trips, stops, routes, feed_info, calendar, stop_times, calendar_dates, agency
     }
 
     private final DataLoaderFactory factory;
