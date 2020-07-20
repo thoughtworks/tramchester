@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.List;
 
-public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration, DownloadConfig {
+public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration {
 
     public static ZoneId TimeZone = ZoneId.of("Europe/London");
 
@@ -102,4 +102,5 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // location of zip file containing postcode
     public abstract Path getPostcodeZip();
 
+    public abstract List<DataSourceConfig> getDataSourceConfig();
 }

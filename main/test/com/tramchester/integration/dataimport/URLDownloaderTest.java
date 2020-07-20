@@ -1,6 +1,6 @@
 package com.tramchester.integration.dataimport;
 
-import com.tramchester.dataimport.URLDownloader;
+import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +38,7 @@ class URLDownloaderTest {
     void shouldDownloadSomething() throws IOException {
         String url = "https://github.com/fluidicon.png";
 
-        URLDownloader urlDownloader = new URLDownloader();
+        URLDownloadAndModTime urlDownloader = new URLDownloadAndModTime();
 
         LocalDateTime modTime = urlDownloader.getModTime(url);
         Assertions.assertTrue(modTime.isBefore(TestEnv.LocalNow()));

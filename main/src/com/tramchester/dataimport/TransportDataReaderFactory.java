@@ -1,7 +1,6 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +12,6 @@ public class TransportDataReaderFactory implements TransportDataLoader {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataReaderFactory.class);
 
     private final TramchesterConfig config;
-    private TransportDataReader readerForCleanser;
     private final List<TransportDataReader> dataReaders;
 
     public TransportDataReaderFactory(TramchesterConfig config) {
@@ -21,31 +19,19 @@ public class TransportDataReaderFactory implements TransportDataLoader {
         this.config = config;
     }
 
-    @Deprecated
-    public TransportDataReader getForCleanser() {
-        if (readerForCleanser==null) {
-            Path path = config.getDataPath().resolve(config.getUnzipPath());
-            DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
-            readerForCleanser = new TransportDataReader(factory, true);
-        }
-        return readerForCleanser;
-    }
-
     public List<TransportDataReader> getReaders() {
-        List<GTFSTransportationType> transportModes = config.getTransportModes();
 
         if (dataReaders.isEmpty()) {
-            if (transportModes.contains(GTFSTransportationType.bus) || transportModes.contains(GTFSTransportationType.tram)) {
+            config.getDataSourceConfig().forEach(config -> {
+                logger.info("Creating reader for config " + config);
                 Path path = config.getDataPath().resolve(config.getUnzipPath());
                 DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
                 TransportDataReader transportLoader = new TransportDataReader(factory, true);
                 dataReaders.add(transportLoader);
-            }
-            if (transportModes.contains(GTFSTransportationType.train)) {
-                createTrainReaders();
-            }
+            });
         }
         return dataReaders;
+
     }
 
     private void createTrainReaders() {

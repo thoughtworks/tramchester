@@ -14,35 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@Valid
+@JsonIgnoreProperties(ignoreUnknown = false)
 public class AppConfiguration extends TramchesterConfig {
+
+    @NotNull
     @JsonProperty("rebuildGraph")
     private boolean rebuildGraph;
 
-    @JsonProperty("pullData")
-    private boolean pullData;
-
+    @NotNull
     @JsonProperty("graphName")
     private String graphName;
 
     @JsonProperty("closedStations")
     private List<String> closedStations;
 
+    @NotNull
     @JsonProperty("instanceDataUrl")
     private String instanceDataUrl;
 
-    @JsonProperty("tramDataUrl")
-    private String tramDataUrl;
-
-    @JsonProperty("tramDataCheckUrl")
-    private String tramDataCheckUrl;
-
-    @JsonProperty("filterData")
-    private boolean filterData;
-
-    @JsonProperty("dataPath")
-    private Path dataPath;
-
+    @NotNull
     @JsonProperty("loadPostcodes")
     private boolean loadPostcodes;
 
@@ -52,21 +43,19 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("postcodeZip")
     private Path postcodeZip;
 
-    @JsonProperty("timeWindow")
-    private int timeWindow;
-
-    @JsonProperty("showMyLocation")
-    private boolean showMyLocation;
-
+    @NotNull
     @JsonProperty("nearestStopRangeKM")
     private Double nearestStopRangeKM;
 
+    @NotNull
     @JsonProperty("numOfNearestStops")
     private int numOfNearestStops;
 
+    @NotNull
     @JsonProperty("numOfNearestStopsForWalking")
     private int numOfNearestStopsForWalking;
 
+    @NotNull
     @JsonProperty("walkingMPH")
     private double walkingMPH;
 
@@ -77,15 +66,19 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("addWalkingRoutes")
     private boolean addWalkingRoutes;
 
+    @NotNull
     @JsonProperty("maxWait")
     private int maxWait;
 
+    @NotNull
     @JsonProperty("queryInterval")
     private int queryInterval;
 
+    @NotNull
     @JsonProperty("recentStopsToShow")
     private int recentStopsToShow;
 
+    @Valid
     @JsonProperty("swagger")
     private SwaggerBundleConfiguration swaggerBundleConfiguration;
 
@@ -95,6 +88,7 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveDataUrl")
     private String liveDataUrl;
 
+    @NotNull
     @JsonProperty("liveDataSubscriptionKey")
     private String liveDataSubscriptionKey;
 
@@ -107,58 +101,42 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("liveDataRefreshPeriodSeconds")
     private long liveDataRefreshPeriodSeconds;
 
-    @JsonProperty("unzipPath")
-    private String unzipPath;
-
+    @NotNull
     @JsonProperty("maxJourneyDuration")
     private int maxJourneyDuration;
 
+    @NotNull
     @JsonProperty("changeAtInterchangeOnly")
     private boolean changeAtInterchangeOnly;
 
+    @NotNull
     @JsonProperty("maxNumberResults")
     private int maxNumberResults;
 
     @JsonProperty("numberQueries")
     private int numberQueries;
 
-    @JsonProperty("bus")
-    private boolean bus;
-
+    @NotNull
     @JsonProperty("createNeighbours")
     private boolean createNeighbours;
 
+    @NotNull
     @JsonProperty("distanceToNeighboursKM")
     private double distanceToNeighboursKM;
 
+    @NotNull
     @JsonProperty("maxNumberMissingLiveMessages")
     private int maxNumberMissingLiveMessages;
 
     @JsonProperty("transportModes")
     private List<GTFSTransportationType> transportModes;
 
+    @Valid
+    @JsonProperty("dataSources")
+    private List<DataSourceConfig> dataSourceConfig;
+
     public String getInstanceDataUrl() {
         return instanceDataUrl;
-    }
-
-    @Override
-    public String getTramDataUrl() {
-        return tramDataUrl;
-    }
-
-    @Override
-    public String getTramDataCheckUrl() {
-        return tramDataCheckUrl;
-    }
-
-    @Override
-    public Path getDataPath() {
-        return dataPath;
-    }
-
-    @Override
-    public Path getUnzipPath() {
-        return Paths.get(unzipPath);
     }
 
     @Override
@@ -306,6 +284,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Path getPostcodeZip() {
         return postcodeZip;
+    }
+
+    @Override
+    public List<DataSourceConfig> getDataSourceConfig() {
+        return dataSourceConfig;
     }
 
 }

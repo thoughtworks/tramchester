@@ -170,8 +170,8 @@ public class App extends Application<AppConfiguration>  {
         }
 
         // health check registration
-        dependencies.getHealthChecks().forEach(tramchesterHealthCheck ->
-                environment.healthChecks().register(tramchesterHealthCheck.getName(), tramchesterHealthCheck));
+        dependencies.getHealthChecks().forEach(healthCheck ->
+                environment.healthChecks().register(healthCheck.getName(), healthCheck));
 
         // serve health checks (additionally) on separate URL as we don't want to expose whole of Admin pages
         environment.servlets().addServlet(

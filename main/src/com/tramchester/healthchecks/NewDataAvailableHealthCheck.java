@@ -1,10 +1,8 @@
 package com.tramchester.healthchecks;
 
-import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.FileModTime;
-import com.tramchester.dataimport.URLDownloader;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.URLDownloadAndModTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,23 +13,23 @@ import java.time.LocalDateTime;
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
-    private final TramchesterConfig config;
-    private final URLDownloader urlDownloader;
-    private final FileModTime fileModTime;
+    private final DataSourceConfig config;
+    private final URLDownloadAndModTime urlDownloader;
+    private final FetchFileModTime fetchFileModTime;
 
-    public NewDataAvailableHealthCheck(TramchesterConfig config, URLDownloader urlDownloader, FileModTime fileModTime) {
+    public NewDataAvailableHealthCheck(DataSourceConfig config, URLDownloadAndModTime urlDownloader, FetchFileModTime fetchFileModTime) {
         this.config = config;
         this.urlDownloader = urlDownloader;
-        this.fileModTime = fileModTime;
+        this.fetchFileModTime = fetchFileModTime;
     }
 
     @Override
     protected Result check() {
         try {
             Path dataPath = config.getDataPath();
-            Path latestZipFile = dataPath.resolve(FetchDataFromUrl.ZIP_FILENAME);
+            Path latestZipFile = dataPath.resolve(config.getZipFilename());
             LocalDateTime serverModTime = urlDownloader.getModTime(config.getTramDataCheckUrl());
-            LocalDateTime zipModTime = fileModTime.getFor(latestZipFile);
+            LocalDateTime zipModTime = fetchFileModTime.getFor(latestZipFile);
 
             String diag = String.format("Local zip mod time: %s Server mod time: %s", zipModTime, serverModTime);
             if (serverModTime.isAfter(zipModTime)) {
@@ -51,6 +49,6 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
     @Override
     public String getName() {
-        return "newData";
+        return "new data for " + config.getName();
     }
 }

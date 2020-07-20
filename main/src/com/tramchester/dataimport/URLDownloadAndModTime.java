@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
-public class URLDownloader {
-    private static final Logger logger = LoggerFactory.getLogger(URLDownloader.class);
+public class URLDownloadAndModTime {
+    private static final Logger logger = LoggerFactory.getLogger(URLDownloadAndModTime.class);
 
     public LocalDateTime getModTime(String url) throws IOException {
         logger.info(format("Check mod time for %s", url));

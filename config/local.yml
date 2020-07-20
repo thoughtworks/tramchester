@@ -17,17 +17,20 @@ secureHost: tramchester.com
 
 rebuildGraph: true
 graphName: tramchester.db
-unzipPath: gtdf-out
 closedStations: []
 transportModes: [ tram ]
 instanceDataUrl: http://169.254.169.254
-tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
-tramDataCheckUrl: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
+dataSources:
+  -
+    name: tfgm
+    URL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
+    checkURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
+    dataPath: data/tram
+    unzipPath: gtdf-out
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 20
-dataPath: data/tram
 loadPostcodes: false
 createNeighbours: false
 distanceToNeighboursKM: 0.1
@@ -46,7 +49,6 @@ walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 maxNumberMissingLiveMessages: 10
-
 changeAtInterchangeOnly: true
 
 swagger:

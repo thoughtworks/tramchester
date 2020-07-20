@@ -35,7 +35,7 @@ class GraphBuildAndStartTest {
             FileUtils.deleteDirectory(graphFile);
         }
 
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloader(), config);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloadAndModTime(), config);
         Unzipper unzipper = new Unzipper();
         fetcher.fetchData(unzipper);
         ProvidesNow providesNow = new ProvidesLocalNow();

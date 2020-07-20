@@ -1,18 +1,24 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.GTFSTransportationType;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public abstract class TestConfig extends AppConfiguration {
+
+    @Override
+    public List<DataSourceConfig> getDataSourceConfig() {
+        return Collections.singletonList(getTestDataSourceConfig());
+    }
+
+    protected abstract DataSourceConfig getTestDataSourceConfig();
 
     @Override
     public boolean getChangeAtInterchangeOnly() { return true; }
@@ -36,21 +42,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public String getTramDataUrl() {
-        return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
-    }
-
-    @Override
-    public Path getUnzipPath() {
-        return Paths.get("gtdf-out");
-    }
-
-    @Override
-    public Path getDataPath() {
-        return getDataFolder();
-    }
-
-    @Override
     public Double getNearestStopRangeKM() {
         return 2D;
     }
@@ -69,8 +60,6 @@ public abstract class TestConfig extends AppConfiguration {
     public double getWalkingMPH() {
         return 3;
     }
-
-    public abstract Path getDataFolder();
 
     @Override
     public String getSecureHost() {
@@ -141,7 +130,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public List<GTFSTransportationType> getTransportModes() {
-        return Arrays.asList(GTFSTransportationType.tram);
+        return Collections.singletonList(GTFSTransportationType.tram);
     }
 
     @Override

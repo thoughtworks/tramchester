@@ -10,18 +10,21 @@ server:
 secureHost: tramchester.com
 
 rebuildGraph: true
-unzipPath: gtdf-out
 graphName: databases/tramchesterAcceptance.db
 closedStations: []
 transportModes: [ tram ]
+dataSources:
+  -
+    name: tfgm
+    URL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
+    checkURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
+    dataPath: data/tram
+    unzipPath: gtdf-out
 instanceDataUrl: http://169.254.169.254
-tramDataUrl: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
-tramDataCheckUrl: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 20
-dataPath: data/tram
 loadPostcodes: false
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip

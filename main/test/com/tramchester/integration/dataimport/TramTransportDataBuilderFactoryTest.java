@@ -1,15 +1,16 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.TransportDataBuilderFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataFromFilesBuilder;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TramTransportDataBuilderFactoryTest {
 
-    private class DownloadConfig extends TestConfig {
+    private static class DownloadConfig implements DataSourceConfig {
 
         @Override
         public String getTramDataUrl() {
@@ -43,27 +44,41 @@ class TramTransportDataBuilderFactoryTest {
         }
 
         @Override
-        public Path getDataFolder() {
-            return null;
+        public Path getUnzipPath() {
+            return Paths.get("test");
         }
 
         @Override
-        public Path getUnzipPath() {
-            return Paths.get("test");
+        public String getZipFilename() {
+            return "zipfilename.zip";
+        }
+
+        @Override
+        public String getName() {
+            return "TramTransportDataBuilderFactoryTest.DownloadConfig";
         }
     }
 
     @Test
     void shouldLoadTransportData() {
-        DownloadConfig config = new DownloadConfig();
 
-        TransportDataReaderFactory factory = new TransportDataReaderFactory(config);
+        TestConfig testConfig = new TestConfig() {
+            @Override
+            protected DataSourceConfig getTestDataSourceConfig() {
+                return new DownloadConfig();
+            }
+        };
+
+//        DownloadConfig downloadConfig = new DownloadConfig();
+
+        TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig);
+
         ProvidesNow providesNow = new ProvidesLocalNow();
         CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations(coordinateTransforms);
 
         TransportDataBuilderFactory transportDataImporter = new TransportDataBuilderFactory(factory, providesNow,
-                stationLocations, config);
+                stationLocations, testConfig);
 
         TransportDataFromFilesBuilder builder = transportDataImporter.create();
         builder.load();

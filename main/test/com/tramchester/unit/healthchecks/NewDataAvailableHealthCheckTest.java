@@ -1,12 +1,11 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.FileModTime;
-import com.tramchester.dataimport.URLDownloader;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -20,9 +19,9 @@ import java.time.LocalDateTime;
 
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
-    private URLDownloader urlDownloader;
-    private final TramchesterConfig config = new IntegrationTramTestConfig();
-    private FileModTime fileModTime;
+    private URLDownloadAndModTime urlDownloader;
+    private final DataSourceConfig config = new TFGMTestDataSourceConfig("data/folder");
+    private FetchFileModTime fetchFileModTime;
     private Path expectedPath;
     private NewDataAvailableHealthCheck healthCheck;
     private String expectedURL;
@@ -30,12 +29,12 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        urlDownloader = createMock(URLDownloader.class);
-        fileModTime = createMock(FileModTime.class);
-        expectedPath = config.getDataPath().resolve(FetchDataFromUrl.ZIP_FILENAME);
+        urlDownloader = createMock(URLDownloadAndModTime.class);
+        fetchFileModTime = createMock(FetchFileModTime.class);
+        expectedPath = config.getDataPath().resolve(config.getZipFilename());
         expectedURL = config.getTramDataCheckUrl();
 
-        healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime);
+        healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fetchFileModTime);
         time = TestEnv.LocalNow();
     }
 
@@ -43,7 +42,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     void shouldReportHealthyWhenNONewDataAvailable() throws IOException {
 
         EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.minusDays(1));
-        EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
+        EasyMock.expect(fetchFileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();
         HealthCheck.Result result = healthCheck.execute();
@@ -55,7 +54,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     void shouldReportUnHealthyWhenNewDataAvailable() throws IOException {
 
         EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(time.plusDays(1));
-        EasyMock.expect(fileModTime.getFor(expectedPath)).andReturn(time);
+        EasyMock.expect(fetchFileModTime.getFor(expectedPath)).andReturn(time);
 
         replayAll();
         HealthCheck.Result result = healthCheck.execute();

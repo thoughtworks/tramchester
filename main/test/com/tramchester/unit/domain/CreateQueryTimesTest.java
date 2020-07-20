@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestConfig;
@@ -40,20 +41,11 @@ class CreateQueryTimesTest {
     }
 
     private static class LocalConfig extends TestConfig {
-        @Override
-        public Path getDataFolder() {
-            return null;
-        }
 
         @Override
-        public String getGraphName() {
+        protected DataSourceConfig getTestDataSourceConfig() {
             return null;
         }
-
-//        @Override
-//        public Set<String> getAgencies() {
-//            return null;
-//        }
 
     }
 }

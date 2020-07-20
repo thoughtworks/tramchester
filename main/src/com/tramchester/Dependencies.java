@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -59,6 +60,7 @@ public class Dependencies {
         picoContainer.addComponent(PostcodeDataImporter.class);
         picoContainer.addComponent(GraphFilter.class, graphFilter);
         picoContainer.addComponent(Unzipper.class);
+        picoContainer.addComponent(URLDownloadAndModTime.class);
     }
 
     // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
@@ -67,7 +69,6 @@ public class Dependencies {
         picoContainer.addComponent(TramchesterConfig.class, configuration);
 
         picoContainer.addComponent(TransportDataReaderFactory.class);
-        picoContainer.addComponent(URLDownloader.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
         picoContainer.addComponent(TransportDataBuilderFactory.class);
 
@@ -93,7 +94,7 @@ public class Dependencies {
         picoContainer.addComponent(TransportDataSource.class, transportData);
 
         picoContainer.addComponent(PostcodeRepository.class);
-        picoContainer.addComponent(FileModTime.class);
+        picoContainer.addComponent(FetchFileModTime.class);
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(PostcodeResource.class);
@@ -158,7 +159,7 @@ public class Dependencies {
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheck.class);
         picoContainer.addComponent(LiveDataHealthCheck.class);
-        picoContainer.addComponent(NewDataAvailableHealthCheck.class);
+        picoContainer.addComponent(NewDataAvailableHealthCheckFactory.class);
         picoContainer.addComponent(LiveDataMessagesHealthCheck.class);
         picoContainer.addComponent(InterchangeRepository.class);
         picoContainer.addComponent(GraphDatabase.class);
@@ -221,7 +222,10 @@ public class Dependencies {
     }
 
     public List<TramchesterHealthCheck> getHealthChecks() {
-        return picoContainer.getComponents(TramchesterHealthCheck.class);
+        List<TramchesterHealthCheck> healthChecks = new ArrayList<>(picoContainer.getComponents(TramchesterHealthCheck.class));
+        NewDataAvailableHealthCheckFactory newDataAvailableHealthCheckFactory = get(NewDataAvailableHealthCheckFactory.class);
+        healthChecks.addAll(newDataAvailableHealthCheckFactory.getHealthChecks());
+        return healthChecks;
     }
 
     public List<ReportsCacheStats> getHasCacheStat() {

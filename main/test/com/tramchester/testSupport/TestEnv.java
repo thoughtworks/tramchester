@@ -1,6 +1,7 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
@@ -18,6 +19,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -44,8 +46,9 @@ public class TestEnv {
 
     public static AppConfiguration GET() {
         return new TestConfig() {
+
             @Override
-            public Path getDataFolder() {
+            protected DataSourceConfig getTestDataSourceConfig() {
                 return null;
             }
         };

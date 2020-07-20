@@ -1,6 +1,6 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.config.DownloadConfig;
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -13,26 +13,31 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 import static java.lang.String.format;
 
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
-    private final Path downloadDirectory;
-    private final URLDownloader downloader;
+    private final URLDownloadAndModTime downloader;
+    private final List<DataSourceConfig> configs;
 
-    public static String ZIP_FILENAME = "data.zip";
-    private final String url;
-
-    public FetchDataFromUrl(URLDownloader downloader, DownloadConfig config) {
-        this.downloader = downloader;
-        this.downloadDirectory = config.getDataPath();
-        url = config.getTramDataUrl();
+    public FetchDataFromUrl(URLDownloadAndModTime downloader, TramchesterConfig config) {
+        this(downloader, config.getDataSourceConfig());
     }
 
+    private FetchDataFromUrl(URLDownloadAndModTime downloader, List<DataSourceConfig> configs) {
+        this.downloader = downloader;
+        this.configs = configs;
+    }
+
+
+    // TODO Need to pass in unzip path and zip filename from CLI ags
     // used during build to download latest tram data from tfgm site during deployment
     // which is subsequently uploaded into S3
+    @Deprecated
     public static void main(String[] args) throws Exception {
         if (args.length!=3) {
             throw new Exception("Expected 2 arguments, path and url");
@@ -41,7 +46,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         Path folder = Paths.get(args[1]);
         String zipFilename = args[2];
         logger.info(format("Loading %s to path %s file %s", theUrl, folder, zipFilename));
-        DownloadConfig downloadConfig = new DownloadConfig() {
+        DataSourceConfig dataSourceConfig = new DataSourceConfig() {
             @Override
             public String getTramDataUrl() {
                 return theUrl;
@@ -61,22 +66,53 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             public Path getUnzipPath() {
                 return Paths.get("gtdf-out");
             }
+
+            @Override
+            public String getZipFilename() {
+                return "data.zip";
+            }
+
+            @Override
+            public String getName() {
+                return "commandLine";
+            }
         };
-        URLDownloader downloader = new URLDownloader();
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, downloadConfig);
-        fetcher.refreshDataIfNewerAvailable(zipFilename);
+        URLDownloadAndModTime downloader = new URLDownloadAndModTime();
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, Collections.singletonList(dataSourceConfig));
+        fetcher.downloadAll();
     }
 
+    private void downloadAll() {
+        configs.forEach(config -> {
+            try {
+                refreshDataIfNewerAvailable(config);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to refresh data for config " + config);
+            }
+        });
+    }
+
+    // TODO Unzipper into cons
     @Override
-    public void fetchData(Unzipper unzipper) throws IOException {
-        Path zipFile = refreshDataIfNewerAvailable(ZIP_FILENAME);
-        if (!unzipper.unpack(zipFile, downloadDirectory)) {
-            logger.error("unable to unpack zip file " + zipFile.toAbsolutePath());
-        }
+    public void fetchData(Unzipper unzipper) {
+        configs.forEach(config -> {
+            try {
+                Path zipFile = refreshDataIfNewerAvailable(config);
+                if (!unzipper.unpack(zipFile, config.getDataPath())) {
+                    logger.error("unable to unpack zip file " + zipFile.toAbsolutePath());
+                }
+            } catch (IOException e) {
+                logger.info("Unable to refresh data for config " + config);
+            }
+        });
     }
 
-    private Path refreshDataIfNewerAvailable(String targetFile) throws IOException {
-        Path destination = this.downloadDirectory.resolve(targetFile);
+    private Path refreshDataIfNewerAvailable(DataSourceConfig config) throws IOException {
+        String url = config.getTramDataUrl();
+        Path downloadDirectory = config.getDataPath();
+        String targetFile = config.getZipFilename();
+
+        Path destination = downloadDirectory.resolve(targetFile);
 
         if (Files.exists(destination)) {
             try {

@@ -1,5 +1,6 @@
 package com.tramchester.integration;
 
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.testSupport.TestConfig;
 
@@ -7,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class IntegrationTrainTestConfig extends TestConfig {
@@ -24,7 +26,12 @@ public class IntegrationTrainTestConfig extends TestConfig {
 
     @Override
     public List<GTFSTransportationType> getTransportModes() {
-        return Arrays.asList(GTFSTransportationType.train);
+        return Collections.singletonList(GTFSTransportationType.train);
+    }
+
+    @Override
+    protected DataSourceConfig getTestDataSourceConfig() {
+        return new RailTestDataSourceConfig();
     }
 
     @Override
@@ -32,10 +39,10 @@ public class IntegrationTrainTestConfig extends TestConfig {
         return false;
     }
 
-    @Override
-    public Path getDataFolder() {
-        return Paths.get("data/gb-rail-latest");
-    }
+//    @Override
+//    public Path getDataFolder() {
+//        return Paths.get("data/gb-rail-latest");
+//    }
 
     @Override
     public boolean getRebuildGraph() {
@@ -58,5 +65,38 @@ public class IntegrationTrainTestConfig extends TestConfig {
     @Override
     public double getDistanceToNeighboursKM() {
         return 0.4;
+    }
+
+    private static class RailTestDataSourceConfig implements DataSourceConfig {
+
+        @Override
+        public String getTramDataUrl() {
+            return null;
+        }
+
+        @Override
+        public String getTramDataCheckUrl() {
+            return null;
+        }
+
+        @Override
+        public Path getDataPath() {
+            return Paths.get("data/gb-rail-latest");
+        }
+
+        @Override
+        public Path getUnzipPath() {
+            return null;
+        }
+
+        @Override
+        public String getZipFilename() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return "RailTestDataSourceConfig";
+        }
     }
 }

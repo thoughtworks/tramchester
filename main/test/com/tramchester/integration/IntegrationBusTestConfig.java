@@ -1,5 +1,6 @@
 package com.tramchester.integration;
 
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.testSupport.TestConfig;
 
@@ -11,6 +12,7 @@ import java.util.*;
 public class IntegrationBusTestConfig extends TestConfig {
     private final Path dbPath;
     private final boolean exists;
+    private final DataSourceConfig dataSourceConfig;
 
     public IntegrationBusTestConfig() {
         this("bus_tramchester.db");
@@ -19,6 +21,7 @@ public class IntegrationBusTestConfig extends TestConfig {
     private IntegrationBusTestConfig(String dbName) {
         this.dbPath = Path.of("databases", "integrationBusTest", dbName);
         exists = Files.exists(dbPath);
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus");
     }
 
     @Override
@@ -27,14 +30,19 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
+    protected DataSourceConfig getTestDataSourceConfig() {
+        return dataSourceConfig;
+    }
+
+    @Override
     public boolean getChangeAtInterchangeOnly() {
         return false;
     }
 
-    @Override
-    public Path getDataFolder() {
-        return Paths.get("data/bus");
-    }
+//    @Override
+//    public Path getDataFolder() {
+//        return Paths.get("data/bus");
+//    }
 
     @Override
     public boolean getRebuildGraph() {

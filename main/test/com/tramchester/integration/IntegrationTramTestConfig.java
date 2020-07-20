@@ -1,18 +1,16 @@
 package com.tramchester.integration;
 
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class IntegrationTramTestConfig extends TestConfig {
 
     private final Path dbPath;
     private final boolean exists;
+    private final DataSourceConfig dataSourceConfig;
 
     public IntegrationTramTestConfig() {
        this("int_test_tramchester.db");
@@ -21,6 +19,7 @@ public class IntegrationTramTestConfig extends TestConfig {
     public IntegrationTramTestConfig(String dbName) {
         this.dbPath = Path.of("databases", "integrationTramTest", dbName);
         exists = Files.exists(dbPath);
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram");
     }
 
     @Override
@@ -29,13 +28,13 @@ public class IntegrationTramTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean getRebuildGraph() {
-        return !exists;
+    protected DataSourceConfig getTestDataSourceConfig() {
+        return dataSourceConfig;
     }
 
     @Override
-    public Path getDataFolder() {
-        return Paths.get("data/tram");
+    public boolean getRebuildGraph() {
+        return !exists;
     }
 
     @Override
@@ -49,5 +48,6 @@ public class IntegrationTramTestConfig extends TestConfig {
     public Path getDBPath() {
         return dbPath;
     }
+
 }
 

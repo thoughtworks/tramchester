@@ -1,9 +1,11 @@
 package com.tramchester.unit.dataimport.datacleanse;
 
-import com.tramchester.config.DownloadConfig;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.URLDownloader;
+import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.dataimport.Unzipper;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.assertj.core.util.Files;
 import org.easymock.EasyMock;
@@ -21,7 +23,7 @@ import java.time.LocalDateTime;
 class FetchDataFromUrlTest extends EasyMockSupport {
 
     private final Path path = Paths.get(Files.temporaryFolderPath());
-    private URLDownloader downloader;
+    private URLDownloadAndModTime downloader;
     private FetchDataFromUrl fetchDataFromUrl;
     private Path zipFilename;
     private Unzipper unzipper;
@@ -29,11 +31,12 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        downloader = createMock(URLDownloader.class);
-        zipFilename = path.resolve(FetchDataFromUrl.ZIP_FILENAME);
+        downloader = createMock(URLDownloadAndModTime.class);
+        final String targetZipFilename = "downloadTarget.zip";
+        zipFilename = path.resolve(targetZipFilename);
         unzipper = createMock(Unzipper.class);
 
-        DownloadConfig downloadConfig = new DownloadConfig() {
+        DataSourceConfig dataSourceConfig = new DataSourceConfig() {
             @Override
             public String getTramDataUrl() {
                 return "http://should.be.used/somefile.zip";
@@ -53,9 +56,26 @@ class FetchDataFromUrlTest extends EasyMockSupport {
             public Path getUnzipPath() {
                 return Paths.get("gtdf-out");
             }
+
+            @Override
+            public String getZipFilename() {
+                return targetZipFilename;
+            }
+
+            @Override
+            public String getName() {
+                return "FetchDataFromUrlTest";
+            }
         };
 
-        fetchDataFromUrl = new FetchDataFromUrl(downloader, downloadConfig);
+        TramchesterConfig config = new TestConfig() {
+            @Override
+            protected DataSourceConfig getTestDataSourceConfig() {
+                return dataSourceConfig;
+            }
+        };
+
+        fetchDataFromUrl = new FetchDataFromUrl(downloader, config);
         removeTmpFile();
     }
 
