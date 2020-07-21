@@ -13,6 +13,7 @@ public class Trip implements HasId, HasTransportMode {
     private ServiceTime earliestDepart = null;
     private ServiceTime latestDepart = null;
     private int lastIndex;
+    private int firstIndex;
 
     public Trip(String tripId, String headSign, Service service, Route route) {
         this.tripId = tripId.intern();
@@ -20,7 +21,8 @@ public class Trip implements HasId, HasTransportMode {
         this.service = service;
         this.route = route;
         stops = new StopCalls();
-        lastIndex = 0;
+        lastIndex = Integer.MIN_VALUE;
+        firstIndex = Integer.MAX_VALUE;
     }
 
     // test memory support
@@ -56,7 +58,8 @@ public class Trip implements HasId, HasTransportMode {
         int stopIndex = stop.getGetSequenceNumber();
         ServiceTime departureTime = stop.getDepartureTime();
 
-        if (stopIndex == 1) {
+        if (stopIndex < firstIndex) {
+            firstIndex = stopIndex;
             earliestDepart = departureTime;
         }
         if (stopIndex > lastIndex) {
@@ -68,11 +71,15 @@ public class Trip implements HasId, HasTransportMode {
     @Override
     public String toString() {
         return "Trip{" +
-                "serviceId='" + service.getId() + '\'' +
-                ", route='" + route + '\'' +
-                ", tripId='" + tripId + '\'' +
+                "tripId='" + tripId + '\'' +
                 ", headSign='" + headSign + '\'' +
+                ", service=" + HasId.asId(service) +
+                ", route=" + HasId.asId(route) +
                 ", stops=" + stops +
+                ", earliestDepart=" + earliestDepart +
+                ", latestDepart=" + latestDepart +
+                ", lastIndex=" + lastIndex +
+                ", firstIndex=" + firstIndex +
                 '}';
     }
 
@@ -90,24 +97,28 @@ public class Trip implements HasId, HasTransportMode {
 
     public ServiceTime earliestDepartTime() {
         if (earliestDepart==null) {
-            throw new RuntimeException("earliestDepart not set for " + tripId);
+            throw new RuntimeException("earliestDepart not set for tripid " + tripId);
         }
         return earliestDepart;
     }
 
     public ServiceTime latestDepartTime() {
         if (latestDepart==null) {
-            throw new RuntimeException("earliestDepart not set for " + tripId);
+            throw new RuntimeException("earliestDepart not set for tripid" + tripId);
         }
         return latestDepart;
     }
 
-//    public boolean getTram() {
-//        return route.isTram();
-//    }
-
     @Override
     public TransportMode getTransportMode() {
         return route.getTransportMode();
+    }
+
+    public int getIndexOfFirstStop() {
+        return firstIndex;
+    }
+
+    public int getIndexOfLastStop() {
+        return lastIndex;
     }
 }

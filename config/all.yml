@@ -36,6 +36,11 @@ dataSources:
     unzipPath: ./
     hasFeedInfo: false
     transportModes: [ train ]
+bounds:
+  minEastings: 333211
+  minNorthings: 373264
+  maxEasting: 414492
+  maxNorthings: 437779
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata
@@ -74,10 +79,10 @@ logging:
       host: localhost
       port: 514
     - type: file
-      currentLogFilename: logs/tramchester_local.log
+      currentLogFilename: logs/tramchester_all.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/tramchester_local-%d.log
+      archivedLogFilenamePattern: logs/tramchester_all-%d.log
       archivedFileCount: 5
       timeZone: UTC
 

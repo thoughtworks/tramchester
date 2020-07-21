@@ -28,12 +28,10 @@ public class FastestRoutesForBoxes {
 
     private final StationLocations stationLocations;
     private final RouteCalculator calculator;
-    private final CoordinateTransforms coordinateTransforms;
 
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator, CoordinateTransforms coordinateTransforms) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;
-        this.coordinateTransforms = coordinateTransforms;
     }
 
     public Stream<BoundingBoxWithCost> findForGridSizeAndDestination(Station destination, long gridSize,
@@ -62,7 +60,7 @@ public class FastestRoutesForBoxes {
     @NotNull
     private HasGridPosition getGridPosition(Station destination) {
         try {
-            return coordinateTransforms.getGridPosition(destination.getLatLong());
+            return CoordinateTransforms.getGridPosition(destination.getLatLong());
         } catch (TransformException exception) {
             String msg = "Unable to get grid for " + destination;
             logger.error(msg);

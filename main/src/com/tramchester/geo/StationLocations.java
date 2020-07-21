@@ -16,7 +16,6 @@ import static java.lang.String.format;
 
 public class StationLocations implements StationLocationsRepository, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
-    private final CoordinateTransforms coordinateTransforms;
 
     private long minEastings;
     private long maxEasting;
@@ -25,8 +24,7 @@ public class StationLocations implements StationLocationsRepository, Disposable 
 
     private final HashMap<Station, HasGridPosition> positions;
 
-    public StationLocations(CoordinateTransforms coordinateTransforms) {
-        this.coordinateTransforms = coordinateTransforms;
+    public StationLocations() {
         positions = new HashMap<>();
 
         // bounding box for all stations
@@ -45,8 +43,11 @@ public class StationLocations implements StationLocationsRepository, Disposable 
     public void addStation(Station station) {
         if (!positions.containsKey(station)) {
             LatLong position = station.getLatLong();
+            if (!position.isValid()) {
+                    logger.warn("Incorrect lat/long for " + station.getId());
+            }
             try {
-                HasGridPosition gridPosition = coordinateTransforms.getGridPosition(position);
+                HasGridPosition gridPosition = CoordinateTransforms.getGridPosition(position);
                 positions.put(station, gridPosition);
                 updateBoundingBox(gridPosition);
                 logger.debug("Added station " + station.getId() + " at grid " + gridPosition);
@@ -59,7 +60,7 @@ public class StationLocations implements StationLocationsRepository, Disposable 
     @Override
     public LatLong getStationPosition(Station station) throws TransformException {
         HasGridPosition gridPostition = positions.get(station);
-        return coordinateTransforms.getLatLong(gridPostition.getEastings(), gridPostition.getNorthings());
+        return CoordinateTransforms.getLatLong(gridPostition.getEastings(), gridPostition.getNorthings());
     }
 
     private void updateBoundingBox(HasGridPosition gridPosition) {
@@ -88,7 +89,7 @@ public class StationLocations implements StationLocationsRepository, Disposable 
     @Override
     public List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, double rangeInKM) {
         try {
-            HasGridPosition gridPosition = coordinateTransforms.getGridPosition(latLong);
+            HasGridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
             return nearestStationsSorted(gridPosition, maxToFind, rangeInKM);
         } catch (TransformException e) {
             logger.error("Unable to convert latlong to grid position", e);

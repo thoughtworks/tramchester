@@ -14,7 +14,6 @@ import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
@@ -55,7 +54,6 @@ public class Dependencies {
 
     public Dependencies(GraphFilter graphFilter) {
         picoContainer.addComponent(ProvidesLocalNow.class);
-        picoContainer.addComponent(CoordinateTransforms.class);
         picoContainer.addComponent(StationLocations.class);
         picoContainer.addComponent(PostcodeDataImporter.class);
         picoContainer.addComponent(GraphFilter.class, graphFilter);
@@ -79,7 +77,7 @@ public class Dependencies {
         fetcher.fetchData(unzipper);
 
         TransportDataBuilderFactory builderFactory = get(TransportDataBuilderFactory.class);
-        TransportDataFromFilesBuilder builder = builderFactory.create();
+        TransportDataFromFilesBuilderGeoFilter builder = builderFactory.create();
         builder.load();
 
         initialise(configuration, builder.getData());

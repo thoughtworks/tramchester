@@ -26,6 +26,11 @@ dataSources:
     unzipPath: ./
     hasFeedInfo: false
     transportModes: [ train ]
+bounds:
+  minEastings: 147588
+  minNorthings: 30599
+  maxEasting: 654747
+  maxNorthings: 967921
 closedStations: []
 instanceDataUrl: http://169.254.169.254
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks

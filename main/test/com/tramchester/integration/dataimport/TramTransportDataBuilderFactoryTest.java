@@ -4,19 +4,15 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.TransportDataBuilderFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
-import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.domain.GTFSTransportationType;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
-import com.tramchester.repository.TransportDataFromFilesBuilder;
+import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
 import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.TestConfig;
 import org.junit.jupiter.api.Test;
@@ -46,13 +42,12 @@ class TramTransportDataBuilderFactoryTest {
         TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig, fetchFileModTime);
 
         ProvidesNow providesNow = new ProvidesLocalNow();
-        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
-        StationLocations stationLocations = new StationLocations(coordinateTransforms);
+        StationLocations stationLocations = new StationLocations();
 
         TransportDataBuilderFactory transportDataImporter = new TransportDataBuilderFactory(factory, providesNow,
                 stationLocations, testConfig);
 
-        TransportDataFromFilesBuilder builder = transportDataImporter.create();
+        TransportDataFromFilesBuilderGeoFilter builder = transportDataImporter.create();
         builder.load();
         TransportDataSource transportData = builder.getData();
 
@@ -70,27 +65,28 @@ class TramTransportDataBuilderFactoryTest {
 
         Trip trip = service.getAllTrips().stream().findFirst().get();
         assertThat(trip.getId()).isEqualTo("Trip000001");
-        assertThat(trip.getStops()).hasSize(9);
+        assertThat(trip.getStops().numberOfCallingPoints()).isEqualTo(9);
 
-        StopCall stop = trip.getStops().get(0);
+        StopCall stop = trip.getStops().getStopBySequenceNumber(1);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
         assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
 
-        DataSourceInfo feedInfo = transportData.getDataSourceInfo();
-        Set<DataSourceInfo.NameAndVersion> versions = feedInfo.getVersions();
+        DataSourceInfo dataSourceInfo = transportData.getDataSourceInfo();
+        Set<DataSourceInfo.NameAndVersion> versions = dataSourceInfo.getVersions();
         assertEquals(1, versions.size());
         DataSourceInfo.NameAndVersion result = versions.iterator().next();
         assertThat(result.getVersion()).isEqualTo("20150617");
         assertThat(result.getName()).isEqualTo("tfgm");
 
-//        assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");
-//        assertThat(feedInfo.getPublisherUrl()).isEqualTo("http://www.tfgm.com");
-//        assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");
-//        assertThat(feedInfo.getLang()).isEqualTo("en");
-//        assertThat(feedInfo.getVersion()).isEqualTo("20150617");
-//        assertThat(feedInfo.validFrom()).isEqualTo(LocalDate.of(2015,6,18));
-//        assertThat(feedInfo.validUntil()).isEqualTo(LocalDate.of(2015,8,18));
+        FeedInfo feedInfo = transportData.getFeedInfos().get("tfgm");
+        assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");
+        assertThat(feedInfo.getPublisherUrl()).isEqualTo("http://www.tfgm.com");
+        assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");
+        assertThat(feedInfo.getLang()).isEqualTo("en");
+        assertThat(feedInfo.getVersion()).isEqualTo("20150617");
+        assertThat(feedInfo.validFrom()).isEqualTo(LocalDate.of(2015,6,18));
+        assertThat(feedInfo.validUntil()).isEqualTo(LocalDate.of(2015,8,18));
     }
 
     private static class SourceConfig extends TFGMTestDataSourceConfig {

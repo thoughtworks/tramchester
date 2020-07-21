@@ -6,7 +6,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
@@ -37,14 +36,11 @@ public class JourneysForGridResource implements APIResource {
 
     private final StationRepository repository;
     private final FastestRoutesForBoxes search;
-    private final CoordinateTransforms coordinateTransforms;
     private final TramJourneyToDTOMapper mapper;
 
-    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, CoordinateTransforms coordinateTransforms,
-                                   TramJourneyToDTOMapper mapper) {
+    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, TramJourneyToDTOMapper mapper) {
         this.repository = repository;
         this.search = search;
-        this.coordinateTransforms = coordinateTransforms;
         this.mapper = mapper;
     }
 
@@ -93,7 +89,7 @@ public class JourneysForGridResource implements APIResource {
 
     private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramServiceDate serviceDate) {
         try {
-            return BoxWithCostDTO.createFrom(mapper, serviceDate, coordinateTransforms, box);
+            return BoxWithCostDTO.createFrom(mapper, serviceDate, box);
         } catch (TransformException exception) {
             throw new RuntimeException("Unable to convert coordinates ", exception);
         }

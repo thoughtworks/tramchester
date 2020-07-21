@@ -38,7 +38,7 @@ class JourneyStateTest {
         destinationNodeIds.add(42L);
 
         Set<Station> destinations = Collections.singleton(Stations.createStation("destinationStationId", "area", "name"));
-        StationLocations locations = new StationLocations(new CoordinateTransforms());
+        StationLocations locations = new StationLocations();
         StationRepository repository = new TransportDataForTest(locations);
         SortsPositions sortsPositions = new SortsPositions(repository);
 

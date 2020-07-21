@@ -8,6 +8,8 @@ import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataFromFilesBuilder;
+import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
+import com.tramchester.repository.TransportDataStreams;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -28,11 +30,11 @@ public class TransportDataBuilderFactory {
     }
 
     // feedinfo is not mandatory in the standard
-    public TransportDataFromFilesBuilder create() {
+    public TransportDataFromFilesBuilderGeoFilter create() {
         // streams, so no data read yet
 
         Set<String> includeAll = Collections.emptySet();
-        List<TransportDataFromFilesBuilder.TransportDataStreams> dataStreams = new ArrayList<>();
+        List<TransportDataStreams> dataStreams = new ArrayList<>();
 
         transportDataReaders.forEach(transportDataReader -> {
             Stream<FeedInfo> feedInfoData = Stream.empty();
@@ -49,14 +51,14 @@ public class TransportDataBuilderFactory {
             Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
             Stream<AgencyData> agencyData = transportDataReader.getAgencies(new AgencyDataMapper(includeAll));
 
-            TransportDataFromFilesBuilder.TransportDataStreams transportDataStreams =
-                    new TransportDataFromFilesBuilder.TransportDataStreams(transportDataReader.getNameAndVersion(),
+            TransportDataStreams transportDataStreams =
+                    new TransportDataStreams(transportDataReader.getNameAndVersion(),
                             agencyData, stopData, routeData, tripData,
                             stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig);
             dataStreams.add(transportDataStreams);
         });
 
-        return new TransportDataFromFilesBuilder(dataStreams, stationLocations, config);
+        return new TransportDataFromFilesBuilderGeoFilter(dataStreams, stationLocations, config);
     }
 }
 

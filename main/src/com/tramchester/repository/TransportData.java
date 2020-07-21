@@ -19,10 +19,15 @@ public interface TransportData extends StationRepository, ProvidesFeedInfo {
 
     Collection<Route> getRoutes();
     Route getRoute(String routeId);
+    boolean hasRouteId(String routeId);
 
     Collection<Agency> getAgencies();
 
     Service getServiceById(String serviceId);
 
     DataSourceInfo getDataSourceInfo();
+
+    boolean hasServiceId(String serviceId);
+
+    boolean hasTripId(String tripId);
 }

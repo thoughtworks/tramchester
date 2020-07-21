@@ -3,7 +3,6 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
@@ -26,7 +25,7 @@ class SortsPositionsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationLocations stationLocations = new StationLocations(new CoordinateTransforms());
+        StationLocations stationLocations = new StationLocations();
 
         dataForTest = new TransportDataForTest(stationLocations);
         dataForTest.start();

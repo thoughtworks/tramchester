@@ -17,14 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CoordinateTransforms {
-    private static final Logger logger = LoggerFactory.getLogger(CoordinateTransforms.class);
-
-    private CoordinateOperation gridToLatLong;
-    private CoordinateOperation latLongToGrid;
+    private static final Logger logger;
 
     private static final double EARTH_RADIUS = 3958.75;
+    private static final CoordinateOperation gridToLatLong;
+    private static final CoordinateOperation latLongToGrid;
 
-    public CoordinateTransforms() {
+    static {
+        logger = LoggerFactory.getLogger(CoordinateTransforms.class);
         CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
 
         try {
@@ -33,12 +33,18 @@ public class CoordinateTransforms {
             latLongToGrid = new DefaultCoordinateOperationFactory().createOperation(latLongRef, nationalGridRefSys);
             gridToLatLong = new DefaultCoordinateOperationFactory().createOperation(nationalGridRefSys, latLongRef);
         } catch (FactoryException e) {
-            logger.error("Unable to init geotools factory or transform", e);
+            String msg = "Unable to init geotools factory or transform";
+            logger.error(msg, e);
+            throw new RuntimeException(msg);
         }
     }
 
+    private CoordinateTransforms() {
+
+    }
+
     @NotNull
-    public HasGridPosition getGridPosition(LatLong position) throws TransformException {
+    public static HasGridPosition getGridPosition(LatLong position) throws TransformException {
         DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
         DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
 
@@ -48,7 +54,7 @@ public class CoordinateTransforms {
         return new GridPosition(easting, northing);
     }
 
-    public LatLong getLatLong(long eastings, long northings) throws TransformException {
+    public static LatLong getLatLong(long eastings, long northings) throws TransformException {
         DirectPosition directPositionGrid = new GeneralDirectPosition(eastings, northings);
 
         DirectPosition directPositionLatLong = gridToLatLong.getMathTransform().transform(directPositionGrid, null);

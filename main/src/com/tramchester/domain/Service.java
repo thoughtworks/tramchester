@@ -5,12 +5,14 @@ import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
-import org.checkerframework.checker.regex.RegexUtil;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;

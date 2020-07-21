@@ -83,9 +83,6 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
         return "data.zip";
     }
 
-
-
-
     @Override
     public String toString() {
         return "DataSourceAppConfig{" +

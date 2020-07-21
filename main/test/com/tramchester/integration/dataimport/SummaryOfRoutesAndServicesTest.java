@@ -50,10 +50,12 @@ class SummaryOfRoutesAndServicesTest {
 
                 svc.getTripsFor(route).forEach(trip ->{
                     StopCalls stops = trip.getStops();
-                    String from = stops.get(0).getStation().getName();
-                    String to = stops.get(stops.size()-1).getStation().getName();
-                    printStream.println(format("Trip: %s From: %s To: %s %s %s",
-                            trip.getId(), from, to, trip.earliestDepartTime().toPattern(), trip.latestDepartTime().toPattern()));
+                    stops.getLegs().forEach(leg -> {
+                        printStream.println(format("Trip: %s From: %s To: %s %s %s",
+                                trip.getId(), leg.getFirstStation().getName(),
+                                leg.getSecondStation().getName(),
+                                trip.earliestDepartTime().toPattern(), trip.latestDepartTime().toPattern()));
+                    });
                 });
                 printStream.println();
 

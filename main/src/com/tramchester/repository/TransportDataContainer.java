@@ -113,6 +113,11 @@ public class TransportDataContainer implements TransportDataSource {
     }
 
     @Override
+    public Set<Platform> getPlatforms() {
+        return new HashSet<>(platforms.values());
+    }
+
+    @Override
     public Route getRoute(String routeId) {
         return routes.get(routeId);
     }
@@ -229,4 +234,5 @@ public class TransportDataContainer implements TransportDataSource {
     public void addFeedInfo(String name, FeedInfo feedInfo) {
         feedInfoMap.put(name, feedInfo);
     }
+
 }

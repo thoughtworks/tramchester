@@ -21,6 +21,11 @@ dataSources:
     unzipPath: gtdf-out
     hasFeedInfo: true
     transportModes: [ tram ]
+bounds:
+  minEastings: 333211
+  minNorthings: 373264
+  maxEasting: 414492
+  maxNorthings: 437779
 instanceDataUrl: http://169.254.169.254
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}

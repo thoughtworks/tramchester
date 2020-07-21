@@ -3,6 +3,7 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.geo.BoundingBox;
 import io.dropwizard.bundles.assets.AssetsConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
@@ -141,6 +142,10 @@ public class AppConfiguration extends TramchesterConfig {
     @Valid
     @JsonProperty("dataSources")
     private List<DataSourceConfig> dataSourceConfig;
+
+    @NotNull
+    @JsonProperty("bounds")
+    private BoundingBox bounds;
 
     @Override
     public String getInstanceDataUrl() {
@@ -295,6 +300,12 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public List<DataSourceConfig> getDataSourceConfig() {
         return dataSourceConfig;
+    }
+
+    @Valid
+    @Override
+    public BoundingBox getBounds() {
+        return bounds;
     }
 
 }

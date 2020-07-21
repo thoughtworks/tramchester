@@ -20,14 +20,12 @@ public class PostcodeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeRepository.class);
 
     private final PostcodeDataImporter importer;
-    private final CoordinateTransforms coordinateTransforms;
     private final TramchesterConfig config;
 
     private final HashMap<String, PostcodeLocation> postcodes; // Id -> PostcodeLocation
 
-    public PostcodeRepository(PostcodeDataImporter importer, CoordinateTransforms coordinateTransforms, TramchesterConfig config) {
+    public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config) {
         this.importer = importer;
-        this.coordinateTransforms = coordinateTransforms;
         this.config = config;
         postcodes = new HashMap<>();
     }
@@ -48,7 +46,7 @@ public class PostcodeRepository implements Disposable, Startable {
         rawCodes.forEach(code -> {
             String id = code.getId();
             try {
-                postcodes.put(id, new PostcodeLocation(coordinateTransforms.getLatLong(code.getEastings(), code.getNorthings()), id));
+                postcodes.put(id, new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(), code.getNorthings()), id));
             } catch (TransformException e) {
                 logger.warn("Unable to convert position of postcode to lat/long " + code);
             }

@@ -8,12 +8,10 @@ import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.internal.batchimport.stats.Stat;
 import org.opengis.referencing.operation.TransformException;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,8 +21,7 @@ class StationLocationsTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
-        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
-        stationLocations = new StationLocations(coordinateTransforms);
+        stationLocations = new StationLocations();
     }
 
     @Test
@@ -169,7 +166,6 @@ class StationLocationsTest {
 
     @Test
     void shouldGridUpStations() throws TransformException {
-        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
 
         Station testStationA = createTestStation("id123", "name", TestEnv.nearAltrincham);
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
@@ -190,8 +186,8 @@ class StationLocationsTest {
         Set<Station> central = centralBox.getStaions();
         assertEquals(2, central.size());
         assertTrue(central.containsAll(Arrays.asList(testStationB, testStationC)));
-        assertTrue(centralBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearShudehill)));
-        assertTrue(centralBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearPiccGardens)));
+        assertTrue(centralBox.contained(CoordinateTransforms.getGridPosition(TestEnv.nearShudehill)));
+        assertTrue(centralBox.contained(CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens)));
 
 
         // other box should contain the one non-central
@@ -201,6 +197,6 @@ class StationLocationsTest {
         Set<Station> alty = altyBox.getStaions();
         assertEquals(1, alty.size());
         assertTrue(alty.contains(testStationA));
-        assertTrue(altyBox.contained(coordinateTransforms.getGridPosition(TestEnv.nearAltrincham)));
+        assertTrue(altyBox.contained(CoordinateTransforms.getGridPosition(TestEnv.nearAltrincham)));
     }
 }

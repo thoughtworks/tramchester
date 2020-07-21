@@ -11,6 +11,8 @@ import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramStopCallsTest {
@@ -21,6 +23,7 @@ class TramStopCallsTest {
     private TramStopCall stopA;
     private TramStopCall stopB;
     private TramStopCall stopC;
+    private StopCalls stops;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -29,25 +32,48 @@ class TramStopCallsTest {
         stationC = Station.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
         stationD = Station.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
 
-        stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
-        stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, ServiceTime.of(10, 2), ServiceTime.of(10, 3));
-        stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 3, ServiceTime.of(10, 10), ServiceTime.of(10, 10));
-    }
+        stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 3, ServiceTime.of(10, 10), ServiceTime.of(10, 11));
+        stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, ServiceTime.of(10, 3), ServiceTime.of(10, 4));
+        stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
 
-    @Test
-    void shouldAddStops() {
-        StopCalls stops = new StopCalls();
+        stops = new StopCalls();
 
         stops.add(stopA);
         stops.add(stopB);
         stops.add(stopC);
+    }
+
+    @Test
+    void shouldAddStops() {
 
         assertTrue(stops.callsAt(stationA));
         assertTrue(stops.callsAt(stationB));
         assertTrue(stops.callsAt(stationC));
         assertFalse(stops.callsAt(stationD));
 
-        assertEquals(3, stops.size());
+        assertEquals(3, stops.numberOfCallingPoints());
+    }
 
+    @Test
+    void shouldGetByStopSeq() {
+        assertEquals(stopB, stops.getStopBySequenceNumber(2));
+        assertEquals(stopC, stops.getStopBySequenceNumber(1));
+    }
+
+    @Test
+    void shouldHaveExpectedLegs() {
+        List<StopCalls.StopLeg> legs = stops.getLegs();
+
+        assertEquals(2, legs.size());
+
+        StopCalls.StopLeg firstLeg = legs.get(0);
+        assertEquals(stopC, firstLeg.getFirst());
+        assertEquals(stopB, firstLeg.getSecond());
+        assertEquals(2, firstLeg.getCost());
+
+        StopCalls.StopLeg secondLeg = legs.get(1);
+        assertEquals(stopB, secondLeg.getFirst());
+        assertEquals(stopA, secondLeg.getSecond());
+        assertEquals(6, secondLeg.getCost());
     }
 }

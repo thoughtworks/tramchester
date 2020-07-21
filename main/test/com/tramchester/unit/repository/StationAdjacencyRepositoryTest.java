@@ -1,6 +1,5 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.unit.graph.TransportDataForTest;
@@ -15,8 +14,7 @@ class StationAdjacencyRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
-        StationLocations stationLocations = new StationLocations(coordinateTransforms);
+        StationLocations stationLocations = new StationLocations();
         transportDataSource = new TransportDataForTest(stationLocations);
         repository = new TramStationAdjacenyRepository(transportDataSource);
         transportDataSource.start();

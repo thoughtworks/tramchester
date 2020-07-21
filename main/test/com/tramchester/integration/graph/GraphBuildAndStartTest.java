@@ -4,7 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
@@ -14,7 +13,7 @@ import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.TransportDataFromFilesBuilder;
+import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
 import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
@@ -41,12 +40,12 @@ class GraphBuildAndStartTest {
         ProvidesNow providesNow = new ProvidesLocalNow();
 
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
-        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
-        StationLocations stationLocations = new StationLocations(coordinateTransforms);
+//        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
+        StationLocations stationLocations = new StationLocations();
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
         TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config, fetchFileModTime),
                 providesNow, stationLocations, config);
-        TransportDataFromFilesBuilder builder = fileFactory.create();
+        TransportDataFromFilesBuilderGeoFilter builder = fileFactory.create();
 
         builder.load();
         TransportDataSource transportData = builder.getData();

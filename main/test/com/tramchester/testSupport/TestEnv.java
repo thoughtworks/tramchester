@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.geo.BoundingBox;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
@@ -37,6 +38,7 @@ public class TestEnv {
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
     public static final LatLong nearStockportBus = new LatLong(53.408735,-2.1656593);
     public static final LatLong manAirportLocation = new LatLong(53.36535,-2.27247);
+    public static final LatLong nearGreenwich = new LatLong(51.477928, -0.001545);
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
@@ -143,5 +145,14 @@ public class TestEnv {
     private static Platform createPlatform(String id) {
         return new Platform(id, "name:"+ id);
     }
+
+    public static BoundingBox getTFGMBusBounds() {
+        return new BoundingBox(333200, 373250, 414500, 437850);
+    }
+
+    public static BoundingBox getTrainBounds() {
+        return new BoundingBox(147588, 30599, 654747, 967921);
+    }
+
 
 }

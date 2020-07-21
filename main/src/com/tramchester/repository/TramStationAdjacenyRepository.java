@@ -34,15 +34,16 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
         Collection<Trip> trips = transportDataSource.getTrips();
         trips.stream().filter(TransportMode::isTram).forEach(trip -> {
             StopCalls stops = trip.getStops();
-            for (int i = 0; i < stops.size() - 1; i++) {
-                StopCall currentStop = stops.get(i);
-                StopCall nextStop = stops.get(i + 1);
-                Pair<Station, Station> pair = formId(currentStop.getStation(), nextStop.getStation());
+            stops.getLegs().forEach(leg -> {
+                Pair<Station, Station> pair = Pair.of(leg.getFirstStation(), leg.getSecondStation());
                 if (!matrix.containsKey(pair)) {
-                    int cost = ServiceTime.diffenceAsMinutes(currentStop.getDepartureTime(), nextStop.getArrivalTime());
-                    matrix.put(pair, cost);
+                    matrix.put(pair, leg.getCost());
                 }
-            }
+            });
+//            for (int i = 0; i < stops.size() - 1; i++) {
+//                StopCall currentStop = stops.get(i);
+//                StopCall nextStop = stops.get(i + 1);
+//            }
         });
         logger.info("Finished building adjacency matrix");
     }
@@ -57,12 +58,12 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
         matrix.clear();
     }
 
-    private Pair<Station,Station> formId(Station first, Station second) {
-        return Pair.of(first,second);
-    }
+//    private Pair<Station,Station> formId(Station first, Station second) {
+//        return Pair.of(first,second);
+//    }
 
     public int getAdjacent(Station firstStation, Station secondStation) {
-        Pair<Station, Station> id = formId(firstStation, secondStation);
+        Pair<Station, Station> id = Pair.of(firstStation, secondStation);
         if (matrix.containsKey(id)) {
             return matrix.get(id);
         }

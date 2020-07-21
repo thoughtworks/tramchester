@@ -1,6 +1,7 @@
 package com.tramchester.config;
 
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
 import io.dropwizard.bundles.assets.AssetsBundleConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -104,7 +105,11 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // location of zip file containing postcode
     public abstract Path getPostcodeZip();
 
+    // config for each of the data sources
     public abstract List<DataSourceConfig> getDataSourceConfig();
+
+    // bounding box for stations to include
+    public abstract BoundingBox getBounds();
 
     public Set<GTFSTransportationType> getTransportModes() {
         HashSet<GTFSTransportationType> result = new HashSet<>();

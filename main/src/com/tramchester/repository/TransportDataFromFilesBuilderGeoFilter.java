@@ -11,14 +11,16 @@ import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class TransportDataFromFilesBuilder {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFilesBuilder.class);
+public class TransportDataFromFilesBuilderGeoFilter {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFilesBuilderGeoFilter.class);
 
     private final List<TransportDataStreams> transportDataStreams;
     private final StationLocations stationLocations;
@@ -26,8 +28,8 @@ public class TransportDataFromFilesBuilder {
 
     private TransportDataContainer toBuild;
 
-    public TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations,
-                                         TramchesterConfig config) {
+    public TransportDataFromFilesBuilderGeoFilter(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations,
+                                                  TramchesterConfig config) {
         this.transportDataStreams = transportDataStreams;
         this.stationLocations = stationLocations;
         this.config = config;
@@ -49,6 +51,7 @@ public class TransportDataFromFilesBuilder {
         String sourceName = streams.getNameAndVersion().getName();
         DataSourceConfig sourceConfig = streams.getConfig();
         logger.info("Loading data for " + sourceName);
+
         DataSourceInfo.NameAndVersion fromStreams = streams.getNameAndVersion();
         if(sourceConfig.getHasFeedInfo()) {
             FeedInfo feedInfo = streams.feedInfo.findFirst().get();
@@ -60,19 +63,20 @@ public class TransportDataFromFilesBuilder {
             buildable.addNameAndVersion(fromStreams);
         }
 
-        Map<String, Agency> allAgencies = preloadAgencys(streams.agencies);
+        IdMap<Agency> allAgencies = preloadAgencys(streams.agencies);
         Set<String> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies, sourceConfig);
+        logger.info("Excluding " + excludedRoutes.size()+" routes ");
         allAgencies.clear();
 
-        ExcludedTripAndServices excludedTripsAndServices = populateTripsAndServices(buildable, streams.trips, excludedRoutes);
+        TripAndServices tripsAndServices = loadTripsAndServices(buildable, streams.trips, excludedRoutes);
         excludedRoutes.clear();
 
-        Map<String, Station> allStations = preLoadStations(streams.stops);
-        populateStopTimes(buildable, streams.stopTimes, allStations, excludedTripsAndServices.excludedTrips);
+        IdMap<Station> allStations = preLoadStations(streams.stops);
+        IdMap<Service> services = populateStopTimes(buildable, streams.stopTimes, allStations, tripsAndServices.trips);
         allStations.clear();
 
-        populateCalendars(buildable, streams.calendars, streams.calendarsDates, excludedTripsAndServices.excludedServices);
-        excludedTripsAndServices.clear();
+        populateCalendars(buildable, streams.calendars, streams.calendarsDates, services);
+        tripsAndServices.clear();
 
         buildable.updateTimesForServices();
         buildable.reportNumbers();
@@ -84,18 +88,20 @@ public class TransportDataFromFilesBuilder {
         );
         streams.closeAll();
         logger.info("Finishing Loading data for " + sourceName);
+        logger.info("Bounds for loaded stations " + stationLocations.getBounds());
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
-                                   Stream<CalendarDateData> calendarsDates, Set<String> excludedServices) {
+                                   Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
 
         logger.info("Loading calendars");
-        Set<String> missingCalendar = new HashSet<>();
+        Set<String> missingCalendar = services.getIds();
         calendars.forEach(calendar -> {
             String serviceId = calendar.getServiceId();
             Service service = buildable.getService(serviceId);
 
             if (service != null) {
+                missingCalendar.remove(serviceId);
                 service.setDays(
                         calendar.isMonday(),
                         calendar.isTuesday(),
@@ -106,10 +112,6 @@ public class TransportDataFromFilesBuilder {
                         calendar.isSunday()
                 );
                 service.setServiceDateRange(calendar.getStartDate(), calendar.getEndDate());
-            } else {
-                if (!excludedServices.contains(serviceId)) {
-                    missingCalendar.add(serviceId);
-                }
             }
         });
         if (!missingCalendar.isEmpty()) {
@@ -117,16 +119,13 @@ public class TransportDataFromFilesBuilder {
         }
 
         logger.info("Loading calendar dates");
-        Set<String> missingCalendarDates = new HashSet<>();
+        Set<String> missingCalendarDates = services.getIds();
         calendarsDates.forEach(date -> {
             String serviceId = date.getServiceId();
             Service service = buildable.getService(serviceId);
             if (service != null) {
+                missingCalendarDates.remove(serviceId);
                 service.addExceptionDate(date.getDate(), date.getExceptionType());
-            } else {
-                if (!excludedServices.contains(serviceId)) {
-                    missingCalendarDates.add(serviceId);
-                }
             }
         });
         if (!missingCalendarDates.isEmpty()) {
@@ -134,33 +133,56 @@ public class TransportDataFromFilesBuilder {
         }
     }
 
-    private void populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
-                                   Map<String, Station> allStations, Set<String> excludedTrips) {
+    private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
+                                   IdMap<Station> stations, IdMap<Trip> trips) {
         logger.info("Loading stop times");
+        IdMap<Service> addedServices = new IdMap<>();
+        Set<String> excludedStations = new HashSet<>();
+
         AtomicInteger count = new AtomicInteger();
-        stopTimes.filter(stopTimeData -> !excludedTrips.contains(stopTimeData.getTripId())).forEach((stopTimeData) -> {
-            Trip trip = buildable.getTrip(stopTimeData.getTripId());
+        stopTimes.filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).forEach((stopTimeData) -> {
+            Trip trip = trips.get(stopTimeData.getTripId());
             String stopId = stopTimeData.getStopId();
             String stationId = Station.formId(stopId);
 
-            if (allStations.containsKey(stationId)) {
+            if (stations.hasId(stationId)) {
+                Station station = stations.get(stationId);
                 Route route = trip.getRoute();
-                Station station = allStations.get(stationId);
+
                 addStation(buildable, route, station);
 
-                addStop(buildable, stopTimeData, trip, stopId, route, station);
+                StopCall stopCall = createStopCall(buildable, stopTimeData, stopId, route, station);
+                trip.addStop(stopCall);
 
+                if (!buildable.hasTripId(trip.getId())) {
+                    buildable.addTrip(trip); // seen at least one stop for this trip
+                    //
+                }
+
+                Service service = trip.getService();
+                service.addTrip(trip);
+
+                route.addService(service);
+                route.addHeadsign(trip.getHeadsign());
+
+                addedServices.add(service);
+                buildable.addService(service);
                 count.getAndIncrement();
 
             } else {
-                logger.warn(format("Cannot find station for Id '%s' for stopId '%s'", stationId, stopId));
+                excludedStations.add(stationId);
             }
         });
+        if (!excludedStations.isEmpty()) {
+            logger.warn("Excluded the following station ids: " + excludedStations.toString());
+        }
         logger.info("Loaded " + count.get() + " stop times");
+        return addedServices;
     }
 
-    private void addStop(TransportDataContainer buildable, StopTimeData stopTimeData, Trip trip, String stopId, Route route, Station station) {
-        StopCall stop;
+    private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
+                                    String stopId, Route route, Station station) {
+        StopCall stopCall;
         switch (route.getTransportMode()) {
             case Tram:
                 if (buildable.hasPlatformId(stopId)) {
@@ -170,20 +192,20 @@ public class TransportDataFromFilesBuilder {
                     logger.error("Missing platform " + stopId);
                 }
                 Platform platform = buildable.getPlatform(stopId);
-                stop = new TramStopCall(platform, station, stopTimeData);
+                stopCall = new TramStopCall(platform, station, stopTimeData);
                 break;
             case Bus:
-                stop = new BusStopCall(station, stopTimeData);
+                stopCall = new BusStopCall(station, stopTimeData);
                 break;
             case Train:
-                stop = new TrainStopCall(station, stopTimeData);
+                stopCall = new TrainStopCall(station, stopTimeData);
                 break;
             default:
                 throw new RuntimeException("Unexpected transport mode " + route.getTransportMode());
 
         }
 
-        trip.addStop(stop);
+        return stopCall;
     }
 
     private void addStation(TransportDataContainer buildable, Route route, Station station) {
@@ -203,51 +225,47 @@ public class TransportDataFromFilesBuilder {
         }
     }
 
-    private ExcludedTripAndServices populateTripsAndServices(TransportDataContainer buildable, Stream<TripData> trips,
-                                          Set<String> excludedRoutes) {
+    private TripAndServices loadTripsAndServices(TransportData transportData, Stream<TripData> tripDataStream,
+                                                 Set<String> excludedRoutes) {
         logger.info("Loading trips");
-        Set<String> excludedTrips = new HashSet<>();
-        Set<String> excludedServices = new HashSet<>();
+        IdMap<Trip> trips = new IdMap<>();
+        IdMap<Service> services = new IdMap<>();
+
         AtomicInteger count = new AtomicInteger();
 
-        trips.forEach((tripData) -> {
+        tripDataStream.forEach((tripData) -> {
             String serviceId = tripData.getServiceId();
             String routeId = tripData.getRouteId();
+            String tripId = tripData.getTripId();
+            String tripHeadsign = tripData.getTripHeadsign();
 
-            if (buildable.hasRouteId(routeId)) {
-                Route route = buildable.getRoute(routeId);
+            if (transportData.hasRouteId(routeId)) {
+                Route route = transportData.getRoute(routeId);
 
-                Service service = getOrInsertService(buildable, serviceId, route, excludedServices);
-                Trip trip = getOrCreateTrip(buildable, tripData.getTripId(), tripData.getTripHeadsign(), service, route );
+                Service service = services.getOrAdd(serviceId, () -> new Service(serviceId, route));
+                trips.getOrAdd(tripId, () -> new Trip(tripId, tripHeadsign, service, route));
+                service.addRoute(route);
                 count.getAndIncrement();
-                service.addTrip(trip);
-                route.addService(service);
-                route.addHeadsign(trip.getHeadsign());
             } else {
-                if (excludedRoutes.contains(routeId)) {
-                    excludedTrips.add(tripData.getTripId());
-                    if (!buildable.hasServiceId(serviceId)) {
-                        excludedServices.add(serviceId);
-                    }
-                } else {
+                if (!excludedRoutes.contains(routeId)) {
                     logger.warn(format("Unable to find RouteId '%s' for trip '%s", routeId, tripData));
                 }
             }
         });
         logger.info("Loaded " + count.get());
-        return new ExcludedTripAndServices(excludedTrips, excludedServices);
+        return new TripAndServices(services, trips);
     }
 
-    private  Map<String,Agency> preloadAgencys(Stream<AgencyData> agencyDataStream) {
+    private  IdMap<Agency> preloadAgencys(Stream<AgencyData> agencyDataStream) {
         logger.info("Loading all agencies");
-        Map<String,Agency> agencies = new HashMap<>();
-        agencyDataStream.forEach(agencyData -> agencies.put(agencyData.getId(), new Agency(agencyData.getId(), agencyData.getName())));
+        IdMap<Agency> agencies = new IdMap<>();
+        agencyDataStream.forEach(agencyData -> agencies.add(new Agency(agencyData.getId(), agencyData.getName())));
         logger.info("Loaded " + agencies.size() + " agencies");
         return agencies;
     }
 
     private Set<String> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
-                                       Map<String,Agency> allAgencies, DataSourceConfig sourceConfig) {
+                                       IdMap<Agency> allAgencies, DataSourceConfig sourceConfig) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
 
@@ -255,7 +273,7 @@ public class TransportDataFromFilesBuilder {
         Set<String> excludedRoutes = new HashSet<>();
         routeDataStream.forEach(routeData -> {
             String agencyId = routeData.getAgency();
-            if (!allAgencies.containsKey(agencyId)) {
+            if (!allAgencies.hasId(agencyId)) {
                 logger.error("Missing agency " + agencyId);
             }
 
@@ -274,9 +292,9 @@ public class TransportDataFromFilesBuilder {
                 Agency agency = allAgencies.get(agencyId);
                 Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeName, agency,
                         TransportMode.fromGTFS(routeType));
+                agency.addRoute(route);
                 buildable.addAgency(agency);
                 buildable.addRoute(route);
-                buildable.addRouteToAgency(agency, route);
             } else {
                 excludedRoutes.add(routeData.getId());
             }
@@ -285,36 +303,32 @@ public class TransportDataFromFilesBuilder {
         return excludedRoutes;
     }
 
-    private HashMap<String, Station> preLoadStations(Stream<StopData> stops) {
-        logger.info("Loading all stops");
-        HashMap<String, Station> allStations = new HashMap<>();
+    private IdMap<Station> preLoadStations(Stream<StopData> stops) {
+        logger.info("Loading stops within bounds");
 
-        stops.forEach((stop) -> {
+        IdMap<Station> allStations = new IdMap<>();
 
-            String stopId = stop.getId();
-            Station station;
-            String stationId = Station.formId(stopId);
+        stops.forEach((stopData) -> {
+            if (config.getBounds().contained(stopData.getLatLong())) {
+                String stopId = stopData.getId();
+                Station station;
+                String stationId = Station.formId(stopId);
 
-            if (!allStations.containsKey(stationId)) {
-                station = new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong());
-                allStations.put(station.getId(), station);
-            } else {
-                station = allStations.get(stationId);
-            }
-
-            // TODO Trains?
-            if (stop.isTram()) {
-//                Platform platform;
-//                if (!buildable.hasPlatformId(stopId)) {
-//                    buildable.addPlatform(platform);
-//                } else {
-//                    platform = buildable.getPlatform(stopId);
-//                }
-
-                Platform platform = formPlatform(stop);
-                if (!station.getPlatforms().contains(platform)) {
-                    station.addPlatform(platform);
+                if (!allStations.hasId(stationId)) {
+                    station = new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()), stopData.getLatLong());
+                    allStations.add(station);
+                } else {
+                    station = allStations.get(stationId);
                 }
+
+                if (stopData.isTram()) {
+                    Platform platform = formPlatform(stopData);
+                    if (!station.getPlatforms().contains(platform)) {
+                        station.addPlatform(platform);
+                    }
+                }
+            } else {
+                logger.info("Excluding stop " + stopData);
             }
 
         });
@@ -333,42 +347,45 @@ public class TransportDataFromFilesBuilder {
         return new Platform(stop.getId(), stop.getName());
     }
 
-    private Service getOrInsertService(TransportDataContainer buildable, String serviceId, Route route, Set<String> excludedServices) {
-        if (!buildable.hasServiceId(serviceId)) {
-            buildable.addService(new Service(serviceId, route));
-            excludedServices.remove(serviceId);
-        }
-        Service service = buildable.getService(serviceId);
-        service.addRoute(route);
-        return service;
-    }
+//    @Deprecated
+//    private Service getOrInsertService(TransportDataContainer buildable, String serviceId, Route route, Set<String> excludedServices) {
+//        if (!buildable.hasServiceId(serviceId)) {
+//            buildable.addService(new Service(serviceId, route));
+//            excludedServices.remove(serviceId);
+//        }
+//        Service service = buildable.getService(serviceId);
+//        service.addRoute(route);
+//        return service;
+//    }
+//
+//    @Deprecated
+//    private Trip getOrCreateTrip(TransportDataContainer buildable, String tripId, String tripHeadsign, Service service, Route route) {
+//        if (buildable.hasTripId(tripId)) {
+//            Trip matched = buildable.getTrip(tripId);
+//            if ((!matched.getRoute().equals(route)) || !matched.getService().equals(service) || !matched.getHeadsign().equals(tripHeadsign)) {
+//                logger.error("Mismatch for trip id: " + tripId + " (mis)matched was " + matched);
+//            }
+//            return matched;
+//        }
+//
+//        Trip trip = new Trip(tripId, tripHeadsign, service, route);
+//        buildable.addTrip(trip);
+//        return trip;
+//    }
 
-    private Trip getOrCreateTrip(TransportDataContainer buildable, String tripId, String tripHeadsign, Service service, Route route) {
-        if (buildable.hasTripId(tripId)) {
-            Trip matched = buildable.getTrip(tripId);
-            if ((!matched.getRoute().equals(route)) || !matched.getService().equals(service) || !matched.getHeadsign().equals(tripHeadsign)) {
-                logger.error("Mismatch for trip id: " + tripId + " (mis)matched was " + matched);
-            }
-            return matched;
-        }
 
-        Trip trip = new Trip(tripId, tripHeadsign, service, route);
-        buildable.addTrip(trip);
-        return trip;
-    }
+    private static class TripAndServices  {
+        private final IdMap<Service> services;
+        private final IdMap<Trip> trips;
 
-    private static class ExcludedTripAndServices {
-        private final Set<String> excludedTrips;
-        private final Set<String> excludedServices;
-
-        public ExcludedTripAndServices(Set<String> excludedTrips, Set<String> excludedServices) {
-            this.excludedTrips = excludedTrips;
-            this.excludedServices = excludedServices;
+        public TripAndServices(IdMap<Service> services, IdMap<Trip> trips) {
+            this.services = services;
+            this.trips = trips;
         }
 
         public void clear() {
-            excludedServices.clear();
-            excludedTrips.clear();
+            services.clear();
+            trips.clear();
         }
     }
 }

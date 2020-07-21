@@ -1,11 +1,15 @@
 package com.tramchester.domain.presentation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 public class LatLong {
 
     private double lat; // north/south
     private double lon; // east/west
+
+    private static final LatLong zero = new LatLong(0D,0D);
 
     // for json
     public LatLong() {
@@ -57,4 +61,8 @@ public class LatLong {
                 '}';
     }
 
+    @JsonIgnore
+    public boolean isValid() {
+        return !this.equals(zero);
+    }
 }

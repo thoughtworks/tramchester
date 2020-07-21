@@ -46,7 +46,7 @@ public class TransportDataForTest implements TransportDataSource, Startable {
     private final Map<String, Platform> platforms;
     private final Map<String, Route> routes;
     private final Map<String, RouteStation> routeStations;
-    private final Set<Service> services;
+    private final IdMap<Service> services;
     private final Map<String, Trip> trips;
 
     private final StationLocations stationLocations;
@@ -56,7 +56,7 @@ public class TransportDataForTest implements TransportDataSource, Startable {
         this.stationLocations = stationLocations;
 
         routes = new HashMap<>();
-        services = new HashSet<>();
+        services = new IdMap<>();
         platforms = new HashMap<>();
         trips = new HashMap<>();
         routeStations = new HashMap<>();
@@ -222,7 +222,7 @@ public class TransportDataForTest implements TransportDataSource, Startable {
 
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
-        return services;
+        return services.getValues();
     }
 
     @Override
@@ -233,6 +233,11 @@ public class TransportDataForTest implements TransportDataSource, Startable {
     @Override
     public Route getRoute(String routeId) {
         return routes.get(routeId);
+    }
+
+    @Override
+    public boolean hasRouteId(String routeId) {
+        return routes.containsKey(routeId);
     }
 
     @Override
@@ -256,27 +261,25 @@ public class TransportDataForTest implements TransportDataSource, Startable {
         return routeStations.get(routeStationId);
     }
 
-//    @Override
-//    public FeedInfo getFeedInfo() {
-//        return new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
-//                LocalDate.of(2016, 5, 25),
-//                LocalDate.of(2016, 6, 30), "version");
-//    }
-//
-//    @Override
-//    public String getVersion() {
-//        return "version";
-//    }
-
     @Override
     public Service getServiceById(String serviceId) {
-        return services.stream().filter(service -> service.getId().equals(serviceId)).findAny().get();
+        return services.get(serviceId);
     }
 
     @Override
     public DataSourceInfo getDataSourceInfo() {
         return new DataSourceInfo(Collections.singleton(new DataSourceInfo.NameAndVersion("testData",
                 TestEnv.LocalNow().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))));
+    }
+
+    @Override
+    public boolean hasServiceId(String serviceId) {
+        return services.hasId(serviceId);
+    }
+
+    @Override
+    public boolean hasTripId(String tripId) {
+        return trips.containsKey(tripId);
     }
 
     @Override
@@ -297,6 +300,21 @@ public class TransportDataForTest implements TransportDataSource, Startable {
     @Override
     public Optional<Platform> getPlatformById(String platformId) {
         return Optional.ofNullable(platforms.get(platformId));
+    }
+
+    @Override
+    public boolean hasPlatformId(String id) {
+        return platforms.containsKey(id);
+    }
+
+    @Override
+    public Platform getPlatform(String id) {
+        return platforms.get(id);
+    }
+
+    @Override
+    public Set<Platform> getPlatforms() {
+        return new HashSet<>(platforms.values());
     }
 
     @Override

@@ -62,7 +62,7 @@ class TripTest {
 
         // sequence respected
         List<Integer> seqNums = new LinkedList<>();
-        trip.getStops().forEach(stop -> seqNums.add(stop.getGetSequenceNumber()));
+        trip.getStops().stream().forEach(stop -> seqNums.add(stop.getGetSequenceNumber()));
         assertEquals(1, seqNums.get(0).intValue());
         assertEquals(2, seqNums.get(1).intValue());
         assertEquals(3, seqNums.get(2).intValue());

@@ -56,11 +56,19 @@ class TransportDataFromFilesTest {
         allServices = transportData.getServices();
     }
 
-//    @Test
-//    void shouldGetFeedInfo() {
-//        FeedInfo result = transportData.getFeedInfo();
-//        assertEquals("http://www.tfgm.com", result.getPublisherUrl());
-//    }
+    @Test
+    void shouldHaveExpectedNumbersForTram() {
+        assertEquals(1, transportData.getAgencies().size());
+        assertEquals(99,transportData.getStations().size());
+        assertEquals(12, transportData.getRoutes().size());
+        assertEquals(195, transportData.getPlatforms().size());
+    }
+
+    @Test
+    void shouldGetFeedInfo() {
+        FeedInfo result = transportData.getFeedInfos().get("tfgm");
+        assertEquals("http://www.tfgm.com", result.getPublisherUrl());
+    }
 
     @Test
     void shouldHaveCorrectLocationForAirportInTestEnvironment() {
@@ -304,9 +312,11 @@ class TransportDataFromFilesTest {
 
         ServiceTime time = ServiceTime.of(12, 0);
 
-        Set<Service> onTime = onDay.stream().filter(svc -> svc.latestDepartTime().isAfter(time) && svc.earliestDepartTime().isBefore(time)).collect(Collectors.toSet());
+        Set<Service> onTime = onDay.stream().
+                filter(svc -> svc.latestDepartTime().isAfter(time) && svc.earliestDepartTime().isBefore(time)).
+                collect(Collectors.toSet());
 
-        assertFalse(onTime.isEmpty()); // at least one service (likely is just one)
+        assertFalse(onTime.isEmpty(), "next tuesday at 12 missing"); // at least one service (likely is just one)
     }
 
     @DataExpiryCategory

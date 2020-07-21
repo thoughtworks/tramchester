@@ -1,16 +1,36 @@
 package com.tramchester.geo;
 
-public class BoundingBox {
-    private final long minEastings;
-    private final long minNorthings;
-    private final long maxEasting;
-    private final long maxNorthings;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.presentation.LatLong;
+import org.opengis.referencing.operation.TransformException;
 
-    public BoundingBox(long minEastings, long minNorthings, long maxEasting, long maxNorthings) {
+import javax.validation.Valid;
+
+@Valid
+public class BoundingBox {
+
+    private final Long minEastings;
+    private final Long minNorthings;
+    private final Long maxEasting;
+    private final Long maxNorthings;
+    private final LatLong bottomLeft;
+    private final LatLong topRight;
+
+    public BoundingBox(@JsonProperty(value = "minEastings", required = true) long minEastings,
+                       @JsonProperty(value = "minNorthings", required = true) long minNorthings,
+                       @JsonProperty(value = "maxEasting", required = true) long maxEasting,
+                       @JsonProperty(value = "maxNorthings", required = true) long maxNorthings) {
         this.minEastings = minEastings;
         this.minNorthings = minNorthings;
         this.maxEasting = maxEasting;
         this.maxNorthings = maxNorthings;
+
+        try {
+            bottomLeft = CoordinateTransforms.getLatLong(minEastings, minNorthings);
+            topRight = CoordinateTransforms.getLatLong(maxEasting, maxNorthings);
+        } catch (TransformException exception) {
+            throw new RuntimeException("Cannot convert to lat/long", exception);
+        }
     }
 
     public BoundingBox(BoundingBox other) {
@@ -45,6 +65,16 @@ public class BoundingBox {
                 (position.getEastings() < maxEasting) &&
                 (position.getNorthings() >= minNorthings) &&
                 (position.getNorthings() < maxNorthings);
+    }
+
+    public boolean contained(LatLong latLong) {
+        double lon = latLong.getLon();
+        double lat = latLong.getLat();
+
+        return (lon >= bottomLeft.getLon()) &&
+                (lat >= bottomLeft.getLat()) &&
+                (lon <= topRight.getLon()) &&
+                (lat <= topRight.getLat());
     }
 
     @Override

@@ -4,15 +4,14 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.testSupport.BusStations;
@@ -21,13 +20,15 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.unit.graph.TransportDataForTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -45,7 +46,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        StationLocations stationLocations = new StationLocations(new CoordinateTransforms());
+        StationLocations stationLocations = new StationLocations();
         transportData = new TransportDataForTest(stationLocations);
         transportData.start();
     }

@@ -69,4 +69,17 @@ public class StopData {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    @Override
+    public String toString() {
+        return "StopData{" +
+                "id='" + id + '\'' +
+                ", code='" + code + '\'' +
+                ", area='" + area + '\'' +
+                ", name='" + name + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", isTram=" + isTram +
+                '}';
+    }
 }

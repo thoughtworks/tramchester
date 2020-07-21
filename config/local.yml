@@ -28,6 +28,11 @@ dataSources:
     unzipPath: gtdf-out
     hasFeedInfo: true
     transportModes: [ tram ]
+bounds:
+  minEastings: 333211
+  minNorthings: 373264
+  maxEasting: 414492
+  maxNorthings: 437779
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata

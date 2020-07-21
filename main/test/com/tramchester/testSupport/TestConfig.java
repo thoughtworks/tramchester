@@ -3,10 +3,13 @@ package com.tramchester.testSupport;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.geo.BoundingBox;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
+import javax.validation.Valid;
+import java.awt.event.TextEvent;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -166,5 +169,10 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public double getDistanceToNeighboursKM() {
         return 0.4;
+    }
+
+    @Override
+    public @Valid BoundingBox getBounds() {
+        return TestEnv.getTFGMBusBounds();
     }
 }

@@ -2,8 +2,11 @@ package com.tramchester.integration;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 
+import javax.validation.Valid;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,6 +31,11 @@ public class IntegrationTrainTestConfig extends TestConfig {
     @Override
     public Set<GTFSTransportationType> getTransportModes() {
         return Collections.singleton(GTFSTransportationType.train);
+    }
+
+    @Override
+    public @Valid BoundingBox getBounds() {
+        return TestEnv.getTrainBounds();
     }
 
     @Override
