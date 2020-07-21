@@ -5,6 +5,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.dataimport.Unzipper;
+import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.assertj.core.util.Files;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 class FetchDataFromUrlTest extends EasyMockSupport {
 
@@ -27,7 +30,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     private FetchDataFromUrl fetchDataFromUrl;
     private Path zipFilename;
     private Unzipper unzipper;
-    private final String expectedDownloadURL = "http://should.be.used/somefile.zip";
+    private final String expectedDownloadURL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -36,42 +39,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         zipFilename = path.resolve(targetZipFilename);
         unzipper = createMock(Unzipper.class);
 
-        DataSourceConfig dataSourceConfig = new DataSourceConfig() {
-            @Override
-            public String getTramDataUrl() {
-                return "http://should.be.used/somefile.zip";
-            }
-
-            @Override
-            public String getTramDataCheckUrl() {
-                return "unusedHere";
-            }
-
-            @Override
-            public Path getDataPath() {
-                return path;
-            }
-
-            @Override
-            public Path getUnzipPath() {
-                return Paths.get("gtdf-out");
-            }
-
-            @Override
-            public String getZipFilename() {
-                return targetZipFilename;
-            }
-
-            @Override
-            public String getName() {
-                return "FetchDataFromUrlTest";
-            }
-
-            @Override
-            public boolean getHasFeedInfo() {
-                return true;
-            }
-        };
+        DataSourceConfig dataSourceConfig = new SourceConfig(path.toString(), targetZipFilename);
 
         TramchesterConfig config = new TestConfig() {
             @Override
@@ -130,6 +98,22 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData(unzipper));
         verifyAll();
+    }
+
+    private static class SourceConfig extends TFGMTestDataSourceConfig {
+
+        private final String targetZipFilename;
+
+        public SourceConfig(String dataFolder, String targetZipFilename) {
+            super(dataFolder, Collections.singleton(GTFSTransportationType.tram));
+            this.targetZipFilename = targetZipFilename;
+        }
+
+        @Override
+        public String getZipFilename() {
+            return targetZipFilename;
+        }
+
     }
 
 

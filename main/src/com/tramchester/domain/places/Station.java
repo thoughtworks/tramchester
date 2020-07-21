@@ -2,6 +2,9 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
+import org.apache.lucene.analysis.et.EstonianAnalyzer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,7 +12,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 public class Station implements Location {
+    private static final Logger logger = LoggerFactory.getLogger(Station.class);
+
     public static String METROLINK_PREFIX = "9400ZZ";
 
     private String area;
@@ -135,7 +142,10 @@ public class Station implements Location {
         if (transportMode.equals(TransportMode.NotSet)) {
             transportMode = route.getTransportMode();
         } else if (!transportMode.equals(route.getTransportMode())) {
-            throw new RuntimeException("Here to detect if multi-mode stations exist");
+            String message = format("Here to detect if multi-mode stations exist, route %s and station %s",
+                    route, this.toString());
+            logger.error(message);
+            throw new RuntimeException(message);
         }
 
         servesAgencies.add(route.getAgency());

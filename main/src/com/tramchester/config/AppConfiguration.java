@@ -10,7 +10,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @SuppressWarnings("unused")
@@ -135,9 +138,6 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("maxNumberMissingLiveMessages")
     private Integer maxNumberMissingLiveMessages;
 
-    @JsonProperty("transportModes")
-    private List<GTFSTransportationType> transportModes;
-
     @Valid
     @JsonProperty("dataSources")
     private List<DataSourceConfig> dataSourceConfig;
@@ -236,11 +236,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public List<String> getClosedStations() {
         return closedStations == null ? new ArrayList<>() : closedStations;
-    }
-
-    @Override
-    public List<GTFSTransportationType> getTransportModes() {
-        return transportModes;
     }
 
     @Override

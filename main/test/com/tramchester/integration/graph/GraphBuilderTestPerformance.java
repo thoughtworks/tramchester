@@ -2,12 +2,16 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 @Disabled("for performance testing")
 class GraphBuilderTestPerformance {
@@ -48,7 +52,8 @@ class GraphBuilderTestPerformance {
 
         @Override
         protected DataSourceConfig getTestDataSourceConfig() {
-            return new TFGMTestDataSourceConfig("data/all");
+            return new TFGMTestDataSourceConfig("data/busAndTram",
+                    new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus)));
         }
     }
 }

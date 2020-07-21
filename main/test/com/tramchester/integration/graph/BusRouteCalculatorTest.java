@@ -2,30 +2,21 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationBusTestConfig;
-import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.BusStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorTest {

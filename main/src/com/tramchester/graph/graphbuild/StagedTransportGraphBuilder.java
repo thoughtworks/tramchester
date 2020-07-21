@@ -5,6 +5,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
@@ -208,21 +209,21 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Node routeStationNode = createRouteStationNode(txn, station, route);
         routeBuilderCache.putRouteStation(route, station, routeStationNode);
 
-        Node stationNode = graphQuery.getStationNode(txn, station);
+        if (graphQuery.hasNodeForStation(txn, station)) {
+            Node stationNode = graphQuery.getStationNode(txn, station);
 
-        if (stationNode==null) {
-            stationNode = createStationNode(txn, station);
+            routeBuilderCache.putStation(station, stationNode);
+            for (Platform platform : station.getPlatforms()) {
+                Node platformNode = graphQuery.getPlatformNode(txn, platform.getId());
+                routeBuilderCache.putPlatform(platform.getId(), platformNode);
+            }
+        } else {
+            Node stationNode = createStationNode(txn, station);
             routeBuilderCache.putStation(station, stationNode);
             for (Platform platform : station.getPlatforms()) {
                 Node platformNode = createPlatformNode(txn, platform);
                 routeBuilderCache.putPlatform(platform.getId(), platformNode);
                 createPlatformStationRelationships(station, stationNode, platform, platformNode);
-            }
-        } else {
-            routeBuilderCache.putStation(station, stationNode);
-            for (Platform platform : station.getPlatforms()) {
-                Node platformNode = graphQuery.getPlatformNode(txn, platform.getId());
-                routeBuilderCache.putPlatform(platform.getId(), platformNode);
             }
         }
     }
@@ -501,6 +502,28 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Relationship fromServiceNode = createRelationship(serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
         fromServiceNode.setProperty(COST, 0);
         fromServiceNode.setProperty(HOUR, hour);
+    }
+
+    private Node createRouteStationNode(Transaction tx, Location station, Route route) {
+        Node routeStation = createGraphNode(tx, Labels.ROUTE_STATION);
+        String routeStationId = RouteStation.formId(station, route);
+
+        logger.debug(format("Creating route station %s route %s nodeId %s", station.getId(),route.getId(),
+                routeStation.getId()));
+        routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
+        routeStation.setProperty(STATION_ID, station.getId());
+        routeStation.setProperty(ROUTE_ID, route.getId());
+        return routeStation;
+    }
+
+    private Node createStationNode(Transaction tx, Location station) {
+        String id = station.getId();
+
+        Labels label = Labels.forMode(station.getTransportMode());
+        logger.debug(format("Creating station node: %s with label: %s ", station, label));
+        Node stationNode = createGraphNode(tx, label);
+        stationNode.setProperty(GraphStaticKeys.ID, id);
+        return stationNode;
     }
 
     private String createHourNodeKey(Service service, Station start, Integer hour) {

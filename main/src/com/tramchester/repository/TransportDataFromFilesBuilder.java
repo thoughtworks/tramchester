@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
@@ -46,9 +47,10 @@ public class TransportDataFromFilesBuilder {
 
     private void load(TransportDataStreams streams, TransportDataContainer buildable) {
         String sourceName = streams.nameAndVersion.getName();
+        DataSourceConfig sourceConfig = streams.getConfig();
         logger.info("Loading data for " + sourceName);
         DataSourceInfo.NameAndVersion fromStreams = streams.getNameAndVersion();
-        if(streams.hasFeedInfo()) {
+        if(sourceConfig.getHasFeedInfo()) {
             FeedInfo feedInfo = streams.feedInfo.findFirst().get();
             String name = fromStreams.getName();
             buildable.addNameAndVersion(new DataSourceInfo.NameAndVersion(name, feedInfo.getVersion()));
@@ -58,14 +60,14 @@ public class TransportDataFromFilesBuilder {
             buildable.addNameAndVersion(fromStreams);
         }
 
-        Map<String, Agency> allAgencies = populateAgencies(streams.agencies);
-        Set<String> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies);
+        Map<String, Agency> allAgencies = preloadAgencys(streams.agencies);
+        Set<String> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies, sourceConfig);
         allAgencies.clear();
 
         ExcludedTripAndServices excludedTripsAndServices = populateTripsAndServices(buildable, streams.trips, excludedRoutes);
         excludedRoutes.clear();
 
-        Map<String, Station> allStations = loadStations(streams.stops);
+        Map<String, Station> allStations = preLoadStations(streams.stops);
         populateStopTimes(buildable, streams.stopTimes, allStations, excludedTripsAndServices.excludedTrips);
         allStations.clear();
 
@@ -236,7 +238,7 @@ public class TransportDataFromFilesBuilder {
         return new ExcludedTripAndServices(excludedTrips, excludedServices);
     }
 
-    private  Map<String,Agency> populateAgencies(Stream<AgencyData> agencyDataStream) {
+    private  Map<String,Agency> preloadAgencys(Stream<AgencyData> agencyDataStream) {
         logger.info("Loading all agencies");
         Map<String,Agency> agencies = new HashMap<>();
         agencyDataStream.forEach(agencyData -> agencies.put(agencyData.getId(), new Agency(agencyData.getId(), agencyData.getName())));
@@ -244,8 +246,9 @@ public class TransportDataFromFilesBuilder {
         return agencies;
     }
 
-    private Set<String> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream, Map<String,Agency> allAgencies) {
-        List<GTFSTransportationType> transportModes = config.getTransportModes();
+    private Set<String> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
+                                       Map<String,Agency> allAgencies, DataSourceConfig sourceConfig) {
+        Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
@@ -256,18 +259,17 @@ public class TransportDataFromFilesBuilder {
                 logger.error("Missing agency " + agencyId);
             }
 
-
-            String routeName = routeData.getLongName();
-            if (config.getRemoveRouteNameSuffix()) {
-                int indexOf = routeName.indexOf("(");
-                if (indexOf > -1) {
-                    routeName = routeName.substring(0,indexOf).trim();
-                }
-            }
-
             GTFSTransportationType routeType = routeData.getRouteType();
 
             if (transportModes.contains(routeType)) {
+                String routeName = routeData.getLongName();
+                if (config.getRemoveRouteNameSuffix()) {
+                    int indexOf = routeName.indexOf("(");
+                    if (indexOf > -1) {
+                        routeName = routeName.substring(0,indexOf).trim();
+                    }
+                }
+
                 count.getAndIncrement();
                 Agency agency = allAgencies.get(agencyId);
                 Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeName, agency,
@@ -283,7 +285,7 @@ public class TransportDataFromFilesBuilder {
         return excludedRoutes;
     }
 
-    private HashMap<String, Station> loadStations(Stream<StopData> stops) {
+    private HashMap<String, Station> preLoadStations(Stream<StopData> stops) {
         logger.info("Loading all stops");
         HashMap<String, Station> allStations = new HashMap<>();
 
@@ -299,7 +301,6 @@ public class TransportDataFromFilesBuilder {
             } else {
                 station = allStations.get(stationId);
             }
-
 
             // TODO Trains?
             if (stop.isTram()) {
@@ -364,13 +365,15 @@ public class TransportDataFromFilesBuilder {
         final Stream<CalendarData> calendars;
         final Stream<FeedInfo> feedInfo;
         final Stream<CalendarDateData> calendarsDates;
+        private final DataSourceConfig config;
         final Stream<AgencyData> agencies;
-        final private boolean expectFeedInfo;
         final private DataSourceInfo.NameAndVersion nameAndVersion;
 
-        public TransportDataStreams(DataSourceInfo.NameAndVersion nameAndVersion, Stream<AgencyData> agencies, Stream<StopData> stops, Stream<RouteData> routes, Stream<TripData> trips,
-                                    Stream<StopTimeData> stopTimes, Stream<CalendarData> calendars,
-                                    Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates, boolean expectFeedInfo) {
+        public TransportDataStreams(DataSourceInfo.NameAndVersion nameAndVersion, Stream<AgencyData> agencies, Stream<StopData> stops,
+                                    Stream<RouteData> routes, Stream<TripData> trips, Stream<StopTimeData> stopTimes,
+                                    Stream<CalendarData> calendars,
+                                    Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates,
+                                    DataSourceConfig config) {
             this.nameAndVersion = nameAndVersion;
             this.agencies = agencies;
             this.stops = stops;
@@ -380,7 +383,7 @@ public class TransportDataFromFilesBuilder {
             this.calendars = calendars;
             this.feedInfo = feedInfo;
             this.calendarsDates = calendarsDates;
-            this.expectFeedInfo = expectFeedInfo;
+            this.config = config;
         }
 
         public void closeAll() {
@@ -394,12 +397,12 @@ public class TransportDataFromFilesBuilder {
             agencies.close();
         }
 
-        public boolean hasFeedInfo() {
-            return expectFeedInfo;
-        }
-
         public DataSourceInfo.NameAndVersion getNameAndVersion() {
             return nameAndVersion;
+        }
+
+        public DataSourceConfig getConfig() {
+            return config;
         }
     }
 

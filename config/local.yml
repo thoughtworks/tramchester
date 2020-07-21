@@ -18,7 +18,6 @@ secureHost: tramchester.com
 rebuildGraph: true
 graphName: tramchester.db
 closedStations: []
-transportModes: [ tram ]
 instanceDataUrl: http://169.254.169.254
 dataSources:
   -
@@ -28,6 +27,7 @@ dataSources:
     dataPath: data/tram
     unzipPath: gtdf-out
     hasFeedInfo: true
+    transportModes: [ tram ]
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata

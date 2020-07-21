@@ -68,7 +68,6 @@ class PostcodeJourneyPlannerTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         planner = dependencies.get(LocationJourneyPlanner.class);
         repository = dependencies.get(PostcodeRepository.class);
-        //request = new JourneyRequest(new TramServiceDate(nextTuesday), planningTime, arriveBy);
         centralLocation = repository.getPostcode(Postcodes.NearPiccadily);
     }
 

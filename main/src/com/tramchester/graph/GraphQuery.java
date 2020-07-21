@@ -34,11 +34,7 @@ public class GraphQuery {
     }
 
     private Node getNodeByLabel(Transaction txn, String id, GraphBuilder.Labels label) {
-        Node node = graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id);
-//        if (node==null) {
-//            logger.warn("Failed to find node for label " + label + " and id '"+id+"'");
-//        }
-        return node;
+        return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id);
     }
 
     public List<Relationship> getRouteStationRelationships(Transaction txn, String routeStationId, Direction direction) {
@@ -56,7 +52,14 @@ public class GraphQuery {
     }
 
     private Node getStationNode(Transaction txn, String stationId, TransportMode transportMode) {
-        return getNodeByLabel(txn, stationId, GraphBuilder.Labels.forMode(transportMode));
+        Node node = getNodeByLabel(txn, stationId, GraphBuilder.Labels.forMode(transportMode));
+        if (node==null) {
+            logger.warn("Did not find node for station: " + stationId + " mode: " + transportMode);
+        }
+        return node;
     }
 
+    public boolean hasNodeForStation(Transaction txn, Station station) {
+        return getNodeByLabel(txn, station.getId(), GraphBuilder.Labels.forMode(station.getTransportMode()))!=null;
+    }
 }

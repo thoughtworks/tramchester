@@ -17,7 +17,6 @@ rebuildGraph: true
 secureHost: tramchester.com
 graphName: buses.db
 closedStations: []
-transportModes: [ bus ]
 dataSources:
   -
     name: tfgm
@@ -26,6 +25,7 @@ dataSources:
     dataPath: data/bus
     unzipPath: gtdf-out
     hasFeedInfo: true
+    transportModes: [ bus ]
 instanceDataUrl: http://169.254.169.254
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}

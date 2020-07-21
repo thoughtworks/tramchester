@@ -1,0 +1,89 @@
+server:
+  applicationContextPath: /
+  rootPath: /api/*
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminContextPath: /admin
+  adminConnectors:
+    - type: http
+      port: 8081
+  gzip:
+    enabled: true
+    bufferSize: 8KiB
+    minimumEntitySize: 160B
+
+secureHost: tramchester.com
+
+rebuildGraph: true
+graphName: all.db
+closedStations: []
+instanceDataUrl: http://169.254.169.254
+dataSources:
+  -
+    name: tfgm
+    URL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip}
+    checkURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip
+    dataPath: data/tram
+    unzipPath: gtdf-out
+    hasFeedInfo: true
+    transportModes: [ tram, bus ]
+  -
+    name: rail
+    URL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
+    checkURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
+    dataPath: data/trains
+    unzipPath: ./
+    hasFeedInfo: false
+    transportModes: [ train ]
+liveDataUrl: https://api.tfgm.com/odata/Metrolinks
+liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
+liveDataS3Bucket: tramchesterlivedata
+liveDataRefreshPeriodSeconds: 20
+loadPostcodes: false
+createNeighbours: false
+distanceToNeighboursKM: 0.1
+postcodeDataPath: data/codepo_gb/Data/CSV
+postcodeZip: data/codepo_gb.zip
+removeRouteNameSuffix: true
+maxWait: 25
+numberQueries: 3
+queryInterval: 12
+maxNumberResults: 5
+maxJourneyDuration: 112
+nearestStopRangeKM: 1.6
+numOfNearestStops: 5
+numOfNearestStopsForWalking: 3
+walkingMPH: 3.0
+recentStopsToShow: 5
+dataExpiryThreadhold: 3
+maxNumberMissingLiveMessages: 10
+changeAtInterchangeOnly: true
+
+swagger:
+  resourcePackage: com.tramchester.resources
+  title: tramchester
+
+logging:
+  level: INFO
+
+  appenders:
+    - type: console
+      threshold: WARN
+    - type: syslog
+      host: localhost
+      port: 514
+    - type: file
+      currentLogFilename: logs/tramchester_local.log
+      threshold: INFO
+      archive: true
+      archivedLogFilenamePattern: logs/tramchester_local-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+
+# TODO only for dev environments
+assets:
+  overrides:
+    # Override requests to /app/${1} to instead look in
+    # ${working directory}/src/main/app/${1}
+    /app: src/main/resources/app/

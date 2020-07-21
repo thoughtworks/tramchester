@@ -2,6 +2,7 @@ package com.tramchester.dataimport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -80,6 +82,11 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             @Override
             public boolean getHasFeedInfo() {
                 return true;
+            }
+
+            @Override
+            public Set<GTFSTransportationType> getTransportModes() {
+                return Collections.singleton(GTFSTransportationType.tram);
             }
         };
         URLDownloadAndModTime downloader = new URLDownloadAndModTime();

@@ -34,7 +34,7 @@ public class TransportDataReaderFactory implements TransportDataLoader {
                 DataSourceInfo.NameAndVersion nameAndVersion = getNameAndVersion(config);
 
                 DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
-                TransportDataReader transportLoader = new TransportDataReader(nameAndVersion, factory, config.getHasFeedInfo());
+                TransportDataReader transportLoader = new TransportDataReader(nameAndVersion, factory, config);
                 dataReaders.add(transportLoader);
             });
         }

@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
@@ -35,8 +36,8 @@ public class TransportDataBuilderFactory {
 
         transportDataReaders.forEach(transportDataReader -> {
             Stream<FeedInfo> feedInfoData = Stream.empty();
-            boolean expectFeedinfo = transportDataReader.getExpectFeedinfo();
-            if (expectFeedinfo) {
+            DataSourceConfig sourceConfig = transportDataReader.getConfig();
+            if (sourceConfig.getHasFeedInfo()) {
                 feedInfoData = transportDataReader.getFeedInfo(new FeedInfoDataMapper(providesNow));
             }
 
@@ -51,7 +52,7 @@ public class TransportDataBuilderFactory {
             TransportDataFromFilesBuilder.TransportDataStreams transportDataStreams =
                     new TransportDataFromFilesBuilder.TransportDataStreams(transportDataReader.getNameAndVersion(),
                             agencyData, stopData, routeData, tripData,
-                            stopTimeData, calendarData, feedInfoData, calendarsDates, expectFeedinfo);
+                            stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig);
             dataStreams.add(transportDataStreams);
         });
 

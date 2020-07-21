@@ -21,6 +21,8 @@ target/
 data/bus
 data/tram
 data/all
+data/trains
+data/gb-rail-latest/
 data/gtdf-out
 data/*.zip
 

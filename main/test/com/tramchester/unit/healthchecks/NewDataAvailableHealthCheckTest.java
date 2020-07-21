@@ -4,6 +4,7 @@ import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -16,13 +17,14 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
     private URLDownloadAndModTime urlDownloader;
-    private final DataSourceConfig config = new TFGMTestDataSourceConfig("data/folder");
+    private final DataSourceConfig config = new TFGMTestDataSourceConfig("data/folder",
+            Collections.singleton(GTFSTransportationType.tram));
     private FetchFileModTime fetchFileModTime;
-    private Path expectedPath;
     private NewDataAvailableHealthCheck healthCheck;
     private String expectedURL;
     private LocalDateTime time;
@@ -31,7 +33,6 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         urlDownloader = createMock(URLDownloadAndModTime.class);
         fetchFileModTime = createMock(FetchFileModTime.class);
-        expectedPath = config.getDataPath().resolve(config.getZipFilename());
         expectedURL = config.getTramDataCheckUrl();
 
         healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fetchFileModTime);

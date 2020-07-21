@@ -2,11 +2,13 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.GTFSTransportationType;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 @Valid
@@ -37,6 +39,10 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     @JsonProperty("hasFeedInfo")
     private Boolean hasFeedInfo;
 
+    @NotNull
+    @JsonProperty("transportModes")
+    private Set<GTFSTransportationType> transportModes;
+
     @Override
     public String getName() {
         return name;
@@ -45,6 +51,11 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     @Override
     public boolean getHasFeedInfo() {
         return hasFeedInfo;
+    }
+
+    @Override
+    public Set<GTFSTransportationType> getTransportModes() {
+        return transportModes;
     }
 
     @Override
@@ -71,6 +82,9 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     public String getZipFilename() {
         return "data.zip";
     }
+
+
+
 
     @Override
     public String toString() {

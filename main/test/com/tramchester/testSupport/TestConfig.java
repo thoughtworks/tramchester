@@ -10,6 +10,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public abstract class TestConfig extends AppConfiguration {
 
@@ -129,8 +130,8 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public List<GTFSTransportationType> getTransportModes() {
-        return Collections.singletonList(GTFSTransportationType.tram);
+    public Set<GTFSTransportationType> getTransportModes() {
+        return Collections.singleton(GTFSTransportationType.tram);
     }
 
     @Override

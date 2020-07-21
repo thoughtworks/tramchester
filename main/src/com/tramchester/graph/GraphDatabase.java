@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +53,10 @@ public class GraphDatabase implements Startable {
             } catch (IOException ioException) {
                 logger.error("Error deleting the graph!", ioException);
             }
+        } else if (!graphFile.exists()) {
+            String msg = "Requested no rebuild of graph; graph file does not exist " + graphName;
+            logger.error(msg);
+            throw new RuntimeException(msg);
         }
 
         databaseService = createGraphDatabaseService(graphFile);

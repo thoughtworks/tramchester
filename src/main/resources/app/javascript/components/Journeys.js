@@ -22,7 +22,6 @@ function changesFormatter(value, key, row) {
 
 function fromFormatter(value, key, row) {
     return nameForStation(value);
-
 }
 
 function nameForStation(station) {
@@ -42,9 +41,12 @@ function stationFormatter(value, key, row) {
     return `<a href='${url}' target="_blank">${name}</a>`
 }
 
-function stageHeadsignClass(value, key, item) {
+function stageHeadsignClass(value, key, row) {
     if (value === 'WalkingHeadSign') {
-        return 'HideWalkingHeadSign';
+        return 'walkingHeadSign';
+    }
+    if (row.actionStation.transportMode=='Train') {
+        return 'trainHeadSign';
     }
     return "headsign";
 }
@@ -57,7 +59,7 @@ function lineFormatter(value, key, row) {
     }
 }
 
-function stageRowClass(value, key, item) {
+function lineClass(value, key, item) {
     return item.displayClass;
 }
 
@@ -98,7 +100,7 @@ export default {
                 {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: stationFormatter},
                 {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                 {key:'headSign', label:'Towards', tdClass: stageHeadsignClass },
-                {key:'mode', label:'Line', formatter: lineFormatter, tdClass: stageRowClass },
+                {key:'mode', label:'Line', formatter: lineFormatter, tdClass: lineClass },
                 {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
             }
       },

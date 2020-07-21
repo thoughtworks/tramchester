@@ -7,7 +7,9 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration {
 
@@ -23,7 +25,7 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     public abstract List<String> getClosedStations();
 
     // transport modes to load
-    public abstract List<GTFSTransportationType> getTransportModes();
+//    public abstract List<GTFSTransportationType> getTransportModes();
 
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
@@ -103,4 +105,10 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     public abstract Path getPostcodeZip();
 
     public abstract List<DataSourceConfig> getDataSourceConfig();
+
+    public Set<GTFSTransportationType> getTransportModes() {
+        HashSet<GTFSTransportationType> result = new HashSet<>();
+        getDataSourceConfig().forEach(sourceConfig -> result.addAll(sourceConfig.getTransportModes()));
+        return result;
+    }
 }

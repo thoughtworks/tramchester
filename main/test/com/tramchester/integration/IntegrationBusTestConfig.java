@@ -6,8 +6,10 @@ import com.tramchester.testSupport.TestConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class IntegrationBusTestConfig extends TestConfig {
     private final Path dbPath;
@@ -21,12 +23,12 @@ public class IntegrationBusTestConfig extends TestConfig {
     private IntegrationBusTestConfig(String dbName) {
         this.dbPath = Path.of("databases", "integrationBusTest", dbName);
         exists = Files.exists(dbPath);
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus");
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus));
     }
 
     @Override
-    public List<GTFSTransportationType> getTransportModes() {
-        return Arrays.asList(GTFSTransportationType.tram,GTFSTransportationType.bus);
+    public Set<GTFSTransportationType> getTransportModes() {
+        return new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
     }
 
     @Override

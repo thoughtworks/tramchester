@@ -43,7 +43,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
-        List<GTFSTransportationType> transportModes = config.getTransportModes();
+        Set<GTFSTransportationType> transportModes = config.getTransportModes();
         loopDetection = transportModes.contains(GTFSTransportationType.bus) || transportModes.contains(GTFSTransportationType.train);
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;

@@ -15,6 +15,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
+
 import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
 import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
 import static java.lang.String.format;
@@ -71,29 +73,6 @@ public abstract class GraphBuilder implements Startable {
         numberRelationships = 0;
     }
 
-    @NotNull
-    protected Node createRouteStationNode(Transaction tx, Location station, Route route) {
-        Node routeStation = createGraphNode(tx, Labels.ROUTE_STATION);
-        String routeStationId = RouteStation.formId(station, route);
-
-        logger.debug(format("Creating route station %s route %s nodeId %s", station.getId(),route.getId(),
-                routeStation.getId()));
-        routeStation.setProperty(GraphStaticKeys.ID, routeStationId);
-        routeStation.setProperty(STATION_ID, station.getId());
-        routeStation.setProperty(ROUTE_ID, route.getId());
-        return routeStation;
-    }
-
-    @NotNull
-    protected Node createStationNode(Transaction tx, Location station) {
-        String id = station.getId();
-
-        Labels label = Labels.forMode(station.getTransportMode());
-        logger.debug(format("Creating station node: %s with label: %s ", station, label));
-        Node stationNode = createGraphNode(tx, label);
-        stationNode.setProperty(GraphStaticKeys.ID, id);
-        return stationNode;
-    }
 
     @Override
     public void start() {

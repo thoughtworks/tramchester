@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class IntegrationTrainTestConfig extends TestConfig {
     private final Path dbPath;
@@ -25,8 +26,8 @@ public class IntegrationTrainTestConfig extends TestConfig {
     }
 
     @Override
-    public List<GTFSTransportationType> getTransportModes() {
-        return Collections.singletonList(GTFSTransportationType.train);
+    public Set<GTFSTransportationType> getTransportModes() {
+        return Collections.singleton(GTFSTransportationType.train);
     }
 
     @Override
@@ -100,6 +101,11 @@ public class IntegrationTrainTestConfig extends TestConfig {
         @Override
         public boolean getHasFeedInfo() {
             return false;
+        }
+
+        @Override
+        public Set<GTFSTransportationType> getTransportModes() {
+            return Collections.singleton(GTFSTransportationType.train);
         }
     }
 }

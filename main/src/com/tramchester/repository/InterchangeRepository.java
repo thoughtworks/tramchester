@@ -19,7 +19,7 @@ public class InterchangeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
     private final TransportDataSource dataSource;
-    private final List<GTFSTransportationType> modes;
+    private final Set<GTFSTransportationType> modes;
 
     // id -> Station
     private Map<String, Station> busInterchanges;

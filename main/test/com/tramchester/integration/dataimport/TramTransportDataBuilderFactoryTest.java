@@ -5,6 +5,7 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.TransportDataBuilderFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
@@ -14,6 +15,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportDataFromFilesBuilder;
 import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.TestConfig;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,55 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramTransportDataBuilderFactoryTest {
 
-    private static class DownloadConfig implements DataSourceConfig {
-
-        @Override
-        public String getTramDataUrl() {
-            return null;
-        }
-
-        @Override
-        public String getTramDataCheckUrl() {
-            return null;
-        }
-
-        @Override
-        public Path getDataPath() {
-            return Paths.get("data");
-        }
-
-        @Override
-        public Path getUnzipPath() {
-            return Paths.get("test");
-        }
-
-        @Override
-        public String getZipFilename() {
-            return "zipfilename.zip";
-        }
-
-        @Override
-        public String getName() {
-            return "TramTransportDataBuilderFactoryTest.DownloadConfig";
-        }
-
-        @Override
-        public boolean getHasFeedInfo() {
-            return true;
-        }
-    }
-
     @Test
     void shouldLoadTransportData() {
 
         TestConfig testConfig = new TestConfig() {
             @Override
             protected DataSourceConfig getTestDataSourceConfig() {
-                return new DownloadConfig();
+                return new SourceConfig("data");
             }
         };
-
-//        DownloadConfig downloadConfig = new DownloadConfig();
 
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
         TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig, fetchFileModTime);
@@ -119,7 +82,7 @@ class TramTransportDataBuilderFactoryTest {
         assertEquals(1, versions.size());
         DataSourceInfo.NameAndVersion result = versions.iterator().next();
         assertThat(result.getVersion()).isEqualTo("20150617");
-        assertThat(result.getName()).isEqualTo("TramTransportDataBuilderFactoryTest.DownloadConfig");
+        assertThat(result.getName()).isEqualTo("tfgm");
 
 //        assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");
 //        assertThat(feedInfo.getPublisherUrl()).isEqualTo("http://www.tfgm.com");
@@ -129,4 +92,16 @@ class TramTransportDataBuilderFactoryTest {
 //        assertThat(feedInfo.validFrom()).isEqualTo(LocalDate.of(2015,6,18));
 //        assertThat(feedInfo.validUntil()).isEqualTo(LocalDate.of(2015,8,18));
     }
+
+    private static class SourceConfig extends TFGMTestDataSourceConfig {
+        public SourceConfig(String dataFolder) {
+            super(dataFolder, Collections.singleton(GTFSTransportationType.tram));
+        }
+
+        @Override
+        public Path getUnzipPath() {
+            return Paths.get("test");
+        }
+    }
+
 }

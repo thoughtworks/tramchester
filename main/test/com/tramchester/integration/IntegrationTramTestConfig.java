@@ -1,10 +1,12 @@
 package com.tramchester.integration;
 
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.testSupport.TestConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
 public class IntegrationTramTestConfig extends TestConfig {
 
@@ -19,7 +21,7 @@ public class IntegrationTramTestConfig extends TestConfig {
     public IntegrationTramTestConfig(String dbName) {
         this.dbPath = Path.of("databases", "integrationTramTest", dbName);
         exists = Files.exists(dbPath);
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram");
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", Collections.singleton(GTFSTransportationType.tram));
     }
 
     @Override

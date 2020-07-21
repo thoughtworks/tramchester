@@ -132,7 +132,7 @@ public class App extends Application<AppConfiguration>  {
 
         // only enable live data if tram's enabled
 
-        if (configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
+        if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
             // initial load of live data
             LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
             liveDataRepository.refreshRespository();
