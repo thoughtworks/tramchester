@@ -34,14 +34,6 @@ public class ReasonsToGraphViz {
         reasonRelationships = new HashSet<>();
     }
 
-//    private static String addTripId(Node endNode) {
-//        return "_" + endNode.getProperty(GraphStaticKeys.TRIP_ID);
-//    }
-//
-//    private static boolean hasTrip(Node endNode) {
-//        return endNode.hasProperty(GraphStaticKeys.TRIP_ID);
-//    }
-
     public void add(ServiceReason reason) {
         HowIGotHere howIGotHere = reason.getHowIGotHere();
 

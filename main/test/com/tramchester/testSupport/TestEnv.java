@@ -5,7 +5,6 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
@@ -20,6 +19,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -45,13 +47,13 @@ public class TestEnv {
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     private static final Agency MET = new Agency("MET", "agencyName");
+    public final static HashSet<GTFSTransportationType> tramAndBus = new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));;
 
     public static AppConfiguration GET() {
         return new TestConfig() {
-
             @Override
-            protected DataSourceConfig getTestDataSourceConfig() {
-                return null;
+            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+                return Collections.emptyList();
             }
         };
     }

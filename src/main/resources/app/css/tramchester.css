@@ -100,7 +100,10 @@
 }
 
 .RouteClassTrain  {
-    
+    background-color: darkblue;
+    stroke: darkblue;
+    color: white;
+    stroke-width: 2;
 }
 
 .walkingHeadSign {

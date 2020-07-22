@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 class FetchDataFromUrlTest extends EasyMockSupport {
 
@@ -43,8 +44,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
         TramchesterConfig config = new TestConfig() {
             @Override
-            protected DataSourceConfig getTestDataSourceConfig() {
-                return dataSourceConfig;
+            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+                return Collections.singletonList(dataSourceConfig);
             }
         };
 

@@ -198,8 +198,8 @@ var mapApp = new Vue({
                 mapApp.networkError = false;
                 mapApp.routes = response.data;
                 mapApp.draw();
-                // 9400ZZMASTP 9400ZZMAAIR
-                queryForGrid(2000, "9400ZZMAAIR", "8:15", getCurrentDate(), "7", "360");
+                // 9400ZZMASTP 9400ZZMAAIR 1800MABS001
+                queryForGrid(2000, "9400ZZMASTP", "8:15", getCurrentDate(), "3", "60");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);

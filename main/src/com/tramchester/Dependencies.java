@@ -53,10 +53,11 @@ public class Dependencies {
     }
 
     public Dependencies(GraphFilter graphFilter) {
+        picoContainer.addComponent(GraphFilter.class, graphFilter);
+
         picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(StationLocations.class);
         picoContainer.addComponent(PostcodeDataImporter.class);
-        picoContainer.addComponent(GraphFilter.class, graphFilter);
         picoContainer.addComponent(Unzipper.class);
         picoContainer.addComponent(URLDownloadAndModTime.class);
         picoContainer.addComponent(FetchFileModTime.class);

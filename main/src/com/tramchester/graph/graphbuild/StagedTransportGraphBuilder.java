@@ -169,10 +169,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         hours.add(Triple.of(leg.getFirstStation(), leg.getSecondStation(), leg.getDepartureTime().getHourOfDay()));
                     }
                 });
-//                for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
-//                    StopCall currentStop = stops.get(stopIndex);
-//                    StopCall nextStop = stops.get(stopIndex + 1);
-//                }
         });
         services.forEach(pair -> createServiceNodeAndRelationship(tx, route, service, pair.getLeft(), pair.getRight(), stationCache));
         hours.forEach(triple -> createHourNode(tx, service, triple.getLeft(), triple.getMiddle(), triple.getRight(), stationCache));
@@ -247,21 +243,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                             }
                         }
                     });
-//                    for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
-//                        StopCall currentStop = stops.get(stopIndex);
-//                        StopCall nextStop = stops.get(stopIndex + 1);
-//                    }
                 });
         });
         pairs.forEach((pair, cost) -> createRouteRelationship(
                 routeBuilderCache.getRouteStation(tx, route, pair.getLeft()),
                 routeBuilderCache.getRouteStation(tx, route, pair.getRight()), route, cost));
 
-    }
-
-    @Deprecated
-    private boolean includeBothStops(GraphFilter filter, StopCall currentStop, StopCall nextStop) {
-        return filter.shouldInclude(currentStop) && filter.shouldInclude(nextStop);
     }
 
     private boolean includeBothStops(GraphFilter filter, StopCalls.StopLeg leg) {
@@ -276,37 +263,30 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createBoardingAndDeparts(Transaction tx, GraphFilter filter, Route route, Trip trip, RouteBuilderCache routeBuilderCache) {
         StopCalls stops = trip.getStops();
 
-        for (int stopIndex = trip.getIndexOfFirstStop(); stopIndex <= trip.getIndexOfLastStop(); stopIndex++) {
-            StopCall currentStop = stops.getStopBySequenceNumber(stopIndex);
+        stops.stream().filter(filter::shouldInclude).forEach(stopCall -> {
+            createBoardingAndDepart(tx, routeBuilderCache, stopCall, route, trip);
+        });
 
-            if (filter.shouldInclude(currentStop)) {
-                createBoardingAndDepart(tx, routeBuilderCache, currentStop, route, trip);
-            }
-
-        }
     }
 
     private void createBoardingAndDepart(Transaction tx, RouteBuilderCache routeBuilderCache, StopCall stopCall,
                                          Route route, Trip trip) {
 
-        boolean isFirstStop = stopCall.getGetSequenceNumber() == trip.getIndexOfFirstStop(); //stop seq num, not index
-        boolean isLastStop = stopCall.getGetSequenceNumber() == trip.getIndexOfLastStop();
-
-//        if (isFirstStop && isLastStop) {
-//            throw new RuntimeException("first and last true for " + stopCall);
-//        }
+        // TODO when filtering this isn't really valid, we might only see a small segment of a larger trip....
+        boolean isFirstStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfFirstStop(); //stop seq num, not index
+        boolean isLastStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfLastStop();
 
         boolean pickup = stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular);
         boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
 
         if (isFirstStop && dropoff) {
             String msg = "Drop off at first station for stop " + stopCall.getStation().getId() + " dep time " + stopCall.getDepartureTime();
-            logger.warn(msg);
+            logger.info(msg);
         }
 
         if (isLastStop && pickup) {
             String msg = "Pick up at last station for stop " + stopCall.getStation().getId() + " dep time " + stopCall.getDepartureTime();
-            logger.warn(msg);
+            logger.info(msg);
         }
 
         Station station = stopCall.getStation();
@@ -371,10 +351,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 updateTripRelationship(tx, route, service, trip, leg.getFirst(), leg.getSecond(), routeBuilderCache, timeNodes);
             }
         });
-//        for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
-//            StopCall currentStop = stops.get(stopIndex);
-//            StopCall nextStop = stops.get(stopIndex + 1);
-//        }
     }
 
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {

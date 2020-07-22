@@ -188,7 +188,7 @@ class TramGraphBuilderTest {
                 map(Service::getAllTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.getStops().callsAt(station)). // calls at , but not starts at because no inbound for these
-                filter(trip -> !trip.getStops().getStopBySequenceNumber(trip.getIndexOfFirstStop()).getStation().equals(station)).
+                filter(trip -> !trip.getStops().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
                 collect(Collectors.toSet());
 
         SortedSet<String> svcIdsFromCallingTrips = new TreeSet<>();

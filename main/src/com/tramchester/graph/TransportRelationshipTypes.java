@@ -23,7 +23,8 @@ public enum TransportRelationshipTypes implements RelationshipType {
     TO_MINUTE,
     ON_ROUTE,
     TRAM_NEIGHBOUR,
-    BUS_NEIGHBOUR;
+    BUS_NEIGHBOUR,
+    TRAIN_NEIGHBOUR;
 
     private static final TransportRelationshipTypes[] forPlanning;
 

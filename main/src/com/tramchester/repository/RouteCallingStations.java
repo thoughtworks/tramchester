@@ -39,20 +39,29 @@ public class RouteCallingStations implements Startable, Disposable {
     public void start() {
         Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route -> {
-            Set<Service> services = route.getServices();
-            Set<Trip> trips = services.stream().map(service -> service.getTripsFor(route)).flatMap(Collection::stream).collect(Collectors.toSet());
-
-            // ASSUME: longest trips correspond to full end to end journeys on the whole route
-            trips.stream().max(Comparator.comparingInt(a -> a.getStops().numberOfCallingPoints())).ifPresent(longestTrip -> {
-                StopCalls stops = longestTrip.getStops();
-                List<Station> inOrderStations = stops.stream().map(StopCall::getStation).collect(Collectors.toList());
-                int size = inOrderStations.size();
-                logger.debug("Adding " + size + " stations for route " + HasId.asId(route) +
-                        " From:" + inOrderStations.get(0).getName() + " To:"+inOrderStations.get(size -1).getName());
-                stations.put(route, inOrderStations);
-            });
-
+            populateFromServices(route, route.getServices());
         });
+    }
+
+    private void populateFromServices(Route route, Set<Service> services) {
+        Set<Trip> trips = services.stream().map(service -> service.getTripsFor(route)).flatMap(Collection::stream).collect(Collectors.toSet());
+
+        // ASSUME: longest trips correspond to full end to end journeys on the whole route
+        Optional<Trip> longest = trips.stream().max(Comparator.comparingInt(a -> a.getStops().numberOfCallingPoints()));
+
+        longest.ifPresent(longestTrip -> {
+            StopCalls stops = longestTrip.getStops();
+            List<Station> inOrderStations = stops.stream().map(StopCall::getStation).collect(Collectors.toList());
+            int size = inOrderStations.size();
+            logger.debug("Adding " + size + " stations for route " + HasId.asId(route) +
+                    " From:" + inOrderStations.get(0).getName() + " To:"+inOrderStations.get(size -1).getName());
+            stations.put(route, inOrderStations);
+        });
+
+        if (longest.isEmpty()) {
+            logger.warn("Did not find longest trip for route " + route);
+            stations.put(route, Collections.emptyList());
+        }
     }
 
     @Override

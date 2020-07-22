@@ -55,7 +55,7 @@ class TrainDataLoadSpike {
         long result = data.getStations().stream().filter(station -> station.getAgencies().size() < 2).count();
         assertNotEquals(0,result);
 
-        // TODO some staions in train data have 0,0 positions
+        // TODO some stations in train data have 0,0 positions
 //        data.getStations().forEach(station -> {
 //            LatLong latlong = station.getLatLong();
 //            assertNotEquals(0, latlong.getLat(), station.getId());

@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +34,8 @@ class TramTransportDataBuilderFactoryTest {
 
         TestConfig testConfig = new TestConfig() {
             @Override
-            protected DataSourceConfig getTestDataSourceConfig() {
-                return new SourceConfig("data");
+            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+                return Collections.singletonList(new SourceConfig("data"));
             }
         };
 

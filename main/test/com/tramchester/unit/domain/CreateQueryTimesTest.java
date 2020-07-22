@@ -8,9 +8,8 @@ import com.tramchester.testSupport.TestConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 class CreateQueryTimesTest {
 
@@ -43,8 +42,8 @@ class CreateQueryTimesTest {
     private static class LocalConfig extends TestConfig {
 
         @Override
-        protected DataSourceConfig getTestDataSourceConfig() {
-            return null;
+        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            return Collections.emptyList();
         }
 
     }

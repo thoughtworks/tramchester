@@ -38,6 +38,7 @@ public class RoutesMapper {
 
     private void populateDTOFor(Route route, List<RouteDTO> gather) {
         List<Station> calledAtStations = routeCallingStations.getStationsFor(route);
+
         List<StationRefWithPosition> stationDTOs = new ArrayList<>(calledAtStations.size());
         calledAtStations.forEach(calledAtStation -> stationDTOs.add(new StationRefWithPosition(calledAtStation)));
         gather.add(new RouteDTO(route.getName(), route.getShortName(), stationDTOs, mapper.map(route), route.getTransportMode()));

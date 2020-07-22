@@ -104,6 +104,7 @@ public class MapPathToStages {
                     break;
                 case BUS_NEIGHBOUR:
                 case TRAM_NEIGHBOUR:
+                case TRAIN_NEIGHBOUR:
                     results.add(state.walkBetween(relationship));
                     break;
                 default:
@@ -127,7 +128,9 @@ public class MapPathToStages {
         } else if (relationship.isType(WALKS_FROM)) {
             return createWalkFrom(relationship, timeWalkStarted);
         }
-        else if (relationship.isType(BUS_NEIGHBOUR) || relationship.isType(TRAM_NEIGHBOUR)) {
+        else if (relationship.isType(BUS_NEIGHBOUR) ||
+                relationship.isType(TRAM_NEIGHBOUR) ||
+                relationship.isType(TRAM_NEIGHBOUR) ) {
             return createWalkFromNeighbour(relationship, timeWalkStarted);
         }
         else {

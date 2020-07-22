@@ -7,11 +7,10 @@ import com.tramchester.testSupport.TestConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 
-public class IntegrationTramTestConfig extends TestConfig {
+public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
-    private final Path dbPath;
-    private final boolean exists;
     private final DataSourceConfig dataSourceConfig;
 
     public IntegrationTramTestConfig() {
@@ -19,24 +18,13 @@ public class IntegrationTramTestConfig extends TestConfig {
     }
 
     public IntegrationTramTestConfig(String dbName) {
-        this.dbPath = Path.of("databases", "integrationTramTest", dbName);
-        exists = Files.exists(dbPath);
+        super("integrationTramTest", dbName);
         dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", Collections.singleton(GTFSTransportationType.tram));
     }
 
     @Override
-    final public String getGraphName() {
-        return dbPath.toAbsolutePath().toString();
-    }
-
-    @Override
-    protected DataSourceConfig getTestDataSourceConfig() {
-        return dataSourceConfig;
-    }
-
-    @Override
-    public boolean getRebuildGraph() {
-        return !exists;
+    protected List<DataSourceConfig> getDataSourceFORTESTING() {
+        return Collections.singletonList(dataSourceConfig);
     }
 
     @Override
@@ -45,10 +33,6 @@ public class IntegrationTramTestConfig extends TestConfig {
     @Override
     public int getQueryInterval() {
         return 6;
-    }
-
-    public Path getDBPath() {
-        return dbPath;
     }
 
 }

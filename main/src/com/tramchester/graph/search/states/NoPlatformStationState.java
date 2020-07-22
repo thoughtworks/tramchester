@@ -50,7 +50,8 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
         }
 
         private Iterable<Relationship> getAll(Node node) {
-            return node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM, BUS_NEIGHBOUR, TRAM_NEIGHBOUR);
+            return node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM,
+                    BUS_NEIGHBOUR, TRAM_NEIGHBOUR, TRAIN_NEIGHBOUR);
         }
     }
 

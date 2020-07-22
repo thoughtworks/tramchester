@@ -172,6 +172,7 @@ public class LocationJourneyPlanner {
         Node startOfWalkNode = nodeTypeRepository.createQueryNode(graphDatabase, txn);
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
+        startOfWalkNode.setProperty(GraphStaticKeys.ID, origin.toString());
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }
@@ -180,6 +181,7 @@ public class LocationJourneyPlanner {
         Node startOfWalkNode = nodeTypeRepository.createQueryNodeMidPoint(graphDatabase, txn);
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
         startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
+        startOfWalkNode.setProperty(GraphStaticKeys.ID, origin.toString());
         logger.info(format("Adding mid walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

@@ -2,18 +2,10 @@ package com.tramchester.integration;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.GTFSTransportationType;
-import com.tramchester.testSupport.TestConfig;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-public class IntegrationBusTestConfig extends TestConfig {
-    private final Path dbPath;
-    private final boolean exists;
+public class IntegrationBusTestConfig extends IntegrationTestConfig {
     private final DataSourceConfig dataSourceConfig;
 
     public IntegrationBusTestConfig() {
@@ -21,19 +13,13 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     private IntegrationBusTestConfig(String dbName) {
-        this.dbPath = Path.of("databases", "integrationBusTest", dbName);
-        exists = Files.exists(dbPath);
+        super("integrationBusTest", dbName);
         dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus));
     }
 
     @Override
-    public Set<GTFSTransportationType> getTransportModes() {
-        return new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
-    }
-
-    @Override
-    protected DataSourceConfig getTestDataSourceConfig() {
-        return dataSourceConfig;
+    protected List<DataSourceConfig> getDataSourceFORTESTING() {
+        return Collections.singletonList(dataSourceConfig);
     }
 
     @Override
@@ -42,25 +28,6 @@ public class IntegrationBusTestConfig extends TestConfig {
     }
 
     @Override
-    public boolean getRebuildGraph() {
-        return !exists;
-    }
+    public int getNumberQueries() { return 1; }
 
-    @Override
-    public String getGraphName() {
-        return dbPath.toAbsolutePath().toString();
-    }
-
-    @Override
-    public int getNumberQueries() { return 3; }
-
-    @Override
-    public int getQueryInterval() {
-        return 12;
-    }
-
-    @Override
-    public double getDistanceToNeighboursKM() {
-        return 0.4;
-    }
 }

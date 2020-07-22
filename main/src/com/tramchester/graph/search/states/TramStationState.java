@@ -18,13 +18,14 @@ public class TramStationState extends TraversalState {
 
         public TraversalState fromPlatform(PlatformState platformState, Node node, int cost) {
             return new TramStationState(platformState,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR), platformState),
+                    filterExcludingEndNode(
+                            node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR, TRAIN_NEIGHBOUR), platformState),
                     cost, node.getId());
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
             return new TramStationState(notStartedState,
-                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR),
+                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR, TRAIN_NEIGHBOUR),
                     cost, node.getId());
         }
 
@@ -64,7 +65,7 @@ public class TramStationState extends TraversalState {
             case QUERY_NODE_MID:
                 return builders.walking.fromTramStation(this, node, cost);
             case BUS_STATION:
-            case TRAM_STATION:
+            case TRAIN_STATION:
                 return builders.noPlatformStation.fromNeighbour(this, node, cost, nodeLabel);
             default:
                 throw new RuntimeException("Unexpected node type: "+nodeLabel+ " at " + toString());

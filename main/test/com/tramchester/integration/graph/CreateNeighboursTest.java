@@ -1,6 +1,8 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
@@ -12,69 +14,76 @@ import com.tramchester.graph.CreateNeighbours;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.integration.IntegrationTestConfig;
+import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("WIP")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class CreateNeighboursTest {
 
+    static class NeighboursTestConfig extends IntegrationTestConfig {
+        public NeighboursTestConfig() {
+            super("integrationNeighboursTest", "busAndTram.db");
+        }
+
+        @Override
+        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            return Collections.singletonList(new TFGMTestDataSourceConfig("data/neighbours", TestEnv.tramAndBus));
+        }
+    }
+
     private static Dependencies dependencies;
-    private static GraphDatabase database;
-    private static IntegrationBusTestConfig testConfig;
-    private GraphQuery graphQuery;
-    private CreateNeighbours createNeighbours;
-    private Transaction txn;
+    private static TramchesterConfig testConfig;
+    private static GraphQuery graphQuery;
+    private static Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
         dependencies = new Dependencies();
-        testConfig = new IntegrationBusTestConfig();
+        testConfig = new NeighboursTestConfig();
         dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabase.class);
-    }
-
-    @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
-    }
-
-    @BeforeEach
-    void beforeEachTestRuns() {
+        GraphDatabase database = dependencies.get(GraphDatabase.class);
 
         graphQuery = dependencies.get(GraphQuery.class);
         StationRepository repository = dependencies.get(StationRepository.class);
         StationLocationsRepository stationLocations = dependencies.get(StationLocationsRepository.class);
 
-        createNeighbours = new CreateNeighbours(database, graphQuery, repository, stationLocations, testConfig);
-
         txn = database.beginTx();
+
+        CreateNeighbours createNeighbours = new CreateNeighbours(database, new IncludeAllFilter(), graphQuery, repository, stationLocations, testConfig);
+        createNeighbours.buildWithNoCommit(txn);
+
     }
 
-    @AfterEach
-    void afterEachTestRuns() {
+    @AfterAll
+    static void OnceAfterAllTestsAreFinished() {
         txn.rollback();
+        dependencies.close();
     }
 
     @Test
     void shouldCreateNeighbourRelationships() {
-
-        createNeighbours.buildWithNoCommit(txn);
 
         Node shudehillTramNode = graphQuery.getStationNode(txn, Stations.Shudehill);
         Iterable<Relationship> busOutbounds = shudehillTramNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.BUS_NEIGHBOUR);
@@ -100,7 +109,6 @@ class CreateNeighboursTest {
 
     @Test
     void shouldTramNormally() {
-        createNeighbours.buildWithNoCommit(txn);
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
@@ -122,7 +130,6 @@ class CreateNeighboursTest {
 
     @Test
     void shouldTramThenWalk() {
-        createNeighbours.buildWithNoCommit(txn);
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
@@ -145,7 +152,6 @@ class CreateNeighboursTest {
     }
 
     private void validateDirectWalk(Station startStation, Station end) {
-        createNeighbours.buildWithNoCommit(txn);
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request =

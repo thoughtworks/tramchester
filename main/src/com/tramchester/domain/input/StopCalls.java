@@ -44,7 +44,6 @@ public class StopCalls { //implements Iterable<StopCall> {
         return stops.values().stream().anyMatch(stopCall -> stopCall.getStation().equals(location));
     }
 
-    @Deprecated
     public Stream<StopCall> stream() {
         return stops.values().stream();
     }

@@ -114,11 +114,11 @@ public class Trip implements HasId, HasTransportMode {
         return route.getTransportMode();
     }
 
-    public int getIndexOfFirstStop() {
+    public int getSeqNumOfFirstStop() {
         return firstIndex;
     }
 
-    public int getIndexOfLastStop() {
+    public int getSeqNumOfLastStop() {
         return lastIndex;
     }
 }
