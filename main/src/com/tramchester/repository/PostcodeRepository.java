@@ -3,6 +3,8 @@ package com.tramchester.repository;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.CoordinateTransforms;
 import org.opengis.referencing.operation.TransformException;
@@ -22,12 +24,12 @@ public class PostcodeRepository implements Disposable, Startable {
     private final PostcodeDataImporter importer;
     private final TramchesterConfig config;
 
-    private final HashMap<String, PostcodeLocation> postcodes; // Id -> PostcodeLocation
+    private final IdMap<PostcodeLocation> postcodes; // Id -> PostcodeLocation
 
     public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config) {
         this.importer = importer;
         this.config = config;
-        postcodes = new HashMap<>();
+        postcodes = new IdMap<>();
     }
 
     public PostcodeLocation getPostcode(String postcodeId) {
@@ -46,7 +48,7 @@ public class PostcodeRepository implements Disposable, Startable {
         rawCodes.forEach(code -> {
             String id = code.getId();
             try {
-                postcodes.put(id, new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(), code.getNorthings()), id));
+                postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(), code.getNorthings()), id));
             } catch (TransformException e) {
                 logger.warn("Unable to convert position of postcode to lat/long " + code);
             }
@@ -64,11 +66,11 @@ public class PostcodeRepository implements Disposable, Startable {
     }
 
     public boolean hasPostcode(String postcode) {
-        return postcodes.containsKey(postcode);
+        return postcodes.hasId(postcode);
     }
 
     public Collection<PostcodeLocation> getPostcodes() {
-        return Collections.unmodifiableCollection(postcodes.values());
+        return Collections.unmodifiableCollection(postcodes.getValues());
     }
 
     public int getNumberOf() {

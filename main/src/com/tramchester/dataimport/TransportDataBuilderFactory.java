@@ -7,7 +7,6 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.repository.TransportDataFromFilesBuilder;
 import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
 import com.tramchester.repository.TransportDataStreams;
 
