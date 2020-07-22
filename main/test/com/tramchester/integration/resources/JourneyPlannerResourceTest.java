@@ -3,10 +3,12 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
@@ -97,7 +99,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
             Assertions.assertEquals("1", platform.getPlatformNumber());
             Assertions.assertEquals("Altrincham platform 1", platform.getName());
-            Assertions.assertEquals(Stations.Altrincham.getId() + "1", platform.getId());
+            Assertions.assertEquals(Stations.Altrincham.forDTO() + "1", platform.getId());
         });
 
     }
@@ -154,7 +156,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
             Assertions.assertEquals("1", platform1.getPlatformNumber());
             Assertions.assertEquals( "Altrincham platform 1", platform1.getName());
-            Assertions.assertEquals( Stations.Altrincham.getId()+"1", platform1.getId());
+            Assertions.assertEquals( Stations.Altrincham.forDTO()+"1", platform1.getId());
 
             StageDTO secondStage = journey.getStages().get(1);
             PlatformDTO platform2 = secondStage.getPlatform();
@@ -162,9 +164,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             Assertions.assertEquals("1", platform2.getPlatformNumber());
             // multiple possible places to change depending on timetable etc
             assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
-            assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.getId()+"1",
-                    Stations.Cornbrook.getId()+"1",
-                    Stations.StPetersSquare.getId()+"1")));
+            assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.forDTO()+"1",
+                    Stations.Cornbrook.forDTO()+"1",
+                    Stations.StPetersSquare.forDTO()+"1")));
         });
 
     }
@@ -191,23 +193,17 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextSunday());
 
-        results.getJourneys().forEach(journeyDTO -> {
-            assertThat(journeyDTO.getNotes(), hasItem(weekendNote));
-        });
+        results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
 
         results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextSaturday());
 
-        results.getJourneys().forEach(journeyDTO -> {
-            assertThat(journeyDTO.getNotes(), hasItem(weekendNote));
-        });
+        results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
 
         JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextMonday());
 
-        notWeekendResult.getJourneys().forEach(journeyDTO -> {
-            assertThat(journeyDTO.getNotes(), not(hasItem(weekendNote)));
-        });
+        notWeekendResult.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), not(hasItem(weekendNote))));
 
     }
 
@@ -246,8 +242,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldSetCookieForRecentJourney() throws IOException {
-        String start = Stations.Bury.getId();
-        String end = Stations.ManAirport.getId();
+        IdFor<Station> start = Stations.Bury.getId();
+        IdFor<Station> end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
         Response result = getResponseForJourney(appExtension, start, end, time, date, null, false, 3);
@@ -263,8 +259,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldUdateCookieForRecentJourney() throws IOException {
-        String start = Stations.Bury.getId();
-        String end = Stations.ManAirport.getId();
+        IdFor<Station> start = Stations.Bury.getId();
+        IdFor<Station> end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
 
@@ -276,7 +272,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         // journey to bury
         Response response = IntegrationClient.getApiResponse(appExtension,
-                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start, end, time, date),cookie);
+                String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start.forDTO(), end.forDTO(), time, date),cookie);
 
         Assertions.assertEquals(200, response.getStatus());
 
@@ -293,11 +289,11 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
-        String start = MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
-        String end = Stations.ManAirport.getId();
+        String start = MyLocation.MY_LOCATION_PLACEHOLDER_ID;
+        IdFor<Station> end = Stations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
-        Response response = getResponseForJourney(appExtension, start, end, time, date, latlong, false, 3);
+        Response response = getResponseForJourney(appExtension, start, end.forDTO(), time, date, latlong, false, 3);
         Assertions.assertEquals(200, response.getStatus());
 
         RecentJourneys result = getRecentJourneysFromCookie(response);
@@ -309,13 +305,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldSpikeResultsAsStream() throws IOException {
-        String start = Stations.Bury.getId();
-        String end = Stations.ManAirport.getId();
+        IdFor<Station> start = Stations.Bury.getId();
+        IdFor<Station> end = Stations.ManAirport.getId();
         String time = TramTime.of(11,45).toPattern();
         String date = when.format(dateFormatDashes);
 
         String queryString = String.format("journey/streamed?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
-                start, end, time, date, false, 3);
+                start.forDTO(), end.forDTO(), time, date, false, 3);
 
         Response response = IntegrationClient.getApiResponse(appExtension, queryString);
         Assertions.assertEquals(200, response.getStatus());
@@ -347,10 +343,16 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                                                                          boolean arriveBy, int maxChanges) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
-        Response response = getResponseForJourney(rule, start.getId(), end.getId(), time, date,
+        Response response = getResponseForJourney(rule, start.forDTO(), end.forDTO(), time, date,
                 null, arriveBy, maxChanges);
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
+    }
+
+    public static Response getResponseForJourney(IntegrationAppExtension rule, IdFor<Station> start, IdFor<Station> end, String time,
+                                                 String date, LatLong latlong, boolean arriveBy, int maxChanges) {
+        return getResponseForJourney(rule, start.forDTO(), end.forDTO(), time, date, latlong, arriveBy, maxChanges);
+
     }
 
     public static Response getResponseForJourney(IntegrationAppExtension rule, String start, String end, String time,
@@ -358,7 +360,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
                 start, end, time, date, arriveBy, maxChanges);
 
-        if (MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(start) || MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(end)) {
+        if (MyLocation.MY_LOCATION_PLACEHOLDER_ID.equals(start) || MyLocation.MY_LOCATION_PLACEHOLDER_ID.equals(end)) {
             if (latlong==null) {
                 fail("must provide latlong");
             } else {

@@ -5,9 +5,9 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class Platform implements HasId {
+public class Platform implements HasId<Platform> {
 
-    private final String id;
+    private final IdFor<Platform> id;
     private final String name;
     private final Set<Route> servesRoutes;
     private final String platformNumber;
@@ -17,7 +17,7 @@ public class Platform implements HasId {
     }
 
     public Platform(String id, String name) {
-        this.id = id.intern();
+        this.id = IdFor.createId(id);
         this.name = name.intern();
         platformNumber = id.substring(id.length()-1);
         servesRoutes = new HashSet<>();
@@ -28,7 +28,7 @@ public class Platform implements HasId {
     }
 
     @Override
-    public String getId() {
+    public IdFor<Platform> getId() {
         return id;
     }
 

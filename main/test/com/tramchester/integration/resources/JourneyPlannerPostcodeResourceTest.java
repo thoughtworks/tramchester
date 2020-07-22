@@ -1,6 +1,8 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
@@ -36,8 +38,8 @@ class JourneyPlannerPostcodeResourceTest {
         time = LocalTime.of(9,35);
     }
 
-    private String prefix(String postcode) {
-        return PostcodeDTO.PREFIX+postcode;
+    private String prefix(IdFor<PostcodeLocation> postcode) {
+        return PostcodeDTO.PREFIX+postcode.forDTO();
     }
 
     @Test
@@ -61,7 +63,7 @@ class JourneyPlannerPostcodeResourceTest {
         String date = day.format(dateFormatDashes);
         String timeString = time.format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), Stations.Piccadilly.getId(), timeString, date,
+                prefix(Postcodes.CentralBury), Stations.Piccadilly.forDTO(), timeString, date,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());
@@ -77,7 +79,7 @@ class JourneyPlannerPostcodeResourceTest {
         String date = day.format(dateFormatDashes);
         String timeString = time.format(TestEnv.timeFormatter);
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                Stations.Piccadilly.getId(), prefix(Postcodes.CentralBury), timeString, date,
+                Stations.Piccadilly.forDTO(), prefix(Postcodes.CentralBury), timeString, date,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());

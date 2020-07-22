@@ -1,10 +1,13 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.PostcodeLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,17 +23,41 @@ public class LocationDTO {
         // deserialisation
     }
 
-    public LocationDTO(Location source) {
-        this.id = source.getId();
+
+    public LocationDTO(PostcodeLocation source) {
+        this.id = source.getId().forDTO();
+        this.name = source.getName();
+        this.latLong = source.getLatLong();
+        this.transportMode = source.getTransportMode();
+        this.area = source.getArea();
+        platforms = Collections.emptyList();
+    }
+
+    public LocationDTO(Station source) {
+        this.id = source.getId().forDTO();
         this.name = source.getName();
         this.latLong = source.getLatLong();
         this.transportMode = source.getTransportMode();
         this.area = source.getArea();
         platforms = new LinkedList<>();
         if (source.hasPlatforms()) {
-            source.getPlatforms().forEach(platform -> platforms.add(new PlatformDTO(platform)));
+            List<Platform> sourcePlatforms = source.getPlatforms();
+            sourcePlatforms.forEach(platform -> platforms.add(new PlatformDTO(platform)));
         }
     }
+
+//    private LocationDTO(Location source) {
+//        this.id = source.getId().forDTO();
+//        this.name = source.getName();
+//        this.latLong = source.getLatLong();
+//        this.transportMode = source.getTransportMode();
+//        this.area = source.getArea();
+//        platforms = new LinkedList<>();
+//        if (source.hasPlatforms()) {
+//            List<Platform> sourcePlatforms = source.getPlatforms();
+//            sourcePlatforms.forEach(platform -> platforms.add(new PlatformDTO(platform)));
+//        }
+//    }
 
     public String getId() {
         return id;

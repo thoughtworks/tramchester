@@ -1,11 +1,9 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 
 public class TramStopCall extends StopCall {
     private final Platform callingPlatform;
@@ -15,7 +13,7 @@ public class TramStopCall extends StopCall {
         this.callingPlatform = platform;
     }
 
-    public String getPlatformId() {
+    public IdFor<Platform> getPlatformId() {
         return callingPlatform.getId();
     }
 

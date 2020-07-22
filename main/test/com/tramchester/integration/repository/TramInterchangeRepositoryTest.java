@@ -1,7 +1,9 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.input.TramInterchanges;
+import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import org.junit.jupiter.api.*;
@@ -36,7 +38,7 @@ class TramInterchangeRepositoryTest {
 
     @Test
     void shouldFindTramInterchanges() {
-        for (String interchange : TramInterchanges.stations()) {
+        for (IdFor<Station> interchange : TramInterchanges.stations()) {
             Assertions.assertTrue(repository.isInterchange(interchange));
         }
     }

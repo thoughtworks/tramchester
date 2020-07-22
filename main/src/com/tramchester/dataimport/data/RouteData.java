@@ -1,26 +1,29 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Route;
 
 import java.util.Objects;
 
 public class RouteData {
 
-    private final String id;
+    private final IdFor<Route> id;
     private final String shortName;
     private final String longName;
-    private final String agency;
+    private final IdFor<Agency> agencyid;
     private final GTFSTransportationType routeType;
 
-    public RouteData(String id, String agency, String shortName, String longName, GTFSTransportationType routeType) {
-        this.id = id.intern();
+    public RouteData(String id, String agencyid, String shortName, String longName, GTFSTransportationType routeType) {
+        this.id = IdFor.createId(id.intern());
         this.shortName = shortName;
         this.longName = longName;
-        this.agency = agency;
+        this.agencyid = IdFor.createId(agencyid);
         this.routeType = routeType;
     }
 
-    public String getId() {
+    public IdFor<Route> getId() {
         return id;
     }
 
@@ -32,8 +35,8 @@ public class RouteData {
         return longName;
     }
 
-    public String getAgency() {
-        return agency;
+    public IdFor<Agency> getAgencyId() {
+        return agencyid;
     }
 
     public GTFSTransportationType getRouteType() {

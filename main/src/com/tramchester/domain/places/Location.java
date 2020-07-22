@@ -1,6 +1,5 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.TransportMode;
@@ -8,8 +7,8 @@ import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
 
-public interface Location extends HasId, HasTransportMode {
-    String getId();
+public interface Location extends HasTransportMode, IdForDTO {
+//    String getId();
 
     String getName();
 
@@ -22,4 +21,5 @@ public interface Location extends HasId, HasTransportMode {
     List<Platform> getPlatforms();
 
     TransportMode getTransportMode();
+
 }

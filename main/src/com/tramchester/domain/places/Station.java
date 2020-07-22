@@ -2,7 +2,6 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
-import org.apache.lucene.analysis.et.EstonianAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,13 +13,13 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class Station implements Location {
+public class Station extends MapIdToDTOId<Station> implements Location, HasId<Station> {
     private static final Logger logger = LoggerFactory.getLogger(Station.class);
 
     public static String METROLINK_PREFIX = "9400ZZ";
 
     private String area;
-    private String id;
+    private IdFor<Station> id;
     private String name;
     private LatLong latLong;
     private TransportMode transportMode;
@@ -36,11 +35,15 @@ public class Station implements Location {
     }
 
     public Station(String id, String area, String stationName, LatLong latLong) {
+        this(IdFor.createId(id), area, stationName, latLong);
+    }
+
+    public Station(IdFor<Station> id, String area, String stationName, LatLong latLong) {
         platforms = new LinkedList<>();
         servesRoutes = new HashSet<>();
         servesAgencies = new HashSet<>();
 
-        this.id = id.intern();
+        this.id = id;
         this.name = stationName;
         this.transportMode = TransportMode.NotSet; // can't determine reliably until know the route
         this.latLong = latLong;
@@ -54,7 +57,7 @@ public class Station implements Location {
     }
 
     @Override
-    public String getId() {
+    public IdFor<Station> getId() {
         return id;
     }
 
@@ -70,13 +73,13 @@ public class Station implements Location {
 
     // form the station id from the longer id that includes the platform number
     // this id is know as the atcoCode in the live data api
-    public static String formId(String atcoCode) {
+    public static IdFor<Station> formId(String atcoCode) {
         if (atcoCode.startsWith(METROLINK_PREFIX)) {
             // metrolink platform ids include platform as final digit, remove to give id of station itself
             int index = atcoCode.length()-1;
-            return atcoCode.substring(0,index);
+            return IdFor.createId(atcoCode.substring(0,index));
         }
-        return atcoCode;
+        return IdFor.createId(atcoCode);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.tramchester.router;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.places.MyLocation.MY_LOCATION_PLACEHOLDER_ID;
 import static java.lang.String.format;
 
 public class ProcessPlanRequest {
@@ -101,8 +102,8 @@ public class ProcessPlanRequest {
     }
 
     private Stream<Journey> postcodeToPostcode(String startId, String endId, JourneyRequest journeyRequest, Transaction txn) {
-        Location start = getPostcode(startId, "start");
-        Location dest = getPostcode(endId, "end");
+        PostcodeLocation start = getPostcode(startId, "start");
+        PostcodeLocation dest = getPostcode(endId, "end");
         return locToLocPlanner.quickestRouteForLocation(txn, start.getLatLong(), dest.getLatLong(), journeyRequest);
     }
 
@@ -134,18 +135,22 @@ public class ProcessPlanRequest {
     }
 
     private PostcodeLocation getPostcode(String text, String diagnostic) {
-        String locationId = text.replaceFirst(PostcodeDTO.PREFIX, "");
-        if (!postcodeRepository.hasPostcode(locationId)) {
-            String msg = "Unable to find " + diagnostic +" postcode from:  "+ locationId;
+        String prefixRemovedText = text.replaceFirst(PostcodeDTO.PREFIX, "");
+
+        IdFor<PostcodeLocation> postcodeId = IdFor.createId(prefixRemovedText);
+        if (!postcodeRepository.hasPostcode(postcodeId)) {
+            String msg = "Unable to find " + diagnostic +" postcode from:  "+ prefixRemovedText;
             logger.warn(msg);
             throw new RuntimeException(msg);
         }
-        return postcodeRepository.getPostcode(locationId);
+        return postcodeRepository.getPostcode(postcodeId);
     }
 
-    private Station getStation(String locationId, String diagnostic) {
+    private Station getStation(String locationIdText, String diagnostic) {
+
+        IdFor<Station> locationId = IdFor.createId(locationIdText);
         if (!transportData.hasStationId(locationId)) {
-            String msg = "Unable to find " + diagnostic + " station from id: "+ locationId;
+            String msg = "Unable to find " + diagnostic + " station from id: "+ locationIdText;
             logger.warn(msg);
             throw new RuntimeException(msg);
         }
@@ -153,7 +158,7 @@ public class ProcessPlanRequest {
     }
 
     private boolean isFromUserLocation(String startId) {
-        return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
+        return MY_LOCATION_PLACEHOLDER_ID.equals(startId);
     }
 
     private LatLong decodeLatLong(String lat, String lon) {

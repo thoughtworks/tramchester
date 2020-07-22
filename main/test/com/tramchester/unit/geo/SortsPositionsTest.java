@@ -1,5 +1,7 @@
 package com.tramchester.unit.geo;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -50,7 +52,7 @@ class SortsPositionsTest {
 
         SortsPositions sortsPositions = new SortsPositions(dataForTest);
 
-        List<Station> resultsFromD = sortsPositions.sortedByNearTo(Collections.singleton(nearStockportBus.getId()), stations);
+        List<Station> resultsFromD = sortsPositions.sortedByNearTo(IdSet.singleton(nearStockportBus.getId()), stations);
         assertEquals(stations.size(), resultsFromD.size());
 
         List<Station> thirdOrFourth = Arrays.asList(nearAltrincham, alsoNearAlty); // same distance, ordering undefined
@@ -62,7 +64,7 @@ class SortsPositionsTest {
         assertTrue(thirdOrFourth.contains(resultsFromD.get(2)));
         assertTrue(thirdOrFourth.contains(resultsFromD.get(3)));
 
-        List<Station> resultsFromA = sortsPositions.sortedByNearTo(Collections.singleton(nearPiccGardens.getId()), stations);
+        List<Station> resultsFromA = sortsPositions.sortedByNearTo(IdSet.singleton(nearPiccGardens.getId()), stations);
 
         assertEquals(nearPiccGardens, resultsFromA.get(0));
         assertEquals(nearShudehill, resultsFromA.get(1));
@@ -84,7 +86,7 @@ class SortsPositionsTest {
 
         SortsPositions sortsPositions = new SortsPositions(dataForTest);
 
-        Set<String> places = new HashSet<>();
+        IdSet<Station> places = new IdSet<>();
         places.add(nearAltrincham.getId());
         places.add(nearStockportBus.getId());
 
@@ -133,7 +135,7 @@ class SortsPositionsTest {
         }
 
         @Override
-        public String getStationId() {
+        public IdFor<Station> getId() {
             return station.getId();
         }
 

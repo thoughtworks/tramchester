@@ -2,13 +2,18 @@ package com.tramchester.domain.places;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
 
-public class MyLocation implements Location {
+public class MyLocation extends MapIdToDTOId<MyLocation> implements Location, HasId<MyLocation> {
+
+    public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
+    public static final IdFor<MyLocation> LocationPlaceHolder = IdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
 
     private final String area;
     private final LatLong latLong;
@@ -32,8 +37,8 @@ public class MyLocation implements Location {
     }
 
     @Override
-    public String getId() {
-        return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID;
+    public IdFor<MyLocation> getId() {
+        return LocationPlaceHolder;
     }
 
     @Override

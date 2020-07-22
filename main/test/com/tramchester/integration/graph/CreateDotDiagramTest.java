@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
+import com.tramchester.domain.places.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -57,13 +58,13 @@ class CreateDotDiagramTest {
     private void create(List<Location> startPoints, int depthLimit) throws IOException {
         String filename = startPoints.get(0).getName();
         DiagramCreator creator = new DiagramCreator(database, depthLimit);
-        List<String> ids = startPoints.stream().map(point -> point.getId()).collect(Collectors.toList());
+        List<String> ids = startPoints.stream().map(IdForDTO::forDTO).collect(Collectors.toList());
         creator.create(format("around_%s_trams.dot", filename), ids);
     }
 
     private void create(Location startPoint, int depthLimit) throws IOException {
         DiagramCreator creator = new DiagramCreator(database, depthLimit);
-        creator.create(format("%s_trams.dot", startPoint.getName()), startPoint.getId());
+        creator.create(format("%s_trams.dot", startPoint.getName()), startPoint.forDTO());
     }
 
 }

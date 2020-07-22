@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramServiceDate;
@@ -99,10 +100,11 @@ public class DeparturesResource implements APIResource  {
             "Control presence of notes using query param ?notes=1 or 0",
             response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response getDepartureForStation(@PathParam("station") String stationId,
+    public Response getDepartureForStation(@PathParam("station") String stationIdText,
                                            @DefaultValue("1") @QueryParam("notes") String notesParam,
                                            @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
 
+        IdFor<Station> stationId = IdFor.createId(stationIdText);
         logger.info(format("Get departs for station %s at %s with notes %s ", stationId, queryTimeRaw, notesParam));
         if (!stationRepository.hasStationId(stationId)) {
             logger.warn("Unable to find station " + stationId);

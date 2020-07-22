@@ -153,7 +153,7 @@ public class TransportDataForTestFactory {
         Platform platform = new Platform(platformId, format("%s platform 1", station.getName()));
         container.addPlatform(platform);
         station.addPlatform(platform);
-        StopTimeData stopTimeData = new StopTimeData(trip.getId(), arrivalTime, departureTime, platformId,sequenceNum,
+        StopTimeData stopTimeData = new StopTimeData(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
                 GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
         return new TramStopCall(platform, station, stopTimeData);
     }
@@ -168,7 +168,7 @@ public class TransportDataForTestFactory {
         public static final String FIRST_STATION = METROLINK_PREFIX + "_ST_FIRST";
         public static final String SECOND_STATION = METROLINK_PREFIX + "_ST_SECOND";
         public static final String LAST_STATION = METROLINK_PREFIX + "_ST_LAST";
-        public static final String INTERCHANGE = Stations.Cornbrook.getId();
+        public static final String INTERCHANGE = Stations.Cornbrook.getId().forDTO();
         private static final String STATION_FOUR = METROLINK_PREFIX + "_ST_FOUR";
         private static final String STATION_FIVE = METROLINK_PREFIX + "_ST_FIVE";
 
@@ -185,27 +185,27 @@ public class TransportDataForTestFactory {
         }
 
         public Station getFirst() {
-            return getStationById(FIRST_STATION);
+            return getStationById(IdFor.createId(FIRST_STATION));
         }
 
         public Station getSecond() {
-            return getStationById(SECOND_STATION);
+            return getStationById(IdFor.createId(SECOND_STATION));
         }
 
         public Station getInterchange() {
-            return getStationById(INTERCHANGE);
+            return getStationById(IdFor.createId(INTERCHANGE));
         }
 
         public Station getLast() {
-            return getStationById(LAST_STATION);
+            return getStationById(IdFor.createId(LAST_STATION));
         }
 
         public Station getFifthStation() {
-            return getStationById(STATION_FIVE);
+            return getStationById(IdFor.createId(STATION_FIVE));
         }
 
         public Station getFourthStation() {
-            return getStationById(STATION_FOUR);
+            return getStationById(IdFor.createId(STATION_FOUR));
         }
 
         @Override

@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Location;
@@ -19,11 +20,11 @@ class StationTest {
 
     @Test
     void testShouldSetTramNameCorrecly() {
-        Location tramStation = Station.forTest("id", "area", "stopName",
+        Station tramStation = Station.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Tram);
 
         Assertions.assertEquals("stopName", tramStation.getName());
-        Assertions.assertEquals("id", tramStation.getId());
+        Assertions.assertEquals(IdFor.createId("id"), tramStation.getId());
         Assertions.assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         Assertions.assertEquals(2.3, tramStation.getLatLong().getLon(),0);
         Assertions.assertEquals("area", tramStation.getArea());
@@ -32,11 +33,11 @@ class StationTest {
 
     @Test
     void testShouldSetBusNameCorrecly() {
-        Location busStation = Station.forTest("id", "area", "stopName",
+        Station busStation = Station.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Bus);
 
         Assertions.assertEquals("stopName", busStation.getName());
-        Assertions.assertEquals("id", busStation.getId());
+        Assertions.assertEquals(IdFor.createId("id"), busStation.getId());
         Assertions.assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         Assertions.assertEquals(2.3, busStation.getLatLong().getLon(),0);
         Assertions.assertEquals("area", busStation.getArea());
@@ -45,8 +46,8 @@ class StationTest {
 
     @Test
     void testShouldFormIdByRemovingPlatformForTramStop() {
-        Assertions.assertEquals("9400ZZid", Station.formId("9400ZZid1"));
-        Assertions.assertEquals("9400XXid1", Station.formId("9400XXid1"));
+        Assertions.assertEquals(IdFor.createId("9400ZZid"), Station.formId("9400ZZid1"));
+        Assertions.assertEquals(IdFor.createId("9400XXid1"), Station.formId("9400XXid1"));
 
     }
 

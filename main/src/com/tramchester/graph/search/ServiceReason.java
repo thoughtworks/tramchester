@@ -1,5 +1,7 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.states.HowIGotHere;
 import org.slf4j.Logger;
@@ -154,9 +156,9 @@ public abstract class ServiceReason {
 
     private static class DoesNotRunOnQueryDate extends ServiceReason
     {
-        private final String nodeServiceId;
+        private final IdFor<Service> nodeServiceId;
 
-        public DoesNotRunOnQueryDate(HowIGotHere path, String nodeServiceId) {
+        public DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
             super(ReasonCode.NotOnQueryDate, path);
             this.nodeServiceId = nodeServiceId;
         }
@@ -235,7 +237,11 @@ public abstract class ServiceReason {
         return new IsValid(code);
     }
 
-    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, String nodeServiceId) {
+//    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, String nodeServiceId) {
+//        return new DoesNotRunOnQueryDate(path, nodeServiceId);
+//    }
+
+    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);
     }
 

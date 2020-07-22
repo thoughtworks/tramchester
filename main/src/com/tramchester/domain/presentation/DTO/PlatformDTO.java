@@ -1,13 +1,16 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 
-public class PlatformDTO implements HasId {
+public class PlatformDTO {
 
     private String id;
     private String name;
     private String platformNumber;
+    private IdFor<Platform> platformId;
 
     @SuppressWarnings("unused")
     public PlatformDTO() {
@@ -24,9 +27,15 @@ public class PlatformDTO implements HasId {
     }
 
     public PlatformDTO(Platform original) {
-        this.id = original.getId();
+        platformId = original.getId();
+        this.id = platformId.forDTO();
         this.name = original.getName();
         this.platformNumber = original.getPlatformNumber();
+    }
+
+    @JsonIgnore
+    public IdFor<Platform> getPlatformId() {
+        return platformId;
     }
 
     public String getId() {

@@ -35,7 +35,7 @@ public class StationDepartureInfoDTO  {
 
     public StationDepartureInfoDTO(StationDepartureInfo info) {
         this(info.getLineName(),
-                info.getStationPlatform(),
+                info.getStationPlatform().forDTO(),
                 info.getMessage(),
                 mapDueTrams(info.getStation(), info.getDueTrams()),
                 info.getLastUpdate(),

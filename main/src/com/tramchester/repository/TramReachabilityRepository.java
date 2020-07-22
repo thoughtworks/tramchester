@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.RouteStation;
@@ -21,8 +22,8 @@ public class TramReachabilityRepository implements Disposable {
     private final RouteReachable routeReachable;
     private final TransportData transportData;
 
-    private final List<String> tramStationIndexing; // a list as we need ordering and IndexOf
-    private final Map<String, boolean[]> matrix; // stationId -> boolean[]
+    private final List<IdFor<Station>> tramStationIndexing; // a list as we need ordering and IndexOf
+    private final Map<IdFor<RouteStation>, boolean[]> matrix; // stationId -> boolean[]
 
     public TramReachabilityRepository(RouteReachable routeReachable, TransportData transportData) {
         this.routeReachable = routeReachable;
@@ -52,9 +53,9 @@ public class TramReachabilityRepository implements Disposable {
         int size = tramStations.size();
         routeStations.forEach(routeStation -> {
             boolean[] flags = new boolean[size];
-            String startStationId = routeStation.getStationId();
+            IdFor<Station> startStationId = routeStation.getStationId();
             tramStations.forEach(destinationStation -> {
-                String destinationStationId = destinationStation.getId();
+                IdFor<Station> destinationStationId = destinationStation.getId();
                 boolean result;
                 if (destinationStationId.equals(startStationId)) {
                     result = true;
@@ -70,7 +71,7 @@ public class TramReachabilityRepository implements Disposable {
     }
 
     public boolean stationReachable(Station startStation, Route route, Station destinationStation) {
-        RouteStation routeStation =  transportData.getRouteStationById(RouteStation.formId(startStation, route));
+        RouteStation routeStation =  transportData.getRouteStationById(startStation, route);
         return stationReachable(routeStation, destinationStation);
     }
 

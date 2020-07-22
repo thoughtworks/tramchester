@@ -35,7 +35,7 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     //////
-    private final List<String> closedStations = Collections.singletonList(Stations.StPetersSquare.getId());
+    private final List<String> closedStations = Collections.singletonList(Stations.StPetersSquare.forDTO());
 
     @Override
     public String getInstanceDataUrl() {

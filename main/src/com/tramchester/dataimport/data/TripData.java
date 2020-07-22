@@ -1,27 +1,32 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.input.Trip;
+
 public class TripData {
-    private final String routeId;
-    private final String serviceId;
-    private final String tripId;
+    private final IdFor<Route> routeId;
+    private final IdFor<Service> serviceId;
+    private final IdFor<Trip> tripId;
     private final String tripHeadsign;
 
     public TripData(String routeId, String serviceId, String tripId, String tripHeadsign) {
-        this.routeId = routeId.intern();
-        this.serviceId = serviceId.intern();
-        this.tripId = tripId.intern();
+        this.routeId = IdFor.createId(routeId);
+        this.serviceId = IdFor.createId(serviceId);
+        this.tripId = IdFor.createId(tripId);
         this.tripHeadsign = tripHeadsign.intern();
     }
 
-    public String getRouteId() {
+    public IdFor<Route> getRouteId() {
         return routeId;
     }
 
-    public String getServiceId() {
+    public IdFor<Service> getServiceId() {
         return serviceId;
     }
 
-    public String getTripId() {
+    public IdFor<Trip> getTripId() {
         return tripId;
     }
 

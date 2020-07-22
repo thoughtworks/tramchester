@@ -23,14 +23,14 @@ class LocationDTOTest {
 
         LocationDTO dto = new LocationDTO(testStation);
 
-        Assertions.assertEquals(testStation.getId(), dto.getId());
+        Assertions.assertEquals(testStation.forDTO(), dto.getId());
         Assertions.assertEquals(testStation.getTransportMode(), dto.getTransportMode());
         Assertions.assertEquals(testStation.getName(), dto.getName());
         Assertions.assertEquals(testStation.getLatLong(), dto.getLatLong());
 
         Assertions.assertTrue(dto.hasPlatforms());
         Assertions.assertEquals(2, dto.getPlatforms().size());
-        Assertions.assertEquals(Stations.Altrincham.getId()+"1", dto.getPlatforms().get(0).getId());
+        Assertions.assertEquals(Stations.Altrincham.forDTO()+"1", dto.getPlatforms().get(0).getId());
 
     }
 

@@ -1,6 +1,7 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.mappers.LiveDataParser;
@@ -99,7 +100,7 @@ class LiveDataParserTest extends EasyMockSupport {
         StationDepartureInfo departureInfoA = info.get(0);
         Assertions.assertEquals("1", departureInfoA.getDisplayId());
         Assertions.assertEquals("Eccles", departureInfoA.getLineName());
-        Assertions.assertEquals("9400ZZMAMCU2", departureInfoA.getStationPlatform());
+        Assertions.assertEquals(IdFor.createId("9400ZZMAMCU2"), departureInfoA.getStationPlatform());
         Assertions.assertEquals(Stations.MediaCityUK, departureInfoA.getStation());
         Assertions.assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +

@@ -2,13 +2,13 @@ package com.tramchester.domain;
 
 import java.util.*;
 
-public class Agency implements HasId {
+public class Agency implements HasId<Agency> {
     private final Set<Route> routes;
-    private final String agencyId;
+    private final IdFor<Agency> agencyId;
     private final String agencyName;
 
     public Agency(String agencyId, String agencyName) {
-        this.agencyId = agencyId;
+        this.agencyId =  IdFor.createId(agencyId);
         this.agencyName = agencyName;
         routes = new HashSet<>();
     }
@@ -43,7 +43,7 @@ public class Agency implements HasId {
         return Objects.hash(agencyId);
     }
 
-    public String getId() {
+    public IdFor<Agency> getId() {
         return agencyId;
     }
 

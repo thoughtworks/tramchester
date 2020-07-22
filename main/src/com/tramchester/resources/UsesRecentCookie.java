@@ -4,6 +4,7 @@ package com.tramchester.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
@@ -57,6 +58,7 @@ public class UsesRecentCookie {
         recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, endId);
 
         int maxAgeSecs = 60 * 60 * 24 * 100;
+
         // NOTE: SameSite is set via ResponseCookieFilter as NewCookie can't set SameSite (yet, TODO)
         return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper, recentJourneys)
             , "/api", baseURI.getHost(), VERSION,
@@ -64,6 +66,6 @@ public class UsesRecentCookie {
     }
 
     private boolean isFromMyLocation(String startId) {
-        return MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
+        return MyLocation.MY_LOCATION_PLACEHOLDER_ID.equals(startId);
     }
 }

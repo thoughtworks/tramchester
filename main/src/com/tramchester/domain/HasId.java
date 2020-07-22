@@ -1,19 +1,35 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.places.IdForDTO;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 
-public interface HasId {
-    String getId();
+public interface HasId<DOMAINTYPE> {
+    IdFor<DOMAINTYPE> getId();
 
-    static <T extends HasId> String asIds(Collection<T> items) {
+    static <T extends IdForDTO> String dtoAsIds(Collection<T> items) {
+        return listToIdStringList(items, IdForDTO::forDTO);
+    }
+
+    static <T extends HasId<T>> String asIds(Collection<T> items) {
+        return listToIdStringList(items, item -> asId(item).toString());
+    }
+
+    @NotNull
+    static <T> String listToIdStringList(Collection<T> items, GetsId<T> getsId) {
         StringBuilder ids = new StringBuilder();
         ids.append("[");
-        items.forEach(platform -> ids.append(" '").append(platform.getId()).append("'"));
+        items.forEach(item -> ids.append(" '").append(getsId.asString(item)).append("'"));
         ids.append("]");
         return ids.toString();
     }
 
-    static <T extends HasId> String asId(T item) {
+    static <T extends HasId<T>> IdFor<T> asId(T item) {
         return item.getId();
+    }
+
+    interface GetsId<T> {
+        String asString(T item);
     }
 }

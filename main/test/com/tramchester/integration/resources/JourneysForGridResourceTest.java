@@ -2,6 +2,8 @@ package com.tramchester.integration.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
@@ -54,10 +56,10 @@ class JourneysForGridResourceTest {
 
     @Test
     void shouldCreateGrid() throws IOException {
-        String destination = Stations.StPetersSquare.getId();
+        IdFor<Station> destination = Stations.StPetersSquare.getId();
 
         String queryString = String.format("grid?gridSize=%s&destination=%s&departureTime=%s&departureDate=%s&maxChanges=%s&maxDuration=%s",
-                gridSize, destination, time, date, maxChanges, maxDuration);
+                gridSize, destination.forDTO(), time, date, maxChanges, maxDuration);
 
         Response response = IntegrationClient.getApiResponse(appExtension, queryString);
         Assertions.assertEquals(200, response.getStatus());

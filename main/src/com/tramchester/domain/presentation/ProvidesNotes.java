@@ -1,9 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.CallsAtPlatforms;
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.Journey;
+import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
@@ -73,8 +71,9 @@ public class ProvidesNotes {
     private Set<Note> createNotesForClosedStations() {
         Set<Note> messages = new HashSet<>();
         config.getClosedStations().
-                forEach(stationId ->
+                forEach(stationIdText ->
                 {
+                    IdFor<Station> stationId = IdFor.createId(stationIdText);
                     Station closedStation = stationRepository.getStationById(stationId);
                     String msg = format("%s is currently closed. %s", closedStation.getName(), website);
                     messages.add(new StationNote(ClosedStation, msg, closedStation));
@@ -95,8 +94,8 @@ public class ProvidesNotes {
         return notes;
     }
 
-    private void addRelevantNote(List<Note> messageMap, HasId platform, TramServiceDate queryDate, TramTime queryTime) {
-        Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platform, queryDate, queryTime);
+    private void addRelevantNote(List<Note> messageMap, IdFor<Platform> platformId, TramServiceDate queryDate, TramTime queryTime) {
+        Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
             return;
         }

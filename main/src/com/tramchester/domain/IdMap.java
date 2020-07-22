@@ -1,17 +1,15 @@
 package com.tramchester.domain;
 
+import com.google.common.collect.Sets;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class IdMap<T extends HasId> implements Iterable<T> {
-    private final HashMap<String, T> theMap;
+public class IdMap<T extends HasId<T>> implements Iterable<T> {
+    private final HashMap<IdFor<T>, T> theMap;
 
     public IdMap() {
         theMap = new HashMap<>();
@@ -25,15 +23,20 @@ public class IdMap<T extends HasId> implements Iterable<T> {
         theMap.clear();
     }
 
-    public boolean hasId(String id) {
+    public boolean hasId(IdFor<T> id) {
         return theMap.containsKey(id);
     }
 
-    public T get(String id) {
+    @Deprecated
+    public T getByString(String id) {
+        return theMap.get(IdFor.createId(id));
+    }
+
+    public T get(IdFor<T> id) {
         return theMap.get(id);
     }
 
-    public Set<String> getIds() {
+    public Set<IdFor<T>> getIds() {
         return new HashSet<>(theMap.keySet());
     }
 
@@ -56,7 +59,7 @@ public class IdMap<T extends HasId> implements Iterable<T> {
         theMap.values().forEach(action);
     }
 
-    public T getOrAdd(String id, Creates<T> constructor) {
+    public T getOrAdd(IdFor<T> id, Creates<T> constructor) {
         if (hasId(id)) {
             return get(id);
         }
@@ -69,6 +72,11 @@ public class IdMap<T extends HasId> implements Iterable<T> {
         return theMap.values().stream().filter(theFilter::include).collect(Collectors.toUnmodifiableSet());
     }
 
+    public IdMap<T> addAll(IdMap<T> others) {
+        theMap.putAll(others.theMap);
+        return this;
+    }
+
     public interface Creates<T> {
         T create();
     }
@@ -76,4 +84,34 @@ public class IdMap<T extends HasId> implements Iterable<T> {
     public interface Filter<T> {
         boolean include(T item);
     }
+
+    public static <T extends HasId<T>> Collector<T, IdMap<T>, IdMap<T>> collector() {
+        return new Collector<>() {
+            @Override
+            public Supplier<IdMap<T>> supplier() {
+                return IdMap::new;
+            }
+
+            @Override
+            public BiConsumer<IdMap<T>, T> accumulator() {
+                return IdMap::add;
+            }
+
+            @Override
+            public BinaryOperator<IdMap<T>> combiner() {
+                return IdMap::addAll;
+            }
+
+            @Override
+            public Function<IdMap<T>, IdMap<T>> finisher() {
+                return stations -> stations;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Sets.immutableEnumSet(Characteristics.UNORDERED);
+            }
+        };
+    }
+
 }

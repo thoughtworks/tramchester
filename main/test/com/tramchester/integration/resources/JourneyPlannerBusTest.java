@@ -2,14 +2,16 @@ package com.tramchester.integration.resources;
 
 
 import com.tramchester.App;
-import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.integration.IntegrationAppExtension;
+import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -30,9 +32,6 @@ import java.util.Set;
 
 import static com.tramchester.testSupport.BusStations.*;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 @Disabled("Experimental")
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -165,6 +164,12 @@ class JourneyPlannerBusTest {
         return found;
     }
 
+    private JourneyPlanRepresentation getJourneyPlan(IdFor<Station> startId, IdFor<Station> endId, TramTime queryTime,
+                                                     TramServiceDate queryDate, boolean arriveBy, int maxChanges) {
+        return getJourneyPlan(startId.forDTO(), endId.forDTO(), queryTime, queryDate, arriveBy, maxChanges);
+    }
+
+
     private JourneyPlanRepresentation getJourneyPlan(String startId, String endId, TramTime queryTime,
                                                      TramServiceDate queryDate, boolean arriveBy, int maxChanges) {
         String date = queryDate.getDate().format(dateFormatDashes);
@@ -175,12 +180,17 @@ class JourneyPlannerBusTest {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
+    private JourneyPlanRepresentation getJourneyPlan(LatLong startLocation, IdFor<Station> endId, TramTime queryTime,
+                                                     TramServiceDate queryDate, boolean arriveBy) {
+        return getJourneyPlan(startLocation, endId.forDTO(), queryTime, queryDate, arriveBy);
+    }
+
     private JourneyPlanRepresentation getJourneyPlan(LatLong startLocation, String endId, TramTime queryTime,
                                                      TramServiceDate queryDate, boolean arriveBy) {
         String date = queryDate.getDate().format(dateFormatDashes);
         String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
 
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID,
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, MyLocation.MY_LOCATION_PLACEHOLDER_ID,
                 endId, time, date, startLocation, arriveBy, 3);
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);

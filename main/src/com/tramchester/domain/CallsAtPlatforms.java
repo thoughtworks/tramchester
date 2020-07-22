@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CallsAtPlatforms {
     @JsonIgnore
-    List<HasId> getCallingPlatformIds();
+    IdSet<Platform> getCallingPlatformIds();
 
     TramTime getQueryTime();
 }

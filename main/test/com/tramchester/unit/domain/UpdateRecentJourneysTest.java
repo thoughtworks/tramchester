@@ -1,8 +1,10 @@
 package com.tramchester.unit.domain;
 
 import com.google.common.collect.Sets;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
@@ -16,7 +18,7 @@ import java.util.Set;
 
 class UpdateRecentJourneysTest {
 
-    private final String altyId = Stations.Altrincham.getId();
+    private final IdFor<Station> altyId = Stations.Altrincham.getId();
     private final UpdateRecentJourneys updater = new UpdateRecentJourneys(TestEnv.GET());
     private final ProvidesNow providesNow = new ProvidesLocalNow();
 
@@ -25,11 +27,11 @@ class UpdateRecentJourneysTest {
         RecentJourneys recentJourneys = new RecentJourneys();
         recentJourneys.setTimestamps(ts("id1","id2"));
 
-        RecentJourneys updated = updater.createNewJourneys(recentJourneys, providesNow, altyId);
+        RecentJourneys updated = updater.createNewJourneys(recentJourneys, providesNow, altyId.forDTO());
 
         Set<Timestamped> from = updated.getRecentIds();
         Assertions.assertEquals(3, from.size());
-        Assertions.assertTrue(from.containsAll(ts("id1","id2",altyId)));
+        Assertions.assertTrue(from.containsAll(ts("id1","id2",altyId.forDTO())));
     }
 
     @Test

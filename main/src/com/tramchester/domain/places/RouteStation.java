@@ -1,23 +1,25 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 
-public class RouteStation implements HasId, HasTransportMode {
+public class RouteStation implements HasId<RouteStation>, HasTransportMode {
     // A station that serves a specific route
 
     private final Station station;
     private final Route route;
-    private final String id;
+    private final IdFor<RouteStation> id;
 
     public RouteStation(Station station, Route route) {
         this.station = station;
         this.route = route;
-        id = formId(station, route);
+        id = IdFor.createId(station, route);
     }
 
-    public String getId() {
+    public static IdFor<RouteStation> formId(Station station, Route route) {
+        return IdFor.createId(station, route);
+    }
+
+    public IdFor<RouteStation> getId() {
         return id;
     }
 
@@ -37,13 +39,7 @@ public class RouteStation implements HasId, HasTransportMode {
         return route;
     }
 
-    public static String formId(Location station, Route route) {
-        return station.getId() + route.getId().replaceAll(" ","");
-    }
-
-    // Use get getStation
-    @Deprecated
-    public String getStationId() {
+    public IdFor<Station> getStationId() {
         return station.getId();
     }
 

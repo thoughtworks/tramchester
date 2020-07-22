@@ -1,5 +1,7 @@
 package com.tramchester.domain.liveUpdates;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ public class StationDepartureInfo implements HasPlatformMessage {
     }
 
     private final String lineName;
-    private final String stationPlatform;
+    private final IdFor<Platform> stationPlatform;
     private final String message;
     private final List<DueTram> dueTrams;
     private final LocalDateTime lastUpdate;
@@ -30,7 +32,7 @@ public class StationDepartureInfo implements HasPlatformMessage {
         this.displayId = displayId;
         this.lineName = lineName;
         this.direction = direction;
-        this.stationPlatform = stationPlatform;
+        this.stationPlatform = IdFor.createId(stationPlatform);
         this.station = station;
         if (invalidMessage(message)) {
             this.message= "";
@@ -57,7 +59,7 @@ public class StationDepartureInfo implements HasPlatformMessage {
         return direction;
     }
 
-    public String getStationPlatform() {
+    public IdFor<Platform> getStationPlatform() {
         return stationPlatform;
     }
 

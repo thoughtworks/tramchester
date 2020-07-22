@@ -1,5 +1,8 @@
 package com.tramchester.repository;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import org.slf4j.Logger;
@@ -13,17 +16,17 @@ import java.util.Set;
 public class RunningServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningServices.class);
 
-    private final Set<String> serviceIds;
-    private final Map<String, ServiceTime> latestTimeMap;
-    private final Map<String, ServiceTime> earliestTimeMap;
+    private final IdSet<Service> serviceIds;
+    private final Map<IdFor<Service>, ServiceTime> latestTimeMap;
+    private final Map<IdFor<Service>, ServiceTime> earliestTimeMap;
 
     public RunningServices(TramServiceDate date, TransportData transportData) {
-        serviceIds = new HashSet<>();
+        serviceIds = new IdSet<>();
         latestTimeMap = new HashMap<>();
         earliestTimeMap = new HashMap<>();
 
         transportData.getServicesOnDate(date).forEach(svc -> {
-            String serviceId = svc.getId();
+            IdFor<Service> serviceId = svc.getId();
             serviceIds.add(serviceId);
             latestTimeMap.put(serviceId, svc.latestDepartTime());
             earliestTimeMap.put(serviceId, svc.earliestDepartTime());
@@ -35,18 +38,17 @@ public class RunningServices {
         {
             logger.warn("No running services found on " + date);
         }
-
     }
 
-    public boolean isRunning(String serviceId) {
+    public boolean isRunning(IdFor<Service> serviceId) {
         return serviceIds.contains(serviceId);
     }
 
-    public ServiceTime getServiceLatest(String svcId) {
+    public ServiceTime getServiceLatest(IdFor<Service> svcId) {
         return latestTimeMap.get(svcId);
     }
 
-    public ServiceTime getServiceEarliest(String svcId) {
+    public ServiceTime getServiceEarliest(IdFor<Service> svcId) {
         return earliestTimeMap.get(svcId);
     }
 

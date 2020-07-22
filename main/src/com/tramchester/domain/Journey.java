@@ -3,11 +3,11 @@ package com.tramchester.domain;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
 
@@ -21,7 +21,7 @@ public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
         this.path = path;
     }
     
-    public Iterator<TransportStage> iterator() {
+    public @NotNull Iterator<TransportStage> iterator() {
         return stages.iterator();
     }
 
@@ -30,11 +30,11 @@ public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
     }
 
     @Override
-    public List<HasId> getCallingPlatformIds() {
+    public IdSet<Platform>  getCallingPlatformIds() {
        return stages.stream().map(TransportStage::getBoardingPlatform).
                filter(Optional::isPresent).
                map(Optional::get).
-               collect(Collectors.toList());
+               collect(IdSet.collector());
     }
 
     public TramTime getQueryTime() {
@@ -44,7 +44,7 @@ public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
     @Override
     public String toString() {
         return "Journey{" +
-                "path=" + HasId.asIds(path) +
+                "path=" + HasId.dtoAsIds(path) +
                 ", stages=" + stages +
                 ", queryTime=" + queryTime +
                 '}';

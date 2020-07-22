@@ -13,15 +13,15 @@ class PostcodeLocationTest {
         PostcodeLocation locationA = new PostcodeLocation(latLon, "M17AB");
         Assertions.assertEquals("M1", locationA.getArea());
         Assertions.assertEquals("M17AB", locationA.getName());
-        Assertions.assertEquals("M17AB", locationA.getId());
+        Assertions.assertEquals("M17AB", locationA.forDTO());
         PostcodeLocation locationB = new PostcodeLocation(latLon, "WA114AB");
         Assertions.assertEquals("WA11", locationB.getArea());
         Assertions.assertEquals("WA114AB", locationB.getName());
-        Assertions.assertEquals("WA114AB", locationB.getId());
+        Assertions.assertEquals("WA114AB", locationB.forDTO());
         PostcodeLocation locationC = new PostcodeLocation(latLon, "B114AB");
         Assertions.assertEquals("B11", locationC.getArea());
         Assertions.assertEquals("B114AB", locationC.getName());
-        Assertions.assertEquals("B114AB", locationC.getId());
+        Assertions.assertEquals("B114AB", locationC.forDTO());
 
     }
 }

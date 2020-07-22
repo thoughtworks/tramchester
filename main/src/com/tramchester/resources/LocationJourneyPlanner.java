@@ -164,7 +164,7 @@ public class LocationJourneyPlanner {
         }
 
         walkingRelationship.setProperty(COST, cost);
-        walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStation.getId());
+        walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStation.getId().getGraphId());
         return walkingRelationship;
     }
 

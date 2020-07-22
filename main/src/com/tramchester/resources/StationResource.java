@@ -3,14 +3,11 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.ClosedStations;
-import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithGroupDTO;
@@ -72,10 +69,11 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @Path("/{id}")
     @ApiOperation(value = "Get station by id", response = StationDTO.class)
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
-    public Response get(@PathParam("id") String id) {
-        logger.info("Get station " + id);
+    public Response get(@PathParam("id") String text) {
+        logger.info("Get station " + text);
+        IdFor<Station> id = IdFor.createId(text);
         if (stationRepository.hasStationId(id)) {
-            return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();
+            return Response.ok(new StationDTO(stationRepository.getStationById(id))).build();
         }
         else {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -98,7 +96,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         recentJourneys.getRecentIds().forEach(recent -> {
             logger.info("Adding recent station to list " + recent);
-            String recentId = recent.getId();
+            IdFor<Station> recentId = IdFor.createId(recent.getId());
             if (stationRepository.hasStationId(recentId)) {
                 displayStations.add(new StationRefWithGroupDTO(stationRepository.getStationById(recentId), ProximityGroups.RECENT));
             } else {
@@ -122,7 +120,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         List<StationRefWithGroupDTO> displayStations = new LinkedList<>();
         recentJourneys.getRecentIds().forEach(recent -> {
             logger.info("Adding recent station to list " + recent);
-            String recentId = recent.getId();
+            IdFor<Station> recentId = IdFor.createId(recent.getId());
             if (stationRepository.hasStationId(recentId)) {
                 displayStations.add(new StationRefWithGroupDTO(stationRepository.getStationById(recentId), ProximityGroups.RECENT));
             } else {
@@ -148,7 +146,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
         recentJourneys.getRecentIds().forEach(recent -> {
-            String recentId = recent.getId();
+            IdFor<Station> recentId = IdFor.createId(recent.getId());
             if (stationRepository.hasStationId(recentId)) {
                 Station recentStation = stationRepository.getStationById(recentId);
                 orderedStations.remove(new StationRefWithGroupDTO(recentStation, ProximityGroups.STOPS));
@@ -176,9 +174,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         LatLong latLong = new LatLong(lat,lon);
         List<Station> nearestStations = stationLocations.getNearestStationsTo(latLong,
                 config.getNumOfNearestStops(), config.getNearestStopRangeKM());
+
         RecentJourneys recentJourneys = recentFromCookie(tranchesterRecent);
 
-        Set<String> recentIds = recentJourneys.getRecentIds().stream().map(Timestamped::getId).collect(Collectors.toSet());
+        IdSet<Station> recentIds = recentJourneys.getRecentIds().stream().
+                map(Timestamped::getId).
+                map(this::getStationId).
+                collect(IdSet.idCollector());
 
         List<StationRefWithGroupDTO> results =  new ArrayList<>();
 
@@ -191,7 +193,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         // add recents
         recentJourneys.getRecentIds().forEach(recent -> {
-            String recentId = recent.getId();
+            IdFor<Station> recentId = IdFor.createId(recent.getId());
             if (stationRepository.hasStationId(recentId)) {
                 Station recentStation = stationRepository.getStationById(recentId);
                 results.add(0, new StationRefWithGroupDTO(recentStation, ProximityGroups.RECENT));
@@ -202,6 +204,10 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         List<ProximityGroup> groups = Arrays.asList(ProximityGroups.RECENT, ProximityGroups.NEAREST_STOPS);
         return Response.ok(new StationListDTO(results, groups)).build();
+    }
+
+    private IdFor<Station> getStationId(String textId) {
+        return IdFor.createId(textId);
     }
 
     private List<Station> getStations() {

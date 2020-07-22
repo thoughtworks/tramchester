@@ -2,16 +2,18 @@ package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdMap;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.TramInterchanges;
+import com.tramchester.domain.places.Station;
 import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -21,16 +23,14 @@ public class InterchangeRepository implements Disposable, Startable {
     private final TransportData dataSource;
     private final Set<GTFSTransportationType> modes;
 
-    // id -> Station
-    private Map<String, Station> busInterchanges;
-    // id -> Station
-    private Map<String, Station> trainInterchanges;
+    private IdMap<Station> busInterchanges;
+    private IdMap<Station> trainInterchanges;
 
     public InterchangeRepository(TransportData dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
         // both of these empty for trams
-        busInterchanges = Collections.emptyMap();
-        trainInterchanges = Collections.emptyMap();
+        busInterchanges = new IdMap<>();
+        trainInterchanges = new IdMap<>();
         modes = config.getTransportModes();
     }
 
@@ -52,11 +52,11 @@ public class InterchangeRepository implements Disposable, Startable {
         }
     }
 
-    private Map<String, Station> createTrainMultiAgencyStationList() {
+    private IdMap<Station> createTrainMultiAgencyStationList() {
         return dataSource.getStations().stream().
             filter(TransportMode::isTrain).
             filter(station -> station.getAgencies().size()>=2).
-            collect(Collectors.toMap(Station::getId, (station -> station)));
+            collect(IdMap.collector());
     }
 
     @Override
@@ -64,12 +64,12 @@ public class InterchangeRepository implements Disposable, Startable {
         // no op
     }
 
-    private Map<String, Station> createBusInterchangeList() {
+    private IdMap<Station> createBusInterchangeList() {
         logger.info("Finding bus interchanges based on names");
         return dataSource.getStations().stream().
                 filter(TransportMode::isBus).
                 filter(station -> checkForBusInterchange(station.getName())).
-                collect(Collectors.toMap(Station::getId, (station -> station)));
+                collect(IdMap.collector());
     }
 
     // TODO WIP
@@ -83,7 +83,7 @@ public class InterchangeRepository implements Disposable, Startable {
     }
 
     public Collection<Station> getBusInterchanges() {
-        return busInterchanges.values();
+        return busInterchanges.getValues();
     }
 
     public boolean isInterchange(Station station) {
@@ -91,23 +91,23 @@ public class InterchangeRepository implements Disposable, Startable {
             return TramInterchanges.has(station);
         }
         if (TransportMode.isBus(station)) {
-            return busInterchanges.containsValue(station);
+            return busInterchanges.hasId(station.getId());
         }
         if (TransportMode.isTrain(station)) {
-            return trainInterchanges.containsValue(station);
+            return trainInterchanges.hasId(station.getId());
         }
         logger.warn("Interchanges not defined for station of type " +station.getTransportMode() + " id was " + station.getId());
         return false;
     }
 
-    public boolean isInterchange(String stationId) {
-        if (TramInterchanges.has(stationId)) {
+    public boolean isInterchange(IdFor<Station> stationId) {
+        if (TramInterchanges.hasId(stationId)) {
             return true;
         }
-        if (busInterchanges.containsKey(stationId)) {
+        if (busInterchanges.hasId(stationId)) {
             return true;
         }
-        return trainInterchanges.containsKey(stationId);
+        return trainInterchanges.hasId(stationId);
     }
 
 }

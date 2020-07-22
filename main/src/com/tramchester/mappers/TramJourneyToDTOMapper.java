@@ -36,6 +36,7 @@ public class TramJourneyToDTOMapper {
 
         List<TransportStage> rawJourneyStages = journey.getStages();
         TramTime queryTime = journey.getQueryTime();
+
         for(TransportStage rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
             TravelAction action = decideTravelAction(stages, rawStage);

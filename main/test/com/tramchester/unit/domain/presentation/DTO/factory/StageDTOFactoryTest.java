@@ -56,13 +56,13 @@ class StageDTOFactoryTest extends EasyMockSupport {
     }
 
     private void checkValues(TransportStage stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
-        Assertions.assertEquals(stage.getActionStation().getId(), dto.getActionStation().getId());
+        Assertions.assertEquals(stage.getActionStation().forDTO(), dto.getActionStation().getId());
         Assertions.assertEquals(stage.getMode(), dto.getMode());
         Assertions.assertEquals(stage.getFirstDepartureTime(), dto.getFirstDepartureTime());
-        Assertions.assertEquals(stage.getLastStation().getId(), dto.getLastStation().getId());
+        Assertions.assertEquals(stage.getLastStation().forDTO(), dto.getLastStation().getId());
         Assertions.assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
         Assertions.assertEquals(stage.getDuration(), dto.getDuration());
-        Assertions.assertEquals(stage.getFirstStation().getId(), dto.getFirstStation().getId());
+        Assertions.assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
         Assertions.assertEquals(stage.getHeadSign(), dto.getHeadSign());
         Assertions.assertEquals(stage.getRouteName(), dto.getRouteName());
         Assertions.assertEquals(stage.getDisplayClass(), dto.getDisplayClass());

@@ -58,10 +58,10 @@ class BusRouteReachableTest {
     void shouldFindCostsCorrectlyForBusJourneys() {
         Assertions.assertEquals(37, reachable.getApproxCostBetween(txn, AltrinchamInterchange, StockportBusStation));
         Assertions.assertEquals(37, reachable.getApproxCostBetween(txn, StockportBusStation, AltrinchamInterchange));
-        Assertions.assertEquals(58, reachable.getApproxCostBetween(txn, ShudehillInterchange, AltrinchamInterchange));
-        Assertions.assertEquals(54, reachable.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
+        Assertions.assertEquals(63, reachable.getApproxCostBetween(txn, ShudehillInterchange, AltrinchamInterchange));
+        Assertions.assertEquals(58, reachable.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
         Assertions.assertEquals(41, reachable.getApproxCostBetween(txn, ShudehillInterchange, StockportBusStation));
-        Assertions.assertEquals(33, reachable.getApproxCostBetween(txn, StockportBusStation, ShudehillInterchange));
+        Assertions.assertEquals(40, reachable.getApproxCostBetween(txn, StockportBusStation, ShudehillInterchange));
     }
 
     @BusTest
@@ -78,8 +78,8 @@ class BusRouteReachableTest {
     void shouldListRoutesBetweenBusStations() {
         Map<String, String> stepsSeen = reachable.getShortestRoutesBetween(AltrinchamInterchange, StockportBusStation);
 
-        Map<Station, Route> steps = stepsSeen.entrySet().stream().
-                collect(Collectors.toMap(entry -> transportData.getStationById(entry.getKey()), entry -> transportData.getRouteById(entry.getValue())));
+//        Map<Station, Route> steps = stepsSeen.entrySet().stream().
+//                collect(Collectors.toMap(entry -> transportData.getStationById(entry.getKey()), entry -> transportData.getRouteById(entry.getValue())));
 
         Assertions.assertEquals(4, stepsSeen.size());
 //        assertTrue(routesSeenAltToStockportId.containsValue(RouteCodesForTesting.ALTY_TO_STOCKPORT));

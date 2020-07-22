@@ -1,6 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
@@ -13,9 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 class RouteCallingStationsTest {
 
@@ -56,7 +55,7 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldHaveEndsOfLines() {
-        Set<String> foundEndOfLines = new HashSet<>();
+        IdSet<Station> foundEndOfLines = new IdSet<>();
         transportData.getRoutes().forEach(route -> {
             List<Station> stations = repo.getStationsFor(route);
             foundEndOfLines.add(stations.get(0).getId());

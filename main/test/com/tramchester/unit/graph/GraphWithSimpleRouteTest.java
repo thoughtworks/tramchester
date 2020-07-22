@@ -2,6 +2,8 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
@@ -12,7 +14,9 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.IntegrationTestConfig;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TransportDataForTestFactory;
@@ -22,6 +26,7 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,7 +42,7 @@ class GraphWithSimpleRouteTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
     private static LocationJourneyPlanner locationJourneyPlanner;
-    private static IntegrationTramTestConfig config;
+    private static SimpleGraphConfig config;
 
     private TramServiceDate queryDate;
     private TramTime queryTime;
@@ -53,7 +58,7 @@ class GraphWithSimpleRouteTest {
         TransportDataForTestFactory factory = new TransportDataForTestFactory(stationLocations);
         transportData = factory.get();
 
-        config = new IntegrationTramTestConfig(TMP_DB);
+        config = new SimpleGraphConfig();
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
         dependencies.initialise(config, transportData);
@@ -112,7 +117,8 @@ class GraphWithSimpleRouteTest {
         LatLong origin = TestEnv.nearShudehill;
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, transportData.getSecond(), origin,
-                new JourneyRequest(queryDate, TramTime.of(7,55), false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
+                new JourneyRequest(queryDate, TramTime.of(7,55), false, 3,
+                        config.getMaxJourneyDuration())).collect(Collectors.toSet());
 
         Assertions.assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -201,8 +207,8 @@ class GraphWithSimpleRouteTest {
         Journey journey = (Journey)journeys.toArray()[0];
         List<TransportStage> stages = journey.getStages();
         TransportStage vehicleStage = stages.get(0);
-        Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().getId());
-        Assertions.assertEquals(secondStation, vehicleStage.getLastStation().getId());
+        Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
+        Assertions.assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
         Assertions.assertEquals(passedStops,  vehicleStage.getPassedStops());
         Assertions.assertEquals(displayClass, vehicleStage.getDisplayClass());
         Assertions.assertTrue(vehicleStage.getBoardingPlatform().isPresent());
@@ -211,5 +217,32 @@ class GraphWithSimpleRouteTest {
         Assertions.assertTrue(departTime.isAfter(queryTime));
 
         Assertions.assertTrue(vehicleStage.getDuration()>0);
+    }
+
+    private static class SimpleGraphConfig extends IntegrationTestConfig {
+
+        public SimpleGraphConfig() {
+            super("unitTest", TMP_DB);
+        }
+
+        @Override
+        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("data/tram",
+                    Collections.singleton(GTFSTransportationType.tram));
+            return Collections.singletonList(tfgmTestDataSourceConfig);
+        }
+
+        @Override
+        public boolean getRebuildGraph() {
+            return true;
+        }
+
+        @Override
+        public int getNumberQueries() { return 1; }
+
+        @Override
+        public int getQueryInterval() {
+            return 6;
+        }
     }
 }

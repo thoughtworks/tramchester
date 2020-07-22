@@ -1,6 +1,7 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,22 +30,22 @@ public class TramInterchanges {
         }
     }
 
-    private static final Set<String> ids;
+    private static final Set<IdFor<Station>> ids;
 
     static {
         ids = new HashSet<>();
-        Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(interchange.stationId));
+        Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(IdFor.createId(interchange.stationId)));
     }
 
-    public static boolean has(String stationId) {
+    public static boolean hasId(IdFor<Station> stationId) {
         return ids.contains(stationId);
     }
 
-    public static boolean has(Location station) {
-        return has(station.getId());
+    public static boolean has(Station station) {
+        return hasId(station.getId());
     }
 
-    public static Set<String> stations() {
+    public static Set<IdFor<Station>> stations() {
         return ids;
     }
 }

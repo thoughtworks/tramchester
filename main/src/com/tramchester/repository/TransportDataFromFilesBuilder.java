@@ -60,14 +60,14 @@ public class TransportDataFromFilesBuilder {
             buildable.addNameAndVersion(fromStreams);
         }
 
-        Map<String, Agency> allAgencies = preloadAgencys(streams.agencies);
-        Set<String> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies, sourceConfig);
+        IdMap<Agency> allAgencies = preloadAgencys(streams.agencies);
+        IdSet<Route> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies, sourceConfig);
         allAgencies.clear();
 
         ExcludedTripAndServices excludedTripsAndServices = populateTripsAndServices(buildable, streams.trips, excludedRoutes);
         excludedRoutes.clear();
 
-        Map<String, Station> allStations = preLoadStations(streams.stops);
+        IdMap<Station> allStations = preLoadStations(streams.stops);
         populateStopTimes(buildable, streams.stopTimes, allStations, excludedTripsAndServices.excludedTrips);
         allStations.clear();
 
@@ -87,12 +87,12 @@ public class TransportDataFromFilesBuilder {
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
-                                   Stream<CalendarDateData> calendarsDates, Set<String> excludedServices) {
+                                   Stream<CalendarDateData> calendarsDates, IdSet<Service> excludedServices) {
 
         logger.info("Loading calendars");
-        Set<String> missingCalendar = new HashSet<>();
+        IdSet<Service> missingCalendar = new IdSet<>();
         calendars.forEach(calendar -> {
-            String serviceId = calendar.getServiceId();
+            IdFor<Service> serviceId = calendar.getServiceId();
             Service service = buildable.getService(serviceId);
 
             if (service != null) {
@@ -117,9 +117,9 @@ public class TransportDataFromFilesBuilder {
         }
 
         logger.info("Loading calendar dates");
-        Set<String> missingCalendarDates = new HashSet<>();
+        IdSet<Service> missingCalendarDates = new IdSet<>();
         calendarsDates.forEach(date -> {
-            String serviceId = date.getServiceId();
+            IdFor<Service> serviceId = date.getServiceId();
             Service service = buildable.getService(serviceId);
             if (service != null) {
                 service.addExceptionDate(date.getDate(), date.getExceptionType());
@@ -135,15 +135,15 @@ public class TransportDataFromFilesBuilder {
     }
 
     private void populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
-                                   Map<String, Station> allStations, Set<String> excludedTrips) {
+                                   IdMap<Station> allStations, IdSet<Trip> excludedTrips) {
         logger.info("Loading stop times");
         AtomicInteger count = new AtomicInteger();
         stopTimes.filter(stopTimeData -> !excludedTrips.contains(stopTimeData.getTripId())).forEach((stopTimeData) -> {
             Trip trip = buildable.getTripById(stopTimeData.getTripId());
             String stopId = stopTimeData.getStopId();
-            String stationId = Station.formId(stopId);
+            IdFor<Station> stationId = Station.formId(stopId);
 
-            if (allStations.containsKey(stationId)) {
+            if (allStations.hasId(stationId)) {
                 Route route = trip.getRoute();
                 Station station = allStations.get(stationId);
                 addStation(buildable, route, station);
@@ -159,10 +159,12 @@ public class TransportDataFromFilesBuilder {
         logger.info("Loaded " + count.get() + " stop times");
     }
 
-    private void addStop(TransportDataContainer buildable, StopTimeData stopTimeData, Trip trip, String stopId, Route route, Station station) {
+    private void addStop(TransportDataContainer buildable, StopTimeData stopTimeData, Trip trip,
+                         String stopIdText, Route route, Station station) {
         StopCall stop;
         switch (route.getTransportMode()) {
             case Tram:
+                IdFor<Platform> stopId = IdFor.createId(stopIdText);
                 if (buildable.hasPlatformId(stopId)) {
                     Platform platform = buildable.getPlatform(stopId);
                     platform.addRoute(route);
@@ -190,7 +192,7 @@ public class TransportDataFromFilesBuilder {
         stationLocations.addStation(station);
         station.addRoute(route);
 
-        String stationId = station.getId();
+        IdFor<Station> stationId = station.getId();
         if (!buildable.hasStationId(stationId)) {
             buildable.addStation(station);
             if (station.hasPlatforms()) {
@@ -204,15 +206,15 @@ public class TransportDataFromFilesBuilder {
     }
 
     private ExcludedTripAndServices populateTripsAndServices(TransportDataContainer buildable, Stream<TripData> trips,
-                                          Set<String> excludedRoutes) {
+                                          IdSet<Route> excludedRoutes) {
         logger.info("Loading trips");
-        Set<String> excludedTrips = new HashSet<>();
-        Set<String> excludedServices = new HashSet<>();
+        IdSet<Trip> excludedTrips = new IdSet<>();
+        IdSet<Service> excludedServices = new IdSet<>();
         AtomicInteger count = new AtomicInteger();
 
         trips.forEach((tripData) -> {
-            String serviceId = tripData.getServiceId();
-            String routeId = tripData.getRouteId();
+            IdFor<Service> serviceId = tripData.getServiceId();
+            IdFor<Route> routeId = tripData.getRouteId();
 
             if (buildable.hasRouteId(routeId)) {
                 Route route = buildable.getRouteById(routeId);
@@ -238,29 +240,30 @@ public class TransportDataFromFilesBuilder {
         return new ExcludedTripAndServices(excludedTrips, excludedServices);
     }
 
-    private  Map<String,Agency> preloadAgencys(Stream<AgencyData> agencyDataStream) {
+    private  IdMap<Agency> preloadAgencys(Stream<AgencyData> agencyDataStream) {
         logger.info("Loading all agencies");
-        Map<String,Agency> agencies = new HashMap<>();
-        agencyDataStream.forEach(agencyData -> agencies.put(agencyData.getId(), new Agency(agencyData.getId(), agencyData.getName())));
+        IdMap<Agency> agencies = new IdMap<>();
+        agencyDataStream.forEach(agencyData -> agencies.add(new Agency(agencyData.getId(), agencyData.getName())));
         logger.info("Loaded " + agencies.size() + " agencies");
         return agencies;
     }
 
-    private Set<String> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
-                                       Map<String,Agency> allAgencies, DataSourceConfig sourceConfig) {
+    private IdSet<Route> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
+                                       IdMap<Agency> allAgencies, DataSourceConfig sourceConfig) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
-        Set<String> excludedRoutes = new HashSet<>();
+        IdSet<Route> excludedRoutes = new IdSet<>();
         routeDataStream.forEach(routeData -> {
-            String agencyId = routeData.getAgency();
-            if (!allAgencies.containsKey(agencyId)) {
+            IdFor<Agency> agencyId = routeData.getAgencyId();
+            if (!allAgencies.hasId(agencyId)) {
                 logger.error("Missing agency " + agencyId);
             }
 
             GTFSTransportationType routeType = routeData.getRouteType();
 
+            IdFor<Route> id = routeData.getId();
             if (transportModes.contains(routeType)) {
                 String routeName = routeData.getLongName();
                 if (config.getRemoveRouteNameSuffix()) {
@@ -272,35 +275,37 @@ public class TransportDataFromFilesBuilder {
 
                 count.getAndIncrement();
                 Agency agency = allAgencies.get(agencyId);
-                Route route = new Route(routeData.getId(), routeData.getShortName().trim(), routeName, agency,
+                Route route = new Route(id, routeData.getShortName().trim(), routeName, agency,
                         TransportMode.fromGTFS(routeType));
                 buildable.addAgency(agency);
                 buildable.addRoute(route);
                 buildable.addRouteToAgency(agency, route);
             } else {
-                excludedRoutes.add(routeData.getId());
+                excludedRoutes.add(id);
             }
         });
         logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ excludedRoutes.size());
         return excludedRoutes;
     }
 
-    private HashMap<String, Station> preLoadStations(Stream<StopData> stops) {
+    private IdMap<Station> preLoadStations(Stream<StopData> stops) {
         logger.info("Loading all stops");
-        HashMap<String, Station> allStations = new HashMap<>();
+        IdMap<Station> allStations = new IdMap<>();
 
         stops.forEach((stop) -> {
 
             String stopId = stop.getId();
-            Station station;
-            String stationId = Station.formId(stopId);
+            IdFor<Station> stationId = Station.formId(stopId);
 
-            if (!allStations.containsKey(stationId)) {
-                station = new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong());
-                allStations.put(station.getId(), station);
-            } else {
-                station = allStations.get(stationId);
-            }
+            Station station = allStations.getOrAdd(stationId, () ->
+                    new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong()));
+
+//            if (!allStations.containsKey(stationId)) {
+//                station = new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong());
+//                allStations.put(station.getId(), station);
+//            } else {
+//                station = allStations.get(stationId);
+//            }
 
             // TODO Trains?
             if (stop.isTram()) {
@@ -333,7 +338,8 @@ public class TransportDataFromFilesBuilder {
         return new Platform(stop.getId(), stop.getName());
     }
 
-    private Service getOrInsertService(TransportDataContainer buildable, String serviceId, Route route, Set<String> excludedServices) {
+    private Service getOrInsertService(TransportDataContainer buildable, IdFor<Service> serviceId, Route route,
+                                       IdSet<Service> excludedServices) {
         if (!buildable.hasServiceId(serviceId)) {
             buildable.addService(new Service(serviceId, route));
             excludedServices.remove(serviceId);
@@ -343,7 +349,7 @@ public class TransportDataFromFilesBuilder {
         return service;
     }
 
-    private Trip getOrCreateTrip(TransportDataContainer buildable, String tripId, String tripHeadsign, Service service, Route route) {
+    private Trip getOrCreateTrip(TransportDataContainer buildable, IdFor<Trip> tripId, String tripHeadsign, Service service, Route route) {
         if (buildable.hasTripId(tripId)) {
             Trip matched = buildable.getTripById(tripId);
             if ((!matched.getRoute().equals(route)) || !matched.getService().equals(service) || !matched.getHeadsign().equals(tripHeadsign)) {
@@ -358,10 +364,10 @@ public class TransportDataFromFilesBuilder {
     }
 
     private static class ExcludedTripAndServices {
-        private final Set<String> excludedTrips;
-        private final Set<String> excludedServices;
+        private final IdSet<Trip> excludedTrips;
+        private final IdSet<Service> excludedServices;
 
-        public ExcludedTripAndServices(Set<String> excludedTrips, Set<String> excludedServices) {
+        public ExcludedTripAndServices(IdSet<Trip> excludedTrips, IdSet<Service> excludedServices) {
             this.excludedTrips = excludedTrips;
             this.excludedServices = excludedServices;
         }

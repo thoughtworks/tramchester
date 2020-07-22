@@ -1,6 +1,9 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphStaticKeys;
@@ -52,7 +55,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             ArrayList<Relationship> lowPriority = new ArrayList<>();
 
             toServices.forEach(relationship -> {
-                String routeId = relationship.getProperty(GraphStaticKeys.ROUTE_ID).toString();
+                IdFor<Route> routeId = IdFor.getIdFrom(relationship,GraphStaticKeys.ROUTE_ID);
                 if (state.destinationRoute(routeId)) {
                     highPriority.add(relationship);
                 } else {
@@ -95,14 +98,13 @@ public class RouteStationStateJustBoarded extends TraversalState {
         throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
     }
 
-
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
         private final Relationship relationship;
-        private final String stationId;
+        private final IdFor<Station> stationId;
 
         private RelationshipFacade(Relationship relationship) {
             this.relationship = relationship;
-            this.stationId = relationship.getEndNode().getProperty(GraphStaticKeys.TOWARDS_STATION_ID).toString();
+            this.stationId = IdFor.getIdFrom(relationship.getEndNode(),GraphStaticKeys.TOWARDS_STATION_ID);
         }
 
         @Override
@@ -112,20 +114,16 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
             RelationshipFacade that = (RelationshipFacade) o;
 
-            if (relationship != null ? !relationship.equals(that.relationship) : that.relationship != null)
-                return false;
-            return getStationId() != null ? getStationId().equals(that.getStationId()) : that.getStationId() == null;
+            return stationId.equals(that.stationId);
         }
 
         @Override
         public int hashCode() {
-            int result = relationship != null ? relationship.hashCode() : 0;
-            result = 31 * result + (getStationId() != null ? getStationId().hashCode() : 0);
-            return result;
+            return stationId.hashCode();
         }
 
         @Override
-        public String getStationId() {
+        public IdFor<Station> getId() {
             return stationId;
         }
 

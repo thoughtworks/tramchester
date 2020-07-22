@@ -80,7 +80,7 @@ class TransportDataFromFilesTest {
     void shouldGetAgenciesWithNames() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
         assertEquals(1, agencies.size()); // just MET for trams
-        assertEquals("MET", agencies.get(0).getId());
+        assertEquals("MET", agencies.get(0).getId().forDTO());
         assertEquals("Metrolink", agencies.get(0).getName());
     }
 
@@ -89,7 +89,7 @@ class TransportDataFromFilesTest {
         Route result = transportData.getRouteById(RoutesForTesting.ASH_TO_ECCLES.getId());
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
-        assertEquals("MET:   3:I:",result.getId());
+        assertEquals("MET:   3:I:",result.getId().forDTO());
         assertTrue(TransportMode.isTram(result));
 
         Set<String> headsigns = result.getHeadsigns();
@@ -128,7 +128,7 @@ class TransportDataFromFilesTest {
 
         Set<Service> sundayServices = transportData.getServicesOnDate(new TramServiceDate(nextSunday));
 
-        Set<String> sundayServiceIds = sundayServices.stream().map(Service::getId).collect(Collectors.toSet());
+        IdSet<Service> sundayServiceIds = sundayServices.stream().collect(IdSet.collector());
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
                 filter(trip -> trip.getStops().callsAt(Stations.Cornbrook)).collect(Collectors.toSet());
@@ -168,7 +168,7 @@ class TransportDataFromFilesTest {
             TramServiceDate tramServiceDate = new TramServiceDate(date);
             Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);
 
-            Set<String> servicesOnDateIds = servicesOnDate.stream().map(Service::getId).collect(Collectors.toSet());
+            IdSet<Service> servicesOnDateIds = servicesOnDate.stream().collect(IdSet.collector());
             transportData.getStations().stream().forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                         filter(trip -> trip.getStops().callsAt(station)).
@@ -176,7 +176,7 @@ class TransportDataFromFilesTest {
                         collect(Collectors.toSet());
                 assertFalse(callingTripsOnDate.isEmpty(), String.format("%s %s", date, station));
 
-                Set<String> callingServicesIds = callingTripsOnDate.stream().map(trip -> trip.getService().getId()).collect(Collectors.toSet());
+                IdSet<Service> callingServicesIds = callingTripsOnDate.stream().map(Trip::getService).collect(IdSet.collector());
 
                 for (int hour = earlistHour; hour < latestHour; hour++) {
                     TramTime tramTime = TramTime.of(hour,0);
@@ -218,18 +218,18 @@ class TransportDataFromFilesTest {
         // only one platform at alty, well according to the timetable anyway....
         assertEquals(1, station.getPlatforms().size());
         Platform platformOne = station.getPlatforms().get(0);
-        assertEquals( Stations.Altrincham.getId()+"1", platformOne.getId());
+        assertEquals( Stations.Altrincham.forDTO()+"1", platformOne.getId().forDTO());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
     }
 
     @Test
     void shouldHavePlatform() {
-        Optional<Platform> result = transportData.getPlatformById(Stations.StPetersSquare.getId()+"3");
+        Optional<Platform> result = transportData.getPlatformById(Stations.StPetersSquare.forDTO()+"3");
         assertTrue(result.isPresent());
         Platform platform = result.get();
         assertEquals("St Peter's Square platform 3", platform.getName());
-        assertEquals(Stations.StPetersSquare.getId()+"3", platform.getId());
+        assertEquals(Stations.StPetersSquare.forDTO()+"3", platform.getId().forDTO());
     }
 
     @Test
@@ -259,19 +259,19 @@ class TransportDataFromFilesTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        Set<String> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getAllTrips).
+        IdSet<Trip> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getAllTrips).
                 flatMap(Collection::stream).
-                map(Trip::getId).collect(Collectors.toSet());
+                map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
 
-        Set<String> tripServicesId = new HashSet<>();
+        IdSet<Service> tripServicesId = new IdSet<>();
         allTrips.forEach(trip -> tripServicesId.add(trip.getService().getId()));
         assertEquals(allSvcs, tripServicesId.size());
     }
 
     @Test
     void shouldLoadExceptionalDates() {
-        Set<String> servicesToLoad = allServices.stream().map(Service::getId).collect(Collectors.toSet());
+        Set<String> servicesToLoad = allServices.stream().map(Service::getId).map(IdFor::forDTO).collect(Collectors.toSet());
 
         TransportDataReaderFactory dataReaderFactory = dependencies.get(TransportDataReaderFactory.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
@@ -295,11 +295,11 @@ class TransportDataFromFilesTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Stations.Cornbrook);
 
-        Set<String> toMediaCity = allTrips.stream().
+        IdSet<Service> toMediaCity = allTrips.stream().
                 filter(trip -> trip.getStops().callsAt(Stations.Cornbrook)).
                 filter(trip -> trip.getStops().callsAt(Stations.MediaCityUK)).
                 filter(trip -> trip.getRoute().getId().equals(RoutesForTesting.ASH_TO_ECCLES.getId())).
-                map(trip -> trip.getService().getId()).collect(Collectors.toSet());
+                map(trip -> trip.getService().getId()).collect(IdSet.idCollector());
 
         Set<Service> services = toMediaCity.stream().
                 map(svc->transportData.getServiceById(svc)).collect(Collectors.toSet());
@@ -329,11 +329,10 @@ class TransportDataFromFilesTest {
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
 
         // TODO Due to exception dates makes no sense to use getDays
-        Set<String> mondayAshToManServices = allServices.stream()
+        IdSet<Service> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.operatesOn(aMonday))
                 .filter(svc -> svc.getRoutes().contains(RoutesForTesting.ASH_TO_ECCLES))
-                .map(Service::getId)
-                .collect(Collectors.toSet());
+                .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID
         List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayAshToManServices.contains(trip.getService().getId())).
@@ -361,7 +360,7 @@ class TransportDataFromFilesTest {
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
     }
 
-    private List<StopCall> getStopsFor(Trip trip, String stationId) {
+    private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {
         return trip.getStops().stream().filter(stopCall -> stopCall.getStation().getId().equals(stationId)).collect(Collectors.toList());
     }
 

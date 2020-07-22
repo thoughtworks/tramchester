@@ -1,9 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
@@ -59,8 +57,8 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
         assertEquals(TramTime.of(10, 20), journeyDTO.getExpectedArrivalTime());
         assertEquals(TramTime.of(10, 8), journeyDTO.getFirstDepartureTime());
-        assertEquals(stationA.getId(), journeyDTO.getBegin().getId());
-        assertEquals(stationB.getId(), journeyDTO.getEnd().getId());
+        assertEquals(stationA.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(stationB.forDTO(), journeyDTO.getEnd().getId());
         assertTrue(journeyDTO.getIsDirect());
         assertEquals(1,journeyDTO.getStages().size());
         assertEquals(transportStage, journeyDTO.getStages().get(0));
@@ -79,8 +77,8 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
         assertEquals(TramTime.of(10, 8), journeyDTO.getFirstDepartureTime());
         assertEquals(TramTime.of(11, 45), journeyDTO.getExpectedArrivalTime());
-        assertEquals(stationA.getId(), journeyDTO.getBegin().getId());
-        assertEquals(stationB.getId(), journeyDTO.getEnd().getId());
+        assertEquals(stationA.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(stationB.forDTO(), journeyDTO.getEnd().getId());
         assertFalse(journeyDTO.getIsDirect());
         assertEquals(2,journeyDTO.getStages().size());
         assertEquals(transportStageA, journeyDTO.getStages().get(0));
@@ -111,18 +109,18 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         List<StageDTO> stages = Arrays.asList(stageA, stageB);
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path);
         verifyAll();
 
-        assertEquals(2, journey.getStages().size());
-        assertFalse(journey.getIsDirect());
-        assertEquals(Stations.Altrincham.getId(), journey.getBegin().getId());
-        assertEquals(Stations.Deansgate.getId(), journey.getEnd().getId());
-        assertEquals(Collections.singletonList(Stations.Cornbrook.getName()), journey.getChangeStations());
+        assertEquals(2, journeyDTO.getStages().size());
+        assertFalse(journeyDTO.getIsDirect());
+        assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(Stations.Deansgate.forDTO(), journeyDTO.getEnd().getId());
+        assertEquals(Collections.singletonList(Stations.Cornbrook.getName()), journeyDTO.getChangeStations());
 
-        List<HasId> callingPlatformIds = journey.getCallingPlatformIds();
+        IdSet<Platform> callingPlatformIds = journeyDTO.getCallingPlatformIds();
         assertEquals(2, callingPlatformIds.size());
-        Set<String> ids = callingPlatformIds.stream().map(HasId::getId).collect(Collectors.toSet());
+        Set<String> ids = callingPlatformIds.stream().map(IdFor::forDTO).collect(Collectors.toSet());
         assertTrue(ids.contains(boardingPlatformA.getId()));
         assertTrue(ids.contains(boardingPlatformB.getId()));
     }
@@ -136,14 +134,14 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path);
         verifyAll();
 
-        assertFalse(journey.getIsDirect());
-        assertEquals(Stations.Altrincham.getId(), journey.getBegin().getId());
-        assertEquals(Stations.Bury.getId(), journey.getEnd().getId());
+        assertFalse(journeyDTO.getIsDirect());
+        assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(Stations.Bury.forDTO(), journeyDTO.getEnd().getId());
         List<String> changes = Arrays.asList(Stations.Cornbrook.getName(), Stations.Deansgate.getName());
-        assertEquals(changes, journey.getChangeStations());
+        assertEquals(changes, journeyDTO.getChangeStations());
     }
 
 //    @Test
@@ -208,11 +206,11 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         List<StageDTO> stages = createThreeStages();
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path);
         verifyAll();
 
-        assertEquals(Stations.Altrincham.getId(), journey.getBegin().getId());
-        assertEquals(Stations.ExchangeSquare.getId(), journey.getEnd().getId());
+        assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(Stations.ExchangeSquare.forDTO(), journeyDTO.getEnd().getId());
     }
 
     @Test

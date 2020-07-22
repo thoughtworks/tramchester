@@ -1,5 +1,7 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -12,8 +14,8 @@ import static com.tramchester.graph.GraphStaticKeys.*;
 public class NodeContentsDirect implements NodeContentsRepository{
 
     @Override
-    public String getServiceId(Node node) {
-        return node.getProperty(SERVICE_ID).toString();
+    public IdFor<Service> getServiceId(Node node) {
+        return IdFor.getIdFrom(node,SERVICE_ID);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -73,7 +75,7 @@ public class ServiceHeuristics {
     public ServiceReason checkServiceDate(Node node, HowIGotHere path, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        String nodeServiceId = nodeOperations.getServiceId(node);
+        IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
         if (runningServices.isRunning(nodeServiceId)) {
             return valid(ServiceReason.ReasonCode.ServiceDateOk, path, reasons);
@@ -85,7 +87,7 @@ public class ServiceHeuristics {
     public ServiceReason checkServiceTime(HowIGotHere path, Node node, TramTime currentClock, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        String serviceId = nodeOperations.getServiceId(node);
+        IdFor<Service> serviceId = nodeOperations.getServiceId(node);
 
         // prepared to wait up to max wait for start of a service...
         ServiceTime serviceStart = runningServices.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
@@ -159,7 +161,7 @@ public class ServiceHeuristics {
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
         if (tramOnly) {
-            String routeStationId = endNode.getProperty(ID).toString();
+            IdFor<RouteStation> routeStationId = IdFor.getIdFrom(endNode,ID);
             RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
             if (routeStation==null) {

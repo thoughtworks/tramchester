@@ -1,12 +1,11 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
@@ -18,7 +17,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -130,11 +128,11 @@ class LocationJourneyPlannerTest {
         TransportStage walkStage = firstJourney.getStages().get(1);
 
         assertTrue(walkStage.getFirstDepartureTime().isAfter(tramStage.getExpectedArrivalTime()));
-        assertEquals(Stations.Deansgate.getId(), tramStage.getFirstStation().getId());
-        assertEquals(Stations.NavigationRoad.getId(), tramStage.getLastStation().getId());
-        assertEquals(Stations.NavigationRoad.getId(), walkStage.getFirstStation().getId());
-        assertEquals("MyLocationPlaceholderId", walkStage.getLastStation().getId());
-        assertEquals(Stations.NavigationRoad.getId(), walkStage.getActionStation().getId());
+        assertEquals(Stations.Deansgate.forDTO(), tramStage.getFirstStation().forDTO());
+        assertEquals(Stations.NavigationRoad.forDTO(), tramStage.getLastStation().forDTO());
+        assertEquals(Stations.NavigationRoad.forDTO(), walkStage.getFirstStation().forDTO());
+        assertEquals("MyLocationPlaceholderId", walkStage.getLastStation().forDTO());
+        assertEquals(Stations.NavigationRoad.forDTO(), walkStage.getActionStation().forDTO());
     }
 
     @Test

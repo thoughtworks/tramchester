@@ -3,9 +3,9 @@ package com.tramchester.domain.input;
 import com.tramchester.domain.*;
 import com.tramchester.domain.time.ServiceTime;
 
-public class Trip implements HasId, HasTransportMode {
+public class Trip implements HasId<Trip>, HasTransportMode {
 
-    private final String tripId;
+    private final IdFor<Trip> tripId;
     private final String headSign;
     private final Service service;
     private final Route route;
@@ -16,7 +16,11 @@ public class Trip implements HasId, HasTransportMode {
     private int firstIndex;
 
     public Trip(String tripId, String headSign, Service service, Route route) {
-        this.tripId = tripId.intern();
+        this(IdFor.createId(tripId), headSign, service, route);
+    }
+
+    public Trip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
+        this.tripId = tripId;
         this.headSign = headSign.intern();
         this.service = service;
         this.route = route;
@@ -43,7 +47,7 @@ public class Trip implements HasId, HasTransportMode {
         return tripId != null ? tripId.hashCode() : 0;
     }
 
-    public String getId() {
+    public IdFor<Trip> getId() {
         return tripId;
     }
 

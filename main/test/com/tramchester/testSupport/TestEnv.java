@@ -5,6 +5,7 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
@@ -135,6 +136,10 @@ public class TestEnv {
 
     public static boolean isCircleci() {
         return System.getenv("CIRCLECI") != null;
+    }
+
+    public static TramStopCall createTramStopCall(IdFor<Trip> tripId, String stopId, Station station, int seq, ServiceTime arrive, ServiceTime depart) {
+        return createTramStopCall(tripId.forDTO(), stopId, station, seq, arrive, depart);
     }
 
     public static TramStopCall createTramStopCall(String tripId, String stopId, Station station, int seq, ServiceTime arrive, ServiceTime depart) {

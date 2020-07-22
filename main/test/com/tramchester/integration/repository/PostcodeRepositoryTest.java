@@ -1,6 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -36,7 +37,7 @@ class PostcodeRepositoryTest {
 
     @Test
     void shouldLoadPostcodes() {
-        PostcodeLocation result = repository.getPostcode("M139WL");
+        PostcodeLocation result = repository.getPostcode(IdFor.createId("M139WL"));
         double lat = 53.4620378;
         double lon = -2.2280871;
 

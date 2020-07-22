@@ -41,7 +41,7 @@ class DeparturesResourceTest {
         Station station = Stations.StPetersSquare;
 
         Response response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s", station.getId()));
+                appExtension, String.format("departures/station/%s", station.forDTO()));
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
@@ -86,7 +86,7 @@ class DeparturesResourceTest {
     private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, Station station) {
         String time = queryTime.format(TestEnv.timeFormatter);
         Response response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?querytime=%s", station.getId(), time));
+                appExtension, String.format("departures/station/%s?querytime=%s", station.forDTO(), time));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -173,14 +173,14 @@ class DeparturesResourceTest {
     @LiveDataMessagesCategory
     void shouldGetDueTramsForStationNotesOnOrOff() {
         Response response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.getId()));
+                appExtension, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.forDTO()));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
         assertFalse(departureList.getNotes().isEmpty());
 
         response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.getId()));
+                appExtension, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.forDTO()));
         assertEquals(200, response.getStatus());
 
         departureList = response.readEntity(DepartureListDTO.class);

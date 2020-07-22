@@ -3,9 +3,9 @@ package com.tramchester.domain;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Route implements HasId, HasTransportMode {
+public class Route implements HasId<Route>, HasTransportMode {
 
-    private final String id;
+    private final IdFor<Route> id;
     private final String shortName;
     private final String name;
     private final Agency agency;
@@ -14,7 +14,11 @@ public class Route implements HasId, HasTransportMode {
     private final Set<String> headsigns;
 
     public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode) {
-        this.id = id.intern();
+        this(IdFor.createId(id), shortName, name, agency, transportMode);
+    }
+
+    public Route(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
+        this.id = id;
         this.shortName = shortName.intern();
         this.name = name.intern();
 
@@ -24,7 +28,7 @@ public class Route implements HasId, HasTransportMode {
         headsigns = new HashSet<>();
     }
 
-    public String getId() {
+    public IdFor<Route> getId() {
         return id;
     }
 

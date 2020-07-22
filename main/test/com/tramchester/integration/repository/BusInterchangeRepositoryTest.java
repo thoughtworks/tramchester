@@ -1,23 +1,26 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.BusTest;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -43,7 +46,7 @@ class BusInterchangeRepositoryTest {
 
     @Test
     void shouldFindTramInterchanges() {
-        for (String interchange : TramInterchanges.stations()) {
+        for (IdFor<Station> interchange : TramInterchanges.stations()) {
             assertTrue(repository.isInterchange(interchange));
         }
     }
@@ -59,7 +62,7 @@ class BusInterchangeRepositoryTest {
         }
 
         assertFalse(interchanges.isEmpty());
-        Set<String> interchangeIds = interchanges.stream().map(Station::getId).collect(Collectors.toSet());
+        IdSet<Station> interchangeIds = interchanges.stream().collect(IdSet.collector());
         assertTrue(interchangeIds.contains(BusStations.AltrinchamInterchange.getId()));
     }
 

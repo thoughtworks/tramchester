@@ -1,6 +1,10 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Direction;
@@ -25,11 +29,15 @@ public class GraphQuery {
         this.graphDatabase = graphDatabase;
     }
 
-    public Node getPlatformNode(Transaction txn, String id) {
+    public Node getPlatformNode(Transaction txn, IdFor<Platform> id) {
         return getNodeByLabel(txn, id, GraphBuilder.Labels.PLATFORM);
     }
 
-    public Node getRouteStationNode(Transaction txn, String id) {
+    private Node getRouteStationNode(Transaction txn, String id) {
+        return getNodeByLabel(txn, id,GraphBuilder.Labels.ROUTE_STATION);
+    }
+
+    public Node getRouteStationNode(Transaction txn, IdFor<RouteStation> id) {
         return getNodeByLabel(txn, id,GraphBuilder.Labels.ROUTE_STATION);
     }
 
@@ -37,7 +45,11 @@ public class GraphQuery {
         return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id);
     }
 
-    public List<Relationship> getRouteStationRelationships(Transaction txn, String routeStationId, Direction direction) {
+    private <T extends HasId<T>> Node getNodeByLabel(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
+        return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id.getGraphId());
+    }
+
+    public List<Relationship> getRouteStationRelationships(Transaction txn, IdFor<RouteStation> routeStationId, Direction direction) {
         Node routeStationNode = getRouteStationNode(txn, routeStationId);
         if (routeStationNode==null) {
             return Collections.emptyList();
@@ -51,7 +63,7 @@ public class GraphQuery {
         return getStationNode(txn, station.getId(), station.getTransportMode());
     }
 
-    private Node getStationNode(Transaction txn, String stationId, TransportMode transportMode) {
+    private Node getStationNode(Transaction txn, IdFor<Station> stationId, TransportMode transportMode) {
         Node node = getNodeByLabel(txn, stationId, GraphBuilder.Labels.forMode(transportMode));
         if (node==null) {
             logger.warn("Did not find node for station: " + stationId + " mode: " + transportMode);

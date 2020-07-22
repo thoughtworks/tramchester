@@ -2,6 +2,7 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.parsers.StopTimeDataMapper;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
@@ -42,7 +43,7 @@ class StopTimeDataParserTest {
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
-        assertThat(stopTimeData.getTripId()).isEqualTo("Trip000001");
+        assertThat(stopTimeData.getTripId()).isEqualTo(IdFor.createId("Trip000001"));
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(ServiceTime.of(6,42));
         assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");

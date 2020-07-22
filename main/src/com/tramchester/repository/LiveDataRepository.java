@@ -3,7 +3,9 @@ package com.tramchester.repository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
@@ -35,8 +37,8 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
     // platformId -> StationDepartureInfo
-    private final Cache<String, StationDepartureInfo> departureInfoCache;
-    private final Set<String> uniquePlatformsSeen;
+    private final Cache<IdFor<Platform>, StationDepartureInfo> departureInfoCache;
+    private final IdSet<Platform> uniquePlatformsSeen;
     private final List<LiveDataObserver> observers;
     private final LiveDataFetcher fetcher;
     private final LiveDataParser parser;
@@ -51,7 +53,7 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
 
         departureInfoCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
-        uniquePlatformsSeen = new HashSet<>();
+        uniquePlatformsSeen = new IdSet<>();
         observers = new LinkedList<>();
     }
 
@@ -87,7 +89,7 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
     }
 
     private int consumeDepartInfo(List<StationDepartureInfo> receivedUpdate) {
-        Set<String> platformsSeen = new HashSet<>();
+        Set<IdFor<Platform>> platformsSeen = new HashSet<>();
         TramTime now = providesNow.getNow();
         LocalDate date = providesNow.getDate();
         int stale = 0;
@@ -118,8 +120,8 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
         return true;
     }
 
-    private void updateCacheFor(StationDepartureInfo newDepartureInfo, Set<String> platformsSeen) {
-        String platformId = newDepartureInfo.getStationPlatform();
+    private void updateCacheFor(StationDepartureInfo newDepartureInfo, Set<IdFor<Platform>> platformsSeen) {
+        IdFor<Platform> platformId = newDepartureInfo.getStationPlatform();
         if (!platformsSeen.contains(platformId)) {
             platformsSeen.add(platformId);
             departureInfoCache.put(platformId, newDepartureInfo);
@@ -148,7 +150,7 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
     }
 
     @Override
-    public Optional<StationDepartureInfo> departuresFor(HasId platform, TramServiceDate tramServiceDate, TramTime queryTime) {
+    public Optional<StationDepartureInfo> departuresFor(IdFor<Platform> platform, TramServiceDate tramServiceDate, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Optional.empty();
@@ -173,7 +175,7 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
     @Override
     public List<StationDepartureInfo> departuresFor(Station station, TramServiceDate when, TramTime queryTime) {
         List<StationDepartureInfo> results = new ArrayList<>();
-        station.getPlatforms().forEach(platform -> departuresFor(platform, when, queryTime).ifPresent(results::add));
+        station.getPlatforms().forEach(platform -> departuresFor(platform.getId(), when, queryTime).ifPresent(results::add));
         return results;
     }
 
@@ -211,13 +213,13 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
         return totalSeen-upToDateEntries;
     }
 
-    private Optional<StationDepartureInfo> departuresFor(HasId platform) {
-        String platformId = platform.getId();
+    private Optional<StationDepartureInfo> departuresFor(IdFor<Platform> platformId) {
+        //IdFor<Platform> platformId = platform.getId();
 
         @Nullable StationDepartureInfo ifPresent = departureInfoCache.getIfPresent(platformId);
 
         if (ifPresent==null) {
-            logger.warn("Could not find departure info for " + platform);
+            logger.warn("Could not find departure info for " + platformId);
             return Optional.empty();
         }
         return Optional.of(ifPresent);

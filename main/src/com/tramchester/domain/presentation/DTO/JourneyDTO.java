@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CallsAtPlatforms;
 import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdSet;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
@@ -99,8 +101,12 @@ public class JourneyDTO implements CallsAtPlatforms {
 
     @JsonIgnore
     @Override
-    public List<HasId> getCallingPlatformIds() {
-        return stages.stream().filter(StageDTO::getHasPlatform).map(StageDTO::getPlatform).collect(Collectors.toList());
+    public IdSet<Platform> getCallingPlatformIds() {
+        return stages.stream().
+                filter(StageDTO::getHasPlatform).
+                map(StageDTO::getPlatform).
+                map(PlatformDTO::getPlatformId).
+                collect(IdSet.idCollector());
     }
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)

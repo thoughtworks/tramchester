@@ -1,5 +1,7 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -43,14 +45,15 @@ public class RouteReachable {
     public List<Route> getRoutesFromStartToNeighbour(Station startStation, Station endStation) {
         List<Route> results = new ArrayList<>();
         Set<Route> firstRoutes = startStation.getRoutes();
-        String endStationId = endStation.getId();
+        IdFor<Station> endStationId = endStation.getId();
 
         try (Transaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
-                Node routeStation = graphQuery.getRouteStationNode(txn, RouteStation.formId(startStation, route));
+                Node routeStation = graphQuery.getRouteStationNode(txn, IdFor.createId(startStation, route));
                 Iterable<Relationship> edges = routeStation.getRelationships(Direction.OUTGOING, ON_ROUTE);
                 for (Relationship edge : edges) {
-                    if (endStationId.equals(edge.getEndNode().getProperty(STATION_ID).toString())) {
+//                    if (endStationId.equals(edge.getEndNode().getProperty(STATION_ID).toString())) {
+                    if (endStationId.matchesStationNodePropery(edge.getEndNode())) {
                         results.add(route);
                     }
                 }
@@ -97,7 +100,7 @@ public class RouteReachable {
                     logger.warn("Cannot find node for station id " + startStation);
                 }
             } else  {
-                String endStationId = endStation.getId();
+                IdFor<Station> endStationId = endStation.getId();
                 Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId<>(endStationId, route.getId(),
                         interchangeRepository);
 
@@ -164,11 +167,11 @@ public class RouteReachable {
     }
 
     private static class FindRouteNodesForDesintationAndRouteId<STATE> implements PathEvaluator<STATE> {
-        private final String endStationId;
-        private final String routeId;
+        private final IdFor<Station> endStationId;
+        private final IdFor<Route> routeId;
         private final InterchangeRepository interchangeRepository;
 
-        public FindRouteNodesForDesintationAndRouteId(String endStationId, String routeId,
+        public FindRouteNodesForDesintationAndRouteId(IdFor<Station> endStationId, IdFor<Route> routeId,
                                                       InterchangeRepository interchangeRepository) {
             this.endStationId = endStationId;
             this.routeId = routeId;
@@ -182,10 +185,10 @@ public class RouteReachable {
 
         @Override
         public Evaluation evaluate(Path path, BranchState state) {
-            Node queryNode = path.endNode();
+            Node endNode = path.endNode();
 
-            if (queryNode.hasLabel(ROUTE_STATION)) {
-                String currentStationId = queryNode.getProperty(STATION_ID).toString();
+            if (endNode.hasLabel(ROUTE_STATION)) {
+                IdFor<Station> currentStationId = IdFor.getIdFrom(endNode,STATION_ID);
                 if (endStationId.equals(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE; // finished, at dest
                 }
@@ -194,13 +197,14 @@ public class RouteReachable {
                 }
             }
 
-            if (queryNode.hasRelationship(Direction.OUTGOING, ON_ROUTE)) {
-                if (routeId.isEmpty()) {
-                    return Evaluation.EXCLUDE_AND_CONTINUE;
-                }
-                Iterable<Relationship> routeRelat = queryNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
-                Set<String> routeIds = new HashSet<>();
-                routeRelat.forEach(relationship -> routeIds.add(relationship.getProperty(ROUTE_ID).toString()));
+            if (endNode.hasRelationship(Direction.OUTGOING, ON_ROUTE)) {
+                // TODO why was this needed?
+//                if (routeId.isEmpty()) {
+//                    return Evaluation.EXCLUDE_AND_CONTINUE;
+//                }
+                Iterable<Relationship> routeRelat = endNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
+                IdSet<Route> routeIds = new IdSet<>();
+                routeRelat.forEach(relationship -> routeIds.add(IdFor.getIdFrom(relationship, ROUTE_ID)));
 
                 if (routeIds.contains(routeId)) {
                     return Evaluation.EXCLUDE_AND_CONTINUE; // if have routeId then only follow if on same route

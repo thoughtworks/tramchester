@@ -48,8 +48,8 @@ class RouteResourceTest {
 
         assertEquals("3", ashtonRoute.getShortName().trim());
         List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
-        assertTrue(ids.contains(Stations.Ashton.getId()));
-        assertTrue(ids.contains(Stations.Eccles.getId()));
+        assertTrue(ids.contains(Stations.Ashton.forDTO()));
+        assertTrue(ids.contains(Stations.Eccles.forDTO()));
     }
 
     @Test
@@ -63,11 +63,11 @@ class RouteResourceTest {
 
         List<StationRefWithPosition> stations = routes.get(index).getStations();
         StationRefWithPosition first = stations.get(0);
-        assertEquals(Stations.ManAirport.getId(), first.getId());
+        assertEquals(Stations.ManAirport.forDTO(), first.getId());
         assertEquals(TestEnv.manAirportLocation, first.getLatLong());
         assertEquals(TransportMode.Tram, first.getTransportMode());
 
-        assertEquals(Stations.Victoria.getId(), stations.get(stations.size()-1).getId());
+        assertEquals(Stations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
     }
 
     private List<RouteDTO> getRouteResponse() {

@@ -3,7 +3,7 @@ package com.tramchester.repository;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.CoordinateTransforms;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Set;
 
 public class PostcodeRepository implements Disposable, Startable {
@@ -32,7 +31,7 @@ public class PostcodeRepository implements Disposable, Startable {
         postcodes = new IdMap<>();
     }
 
-    public PostcodeLocation getPostcode(String postcodeId) {
+    public PostcodeLocation getPostcode(IdFor<PostcodeLocation> postcodeId) {
         return postcodes.get(postcodeId);
     }
 
@@ -46,9 +45,9 @@ public class PostcodeRepository implements Disposable, Startable {
         Set<PostcodeData> rawCodes = importer.loadLocalPostcodes();
 
         rawCodes.forEach(code -> {
-            String id = code.getId();
+            String name = code.getId();
             try {
-                postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(), code.getNorthings()), id));
+                postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(), code.getNorthings()), code.getId()));
             } catch (TransformException e) {
                 logger.warn("Unable to convert position of postcode to lat/long " + code);
             }
@@ -65,7 +64,7 @@ public class PostcodeRepository implements Disposable, Startable {
         // no op
     }
 
-    public boolean hasPostcode(String postcode) {
+    public boolean hasPostcode(IdFor<PostcodeLocation> postcode) {
         return postcodes.hasId(postcode);
     }
 

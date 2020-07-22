@@ -26,7 +26,7 @@ class CalendarDataParserTest {
         assertThat(calendarDataMapper.shouldInclude(recordFor)).isEqualTo(true);
 
         CalendarData calendarData = calendarDataMapper.parseEntry(recordFor);
-        assertThat(calendarData.getServiceId()).isEqualTo("Serv000001");
+        assertThat(calendarData.getServiceId().forDTO()).isEqualTo("Serv000001");
         assertThat(calendarData.isMonday()).isEqualTo(true);
         assertThat(calendarData.isTuesday()).isEqualTo(true);
         assertThat(calendarData.isWednesday()).isEqualTo(true);

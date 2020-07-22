@@ -15,7 +15,7 @@ class StationDTOTest {
                 new LatLong(0.1D, -2D), TransportMode.Tram);
         StationDTO dto = new StationDTO(station);
 
-        Assertions.assertEquals(station.getId(), dto.getId());
+        Assertions.assertEquals(station.forDTO(), dto.getId());
         Assertions.assertEquals(station.getName(), dto.getName());
         Assertions.assertEquals(station.getPlatforms().size(), dto.getPlatforms().size());
         Assertions.assertEquals(station.getLatLong(), dto.getLatLong());

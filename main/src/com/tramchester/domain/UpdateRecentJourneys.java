@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class UpdateRecentJourneys {
     private static final Logger logger = LoggerFactory.getLogger(UpdateRecentJourneys.class);
 
-    private int limit;
+    private final int limit;
 
     public UpdateRecentJourneys(TramchesterConfig config) {
         this.limit = config.getRecentStopsToShow();

@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.dataimport.data.CalendarDateData;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
@@ -74,7 +75,7 @@ class ServiceTest {
 
         Service service = new Service("SVC002", TestEnv.getTestRoute());
         Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
-        String tripId = trip.getId();
+        IdFor<Trip> tripId = trip.getId();
         trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", Stations.Deansgate,3, ServiceTime.of(9,5), ServiceTime.of(9,6)));
         trip.addStop(TestEnv.createTramStopCall(tripId, "stopId2", Stations.Deansgate, 2, ServiceTime.of(8,15), ServiceTime.of(8,16)));
         trip.addStop(TestEnv.createTramStopCall(tripId, "stopId3", Stations.Deansgate, 4, ServiceTime.of(10,25), ServiceTime.of(10,26)));
@@ -113,7 +114,7 @@ class ServiceTest {
 
         assertThat(service.getRoutes().size()).isEqualTo(1);
         assertTrue(service.getRoutes().contains(route66));
-        assertThat(service.getId()).isEqualTo("SRV001");
+        assertThat(service.getId()).isEqualTo(IdFor.createId("SRV001"));
 
         Route another = TestEnv.getTestRoute("another");
         service.addRoute(another);

@@ -3,6 +3,8 @@ package com.tramchester.graph;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,7 +27,7 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
 
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, String> tripRelationshipCache;
-    private final Cache<Long, String> svcIdCache;
+    private final Cache<Long, IdFor<Service>> svcIdCache;
     private final Cache<Long, Integer> hourNodeCache;
     private final Cache<Long, TramTime> times;
 
@@ -81,9 +83,9 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
         return times.get(nodeId, id -> TramTime.of(((LocalTime) node.getProperty(TIME))));
     }
 
-    public String getServiceId(Node node) {
+    public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
-        return svcIdCache.get(nodeId, id -> node.getProperty(GraphStaticKeys.SERVICE_ID).toString());
+        return svcIdCache.get(nodeId, id -> IdFor.getIdFrom(node,GraphStaticKeys.SERVICE_ID));
     }
 
     public int getHour(Node node) {

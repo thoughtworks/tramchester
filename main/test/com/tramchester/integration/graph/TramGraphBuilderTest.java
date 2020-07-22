@@ -1,6 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
@@ -73,15 +74,17 @@ class TramGraphBuilderTest {
         Set<String> fileSvcIds = getTripsFor(transportData.getTrips(), Stations.MediaCityUK).stream().
 //                filter(trip -> trip.getService().isRunning()).
                 map(trip -> trip.getService().getId()).
+                map(IdFor::getGraphId).
                 collect(Collectors.toSet());
         fileSvcIds.removeAll(graphSvcIds);
 
         Assertions.assertEquals(0, fileSvcIds.size());
     }
 
-    private List<Relationship> getOutboundRouteStationRelationships(Transaction txn, String routeStationId) {
+    private List<Relationship> getOutboundRouteStationRelationships(Transaction txn, IdFor<RouteStation> routeStationId) {
         return graphQuery.getRouteStationRelationships(txn, routeStationId, Direction.OUTGOING);
     }
+
 
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
@@ -157,6 +160,7 @@ class TramGraphBuilderTest {
 
         Set<String> fileSvcIdFromTrips = fileCallingTrips.stream().
                 map(trip -> trip.getService().getId()).
+                map(IdFor::getGraphId).
                 collect(Collectors.toSet());
 
         // NOTE: Check clean target that and graph has been rebuilt if see failure here
@@ -194,6 +198,7 @@ class TramGraphBuilderTest {
         SortedSet<String> svcIdsFromCallingTrips = new TreeSet<>();
         svcIdsFromCallingTrips.addAll(callingTrips.stream().
                 map(trip -> trip.getService().getId()).
+                map(IdFor::getGraphId).
                 collect(Collectors.toSet()));
 
         Assertions.assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
@@ -204,7 +209,10 @@ class TramGraphBuilderTest {
 
         Assertions.assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
 
-        Set<String> tripIdsFromFile = callingTrips.stream().map(Trip::getId).collect(Collectors.toSet());
+        Set<String> tripIdsFromFile = callingTrips.stream().
+                map(Trip::getId).
+                map(IdFor::getGraphId).
+                collect(Collectors.toSet());
 
         tripIdsFromFile.removeAll(graphInboundTripIds);
         Assertions.assertEquals(0, tripIdsFromFile.size());

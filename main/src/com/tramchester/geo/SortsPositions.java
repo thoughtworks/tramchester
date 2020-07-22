@@ -1,5 +1,7 @@
 package com.tramchester.geo;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
@@ -19,7 +21,7 @@ public class SortsPositions {
     }
 
     // List, order matters here
-    public <CONTAINED> List<CONTAINED> sortedByNearTo(Set<String> destinationStationIds, Set<HasStationId<CONTAINED>> startingPoints) {
+    public <CONTAINED> List<CONTAINED> sortedByNearTo(IdSet<Station> destinationStationIds, Set<HasStationId<CONTAINED>> startingPoints) {
 
         Set<Station> dests = destinationStationIds.stream().map(repository::getStationById).collect(Collectors.toSet());
 
@@ -27,7 +29,7 @@ public class SortsPositions {
         startingPoints.forEach(container -> {
             double current = Double.MAX_VALUE;
             for (Station dest : dests) {
-                Station place = repository.getStationById(container.getStationId());
+                Station place = repository.getStationById(container.getId());
                 double distance = computeDistance(place, dest);
                 if (distance < current) {
                     current = distance;
@@ -49,7 +51,7 @@ public class SortsPositions {
         Map<HasStationId<CONTAINED>, Double> distances = new HashMap<>();
 
         startingPoints.forEach(container -> {
-                Station place = repository.getStationById(container.getStationId());
+                Station place = repository.getStationById(container.getId());
                 double distance = CoordinateTransforms.distanceFlat(place.getLatLong(), destination);
                 distances.put(container, distance);
         });
@@ -71,7 +73,7 @@ public class SortsPositions {
     }
 
     public interface HasStationId<T> {
-        String getStationId();
+        IdFor<Station> getId();
         T getContained();
     }
 }

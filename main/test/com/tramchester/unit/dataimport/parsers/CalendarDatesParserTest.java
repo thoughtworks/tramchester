@@ -26,7 +26,7 @@ class CalendarDatesParserTest {
 
         CalendarDateData result = mapper.parseEntry(ParserBuilder.getRecordFor(example));
 
-        Assertions.assertEquals(result.getServiceId(), "Serv000001");
+        Assertions.assertEquals(result.getServiceId().forDTO(), "Serv000001");
         Assertions.assertEquals(LocalDate.of(2020, 8, 31), result.getDate());
         Assertions.assertEquals(2, result.getExceptionType());
     }

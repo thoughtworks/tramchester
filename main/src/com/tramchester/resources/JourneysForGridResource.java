@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.BoundingBoxWithCost;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.time.TramServiceDate;
@@ -51,13 +52,15 @@ public class JourneysForGridResource implements APIResource {
     @ApiOperation(value = "Get cheapest travel costs for a grid of locations", response = BoundingBoxWithCost.class)
     //@CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response gridCosts(@QueryParam("gridSize") int gridSize,
-                              @QueryParam("destination") String destinationId,
+                              @QueryParam("destination") String destinationIdText,
                               @QueryParam("departureTime") String departureTimeRaw,
                               @QueryParam("departureDate") String departureDateRaw,
                               @QueryParam("maxChanges") int maxChanges,
                               @QueryParam("maxDuration") int maxDuration) {
         logger.info(format("Query for quicktimes to %s for grid of size %s at %s %s maxchanges %s max duration %s",
-                destinationId, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDuration));
+                destinationIdText, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDuration));
+
+        IdFor<Station> destinationId = IdFor.createId(destinationIdText);
         Station destination = repository.getStationById(destinationId);
 
         Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);

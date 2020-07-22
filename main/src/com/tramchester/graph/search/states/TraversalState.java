@@ -1,14 +1,15 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphStaticKeys;
-import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
@@ -16,17 +17,19 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
-    private final Set<String> destinationRouteIds;
     private TraversalState child;
     private final TraversalState parent;
-    private final Set<String> destinationStationIds;
+
+    private final IdSet<Station> destinationStationIds;
+    private final IdSet<Route> destinationRouteIds;
 
     protected final NodeContentsRepository nodeOperations;
     protected final Set<Long> destinationNodeIds;
@@ -43,11 +46,9 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                              LatLong destinationLatLonHint, TramchesterConfig config) {
         this.nodeOperations = nodeOperations;
         this.destinationNodeIds = destinationNodeIds;
-        this.destinationStationIds = destinationStations.stream().map(Station::getId).collect(Collectors.toSet());
-        this.destinationRouteIds = destinationStations.stream().
-                map(Station::getRoutes).
-                flatMap(Collection::stream).
-                map(Route::getId).collect(Collectors.toSet());
+        this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
+        this.destinationRouteIds = destinationStations.stream().map(Station::getRoutes).flatMap(Collection::stream).
+                collect(IdSet.collector());
 
         this.costForLastEdge = 0;
         this.parentCost = 0;
@@ -108,7 +109,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         List<Relationship> towardsDestination = new ArrayList<>();
         outgoing.forEach(depart ->
         {
-            if (destinationStationIds.contains(depart.getProperty(GraphStaticKeys.STATION_ID).toString())) {
+            if (destinationStationIds.contains(IdFor.getIdFrom(depart, STATION_ID))) {
                 towardsDestination.add(depart);
             }
         });
@@ -141,7 +142,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-    public boolean destinationRoute(String routeId) {
+    public boolean destinationRoute(IdFor<Route> routeId) {
         return destinationRouteIds.contains(routeId);
     }
 

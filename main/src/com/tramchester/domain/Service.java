@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class Service implements HasId {
+public class Service implements HasId<Service> {
 
-    private final String serviceId;
+    private final IdFor<Service> serviceId;
     private final Set<Route> routes;
     private final Set<Trip> trips;
     private TramServiceDate startDate;
@@ -33,7 +33,11 @@ public class Service implements HasId {
     private ServiceTime latestDepart;
 
     public Service(String serviceId, Route route) {
-        this.serviceId = serviceId.intern();
+        this(IdFor.createId(serviceId), route);
+    }
+
+    public Service(IdFor<Service> serviceId, Route route) {
+        this.serviceId = serviceId;
         this.routes = new HashSet<>();
         this.routes.add(route);
         this.trips = new LinkedHashSet<>();
@@ -44,7 +48,7 @@ public class Service implements HasId {
         latestDepart = null;
     }
 
-    public String getId() {
+    public IdFor<Service> getId() {
         return serviceId;
     }
 

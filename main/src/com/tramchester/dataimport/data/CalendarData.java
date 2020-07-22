@@ -1,10 +1,14 @@
 package com.tramchester.dataimport.data;
 
 
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Service;
+
 import java.time.LocalDate;
 
 public class CalendarData {
-    private final String serviceId;
+    private final IdFor<Service> serviceId;
     private final boolean monday;
     private final boolean tuesday;
     private final boolean wednesday;
@@ -18,7 +22,7 @@ public class CalendarData {
     public CalendarData(String serviceId, boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
                         boolean friday, boolean saturday, boolean sunday, LocalDate start, LocalDate end) {
 
-        this.serviceId = serviceId.intern();
+        this.serviceId = IdFor.createId(serviceId);
         this.monday = monday;
         this.tuesday = tuesday;
         this.wednesday = wednesday;
@@ -30,7 +34,7 @@ public class CalendarData {
         this.end = end;
     }
 
-    public String getServiceId() {
+    public IdFor<Service> getServiceId() {
         return serviceId;
     }
 
@@ -69,5 +73,6 @@ public class CalendarData {
     public LocalDate getStartDate() {
         return start;
     }
+
 
 }

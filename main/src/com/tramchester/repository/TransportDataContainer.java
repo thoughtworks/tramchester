@@ -53,17 +53,17 @@ public class TransportDataContainer implements TransportData, Disposable {
         logger.info(format("%s feedinfos", feedInfoMap.size()));
     }
 
-    public Service getService(String serviceId) {
+    public Service getService(IdFor<Service> serviceId) {
         return services.get(serviceId);
     }
 
     @Override
-    public boolean hasStationId(String stationId) {
+    public boolean hasStationId(IdFor<Station> stationId) {
         return stationsById.hasId(stationId);
     }
 
     @Override
-    public Station getStationById(String stationId) {
+    public Station getStationById(IdFor<Station> stationId) {
         if (!stationsById.hasId(stationId)) {
             String msg = "Unable to find station from ID " + stationId;
             logger.error(msg);
@@ -83,8 +83,13 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public RouteStation getRouteStationById(String routeStationId) {
+    public RouteStation getRouteStationById(IdFor<RouteStation> routeStationId) {
         return routeStations.get(routeStationId);
+    }
+
+    @Override
+    public RouteStation getRouteStationById(Station station, Route route) {
+        return getRouteStationById(IdFor.createId(station, route));
     }
 
     @Override
@@ -98,7 +103,7 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean hasRouteStationId(String routeStationId) {
+    public boolean hasRouteStationId(IdFor<RouteStation> routeStationId) {
         return routeStations.hasId(routeStationId);
     }
 
@@ -106,11 +111,11 @@ public class TransportDataContainer implements TransportData, Disposable {
        routeStations.add(routeStation);
     }
 
-    public boolean hasPlatformId(String platformId) {
+    public boolean hasPlatformId(IdFor<Platform> platformId) {
         return platforms.hasId(platformId);
     }
 
-    public Platform getPlatform(String platformId) {
+    public Platform getPlatform(IdFor<Platform> platformId) {
         return platforms.get(platformId);
     }
 
@@ -120,7 +125,7 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public Route getRouteById(String routeId) {
+    public Route getRouteById(IdFor<Route> routeId) {
         return routes.get(routeId);
     }
 
@@ -130,7 +135,7 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public Service getServiceById(String serviceId) {
+    public Service getServiceById(IdFor<Service>  serviceId) {
         return services.get(serviceId);
     }
 
@@ -140,7 +145,7 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public boolean hasServiceId(String serviceId) {
+    public boolean hasServiceId(IdFor<Service>  serviceId) {
         return services.hasId(serviceId);
     }
 
@@ -152,8 +157,10 @@ public class TransportDataContainer implements TransportData, Disposable {
         routes.add(route);
     }
 
+    @Deprecated
     public void addRouteToAgency(Agency agency, Route route) {
-        agencies.get(agency.getId()).addRoute(route);
+        agency.addRoute(route);
+//        agencies.get(agency).addRoute(route);
     }
 
     public void addStation(Station station) {
@@ -178,12 +185,12 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public boolean hasTripId(String tripId) {
+    public boolean hasTripId(IdFor<Trip> tripId) {
         return trips.hasId(tripId);
     }
 
     @Override
-    public Trip getTripById(String tripId) {
+    public Trip getTripById(IdFor<Trip> tripId) {
         return trips.get(tripId);
     }
 
@@ -197,7 +204,8 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public Optional<Platform> getPlatformById(String platformId) {
+    public Optional<Platform> getPlatformById(String platformText) {
+        IdFor<Platform> platformId = IdFor.createId(platformText);
         if (platforms.hasId(platformId)) {
             return Optional.of(platforms.get(platformId));
         }
@@ -219,7 +227,7 @@ public class TransportDataContainer implements TransportData, Disposable {
         return services.filter(item -> item.operatesOn(date.getDate()));
     }
 
-    public boolean hasRouteId(String routeId) {
+    public boolean hasRouteId(IdFor<Route>  routeId) {
         return routes.hasId(routeId);
     }
 

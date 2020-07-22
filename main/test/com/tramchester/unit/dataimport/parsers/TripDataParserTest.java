@@ -2,6 +2,7 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.TripData;
 import com.tramchester.dataimport.parsers.TripDataMapper;
+import com.tramchester.domain.IdFor;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,9 +36,9 @@ class TripDataParserTest {
 
         TripData tripData = tripParserTest.parseEntry(record);
 
-        assertThat(tripData.getRouteId()).isEqualTo("MET:MET1:I:");
-        assertThat(tripData.getServiceId()).isEqualTo("Serv000001");
-        assertThat(tripData.getTripId()).isEqualTo("Trip000001");
+        assertThat(tripData.getRouteId()).isEqualTo(IdFor.createId("MET:MET1:I:"));
+        assertThat(tripData.getServiceId()).isEqualTo(IdFor.createId("Serv000001"));
+        assertThat(tripData.getTripId()).isEqualTo(IdFor.createId("Trip000001"));
         assertThat(tripData.getTripHeadsign()).isEqualTo("Bury Interchange");
     }
 

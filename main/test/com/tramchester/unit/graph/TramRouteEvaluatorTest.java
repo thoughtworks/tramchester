@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
@@ -207,7 +208,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(nodeIdLabelMap.isService(node)).andStubReturn(true);
 
         EasyMock.expect(serviceHeuristics.checkServiceDate(node, howIGotHere, reasons)).
-                andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, "nodeServiceId"));
+                andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, IdFor.createId("nodeServiceId")));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.NotOnQueryDate, node, TramTime.of(8,15));

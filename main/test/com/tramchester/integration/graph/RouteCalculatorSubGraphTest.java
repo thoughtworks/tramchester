@@ -137,7 +137,7 @@ class RouteCalculatorSubGraphTest {
     //@Disabled
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(database, 7);
-        creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.getId()));
+        creator.create(format("%s_trams.dot", "subgraph"), Collections.singletonList(Stations.Cornbrook.forDTO()));
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

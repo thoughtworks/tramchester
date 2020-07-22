@@ -2,8 +2,10 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocationFactory;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
@@ -23,7 +25,10 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -124,7 +129,7 @@ class JourneyPlannerLocationResourceTest {
             assertEquals(2, stages.size());
             StageDTO walkingStage = stages.get(1);
 
-            assertEquals(Stations.NavigationRoad.getId(), walkingStage.getFirstStation().getId());
+            assertEquals(Stations.NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
             assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
             assertEquals(14, walkingStage.getDuration());
         });
@@ -144,7 +149,7 @@ class JourneyPlannerLocationResourceTest {
         StageDTO walkingStage = stages.get(1);
         assertTrue(firstJourney.getFirstDepartureTime().isBefore(TramTime.of(queryTime)));
 
-        assertEquals(Stations.NavigationRoad.getId(), walkingStage.getFirstStation().getId());
+        assertEquals(Stations.NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
         assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
         assertEquals(14, walkingStage.getDuration());
     }
@@ -196,7 +201,7 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(TramTime.of(9,0), first.getFirstDepartureTime(), journeys.toString());
         assertEquals(TramTime.of(9,3), first.getExpectedArrivalTime(), journeys.toString());
-        assertEquals(Stations.PiccadillyGardens.getId(), first.getEnd().getId());
+        assertEquals(Stations.PiccadillyGardens.forDTO(), first.getEnd().getId());
 
         assertEquals(1, stages.size());
         StageDTO stage = stages.get(0);
@@ -210,7 +215,7 @@ class JourneyPlannerLocationResourceTest {
                 LocalTime.of(19,47), false);
 
         journeys.forEach(journey -> {
-            assertEquals(Stations.Ashton.getId(), journey.getEnd().getId());
+            assertEquals(Stations.Ashton.forDTO(), journey.getEnd().getId());
             assertEquals(3, journey.getStages().size());
         });
     }
@@ -218,7 +223,7 @@ class JourneyPlannerLocationResourceTest {
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindRouteNearEndOfServiceTimes() {
-        Location destination = Stations.Deansgate;
+        Station destination = Stations.Deansgate;
 
         LocalTime queryTime = LocalTime.of(23,0);
         int walkingTime = 13;
@@ -233,9 +238,14 @@ class JourneyPlannerLocationResourceTest {
     private JourneyPlanRepresentation getPlanFor(Location start, Location end, LocalTime time) {
         String date = when.format(TestEnv.dateFormatDashes);
         String timeString = time.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, start.getId(), end.getId(), timeString, date, null, false, 3);
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
+                start.forDTO(), end.forDTO(), timeString, date, null, false, 3);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
+    }
+
+    private Set<JourneyDTO> validateJourneyFromLocation(LatLong location, IdFor<Station> destination, LocalTime queryTime, boolean arriveBy) {
+        return validateJourneyFromLocation(location, destination.forDTO(), queryTime, arriveBy);
     }
 
     private Set<JourneyDTO> validateJourneyFromLocation(LatLong location, String destination, LocalTime queryTime, boolean arriveBy) {
@@ -244,10 +254,14 @@ class JourneyPlannerLocationResourceTest {
         String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, destination, time, date, location, arriveBy, 3);
+                MyLocation.MY_LOCATION_PLACEHOLDER_ID, destination, time, date, location, arriveBy, 3);
         assertEquals(200, response.getStatus());
 
         return validateJourneyPresent(response);
+    }
+
+    private Set<JourneyDTO> validateJourneyToLocation(IdFor<Station> start, LatLong destination, LocalTime queryTime, boolean arriveBy) {
+        return validateJourneyToLocation(start.forDTO(), destination, queryTime, arriveBy);
     }
 
     private Set<JourneyDTO> validateJourneyToLocation(String startId, LatLong location, LocalTime queryTime, boolean arriveBy) {
@@ -255,7 +269,7 @@ class JourneyPlannerLocationResourceTest {
         String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, startId,
-                MyLocationFactory.MY_LOCATION_PLACEHOLDER_ID, time, date, location, arriveBy, 3);
+                MyLocation.MY_LOCATION_PLACEHOLDER_ID, time, date, location, arriveBy, 3);
         assertEquals(200, response.getStatus());
 
         return validateJourneyPresent(response);

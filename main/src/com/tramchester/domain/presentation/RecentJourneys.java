@@ -3,10 +3,11 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.places.Station;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -49,9 +50,9 @@ public class RecentJourneys {
     }
 
     @JsonIgnore
-    public boolean containsStationId(String id) {
+    public boolean containsStationId(IdFor<Station> id) {
         for (Timestamped timestamp : timestamps) {
-            if (timestamp.getId().equals(id)) {
+            if (timestamp.getId().equals(id.forDTO())) {
                 return true;
             }
         }

@@ -1,6 +1,8 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 
 public class BusStopCall extends StopCall {
@@ -10,7 +12,7 @@ public class BusStopCall extends StopCall {
     }
 
     @Override
-    public String getPlatformId() {
+    public IdFor<Platform> getPlatformId() {
         throw new RuntimeException("Bus stops don't have platforms");
     }
 

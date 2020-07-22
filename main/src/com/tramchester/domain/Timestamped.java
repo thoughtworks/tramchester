@@ -3,6 +3,7 @@ package com.tramchester.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializerAsMillis;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializeAsMillis;
 
@@ -28,6 +29,10 @@ public class Timestamped  {
 
     public Timestamped() {
         // deserialisation
+    }
+
+    public Timestamped(IdFor<Station> id, LocalDateTime when) {
+        this(id.forDTO(), when);
     }
 
     public Timestamped(String id, LocalDateTime when) {

@@ -2,6 +2,7 @@ package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.parsers.RouteDataMapper;
+import com.tramchester.domain.IdFor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,10 +34,10 @@ class RouteDataParserTest {
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(routeA));
 
-        assertThat(result.getId()).isEqualTo("MET:MET4:O:");
+        assertThat(result.getId()).isEqualTo(IdFor.createId("MET:MET4:O:"));
         assertThat(result.getShortName()).isEqualTo("MET4");
         assertThat(result.getLongName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
-        assertThat(result.getAgency()).isEqualTo("MET");
+        assertThat(result.getAgencyId()).isEqualTo(IdFor.createId("MET"));
     }
 
     @Test
@@ -46,10 +47,10 @@ class RouteDataParserTest {
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(problemBusRoute));
 
-        assertThat(result.getId()).isEqualTo("JSC: 588:C:");
+        assertThat(result.getId()).isEqualTo(IdFor.createId("JSC: 588:C:"));
         assertThat(result.getShortName().trim()).isEqualTo("588");
         assertThat(result.getLongName()).isEqualTo("Leigh - Lowton, Scott Road");
-        assertThat(result.getAgency()).isEqualTo("JSC");
+        assertThat(result.getAgencyId()).isEqualTo(IdFor.createId("JSC"));
     }
 
 }

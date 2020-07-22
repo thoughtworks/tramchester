@@ -3,7 +3,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -147,29 +147,28 @@ public class MapPathToStages {
         // position -> station
         int cost = getCost(relationship);
 
-        String stationId = relationship.getProperty(STATION_ID).toString();
+        IdFor<Station> stationId = IdFor.getIdFrom(relationship, STATION_ID);
         Station destination = transportData.getStationById(stationId);
 
         Node startNode = relationship.getStartNode();
         double lat = (double)startNode.getProperty(GraphStaticKeys.Walk.LAT);
         double lon =  (double)startNode.getProperty(GraphStaticKeys.Walk.LONG);
         LatLong latLong = new LatLong(lat, lon);
-        Location start = myLocationFactory.create(latLong);
+        MyLocation start = myLocationFactory.create(latLong);
         return new WalkStarted(start, destination, cost);
-
     }
 
     private WalkingStage createWalkFrom(Relationship relationship, TramTime walkStartTime) {
         // station -> position
         int cost = getCost(relationship);
 
-        String stationId = relationship.getProperty(STATION_ID).toString();
-        Location start = transportData.getStationById(stationId);
+        IdFor<Station> stationId = IdFor.getIdFrom(relationship, STATION_ID);
+        Station start = transportData.getStationById(stationId);
 
         Node endNode = relationship.getEndNode();
         double lat = (double)endNode.getProperty(GraphStaticKeys.Walk.LAT);
         double lon =  (double)endNode.getProperty(GraphStaticKeys.Walk.LONG);
-        Location walkEnd = myLocationFactory.create(new LatLong(lat,lon));
+        MyLocation walkEnd = myLocationFactory.create(new LatLong(lat,lon));
 
         return new WalkingStage(start, walkEnd, cost, walkStartTime, true);
     }
@@ -178,10 +177,10 @@ public class MapPathToStages {
         // station -> station, neighbours...
         int cost = getCost(relationship);
 
-        String startStationId = relationship.getStartNode().getProperty(ID).toString();
+        IdFor<Station> startStationId = IdFor.getIdFrom(relationship.getStartNode(), ID);
         Station start = transportData.getStationById(startStationId);
 
-        String endStationId = relationship.getEndNode().getProperty(ID).toString();
+        IdFor<Station> endStationId = IdFor.getIdFrom(relationship.getEndNode(),ID);
         Station end = transportData.getStationById(endStationId);
 
         return new ConnectingStage(start, end, cost, walkStartTime);
@@ -196,8 +195,8 @@ public class MapPathToStages {
         private TramTime boardingTime;
         private TramTime departTime;
         private Station boardingStation;
-        private String routeCode;
-        private String tripId;
+        private IdFor<Route> routeCode;
+        private IdFor<Trip> tripId;
         private int stopsSeen;
         private int tripCost;
         private Optional<Platform> boardingPlatform;
@@ -217,8 +216,8 @@ public class MapPathToStages {
 
         public void board(Relationship relationship) {
             boardCost = getCost(relationship);
-            boardingStation = transportData.getStationById(relationship.getProperty(STATION_ID).toString());
-            routeCode = relationship.getProperty(ROUTE_ID).toString();
+            boardingStation = transportData.getStationById(IdFor.getIdFrom(relationship,STATION_ID));
+            routeCode = IdFor.getIdFrom(relationship,ROUTE_ID);
             route = transportData.getRouteById(routeCode);
             if (boardingStation.hasPlatforms()) {
                 String stopId = relationship.getProperty(PLATFORM_ID).toString();
@@ -228,7 +227,7 @@ public class MapPathToStages {
         }
 
         public VehicleStage depart(Relationship relationship) {
-            String stationId = relationship.getProperty(STATION_ID).toString();
+            IdFor<Station> stationId = IdFor.getIdFrom(relationship, STATION_ID);
             Station departStation = transportData.getStationById(stationId);
             Trip trip = transportData.getTripById(tripId);
 
@@ -253,16 +252,16 @@ public class MapPathToStages {
 
         private void reset() {
             stopsSeen = 0; // don't count single stops
-            tripId = "";
-            routeCode = "";
+            tripId = IdFor.invalid();
+            routeCode = IdFor.invalid();
             tripCost = 0;
             boardingPlatform = Optional.empty();
         }
 
         public Optional<WalkingStage> beginTrip(Relationship relationship) {
-            String newTripId = relationship.getProperty(TRIP_ID).toString();
+            IdFor<Trip> newTripId = IdFor.getIdFrom(relationship, TRIP_ID);
 
-            if (tripId.isEmpty()) {
+            if (tripId.notValid()) {
                 this.tripId = newTripId;
                 LocalTime property = (LocalTime) relationship.getProperty(TIME);
                 boardingTime = TramTime.of(property);
@@ -326,11 +325,11 @@ public class MapPathToStages {
     }
 
     private static class WalkStarted {
-        private final Location start;
-        private final Location destination;
+        private final MyLocation start;
+        private final Station destination;
         private final int cost;
 
-        public WalkStarted(Location start, Location destination, int cost) {
+        public WalkStarted(MyLocation start, Station destination, int cost) {
 
             this.start = start;
             this.destination = destination;

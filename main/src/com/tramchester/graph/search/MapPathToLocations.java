@@ -1,17 +1,21 @@
 package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.StationRepository;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tramchester.graph.GraphStaticKeys.ID;
 import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
 
 public class MapPathToLocations {
@@ -25,36 +29,38 @@ public class MapPathToLocations {
 
     public List<Location> mapToLocations(Path path) {
         List<Location> results = new ArrayList<>();
-        path.nodes().forEach(node -> {
-            if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
-                String stationId = node.getProperty(STATION_ID).toString();
-                if (notJustSeenStation(stationId, results)) {
-                    results.add(stationRepository.getStationById(stationId));
-                }
-            } else if (node.hasLabel(GraphBuilder.Labels.BUS_STATION)) {
-                String stationId = node.getProperty(GraphStaticKeys.ID).toString();
-                results.add(stationRepository.getStationById(stationId));
-            } else if (node.hasLabel(GraphBuilder.Labels.QUERY_NODE)) {
-                double lat = (double)node.getProperty(GraphStaticKeys.Walk.LAT);
-                double lon = (double)node.getProperty(GraphStaticKeys.Walk.LONG);
-                Location location = MyLocation.create(mapper, new LatLong(lat,lon));
-                results.add(location);
-            } else if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {
-                String stationId = node.getProperty(GraphStaticKeys.ID).toString();
-                if (notJustSeenStation(stationId, results)) {
-                    results.add(stationRepository.getStationById(stationId));
-                }
-            }
-        });
+        path.nodes().forEach(node -> mapNode(results, node));
         return results;
     }
 
-    private boolean notJustSeenStation(String stationId, List<Location> results) {
+    private void mapNode(List<Location> results, Node node) {
+        if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
+            IdFor<Station> stationId = IdFor.getIdFrom(node, STATION_ID);
+            if (notJustSeenStation(stationId, results)) {
+                results.add(stationRepository.getStationById(stationId));
+            }
+        } else if (node.hasLabel(GraphBuilder.Labels.BUS_STATION)) {
+            IdFor<Station> stationId = IdFor.getIdFrom(node, ID);
+            results.add(stationRepository.getStationById(stationId));
+        } else if (node.hasLabel(GraphBuilder.Labels.QUERY_NODE)) {
+            double lat = (double)node.getProperty(GraphStaticKeys.Walk.LAT);
+            double lon = (double)node.getProperty(GraphStaticKeys.Walk.LONG);
+            Location location = MyLocation.create(mapper, new LatLong(lat,lon));
+            results.add(location);
+        } else if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {
+            IdFor<Station> stationId = IdFor.getIdFrom(node, ID);
+            if (notJustSeenStation(stationId, results)) {
+                results.add(stationRepository.getStationById(stationId));
+            }
+        }
+    }
+
+    private boolean notJustSeenStation(IdFor<Station> stationId, List<Location> results) {
         if (results.isEmpty()) {
             return true;
         }
         Location previous = results.get(results.size()-1);
-        return !previous.getId().equals(stationId);
+        return !previous.forDTO().equals(stationId.forDTO());
     }
 
 }
