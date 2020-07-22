@@ -7,15 +7,14 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface StationRepository {
-    boolean hasStationId(String stationId);
-
-    Station getStation(String stationId);
     Set<Station> getStations();
+    Station getStationById(String stationId);
+    boolean hasStationId(String stationId);
 
     // live data association
     Optional<Station> getTramStationByName(String name);
 
     Set<RouteStation> getRouteStations();
-    RouteStation getRouteStation(String routeStationId);
+    RouteStation getRouteStationById(String routeStationId);
 
 }

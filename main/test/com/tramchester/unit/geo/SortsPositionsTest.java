@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.unit.graph.TransportDataForTest;
+import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SortsPositionsTest {
 
-    private TransportDataForTest dataForTest;
+    private TransportDataForTestFactory.TestTransportData dataForTest;
     private Station nearPiccGardens;
     private Station nearShudehill;
     private Station nearAltrincham;
@@ -27,8 +27,8 @@ class SortsPositionsTest {
     void beforeEachTestRuns() {
         StationLocations stationLocations = new StationLocations();
 
-        dataForTest = new TransportDataForTest(stationLocations);
-        dataForTest.start();
+        dataForTest = new TransportDataForTestFactory(stationLocations).get();
+//        dataForTest.start();
 
         nearPiccGardens = dataForTest.getSecond(); // near PiccGardens
         nearShudehill = dataForTest.getInterchange();   // near Shudehill

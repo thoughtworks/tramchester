@@ -85,14 +85,14 @@ public class Dependencies {
     }
 
     // init dependencies but possibly with alternative source of transport data
-    public void initialise(TramchesterConfig configuration, TransportDataSource transportData) {
+    public void initialise(TramchesterConfig configuration, TransportData transportData) {
         logger.info("Creating dependencies");
 
         // caching is on by default
         if (picoContainer.getComponent(TramchesterConfig.class)==null) {
             picoContainer.addComponent(TramchesterConfig.class, configuration);
         }
-        picoContainer.addComponent(TransportDataSource.class, transportData);
+        picoContainer.addComponent(TransportData.class, transportData);
 
         picoContainer.addComponent(PostcodeRepository.class);
         picoContainer.addComponent(VersionRepository.class);

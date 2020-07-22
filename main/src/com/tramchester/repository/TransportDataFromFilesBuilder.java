@@ -34,7 +34,7 @@ public class TransportDataFromFilesBuilder {
         toBuild = null;
     }
 
-    public TransportDataSource getData() {
+    public TransportData getData() {
         return toBuild;
     }
 
@@ -139,7 +139,7 @@ public class TransportDataFromFilesBuilder {
         logger.info("Loading stop times");
         AtomicInteger count = new AtomicInteger();
         stopTimes.filter(stopTimeData -> !excludedTrips.contains(stopTimeData.getTripId())).forEach((stopTimeData) -> {
-            Trip trip = buildable.getTrip(stopTimeData.getTripId());
+            Trip trip = buildable.getTripById(stopTimeData.getTripId());
             String stopId = stopTimeData.getStopId();
             String stationId = Station.formId(stopId);
 
@@ -198,7 +198,7 @@ public class TransportDataFromFilesBuilder {
             }
         }
         RouteStation routeStation = new RouteStation(station, route);
-        if (!buildable.hasRouteStation(routeStation.getId())) {
+        if (!buildable.hasRouteStationId(routeStation.getId())) {
             buildable.addRouteStation(routeStation);
         }
     }
@@ -215,7 +215,7 @@ public class TransportDataFromFilesBuilder {
             String routeId = tripData.getRouteId();
 
             if (buildable.hasRouteId(routeId)) {
-                Route route = buildable.getRoute(routeId);
+                Route route = buildable.getRouteById(routeId);
 
                 Service service = getOrInsertService(buildable, serviceId, route, excludedServices);
                 Trip trip = getOrCreateTrip(buildable, tripData.getTripId(), tripData.getTripHeadsign(), service, route );
@@ -345,7 +345,7 @@ public class TransportDataFromFilesBuilder {
 
     private Trip getOrCreateTrip(TransportDataContainer buildable, String tripId, String tripHeadsign, Service service, Route route) {
         if (buildable.hasTripId(tripId)) {
-            Trip matched = buildable.getTrip(tripId);
+            Trip matched = buildable.getTripById(tripId);
             if ((!matched.getRoute().equals(route)) || !matched.getService().equals(service) || !matched.getHeadsign().equals(tripHeadsign)) {
                 logger.error("Mismatch for trip id: " + tripId + " (mis)matched was " + matched);
             }

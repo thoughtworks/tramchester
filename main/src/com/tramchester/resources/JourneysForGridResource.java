@@ -58,7 +58,7 @@ public class JourneysForGridResource implements APIResource {
                               @QueryParam("maxDuration") int maxDuration) {
         logger.info(format("Query for quicktimes to %s for grid of size %s at %s %s maxchanges %s max duration %s",
                 destinationId, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDuration));
-        Station destination = repository.getStation(destinationId);
+        Station destination = repository.getStationById(destinationId);
 
         Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
         if (maybeDepartureTime.isEmpty()) {

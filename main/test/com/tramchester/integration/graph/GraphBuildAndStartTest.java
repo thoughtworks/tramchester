@@ -13,8 +13,8 @@ import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
-import com.tramchester.repository.TransportDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ class GraphBuildAndStartTest {
         TransportDataFromFilesBuilderGeoFilter builder = fileFactory.create();
 
         builder.load();
-        TransportDataSource transportData = builder.getData();
+        TransportData transportData = builder.getData();
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 
         GraphDatabase graphDatabase = new GraphDatabase(config);

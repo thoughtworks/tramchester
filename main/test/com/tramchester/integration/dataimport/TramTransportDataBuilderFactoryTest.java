@@ -12,8 +12,8 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
+import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
-import com.tramchester.repository.TransportDataSource;
 import com.tramchester.testSupport.TestConfig;
 import org.junit.jupiter.api.Test;
 
@@ -50,11 +50,11 @@ class TramTransportDataBuilderFactoryTest {
 
         TransportDataFromFilesBuilderGeoFilter builder = transportDataImporter.create();
         builder.load();
-        TransportDataSource transportData = builder.getData();
+        TransportData transportData = builder.getData();
 
         assertThat(transportData.getRoutes()).hasSize(2);
 
-        Route route = transportData.getRoute("MET:MET1:I:");
+        Route route = transportData.getRouteById("MET:MET1:I:");
         assertThat(route.getName()).isEqualTo("Abraham Moss - Bury");
         assertThat(route.getServices()).hasSize(2);
 

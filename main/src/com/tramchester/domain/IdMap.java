@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class IdMap<T extends HasId> implements Iterable<T> {
     private final HashMap<String, T> theMap;
@@ -64,7 +65,15 @@ public class IdMap<T extends HasId> implements Iterable<T> {
         return value;
     }
 
+    public Set<T> filter(Filter<T> theFilter) {
+        return theMap.values().stream().filter(theFilter::include).collect(Collectors.toUnmodifiableSet());
+    }
+
     public interface Creates<T> {
         T create();
+    }
+
+    public interface Filter<T> {
+        boolean include(T item);
     }
 }

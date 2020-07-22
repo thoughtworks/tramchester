@@ -7,7 +7,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationBusTestConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.RoutesForTesting;
@@ -80,7 +79,7 @@ class BusRouteReachableTest {
         Map<String, String> stepsSeen = reachable.getShortestRoutesBetween(AltrinchamInterchange, StockportBusStation);
 
         Map<Station, Route> steps = stepsSeen.entrySet().stream().
-                collect(Collectors.toMap(entry -> transportData.getStation(entry.getKey()), entry -> transportData.getRoute(entry.getValue())));
+                collect(Collectors.toMap(entry -> transportData.getStationById(entry.getKey()), entry -> transportData.getRouteById(entry.getValue())));
 
         Assertions.assertEquals(4, stepsSeen.size());
 //        assertTrue(routesSeenAltToStockportId.containsValue(RouteCodesForTesting.ALTY_TO_STOCKPORT));

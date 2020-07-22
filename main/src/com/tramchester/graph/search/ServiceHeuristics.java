@@ -160,7 +160,7 @@ public class ServiceHeuristics {
         // TODO Build full reachability matrix??
         if (tramOnly) {
             String routeStationId = endNode.getProperty(ID).toString();
-            RouteStation routeStation = stationRepository.getRouteStation(routeStationId);
+            RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
             if (routeStation==null) {
                 String message = "Missing routestation " + routeStationId;

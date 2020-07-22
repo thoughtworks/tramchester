@@ -75,7 +75,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     public Response get(@PathParam("id") String id) {
         logger.info("Get station " + id);
         if (stationRepository.hasStationId(id)) {
-            return Response.ok(new LocationDTO(stationRepository.getStation(id))).build();
+            return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();
         }
         else {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -100,7 +100,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             logger.info("Adding recent station to list " + recent);
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
-                displayStations.add(new StationRefWithGroupDTO(stationRepository.getStation(recentId), ProximityGroups.RECENT));
+                displayStations.add(new StationRefWithGroupDTO(stationRepository.getStationById(recentId), ProximityGroups.RECENT));
             } else {
                 logger.warn("Unrecognised recent stationid " + recentId);
             }
@@ -124,7 +124,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             logger.info("Adding recent station to list " + recent);
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
-                displayStations.add(new StationRefWithGroupDTO(stationRepository.getStation(recentId), ProximityGroups.RECENT));
+                displayStations.add(new StationRefWithGroupDTO(stationRepository.getStationById(recentId), ProximityGroups.RECENT));
             } else {
                 logger.warn("Unrecognised recent stationid " + recentId);
             }
@@ -150,7 +150,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         recentJourneys.getRecentIds().forEach(recent -> {
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
-                Station recentStation = stationRepository.getStation(recentId);
+                Station recentStation = stationRepository.getStationById(recentId);
                 orderedStations.remove(new StationRefWithGroupDTO(recentStation, ProximityGroups.STOPS));
                 orderedStations.add(0, new StationRefWithGroupDTO(recentStation, ProximityGroups.RECENT));
             } else {
@@ -193,7 +193,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         recentJourneys.getRecentIds().forEach(recent -> {
             String recentId = recent.getId();
             if (stationRepository.hasStationId(recentId)) {
-                Station recentStation = stationRepository.getStation(recentId);
+                Station recentStation = stationRepository.getStationById(recentId);
                 results.add(0, new StationRefWithGroupDTO(recentStation, ProximityGroups.RECENT));
             } else {
                 logger.warn("Unrecognised recent station id: " + recentId);

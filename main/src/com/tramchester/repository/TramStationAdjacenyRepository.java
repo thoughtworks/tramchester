@@ -21,9 +21,9 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 
     private final Map<Pair<Station,Station>, Integer> matrix;
-    private final TransportDataSource transportDataSource;
+    private final TransportData transportDataSource;
 
-    public TramStationAdjacenyRepository(TransportDataSource transportDataSource) {
+    public TramStationAdjacenyRepository(TransportData transportDataSource) {
         this.transportDataSource = transportDataSource;
         matrix = new HashMap<>();
     }

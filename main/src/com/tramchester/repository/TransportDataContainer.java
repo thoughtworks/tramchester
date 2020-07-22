@@ -5,31 +5,32 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
+import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class TransportDataContainer implements TransportDataSource {
+public class TransportDataContainer implements TransportData, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataContainer.class);
 
-    private final HashMap<String, Trip> trips = new HashMap<>();        // trip id -> trip
-    private final HashMap<String, Station> stationsById = new HashMap<>();  // station id -> station
-    private final HashMap<String, Station> tramStationsByName = new HashMap<>();  // station id -> station
-    private final HashMap<String, Service> services = new HashMap<>();  // service id -> service
-    private final HashMap<String, Route> routes = new HashMap<>();      // route id -> route
-    private final HashMap<String, Platform> platforms = new HashMap<>(); // platformId -> platform
-    private final HashMap<String, RouteStation> routeStations = new HashMap<>(); // routeStationId - > RouteStation
-    private final HashMap<String, Agency> agencies = new HashMap<>(); // agencyId -> agencies
+    private final IdMap<Trip> trips = new IdMap<>();        // trip id -> trip
+    private final IdMap<Station> stationsById = new IdMap<>();  // station id -> station
+    private final IdMap<Service> services = new IdMap<>();  // service id -> service
+    private final IdMap<Route> routes = new IdMap<>();      // route id -> route
+    private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
+    private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
+    private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
+
+    private final Map<String, Station> tramStationsByName = new HashMap<>();  // station id -> station
     private final Set<DataSourceInfo.NameAndVersion> nameAndVersions = new HashSet<>();
     private final Map<String, FeedInfo> feedInfoMap = new HashMap<>();
 
     @Override
     public void dispose() {
-        trips.values().forEach(Trip::dispose);
+        trips.forEach(Trip::dispose);
         trips.clear();
         stationsById.clear();
         tramStationsByName.clear();
@@ -52,28 +53,18 @@ public class TransportDataContainer implements TransportDataSource {
         logger.info(format("%s feedinfos", feedInfoMap.size()));
     }
 
-    @Override
-    public Collection<Service> getServices() {
-        return services.values();
-    }
-
-    @Override
-    public Collection<Trip> getTrips() {
-        return trips.values();
-    }
-
     public Service getService(String serviceId) {
         return services.get(serviceId);
     }
 
     @Override
     public boolean hasStationId(String stationId) {
-        return stationsById.containsKey(stationId);
+        return stationsById.hasId(stationId);
     }
 
     @Override
-    public Station getStation(String stationId) {
-        if (!stationsById.containsKey(stationId)) {
+    public Station getStationById(String stationId) {
+        if (!stationsById.hasId(stationId)) {
             String msg = "Unable to find station from ID " + stationId;
             logger.error(msg);
             throw new RuntimeException(msg);
@@ -83,29 +74,40 @@ public class TransportDataContainer implements TransportDataSource {
 
     @Override
     public Set<Station> getStations() {
-        return new HashSet<>(stationsById.values());
+        return stationsById.getValues();
     }
 
     @Override
     public Set<RouteStation> getRouteStations() {
-        return new HashSet<>(routeStations.values());
+        return routeStations.getValues();
     }
 
     @Override
-    public RouteStation getRouteStation(String routeStationId) {
+    public RouteStation getRouteStationById(String routeStationId) {
         return routeStations.get(routeStationId);
     }
 
-    public boolean hasRouteStation(String routeStationId) {
-        return routeStations.containsKey(routeStationId);
+    @Override
+    public Set<Service> getServices() {
+        return services.getValues();
+    }
+
+    @Override
+    public Set<Trip> getTrips() {
+        return trips.getValues();
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean hasRouteStationId(String routeStationId) {
+        return routeStations.hasId(routeStationId);
     }
 
     public void addRouteStation(RouteStation routeStation) {
-       routeStations.put(routeStation.getId(), routeStation);
+       routeStations.add(routeStation);
     }
 
     public boolean hasPlatformId(String platformId) {
-        return platforms.containsKey(platformId);
+        return platforms.hasId(platformId);
     }
 
     public Platform getPlatform(String platformId) {
@@ -114,17 +116,17 @@ public class TransportDataContainer implements TransportDataSource {
 
     @Override
     public Set<Platform> getPlatforms() {
-        return new HashSet<>(platforms.values());
+        return platforms.getValues();
     }
 
     @Override
-    public Route getRoute(String routeId) {
+    public Route getRouteById(String routeId) {
         return routes.get(routeId);
     }
 
     @Override
-    public Collection<Agency> getAgencies() {
-        return agencies.values();
+    public Set<Agency> getAgencies() {
+        return agencies.getValues();
     }
 
     @Override
@@ -137,17 +139,17 @@ public class TransportDataContainer implements TransportDataSource {
         return new DataSourceInfo(nameAndVersions);
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    @Override
     public boolean hasServiceId(String serviceId) {
-        return services.containsKey(serviceId);
+        return services.hasId(serviceId);
     }
 
     public void addAgency(Agency agency) {
-        agencies.put(agency.getId(), agency);
+        agencies.add(agency);
     }
 
     public void addRoute(Route route) {
-        routes.put(route.getId(), route);
+        routes.add(route);
     }
 
     public void addRouteToAgency(Agency agency, Route route) {
@@ -155,48 +157,48 @@ public class TransportDataContainer implements TransportDataSource {
     }
 
     public void addStation(Station station) {
-        String stationId = station.getId();
-        stationsById.put(stationId, station);
+        stationsById.add(station);
         if (TransportMode.isTram(station)) {
             tramStationsByName.put(station.getName().toLowerCase(), station);
         }
     }
 
     public void addPlatform(Platform platform) {
-        platforms.put(platform.getId(), platform);
+        platforms.add(platform);
     }
 
     public void updateTimesForServices() {
         // Cannot do this until after all stops loaded into trips
         logger.info("Updating timings for services");
-        services.values().forEach(Service::updateTimings);
+        services.forEach(Service::updateTimings);
     }
 
     public void addService(Service service) {
-        services.put(service.getId(), service);
-    }
-
-    public boolean hasTripId(String tripId) {
-        return trips.containsKey(tripId);
+        services.add(service);
     }
 
     @Override
-    public Trip getTrip(String tripId) {
+    public boolean hasTripId(String tripId) {
+        return trips.hasId(tripId);
+    }
+
+    @Override
+    public Trip getTripById(String tripId) {
         return trips.get(tripId);
     }
 
     @Override
-    public Collection<Route> getRoutes() {
-        return routes.values();
+    public Set<Route> getRoutes() {
+        return routes.getValues();
     }
 
     public void addTrip(Trip trip) {
-        trips.put(trip.getId(), trip);
+        trips.add(trip);
     }
 
     @Override
     public Optional<Platform> getPlatformById(String platformId) {
-        if (platforms.containsKey(platformId)) {
+        if (platforms.hasId(platformId)) {
             return Optional.of(platforms.get(platformId));
         }
         return Optional.empty();
@@ -214,12 +216,11 @@ public class TransportDataContainer implements TransportDataSource {
 
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
-        return services.values().stream().
-                filter(svc -> svc.operatesOn(date.getDate())).collect(Collectors.toUnmodifiableSet());
+        return services.filter(item -> item.operatesOn(date.getDate()));
     }
 
     public boolean hasRouteId(String routeId) {
-        return routes.containsKey(routeId);
+        return routes.hasId(routeId);
     }
 
     public void addNameAndVersion(DataSourceInfo.NameAndVersion nameAndVersion) {

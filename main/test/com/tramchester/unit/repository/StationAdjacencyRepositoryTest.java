@@ -2,22 +2,22 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TramStationAdjacenyRepository;
-import com.tramchester.unit.graph.TransportDataForTest;
+import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class StationAdjacencyRepositoryTest {
 
-    private TransportDataForTest transportDataSource;
     private TramStationAdjacenyRepository repository;
+    private TransportDataForTestFactory.TestTransportData transportDataSource;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         StationLocations stationLocations = new StationLocations();
-        transportDataSource = new TransportDataForTest(stationLocations);
+        transportDataSource = new TransportDataForTestFactory(stationLocations).get();
         repository = new TramStationAdjacenyRepository(transportDataSource);
-        transportDataSource.start();
+        //transportDataSource.start();
         repository.start();
     }
 

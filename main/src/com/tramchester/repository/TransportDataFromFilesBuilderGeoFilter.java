@@ -36,7 +36,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
         toBuild = null;
     }
 
-    public TransportDataSource getData() {
+    public TransportData getData() {
         return toBuild;
     }
 
@@ -220,7 +220,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
             }
         }
         RouteStation routeStation = new RouteStation(station, route);
-        if (!buildable.hasRouteStation(routeStation.getId())) {
+        if (!buildable.hasRouteStationId(routeStation.getId())) {
             buildable.addRouteStation(routeStation);
         }
     }
@@ -240,7 +240,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
             String tripHeadsign = tripData.getTripHeadsign();
 
             if (transportData.hasRouteId(routeId)) {
-                Route route = transportData.getRoute(routeId);
+                Route route = transportData.getRouteById(routeId);
 
                 Service service = services.getOrAdd(serviceId, () -> new Service(serviceId, route));
                 trips.getOrAdd(tripId, () -> new Trip(tripId, tripHeadsign, service, route));

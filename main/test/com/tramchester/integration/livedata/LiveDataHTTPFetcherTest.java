@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
-import com.tramchester.repository.TransportDataSource;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -33,7 +33,7 @@ class LiveDataHTTPFetcherTest {
     private static String payload;
     private static IntegrationTramTestConfig configuration;
 
-    private TransportDataSource transportData;
+    private TransportData transportData;
     private LiveDataParser parser;
 
     @BeforeAll
@@ -53,7 +53,7 @@ class LiveDataHTTPFetcherTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(TransportDataSource.class);
+        transportData = dependencies.get(TransportData.class);
         parser = dependencies.get(LiveDataParser.class);
     }
 

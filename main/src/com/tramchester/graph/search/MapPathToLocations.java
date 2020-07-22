@@ -29,11 +29,11 @@ public class MapPathToLocations {
             if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
                 String stationId = node.getProperty(STATION_ID).toString();
                 if (notJustSeenStation(stationId, results)) {
-                    results.add(stationRepository.getStation(stationId));
+                    results.add(stationRepository.getStationById(stationId));
                 }
             } else if (node.hasLabel(GraphBuilder.Labels.BUS_STATION)) {
                 String stationId = node.getProperty(GraphStaticKeys.ID).toString();
-                results.add(stationRepository.getStation(stationId));
+                results.add(stationRepository.getStationById(stationId));
             } else if (node.hasLabel(GraphBuilder.Labels.QUERY_NODE)) {
                 double lat = (double)node.getProperty(GraphStaticKeys.Walk.LAT);
                 double lon = (double)node.getProperty(GraphStaticKeys.Walk.LONG);
@@ -42,7 +42,7 @@ public class MapPathToLocations {
             } else if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {
                 String stationId = node.getProperty(GraphStaticKeys.ID).toString();
                 if (notJustSeenStation(stationId, results)) {
-                    results.add(stationRepository.getStation(stationId));
+                    results.add(stationRepository.getStationById(stationId));
                 }
             }
         });

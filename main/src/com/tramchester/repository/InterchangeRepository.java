@@ -18,7 +18,7 @@ import static java.lang.String.format;
 public class InterchangeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
-    private final TransportDataSource dataSource;
+    private final TransportData dataSource;
     private final Set<GTFSTransportationType> modes;
 
     // id -> Station
@@ -26,7 +26,7 @@ public class InterchangeRepository implements Disposable, Startable {
     // id -> Station
     private Map<String, Station> trainInterchanges;
 
-    public InterchangeRepository(TransportDataSource dataSource, TramchesterConfig config) {
+    public InterchangeRepository(TransportData dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
         // both of these empty for trams
         busInterchanges = Collections.emptyMap();

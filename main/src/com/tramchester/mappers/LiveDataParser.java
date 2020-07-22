@@ -151,7 +151,7 @@ public class LiveDataParser {
     private Optional<Station> getStationByAtcoCode(String atcoCode) {
         String stationId = Station.formId(atcoCode);
         if (stationRepository.hasStationId(stationId)) {
-            return Optional.of(stationRepository.getStation(stationId));
+            return Optional.of(stationRepository.getStationById(stationId));
         } else {
             return Optional.empty();
         }

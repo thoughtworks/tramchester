@@ -11,7 +11,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.repository.TransportDataSource;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import org.junit.jupiter.api.*;
@@ -27,7 +27,7 @@ import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 class TramGraphBuilderTest {
     private static Dependencies dependencies;
 
-    private TransportDataSource transportData;
+    private TransportData transportData;
     private Transaction txn;
     private GraphQuery graphQuery;
 
@@ -41,7 +41,7 @@ class TramGraphBuilderTest {
     @BeforeEach
     void beforeEachTestRuns() {
         graphQuery = dependencies.get(GraphQuery.class);
-        transportData = dependencies.get(TransportDataSource.class);
+        transportData = dependencies.get(TransportData.class);
         GraphDatabase service = dependencies.get(GraphDatabase.class);
         txn = service.beginTx();
     }

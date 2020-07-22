@@ -15,6 +15,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -25,11 +26,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TransportDataForTestFactory.TestTransportData.*;
+
 class GraphWithSimpleRouteTest {
 
     private static final String TMP_DB = "tmp.db";
 
-    private static TransportDataForTest transportData;
+    private static TransportDataForTestFactory.TestTransportData transportData;
     private static RouteCalculator calculator;
     private static Dependencies dependencies;
     private static GraphDatabase database;
@@ -46,7 +49,9 @@ class GraphWithSimpleRouteTest {
         dependencies = new Dependencies();
 
         StationLocations stationLocations = dependencies.get(StationLocations.class);
-        transportData = new TransportDataForTest(stationLocations);
+
+        TransportDataForTestFactory factory = new TransportDataForTestFactory(stationLocations);
+        transportData = factory.get();
 
         config = new IntegrationTramTestConfig(TMP_DB);
         FileUtils.deleteDirectory(config.getDBPath().toFile());
@@ -84,7 +89,7 @@ class GraphWithSimpleRouteTest {
                 transportData.getSecond(), journeyRequest).
                 collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.SECOND_STATION, 0, "RouteClass1");
+        assertFirstAndLast(journeys, FIRST_STATION, SECOND_STATION, 0, "RouteClass1");
     }
 
     @Test
@@ -122,8 +127,7 @@ class GraphWithSimpleRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.INTERCHANGE,
-                1, "RouteClass1");
+        assertFirstAndLast(journeys, FIRST_STATION, INTERCHANGE, 1, "RouteClass1");
         checkForPlatforms(journeys);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
     }
@@ -145,10 +149,8 @@ class GraphWithSimpleRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getLast(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, TransportDataForTest.FIRST_STATION, TransportDataForTest.LAST_STATION,
-                2, "RouteClass1");
+        assertFirstAndLast(journeys, FIRST_STATION, LAST_STATION, 2, "RouteClass1");
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
-
     }
 
     @Test
@@ -191,7 +193,7 @@ class GraphWithSimpleRouteTest {
     @Test
     void createDiagramOfTestNetwork() {
         DiagramCreator creator = new DiagramCreator(database, Integer.MAX_VALUE);
-        Assertions.assertAll(() -> creator.create("test_network.dot", TransportDataForTest.FIRST_STATION));
+        Assertions.assertAll(() -> creator.create("test_network.dot", FIRST_STATION));
     }
 
     private void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,

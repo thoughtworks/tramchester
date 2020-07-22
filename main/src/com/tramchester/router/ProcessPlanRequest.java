@@ -149,7 +149,7 @@ public class ProcessPlanRequest {
             logger.warn(msg);
             throw new RuntimeException(msg);
         }
-        return transportData.getStation(locationId);
+        return transportData.getStationById(locationId);
     }
 
     private boolean isFromUserLocation(String startId) {

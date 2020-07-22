@@ -14,7 +14,7 @@ import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.repository.TransportDataSource;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
@@ -36,7 +36,7 @@ class TransportDataFromFilesTest {
 
     private static Dependencies dependencies;
 
-    private TransportDataSource transportData;
+    private TransportData transportData;
     private Collection<Service> allServices;
 
     @BeforeAll
@@ -52,7 +52,7 @@ class TransportDataFromFilesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(TransportDataSource.class);
+        transportData = dependencies.get(TransportData.class);
         allServices = transportData.getServices();
     }
 
@@ -72,7 +72,7 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldHaveCorrectLocationForAirportInTestEnvironment() {
-        Station actualStation = transportData.getStation(Stations.ManAirport.getId());
+        Station actualStation = transportData.getStationById(Stations.ManAirport.getId());
         assertEquals(TestEnv.manAirportLocation, actualStation.getLatLong());
     }
 
@@ -86,7 +86,7 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Route result = transportData.getRoute(RoutesForTesting.ASH_TO_ECCLES.getId());
+        Route result = transportData.getRouteById(RoutesForTesting.ASH_TO_ECCLES.getId());
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertEquals("MET:   3:I:",result.getId());
@@ -211,7 +211,7 @@ class TransportDataFromFilesTest {
     @Test
     void shouldGetStation() {
         assertTrue(transportData.hasStationId(Stations.Altrincham.getId()));
-        Station station = transportData.getStation(Stations.Altrincham.getId());
+        Station station = transportData.getStationById(Stations.Altrincham.getId());
         assertEquals("Altrincham", station.getName());
 
         assertTrue(station.hasPlatforms());

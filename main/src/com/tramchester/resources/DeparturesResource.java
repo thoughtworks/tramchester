@@ -127,7 +127,7 @@ public class DeparturesResource implements APIResource  {
         TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
 
         logger.info("Found station, now find departures");
-        Station station = stationRepository.getStation(stationId);
+        Station station = stationRepository.getStationById(stationId);
 
         //trams
         List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);

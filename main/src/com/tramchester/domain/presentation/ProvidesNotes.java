@@ -75,7 +75,7 @@ public class ProvidesNotes {
         config.getClosedStations().
                 forEach(stationId ->
                 {
-                    Station closedStation = stationRepository.getStation(stationId);
+                    Station closedStation = stationRepository.getStationById(stationId);
                     String msg = format("%s is currently closed. %s", closedStation.getName(), website);
                     messages.add(new StationNote(ClosedStation, msg, closedStation));
                 });

@@ -21,13 +21,13 @@ public class SortsPositions {
     // List, order matters here
     public <CONTAINED> List<CONTAINED> sortedByNearTo(Set<String> destinationStationIds, Set<HasStationId<CONTAINED>> startingPoints) {
 
-        Set<Station> dests = destinationStationIds.stream().map(repository::getStation).collect(Collectors.toSet());
+        Set<Station> dests = destinationStationIds.stream().map(repository::getStationById).collect(Collectors.toSet());
 
         Map<HasStationId<CONTAINED>, Double> distances = new HashMap<>();
         startingPoints.forEach(container -> {
             double current = Double.MAX_VALUE;
             for (Station dest : dests) {
-                Station place = repository.getStation(container.getStationId());
+                Station place = repository.getStationById(container.getStationId());
                 double distance = computeDistance(place, dest);
                 if (distance < current) {
                     current = distance;
@@ -49,7 +49,7 @@ public class SortsPositions {
         Map<HasStationId<CONTAINED>, Double> distances = new HashMap<>();
 
         startingPoints.forEach(container -> {
-                Station place = repository.getStation(container.getStationId());
+                Station place = repository.getStationById(container.getStationId());
                 double distance = CoordinateTransforms.distanceFlat(place.getLatLong(), destination);
                 distances.put(container, distance);
         });

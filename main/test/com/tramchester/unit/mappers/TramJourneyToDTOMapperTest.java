@@ -14,10 +14,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
-import com.tramchester.testSupport.BusStations;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.unit.graph.TransportDataForTest;
+import com.tramchester.testSupport.*;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,10 +27,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.testSupport.TransportDataForTestFactory.TestTransportData.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramJourneyToDTOMapperTest extends EasyMockSupport {
-    private static TransportDataForTest transportData;
+    private static TransportDataForTestFactory.TestTransportData transportData;
     private final LocalDate when = TestEnv.testDay();
 
     private TramJourneyToDTOMapper mapper;
@@ -47,8 +45,8 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         StationLocations stationLocations = new StationLocations();
-        transportData = new TransportDataForTest(stationLocations);
-        transportData.start();
+        transportData = new TransportDataForTestFactory(stationLocations).get();
+//        transportData.start();
     }
 
     @BeforeEach
@@ -234,7 +232,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     private VehicleStage getRawVehicleStage(Location start, Location finish, Route route, TramTime startTime,
                                             int cost, int passedStops) {
 
-        Trip validTrip = transportData.getTrip(TransportDataForTest.TRIP_A_ID);
+        Trip validTrip = transportData.getTripById(TRIP_A_ID);
 
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, "cssClass", validTrip,
                 startTime.plusMinutes(1), finish, passedStops);

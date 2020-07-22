@@ -148,7 +148,7 @@ public class MapPathToStages {
         int cost = getCost(relationship);
 
         String stationId = relationship.getProperty(STATION_ID).toString();
-        Station destination = transportData.getStation(stationId);
+        Station destination = transportData.getStationById(stationId);
 
         Node startNode = relationship.getStartNode();
         double lat = (double)startNode.getProperty(GraphStaticKeys.Walk.LAT);
@@ -164,7 +164,7 @@ public class MapPathToStages {
         int cost = getCost(relationship);
 
         String stationId = relationship.getProperty(STATION_ID).toString();
-        Location start = transportData.getStation(stationId);
+        Location start = transportData.getStationById(stationId);
 
         Node endNode = relationship.getEndNode();
         double lat = (double)endNode.getProperty(GraphStaticKeys.Walk.LAT);
@@ -179,10 +179,10 @@ public class MapPathToStages {
         int cost = getCost(relationship);
 
         String startStationId = relationship.getStartNode().getProperty(ID).toString();
-        Station start = transportData.getStation(startStationId);
+        Station start = transportData.getStationById(startStationId);
 
         String endStationId = relationship.getEndNode().getProperty(ID).toString();
-        Station end = transportData.getStation(endStationId);
+        Station end = transportData.getStationById(endStationId);
 
         return new ConnectingStage(start, end, cost, walkStartTime);
     }
@@ -217,9 +217,9 @@ public class MapPathToStages {
 
         public void board(Relationship relationship) {
             boardCost = getCost(relationship);
-            boardingStation = transportData.getStation(relationship.getProperty(STATION_ID).toString());
+            boardingStation = transportData.getStationById(relationship.getProperty(STATION_ID).toString());
             routeCode = relationship.getProperty(ROUTE_ID).toString();
-            route = transportData.getRoute(routeCode);
+            route = transportData.getRouteById(routeCode);
             if (boardingStation.hasPlatforms()) {
                 String stopId = relationship.getProperty(PLATFORM_ID).toString();
                 boardingPlatform = platformRepository.getPlatformById(stopId);
@@ -229,8 +229,8 @@ public class MapPathToStages {
 
         public VehicleStage depart(Relationship relationship) {
             String stationId = relationship.getProperty(STATION_ID).toString();
-            Station departStation = transportData.getStation(stationId);
-            Trip trip = transportData.getTrip(tripId);
+            Station departStation = transportData.getStationById(stationId);
+            Trip trip = transportData.getTripById(tripId);
 
             int passedStops = stopsSeen - 1;
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,

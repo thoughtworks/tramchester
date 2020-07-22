@@ -47,7 +47,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         provider = new ProvidesNotes(TestEnv.GET(), liveDataRepository, stationRepository);
         lastUpdate = TestEnv.LocalNow();
 
-        EasyMock.expect(stationRepository.getStation(Stations.StPetersSquare.getId())).andStubReturn(Stations.StPetersSquare);
+        EasyMock.expect(stationRepository.getStationById(Stations.StPetersSquare.getId())).andStubReturn(Stations.StPetersSquare);
 
     }
 

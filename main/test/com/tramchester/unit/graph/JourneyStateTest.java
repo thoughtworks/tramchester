@@ -5,7 +5,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.CachedNodeOperations;
@@ -14,6 +13,7 @@ import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class JourneyStateTest {
 
         Set<Station> destinations = Collections.singleton(Stations.createStation("destinationStationId", "area", "name"));
         StationLocations locations = new StationLocations();
-        StationRepository repository = new TransportDataForTest(locations);
+        StationRepository repository = new TransportDataForTestFactory(locations).get();
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(),

@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
-import com.tramchester.repository.TransportDataSource;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.Stations;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -18,7 +18,7 @@ class StationAdjacencyRepositoryTest {
     private static Dependencies dependencies;
 
     private TramStationAdjacenyRepository repository;
-    private TransportDataSource transportDataSource;
+    private TransportData transportDataSource;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -33,7 +33,7 @@ class StationAdjacencyRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        transportDataSource = dependencies.get(TransportDataSource.class);
+        transportDataSource = dependencies.get(TransportData.class);
         repository = dependencies.get(TramStationAdjacenyRepository.class);
     }
 
@@ -59,7 +59,7 @@ class StationAdjacencyRepositoryTest {
     }
 
     private int getAdjacent(Station first, Station second) {
-        return repository.getAdjacent(transportDataSource.getStation(first.getId()),
-                transportDataSource.getStation(second.getId()));
+        return repository.getAdjacent(transportDataSource.getStationById(first.getId()),
+                transportDataSource.getStationById(second.getId()));
     }
 }

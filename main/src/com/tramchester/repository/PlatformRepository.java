@@ -6,8 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface PlatformRepository {
-    Optional<Platform> getPlatformById(String platformId);
+    Set<Platform> getPlatforms();
     boolean hasPlatformId(String id);
     Platform getPlatform(String id);
-    Set<Platform> getPlatforms();
+
+    Optional<Platform> getPlatformById(String platformId);
 }
