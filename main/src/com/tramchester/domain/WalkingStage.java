@@ -45,7 +45,11 @@ public class WalkingStage implements TransportStage {
 
     @Override
     public String getHeadSign() {
-        return "WalkingHeadSign";
+        if (towardsMyLocation) {
+            return "My Location";
+        } else {
+            return destination.getName();
+        }
     }
 
     @Override

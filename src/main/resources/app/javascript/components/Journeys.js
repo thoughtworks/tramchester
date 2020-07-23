@@ -26,6 +26,9 @@ function fromFormatter(value, key, row) {
 
 function nameForStation(station) {
     var name = station.name;
+    if (station.id=='MyLocationPlaceholderId') {
+        return name;
+    }
     if (station.transportMode=='Tram') {
         return name; // tram names unambiguous so no need for area prefx
     }
@@ -42,13 +45,20 @@ function stationFormatter(value, key, row) {
 }
 
 function stageHeadsignClass(value, key, row) {
-    if (value === 'WalkingHeadSign') {
+    if (row.actionStation.transportMode=='Walk') {
         return 'walkingHeadSign';
     }
     if (row.actionStation.transportMode=='Train') {
         return 'trainHeadSign';
     }
     return "headsign";
+}
+
+function stopsFormatter(value, key, row) {
+    if (row.action=='Walk to' || row.action=='Walk from') {
+        return '';
+    }
+    return value;
 }
 
 function lineFormatter(value, key, row) {
@@ -101,7 +111,7 @@ export default {
                 {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                 {key:'headSign', label:'Towards', tdClass: stageHeadsignClass },
                 {key:'mode', label:'Line', formatter: lineFormatter, tdClass: lineClass },
-                {key:'passedStops', label:'Stops', tdClass:'passedStops'}]
+                {key:'passedStops', label:'Stops', tdClass:'passedStops', formatter: stopsFormatter}]
             }
       },
     props: ['journeysresponse'],

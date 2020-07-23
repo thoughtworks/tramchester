@@ -35,7 +35,7 @@
 }
 
 .RouteWalking  {
-    /* nothing yet */
+    visibility: hidden;
 }
 
 .JourneyNotes {
@@ -107,7 +107,7 @@
 }
 
 .walkingHeadSign {
-    visibility: hidden;
+    /* visibility: hidden; */
 }
 
 .trainHeadSign {
