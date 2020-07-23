@@ -110,7 +110,21 @@ export default {
             if (this.journeysresponse==null) {
                 return [];
             }
-            return this.journeysresponse;
+            var seen = [];
+            var result = []
+            this.journeysresponse.forEach(item => {
+                var journey = item.journey;
+                var depart = journey.firstDepartureTime;
+                var arrive = journey.expectedArrivalTime;
+                var numStages = journey.stages.length;
+                var key = depart+"_"+arrive+"_"+numStages;
+                if (!seen.includes(key)) {
+                    result.push(item);
+                    seen.push(key);
+                }
+
+            })
+            return result;
         },
         noJourneys: function() {
             if (this.journeysresponse==null) {
