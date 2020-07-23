@@ -18,6 +18,10 @@ public class IdSet<T> implements Iterable<IdFor<T>> {
         theSet = new HashSet<>();
     }
 
+    public IdSet(Set<IdFor<T>> set) {
+        theSet = new HashSet<>(set);
+    }
+
     public static <T> IdSet<T> singleton(IdFor<T> id) {
         IdSet<T> result = new IdSet<>();
         result.add(id);

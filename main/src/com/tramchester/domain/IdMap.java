@@ -36,8 +36,8 @@ public class IdMap<T extends HasId<T>> implements Iterable<T> {
         return theMap.get(id);
     }
 
-    public Set<IdFor<T>> getIds() {
-        return new HashSet<>(theMap.keySet());
+    public IdSet<T> getIds() {
+        return new IdSet<T>(theMap.keySet());
     }
 
     public int size() {

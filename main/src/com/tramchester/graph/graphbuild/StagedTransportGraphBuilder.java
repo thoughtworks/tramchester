@@ -444,12 +444,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 timeNodes.put(Pair.of(start, departureTime), timeNode);
             }
         });
-//        // TODO why the  -1 here?
-//        for (int stopIndex = 0; stopIndex < stops.size() - 1; stopIndex++) {
-//            StopCall currentStop = stops.get(stopIndex);
-//            StopCall nextStop = stops.get(stopIndex+1);
-//
-//        }
 
         return timeNodes;
     }

@@ -15,7 +15,7 @@ server:
 
 secureHost: tramchester.com
 
-rebuildGraph: true
+rebuildGraph: false
 graphName: all.db
 closedStations: []
 instanceDataUrl: http://169.254.169.254
@@ -46,7 +46,7 @@ liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 20
 loadPostcodes: false
-createNeighbours: false
+createNeighbours: true
 distanceToNeighboursKM: 0.1
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip

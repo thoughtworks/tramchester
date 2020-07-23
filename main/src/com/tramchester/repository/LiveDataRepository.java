@@ -89,7 +89,7 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
     }
 
     private int consumeDepartInfo(List<StationDepartureInfo> receivedUpdate) {
-        Set<IdFor<Platform>> platformsSeen = new HashSet<>();
+        IdSet<Platform> platformsSeen = new IdSet<>();
         TramTime now = providesNow.getNow();
         LocalDate date = providesNow.getDate();
         int stale = 0;
@@ -120,7 +120,7 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
         return true;
     }
 
-    private void updateCacheFor(StationDepartureInfo newDepartureInfo, Set<IdFor<Platform>> platformsSeen) {
+    private void updateCacheFor(StationDepartureInfo newDepartureInfo, IdSet<Platform> platformsSeen) {
         IdFor<Platform> platformId = newDepartureInfo.getStationPlatform();
         if (!platformsSeen.contains(platformId)) {
             platformsSeen.add(platformId);

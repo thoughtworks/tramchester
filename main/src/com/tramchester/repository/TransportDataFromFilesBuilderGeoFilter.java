@@ -64,7 +64,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
         }
 
         IdMap<Agency> allAgencies = preloadAgencys(streams.agencies);
-        Set<IdFor<Route>> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies, sourceConfig);
+        IdSet<Route> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies, sourceConfig);
         logger.info("Excluding " + excludedRoutes.size()+" routes ");
         allAgencies.clear();
 
@@ -95,7 +95,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
                                    Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
 
         logger.info("Loading calendars");
-        Set<IdFor<Service>> missingCalendar = services.getIds();
+        IdSet<Service> missingCalendar = services.getIds();
         calendars.forEach(calendarData -> {
             IdFor<Service> serviceId = calendarData.getServiceId();
             Service service = buildable.getService(serviceId);
@@ -119,7 +119,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
         }
 
         logger.info("Loading calendar dates");
-        Set<IdFor<Service>> missingCalendarDates = services.getIds();
+        IdSet<Service> missingCalendarDates = services.getIds();
         calendarsDates.forEach(date -> {
             IdFor<Service> serviceId = date.getServiceId();
             Service service = buildable.getService(serviceId);
@@ -137,7 +137,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
                                    IdMap<Station> stations, IdMap<Trip> trips) {
         logger.info("Loading stop times");
         IdMap<Service> addedServices = new IdMap<>();
-        Set<IdFor<Station>> excludedStations = new HashSet<>();
+        IdSet<Station> excludedStations = new IdSet<>();
 
         AtomicInteger count = new AtomicInteger();
         stopTimes.filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).forEach((stopTimeData) -> {
@@ -227,7 +227,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
     }
 
     private TripAndServices loadTripsAndServices(TransportData transportData, Stream<TripData> tripDataStream,
-                                                 Set<IdFor<Route>> excludedRoutes) {
+                                                 IdSet<Route> excludedRoutes) {
         logger.info("Loading trips");
         IdMap<Trip> trips = new IdMap<>();
         IdMap<Service> services = new IdMap<>();
@@ -265,13 +265,13 @@ public class TransportDataFromFilesBuilderGeoFilter {
         return agencies;
     }
 
-    private Set<IdFor<Route>> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
+    private IdSet<Route> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
                                        IdMap<Agency> allAgencies, DataSourceConfig sourceConfig) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
-        Set<IdFor<Route>> excludedRoutes = new HashSet<>();
+        IdSet<Route> excludedRoutes = new IdSet<>();
         routeDataStream.forEach(routeData -> {
             IdFor<Agency> agencyId = routeData.getAgencyId();
             if (!allAgencies.hasId(agencyId)) {
