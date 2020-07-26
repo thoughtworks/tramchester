@@ -19,7 +19,7 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
     public static String METROLINK_PREFIX = "9400ZZ";
 
     private String area;
-    private IdFor<Station> id;
+    private IdFor<Station> id; // id is the "atoc code" for the tfgm data set
     private String name;
     private LatLong latLong;
     private TransportMode transportMode;
@@ -71,15 +71,14 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
         return latLong;
     }
 
-    // form the station id from the longer id that includes the platform number
-    // this id is know as the atcoCode in the live data api
-    public static IdFor<Station> formId(String atcoCode) {
-        if (atcoCode.startsWith(METROLINK_PREFIX)) {
+    // Metrolink stations ID the platform with a number on the end of the stationID
+    public static IdFor<Station> formId(String text) {
+        if (text.startsWith(METROLINK_PREFIX)) {
             // metrolink platform ids include platform as final digit, remove to give id of station itself
-            int index = atcoCode.length()-1;
-            return IdFor.createId(atcoCode.substring(0,index));
+            int index = text.length()-1;
+            return IdFor.createId(text.substring(0,index));
         }
-        return IdFor.createId(atcoCode);
+        return IdFor.createId(text);
     }
 
     @Override

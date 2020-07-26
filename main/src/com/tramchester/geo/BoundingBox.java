@@ -9,6 +9,12 @@ import javax.validation.Valid;
 @Valid
 public class BoundingBox {
 
+    // whole uk, approx
+    //    minEastings: 112685
+    //    minNorthings: 015490
+    //    maxEasting: 619307
+    //    maxNorthings: 1108843
+
     private final Long minEastings;
     private final Long minNorthings;
     private final Long maxEasting;

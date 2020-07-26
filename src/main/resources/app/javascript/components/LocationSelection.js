@@ -22,16 +22,6 @@ export default {
         },
         updateValue(value) {
             this.$emit('input', value);
-        },
-        formName(item) {
-            if (item.transportMode=='Tram' || item.transportMode=='Walk') {
-                return item.name;
-            }
-            var name = item.name;
-            if (!name.includes(item.area)) {
-                name = item.area + " " + name;
-            }
-            return name + " ("+item.transportMode+")";
         }
     },
     template: `
@@ -45,8 +35,7 @@ export default {
             <option :value="null" disabled>Please select {{name}}</option>
             <optgroup v-for="group in proximitygroups" :label="group.name" :name="group.name"
                 :id="name+'Group'+group.name">
-                    <option class="stop" v-for="stop in filterStops(group)" :value="stop.id">{{formName(stop)}}
-                </option>
+                    <option class="stop" v-for="stop in filterStops(group)" :value="stop.id">{{stop.name}}</option>
             </optgroup>
         </b-form-select>
     <!-- buses -->
@@ -56,7 +45,7 @@ export default {
             v-model="current"
             maxMatches=20
             minMatchingChars=3
-            :serializer="item => formName(item)"
+            :serializer="item => item.name"
             @hit="updateValue($event.id)"
             placeholder="Select a location"
             v-if="bus"

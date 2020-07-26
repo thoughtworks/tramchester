@@ -45,7 +45,7 @@ function stationFormatter(value, key, row) {
 }
 
 function stageHeadsignClass(value, key, row) {
-    if (row.actionStation.transportMode=='Walk') {
+    if (row.action=='Walk to' || row.action=='Walk from') {
         return 'walkingHeadSign';
     }
     if (row.actionStation.transportMode=='Train') {
@@ -109,7 +109,7 @@ export default {
                 {key:'action', label:'Action',tdClass:'action' },
                 {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: stationFormatter},
                 {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
-                {key:'headSign', label:'Towards', tdClass: stageHeadsignClass },
+                {key:'headSign', label:'Headsign', tdClass: stageHeadsignClass },
                 {key:'mode', label:'Line', formatter: lineFormatter, tdClass: lineClass },
                 {key:'passedStops', label:'Stops', tdClass:'passedStops', formatter: stopsFormatter}]
             }

@@ -27,17 +27,12 @@ public class IdMap<T extends HasId<T>> implements Iterable<T> {
         return theMap.containsKey(id);
     }
 
-    @Deprecated
-    public T getByString(String id) {
-        return theMap.get(IdFor.createId(id));
-    }
-
     public T get(IdFor<T> id) {
         return theMap.get(id);
     }
 
     public IdSet<T> getIds() {
-        return new IdSet<T>(theMap.keySet());
+        return new IdSet<>(theMap.keySet());
     }
 
     public int size() {
@@ -114,4 +109,8 @@ public class IdMap<T extends HasId<T>> implements Iterable<T> {
         };
     }
 
+    @Override
+    public String toString() {
+        return "IdMap{" + theMap + '}';
+    }
 }

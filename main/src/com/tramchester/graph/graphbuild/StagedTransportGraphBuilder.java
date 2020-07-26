@@ -202,8 +202,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createStationAndPlatforms(Transaction txn, Route route, Station station, RouteBuilderCache routeBuilderCache) {
-        Node routeStationNode = createRouteStationNode(txn, station, route);
-        routeBuilderCache.putRouteStation(route, station, routeStationNode);
+
+        createRouteStationNode(txn, station, route, routeBuilderCache);
 
         if (graphQuery.hasNodeForStation(txn, station)) {
             Node stationNode = graphQuery.getStationNode(txn, station);
@@ -486,15 +486,17 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProp(fromServiceNode, HOUR, hour);
     }
 
-    private Node createRouteStationNode(Transaction tx, Station station, Route route) {
+    private Node createRouteStationNode(Transaction tx, Station station, Route route, RouteBuilderCache routeBuilderCache) {
         Node routeStation = createGraphNode(tx, Labels.ROUTE_STATION);
         IdFor<RouteStation> routeStationId = IdFor.createId(station, route);
 
-        logger.debug(format("Creating route station %s route %s nodeId %s", station.getId(),route.getId(),
-                routeStation.getId()));
+        logger.debug(format("Creating route station %s route %s nodeId %s", station.getId(), route.getId(), routeStation.getId()));
         setProp(routeStation, GraphStaticKeys.ID, routeStationId.getGraphId());
         setProp(routeStation, STATION_ID, station.getId());
         setProp(routeStation, ROUTE_ID, route.getId());
+
+        routeBuilderCache.putRouteStation(routeStationId, routeStation);
+
         return routeStation;
     }
 
@@ -571,8 +573,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             hourNodes.clear();
         }
 
-        public void putRouteStation(Route route, Station station, Node routeStationNode) {
-            IdFor<RouteStation> id = IdFor.createId(station,route);
+        public void putRouteStation(IdFor<RouteStation> id, Node routeStationNode) {
             routeStations.put(id, routeStationNode.getId());
         }
 
@@ -583,7 +584,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         public Node getRouteStation(Transaction txn, Route route, Station station) {
             IdFor<RouteStation> id = IdFor.createId(station,route);
             if (!routeStations.containsKey(id)) {
-                String message = "Cannot find routestation node in cache " + id;
+                String message = "Cannot find routestation node in cache " + id + " station "
+                        + station.getId() + " route " + route.getId();
                 logger.error(message);
                 throw new RuntimeException(message);
             }

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+
+<body>
+<div id="routeMap" ><h1>Experimental Route map</h1>
+    <div id="leafletMap" style="height: 1000px" class="w-75"></div>
+    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
+    </app-footer>
+</div>
+
+<script src="/app/dist/routemap.js"></script>
+
+</body>
+</html>

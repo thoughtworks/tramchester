@@ -11,7 +11,6 @@ import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -325,7 +324,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
 //                    station = allStations.get(stationId);
 //                }
 
-                if (stopData.isTram()) {
+                if (stopData.isTFGMTram()) {
                     Platform platform = formPlatform(stopData);
                     if (!station.getPlatforms().contains(platform)) {
                         station.addPlatform(platform);

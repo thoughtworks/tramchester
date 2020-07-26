@@ -121,13 +121,10 @@ public class ServiceReasons {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("digraph G {\n");
-            Set<String> paths = new HashSet<>();
 
             ReasonsToGraphViz reasonsToGraphViz = new ReasonsToGraphViz(builder, transaction);
 
-            reasons.stream().forEach(reason -> {
-                reasonsToGraphViz.add(reason);
-            });
+            reasons.forEach(reasonsToGraphViz::add);
 
             builder.append("}");
 

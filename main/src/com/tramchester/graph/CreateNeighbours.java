@@ -50,7 +50,7 @@ public class CreateNeighbours implements Startable {
             txn.commit();
         }
         catch (Exception exception) {
-            logger.error("Caught expception during nieghbouring station add", exception);
+            logger.error("Caught exception during neighbouring station add", exception);
         }
         logger.info("Started");
     }
@@ -77,6 +77,7 @@ public class CreateNeighbours implements Startable {
                 Set<Long> already = new HashSet<>();
                 stationNode.getRelationships(Direction.OUTGOING, relationType).
                         forEach(relationship -> already.add(relationship.getEndNode().getId()));
+
                 if (!already.contains(otherNode.getId())) {
                     Relationship relationship = stationNode.createRelationshipTo(otherNode, relationType);
                     relationship.setProperty(GraphStaticKeys.COST, CoordinateTransforms.calcCostInMinutes(station, other, mph));

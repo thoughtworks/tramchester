@@ -48,8 +48,7 @@ public class StopData {
         return area;
     }
 
-    @Deprecated
-    public boolean isTram() {
+    public boolean isTFGMTram() {
         return isTram;
     }
 

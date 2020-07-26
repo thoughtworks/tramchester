@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.IsNot.not;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class AppUserJourneyLoactionsTest extends UserJourneyTest {
+public class AppUserJourneyLocationsTest extends UserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
 
     public static AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
@@ -158,8 +158,9 @@ public class AppUserJourneyLoactionsTest extends UserJourneyTest {
         Assertions.assertEquals(action, stage.getAction(), "action");
         Assertions.assertEquals(actionStation, stage.getActionStation(), "actionStation");
         Assertions.assertEquals(platform, stage.getPlatform(), "platform");
-        Assertions.assertEquals(lineName, stage.getLine(lineClass), "lineName");
-        Assertions.assertEquals(stops, stage.getPassedStops(), "stops");
+
+        // hidden for walking stages
+        Assertions.assertEquals("", stage.getLine(lineClass), "lineName");
     }
 
     private AppPage prepare(ProvidesDriver providesDriver) throws IOException {

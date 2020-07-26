@@ -9,6 +9,10 @@ import java.util.Set;
 
 public class TFGMTestDataSourceConfig implements DataSourceConfig {
 
+    //
+    // https://data.gov.uk/dataset/c96c4140-8b6c-4130-9642-49866498d268/gm-public-transport-schedules-gtfs
+    //
+
     private final String dataFolder;
     private final Set<GTFSTransportationType> modes;
 

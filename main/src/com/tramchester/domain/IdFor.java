@@ -40,9 +40,7 @@ public class IdFor<T> {
 
     @Override
     public String toString() {
-        return "IdFor{" +
-                "theId='" + theId + '\'' +
-                '}';
+        return "Id{'" + theId + "'}";
     }
 
     @Override

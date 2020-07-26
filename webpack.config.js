@@ -6,7 +6,8 @@ module.exports = {
   entry: {
     main: './src/main/resources/app/javascript/journeyplan.js',
     trammap: './src/main/resources/app/javascript/trammap.js',
-    traveltimes: './src/main/resources/app/javascript/traveltimes.js'
+    traveltimes: './src/main/resources/app/javascript/traveltimes.js',
+    routemap: './src/main/resources/app/javascript/routemap.js'
   },
   output: {
     path: path.resolve(__dirname, 'src/main/resources/app/dist/'),

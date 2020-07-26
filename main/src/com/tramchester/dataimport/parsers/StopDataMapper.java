@@ -1,9 +1,11 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopData;
+import com.tramchester.domain.places.Station;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
 
-import java.util.ArrayList;
+import javax.swing.table.TableRowSorter;
 import java.util.List;
 import java.util.Set;
 
@@ -19,8 +21,7 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
     }
 
     // not used
-    @Deprecated
-    private static String tramStation = " (Manchester Metrolink)";
+    private static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
     private final boolean includeAll;
     private final Set<String> stopIds;
 
@@ -43,43 +44,44 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         String code = data.get(indexStopCode);
         String name = data.get(indexStopName);
 
-        String[] nameParts = name.split(",");
-        String area;
-        String stopName;
-        if (nameParts.length>=2) {
-            area = nameParts[0].trim().replace("\"","");
-            StringBuilder builder = new StringBuilder();
-            for(int index = 1; index<nameParts.length; index++) {
-                if (index>1) {
-                    builder.append(",");
-                }
-                builder.append(nameParts[index]);
+        boolean isTram = id.startsWith(Station.METROLINK_PREFIX);
+
+        // remove quotes, if present
+        name = name.replace("\"", "");
+        if (isTram) {
+            if (name.endsWith(TRAM_STATION_POSTFIX)) {
+                name = name.substring(0, name.indexOf(TRAM_STATION_POSTFIX));
             }
-            stopName = builder.toString().trim().replace("\"","");
+        }
+        name = name.trim();
+
+        String area="";
+
+        String[] nameParts = name.split(",");
+        if (nameParts.length>=2) {
+            area = nameParts[0].replace("," , "").trim();
+        }
+
+        String stopName;
+        if (isTram) {
+            stopName = name.replaceFirst(area+",", "").trim();
         } else {
-            area = "";
-            stopName = nameParts[0].trim().replace("\"","");
-        }
-        // todo use prefix (9400ZZ) on stop id or agency name instead?
-        boolean isTram = false;
-        if (stopName.contains(tramStation)) {
-            stopName = stopName.replace(tramStation,"");
-            isTram = true;
+            stopName = name;
         }
 
-        double latitude = 0;
-        String latStr = data.get(indexStopLat);
-        if (latStr.contains(".")) {
-            latitude = Double.parseDouble(latStr);
-        }
-
-        double longitude = 0;
-        String longStr = data.get(indexStopLon);
-        if (longStr.contains(".")) {
-            longitude = Double.parseDouble(longStr);
-        }
+        double latitude = parseDouble(data, indexStopLat);
+        double longitude = parseDouble(data, indexStopLon);
 
         return new StopData(id, code, area, stopName, latitude, longitude, isTram);
+    }
+
+    private double parseDouble(CSVRecord data, int indexStopLat) {
+        double latitude = 0;
+        String text = data.get(indexStopLat);
+        if (text.contains(".")) {
+            latitude = Double.parseDouble(text);
+        }
+        return latitude;
     }
 
 

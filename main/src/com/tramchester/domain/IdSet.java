@@ -130,4 +130,8 @@ public class IdSet<T> implements Iterable<IdFor<T>> {
         theSet.forEach(action);
     }
 
+    @Override
+    public String toString() {
+        return "IdSet{" + theSet + '}';
+    }
 }

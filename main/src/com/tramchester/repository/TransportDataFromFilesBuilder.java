@@ -308,7 +308,7 @@ public class TransportDataFromFilesBuilder {
 //            }
 
             // TODO Trains?
-            if (stop.isTram()) {
+            if (stop.isTFGMTram()) {
 //                Platform platform;
 //                if (!buildable.hasPlatformId(stopId)) {
 //                    buildable.addPlatform(platform);

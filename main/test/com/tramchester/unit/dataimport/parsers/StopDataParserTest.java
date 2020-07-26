@@ -14,12 +14,12 @@ import static org.junit.Assert.assertFalse;
 
 class StopDataParserTest {
 
-    private final String stopA = "9400ZZMAWYT2,mantwjdt,\"Wythenshawe,Wythenshawe Town Centre (Manchester Metrolink)\",53.38003," +
+    private final String tramStop = "9400ZZMAWYT2,mantwjdt,\"Wythenshawe, Wythenshawe Town Centre (Manchester Metrolink)\",53.38003," +
             "-2.26381,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT2";
 
-    private final String stopB = "800NEH0341,missing,\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\",53.53509,-2.19333"+
-            ",http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341";
 
+    private final String tfgmBusStop = "800NEH0341,missing,\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\",53.53509,-2.19333"+
+            ",http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341";
 
     @Test
     void shouldFilterCorrectly() throws IOException {
@@ -27,8 +27,8 @@ class StopDataParserTest {
 
         stopDataParser.initColumnIndex(ParserBuilder.getRecordFor("stop_id,stop_code,stop_name,stop_lat,stop_lon"));
 
-        Assertions.assertTrue(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(stopA)));
-        Assertions.assertFalse(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(stopB)));
+        Assertions.assertTrue(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(tramStop)));
+        Assertions.assertFalse(stopDataParser.shouldInclude(ParserBuilder.getRecordFor(tfgmBusStop)));
     }
 
     @Test
@@ -36,7 +36,7 @@ class StopDataParserTest {
         StopDataMapper stopDataParser = new StopDataMapper(Collections.emptySet());
 
         stopDataParser.initColumnIndex(ParserBuilder.getRecordFor("stop_id,stop_code,stop_name,stop_lat,stop_lon"));
-        StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(stopA));
+        StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(tramStop));
 
         assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT2");
         assertThat(stopData.getCode()).isEqualTo("mantwjdt");
@@ -44,23 +44,45 @@ class StopDataParserTest {
         assertThat(stopData.getName()).isEqualTo("Wythenshawe Town Centre");
         assertThat(stopData.getLatitude()).isEqualTo(53.38003);
         assertThat(stopData.getLongitude()).isEqualTo(-2.26381);
-        assertThat(stopData.isTram()).isEqualTo(true);
+        assertThat(stopData.isTFGMTram()).isEqualTo(true);
     }
 
     @Test
-    void shouldParseTramStopMultipleCommas() throws IOException {
+    void shouldParseTFGMBusStop() throws IOException {
         StopDataMapper stopDataParser = new StopDataMapper(Collections.emptySet());
 
         stopDataParser.initColumnIndex(ParserBuilder.getRecordFor("stop_id,stop_code,stop_name,stop_lat,stop_lon"));
 
-        StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(stopB));
+        StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(tfgmBusStop));
 
         assertThat(stopData.getId()).isEqualTo("800NEH0341");
         assertThat(stopData.getCode()).isEqualTo("missing");
         assertThat(stopData.getArea()).isEqualTo("Alkrington Garden Village");
-        assertThat(stopData.getName()).isEqualTo("nr School Evesham Road (E bnd, Hail and ride)");
+        assertThat(stopData.getName()).isEqualTo("Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)");
         assertThat(stopData.getLatitude()).isEqualTo(53.53509);
         assertThat(stopData.getLongitude()).isEqualTo(-2.19333);
-        assertThat(stopData.isTram()).isEqualTo(false);
+        assertThat(stopData.isTFGMTram()).isEqualTo(false);
+    }
+
+    @Test
+    void shouldParseTrainStop() throws IOException {
+        StopDataMapper stopDataParser = new StopDataMapper(Collections.emptySet());
+
+        stopDataParser.initColumnIndex(ParserBuilder.getRecordFor(
+                "stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type," +
+                        "parent_station,stop_timezone,wheelchair_boarding"));
+
+        String trainStop = "HOP,HOPD,Hope (Derbyshire),0,53.34611,-1.72989,,,,,Europe/London,0";
+
+        StopData stopData = stopDataParser.parseEntry(ParserBuilder.getRecordFor(trainStop));
+
+        assertThat(stopData.getId()).isEqualTo("HOP");
+        assertThat(stopData.getCode()).isEqualTo("HOPD");
+        assertThat(stopData.getArea()).isEqualTo("");
+        assertThat(stopData.getName()).isEqualTo("Hope (Derbyshire)");
+        assertThat(stopData.getLatitude()).isEqualTo(53.34611);
+        assertThat(stopData.getLongitude()).isEqualTo(-1.72989);
+        assertThat(stopData.isTFGMTram()).isEqualTo(false);
+
     }
 }

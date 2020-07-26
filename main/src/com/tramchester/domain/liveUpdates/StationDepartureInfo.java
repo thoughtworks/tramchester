@@ -27,6 +27,7 @@ public class StationDepartureInfo implements HasPlatformMessage {
     private final Station station;
     private final Direction direction;
 
+    // station code here is the actocode
     public StationDepartureInfo(String displayId, String lineName, Direction direction, String stationPlatform,
                                 Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
