@@ -5,13 +5,14 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.GraphPropertyKeys;
+import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
-import static com.tramchester.graph.GraphPropertyKeys.*;
+import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
 
@@ -47,7 +48,7 @@ public class GraphProps {
         node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
     }
 
-    private static Object getProperty(Entity node, GraphPropertyKeys longitude) {
+    private static Object getProperty(Entity node, GraphPropertyKey longitude) {
         return node.getProperty(longitude.getText());
     }
 
@@ -67,8 +68,6 @@ public class GraphProps {
         relationship.setProperty(COST.getText(), value);
     }
 
-
-
     public static LocalTime getTime(Entity entity) {
         return (LocalTime) getProperty(entity, TIME);
     }
@@ -77,7 +76,7 @@ public class GraphProps {
         entity.setProperty(TIME.getText(), time);
     }
 
-    public static boolean hasProperty(GraphPropertyKeys key, Entity entity) {
+    public static boolean hasProperty(GraphPropertyKey key, Entity entity) {
         return entity.hasProperty(key.getText());
     }
 
@@ -108,7 +107,7 @@ public class GraphProps {
 
     @Deprecated
     public static String getId(Node node) {
-        return getProperty(node, GraphPropertyKeys.ID).toString();
+        return getProperty(node, GraphPropertyKey.ID).toString();
     }
 
     static void setHourProp(Entity entity, Integer value) {
@@ -132,5 +131,9 @@ public class GraphProps {
 
     public static IdFor<Route> getRouteId(Entity entity) {
         return IdFor.getRouteIdFrom(entity);
+    }
+
+    public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
+        entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString()+"_"+uid.toString());
     }
 }

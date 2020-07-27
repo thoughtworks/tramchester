@@ -1,9 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -42,8 +39,8 @@ public class GraphQuery {
     }
 
     @Deprecated
-    private <T extends HasId<T>> Node getNodeByLabelAndID(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
-        return graphDatabase.findNode(txn, label, GraphPropertyKeys.ID.getText(), id.getGraphId());
+    private <T extends HasId<T> & GraphProperty> Node getNodeByLabelAndID(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
+        return graphDatabase.findNode(txn, label, GraphPropertyKey.ID.getText(), id.getGraphId());
     }
 
     public List<Relationship> getRouteStationRelationships(Transaction txn, IdFor<RouteStation> routeStationId, Direction direction) {

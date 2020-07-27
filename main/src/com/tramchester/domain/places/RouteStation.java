@@ -1,8 +1,9 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.graph.GraphPropertyKey;
 
-public class RouteStation implements HasId<RouteStation>, HasTransportMode {
+public class RouteStation implements HasId<RouteStation>, HasTransportMode, GraphProperty {
     // A station that serves a specific route
 
     private final Station station;
@@ -50,5 +51,10 @@ public class RouteStation implements HasId<RouteStation>, HasTransportMode {
     @Override
     public TransportMode getTransportMode() {
         return route.getTransportMode();
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.ROUTE_STATION_ID;
     }
 }

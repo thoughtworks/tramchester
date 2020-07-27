@@ -1,9 +1,11 @@
 package com.tramchester.domain;
 
+import com.tramchester.graph.GraphPropertyKey;
+
 import java.util.HashSet;
 import java.util.Set;
 
-public class Route implements HasId<Route>, HasTransportMode {
+public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
 
     private final IdFor<Route> id;
     private final String shortName;
@@ -89,5 +91,10 @@ public class Route implements HasId<Route>, HasTransportMode {
                 ", transportMode=" + transportMode +
                 ", headsigns=" + headsigns +
                 '}';
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.ROUTE_ID;
     }
 }

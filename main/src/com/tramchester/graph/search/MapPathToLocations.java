@@ -6,7 +6,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.GraphPropertyKeys;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
@@ -40,8 +40,8 @@ public class MapPathToLocations {
             IdFor<Station> stationId = IdFor.getStationIdFrom(node);
             results.add(stationRepository.getStationById(stationId));
         } else if (node.hasLabel(GraphBuilder.Labels.QUERY_NODE)) {
-            double lat = (double)node.getProperty(GraphPropertyKeys.LATITUDE.getText());
-            double lon = (double)node.getProperty(GraphPropertyKeys.LONGITUDE.getText());
+            double lat = (double)node.getProperty(GraphPropertyKey.LATITUDE.getText());
+            double lon = (double)node.getProperty(GraphPropertyKey.LONGITUDE.getText());
             Location location = MyLocation.create(mapper, new LatLong(lat,lon));
             results.add(location);
         } else if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {

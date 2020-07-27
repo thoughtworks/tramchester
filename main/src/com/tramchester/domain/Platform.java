@@ -1,11 +1,13 @@
 package com.tramchester.domain;
 
+import com.tramchester.graph.GraphPropertyKey;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.lang.String.format;
 
-public class Platform implements HasId<Platform> {
+public class Platform implements HasId<Platform>, GraphProperty {
 
     private final IdFor<Platform> id;
     private final String name;
@@ -64,4 +66,8 @@ public class Platform implements HasId<Platform> {
         return servesRoutes;
     }
 
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.PLATFORM_ID;
+    }
 }

@@ -1,6 +1,5 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.graph.GraphPropertyKeys;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
 import org.apache.commons.lang3.tuple.Pair;

@@ -8,7 +8,7 @@ import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class IdMap<T extends HasId<T>> implements Iterable<T> {
+public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
     private final HashMap<IdFor<T>, T> theMap;
 
     public IdMap() {
@@ -80,7 +80,7 @@ public class IdMap<T extends HasId<T>> implements Iterable<T> {
         boolean include(T item);
     }
 
-    public static <T extends HasId<T>> Collector<T, IdMap<T>, IdMap<T>> collector() {
+    public static <T extends HasId<T> & GraphProperty> Collector<T, IdMap<T>, IdMap<T>> collector() {
         return new Collector<>() {
             @Override
             public Supplier<IdMap<T>> supplier() {

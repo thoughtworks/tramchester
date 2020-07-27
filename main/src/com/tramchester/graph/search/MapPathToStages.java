@@ -9,7 +9,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphPropertyKeys;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.PlatformRepository;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.graph.GraphPropertyKeys.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 

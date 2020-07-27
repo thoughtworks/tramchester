@@ -2,8 +2,9 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.graph.GraphPropertyKey;
 
-public class Trip implements HasId<Trip>, HasTransportMode {
+public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
     private final IdFor<Trip> tripId;
     private final String headSign;
@@ -124,5 +125,10 @@ public class Trip implements HasId<Trip>, HasTransportMode {
 
     public int getSeqNumOfLastStop() {
         return lastIndex;
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.TRIP_ID;
     }
 }

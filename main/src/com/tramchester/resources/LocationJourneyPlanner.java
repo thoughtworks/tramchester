@@ -17,15 +17,11 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
-import static com.tramchester.graph.GraphPropertyKeys.COST;
 import static java.lang.String.format;
 
 public class LocationJourneyPlanner {
@@ -60,7 +56,7 @@ public class LocationJourneyPlanner {
 
         List<StationWalk> walksToStart = getStationWalks(latLong);
 
-        Node startOfWalkNode = createWalkingNode(txn, latLong);
+        Node startOfWalkNode = createWalkingNode(txn, latLong, journeyRequest);
 
         walksToStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startOfWalkNode, stationWalk,
                 TransportRelationshipTypes.WALKS_TO)));
@@ -85,13 +81,13 @@ public class LocationJourneyPlanner {
         List<Relationship> addedRelationships = new LinkedList<>();
 
         List<StationWalk> walksToDest = getStationWalks(destination);
-        Node midWalkNode = createMidWalkingNode(txn, destination);
+        Node midWalkNode = createMidWalkingNode(txn, destination, journeyRequest);
 
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
             addedRelationships.add(createWalkRelationship(txn, midWalkNode, stationWalk, TransportRelationshipTypes.WALKS_FROM));
         });
-        Node endWalk = createWalkingNode(txn, destination);
+        Node endWalk = createWalkingNode(txn, destination, journeyRequest);
         Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
         GraphProps.setCostProp(relationshipTo, 0);
         addedRelationships.add(relationshipTo);
@@ -117,19 +113,19 @@ public class LocationJourneyPlanner {
 
         // Add Walk at the Start
         List<StationWalk> walksAtStart = getStationWalks(startLatLong);
-        Node startNode = createWalkingNode(txn, startLatLong);
+        Node startNode = createWalkingNode(txn, startLatLong, journeyRequest);
         walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startNode, stationWalk,
                 TransportRelationshipTypes.WALKS_TO)));
 
         // Add Walks at the end
         Set<Station> destinationStations = new HashSet<>();
         List<StationWalk> walksToDest = getStationWalks(destLatLong);
-        Node midWalkNode = createWalkingNode(txn, destLatLong);
+        Node midWalkNode = createWalkingNode(txn, destLatLong, journeyRequest);
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
             addedRelationships.add(createWalkRelationship(txn, midWalkNode, stationWalk, TransportRelationshipTypes.WALKS_FROM));
         });
-        Node endWalk = createWalkingNode(txn, destLatLong);
+        Node endWalk = createWalkingNode(txn, destLatLong, journeyRequest);
         Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
         GraphProps.setCostProp(relationshipTo, 0);
         addedRelationships.add(relationshipTo);
@@ -169,18 +165,18 @@ public class LocationJourneyPlanner {
         return walkingRelationship;
     }
 
-    private Node createWalkingNode(Transaction txn, LatLong origin) {
+    private Node createWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
         Node startOfWalkNode = nodeTypeRepository.createQueryNode(graphDatabase, txn);
         GraphProps.setLatLong(startOfWalkNode, origin);
-        GraphProps.setIdProp(startOfWalkNode, origin.toString());
+        GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }
 
-    private Node createMidWalkingNode(Transaction txn, LatLong origin) {
+    private Node createMidWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
         Node startOfWalkNode = nodeTypeRepository.createQueryNodeMidPoint(graphDatabase, txn);
         GraphProps.setLatLong(startOfWalkNode, origin);
-        GraphProps.setIdProp(startOfWalkNode, origin.toString());
+        GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
         logger.info(format("Adding mid walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

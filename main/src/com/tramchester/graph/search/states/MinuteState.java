@@ -14,7 +14,7 @@ import org.neo4j.graphdb.Relationship;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.graph.GraphPropertyKeys.TRIP_ID;
+import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 

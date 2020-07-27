@@ -1,8 +1,10 @@
 package com.tramchester.domain;
 
+import com.tramchester.graph.GraphPropertyKey;
+
 import java.util.*;
 
-public class Agency implements HasId<Agency> {
+public class Agency implements HasId<Agency>, GraphProperty {
     private final Set<Route> routes;
     private final IdFor<Agency> agencyId;
     private final String agencyName;
@@ -49,5 +51,10 @@ public class Agency implements HasId<Agency> {
 
     public String getName() {
         return agencyName;
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        throw new RuntimeException("No ID property for agency");
     }
 }

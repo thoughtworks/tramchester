@@ -4,7 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.geo.HasGridPosition;
+import com.tramchester.graph.GraphPropertyKey;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class Station extends MapIdToDTOId<Station> implements Location, HasId<Station> {
+public class Station extends MapIdToDTOId<Station> implements Location, HasId<Station>, GraphProperty {
     private static final Logger logger = LoggerFactory.getLogger(Station.class);
 
     public static String METROLINK_PREFIX = "9400ZZ";
@@ -31,13 +31,6 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
     private final List<Platform> platforms;
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
-
-//    public Station () {
-//        // deserialisation
-//        platforms = new LinkedList<>();
-//        servesRoutes = new HashSet<>();
-//        servesAgencies = new HashSet<>();
-//    }
 
     public Station(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
         this(IdFor.createId(id), area, stationName, latLong, gridPosition);
@@ -173,5 +166,10 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
 
     public GridPosition getGridPosition() {
         return gridPosition;
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.STATION_ID;
     }
 }

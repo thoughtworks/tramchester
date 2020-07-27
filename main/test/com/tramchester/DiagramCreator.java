@@ -1,7 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphPropertyKeys;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -13,7 +13,7 @@ import org.neo4j.graphdb.Transaction;
 import java.io.*;
 import java.util.*;
 
-import static com.tramchester.graph.GraphPropertyKeys.TRIP_ID;
+import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static java.lang.String.format;
 
 
@@ -48,7 +48,7 @@ public class DiagramCreator {
 
             startPointsList.forEach(startPoint -> {
                 Node startNode = graphDatabaseService.findNode(tx, GraphBuilder.Labels.TRAM_STATION,
-                        GraphPropertyKeys.ID.getText(), startPoint);
+                        GraphPropertyKey.ID.getText(), startPoint);
                 visit(startNode, builder, 0, nodeSeen, relationshipSeen);
             });
 

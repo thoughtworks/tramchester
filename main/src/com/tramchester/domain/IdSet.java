@@ -11,7 +11,7 @@ import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-public class IdSet<T> implements Iterable<IdFor<T>> {
+public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
     private final Set<IdFor<T>> theSet;
 
     public IdSet() {
@@ -22,7 +22,7 @@ public class IdSet<T> implements Iterable<IdFor<T>> {
         theSet = new HashSet<>(set);
     }
 
-    public static <T> IdSet<T> singleton(IdFor<T> id) {
+    public static <T extends GraphProperty> IdSet<T> singleton(IdFor<T> id) {
         IdSet<T> result = new IdSet<>();
         result.add(id);
         return result;
@@ -61,7 +61,7 @@ public class IdSet<T> implements Iterable<IdFor<T>> {
         return theSet.stream();
     }
 
-    public static <T extends HasId<T>> Collector<T, IdSet<T>, IdSet<T>> collector() {
+    public static <T extends HasId<T> & GraphProperty> Collector<T, IdSet<T>, IdSet<T>> collector() {
         return new Collector<>() {
             @Override
             public Supplier<IdSet<T>> supplier() {
@@ -90,7 +90,7 @@ public class IdSet<T> implements Iterable<IdFor<T>> {
         };
     }
 
-    public static <T extends HasId<T>> Collector<IdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
+    public static <T extends HasId<T> & GraphProperty> Collector<IdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
         return new Collector<>() {
             @Override
             public Supplier<IdSet<T>> supplier() {

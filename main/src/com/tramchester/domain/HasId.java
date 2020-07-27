@@ -5,14 +5,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
-public interface HasId<DOMAINTYPE> {
+public interface HasId<DOMAINTYPE extends GraphProperty> {
     IdFor<DOMAINTYPE> getId();
 
     static <T extends IdForDTO> String dtoAsIds(Collection<T> items) {
         return listToIdStringList(items, IdForDTO::forDTO);
     }
 
-    static <T extends HasId<T>> String asIds(Collection<T> items) {
+    static <T extends HasId<T> & GraphProperty> String asIds(Collection<T> items) {
         return listToIdStringList(items, item -> asId(item).toString());
     }
 
@@ -25,7 +25,7 @@ public interface HasId<DOMAINTYPE> {
         return ids.toString();
     }
 
-    static <T extends HasId<T>> IdFor<T> asId(T item) {
+    static <T extends HasId<T> & GraphProperty> IdFor<T> asId(T item) {
         return item.getId();
     }
 

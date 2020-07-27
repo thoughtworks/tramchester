@@ -3,29 +3,24 @@ package com.tramchester.domain;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphPropertyKeys;
+import com.tramchester.graph.GraphPropertyKey;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
 
-import static com.tramchester.graph.GraphPropertyKeys.*;
+import static com.tramchester.graph.GraphPropertyKey.*;
 
-public class IdFor<T> implements Comparable<IdFor<T>> {
+public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
     private final String theId;
 
     protected IdFor(String theId) {
         this.theId = theId.intern();
     }
 
-    public static <C extends HasId<C>> IdFor<C> createId(String id) {
+    public static <C extends HasId<C> & GraphProperty> IdFor<C> createId(String id) {
         return new IdFor<>(id);
     }
 
-    public static IdFor<RouteStation> createId(Station station, Route route) {
-        String idAsString = station.getId().theId + route.getId().theId.replaceAll(" ", "");
-        return createId(idAsString);
-    }
-
-    public static <CLASS> IdFor<CLASS> invalid() {
+    public static <CLASS extends GraphProperty> IdFor<CLASS> invalid() {
         return new IdFor<>("");
     }
 
@@ -98,7 +93,12 @@ public class IdFor<T> implements Comparable<IdFor<T>> {
         return new IdFor<>(getTheId(entity, PLATFORM_ID));
     }
 
-    private static String getTheId(Entity entity, GraphPropertyKeys propertyKey) {
+    public static IdFor<RouteStation> createId(Station station, Route route) {
+        String idAsString = station.getId().theId + route.getId().theId.replaceAll(" ", "");
+        return createId(idAsString);
+    }
+
+    private static String getTheId(Entity entity, GraphPropertyKey propertyKey) {
         return entity.getProperty(propertyKey.getText()).toString();
     }
 

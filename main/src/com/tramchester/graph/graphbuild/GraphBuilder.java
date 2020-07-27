@@ -2,19 +2,12 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
 import com.tramchester.graph.*;
 import org.neo4j.graphdb.*;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
-
-import static com.tramchester.graph.GraphPropertyKeys.*;
-import static com.tramchester.graph.GraphPropertyKeys.HOUR;
 import static java.lang.String.format;
 
 public abstract class GraphBuilder implements Startable {

@@ -5,6 +5,7 @@ import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.graph.GraphPropertyKey;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class Service implements HasId<Service> {
+public class Service implements HasId<Service>, GraphProperty {
 
     private final IdFor<Service> serviceId;
     private final Set<Route> routes;
@@ -221,4 +222,8 @@ public class Service implements HasId<Service> {
         return found.toString();
     }
 
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.SERVICE_ID;
+    }
 }

@@ -9,7 +9,7 @@ import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.graph.GraphPropertyKeys;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -33,8 +33,8 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.tramchester.graph.GraphPropertyKeys.HOUR;
-import static com.tramchester.graph.GraphPropertyKeys.SERVICE_ID;
+import static com.tramchester.graph.GraphPropertyKey.HOUR;
+import static com.tramchester.graph.GraphPropertyKey.SERVICE_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceHeuristicsTest extends EasyMockSupport {
@@ -399,7 +399,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         Node node = createMock(Node.class);
         EasyMock.expect(node.getId()).andStubReturn(42L); // ok IFF node time always same
-        EasyMock.expect(node.getProperty(GraphPropertyKeys.TIME.getText())).andStubReturn(nodeTime);
+        EasyMock.expect(node.getProperty(GraphPropertyKey.TIME.getText())).andStubReturn(nodeTime);
 
         replayAll();
         assertEquals(expect, serviceHeuristics.checkTime(path, node, currentElapsed, reasons).isValid());

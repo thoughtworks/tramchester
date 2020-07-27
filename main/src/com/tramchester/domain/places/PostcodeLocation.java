@@ -1,15 +1,13 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.List;
 import java.util.Objects;
 
-public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements Location, HasId<PostcodeLocation> {
+public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements Location, HasId<PostcodeLocation>, GraphProperty {
 
     private final LatLong LatLong;
     private final IdFor<PostcodeLocation> id;
@@ -76,5 +74,10 @@ public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements 
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        throw new RuntimeException("not graph property key for PostcodeLocation");
     }
 }

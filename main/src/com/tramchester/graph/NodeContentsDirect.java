@@ -8,10 +8,6 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.time.LocalTime;
-
-import static com.tramchester.graph.GraphPropertyKeys.*;
-
 // KEEP for assisting with debugging
 public class NodeContentsDirect implements NodeContentsRepository{
 

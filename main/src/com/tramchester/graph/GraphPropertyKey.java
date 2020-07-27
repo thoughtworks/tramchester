@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-public enum GraphPropertyKeys {
+public enum GraphPropertyKey {
     ID("id"),
     STATION_ID("station_id"),
     PLATFORM_ID("platform_id"),
@@ -14,15 +14,17 @@ public enum GraphPropertyKeys {
     ROUTE_STATION_ID("route_station_id"),
     TOWARDS_STATION_ID("towards_id"),
     LATITUDE("latitude"),
-    LONGITUDE("longitude");
+    LONGITUDE("longitude"),
+    WALK_ID("walk_id");
 
     private final String text;
 
-    GraphPropertyKeys(String text) {
+    GraphPropertyKey(String text) {
         this.text = text;
     }
 
     public String getText() {
         return text;
     }
+
 }

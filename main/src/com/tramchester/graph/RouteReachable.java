@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.tramchester.graph.GraphPropertyKeys.*;
+import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 

@@ -2,15 +2,13 @@ package com.tramchester.domain.places;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.List;
 
-public class MyLocation extends MapIdToDTOId<MyLocation> implements Location, HasId<MyLocation> {
+public class MyLocation extends MapIdToDTOId<MyLocation> implements Location, HasId<MyLocation>, GraphProperty {
 
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
     public static final IdFor<MyLocation> LocationPlaceHolder = IdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
@@ -69,5 +67,10 @@ public class MyLocation extends MapIdToDTOId<MyLocation> implements Location, Ha
     @Override
     public TransportMode getTransportMode() {
         return TransportMode.Walk;
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.WALK_ID;
     }
 }
