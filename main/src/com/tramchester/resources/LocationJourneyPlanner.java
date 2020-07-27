@@ -161,7 +161,7 @@ public class LocationJourneyPlanner {
         }
 
         GraphProps.setCostProp(walkingRelationship, cost);
-        GraphProps.setStationProp(walkingRelationship, walkStation.getId());
+        GraphProps.setProperty(walkingRelationship, walkStation);
         return walkingRelationship;
     }
 

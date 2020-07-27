@@ -20,20 +20,12 @@ public class GraphProps {
         node.setProperty(nameAndVersion.getName(), nameAndVersion.getVersion());
     }
 
-    public static void setRouteProp(Entity entity, IdFor<Route> id) {
-        entity.setProperty(ROUTE_ID.getText(), id.getGraphId());
-    }
-
-    public static void setServiceProp(Entity entity, IdFor<Service> id) {
-        entity.setProperty(SERVICE_ID.getText(), id.getGraphId());
+    public static <C extends GraphProperty>  void setProperty(Entity entity, HasId<C> item) {
+        entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
     public static void setPlatformProp(Entity entity, IdFor<Platform> id) {
         entity.setProperty(PLATFORM_ID.getText(), id.getGraphId());
-    }
-
-    public static void setStationProp(Entity entity, IdFor<Station> id) {
-        entity.setProperty(STATION_ID.getText(), id.getGraphId());
     }
 
     public static IdFor<Station> getStationId(Entity entity) {
@@ -72,16 +64,12 @@ public class GraphProps {
         return (LocalTime) getProperty(entity, TIME);
     }
 
-    static void setProp(Entity entity, LocalTime time) {
+    static void setTimeProp(Entity entity, LocalTime time) {
         entity.setProperty(TIME.getText(), time);
     }
 
     public static boolean hasProperty(GraphPropertyKey key, Entity entity) {
         return entity.hasProperty(key.getText());
-    }
-
-    static void setTripProp(Entity entity, IdFor<Trip> id) {
-        entity.setProperty(TRIP_ID.getText(), id.getGraphId());
     }
 
     public static IdFor<Trip> getTripId(Entity entity) {

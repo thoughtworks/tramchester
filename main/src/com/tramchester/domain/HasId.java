@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
-public interface HasId<DOMAINTYPE extends GraphProperty> {
+public interface HasId<DOMAINTYPE extends GraphProperty> extends GraphProperty {
     IdFor<DOMAINTYPE> getId();
 
     static <T extends IdForDTO> String dtoAsIds(Collection<T> items) {
