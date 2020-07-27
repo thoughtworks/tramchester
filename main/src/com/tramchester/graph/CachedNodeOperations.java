@@ -85,7 +85,7 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
 
     public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
-        return svcIdCache.get(nodeId, id -> IdFor.getIdFrom(node,GraphStaticKeys.SERVICE_ID));
+        return svcIdCache.get(nodeId, id -> IdFor.getServiceIdFrom(node));
     }
 
     public int getHour(Node node) {

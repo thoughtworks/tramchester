@@ -15,9 +15,6 @@ import org.neo4j.graphdb.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.graph.GraphStaticKeys.ID;
-import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
-
 public class MapPathToLocations {
     private final StationRepository stationRepository;
     private final ObjectMapper mapper;
@@ -35,12 +32,12 @@ public class MapPathToLocations {
 
     private void mapNode(List<Location> results, Node node) {
         if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
-            IdFor<Station> stationId = IdFor.getIdFrom(node, STATION_ID);
+            IdFor<Station> stationId = IdFor.getStationIdFrom(node);
             if (notJustSeenStation(stationId, results)) {
                 results.add(stationRepository.getStationById(stationId));
             }
         } else if (node.hasLabel(GraphBuilder.Labels.BUS_STATION)) {
-            IdFor<Station> stationId = IdFor.getIdFrom(node, ID);
+            IdFor<Station> stationId = IdFor.getStationIdFrom(node);
             results.add(stationRepository.getStationById(stationId));
         } else if (node.hasLabel(GraphBuilder.Labels.QUERY_NODE)) {
             double lat = (double)node.getProperty(GraphStaticKeys.Walk.LAT);
@@ -48,7 +45,7 @@ public class MapPathToLocations {
             Location location = MyLocation.create(mapper, new LatLong(lat,lon));
             results.add(location);
         } else if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {
-            IdFor<Station> stationId = IdFor.getIdFrom(node, ID);
+            IdFor<Station> stationId = IdFor.getStationIdFrom(node);
             if (notJustSeenStation(stationId, results)) {
                 results.add(stationRepository.getStationById(stationId));
             }

@@ -34,9 +34,13 @@ public class GraphQuery {
     }
 
     public Node getRouteStationNode(Transaction txn, IdFor<RouteStation> id) {
-        return getNodeByLabel(txn, id,GraphBuilder.Labels.ROUTE_STATION);
+        return getNodeByLabel(txn, id, GraphBuilder.Labels.ROUTE_STATION);
     }
-    
+
+    public Node getStationNode(Transaction txn, Station station) {
+        return getStationNode(txn, station.getId(), station.getTransportMode());
+    }
+
     private <T extends HasId<T>> Node getNodeByLabel(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
         return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id.getGraphId());
     }
@@ -49,10 +53,6 @@ public class GraphQuery {
         List<Relationship> result = new LinkedList<>();
         routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(result::add);
         return result;
-    }
-
-    public Node getStationNode(Transaction txn, Station station) {
-        return getStationNode(txn, station.getId(), station.getTransportMode());
     }
 
     private Node getStationNode(Transaction txn, IdFor<Station> stationId, TransportMode transportMode) {

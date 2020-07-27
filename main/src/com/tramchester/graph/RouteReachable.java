@@ -3,7 +3,6 @@ package com.tramchester.graph;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.repository.InterchangeRepository;
@@ -64,8 +63,8 @@ public class RouteReachable {
 
     // TEST ONLY
     // TODO WIP to support bus routing
-    public Map<String,String> getShortestRoutesBetween(Station startStation, Station endStation) {
-        HashMap<String, String> results = new HashMap<>();
+    public Map<String, IdFor<Route>> getShortestRoutesBetween(Station startStation, Station endStation) {
+        HashMap<String, IdFor<Route>> results = new HashMap<>();
         try (Transaction txn = graphDatabaseService.beginTx()) {
             Node startNode = graphQuery.getStationNode(txn, startStation);
             Node endNode = graphQuery.getStationNode(txn, endStation);
@@ -78,7 +77,7 @@ public class RouteReachable {
 
                 if (relationship.isType(BOARD) || relationship.isType(INTERCHANGE_BOARD)) {
                     Node node = relationship.getEndNode();
-                    String routeId = node.getProperty(ROUTE_ID).toString();
+                    IdFor<Route> routeId = IdFor.getRouteIdFrom(node); //node.getProperty(ROUTE_ID).toString();
                     String stationId = node.getProperty(STATION_ID).toString();
                     results.put(stationId, routeId);
                 }
@@ -188,7 +187,7 @@ public class RouteReachable {
             Node endNode = path.endNode();
 
             if (endNode.hasLabel(ROUTE_STATION)) {
-                IdFor<Station> currentStationId = IdFor.getIdFrom(endNode,STATION_ID);
+                IdFor<Station> currentStationId = IdFor.getStationIdFrom(endNode);
                 if (endStationId.equals(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE; // finished, at dest
                 }
@@ -204,7 +203,7 @@ public class RouteReachable {
 //                }
                 Iterable<Relationship> routeRelat = endNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
                 IdSet<Route> routeIds = new IdSet<>();
-                routeRelat.forEach(relationship -> routeIds.add(IdFor.getIdFrom(relationship, ROUTE_ID)));
+                routeRelat.forEach(relationship -> routeIds.add(IdFor.getRouteIdFrom(relationship)));
 
                 if (routeIds.contains(routeId)) {
                     return Evaluation.EXCLUDE_AND_CONTINUE; // if have routeId then only follow if on same route

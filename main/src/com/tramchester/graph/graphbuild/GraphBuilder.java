@@ -1,16 +1,20 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.*;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
+
+import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphStaticKeys.HOUR;
 import static java.lang.String.format;
 
 public abstract class GraphBuilder implements Startable {
@@ -112,5 +116,66 @@ public abstract class GraphBuilder implements Startable {
     protected void reportStats() {
         logger.info("Nodes created: " + numberNodes);
         logger.info("Relationships created: " + numberRelationships);
+    }
+
+    protected void setProp(Node node, DataSourceInfo.NameAndVersion nameAndVersion) {
+        node.setProperty(nameAndVersion.getName(), nameAndVersion.getVersion());
+    }
+
+    protected void setProp(Entity entity, LocalTime time) {
+        entity.setProperty(TIME, time);
+    }
+
+    protected void setTripsProp(Relationship relationship, String value) {
+        relationship.setProperty(TRIPS, value);
+    }
+
+    @Deprecated
+    protected void setIdProp(Node node, String value) {
+        node.setProperty(ID, value);
+    }
+
+    protected void setIdPropForPlatform(Node node, IdFor<Platform> id) {
+        node.setProperty(ID, id.getGraphId());
+    }
+
+    protected void setIdPropForStation(Node node, IdFor<Station> id) {
+        node.setProperty(ID, id.getGraphId());
+    }
+
+    protected void setRouteProp(Entity entity, IdFor<Route> id) {
+        entity.setProperty(ROUTE_ID, id.getGraphId());
+    }
+
+    protected void setServiceProp(Entity entity, IdFor<Service> id) {
+        entity.setProperty(SERVICE_ID, id.getGraphId());
+    }
+
+    protected void setTripProp(Entity entity, IdFor<Trip> id) {
+        entity.setProperty(TRIP_ID, id.getGraphId());
+    }
+
+    protected void setPlatformProp(Entity entity, IdFor<Platform> id) {
+        entity.setProperty(PLATFORM_ID, id.getGraphId());
+    }
+
+    protected void setStationProp(Entity entity, IdFor<Station> id) {
+        entity.setProperty(STATION_ID, id.getGraphId());
+    }
+
+    protected void setRouteStationProp(Entity entity, IdFor<RouteStation> id) {
+        entity.setProperty(ROUTE_STATION_ID, id.getGraphId());
+    }
+
+    protected void setTowardsProp(Node node, IdFor<Station> id) {
+        node.setProperty(TOWARDS_STATION_ID, id.getGraphId());
+    }
+
+    protected void setCostProp(Relationship relationship, int value) {
+        relationship.setProperty(COST, value);
+    }
+
+    protected void setHourProp(Entity entity, Integer value) {
+        entity.setProperty(HOUR, value);
     }
 }

@@ -1,12 +1,14 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
-import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
+import static com.tramchester.graph.GraphStaticKeys.*;
 
 public class IdFor<T> {
     private final String theId;
@@ -27,6 +29,7 @@ public class IdFor<T> {
     public static <CLASS> IdFor<CLASS> invalid() {
         return new IdFor<>("");
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -61,9 +64,32 @@ public class IdFor<T> {
         return node.getProperty(STATION_ID).toString().equals(theId);
     }
 
-    @NotNull
-    public static <C extends HasId<C>> IdFor<C> getIdFrom(Entity entity, String propertyName) {
-        return new IdFor<>(entity.getProperty(propertyName).toString());
+    public static IdFor<Route> getRouteIdFrom(Entity entity) {
+        return new IdFor<>(entity.getProperty(ROUTE_ID).toString());
+    }
+
+    public static IdFor<Station> getStationIdFrom(Entity entity) {
+        return new IdFor<>(entity.getProperty(STATION_ID).toString());
+    }
+
+    public static IdFor<Station> getTowardsStationIdFrom(Node endNode) {
+        return new IdFor<>(endNode.getProperty(TOWARDS_STATION_ID).toString());
+    }
+
+    public static IdFor<Station> getIdFrom(Entity entity) {
+        return new IdFor<>(entity.getProperty(ID).toString());
+    }
+
+    public static IdFor<Service> getServiceIdFrom(Node node) {
+        return new IdFor<>(node.getProperty(SERVICE_ID).toString());
+    }
+
+    public static IdFor<Trip> getTripIdFrom(Entity entity) {
+        return new IdFor<>(entity.getProperty(TRIP_ID).toString());
+    }
+
+    public static IdFor<RouteStation> getRouteStationIdFrom(Node node) {
+        return new IdFor<>(node.getProperty(ROUTE_STATION_ID).toString());
     }
 
     public boolean notValid() {

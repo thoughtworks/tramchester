@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.graph.GraphStaticKeys.ID;
-
 public class ServiceHeuristics {
 
     private static final Logger logger;
@@ -161,7 +159,7 @@ public class ServiceHeuristics {
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
         if (tramOnly) {
-            IdFor<RouteStation> routeStationId = IdFor.getIdFrom(endNode,ID);
+            IdFor<RouteStation> routeStationId = IdFor.getRouteStationIdFrom(endNode);
             RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
             if (routeStation==null) {

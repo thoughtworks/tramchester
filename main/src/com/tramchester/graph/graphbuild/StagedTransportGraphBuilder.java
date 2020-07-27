@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
@@ -97,9 +96,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void addVersionNode(GraphDatabase graphDatabase, DataSourceInfo infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, Labels.VERSION);
-
-            infos.getVersions().forEach(nameAndVersion ->
-                    setProp(node, nameAndVersion.getName(), nameAndVersion.getVersion()));
+            infos.getVersions().forEach(nameAndVersion -> setProp(node, nameAndVersion));
             tx.commit();
         }
     }
@@ -185,21 +182,22 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Node routeStationStart = routeBuilderCache.getRouteStation(tx, route, begin);
 
         Node svcNode = createGraphNode(tx, Labels.SERVICE);
-        setProp(svcNode, ID, beginSvcNodeId);
-        setProp(svcNode, GraphStaticKeys.SERVICE_ID, service.getId());
-        setProp(svcNode, GraphStaticKeys.ROUTE_ID, route.getId());
-        setProp(svcNode, GraphStaticKeys.TOWARDS_STATION_ID, end.getId());
+        setIdProp(svcNode, beginSvcNodeId);
+        setServiceProp(svcNode, service.getId());
+        setRouteProp(svcNode, route.getId());
+        setTowardsProp(svcNode, end.getId());
 
         routeBuilderCache.putService(service, begin, end, svcNode);
 
         // start route station -> svc node
         Relationship svcRelationship = createRelationship(routeStationStart, svcNode, TransportRelationshipTypes.TO_SERVICE);
-        setProp(svcRelationship, GraphStaticKeys.SERVICE_ID, service.getId());
-        setProp(svcRelationship, COST, 0);
-        setProp(svcRelationship, GraphStaticKeys.ROUTE_ID, route.getId());
-        setProp(svcRelationship, GraphStaticKeys.TRIPS, "");
+        setServiceProp(svcRelationship, service.getId());
+        setCostProp(svcRelationship, 0);
+        setRouteProp(svcRelationship, route.getId());
+        setTripsProp(svcRelationship, "");
 
     }
+
 
     private void createStationAndPlatforms(Transaction txn, Route route, Station station, RouteBuilderCache routeBuilderCache) {
 
@@ -228,20 +226,17 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Stream<Service> services = getServices(filter, route);
 
         Map<Pair<Station, Station>, Integer> pairs = new HashMap<>();
-        services.forEach(service -> {
-
-            service.getTripsFor(route).forEach(trip -> {
-                    StopCalls stops = trip.getStops();
-                    stops.getLegs().forEach(leg -> {
-                        if (includeBothStops(filter, leg)) {
-                            if (!pairs.containsKey(Pair.of(leg.getFirstStation(), leg.getSecondStation()))) {
-                                int cost = leg.getCost();
-                                pairs.put(Pair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
-                            }
+        services.forEach(service -> service.getTripsFor(route).forEach(trip -> {
+                StopCalls stops = trip.getStops();
+                stops.getLegs().forEach(leg -> {
+                    if (includeBothStops(filter, leg)) {
+                        if (!pairs.containsKey(Pair.of(leg.getFirstStation(), leg.getSecondStation()))) {
+                            int cost = leg.getCost();
+                            pairs.put(Pair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
                         }
-                    });
+                    }
                 });
-        });
+            }));
         pairs.forEach((pair, cost) -> createRouteRelationship(
                 routeBuilderCache.getRouteStation(tx, route, pair.getLeft()),
                 routeBuilderCache.getRouteStation(tx, route, pair.getRight()), route, cost));
@@ -314,9 +309,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         int departCost = isInterchange ? INTERCHANGE_DEPART_COST : DEPARTS_COST;
 
         Relationship departRelationship = createRelationship(routeStationNode, boardingNode, departType);
-        setProp(departRelationship, COST, departCost);
-        setProp(departRelationship, GraphStaticKeys.ID, routeStationId);
-        setProp(departRelationship, GraphStaticKeys.STATION_ID, station.getId());
+        setCostProp(departRelationship, departCost);
+        setRouteStationProp(departRelationship, routeStationId);
+        setStationProp(departRelationship, station.getId());
         routeBuilderCache.putDepart(boardingNode.getId(), routeStationNode.getId());
     }
 
@@ -327,13 +322,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
         int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
         Relationship boardRelationship = createRelationship(boardingNode, routeStationNode, boardType);
-        setProp(boardRelationship, COST, boardCost);
-        setProp(boardRelationship, GraphStaticKeys.ID, routeStationId);
-        setProp(boardRelationship, ROUTE_ID, route.getId());
-        setProp(boardRelationship, STATION_ID, station.getId());
+        setCostProp(boardRelationship, boardCost);
+        setRouteStationProp(boardRelationship, routeStationId);
+        setRouteProp(boardRelationship, route.getId());
+        setStationProp(boardRelationship, station.getId());
         // No platform ID on buses
         if (stop.hasPlatfrom()) {
-            setProp(boardRelationship, PLATFORM_ID, stop.getPlatformId());
+            setPlatformProp(boardRelationship, stop.getPlatformId());
         }
         routeBuilderCache.putBoarding(boardingNode.getId(), routeStationNode.getId());
     }
@@ -370,15 +365,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if (!endNodes.contains(to)) {
             Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
-            setProp(onRoute, ROUTE_ID, route.getId());
-            setProp(onRoute, COST, cost);
+            setRouteProp(onRoute, route.getId());
+            setCostProp(onRoute, cost);
         }
 
     }
 
     private Node createPlatformNode(Transaction tx, Platform platform) {
         Node platformNode = createGraphNode(tx, Labels.PLATFORM);
-        setProp(platformNode, GraphStaticKeys.ID, platform.getId());
+        setIdPropForPlatform(platformNode, platform.getId());
         return platformNode;
     }
 
@@ -388,14 +383,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // station -> platform
         int enterPlatformCost = isInterchange ? ENTER_INTER_PLATFORM_COST : ENTER_PLATFORM_COST;
         Relationship crossToPlatform = createRelationship(stationNode, platformNode, ENTER_PLATFORM);
-        setProp(crossToPlatform, COST, enterPlatformCost);
-        setProp(crossToPlatform, GraphStaticKeys.PLATFORM_ID, platform.getId());
+        setCostProp(crossToPlatform, enterPlatformCost);
+        setPlatformProp(crossToPlatform, platform.getId());
 
         // platform -> station
         int leavePlatformCost = isInterchange ? LEAVE_INTER_PLATFORM_COST : LEAVE_PLATFORM_COST;
         Relationship crossFromPlatform = createRelationship(platformNode, stationNode, LEAVE_PLATFORM);
-        setProp(crossFromPlatform, COST, leavePlatformCost);
-        setProp(crossFromPlatform, STATION_ID, station.getId());
+        setCostProp(crossFromPlatform, leavePlatformCost);
+        setStationProp(crossFromPlatform, station.getId());
     }
 
     private void updateTripRelationship(Transaction tx, Route route, Service service, Trip trip, StopCall beginStop, StopCall endStop,
@@ -409,7 +404,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 relationship -> {
                     String tripIds = relationship.getProperty(GraphStaticKeys.TRIPS).toString();
                     if (!tripIds.contains(tripId.getGraphId())) {
-                        setProp(relationship, GraphStaticKeys.TRIPS, tripId.getGraphId() + tripIds);
+                        setTripsProp(relationship, tripId.getGraphId() + tripIds);
                     }
                 });
 
@@ -422,12 +417,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // time node -> end route station
         Node timeNode = timeNodes.get(Pair.of(startStation, beginStop.getDepartureTime()));
         Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
-        setProp(goesToRelationship, GraphStaticKeys.TRIP_ID, tripId);
+        setTripProp(goesToRelationship, tripId);
 
         int cost = ServiceTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime);
-        setProp(goesToRelationship, COST, cost);
-        setProp(goesToRelationship, GraphStaticKeys.SERVICE_ID, service.getId());
-        setProp(goesToRelationship, GraphStaticKeys.ROUTE_ID, route.getId());
+        setCostProp(goesToRelationship, cost);
+        setServiceProp(goesToRelationship, service.getId());
+        setRouteProp(goesToRelationship, route.getId());
     }
 
     private Map<Pair<Station, ServiceTime>, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,
@@ -454,82 +449,47 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         String timeNodeId = CreateKeys.getMinuteKey(trip, start, departureTime);
         Node timeNode = createGraphNode(tx, Labels.MINUTE);
-        setProp(timeNode, GraphStaticKeys.ID, timeNodeId);
-        setProp(timeNode, TIME, time);
-        setProp(timeNode, TRIP_ID, tripId);
+        setIdProp(timeNode, timeNodeId);
+        setProp(timeNode, time);
+        setTripProp(timeNode, tripId);
 
         // hour node -> time node
         Node hourNode = stationCache.getHourNode(tx, service, start, departureTime.getHourOfDay());
         Relationship fromPrevious = createRelationship(hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
-        setProp(fromPrevious, COST, 0);
-        setProp(fromPrevious, TIME, time);
-        setProp(fromPrevious, TRIP_ID, tripId);
+        setCostProp(fromPrevious, 0);
+        setProp(fromPrevious, time);
+        setTripProp(fromPrevious, tripId);
 
         return timeNode;
     }
 
-
-
-
     private void createHourNode(Transaction tx, Service service, Station start, Station end, Integer hour, RouteBuilderCache stationCache) {
         Node hourNode = createGraphNode(tx, Labels.HOUR);
         String hourNodeId = createHourNodeKey(service, start, hour);
-        setProp(hourNode, GraphStaticKeys.ID, hourNodeId);
-        setProp(hourNode, HOUR, hour);
+        setIdProp(hourNode, hourNodeId);
+        setHourProp(hourNode, hour);
 
         stationCache.putHour(service, start, hour, hourNode);
 
         // service node -> time node
         Node serviceNode = stationCache.getServiceNode(tx, service, start, end);
         Relationship fromServiceNode = createRelationship(serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
-        setProp(fromServiceNode, COST, 0);
-        setProp(fromServiceNode, HOUR, hour);
+        setCostProp(fromServiceNode, 0);
+        setHourProp(fromServiceNode, hour);
     }
 
-    private Node createRouteStationNode(Transaction tx, Station station, Route route, RouteBuilderCache routeBuilderCache) {
+    private void createRouteStationNode(Transaction tx, Station station, Route route, RouteBuilderCache routeBuilderCache) {
         Node routeStation = createGraphNode(tx, Labels.ROUTE_STATION);
         IdFor<RouteStation> routeStationId = IdFor.createId(station, route);
 
         logger.debug(format("Creating route station %s route %s nodeId %s", station.getId(), route.getId(), routeStation.getId()));
-        setProp(routeStation, GraphStaticKeys.ID, routeStationId.getGraphId());
-        setProp(routeStation, STATION_ID, station.getId());
-        setProp(routeStation, ROUTE_ID, route.getId());
+        setIdProp(routeStation, routeStationId.getGraphId());
+        setRouteStationProp(routeStation, routeStationId);
+        setStationProp(routeStation, station.getId());
+        setRouteProp(routeStation, route.getId());
 
         routeBuilderCache.putRouteStation(routeStationId, routeStation);
 
-        return routeStation;
-    }
-
-    private void setProp(Relationship relationship, String propertyName, LocalTime time) {
-        relationship.setProperty(propertyName, time);
-    }
-
-    private void setProp(Node node, String propertyName, LocalTime time) {
-        node.setProperty(propertyName, time);
-    }
-
-    private void setProp(Node node, String propertyName, Integer value) {
-        node.setProperty(propertyName, value);
-    }
-
-    private void setProp(Relationship relationship, String propertyName, String value) {
-        relationship.setProperty(propertyName, value);
-    }
-
-    private void setProp(Node node, String properyName, String value) {
-        node.setProperty(properyName, value);
-    }
-
-    private <T extends HasId<T>> void setProp(Node node, String properyName, IdFor<T> value) {
-        node.setProperty(properyName, value.getGraphId());
-    }
-
-    private <T extends HasId<T>> void setProp(Relationship relationship, String propertyName, IdFor<T> value) {
-        relationship.setProperty(propertyName, value.getGraphId());
-    }
-
-    private void setProp(Relationship relationship, String propertyName, int value) {
-        relationship.setProperty(propertyName, value);
     }
 
     private Node createStationNode(Transaction tx, Station station) {
@@ -538,7 +498,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Labels label = Labels.forMode(station.getTransportMode());
         logger.debug(format("Creating station node: %s with label: %s ", station, label));
         Node stationNode = createGraphNode(tx, label);
-        setProp(stationNode, GraphStaticKeys.ID, id.getGraphId());
+        setIdPropForStation(stationNode, id);
+        setStationProp(stationNode, id);
         return stationNode;
     }
 

@@ -18,8 +18,6 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.*;
 
-import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
-
 public abstract class TraversalState implements ImmuatableTraversalState {
 
     private final Iterable<Relationship> outbounds;
@@ -109,7 +107,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         List<Relationship> towardsDestination = new ArrayList<>();
         outgoing.forEach(depart ->
         {
-            if (destinationStationIds.contains(IdFor.getIdFrom(depart, STATION_ID))) {
+            if (destinationStationIds.contains(IdFor.getStationIdFrom(depart))) {
                 towardsDestination.add(depart);
             }
         });

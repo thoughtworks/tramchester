@@ -6,7 +6,6 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
@@ -55,7 +54,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             ArrayList<Relationship> lowPriority = new ArrayList<>();
 
             toServices.forEach(relationship -> {
-                IdFor<Route> routeId = IdFor.getIdFrom(relationship,GraphStaticKeys.ROUTE_ID);
+                IdFor<Route> routeId = IdFor.getRouteIdFrom(relationship);
                 if (state.destinationRoute(routeId)) {
                     highPriority.add(relationship);
                 } else {
@@ -104,7 +103,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
         private RelationshipFacade(Relationship relationship) {
             this.relationship = relationship;
-            this.stationId = IdFor.getIdFrom(relationship.getEndNode(),GraphStaticKeys.TOWARDS_STATION_ID);
+            this.stationId = IdFor.getTowardsStationIdFrom(relationship.getEndNode());
         }
 
         @Override

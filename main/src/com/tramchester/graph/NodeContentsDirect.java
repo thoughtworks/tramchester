@@ -15,7 +15,7 @@ public class NodeContentsDirect implements NodeContentsRepository{
 
     @Override
     public IdFor<Service> getServiceId(Node node) {
-        return IdFor.getIdFrom(node,SERVICE_ID);
+        return IdFor.getServiceIdFrom(node);
     }
 
     @Override
