@@ -2,14 +2,20 @@ package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
+import org.opengis.referencing.operation.TransformException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.swing.table.TableRowSorter;
 import java.util.List;
 import java.util.Set;
 
 public class StopDataMapper extends CSVEntryMapper<StopData> {
+    private static final Logger logger = LoggerFactory.getLogger(StopDataMapper.class);
+
     private int indexStopId = -1;
     private int indexStopCode = -1;
     private int indexStopName = -1;
@@ -72,7 +78,15 @@ public class StopDataMapper extends CSVEntryMapper<StopData> {
         double latitude = parseDouble(data, indexStopLat);
         double longitude = parseDouble(data, indexStopLon);
 
-        return new StopData(id, code, area, stopName, latitude, longitude, isTram);
+        LatLong latLong = new LatLong(latitude, longitude);
+        GridPosition gridPosition = GridPosition.invalid();
+        try {
+            gridPosition = CoordinateTransforms.getGridPosition(latLong);
+        } catch (TransformException exception) {
+            logger.error("Could not create valid grid position for stop " + id + " position " + latLong, exception);
+        }
+
+        return new StopData(id, code, area, stopName, latitude, longitude, isTram, gridPosition);
     }
 
     private double parseDouble(CSVRecord data, int indexStopLat) {

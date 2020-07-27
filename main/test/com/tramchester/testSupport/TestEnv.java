@@ -11,6 +11,9 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
@@ -43,6 +46,13 @@ public class TestEnv {
     public static final LatLong manAirportLocation = new LatLong(53.36535,-2.27247);
     public static final LatLong nearGreenwich = new LatLong(51.477928, -0.001545);
 
+    public static final GridPosition nearAltrinchamGrid;
+    public static final GridPosition nearPiccGardensGrid;
+    public static final GridPosition nearShudehillGrid;
+    public static final GridPosition nearStockportBusGrid;
+    public static final GridPosition manAirportLocationGrid;
+    public static final GridPosition nearGreenwichGrid;
+
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -69,6 +79,20 @@ public class TestEnv {
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
         sunday = getNextDate(DayOfWeek.SUNDAY, today);
         monday = getNextDate(DayOfWeek.MONDAY, today);
+        nearAltrinchamGrid = guardedToGrid(nearAltrincham);
+        nearPiccGardensGrid = guardedToGrid(nearPiccGardens);
+        nearShudehillGrid = guardedToGrid(nearShudehill);
+        nearStockportBusGrid = guardedToGrid(nearStockportBus);
+        manAirportLocationGrid = guardedToGrid(manAirportLocation);
+        nearGreenwichGrid = guardedToGrid(nearGreenwich);
+    }
+
+    private static GridPosition guardedToGrid(LatLong latLong) {
+        try {
+            return CoordinateTransforms.getGridPosition(latLong);
+        } catch (TransformException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     public static LocalDate nextSaturday() {
@@ -162,4 +186,7 @@ public class TestEnv {
     }
 
 
+    public static LatLong stPetersSquareLocation() {
+        return new LatLong(53.47825,-2.24314);
+    }
 }

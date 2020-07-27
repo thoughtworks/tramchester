@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.Stations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 class StationTest {
 
@@ -19,7 +20,7 @@ class StationTest {
     }
 
     @Test
-    void testShouldSetTramNameCorrecly() {
+    void testShouldSetTramNameCorrecly() throws TransformException {
         Station tramStation = Station.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Tram);
 
@@ -32,7 +33,7 @@ class StationTest {
     }
 
     @Test
-    void testShouldSetBusNameCorrecly() {
+    void testShouldSetBusNameCorrecly() throws TransformException {
         Station busStation = Station.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Bus);
 

@@ -11,6 +11,7 @@ import java.util.Collections;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 class StopDataParserTest {
 
@@ -42,9 +43,12 @@ class StopDataParserTest {
         assertThat(stopData.getCode()).isEqualTo("mantwjdt");
         assertThat(stopData.getArea()).isEqualTo("Wythenshawe");
         assertThat(stopData.getName()).isEqualTo("Wythenshawe Town Centre");
-        assertThat(stopData.getLatitude()).isEqualTo(53.38003);
-        assertThat(stopData.getLongitude()).isEqualTo(-2.26381);
+        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38003);
+        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26381);
         assertThat(stopData.isTFGMTram()).isEqualTo(true);
+        assertThat(stopData.getGridPosition().getEastings()).isEqualTo(382548);
+        assertThat(stopData.getGridPosition().getNorthings()).isEqualTo(387052);
+
     }
 
     @Test
@@ -59,9 +63,11 @@ class StopDataParserTest {
         assertThat(stopData.getCode()).isEqualTo("missing");
         assertThat(stopData.getArea()).isEqualTo("Alkrington Garden Village");
         assertThat(stopData.getName()).isEqualTo("Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)");
-        assertThat(stopData.getLatitude()).isEqualTo(53.53509);
-        assertThat(stopData.getLongitude()).isEqualTo(-2.19333);
+        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53509);
+        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.19333);
         assertThat(stopData.isTFGMTram()).isEqualTo(false);
+        assertThat(stopData.getGridPosition().getEastings()).isEqualTo(387284);
+        assertThat(stopData.getGridPosition().getNorthings()).isEqualTo(404288);
     }
 
     @Test
@@ -80,9 +86,11 @@ class StopDataParserTest {
         assertThat(stopData.getCode()).isEqualTo("HOPD");
         assertThat(stopData.getArea()).isEqualTo("");
         assertThat(stopData.getName()).isEqualTo("Hope (Derbyshire)");
-        assertThat(stopData.getLatitude()).isEqualTo(53.34611);
-        assertThat(stopData.getLongitude()).isEqualTo(-1.72989);
+        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.34611);
+        assertThat(stopData.getLatLong().getLon()).isEqualTo(-1.72989);
         assertThat(stopData.isTFGMTram()).isEqualTo(false);
+        assertThat(stopData.getGridPosition().getEastings()).isEqualTo(418080);
+        assertThat(stopData.getGridPosition().getNorthings()).isEqualTo(383280);
 
     }
 }

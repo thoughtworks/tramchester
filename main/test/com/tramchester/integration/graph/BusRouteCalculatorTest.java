@@ -1,11 +1,14 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationBusTestConfig;
@@ -13,10 +16,14 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorTest {
@@ -66,18 +72,18 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveStockToALtyJourney() {
-        TramTime travelTime = TramTime.of(7, 0);
+        TramTime travelTime = TramTime.of(8, 0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
-//        GraphQuery graphQuery = dependencies.get(GraphQuery.class);
-//
-//        String routeStationId = "1800AMIC001WBT:5A:I:";
-//        Node node = graphQuery.getRouteStationNode(txn, routeStationId);
-//        Iterable<Relationship> services = node.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TO_SERVICE);
-//        Set<Relationship> list = new HashSet<>();
-//        services.forEach(list::add);
-//
-//        assertEquals(4, list.size());
+        GraphQuery graphQuery = dependencies.get(GraphQuery.class);
+
+        String routeStationId = "1800AMIC001WBT:5A:I:";
+        Node node = graphQuery.getRouteStationNode(txn, IdFor.createId(routeStationId));
+        Iterable<Relationship> services = node.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TO_SERVICE);
+        Set<Relationship> list = new HashSet<>();
+        services.forEach(list::add);
+
+        assertEquals(4, list.size());
 
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, StockportBusStation,
                 AltrinchamInterchange, travelTime, nextMonday, 2, testConfig.getMaxJourneyDuration());

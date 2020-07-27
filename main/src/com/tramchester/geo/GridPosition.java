@@ -9,6 +9,10 @@ public class GridPosition implements HasGridPosition {
         this.northings = northings;
     }
 
+    public static GridPosition invalid() {
+        return new GridPosition(-1,-1);
+    }
+
     public long getEastings() {
         return eastings;
     }

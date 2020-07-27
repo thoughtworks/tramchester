@@ -15,7 +15,6 @@ server:
 
 secureHost: tramchester.com
 
-rebuildGraph: true
 graphName: trains.db
 dataSources:
   -

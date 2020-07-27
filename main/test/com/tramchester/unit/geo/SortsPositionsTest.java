@@ -11,6 +11,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.*;
 
@@ -26,7 +27,7 @@ class SortsPositionsTest {
     private Station alsoNearAlty;
 
     @BeforeEach
-    void beforeEachTestRuns() {
+    void beforeEachTestRuns() throws TransformException {
         StationLocations stationLocations = new StationLocations();
 
         dataForTest = new TransportDataForTestFactory(stationLocations).get();

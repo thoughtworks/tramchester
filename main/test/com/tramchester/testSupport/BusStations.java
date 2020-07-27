@@ -3,6 +3,7 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import org.opengis.referencing.operation.TransformException;
 
 public class BusStations {
     private static final LatLong position = new LatLong(1,1);
@@ -14,6 +15,10 @@ public class BusStations {
     public static Station KnutsfordStationStand3 = createStation("0600MA6022", "Knutsford", "Knutsford,Bus Station (Stand 3)");
 
     private static Station createStation(String id, String area, String name) {
-        return Station.forTest(id, area, name, position, TransportMode.Bus);
+        try {
+            return Station.forTest(id, area, name, position, TransportMode.Bus);
+        } catch (TransformException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }

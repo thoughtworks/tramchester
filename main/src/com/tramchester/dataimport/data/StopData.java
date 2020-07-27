@@ -1,6 +1,8 @@
 package com.tramchester.dataimport.data;
 
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.GridPosition;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.Objects;
 
@@ -9,18 +11,22 @@ public class StopData {
     private final String code;
     private final String area;
     private final String name;
-    private final double latitude;
-    private final double longitude;
     private final boolean isTram;
 
+    private final LatLong latLong;
+
+    // Need to do this once at first load so we have canonical grid position for each stop or station
+    // otherwise lossy conversions to/from latlong cause issues elsewhere as may yeild different results
+    private final GridPosition gridPosition;
+
     public StopData(String id, String code, String area, String name, double latitude, double longitude,
-                    boolean isTram) {
+                    boolean isTram, GridPosition gridPosition) {
         this.id = id.intern();
         this.code = code.intern();
         this.area = area.intern();
         this.name = name.intern();
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.gridPosition = gridPosition;
+        this.latLong = new LatLong(latitude, longitude);
         this.isTram = isTram;
     }
 
@@ -36,14 +42,6 @@ public class StopData {
         return name;
     }
 
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
     public String getArea() {
         return area;
     }
@@ -53,7 +51,7 @@ public class StopData {
     }
 
     public LatLong getLatLong() {
-        return new LatLong(latitude, longitude);
+        return latLong;
     }
 
     @Override
@@ -76,9 +74,13 @@ public class StopData {
                 ", code='" + code + '\'' +
                 ", area='" + area + '\'' +
                 ", name='" + name + '\'' +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
                 ", isTram=" + isTram +
+                ", latLong=" + latLong +
+                ", gridPosition=" + gridPosition +
                 '}';
+    }
+
+    public GridPosition getGridPosition() {
+        return gridPosition;
     }
 }

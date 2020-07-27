@@ -61,12 +61,12 @@ class StationLocationsTest {
     }
 
     @NotNull
-    private Station createTestStation(String id, String name, LatLong location) {
+    private Station createTestStation(String id, String name, LatLong location) throws TransformException {
         return Station.forTest(id, "area", name, location, TransportMode.Tram);
     }
 
     @Test
-    void shouldFindNearbyStation() {
+    void shouldFindNearbyStation() throws TransformException {
         LatLong place = TestEnv.nearAltrincham;
         Station stationA = createTestStation("id123", "nameA", place);
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
@@ -97,7 +97,7 @@ class StationLocationsTest {
     }
 
     @Test
-    void shouldOrderClosestFirst() {
+    void shouldOrderClosestFirst() throws TransformException {
         Station stationA = createTestStation("id123", "nameA", TestEnv.nearAltrincham);
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
@@ -114,7 +114,7 @@ class StationLocationsTest {
     }
 
     @Test
-    void shouldRespectLimitOnNumberResults() {
+    void shouldRespectLimitOnNumberResults() throws TransformException {
         Station stationA = createTestStation("id123", "nameA", TestEnv.nearAltrincham);
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
@@ -129,7 +129,7 @@ class StationLocationsTest {
     }
 
     @Test
-    void shouldFindNearbyStationRespectingRange() {
+    void shouldFindNearbyStationRespectingRange() throws TransformException {
         Station testStation = createTestStation("id123", "name", TestEnv.nearAltrincham);
         stationLocations.addStation(testStation);
 
@@ -142,7 +142,7 @@ class StationLocationsTest {
     }
 
     @Test
-    void shouldCaptureBoundingAreaForStations() {
+    void shouldCaptureBoundingAreaForStations() throws TransformException {
         Station testStationA = createTestStation("id123", "name", TestEnv.nearAltrincham);
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);

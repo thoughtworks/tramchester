@@ -33,18 +33,10 @@ public class GraphQuery {
         return getNodeByLabel(txn, id, GraphBuilder.Labels.PLATFORM);
     }
 
-    private Node getRouteStationNode(Transaction txn, String id) {
-        return getNodeByLabel(txn, id,GraphBuilder.Labels.ROUTE_STATION);
-    }
-
     public Node getRouteStationNode(Transaction txn, IdFor<RouteStation> id) {
         return getNodeByLabel(txn, id,GraphBuilder.Labels.ROUTE_STATION);
     }
-
-    private Node getNodeByLabel(Transaction txn, String id, GraphBuilder.Labels label) {
-        return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id);
-    }
-
+    
     private <T extends HasId<T>> Node getNodeByLabel(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
         return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id.getGraphId());
     }

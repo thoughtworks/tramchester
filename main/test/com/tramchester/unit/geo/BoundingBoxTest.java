@@ -27,13 +27,10 @@ class BoundingBoxTest {
         withinBox.forEach(latLong -> {
             @NotNull HasGridPosition grid = getGridPosition(latLong);
             assertTrue(box.contained(grid), grid.toString());
-            assertTrue(box.contained(latLong), latLong.toString());
         });
 
         LatLong outsideBox = TestEnv.nearGreenwich;
-        assertFalse(box.contained(outsideBox));
         assertFalse(box.contained(getGridPosition(outsideBox)));
-
     }
 
     @NotNull

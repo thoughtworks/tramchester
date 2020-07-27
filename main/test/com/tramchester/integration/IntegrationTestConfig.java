@@ -7,16 +7,9 @@ import java.nio.file.Path;
 
 public abstract class IntegrationTestConfig extends TestConfig {
     private final Path dbPath;
-    private final boolean exists;
 
     public IntegrationTestConfig(String folder, String dbName) {
         this.dbPath = Path.of("databases", folder, dbName);
-        exists = Files.exists(dbPath);
-    }
-
-    @Override
-    public boolean getRebuildGraph() {
-        return !exists;
     }
 
     @Override

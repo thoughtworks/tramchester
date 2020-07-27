@@ -1,14 +1,11 @@
 package com.tramchester.graph.graphbuild;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class ActiveGraphFilter implements GraphFilter {
     private final IdSet<Route> routeCodes;
@@ -48,14 +45,19 @@ public class ActiveGraphFilter implements GraphFilter {
     }
 
     public boolean shouldInclude(Station station) {
-        if (stations.isEmpty()) {
-            return true;
-        }
-        return stations.contains(station.getId());
+        return shouldInclude(station.getId());
     }
 
     public boolean shouldInclude(StopCall call) {
         return shouldInclude(call.getStation());
+    }
+
+    @Override
+    public boolean shouldInclude(IdFor<Station> stationId) {
+        if (stations.isEmpty()) {
+            return true;
+        }
+        return stations.contains(stationId);
     }
 
     @Override

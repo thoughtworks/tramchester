@@ -114,13 +114,11 @@ public class App extends Application<AppConfiguration>  {
 
         // Redirect http -> https based on header set by ELB
         RedirectToHttpsUsingELBProtoHeader redirectHttpFilter = new RedirectToHttpsUsingELBProtoHeader(configuration);
-        applicationContext.addFilter(new FilterHolder(redirectHttpFilter),
-                "/*", EnumSet.of(DispatcherType.REQUEST));
+        applicationContext.addFilter(new FilterHolder(redirectHttpFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
         // Redirect / -> /app
         RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
-        applicationContext.addFilter(new FilterHolder(redirectToAppFilter),
-                "/", EnumSet.of(DispatcherType.REQUEST));
+        applicationContext.addFilter(new FilterHolder(redirectToAppFilter), "/", EnumSet.of(DispatcherType.REQUEST));
         filtersForStaticContent(environment);
 
         // api end points registration
@@ -131,7 +129,6 @@ public class App extends Application<AppConfiguration>  {
         MetricRegistry metricRegistry = environment.metrics();
 
         // only enable live data if tram's enabled
-
         if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
             // initial load of live data
             LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
@@ -142,7 +139,7 @@ public class App extends Application<AppConfiguration>  {
             metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
                     (Gauge<Integer>) liveDataRepository::entriesWithMessages);
 
-            // refresh live data
+            // refresh live data job
             int initialDelay = 10;
             ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
                 try {

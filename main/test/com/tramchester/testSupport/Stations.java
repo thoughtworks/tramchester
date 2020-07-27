@@ -3,6 +3,7 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,7 +65,11 @@ public class Stations {
             TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
 
     public static Station createStation(String id, String area, String name) {
-        return Station.forTest(id, area, name, position, TransportMode.Tram);
+        try {
+            return Station.forTest(id, area, name, position, TransportMode.Tram);
+        } catch (TransformException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
 }

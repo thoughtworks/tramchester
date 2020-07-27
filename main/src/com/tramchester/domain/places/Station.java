@@ -2,6 +2,10 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.HasGridPosition;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,27 +22,29 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
 
     public static String METROLINK_PREFIX = "9400ZZ";
 
-    private String area;
-    private IdFor<Station> id; // id is the "atoc code" for the tfgm data set
-    private String name;
-    private LatLong latLong;
+    private final String area;
+    private final IdFor<Station> id; // id is the "atoc code" for the tfgm data set
+    private final String name;
+    private final LatLong latLong;
+    private final GridPosition gridPosition;
     private TransportMode transportMode;
     private final List<Platform> platforms;
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
 
-    public Station () {
-        // deserialisation
-        platforms = new LinkedList<>();
-        servesRoutes = new HashSet<>();
-        servesAgencies = new HashSet<>();
+//    public Station () {
+//        // deserialisation
+//        platforms = new LinkedList<>();
+//        servesRoutes = new HashSet<>();
+//        servesAgencies = new HashSet<>();
+//    }
+
+    public Station(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
+        this(IdFor.createId(id), area, stationName, latLong, gridPosition);
     }
 
-    public Station(String id, String area, String stationName, LatLong latLong) {
-        this(IdFor.createId(id), area, stationName, latLong);
-    }
-
-    public Station(IdFor<Station> id, String area, String stationName, LatLong latLong) {
+    public Station(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
+        this.gridPosition = gridPosition;
         platforms = new LinkedList<>();
         servesRoutes = new HashSet<>();
         servesAgencies = new HashSet<>();
@@ -50,8 +56,8 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
         this.area = area;
     }
 
-    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) {
-        Station station = new Station(id, area, stationName, latLong);
+    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) throws TransformException {
+        Station station = new Station(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong));
         station.transportMode = mode;
         return station;
     }
@@ -163,5 +169,9 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
 
     public boolean servesRoute(Route route) {
         return servesRoutes.contains(route);
+    }
+
+    public GridPosition getGridPosition() {
+        return gridPosition;
     }
 }

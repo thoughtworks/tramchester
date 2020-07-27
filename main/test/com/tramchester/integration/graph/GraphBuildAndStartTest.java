@@ -51,10 +51,11 @@ class GraphBuildAndStartTest {
         TransportData transportData = builder.getData();
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 
-        GraphDatabase graphDatabase = new GraphDatabase(config);
+        IncludeAllFilter graphFilter = new IncludeAllFilter();
+        GraphDatabase graphDatabase = new GraphDatabase(config, transportData);
         GraphQuery graphQuery = new GraphQuery(graphDatabase);
 
-        GraphBuilder graphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, new IncludeAllFilter(),
+        GraphBuilder graphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, graphFilter,
                 graphQuery, nodeIdLabelMap, transportData, interchangeRepository);
 
         interchangeRepository.start();
@@ -71,9 +72,5 @@ class GraphBuildAndStartTest {
             super("test_and_start.db");
         }
 
-        @Override
-        public boolean getRebuildGraph() {
-            return true;
-        }
     }
 }

@@ -15,7 +15,6 @@ server:
 
 secureHost: tramchester.com
 
-rebuildGraph: true
 graphName: tramchester.db
 closedStations: []
 instanceDataUrl: http://169.254.169.254

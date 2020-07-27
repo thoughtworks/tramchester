@@ -16,7 +16,7 @@ function changesFormatter(value, key, row) {
     var result = "";
     value.forEach(change => {
         if (result.length>0) result = result.concat(", ");
-        result = result.concat(change)});
+        result = result.concat(change.name)});
     return result;
 }
 

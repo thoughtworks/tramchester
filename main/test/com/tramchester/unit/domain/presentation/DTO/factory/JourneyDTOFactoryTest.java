@@ -6,10 +6,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.StageDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.Note;
@@ -21,6 +18,7 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,6 +36,9 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     private final TramTime queryTime = TramTime.of(8,46);
     private List<Note> notes;
     private final List<StationRefWithPosition> path = new ArrayList<>();
+
+    JourneyDTOFactoryTest() throws TransformException {
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -116,7 +117,8 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         assertFalse(journeyDTO.getIsDirect());
         assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
         assertEquals(Stations.Deansgate.forDTO(), journeyDTO.getEnd().getId());
-        assertEquals(Collections.singletonList(Stations.Cornbrook.getName()), journeyDTO.getChangeStations());
+        assertEquals(1, journeyDTO.getChangeStations().size());
+        assertEquals(Stations.Cornbrook.forDTO(), journeyDTO.getChangeStations().get(0).getId());
 
         IdSet<Platform> callingPlatformIds = journeyDTO.getCallingPlatformIds();
         assertEquals(2, callingPlatformIds.size());
@@ -140,8 +142,10 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         assertFalse(journeyDTO.getIsDirect());
         assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
         assertEquals(Stations.Bury.forDTO(), journeyDTO.getEnd().getId());
-        List<String> changes = Arrays.asList(Stations.Cornbrook.getName(), Stations.Deansgate.getName());
-        assertEquals(changes, journeyDTO.getChangeStations());
+
+        List<String> changes = journeyDTO.getChangeStations().stream().
+                map(StationRefDTO::getName).collect(Collectors.toList());
+        assertEquals(Arrays.asList(Stations.Cornbrook.getName(), Stations.Deansgate.getName()), changes);
     }
 
 //    @Test
@@ -222,7 +226,9 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(stages, queryTime, notes, path);
         verifyAll();
 
-        assertThat(journey.getChangeStations(), contains("Cornbrook", "Victoria", "Exchange Square"));
+        List<String> changeStations = journey.getChangeStations().stream().
+                map(StationRefDTO::getName).collect(Collectors.toList());
+        assertEquals(Arrays.asList("Cornbrook", "Victoria", "Exchange Square"), changeStations);
     }
 
     @Test
@@ -249,7 +255,9 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journey = factory.build(stages, queryTime, notes, path);
         verifyAll();
 
-        assertThat(journey.getChangeStations(), contains("Deansgate-Castlefield", "Market Street"));
+        List<String> changeNames = journey.getChangeStations().stream().
+                map(ref -> ref.getName()).collect(Collectors.toList());
+        assertThat(changeNames, contains("Deansgate-Castlefield", "Market Street"));
     }
 
     @Test

@@ -20,7 +20,6 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.graph.graphbuild.ValidateGraphFeedInfoVersion;
 import com.tramchester.graph.search.*;
 import com.tramchester.healthchecks.*;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
@@ -167,7 +166,6 @@ public class Dependencies {
         if (configuration.getCreateNeighbours()) {
             picoContainer.addComponent(CreateNeighbours.class);
         }
-        picoContainer.addComponent(ValidateGraphFeedInfoVersion.class);
 
         if (logger.isDebugEnabled()) {
             logger.warn("Debug logging is enabled, server performance will be impacted");

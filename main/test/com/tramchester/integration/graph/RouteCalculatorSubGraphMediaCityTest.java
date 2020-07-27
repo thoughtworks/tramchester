@@ -144,11 +144,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         public SubgraphConfig() {
             super("sub_mediacity_tramchester.db");
         }
-
-        @Override
-        public boolean getRebuildGraph() {
-            return true;
-        }
     }
 
     private void validateAtLeastOneJourney(Station start, Station dest, TramTime time, LocalDate date) {

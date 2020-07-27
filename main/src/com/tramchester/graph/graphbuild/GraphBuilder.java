@@ -1,12 +1,8 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.*;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -15,10 +11,6 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
-
-import static com.tramchester.graph.GraphStaticKeys.ROUTE_ID;
-import static com.tramchester.graph.GraphStaticKeys.STATION_ID;
 import static java.lang.String.format;
 
 public abstract class GraphBuilder implements Startable {
@@ -77,7 +69,7 @@ public abstract class GraphBuilder implements Startable {
     @Override
     public void start() {
         logger.info("start");
-        if (config.getRebuildGraph()) {
+        if (graphDatabase.isCleanDB()) {
             logger.info("Rebuild of graph DB for " + config.getGraphName());
             if (graphFilter.isFiltered()) {
                 buildGraphwithFilter(graphFilter, graphDatabase);
@@ -87,7 +79,7 @@ public abstract class GraphBuilder implements Startable {
             logger.info("Graph rebuild is finished for " + config.getGraphName());
         } else {
             logger.info("No rebuild of graph, using existing data");
-            loadGraph();
+            nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
         }
     }
 
@@ -98,10 +90,6 @@ public abstract class GraphBuilder implements Startable {
     @Override
     public void stop() {
         // no op
-    }
-
-    private void loadGraph() {
-        nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
     }
 
     protected Node createGraphNode(Transaction tx, Labels label) {

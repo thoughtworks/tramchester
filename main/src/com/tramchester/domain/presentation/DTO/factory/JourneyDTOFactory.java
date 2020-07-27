@@ -55,15 +55,15 @@ public class JourneyDTOFactory {
         return false;
     }
 
-    private List<String> getChangeStationNames(List<StageDTO> allStages) {
-        List<String> result = new ArrayList<>();
+    private List<StationRefWithPosition> getChangeStationNames(List<StageDTO> allStages) {
+        List<StationRefWithPosition> result = new ArrayList<>();
 
         if (isDirect(allStages)) {
             return result;
         }
 
         for(int index = 1; index< allStages.size(); index++) {
-            result.add(allStages.get(index).getFirstStation().getName());
+            result.add(allStages.get(index).getFirstStation());
         }
 
         return result;

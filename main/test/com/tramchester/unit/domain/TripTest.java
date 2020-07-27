@@ -13,6 +13,7 @@ import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +28,7 @@ class TripTest {
     private Station stationC;
 
     @BeforeEach
-    void beforeEachTestRuns() {
+    void beforeEachTestRuns() throws TransformException {
         Service service = new Service("svcId", TestEnv.getTestRoute());
 
         trip = new Trip("tripId","headSign", service, TestEnv.getTestRoute());

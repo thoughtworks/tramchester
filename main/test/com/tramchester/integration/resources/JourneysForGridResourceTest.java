@@ -5,6 +5,7 @@ import com.tramchester.App;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.IntegrationAppExtension;
@@ -14,7 +15,6 @@ import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,15 +24,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-//@Disabled("WIP")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneysForGridResourceTest {
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension =
+            new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
     private ParseStream<BoxWithCostDTO> parseStream;
@@ -51,26 +51,39 @@ class JourneysForGridResourceTest {
         date = when.format(dateFormatDashes);
         maxChanges = 3;
         gridSize = 2000;
-        maxDuration = 120;
+        maxDuration = 40;
     }
 
     @Test
-    void shouldCreateGrid() throws IOException {
+    void shouldHaveJourneysForWholeGrid() throws IOException {
+        LatLong destPos = TestEnv.stPetersSquareLocation();
         IdFor<Station> destination = Stations.StPetersSquare.getId();
 
         String queryString = String.format("grid?gridSize=%s&destination=%s&departureTime=%s&departureDate=%s&maxChanges=%s&maxDuration=%s",
                 gridSize, destination.forDTO(), time, date, maxChanges, maxDuration);
 
         Response response = IntegrationClient.getApiResponse(appExtension, queryString);
-        Assertions.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
 
         InputStream inputStream = response.readEntity(InputStream.class);
         List<BoxWithCostDTO> results = parseStream.receive(response, inputStream, BoxWithCostDTO.class);
 
-        assertFalse(results.isEmpty());
-        results.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()>0));
-        results.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
+        List<BoxWithCostDTO> containsDest = results.stream().filter(result -> result.getMinutes() == 0).collect(Collectors.toList());
+        assertEquals(1, containsDest.size());
+        BoxWithCostDTO boxWithDest = containsDest.get(0);
+        assertTrue(boxWithDest.getBottomLeft().getLat() <= destPos.getLat());
+        assertTrue(boxWithDest.getBottomLeft().getLon() <= destPos.getLon());
+        assertTrue(boxWithDest.getTopRight().getLat() >= destPos.getLat());
+        assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
 
+        List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).collect(Collectors.toList());
+        assertEquals(40, notDest.size());
+        assertFalse(results.isEmpty());
+        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
+
+        List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).collect(Collectors.toList());
+        assertEquals(4, noResult.size());
     }
+
 
 }

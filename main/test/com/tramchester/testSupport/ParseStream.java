@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fasterxml.jackson.core.JsonToken.*;
+
 public class ParseStream<T> {
 
     private final JsonFactory jsonFactory;
@@ -25,24 +27,27 @@ public class ParseStream<T> {
         List<T> received = new ArrayList<>();
 
         try (final JsonParser jsonParser = jsonFactory.createParser(inputStream)) {
-            final JsonToken nextToken = jsonParser.nextToken();
+            JsonToken nextToken = jsonParser.nextToken();
 
-            if (JsonToken.START_ARRAY.equals(nextToken)) {
-                // Iterate through the objects of the array.
-                JsonToken current = jsonParser.nextToken();
-                readObject(valueType, received, jsonParser, current);
-            } else if (JsonToken.START_OBJECT.equals(nextToken)) {
-                readObject(valueType, received, jsonParser, nextToken);
+            while (START_ARRAY.equals(nextToken) || START_OBJECT.equals(nextToken)) {
+                if (START_OBJECT.equals(nextToken)) {
+                    readObject(valueType, received, jsonParser, nextToken);
+                }
+                nextToken = jsonParser.nextToken();
+                while (VALUE_STRING.equals(nextToken)) {
+                    // consume line breaks written by server
+                    nextToken = jsonParser.nextToken();
+                }
             }
-
         }
+
         inputStream.close();
         response.close();
         return received;
     }
 
     private void readObject(Class<T> valueType, List<T> received, JsonParser jsonParser, JsonToken current) throws IOException {
-        while (JsonToken.START_OBJECT.equals(current)) {
+        while (START_OBJECT.equals(current)) {
             JsonToken next = jsonParser.nextToken();
             if (JsonToken.FIELD_NAME.equals(next)) {
                 final T item = jsonParser.readValueAs(valueType);

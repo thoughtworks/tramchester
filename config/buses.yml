@@ -13,7 +13,6 @@ server:
     bufferSize: 8KiB
     minimumEntitySize: 160B
 
-rebuildGraph: true
 secureHost: tramchester.com
 graphName: buses.db
 closedStations: []
@@ -27,24 +26,24 @@ dataSources:
     hasFeedInfo: true
     transportModes: [ bus ]
 bounds:
-  minEastings: 333211
-  minNorthings: 373264
-  maxEasting: 414492
-  maxNorthings: 437779
+  minEastings: 112685
+  minNorthings: 015490
+  maxEasting: 619307
+  maxNorthings: 1108843
 instanceDataUrl: http://169.254.169.254
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
 liveDataS3Bucket: tramchesterlivedata
 liveDataRefreshPeriodSeconds: 20
 loadPostcodes: true
-createNeighbours: true
+createNeighbours: false
 distanceToNeighboursKM: 0.25
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
 maxWait: 25
-numberQueries: 3
-queryInterval: 12
+numberQueries: 8
+queryInterval: 15
 maxNumberResults: 5
 maxJourneyDuration: 170
 nearestStopRangeKM: 1.6

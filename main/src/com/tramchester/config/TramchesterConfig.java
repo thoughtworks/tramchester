@@ -16,9 +16,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     public static ZoneId TimeZone = ZoneId.of("Europe/London");
 
-    // do full rebuild of the graph DB
-    public abstract boolean getRebuildGraph();
-
     // name of the graph DB to use
     public abstract String getGraphName();
 

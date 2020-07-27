@@ -2,7 +2,6 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.bundles.assets.AssetsConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -11,10 +10,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @SuppressWarnings("unused")
@@ -27,10 +23,6 @@ public class AppConfiguration extends TramchesterConfig {
     // Use Boxed types here to get @NotNull checking (i.e. Boolean not boolean)
     //
     ////////
-
-    @NotNull
-    @JsonProperty("rebuildGraph")
-    private Boolean rebuildGraph;
 
     @NotNull
     @JsonProperty("graphName")
@@ -228,11 +220,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public double getWalkingMPH() {
         return walkingMPH;
-    }
-
-    @Override
-    public boolean getRebuildGraph() {
-        return rebuildGraph;
     }
 
     @Override

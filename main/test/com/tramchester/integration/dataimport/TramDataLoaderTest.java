@@ -57,8 +57,8 @@ class TramDataLoaderTest {
         assertThat(theStop.getCode()).isEqualTo("mantpmaw");
         assertThat(theStop.getId()).isEqualTo("9400ZZMAABM1");
         assertThat(theStop.getName()).isEqualTo("Abraham Moss");
-        assertThat(theStop.getLatitude()).isEqualTo(53.51046);
-        assertThat(theStop.getLongitude()).isEqualTo(-2.23550);
+        assertThat(theStop.getLatLong().getLat()).isEqualTo(53.51046);
+        assertThat(theStop.getLatLong().getLon()).isEqualTo(-2.23550);
     }
 
     @Test

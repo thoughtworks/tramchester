@@ -25,11 +25,6 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean getChangeAtInterchangeOnly() { return true; }
 
     @Override
-    public boolean getRebuildGraph() {
-        return false;
-    }
-
-    @Override
     public List<String> getClosedStations() {
         return closedStations;
     }

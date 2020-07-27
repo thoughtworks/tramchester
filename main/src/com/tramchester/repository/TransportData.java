@@ -6,7 +6,7 @@ import com.tramchester.domain.DataSourceInfo;
 import java.util.Set;
 
 public interface TransportData extends StationRepository, ProvidesFeedInfo, ServiceRepository, TripRepository, RouteRepository,
-        PlatformRepository {
+        PlatformRepository, DataSourceRepository {
 
     Set<Agency> getAgencies();
     DataSourceInfo getDataSourceInfo();

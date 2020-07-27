@@ -19,6 +19,7 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -45,7 +46,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldGetDepartureInformationForSingleStation() {
+    void shouldGetDepartureInformationForSingleStation() throws TransformException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         StationDepartureInfo departureInfo = addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId",
@@ -74,7 +75,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldGetDueTramsWithinTimeWindows() {
+    void shouldGetDueTramsWithinTimeWindows() throws TransformException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId", "some message", Stations.Altrincham);

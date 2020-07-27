@@ -298,24 +298,10 @@ public class TransportDataFromFilesBuilder {
             IdFor<Station> stationId = Station.formId(stopId);
 
             Station station = allStations.getOrAdd(stationId, () ->
-                    new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong()));
+                    new Station(stationId, stop.getArea(), workAroundName(stop.getName()),
+                            stop.getLatLong(), stop.getGridPosition()));
 
-//            if (!allStations.containsKey(stationId)) {
-//                station = new Station(stationId, stop.getArea(), workAroundName(stop.getName()), stop.getLatLong());
-//                allStations.put(station.getId(), station);
-//            } else {
-//                station = allStations.get(stationId);
-//            }
-
-            // TODO Trains?
             if (stop.isTFGMTram()) {
-//                Platform platform;
-//                if (!buildable.hasPlatformId(stopId)) {
-//                    buildable.addPlatform(platform);
-//                } else {
-//                    platform = buildable.getPlatform(stopId);
-//                }
-
                 Platform platform = formPlatform(stop);
                 if (!station.getPlatforms().contains(platform)) {
                     station.addPlatform(platform);

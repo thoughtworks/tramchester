@@ -37,15 +37,11 @@ public class FastestRoutesForBoxes {
     public Stream<BoundingBoxWithCost> findForGridSizeAndDestination(Station destination, long gridSize,
                                                                      JourneyRequest journeyRequest)  {
 
-        HasGridPosition destinationGrid = getGridPosition(destination);
-
-        //Set<Station> destinations = stationLocations.getStationsRangeInMetersSquare(destination, gridSize);
-
         logger.info("Creating station groups for gridsize " + gridSize);
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
         Optional<BoundingBoxWithStations> searchBoxWithDest = grouped.stream().
-                filter(box -> box.contained(destinationGrid)).findFirst();
+                filter(box -> box.contained(destination.getGridPosition())).findFirst();
 
         if (searchBoxWithDest.isEmpty()) {
             throw new RuntimeException("Unable to find destination in any boxes " + destination);
@@ -54,18 +50,7 @@ public class FastestRoutesForBoxes {
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
         return calculator.calculateRoutes(destinations, journeyRequest, grouped).
-                map(box->cheapest(box, destinationGrid));
-    }
-
-    @NotNull
-    private HasGridPosition getGridPosition(Station destination) {
-        try {
-            return CoordinateTransforms.getGridPosition(destination.getLatLong());
-        } catch (TransformException exception) {
-            String msg = "Unable to get grid for " + destination;
-            logger.error(msg);
-            throw new RuntimeException(msg, exception);
-        }
+                map(box->cheapest(box, destination.getGridPosition()));
     }
 
     private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, HasGridPosition destination) {

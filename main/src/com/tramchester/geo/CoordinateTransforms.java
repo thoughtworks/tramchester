@@ -44,7 +44,7 @@ public class CoordinateTransforms {
     }
 
     @NotNull
-    public static HasGridPosition getGridPosition(LatLong position) throws TransformException {
+    public static GridPosition getGridPosition(LatLong position) throws TransformException {
         DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
         DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
 

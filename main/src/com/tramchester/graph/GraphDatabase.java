@@ -1,7 +1,9 @@
 package com.tramchester.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
@@ -19,21 +21,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
 public class GraphDatabase implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
 
     private final TramchesterConfig configuration;
+    private final DataSourceRepository transportData;
+    private boolean cleanDB;
     private GraphDatabaseService databaseService;
     private DatabaseManagementService managementService;
 
-    public GraphDatabase(TramchesterConfig configuration) {
+    public GraphDatabase(TramchesterConfig configuration, DataSourceRepository transportData) {
         this.configuration = configuration;
+        this.transportData = transportData;
     }
 
     @Override
@@ -43,25 +53,95 @@ public class GraphDatabase implements Startable {
         String graphName = configuration.getGraphName();
         logger.info("Create or load graph " + graphName);
         File graphFile = new File(graphName);
+        boolean existingFile = graphFile.exists();
 
-        boolean rebuildGraph = configuration.getRebuildGraph();
-
-        if (rebuildGraph) {
-            logger.info("Deleting previous graph db for " + graphFile.getAbsolutePath());
-            try {
-                FileUtils.deleteDirectory(graphFile);
-            } catch (IOException ioException) {
-                logger.error("Error deleting the graph!", ioException);
-            }
-        } else if (!graphFile.exists()) {
-            String msg = "Requested no rebuild of graph; graph file does not exist " + graphName;
-            logger.error(msg);
-            throw new RuntimeException(msg);
+        cleanDB = !existingFile;
+        if (existingFile) {
+            logger.info("Graph db file is present at " + graphFile.getAbsolutePath());
         }
 
         databaseService = createGraphDatabaseService(graphFile);
 
+        if (existingFile && !upToDate()) {
+            cleanDB = true;
+            logger.warn("Graph is out of data, rebuild needed");
+            managementService.shutdown();
+            int count = 10;
+            while (databaseService.isAvailable(1000)) {
+                logger.info("Waiting for graph shutdown");
+                count--;
+                if (count==0) {
+                    throw new RuntimeException("Cannot shutdown out of date database");
+                }
+            }
+            try {
+                FileUtils.deleteDirectory(graphFile);
+            } catch (IOException e) {
+                String message = "Cannot delete out of date graph DB";
+                logger.error(message,e);
+                throw new RuntimeException(message,e);
+            }
+            graphFile = new File(graphName);
+            databaseService = createGraphDatabaseService(graphFile);
+        }
+
         logger.info("graph db started " + graphFile.getAbsolutePath());
+    }
+
+    public boolean isCleanDB() {
+        return cleanDB;
+    }
+
+    private boolean upToDate() {
+        DataSourceInfo info = transportData.getDataSourceInfo();
+        logger.info("Checking graph version information ");
+
+        Set<DataSourceInfo.NameAndVersion> versions = info.getVersions();
+
+        // version -> flag
+        Map<DataSourceInfo.NameAndVersion, Boolean> upToDate = new HashMap<>();
+        try(Transaction transaction = beginTx()) {
+
+            ResourceIterator<Node> query = findNodes(transaction, GraphBuilder.Labels.VERSION);
+            List<Node> nodes = query.stream().collect(Collectors.toList());
+
+            if (nodes.size()>1) {
+                logger.error("Too many VERSION nodes, will use first");
+            }
+
+            if (nodes.isEmpty()) {
+                logger.warn("Missing VERSION node, cannot check versions");
+                return false;
+            }
+
+            Node versionNode = nodes.get(0);
+            Map<String, Object> allProps = versionNode.getAllProperties();
+
+            if (allProps.size()!=versions.size()) {
+                logger.warn("VERSION node property mismatch, got " +allProps.size() + " expected " + versions.size());
+                return false;
+            }
+
+            versions.forEach(nameAndVersion -> {
+                String name = nameAndVersion.getName();
+                logger.info("Checking version for " + name);
+
+                if (allProps.containsKey(name)) {
+                    String graphValue = allProps.get(name).toString();
+                    boolean matches = nameAndVersion.getVersion().equals(graphValue);
+                    upToDate.put(nameAndVersion, matches);
+                    if (matches) {
+                        logger.info("Got correct VERSION node value for " + nameAndVersion);
+                    } else {
+                        logger.warn(format("Mismatch on graph VERSION, got '%s' for %s", graphValue, nameAndVersion));
+                    }
+                } else {
+                    upToDate.put(nameAndVersion, false);
+                    logger.warn("Could not find version for " + name + " properties were " + allProps.toString());
+                }
+            });
+        }
+       return upToDate.values().stream().allMatch(flag -> flag);
     }
 
     private GraphDatabaseService createGraphDatabaseService(File graphFile) {

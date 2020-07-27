@@ -145,11 +145,6 @@ class RouteCalculatorSubGraphTest {
             super("subgraph_tramchester.db");
         }
 
-
-        @Override
-        public boolean getRebuildGraph() {
-            return true;
-        }
     }
 
     private void validateAtLeastOneJourney(Station start, Station dest, TramTime time, LocalDate date) {

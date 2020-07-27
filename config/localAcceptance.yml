@@ -9,7 +9,6 @@ server:
 
 secureHost: tramchester.com
 
-rebuildGraph: true
 graphName: databases/tramchesterAcceptance.db
 closedStations: []
 dataSources:

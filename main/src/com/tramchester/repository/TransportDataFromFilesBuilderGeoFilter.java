@@ -7,6 +7,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,23 +307,18 @@ public class TransportDataFromFilesBuilderGeoFilter {
 
     private IdMap<Station> preLoadStations(Stream<StopData> stops) {
         logger.info("Loading stops within bounds");
+        BoundingBox bounds = config.getBounds();
 
         IdMap<Station> allStations = new IdMap<>();
 
         stops.forEach((stopData) -> {
-            if (config.getBounds().contained(stopData.getLatLong())) {
+            if (bounds.contained(stopData.getGridPosition())) {
                 String stopId = stopData.getId();
                 IdFor<Station> stationId = Station.formId(stopId);
 
                 Station station = allStations.getOrAdd(stationId, () ->
-                        new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()), stopData.getLatLong()));
-
-//                if (!allStations.hasId(stationId)) {
-//                    station = new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()), stopData.getLatLong());
-//                    allStations.add(station);
-//                } else {
-//                    station = allStations.get(stationId);
-//                }
+                        new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
+                                stopData.getLatLong(), stopData.getGridPosition()));
 
                 if (stopData.isTFGMTram()) {
                     Platform platform = formPlatform(stopData);

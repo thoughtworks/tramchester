@@ -15,7 +15,6 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTestConfig;
-import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
@@ -230,11 +229,6 @@ class GraphWithSimpleRouteTest {
             TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("data/tram",
                     Collections.singleton(GTFSTransportationType.tram));
             return Collections.singletonList(tfgmTestDataSourceConfig);
-        }
-
-        @Override
-        public boolean getRebuildGraph() {
-            return true;
         }
 
         @Override

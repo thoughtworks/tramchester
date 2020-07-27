@@ -97,10 +97,6 @@ class RouteCalculatorSubGraphMonsallTest {
             super("sub_monsall_tramchester.db");
         }
 
-        @Override
-        public boolean getRebuildGraph() {
-            return true;
-        }
     }
 
     private void validateNumberOfStages(Station start, Station destination, TramTime time, LocalDate date, int numStages) {

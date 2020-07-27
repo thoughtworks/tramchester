@@ -10,6 +10,7 @@ import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ class TramStopCallsTest {
     private StopCalls stops;
 
     @BeforeEach
-    void beforeEachTestRuns() {
+    void beforeEachTestRuns() throws TransformException {
         stationA = Station.forTest("statA", "areaA", "nameA", new LatLong(-1,1), TransportMode.Bus);
         stationB = Station.forTest("statB", "areaB", "nameB", new LatLong(-2,2), TransportMode.Bus);
         stationC = Station.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
