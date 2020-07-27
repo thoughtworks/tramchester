@@ -9,8 +9,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.GraphPropertyKeys;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.RouteCodeToClassMapper;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphPropertyKeys.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
@@ -138,9 +139,8 @@ public class MapPathToStages {
         }
     }
 
-
     private int getCost(Relationship relationship) {
-        return (int)relationship.getProperty(COST);
+        return GraphProps.getCost(relationship);
     }
 
     private WalkStarted walkStarted(Relationship relationship) {
@@ -151,9 +151,7 @@ public class MapPathToStages {
         Station destination = transportData.getStationById(stationId);
 
         Node startNode = relationship.getStartNode();
-        double lat = (double)startNode.getProperty(GraphStaticKeys.Walk.LAT);
-        double lon =  (double)startNode.getProperty(GraphStaticKeys.Walk.LONG);
-        LatLong latLong = new LatLong(lat, lon);
+        LatLong latLong = GraphProps.getLatLong(startNode);
         MyLocation start = myLocationFactory.create(latLong);
         return new WalkStarted(start, destination, cost);
     }
@@ -166,9 +164,8 @@ public class MapPathToStages {
         Station start = transportData.getStationById(stationId);
 
         Node endNode = relationship.getEndNode();
-        double lat = (double)endNode.getProperty(GraphStaticKeys.Walk.LAT);
-        double lon =  (double)endNode.getProperty(GraphStaticKeys.Walk.LONG);
-        MyLocation walkEnd = myLocationFactory.create(new LatLong(lat,lon));
+        LatLong latLong = GraphProps.getLatLong(endNode);
+        MyLocation walkEnd = myLocationFactory.create(latLong);
 
         return new WalkingStage(start, walkEnd, cost, walkStartTime, true);
     }
@@ -220,8 +217,8 @@ public class MapPathToStages {
             routeCode = IdFor.getRouteIdFrom(relationship);
             route = transportData.getRouteById(routeCode);
             if (boardingStation.hasPlatforms()) {
-                String stopId = relationship.getProperty(PLATFORM_ID).toString();
-                boardingPlatform = platformRepository.getPlatformById(stopId);
+                IdFor<Platform> platformId = IdFor.getPlatformIdFrom(relationship);
+                boardingPlatform = platformRepository.getPlatformById(platformId);
             }
             departTime = null;
         }
@@ -263,7 +260,7 @@ public class MapPathToStages {
 
             if (tripId.notValid()) {
                 this.tripId = newTripId;
-                LocalTime property = (LocalTime) relationship.getProperty(TIME);
+                LocalTime property = GraphProps.getTime(relationship);
                 boardingTime = TramTime.of(property);
             } else if (!tripId.equals(newTripId)){
                 throw new RuntimeException(format("Mid flight change of trip from %s to %s", tripId, newTripId));

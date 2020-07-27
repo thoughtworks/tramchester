@@ -2,13 +2,15 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphPropertyKeys.*;
 
 // KEEP for assisting with debugging
 public class NodeContentsDirect implements NodeContentsRepository{
@@ -20,27 +22,27 @@ public class NodeContentsDirect implements NodeContentsRepository{
 
     @Override
     public TramTime getTime(Node node) {
-        return TramTime.of(((LocalTime) node.getProperty(TIME)));
+        return TramTime.of(GraphProps.getTime(node));
     }
 
     @Override
     public int getHour(Node node) {
-        return (int) node.getProperty(HOUR);
+        return GraphProps.getHour(node);
     }
 
     @Override
-    public String getTrip(Relationship relationship) {
-        return relationship.getProperty(TRIP_ID).toString();
+    public IdFor<Trip> getTrip(Relationship relationship) {
+        return GraphProps.getTripId(relationship);
     }
 
     @Override
     public String getTrips(Relationship relationship) {
-        return relationship.getProperty(TRIPS).toString();
+        return GraphProps.getTrips(relationship);
     }
 
     @Override
     public int getCost(Relationship relationship) {
-        return (int) relationship.getProperty(COST);
+        return GraphProps.getCost(relationship);
     }
 
     @Override

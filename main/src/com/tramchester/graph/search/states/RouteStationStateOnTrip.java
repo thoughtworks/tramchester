@@ -1,7 +1,9 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
@@ -17,18 +19,18 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateOnTrip extends TraversalState implements NodeId {
     private final long routeStationNodeId;
-    private final String tripId;
+    private final IdFor<Trip> tripId;
 
     public static class Builder {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
-                                              String tripId) {
+                                              IdFor<Trip> tripId) {
             return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId);
         }
     }
 
     private RouteStationStateOnTrip(TraversalState parent, Iterable<Relationship> relationships, int cost,
-                                    long routeStationNodeId, String tripId) {
+                                    long routeStationNodeId, IdFor<Trip> tripId) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.tripId = tripId;

@@ -3,14 +3,13 @@ package com.tramchester.domain;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.GraphPropertyKeys;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphPropertyKeys.*;
 
-public class IdFor<T> {
+public class IdFor<T> implements Comparable<IdFor<T>> {
     private final String theId;
 
     protected IdFor(String theId) {
@@ -29,7 +28,6 @@ public class IdFor<T> {
     public static <CLASS> IdFor<CLASS> invalid() {
         return new IdFor<>("");
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -59,40 +57,53 @@ public class IdFor<T> {
         return theId;
     }
 
+    public boolean notValid() {
+        return theId.isEmpty();
+    }
+
+    public boolean isValid() {
+        return !theId.isEmpty();
+    }
+
     // TODO push Node names into Domain objects or GraphQuery?
-    public boolean matchesStationNodePropery(Node node) {
-        return node.getProperty(STATION_ID).toString().equals(theId);
+    public boolean matchesStationNodePropery(Entity entity) {
+        return getTheId(entity, STATION_ID).equals(theId);
     }
 
     public static IdFor<Route> getRouteIdFrom(Entity entity) {
-        return new IdFor<>(entity.getProperty(ROUTE_ID).toString());
+        return new IdFor<>(getTheId(entity, ROUTE_ID));
     }
 
     public static IdFor<Station> getStationIdFrom(Entity entity) {
-        return new IdFor<>(entity.getProperty(STATION_ID).toString());
+        return new IdFor<>(getTheId(entity, STATION_ID));
     }
 
-    public static IdFor<Station> getTowardsStationIdFrom(Node endNode) {
-        return new IdFor<>(endNode.getProperty(TOWARDS_STATION_ID).toString());
+    public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
+        return new IdFor<>(getTheId(entity, TOWARDS_STATION_ID));
     }
-
-    public static IdFor<Station> getIdFrom(Entity entity) {
-        return new IdFor<>(entity.getProperty(ID).toString());
-    }
-
-    public static IdFor<Service> getServiceIdFrom(Node node) {
-        return new IdFor<>(node.getProperty(SERVICE_ID).toString());
+    
+    public static IdFor<Service> getServiceIdFrom(Entity entity) {
+        return new IdFor<>(getTheId(entity, SERVICE_ID));
     }
 
     public static IdFor<Trip> getTripIdFrom(Entity entity) {
-        return new IdFor<>(entity.getProperty(TRIP_ID).toString());
+        return new IdFor<>(getTheId(entity, TRIP_ID));
     }
 
-    public static IdFor<RouteStation> getRouteStationIdFrom(Node node) {
-        return new IdFor<>(node.getProperty(ROUTE_STATION_ID).toString());
+    public static IdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
+        return new IdFor<>(getTheId(entity, ROUTE_STATION_ID));
     }
 
-    public boolean notValid() {
-        return theId.isEmpty();
+    public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
+        return new IdFor<>(getTheId(entity, PLATFORM_ID));
+    }
+
+    private static String getTheId(Entity entity, GraphPropertyKeys propertyKey) {
+        return entity.getProperty(propertyKey.getText()).toString();
+    }
+
+    @Override
+    public int compareTo(@NotNull IdFor<T> other) {
+        return theId.compareTo(other.theId);
     }
 }

@@ -5,6 +5,7 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.InterchangeRepository;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.tramchester.graph.GraphStaticKeys.*;
+import static com.tramchester.graph.GraphPropertyKeys.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
@@ -63,14 +64,14 @@ public class RouteReachable {
 
     // TEST ONLY
     // TODO WIP to support bus routing
-    public Map<String, IdFor<Route>> getShortestRoutesBetween(Station startStation, Station endStation) {
-        HashMap<String, IdFor<Route>> results = new HashMap<>();
+    public Map<IdFor<Station>, IdFor<Route>> getShortestRoutesBetween(Station startStation, Station endStation) {
+        HashMap<IdFor<Station>, IdFor<Route>> results = new HashMap<>();
         try (Transaction txn = graphDatabaseService.beginTx()) {
             Node startNode = graphQuery.getStationNode(txn, startStation);
             Node endNode = graphQuery.getStationNode(txn, endStation);
 
             EvaluationContext context = graphDatabaseService.createContext(txn);
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, fullExpanderForRoutes(), COST);
+            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, fullExpanderForRoutes(), COST.getText());
             Iterable<WeightedPath> paths = finder.findAllPaths(startNode, endNode);
 
             paths.forEach(path -> path.relationships().forEach(relationship -> {
@@ -78,7 +79,7 @@ public class RouteReachable {
                 if (relationship.isType(BOARD) || relationship.isType(INTERCHANGE_BOARD)) {
                     Node node = relationship.getEndNode();
                     IdFor<Route> routeId = IdFor.getRouteIdFrom(node); //node.getProperty(ROUTE_ID).toString();
-                    String stationId = node.getProperty(STATION_ID).toString();
+                    IdFor<Station> stationId = GraphProps.getStationId(node);
                     results.put(stationId, routeId);
                 }
             }));
@@ -144,7 +145,7 @@ public class RouteReachable {
         PathExpander<Double> forTypesAndDirections = fullExpanderForRoutes();
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
-        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST);
+        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
         WeightedPath path = finder.findSinglePath(startNode, endNode);
         double weight  = Math.floor(path.weight());
         return (int) weight;

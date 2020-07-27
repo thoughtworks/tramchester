@@ -6,8 +6,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
-import org.apache.commons.collections.bag.HashBag;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.*;
 import org.picocontainer.Startable;
@@ -80,7 +80,7 @@ public class CreateNeighbours implements Startable {
 
                 if (!already.contains(otherNode.getId())) {
                     Relationship relationship = stationNode.createRelationshipTo(otherNode, relationType);
-                    relationship.setProperty(GraphStaticKeys.COST, CoordinateTransforms.calcCostInMinutes(station, other, mph));
+                    GraphProps.setCostProp(relationship, CoordinateTransforms.calcCostInMinutes(station, other, mph));
                 } else {
                     logger.info("Relationship of type " + relationType + " already present from " + station + " to " + other);
                 }

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.GraphPropertyKeys;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
@@ -78,7 +79,7 @@ public class ReasonsToGraphViz {
             nodes.add(nodeId);
             StringBuilder nodeLabel = new StringBuilder();
             node.getLabels().forEach(label -> nodeLabel.append(label.name()).append(" "));
-            String id = node.getProperty(GraphStaticKeys.ID).toString();
+            String id = GraphProps.getId(node);
             nodeLabel.append("\n").append(id);
             builder.append(format("\"%s\" [label=\"%s\"] [shape=%s];\n", nodeId, nodeLabel, "hexagon"));
         }

@@ -1,20 +1,20 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.GraphStaticKeys;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
+import static com.tramchester.graph.GraphPropertyKeys.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -35,21 +35,21 @@ public class MinuteState extends TraversalState {
 
             boolean changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
             if (maybeExistingTrip.isOnTrip()) {
-                String existingTripId = maybeExistingTrip.getTripId();
+                IdFor<Trip> existingTripId = maybeExistingTrip.getTripId();
                 Iterable<Relationship> filterBySingleTripId = filterBySingleTripId(hourState.nodeOperations,
                         relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
                 // starting a brand new journey
-                String newTripId = getTrip(node);
+                IdFor<Trip> newTripId = getTrip(node);
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
             }
         }
     }
 
-    private final String tripId;
+    private final IdFor<Trip> tripId;
 
-    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, String tripId, int cost, boolean interchangesOnly) {
+    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, int cost, boolean interchangesOnly) {
         super(parent, relationships, cost);
         this.tripId = tripId;
         this.interchangesOnly = interchangesOnly;
@@ -63,11 +63,11 @@ public class MinuteState extends TraversalState {
                 "} " + super.toString();
     }
 
-    private static String getTrip(Node endNode) {
-        if (!endNode.hasProperty(TRIP_ID)) {
-            return "";
+    private static IdFor<Trip> getTrip(Node endNode) {
+        if (!GraphProps.hasProperty(TRIP_ID, endNode)) {
+            return IdFor.invalid();
         }
-        return endNode.getProperty(TRIP_ID).toString().intern();
+        return GraphProps.getTripId(endNode);
     }
 
     @Override
@@ -108,11 +108,11 @@ public class MinuteState extends TraversalState {
         }
     }
 
-    private List<Relationship> filterByTripId(Iterable<Relationship> relationships, String tripId) {
+    private List<Relationship> filterByTripId(Iterable<Relationship> relationships, IdFor<Trip> tripId) {
         List<Relationship> results = new ArrayList<>();
         relationships.forEach(relationship -> {
             String trips = nodeOperations.getTrips(relationship);
-            if (trips.contains(tripId)) {
+            if (trips.contains(tripId.getGraphId())) {
                 results.add(relationship);
             }
         });
@@ -120,10 +120,10 @@ public class MinuteState extends TraversalState {
     }
 
     private static List<Relationship> filterBySingleTripId(NodeContentsRepository nodeOperations,
-                                                           Iterable<Relationship> relationships, String tripId) {
+                                                           Iterable<Relationship> relationships, IdFor<Trip> tripId) {
         List<Relationship> results = new ArrayList<>();
         relationships.forEach(relationship -> {
-            String trip = nodeOperations.getTrip(relationship);
+            IdFor<Trip> trip = nodeOperations.getTrip(relationship);
             if (trip.equals(tripId)) {
                 results.add(relationship);
             }

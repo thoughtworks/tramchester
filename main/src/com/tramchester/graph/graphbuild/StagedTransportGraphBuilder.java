@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -374,6 +375,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private Node createPlatformNode(Transaction tx, Platform platform) {
         Node platformNode = createGraphNode(tx, Labels.PLATFORM);
         setIdPropForPlatform(platformNode, platform.getId());
+        setPlatformProp(platformNode, platform.getId());
         return platformNode;
     }
 
@@ -402,7 +404,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         beginServiceNode.getRelationships(INCOMING, TransportRelationshipTypes.TO_SERVICE).forEach(
                 relationship -> {
-                    String tripIds = relationship.getProperty(GraphStaticKeys.TRIPS).toString();
+                    String tripIds = GraphProps.getTrips(relationship);
                     if (!tripIds.contains(tripId.getGraphId())) {
                         setTripsProp(relationship, tripId.getGraphId() + tripIds);
                     }

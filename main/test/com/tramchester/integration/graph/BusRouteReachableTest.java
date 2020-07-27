@@ -77,7 +77,7 @@ class BusRouteReachableTest {
     @BusTest
     @Test
     void shouldListRoutesBetweenBusStations() {
-        Map<String, IdFor<Route>> stepsSeen = reachable.getShortestRoutesBetween(AltrinchamInterchange, StockportBusStation);
+        Map<IdFor<Station>, IdFor<Route>> stepsSeen = reachable.getShortestRoutesBetween(AltrinchamInterchange, StockportBusStation);
 
         Assertions.assertEquals(4, stepsSeen.size());
 

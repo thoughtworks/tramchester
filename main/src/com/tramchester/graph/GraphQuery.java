@@ -30,19 +30,20 @@ public class GraphQuery {
     }
 
     public Node getPlatformNode(Transaction txn, IdFor<Platform> id) {
-        return getNodeByLabel(txn, id, GraphBuilder.Labels.PLATFORM);
+        return getNodeByLabelAndID(txn, id, GraphBuilder.Labels.PLATFORM);
     }
 
     public Node getRouteStationNode(Transaction txn, IdFor<RouteStation> id) {
-        return getNodeByLabel(txn, id, GraphBuilder.Labels.ROUTE_STATION);
+        return getNodeByLabelAndID(txn, id, GraphBuilder.Labels.ROUTE_STATION);
     }
 
     public Node getStationNode(Transaction txn, Station station) {
         return getStationNode(txn, station.getId(), station.getTransportMode());
     }
 
-    private <T extends HasId<T>> Node getNodeByLabel(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
-        return graphDatabase.findNode(txn, label, GraphStaticKeys.ID, id.getGraphId());
+    @Deprecated
+    private <T extends HasId<T>> Node getNodeByLabelAndID(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
+        return graphDatabase.findNode(txn, label, GraphPropertyKeys.ID.getText(), id.getGraphId());
     }
 
     public List<Relationship> getRouteStationRelationships(Transaction txn, IdFor<RouteStation> routeStationId, Direction direction) {
@@ -56,7 +57,7 @@ public class GraphQuery {
     }
 
     private Node getStationNode(Transaction txn, IdFor<Station> stationId, TransportMode transportMode) {
-        Node node = getNodeByLabel(txn, stationId, GraphBuilder.Labels.forMode(transportMode));
+        Node node = getNodeByLabelAndID(txn, stationId, GraphBuilder.Labels.forMode(transportMode));
         if (node==null) {
             logger.warn("Did not find node for station: " + stationId + " mode: " + transportMode);
         }
@@ -64,6 +65,6 @@ public class GraphQuery {
     }
 
     public boolean hasNodeForStation(Transaction txn, Station station) {
-        return getNodeByLabel(txn, station.getId(), GraphBuilder.Labels.forMode(station.getTransportMode()))!=null;
+        return getNodeByLabelAndID(txn, station.getId(), GraphBuilder.Labels.forMode(station.getTransportMode()))!=null;
     }
 }

@@ -1,0 +1,136 @@
+package com.tramchester.graph.graphbuild;
+
+import com.tramchester.domain.*;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.graph.GraphPropertyKeys;
+import org.neo4j.graphdb.Entity;
+import org.neo4j.graphdb.Node;
+
+import java.time.LocalTime;
+
+import static com.tramchester.graph.GraphPropertyKeys.*;
+
+public class GraphProps {
+
+    static void setProp(Node node, DataSourceInfo.NameAndVersion nameAndVersion) {
+        node.setProperty(nameAndVersion.getName(), nameAndVersion.getVersion());
+    }
+
+    public static void setRouteProp(Entity entity, IdFor<Route> id) {
+        entity.setProperty(ROUTE_ID.getText(), id.getGraphId());
+    }
+
+    public static void setServiceProp(Entity entity, IdFor<Service> id) {
+        entity.setProperty(SERVICE_ID.getText(), id.getGraphId());
+    }
+
+    public static void setPlatformProp(Entity entity, IdFor<Platform> id) {
+        entity.setProperty(PLATFORM_ID.getText(), id.getGraphId());
+    }
+
+    public static void setStationProp(Entity entity, IdFor<Station> id) {
+        entity.setProperty(STATION_ID.getText(), id.getGraphId());
+    }
+
+    public static IdFor<Station> getStationId(Entity entity) {
+        return IdFor.getStationIdFrom(entity);
+    }
+
+    public static void setRouteStationProp(Entity entity, IdFor<RouteStation> id) {
+        entity.setProperty(ROUTE_STATION_ID.getText(), id.getGraphId());
+    }
+
+    public static void setTowardsProp(Node node, IdFor<Station> id) {
+        node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
+    }
+
+    private static Object getProperty(Entity node, GraphPropertyKeys longitude) {
+        return node.getProperty(longitude.getText());
+    }
+
+    public static String getTrips(Entity relationship) {
+        return getProperty(relationship, TRIPS).toString();
+    }
+
+    static void setTripsProp(Entity relationship, String value) {
+        relationship.setProperty(TRIPS.getText(), value);
+    }
+
+    public static int getCost(Entity relationship) {
+        return (int) getProperty(relationship, COST);
+    }
+
+    public static void setCostProp(Entity relationship, int value) {
+        relationship.setProperty(COST.getText(), value);
+    }
+
+
+
+    public static LocalTime getTime(Entity entity) {
+        return (LocalTime) getProperty(entity, TIME);
+    }
+
+    static void setProp(Entity entity, LocalTime time) {
+        entity.setProperty(TIME.getText(), time);
+    }
+
+    public static boolean hasProperty(GraphPropertyKeys key, Entity entity) {
+        return entity.hasProperty(key.getText());
+    }
+
+    static void setTripProp(Entity entity, IdFor<Trip> id) {
+        entity.setProperty(TRIP_ID.getText(), id.getGraphId());
+    }
+
+    public static IdFor<Trip> getTripId(Entity entity) {
+        return IdFor.getTripIdFrom(entity);
+    }
+
+    public static IdFor<Service> getServiceId(Entity entity) {
+        return IdFor.getServiceIdFrom(entity);
+    }
+
+    @Deprecated
+    public static void setIdProp(Node node, String value) {
+        node.setProperty(ID.getText(), value);
+    }
+
+    static void setIdPropForPlatform(Node node, IdFor<Platform> id) {
+        node.setProperty(ID.getText(), id.getGraphId());
+    }
+
+    static void setIdPropForStation(Node node, IdFor<Station> id) {
+        node.setProperty(ID.getText(), id.getGraphId());
+    }
+
+    @Deprecated
+    public static String getId(Node node) {
+        return getProperty(node, GraphPropertyKeys.ID).toString();
+    }
+
+    static void setHourProp(Entity entity, Integer value) {
+        entity.setProperty(HOUR.getText(), value);
+    }
+
+    public static Integer getHour(Entity node) {
+        return (int) getProperty(node, HOUR);
+    }
+
+    public static void setLatLong(Entity entity, LatLong latLong) {
+        entity.setProperty(LATITUDE.getText(), latLong.getLat());
+        entity.setProperty(LONGITUDE.getText(), latLong.getLon());
+    }
+
+    public static LatLong getLatLong(Entity entity) {
+        double lat = (double) getProperty(entity, LATITUDE);
+        double lon = (double) getProperty(entity, LONGITUDE);
+        return new LatLong(lat, lon);
+    }
+
+    public static IdFor<Route> getRouteId(Entity entity) {
+        return IdFor.getRouteIdFrom(entity);
+    }
+}

@@ -10,6 +10,8 @@ public interface PlatformRepository {
     Set<Platform> getPlatforms();
     boolean hasPlatformId(IdFor<Platform> id);
     Platform getPlatform(IdFor<Platform> id);
+    Optional<Platform> getPlatformById(IdFor<Platform> id);
 
+    @Deprecated
     Optional<Platform> getPlatformById(String platformId);
 }

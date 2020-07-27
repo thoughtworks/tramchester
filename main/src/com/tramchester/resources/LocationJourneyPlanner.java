@@ -7,6 +7,7 @@ import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
-import static com.tramchester.graph.GraphStaticKeys.COST;
+import static com.tramchester.graph.GraphPropertyKeys.COST;
 import static java.lang.String.format;
 
 public class LocationJourneyPlanner {
@@ -92,7 +93,7 @@ public class LocationJourneyPlanner {
         });
         Node endWalk = createWalkingNode(txn, destination);
         Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
-        relationshipTo.setProperty(COST,0);
+        GraphProps.setCostProp(relationshipTo, 0);
         addedRelationships.add(relationshipTo);
 
         Stream<Journey> journeys;
@@ -130,7 +131,7 @@ public class LocationJourneyPlanner {
         });
         Node endWalk = createWalkingNode(txn, destLatLong);
         Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
-        relationshipTo.setProperty(COST,0);
+        GraphProps.setCostProp(relationshipTo, 0);
         addedRelationships.add(relationshipTo);
 
         /// CALC
@@ -163,25 +164,23 @@ public class LocationJourneyPlanner {
             walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);
         }
 
-        walkingRelationship.setProperty(COST, cost);
-        walkingRelationship.setProperty(GraphStaticKeys.STATION_ID, walkStation.getId().getGraphId());
+        GraphProps.setCostProp(walkingRelationship, cost);
+        GraphProps.setStationProp(walkingRelationship, walkStation.getId());
         return walkingRelationship;
     }
 
     private Node createWalkingNode(Transaction txn, LatLong origin) {
         Node startOfWalkNode = nodeTypeRepository.createQueryNode(graphDatabase, txn);
-        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
-        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
-        startOfWalkNode.setProperty(GraphStaticKeys.ID, origin.toString());
+        GraphProps.setLatLong(startOfWalkNode, origin);
+        GraphProps.setIdProp(startOfWalkNode, origin.toString());
         logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }
 
     private Node createMidWalkingNode(Transaction txn, LatLong origin) {
         Node startOfWalkNode = nodeTypeRepository.createQueryNodeMidPoint(graphDatabase, txn);
-        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LAT, origin.getLat());
-        startOfWalkNode.setProperty(GraphStaticKeys.Walk.LONG, origin.getLon());
-        startOfWalkNode.setProperty(GraphStaticKeys.ID, origin.toString());
+        GraphProps.setLatLong(startOfWalkNode, origin);
+        GraphProps.setIdProp(startOfWalkNode, origin.toString());
         logger.info(format("Adding mid walking node at %s as node %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }

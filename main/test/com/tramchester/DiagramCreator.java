@@ -1,14 +1,19 @@
 package com.tramchester;
 
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphPropertyKeys;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import org.neo4j.graphdb.*;
+import com.tramchester.graph.graphbuild.GraphProps;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.*;
 import java.util.*;
 
-import static com.tramchester.graph.GraphStaticKeys.SERVICE_ID;
-import static com.tramchester.graph.GraphStaticKeys.TRIP_ID;
+import static com.tramchester.graph.GraphPropertyKeys.TRIP_ID;
 import static java.lang.String.format;
 
 
@@ -43,7 +48,7 @@ public class DiagramCreator {
 
             startPointsList.forEach(startPoint -> {
                 Node startNode = graphDatabaseService.findNode(tx, GraphBuilder.Labels.TRAM_STATION,
-                        GraphStaticKeys.ID, startPoint);
+                        GraphPropertyKeys.ID.getText(), startPoint);
                 visit(startNode, builder, 0, nodeSeen, relationshipSeen);
             });
 
@@ -111,10 +116,10 @@ public class DiagramCreator {
         // Node -> Service End Node
         for (Relationship tramGoesToRelationship : tramGoesToRelationships.values()) {
             String id;
-            if (tramGoesToRelationship.hasProperty(TRIP_ID)) {
-                id = tramGoesToRelationship.getProperty(TRIP_ID).toString();
+            if (GraphProps.hasProperty(TRIP_ID, tramGoesToRelationship)) {
+                id = GraphProps.getTripId(tramGoesToRelationship).getGraphId();
             } else {
-                id = tramGoesToRelationship.getProperty(SERVICE_ID).toString();
+                id = GraphProps.getServiceId(tramGoesToRelationship).getGraphId();
             }
             if (id.isEmpty()) {
                 id = "NO_ID";
@@ -137,7 +142,7 @@ public class DiagramCreator {
         if (relationshipType==TransportRelationshipTypes.TRAM_GOES_TO) {
             // use outbound
         } else if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
-            String routeId = edge.getProperty(GraphStaticKeys.ROUTE_ID).toString();
+            String routeId = GraphProps.getRouteId(edge).getGraphId();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "ROUTE:"+routeId));
         } else {
             String shortForm = createShortForm(relationshipType);
@@ -183,20 +188,20 @@ public class DiagramCreator {
         }
         if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
             // TODO Look up station name from the ID?
-            String stationName = node.getProperty(GraphStaticKeys.STATION_ID).toString();
-            return format("%s\n%s", node.getProperty(GraphStaticKeys.ROUTE_ID).toString(), stationName);
+            String stationName = GraphProps.getStationId(node).getGraphId();
+            return format("%s\n%s", GraphProps.getRouteId(node).getGraphId(), stationName);
         }
         if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {
             return getNameOfNode(node);
         }
         if (node.hasLabel(GraphBuilder.Labels.SERVICE)) {
-            return node.getProperty(GraphStaticKeys.SERVICE_ID).toString();
+            return GraphProps.getServiceId(node).getGraphId();
         }
         if (node.hasLabel(GraphBuilder.Labels.HOUR)) {
-            return node.getProperty(GraphStaticKeys.HOUR).toString();
+            return GraphProps.getHour(node).toString();
         }
         if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
-            String fullTime = node.getProperty(GraphStaticKeys.TIME).toString();
+            String fullTime = GraphProps.getTime(node).toString();
             int index = fullTime.indexOf(":");
             return fullTime.substring(index);
         }
@@ -206,7 +211,7 @@ public class DiagramCreator {
 
     private String getNameOfNode(Node node) {
         // todo look up station name from ID?
-        return node.getProperty(GraphStaticKeys.ID).toString();
+        return GraphProps.getId(node);
     }
 
     private void addLine(DiagramBuild builder, String line) {

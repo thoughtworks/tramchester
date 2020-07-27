@@ -1,5 +1,7 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
@@ -13,7 +15,7 @@ public class ServiceState extends TraversalState {
 
     public static class Builder {
 
-        public TraversalState fromRouteStation(RouteStationStateOnTrip routeStationStateOnTrip, String tripId, Node node, int cost) {
+        public TraversalState fromRouteStation(RouteStationStateOnTrip routeStationStateOnTrip, IdFor<Trip> tripId, Node node, int cost) {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
             return new ServiceState(routeStationStateOnTrip, serviceRelationships, ExistingTrip.onTrip(tripId), cost);
         }

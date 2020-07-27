@@ -194,14 +194,15 @@ public class GraphDatabase implements Startable {
         try ( Transaction tx = databaseService.beginTx() )
         {
             Schema schema = tx.schema();
-            schema.indexFor(GraphBuilder.Labels.TRAM_STATION).on(GraphStaticKeys.ID).create();
-            schema.indexFor(GraphBuilder.Labels.BUS_STATION).on(GraphStaticKeys.ID).create();
-            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphStaticKeys.ID).create();
-            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphStaticKeys.ID).create();
+            String idPropName = GraphPropertyKeys.ID.getText();
+            schema.indexFor(GraphBuilder.Labels.TRAM_STATION).on(idPropName).create();
+            schema.indexFor(GraphBuilder.Labels.BUS_STATION).on(idPropName).create();
+            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(idPropName).create();
+            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(idPropName).create();
 
-            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphStaticKeys.SERVICE_ID).create();
-            schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphStaticKeys.HOUR).create();
-            schema.indexFor(GraphBuilder.Labels.MINUTE).on(GraphStaticKeys.TIME).create();
+            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphPropertyKeys.SERVICE_ID.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphPropertyKeys.HOUR.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.MINUTE).on(GraphPropertyKeys.TIME.getText()).create();
 
             // doesn't help graph build performance....
 //            schema.indexFor(TransportRelationshipTypes.TO_SERVICE).on(GraphStaticKeys.TRIPS).

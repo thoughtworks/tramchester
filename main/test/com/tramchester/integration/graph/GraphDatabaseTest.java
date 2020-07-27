@@ -35,6 +35,7 @@ class GraphDatabaseTest {
     private static final String SRC_2_NAME = "src2";
     private static final String VERSION_1_VALID = "version1";
     private static final String VERSION_2_VALID = "version21";
+    private static final int SHUTDOWN_TIMEOUT_MILLI = 500;
 
     private TramchesterConfig config;
     private DataSourceRepository repository;
@@ -77,7 +78,7 @@ class GraphDatabaseTest {
             if (graphDatabase.isAvailable(1000)) {
                 graphDatabase.stop();
             }
-            while (graphDatabase.isAvailable(1000)) {
+            while (graphDatabase.isAvailable(100)) {
                 // wait for stop, immediate deletion does not work
             }
         }
@@ -103,7 +104,7 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(2000));
+        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(1000));
@@ -128,7 +129,7 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(2000));
+        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(1000));
@@ -153,7 +154,7 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(2000));
+        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(1000));
@@ -180,7 +181,7 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(2000));
+        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(1000));
@@ -203,7 +204,7 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(2000));
+        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(1000));
@@ -228,7 +229,7 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(2000));
+        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(1000));
@@ -257,7 +258,7 @@ class GraphDatabaseTest {
         }
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(2000));
+        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(1000));

@@ -204,6 +204,14 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
+    public Optional<Platform> getPlatformById(IdFor<Platform> platformId) {
+        if (platforms.hasId(platformId)) {
+            return Optional.of(platforms.get(platformId));
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Platform> getPlatformById(String platformText) {
         IdFor<Platform> platformId = IdFor.createId(platformText);
         if (platforms.hasId(platformId)) {

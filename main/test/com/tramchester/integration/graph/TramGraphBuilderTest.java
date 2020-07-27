@@ -9,8 +9,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.GraphStaticKeys;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.RoutesForTesting;
@@ -65,16 +65,15 @@ class TramGraphBuilderTest {
         outbounds.addAll(getOutboundRouteStationRelationships(txn, RouteStation.formId(Stations.MediaCityUK,
                 RoutesForTesting.ASH_TO_ECCLES )));
 
-        Set<String> graphSvcIds = outbounds.stream().
+        Set<IdFor<Service>> graphSvcIds = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
-                map(relationship -> relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString()).
+                map(GraphProps::getServiceId).
                 collect(Collectors.toSet());
 
         // check number of outbound services matches services in transport data files
-        Set<String> fileSvcIds = getTripsFor(transportData.getTrips(), Stations.MediaCityUK).stream().
+        Set<IdFor<Service>> fileSvcIds = getTripsFor(transportData.getTrips(), Stations.MediaCityUK).stream().
 //                filter(trip -> trip.getService().isRunning()).
                 map(trip -> trip.getService().getId()).
-                map(IdFor::getGraphId).
                 collect(Collectors.toSet());
         fileSvcIds.removeAll(graphSvcIds);
 
@@ -145,9 +144,9 @@ class TramGraphBuilderTest {
 
         Assertions.assertTrue(graphOutbounds.size()>0);
 
-        List<String> serviceRelatIds = graphOutbounds.stream().
+        List<IdFor<Service>> serviceRelatIds = graphOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
-                map(relationship -> relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString()).
+                map(GraphProps::getServiceId).
                 collect(Collectors.toList());
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
@@ -158,9 +157,8 @@ class TramGraphBuilderTest {
                 filter(trip -> trip.getStops().callsAt(station)).
                 collect(Collectors.toSet());
 
-        Set<String> fileSvcIdFromTrips = fileCallingTrips.stream().
+        Set<IdFor<Service>> fileSvcIdFromTrips = fileCallingTrips.stream().
                 map(trip -> trip.getService().getId()).
-                map(IdFor::getGraphId).
                 collect(Collectors.toSet());
 
         // NOTE: Check clean target that and graph has been rebuilt if see failure here
@@ -181,10 +179,8 @@ class TramGraphBuilderTest {
                         || relationship.isType(TransportRelationshipTypes.INTERCHANGE_BOARD)).count();
         Assertions.assertEquals(1, boardingCount);
 
-        SortedSet<String> graphInboundSvcIds = new TreeSet<>();
-        graphInboundSvcIds.addAll(graphTramsIntoStation.stream().
-                map(relationship -> relationship.getProperty(GraphStaticKeys.SERVICE_ID).toString()).
-                collect(Collectors.toSet()));
+        SortedSet<IdFor<Service>> graphInboundSvcIds = graphTramsIntoStation.stream().
+                map(GraphProps::getServiceId).distinct().collect(Collectors.toCollection(TreeSet::new));
 
         Set<Trip> callingTrips = transportData.getServices().stream().
                 //filter(svc -> svc.isRunning()).
@@ -195,23 +191,19 @@ class TramGraphBuilderTest {
                 filter(trip -> !trip.getStops().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
                 collect(Collectors.toSet());
 
-        SortedSet<String> svcIdsFromCallingTrips = new TreeSet<>();
-        svcIdsFromCallingTrips.addAll(callingTrips.stream().
-                map(trip -> trip.getService().getId()).
-                map(IdFor::getGraphId).
-                collect(Collectors.toSet()));
+        SortedSet<IdFor<Service>> svcIdsFromCallingTrips = callingTrips.stream().
+                map(trip -> trip.getService().getId()).distinct().collect(Collectors.toCollection(TreeSet::new));
 
         Assertions.assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
 
-        Set<String> graphInboundTripIds = graphTramsIntoStation.stream().
-                map(relationship -> relationship.getProperty(GraphStaticKeys.TRIP_ID).toString()).
+        Set<IdFor<Trip>> graphInboundTripIds = graphTramsIntoStation.stream().
+                map(GraphProps::getTripId).
                 collect(Collectors.toSet());
 
         Assertions.assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
 
-        Set<String> tripIdsFromFile = callingTrips.stream().
+        Set<IdFor<Trip>> tripIdsFromFile = callingTrips.stream().
                 map(Trip::getId).
-                map(IdFor::getGraphId).
                 collect(Collectors.toSet());
 
         tripIdsFromFile.removeAll(graphInboundTripIds);
