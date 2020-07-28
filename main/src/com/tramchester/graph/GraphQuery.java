@@ -17,7 +17,6 @@ import java.util.List;
 
 public class GraphQuery {
 
-    // TODO REFACTOR Methods only used for tests into own class
     private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
     private final GraphDatabase graphDatabase;
@@ -26,42 +25,33 @@ public class GraphQuery {
         this.graphDatabase = graphDatabase;
     }
 
-    public Node getPlatformNode(Transaction txn, IdFor<Platform> id) {
-        return getNodeByLabelAndID(txn, id, GraphBuilder.Labels.PLATFORM);
+    public Node getPlatformNode(Transaction txn, HasId<Platform> id) {
+        return findNode(txn, GraphBuilder.Labels.PLATFORM, id);
     }
 
-    public Node getRouteStationNode(Transaction txn, IdFor<RouteStation> id) {
-        return getNodeByLabelAndID(txn, id, GraphBuilder.Labels.ROUTE_STATION);
+    public Node getRouteStationNode(Transaction txn, HasId<RouteStation> id) {
+        return findNode(txn, GraphBuilder.Labels.ROUTE_STATION, id);
     }
 
     public Node getStationNode(Transaction txn, Station station) {
-        return getStationNode(txn, station.getId(), station.getTransportMode());
+        return findNode(txn, GraphBuilder.Labels.forMode(station.getTransportMode()), station);
     }
 
-    @Deprecated
-    private <T extends HasId<T> & GraphProperty> Node getNodeByLabelAndID(Transaction txn, IdFor<T> id, GraphBuilder.Labels label) {
-        return graphDatabase.findNode(txn, label, GraphPropertyKey.ID.getText(), id.getGraphId());
+    public boolean hasNodeForStation(Transaction txn, Station station) {
+        return getStationNode(txn, station)!=null;
     }
 
-    public List<Relationship> getRouteStationRelationships(Transaction txn, IdFor<RouteStation> routeStationId, Direction direction) {
-        Node routeStationNode = getRouteStationNode(txn, routeStationId);
+    private <C extends GraphProperty>  Node findNode(Transaction txn, GraphBuilder.Labels label, HasId<C> hasId) {
+        return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
+    }
+
+    public List<Relationship> getRouteStationRelationships(Transaction txn, HasId<RouteStation> routeStation, Direction direction) {
+        Node routeStationNode = getRouteStationNode(txn, routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
         List<Relationship> result = new LinkedList<>();
         routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(result::add);
         return result;
-    }
-
-    private Node getStationNode(Transaction txn, IdFor<Station> stationId, TransportMode transportMode) {
-        Node node = getNodeByLabelAndID(txn, stationId, GraphBuilder.Labels.forMode(transportMode));
-        if (node==null) {
-            logger.warn("Did not find node for station: " + stationId + " mode: " + transportMode);
-        }
-        return node;
-    }
-
-    public boolean hasNodeForStation(Transaction txn, Station station) {
-        return getNodeByLabelAndID(txn, station.getId(), GraphBuilder.Labels.forMode(station.getTransportMode()))!=null;
     }
 }

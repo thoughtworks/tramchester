@@ -1,6 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -12,6 +13,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
@@ -31,6 +33,7 @@ class TramGraphBuilderTest {
     private TransportData transportData;
     private Transaction txn;
     private GraphQuery graphQuery;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
@@ -43,6 +46,7 @@ class TramGraphBuilderTest {
     void beforeEachTestRuns() {
         graphQuery = dependencies.get(GraphQuery.class);
         transportData = dependencies.get(TransportData.class);
+        stationRepository = dependencies.get(StationRepository.class);
         GraphDatabase service = dependencies.get(GraphDatabase.class);
         txn = service.beginTx();
     }
@@ -60,10 +64,10 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
-        List<Relationship> outbounds = getOutboundRouteStationRelationships(
-                txn, RouteStation.formId(Stations.MediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
-        outbounds.addAll(getOutboundRouteStationRelationships(txn, RouteStation.formId(Stations.MediaCityUK,
-                RoutesForTesting.ASH_TO_ECCLES )));
+        List<Relationship> outbounds = getOutboundRouteStationRelationships(txn,
+                stationRepository.getRouteStation(Stations.MediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
+        outbounds.addAll(getOutboundRouteStationRelationships(txn,
+                stationRepository.getRouteStation(Stations.MediaCityUK, RoutesForTesting.ASH_TO_ECCLES )));
 
         Set<IdFor<Service>> graphSvcIds = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -72,7 +76,6 @@ class TramGraphBuilderTest {
 
         // check number of outbound services matches services in transport data files
         Set<IdFor<Service>> fileSvcIds = getTripsFor(transportData.getTrips(), Stations.MediaCityUK).stream().
-//                filter(trip -> trip.getService().isRunning()).
                 map(trip -> trip.getService().getId()).
                 collect(Collectors.toSet());
         fileSvcIds.removeAll(graphSvcIds);
@@ -80,7 +83,7 @@ class TramGraphBuilderTest {
         Assertions.assertEquals(0, fileSvcIds.size());
     }
 
-    private List<Relationship> getOutboundRouteStationRelationships(Transaction txn, IdFor<RouteStation> routeStationId) {
+    private List<Relationship> getOutboundRouteStationRelationships(Transaction txn, HasId<RouteStation> routeStationId) {
         return graphQuery.getRouteStationRelationships(txn, routeStationId, Direction.OUTGOING);
     }
 
@@ -88,12 +91,13 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
-        List<Relationship> outbounds = getOutboundRouteStationRelationships(txn, RouteStation.formId(Stations.Cornbrook,
-                RoutesForTesting.ALTY_TO_PICC));
+        List<Relationship> outbounds = getOutboundRouteStationRelationships(txn,
+                stationRepository.getRouteStation(Stations.Cornbrook, RoutesForTesting.ALTY_TO_PICC));
 
         Assertions.assertTrue(outbounds.size()>1, "have at least one outbound");
 
-        outbounds = getOutboundRouteStationRelationships(txn, RouteStation.formId(Stations.Cornbrook, RoutesForTesting.ASH_TO_ECCLES));
+        outbounds = getOutboundRouteStationRelationships(txn,
+                stationRepository.getRouteStation(Stations.Cornbrook, RoutesForTesting.ASH_TO_ECCLES));
 
         Assertions.assertTrue(outbounds.size()>1);
 
@@ -140,7 +144,9 @@ class TramGraphBuilderTest {
     }
 
     private void checkOutboundConsistency(Station station, Route route) {
-        List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(txn, RouteStation.formId(station, route));
+        RouteStation routeStation = stationRepository.getRouteStation(station, route);
+
+        List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(txn, routeStation);
 
         Assertions.assertTrue(graphOutbounds.size()>0);
 
@@ -151,7 +157,6 @@ class TramGraphBuilderTest {
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRoutes().contains(route)).
-                //filter(Service::isRunning).
                 map(Service::getAllTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.getStops().callsAt(station)).
@@ -168,8 +173,8 @@ class TramGraphBuilderTest {
     }
 
     private void checkInboundConsistency(Station station, Route route) {
-        List<Relationship> inbounds = graphQuery.getRouteStationRelationships(txn,
-                RouteStation.formId(station, route), Direction.INCOMING);
+        RouteStation routeStation = stationRepository.getRouteStation(station, route);
+        List<Relationship> inbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
 
         List<Relationship> graphTramsIntoStation = inbounds.stream().
                 filter(inbound -> inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).collect(Collectors.toList());
@@ -183,7 +188,6 @@ class TramGraphBuilderTest {
                 map(GraphProps::getServiceId).distinct().collect(Collectors.toCollection(TreeSet::new));
 
         Set<Trip> callingTrips = transportData.getServices().stream().
-                //filter(svc -> svc.isRunning()).
                 filter(svc -> svc.getRoutes().contains(route)).
                 map(Service::getAllTrips).
                 flatMap(Collection::stream).

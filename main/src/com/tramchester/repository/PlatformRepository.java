@@ -12,6 +12,4 @@ public interface PlatformRepository {
     Platform getPlatform(IdFor<Platform> id);
     Optional<Platform> getPlatformById(IdFor<Platform> id);
 
-    @Deprecated
-    Optional<Platform> getPlatformById(String platformId);
 }

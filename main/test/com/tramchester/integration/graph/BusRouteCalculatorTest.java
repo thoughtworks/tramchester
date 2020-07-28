@@ -4,6 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -12,6 +13,9 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.BusStations;
+import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -41,8 +45,9 @@ class BusRouteCalculatorTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
     private static IntegrationBusTestConfig testConfig;
-
     private RouteCalculator calculator;
+    private StationRepository stationRepository;
+
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
 
@@ -63,6 +68,7 @@ class BusRouteCalculatorTest {
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
+        stationRepository = dependencies.get(StationRepository.class);
     }
 
     @AfterEach
@@ -77,8 +83,9 @@ class BusRouteCalculatorTest {
 
         GraphQuery graphQuery = dependencies.get(GraphQuery.class);
 
-        String routeStationId = "1800AMIC001WBT:5A:I:";
-        Node node = graphQuery.getRouteStationNode(txn, IdFor.createId(routeStationId));
+//        String routeStationId = "1800AMIC001WBT:5A:I:";
+        RouteStation routeStation = stationRepository.getRouteStation(StockportBusStation, RoutesForTesting.ALTY_TO_STOCKPORT_WBT);
+        Node node = graphQuery.getRouteStationNode(txn, routeStation);
         Iterable<Relationship> services = node.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TO_SERVICE);
         Set<Relationship> list = new HashSet<>();
         services.forEach(list::add);

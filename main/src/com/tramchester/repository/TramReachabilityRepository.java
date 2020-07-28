@@ -71,7 +71,7 @@ public class TramReachabilityRepository implements Disposable {
     }
 
     public boolean stationReachable(Station startStation, Route route, Station destinationStation) {
-        RouteStation routeStation =  transportData.getRouteStationById(startStation, route);
+        RouteStation routeStation =  transportData.getRouteStation(startStation, route);
         return stationReachable(routeStation, destinationStation);
     }
 

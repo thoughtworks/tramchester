@@ -194,11 +194,11 @@ public class GraphDatabase implements Startable {
         try ( Transaction tx = databaseService.beginTx() )
         {
             Schema schema = tx.schema();
-            String idPropName = GraphPropertyKey.ID.getText();
-            schema.indexFor(GraphBuilder.Labels.TRAM_STATION).on(idPropName).create();
-            schema.indexFor(GraphBuilder.Labels.BUS_STATION).on(idPropName).create();
-            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(idPropName).create();
-            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(idPropName).create();
+            schema.indexFor(GraphBuilder.Labels.TRAM_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.BUS_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.TRAIN_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.ROUTE_STATION_ID.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
 
             schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphPropertyKey.SERVICE_ID.getText()).create();
             schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphPropertyKey.HOUR.getText()).create();
@@ -215,10 +215,8 @@ public class GraphDatabase implements Startable {
     public void waitForIndexesReady(Transaction tx) {
         tx.schema().awaitIndexesOnline(5, TimeUnit.SECONDS);
 
-        tx.schema().getIndexes().forEach(indexDefinition -> {
-            logger.info(String.format("Index label %s keys %s",
-                    indexDefinition.getLabels(), indexDefinition.getPropertyKeys()));
-        });
+        tx.schema().getIndexes().forEach(indexDefinition -> logger.info(String.format("Index label %s keys %s",
+                indexDefinition.getLabels(), indexDefinition.getPropertyKeys())));
     }
 
     public Node createNode(Transaction tx, GraphBuilder.Labels label) {

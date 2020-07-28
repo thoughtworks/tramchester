@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
@@ -20,5 +19,5 @@ public interface StationRepository {
     Set<RouteStation> getRouteStations();
 
     RouteStation getRouteStationById(IdFor<RouteStation> routeStationId);
-    RouteStation getRouteStationById(Station startStation, Route route);
+    RouteStation getRouteStation(Station startStation, Route route);
 }

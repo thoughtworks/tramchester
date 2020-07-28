@@ -1,5 +1,7 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
 import org.apache.commons.lang3.tuple.Pair;
@@ -78,10 +80,23 @@ public class ReasonsToGraphViz {
             nodes.add(nodeId);
             StringBuilder nodeLabel = new StringBuilder();
             node.getLabels().forEach(label -> nodeLabel.append(label.name()).append(" "));
-            String id = GraphProps.getId(node);
+            String id = getIdsFor(node);
             nodeLabel.append("\n").append(id);
             builder.append(format("\"%s\" [label=\"%s\"] [shape=%s];\n", nodeId, nodeLabel, "hexagon"));
         }
+    }
+
+    private String getIdsFor(Node node) {
+        StringBuilder ids = new StringBuilder();
+        node.getLabels().forEach(label -> {
+            GraphPropertyKey key = GraphPropertyKey.keyForLabel((GraphBuilder.Labels) label);
+            String value = node.getProperty(key.getText()).toString();
+            if (ids.length()>0) {
+                ids.append(System.lineSeparator());
+            }
+            ids.append(value);
+        });
+        return ids.toString();
     }
 
 }

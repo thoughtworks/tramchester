@@ -225,9 +225,10 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldHavePlatform() {
-        Optional<Platform> result = transportData.getPlatformById(Stations.StPetersSquare.forDTO()+"3");
-        assertTrue(result.isPresent());
-        Platform platform = result.get();
+        IdFor<Platform> id = IdFor.createId(Stations.StPetersSquare.forDTO() + "3");
+
+        assertTrue(transportData.hasPlatformId(id));
+        Platform platform = transportData.getPlatform(id);
         assertEquals("St Peter's Square platform 3", platform.getName());
         assertEquals(Stations.StPetersSquare.forDTO()+"3", platform.getId().forDTO());
     }

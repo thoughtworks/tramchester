@@ -13,7 +13,9 @@ import org.neo4j.graphdb.Transaction;
 import java.io.*;
 import java.util.*;
 
-import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
+import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.HOUR;
 import static java.lang.String.format;
 
 
@@ -47,8 +49,7 @@ public class DiagramCreator {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
-                Node startNode = graphDatabaseService.findNode(tx, GraphBuilder.Labels.TRAM_STATION,
-                        GraphPropertyKey.ID.getText(), startPoint);
+                Node startNode = graphDatabaseService.findNode(tx, TRAM_STATION, STATION_ID.getText(), startPoint);
                 visit(startNode, builder, 0, nodeSeen, relationshipSeen);
             });
 
@@ -166,13 +167,13 @@ public class DiagramCreator {
         if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
             return "oval";
         }
-        if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {
+        if (node.hasLabel(TRAM_STATION)) {
             return "house";
         }
         if (node.hasLabel(GraphBuilder.Labels.SERVICE)) {
             return "octagon";
         }
-        if (node.hasLabel(GraphBuilder.Labels.HOUR)) {
+        if (node.hasLabel(HOUR)) {
             return "box";
         }
         if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
@@ -183,24 +184,24 @@ public class DiagramCreator {
     }
 
     private String getLabelFor(Node node) {
-        if (node.hasLabel(GraphBuilder.Labels.PLATFORM)) {
-            return getNameOfNode(node);
+        if (node.hasLabel(PLATFORM)) {
+            return node.getProperty(PLATFORM_ID.getText()).toString();
         }
-        if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
+        if (node.hasLabel(ROUTE_STATION)) {
             // TODO Look up station name from the ID?
             String stationName = GraphProps.getStationId(node).getGraphId();
             return format("%s\n%s", GraphProps.getRouteId(node).getGraphId(), stationName);
         }
-        if (node.hasLabel(GraphBuilder.Labels.TRAM_STATION)) {
-            return getNameOfNode(node);
+        if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
+            return node.getProperty(STATION_ID.getText()).toString();
         }
-        if (node.hasLabel(GraphBuilder.Labels.SERVICE)) {
+        if (node.hasLabel(SERVICE)) {
             return GraphProps.getServiceId(node).getGraphId();
         }
-        if (node.hasLabel(GraphBuilder.Labels.HOUR)) {
+        if (node.hasLabel(HOUR)) {
             return GraphProps.getHour(node).toString();
         }
-        if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
+        if (node.hasLabel(MINUTE)) {
             String fullTime = GraphProps.getTime(node).toString();
             int index = fullTime.indexOf(":");
             return fullTime.substring(index);
@@ -209,10 +210,6 @@ public class DiagramCreator {
         return "No_Label";
     }
 
-    private String getNameOfNode(Node node) {
-        // todo look up station name from ID?
-        return GraphProps.getId(node);
-    }
 
     private void addLine(DiagramBuild builder, String line) {
         builder.append(line);

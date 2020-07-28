@@ -4,6 +4,7 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 
 import static java.lang.String.format;
@@ -37,6 +38,8 @@ public class RoutesForTesting {
     // BUS
     public static final Route ALTY_TO_STOCKPORT = new Route("GMS: 11A:I:", "11A", "Alty to Stockport",
         new Agency("GMS", "agencyName"), TransportMode.Bus);
+    public static final Route ALTY_TO_STOCKPORT_WBT = new Route("WBT:5A:I:", "5A", "Alty to Stockport",
+            new Agency("WBT", "Warrington's Own Buses"), TransportMode.Bus);
 
     @NotNull
     private static Route createTramRoute(String shortName, String direction, String longName) {

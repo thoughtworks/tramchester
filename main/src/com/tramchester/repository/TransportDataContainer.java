@@ -88,7 +88,7 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public RouteStation getRouteStationById(Station station, Route route) {
+    public RouteStation getRouteStation(Station station, Route route) {
         return getRouteStationById(IdFor.createId(station, route));
     }
 
@@ -160,7 +160,6 @@ public class TransportDataContainer implements TransportData, Disposable {
     @Deprecated
     public void addRouteToAgency(Agency agency, Route route) {
         agency.addRoute(route);
-//        agencies.get(agency).addRoute(route);
     }
 
     public void addStation(Station station) {
@@ -205,15 +204,6 @@ public class TransportDataContainer implements TransportData, Disposable {
 
     @Override
     public Optional<Platform> getPlatformById(IdFor<Platform> platformId) {
-        if (platforms.hasId(platformId)) {
-            return Optional.of(platforms.get(platformId));
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Platform> getPlatformById(String platformText) {
-        IdFor<Platform> platformId = IdFor.createId(platformText);
         if (platforms.hasId(platformId)) {
             return Optional.of(platforms.get(platformId));
         }

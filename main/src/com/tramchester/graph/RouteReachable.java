@@ -3,10 +3,12 @@ package com.tramchester.graph;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.StationRepository;
 import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
@@ -24,14 +26,16 @@ public class RouteReachable {
 
     private final GraphDatabase graphDatabaseService;
     private final InterchangeRepository interchangeRepository;
+    private final StationRepository stationRepository;
     private final boolean warnForMissing;
     private final GraphQuery graphQuery;
 
     public RouteReachable(GraphDatabase graphDatabaseService,
-                          InterchangeRepository interchangeRepository, GraphFilter filter,
+                          InterchangeRepository interchangeRepository, StationRepository stationRepository, GraphFilter filter,
                           GraphQuery graphQuery) {
         this.graphDatabaseService = graphDatabaseService;
         this.interchangeRepository = interchangeRepository;
+        this.stationRepository = stationRepository;
         this.warnForMissing = !filter.isFiltered();
         this.graphQuery = graphQuery;
     }
@@ -49,10 +53,10 @@ public class RouteReachable {
 
         try (Transaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
-                Node routeStation = graphQuery.getRouteStationNode(txn, IdFor.createId(startStation, route));
-                Iterable<Relationship> edges = routeStation.getRelationships(Direction.OUTGOING, ON_ROUTE);
+                RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
+                Node routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
+                Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
                 for (Relationship edge : edges) {
-//                    if (endStationId.equals(edge.getEndNode().getProperty(STATION_ID).toString())) {
                     if (endStationId.matchesStationNodePropery(edge.getEndNode())) {
                         results.add(route);
                     }

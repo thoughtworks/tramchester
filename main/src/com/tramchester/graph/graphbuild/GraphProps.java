@@ -24,10 +24,6 @@ public class GraphProps {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
-    public static void setPlatformProp(Entity entity, IdFor<Platform> id) {
-        entity.setProperty(PLATFORM_ID.getText(), id.getGraphId());
-    }
-
     public static IdFor<Station> getStationId(Entity entity) {
         return IdFor.getStationIdFrom(entity);
     }
@@ -80,24 +76,6 @@ public class GraphProps {
         return IdFor.getServiceIdFrom(entity);
     }
 
-    @Deprecated
-    public static void setIdProp(Node node, String value) {
-        node.setProperty(ID.getText(), value);
-    }
-
-    static void setIdPropForPlatform(Node node, IdFor<Platform> id) {
-        node.setProperty(ID.getText(), id.getGraphId());
-    }
-
-    static void setIdPropForStation(Node node, IdFor<Station> id) {
-        node.setProperty(ID.getText(), id.getGraphId());
-    }
-
-    @Deprecated
-    public static String getId(Node node) {
-        return getProperty(node, GraphPropertyKey.ID).toString();
-    }
-
     static void setHourProp(Entity entity, Integer value) {
         entity.setProperty(HOUR.getText(), value);
     }
@@ -124,4 +102,5 @@ public class GraphProps {
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
         entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString()+"_"+uid.toString());
     }
+
 }
