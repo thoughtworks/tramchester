@@ -19,7 +19,6 @@ public interface TransportStage {
     TramTime getExpectedArrivalTime();
 
     int getDuration();
-    String getDisplayClass();
 
     Optional<Platform> getBoardingPlatform();
 

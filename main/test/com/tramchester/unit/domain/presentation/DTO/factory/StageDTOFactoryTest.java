@@ -42,7 +42,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
         VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, testRoute,
-                TransportMode.Tram, "Displayclass", trip, TramTime.of(0, 0), Stations.Bury, 23);
+                TransportMode.Tram, trip, TramTime.of(0, 0), Stations.Bury, 23);
         vehicleStage.setCost(5);
 
         Platform platform = new Platform("platFormId", "platformName");
@@ -65,7 +65,6 @@ class StageDTOFactoryTest extends EasyMockSupport {
         Assertions.assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
         Assertions.assertEquals(stage.getHeadSign(), dto.getHeadSign());
         Assertions.assertEquals(stage.getRouteName(), dto.getRouteName());
-        Assertions.assertEquals(stage.getDisplayClass(), dto.getDisplayClass());
         Assertions.assertEquals(stage.getPassedStops(), dto.getPassedStops());
         Assertions.assertEquals(action.toString(), dto.getAction());
         Assertions.assertEquals(hasPlatform, dto.getHasPlatform());

@@ -34,13 +34,15 @@
     /* TBD */
 }
 
-.RouteWalking  {
+.RouteClassWalk  {
     visibility: hidden;
 }
 
 .JourneyNotes {
     list-style-type:circle;
 }
+
+/* NOTE: Dont set line width here as leaflet will silently fail to update it */
 
 /* Altincham to/from Bury */
 .RouteClass1  {
@@ -96,14 +98,12 @@
     background-color: darkred;
     stroke: darkred;
     color: white;
-    stroke-width: 1;
 }
 
 .RouteClassTrain  {
     background-color: darkblue;
     stroke: darkblue;
     color: white;
-    stroke-width: 2;
 }
 
 .walkingHeadSign {

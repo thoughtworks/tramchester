@@ -17,12 +17,13 @@ public class LocationDTO {
     private String name;
     private LatLong latLong;
     private List<PlatformDTO> platforms;
+
+    private List<RouteRefDTO> routes;
     private TransportMode transportMode;
 
     public LocationDTO() {
         // deserialisation
     }
-
 
     public LocationDTO(PostcodeLocation source) {
         this.id = source.getId().forDTO();
@@ -31,6 +32,7 @@ public class LocationDTO {
         this.transportMode = source.getTransportMode();
         this.area = source.getArea();
         platforms = Collections.emptyList();
+        routes = Collections.emptyList();
     }
 
     public LocationDTO(Station source) {
@@ -44,20 +46,9 @@ public class LocationDTO {
             List<Platform> sourcePlatforms = source.getPlatforms();
             sourcePlatforms.forEach(platform -> platforms.add(new PlatformDTO(platform)));
         }
+        routes = new LinkedList<>();
+        source.getRoutes().forEach(route -> routes.add(new RouteRefDTO(route)));
     }
-
-//    private LocationDTO(Location source) {
-//        this.id = source.getId().forDTO();
-//        this.name = source.getName();
-//        this.latLong = source.getLatLong();
-//        this.transportMode = source.getTransportMode();
-//        this.area = source.getArea();
-//        platforms = new LinkedList<>();
-//        if (source.hasPlatforms()) {
-//            List<Platform> sourcePlatforms = source.getPlatforms();
-//            sourcePlatforms.forEach(platform -> platforms.add(new PlatformDTO(platform)));
-//        }
-//    }
 
     public String getId() {
         return id;
@@ -85,6 +76,19 @@ public class LocationDTO {
         return !platforms.isEmpty();
     }
 
+    public List<RouteRefDTO> getRoutes() {
+        return routes;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public List<PlatformDTO> getPlatforms() {
+        return platforms;
+    }
+
+    public TransportMode getTransportMode() {
+        return transportMode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,10 +104,6 @@ public class LocationDTO {
         return id.hashCode();
     }
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    public List<PlatformDTO> getPlatforms() {
-        return platforms;
-    }
 
     @Override
     public String toString() {
@@ -113,11 +113,10 @@ public class LocationDTO {
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
                 ", platforms=" + platforms +
+                ", routes=" + routes +
                 ", transportMode=" + transportMode +
                 '}';
     }
 
-    public TransportMode getTransportMode() {
-        return transportMode;
-    }
+
 }

@@ -206,7 +206,7 @@ function addPostcodes(postcodes) {
     arriveBy: false,
     time: getCurrentTime(),
     date: getCurrentDate(),
-    maxChanges: 8,                  // todo from server side
+    maxChanges: 3,                  // todo from server side
     journeys: null,
     liveDepartureResponse: null,
     feedinfo: [],

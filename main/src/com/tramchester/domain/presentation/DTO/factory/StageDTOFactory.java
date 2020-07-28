@@ -1,6 +1,5 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
-import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
@@ -22,7 +21,7 @@ public class StageDTOFactory {
                 source.getBoardingPlatform().map(PlatformDTO::new).orElse(null),
                 source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
                 source.getDuration(), source.getHeadSign(),
-                source.getMode(), source.getDisplayClass(),
+                source.getMode(),
                 source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
     }
 

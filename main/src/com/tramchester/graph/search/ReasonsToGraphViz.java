@@ -89,7 +89,8 @@ public class ReasonsToGraphViz {
     private String getIdsFor(Node node) {
         StringBuilder ids = new StringBuilder();
         node.getLabels().forEach(label -> {
-            GraphPropertyKey key = GraphPropertyKey.keyForLabel((GraphBuilder.Labels) label);
+            GraphBuilder.Labels graphLabel = GraphBuilder.Labels.valueOf(label.name());
+            GraphPropertyKey key = GraphPropertyKey.keyForLabel(graphLabel);
             String value = node.getProperty(key.getText()).toString();
             if (ids.length()>0) {
                 ids.append(System.lineSeparator());

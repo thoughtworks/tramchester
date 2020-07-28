@@ -126,10 +126,10 @@ public class TestEnv {
     }
 
     public static Route getTestRoute() {
-        return getTestRoute("RouteId");
+        return getTestRoute(IdFor.createId("RouteId"));
     }
 
-    public static Route getTestRoute(String routeId) {
+    public static Route getTestRoute(IdFor<Route> routeId) {
         return new Route(routeId, "routeCode", "routeName", MetAgency(), TransportMode.Tram);
     }
 

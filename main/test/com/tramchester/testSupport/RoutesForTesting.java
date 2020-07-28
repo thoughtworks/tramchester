@@ -2,6 +2,7 @@ package com.tramchester.testSupport;
 
 
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import org.checkerframework.checker.units.qual.A;
@@ -36,14 +37,15 @@ public class RoutesForTesting {
     public static final Route INTU_TO_CORN = createTramRoute("7", "I", "intu Trafford Centre - Cornbrook");
 
     // BUS
-    public static final Route ALTY_TO_STOCKPORT = new Route("GMS: 11A:I:", "11A", "Alty to Stockport",
+    public static final Route ALTY_TO_STOCKPORT = new Route(IdFor.createId("GMS: 11A:I:"), "11A", "Alty to Stockport",
         new Agency("GMS", "agencyName"), TransportMode.Bus);
-    public static final Route ALTY_TO_STOCKPORT_WBT = new Route("WBT:5A:I:", "5A", "Alty to Stockport",
+    public static final Route ALTY_TO_STOCKPORT_WBT = new Route(IdFor.createId("WBT:5A:I:"), "5A", "Alty to Stockport",
             new Agency("WBT", "Warrington's Own Buses"), TransportMode.Bus);
 
     @NotNull
     private static Route createTramRoute(String shortName, String direction, String longName) {
-        return new Route(format("MET:   %s:%s:", shortName, direction), shortName, longName,
+        String idText = format("MET:   %s:%s:", shortName, direction);
+        return new Route(IdFor.createId(idText), shortName, longName,
                 TestEnv.MetAgency(), TransportMode.Tram);
     }
 

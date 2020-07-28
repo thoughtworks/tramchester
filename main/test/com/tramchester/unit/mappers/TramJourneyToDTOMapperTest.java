@@ -234,7 +234,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
 
         Trip validTrip = transportData.getTripById(IdFor.createId(TRIP_A_ID));
 
-        VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, "cssClass", validTrip,
+        VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,
                 startTime.plusMinutes(1), finish, passedStops);
 
         vehicleStage.setCost(cost);

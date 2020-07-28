@@ -23,15 +23,17 @@ public class StageDTO {
     private String headSign;
 
     private TransportMode mode;
-    private String displayClass;
+//    private String displayClass;
     private int passedStops;
+    private String action;
+
+    // TODO Into RouteRefDTO
     private String routeName;
     private String routeShortName;
-    private String action;
 
     public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation, boolean hasPlatform,
                     PlatformDTO boardingPlatform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
-                    String headSign, TransportMode mode, String displayClass, int passedStops,
+                    String headSign, TransportMode mode, int passedStops,
                     String routeName, TravelAction action, String routeShortName) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
@@ -43,7 +45,7 @@ public class StageDTO {
         this.duration = duration;
         this.headSign = headSign;
         this.mode = mode;
-        this.displayClass = displayClass;
+//        this.displayClass = displayClass;
         this.passedStops = passedStops;
         this.routeName = routeName;
         this.action = action.toString();
@@ -90,9 +92,9 @@ public class StageDTO {
         return mode;
     }
 
-    public String getDisplayClass() {
-        return displayClass;
-    }
+//    public String getDisplayClass() {
+//        return displayClass;
+//    }
 
     public PlatformDTO getPlatform() {
         return platform;
@@ -128,7 +130,6 @@ public class StageDTO {
                 ", duration=" + duration +
                 ", headSign='" + headSign + '\'' +
                 ", mode=" + mode +
-                ", displayClass='" + displayClass + '\'' +
                 ", passedStops=" + passedStops +
                 ", routeName='" + routeName + '\'' +
                 ", routeShortName='" + routeShortName + '\'' +

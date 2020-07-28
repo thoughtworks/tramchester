@@ -109,14 +109,14 @@ class ServiceTest {
 
     @Test
     void shouldSetRouteIdAndServiceId() {
-        Route route66 = TestEnv.getTestRoute("ROUTE66");
+        Route route66 = TestEnv.getTestRoute(IdFor.createId("ROUTE66"));
         Service service = new Service("SRV001", route66);
 
         assertThat(service.getRoutes().size()).isEqualTo(1);
         assertTrue(service.getRoutes().contains(route66));
         assertThat(service.getId()).isEqualTo(IdFor.createId("SRV001"));
 
-        Route another = TestEnv.getTestRoute("another");
+        Route another = TestEnv.getTestRoute(IdFor.createId("another"));
         service.addRoute(another);
 
         assertThat(service.getRoutes()).hasSize(2);
@@ -124,7 +124,7 @@ class ServiceTest {
 
     @Test
     void shouldNoticeNoDatesSet() {
-        Service service = new Service("svcXXX", TestEnv.getTestRoute("ROUTE66"));
+        Service service = new Service("svcXXX", TestEnv.getTestRoute(IdFor.createId("ROUTE66")));
         assertTrue(service.HasMissingDates());
 
         service.setServiceDateRange(LocalDate.MIN, LocalDate.MAX);
@@ -143,7 +143,7 @@ class ServiceTest {
 
     @Test
     void shouldReportNoDatesSetIncludingExceptions() {
-        Service service = new Service("svcXXX", TestEnv.getTestRoute("ROUTE66"));
+        Service service = new Service("svcXXX", TestEnv.getTestRoute(IdFor.createId("ROUTE66")));
 
         service.setDays(true, false, false, false, false, false, false);
 

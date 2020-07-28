@@ -13,7 +13,6 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.resources.RouteCodeToClassMapper;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -31,14 +30,12 @@ import static java.lang.String.format;
 public class MapPathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 
-    private final RouteCodeToClassMapper routeIdToClass;
     private final TransportData transportData;
     private final MyLocationFactory myLocationFactory;
     private final PlatformRepository platformRepository;
 
-    public MapPathToStages(RouteCodeToClassMapper routeIdToClass, TransportData transportData,
+    public MapPathToStages(TransportData transportData,
                            MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
-        this.routeIdToClass = routeIdToClass;
         this.transportData = transportData;
         this.myLocationFactory = myLocationFactory;
         this.platformRepository = platformRepository;
@@ -228,7 +225,7 @@ public class MapPathToStages {
 
             int passedStops = stopsSeen - 1;
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
-                    route.getTransportMode(), routeIdToClass.map(route), trip, boardingTime,
+                    route.getTransportMode(), trip, boardingTime,
                     departStation, passedStops);
 
             if (stopsSeen == 0) {

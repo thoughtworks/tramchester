@@ -67,11 +67,6 @@ public class ConnectingStage implements TransportStage  {
     }
 
     @Override
-    public String getDisplayClass() {
-        return "RouteConnection";
-    }
-
-    @Override
     public Optional<Platform> getBoardingPlatform() {
         return Optional.empty();
     }

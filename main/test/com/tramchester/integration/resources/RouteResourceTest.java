@@ -37,8 +37,7 @@ class RouteResourceTest {
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        RouteDTO query = new RouteDTO("Ashton-under-Lyne - Manchester - Eccles",
-                "shortName", new LinkedList<>(), "displayClass", TransportMode.Tram);
+        RouteDTO query = new RouteDTO(RoutesForTesting.ASH_TO_ECCLES, new LinkedList<>());
         int index = routes.indexOf(query);
         assertTrue(index>0);
 
@@ -56,8 +55,7 @@ class RouteResourceTest {
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
-        RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName", new LinkedList<>(), "displayClass",
-                TransportMode.Tram);
+        RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC, new LinkedList<>());
         int index = routes.indexOf(query);
         assertTrue(index>0);
 

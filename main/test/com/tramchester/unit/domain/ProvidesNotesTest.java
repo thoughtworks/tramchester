@@ -292,7 +292,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramTime departTime = TramTime.of(11,22);
         Service service = new Service("serviceId", TestEnv.getTestRoute());
         Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
-        VehicleStage vehicleStage = new VehicleStage(Stations.Ashton, TestEnv.getTestRoute(), TransportMode.Tram, "displayClass",
+        VehicleStage vehicleStage = new VehicleStage(Stations.Ashton, TestEnv.getTestRoute(), TransportMode.Tram,
                 trip, departTime, Stations.PiccadillyGardens, 12);
         Platform platform = new Platform(platformId, "platformName");
         vehicleStage.setPlatform(platform);

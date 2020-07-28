@@ -1,11 +1,10 @@
 package com.tramchester.integration.mappers;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.StationDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.testSupport.RoutesForTesting;
@@ -40,8 +39,8 @@ class RouteMapperTest {
         RoutesMapper mapper = dependencies.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
-        RouteDTO query = new RouteDTO(RoutesForTesting.AIR_TO_VIC.getName(), "shortName",
-                new LinkedList<>(), "displayClass", TransportMode.Tram);
+        Route route = RoutesForTesting.AIR_TO_VIC;
+        RouteDTO query = new RouteDTO(route, new LinkedList<>());
 
         int index = dtos.indexOf(query);
 

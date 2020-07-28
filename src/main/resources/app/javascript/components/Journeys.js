@@ -70,7 +70,11 @@ function lineFormatter(value, key, row) {
 }
 
 function lineClass(value, key, item) {
-    return item.displayClass;
+    const prefix = 'RouteClass'
+    if (item.mode=='Tram') {
+        return prefix + item.routeShortName;
+    }
+    return prefix + item.mode;
 }
 
 function earliestDepartTime(journeys) {

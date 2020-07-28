@@ -63,11 +63,6 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
-    public String getDisplayClass() {
-        return "RouteWalking";
-    }
-
-    @Override
     public Location getActionStation() {
         if (towardsMyLocation) {
             return start;

@@ -8,7 +8,7 @@ import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.StationDTO;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithGroupDTO;
 import com.tramchester.domain.presentation.LatLong;
@@ -67,13 +67,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/{id}")
-    @ApiOperation(value = "Get station by id", response = StationDTO.class)
+    @ApiOperation(value = "Get station by id", response = LocationDTO.class)
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response get(@PathParam("id") String text) {
         logger.info("Get station " + text);
         IdFor<Station> id = IdFor.createId(text);
         if (stationRepository.hasStationId(id)) {
-            return Response.ok(new StationDTO(stationRepository.getStationById(id))).build();
+            return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();
         }
         else {
             return Response.status(Response.Status.NOT_FOUND).build();

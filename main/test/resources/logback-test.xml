@@ -30,7 +30,6 @@
 
             <maxHistory>5</maxHistory>
             <totalSizeCap>50MB</totalSizeCap>
-
         </rollingPolicy>
 
         <encoder>

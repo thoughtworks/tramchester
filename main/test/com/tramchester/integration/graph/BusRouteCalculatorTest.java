@@ -84,13 +84,12 @@ class BusRouteCalculatorTest {
         GraphQuery graphQuery = dependencies.get(GraphQuery.class);
 
 //        String routeStationId = "1800AMIC001WBT:5A:I:";
-        RouteStation routeStation = stationRepository.getRouteStation(StockportBusStation, RoutesForTesting.ALTY_TO_STOCKPORT_WBT);
-        Node node = graphQuery.getRouteStationNode(txn, routeStation);
-        Iterable<Relationship> services = node.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TO_SERVICE);
-        Set<Relationship> list = new HashSet<>();
-        services.forEach(list::add);
-
-        assertEquals(4, list.size());
+//        RouteStation routeStation = stationRepository.getRouteStation(StockportBusStation, RoutesForTesting.ALTY_TO_STOCKPORT_WBT);
+//        Node node = graphQuery.getRouteStationNode(txn, routeStation);
+//        Iterable<Relationship> services = node.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TO_SERVICE);
+//        Set<Relationship> list = new HashSet<>();
+//        services.forEach(list::add);
+//        assertEquals(4, list.size());
 
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, StockportBusStation,
                 AltrinchamInterchange, travelTime, nextMonday, 2, testConfig.getMaxJourneyDuration());

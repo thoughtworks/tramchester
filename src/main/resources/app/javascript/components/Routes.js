@@ -1,16 +1,21 @@
 
 export default { 
+    classForRoute: function(route) {
+        const prefix = 'RouteClass';
+        if (route.transportMode=='Tram') {
+            return prefix + route.shortName;
+        }
+        return prefix + route.transportMode;
+    },
+
     addStations: function(map, routes) {
         routes.forEach(route => {
-            if (route.transportMode!='Bus') 
-            {
-                this.addStationsForRoute(map, route);
-            }
+            this.addStationsForRoute(map, route);
         })
     },
     
     addStationsForRoute: function(map, route) {
-        var stationLayerGroup = L.featureGroup();
+        var stationLayerGroup = L.layerGroup();
     
         route.stations.forEach(station => {
             var lat = station.latLong.lat;
@@ -22,20 +27,50 @@ export default {
     
         stationLayerGroup.addTo(map);
     },
+
+    highlightRoute: function(event) {
+        var layer = event.target;
+
+        /////////NOTE:
+        // Cannot change className within event handler 
+        // https://github.com/Leaflet/Leaflet/issues/2662
+
+        layer.setStyle({
+            weight: 10
+        });
+
+        layer.bringToFront();
+    },
+
+    unhighlightRoute: function(event) {
+        var layer = event.target;
+
+        layer.setStyle({
+            weight: 6
+        });
+
+        layer.bringToBack();
+    },
     
     addRoutes: function(map, routes) {
-        var routeLayerGroup = L.featureGroup();
+        var routeLayerGroup = L.layerGroup();
     
         routes.forEach(route => {
             var steps = [];
             route.stations.forEach(station => {
                 steps.push([station.latLong.lat, station.latLong.lon]);
             })
-            var line = L.polyline(steps, {className: route.displayClass});
+            var line = L.polyline(steps); 
             line.bindTooltip(route.routeName + " (" + route.transportMode+")");
+            line.setStyle({className: this.classForRoute(route), weight: 6});
+            line.on({
+                mouseover: this.highlightRoute,
+                mouseout: this.unhighlightRoute
+            });
             routeLayerGroup.addLayer(line);
         })
     
+        // faster to add this way for larger numbers of lines/points
         routeLayerGroup.addTo(map);
     }, 
 

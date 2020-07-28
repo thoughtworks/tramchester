@@ -209,7 +209,6 @@ class GraphWithSimpleRouteTest {
         Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
         Assertions.assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
         Assertions.assertEquals(passedStops,  vehicleStage.getPassedStops());
-        Assertions.assertEquals(displayClass, vehicleStage.getDisplayClass());
         Assertions.assertTrue(vehicleStage.getBoardingPlatform().isPresent());
 
         TramTime departTime = vehicleStage.getFirstDepartureTime();

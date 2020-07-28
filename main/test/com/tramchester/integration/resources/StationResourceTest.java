@@ -43,7 +43,7 @@ class StationResourceTest {
         String endPoint = "stations/" + id;
         Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
         Assertions.assertEquals(200,response.getStatus());
-        StationDTO result = response.readEntity(StationDTO.class);
+        LocationDTO result = response.readEntity(LocationDTO.class);
 
         Assertions.assertEquals(id, result.getId());
 
@@ -53,6 +53,9 @@ class StationResourceTest {
         Assertions.assertEquals(id+"2", platforms.get(1).getId());
         Assertions.assertEquals(id+"3", platforms.get(2).getId());
         Assertions.assertEquals(id+"4", platforms.get(3).getId());
+
+        List<RouteRefDTO> routes = result.getRoutes();
+        assertEquals(8, routes.size()); // 2 x 4
     }
 
     @Test
@@ -71,13 +74,6 @@ class StationResourceTest {
         Assertions.assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
         StationRefWithGroupDTO stationDTO = stations.get(ALL_STOPS_START + 1);
         Assertions.assertEquals("Altrincham", stationDTO.getName());
-
-//        List<PlatformDTO> platforms = stationDTO.getPlatforms();
-//        Assertions.assertEquals(1, platforms.size());
-//        PlatformDTO platformDTO = platforms.get(0);
-//        Assertions.assertEquals("1", platformDTO.getPlatformNumber());
-//        Assertions.assertEquals("Altrincham platform 1", platformDTO.getName());
-//        Assertions.assertEquals(Stations.Altrincham.getId()+"1", platformDTO.getId());
 
         List<ProximityGroup> proximityGroups = stationListDTO.getProximityGroups();
         checkProximityGroupsForTrams(proximityGroups);
@@ -99,10 +95,6 @@ class StationResourceTest {
         StationRefWithGroupDTO station = stations.get(0);
         Assertions.assertEquals(ProximityGroups.MY_LOCATION, station.getProximityGroup());
         Assertions.assertEquals("MyLocationPlaceholderId", station.getId());
-
-//        String expectedArea = String.format("{\"lat\":%s,\"lon\":%s}",
-//                TestEnv.nearPiccGardens.getLat(), TestEnv.nearPiccGardens.getLon());
-        //Assertions.assertEquals(expectedArea, station.getArea());
 
         Assertions.assertEquals("My Location", station.getName());
         // the nearest stops show come next

@@ -13,7 +13,6 @@ public class VehicleStage implements TransportStage {
     private final Location lastStation;
 
     protected final TransportMode mode;
-    private final String displayClass;
     private final Trip trip;
     private final int passedStops;
     private final TramTime departTime;
@@ -22,12 +21,11 @@ public class VehicleStage implements TransportStage {
     protected int cost;
     private Optional<Platform> platform;
 
-    public VehicleStage(Location firstStation, Route route, TransportMode mode, String displayClass, Trip trip,
+    public VehicleStage(Location firstStation, Route route, TransportMode mode, Trip trip,
                         TramTime departTime, Location lastStation, int passedStops) {
         this.firstStation = firstStation;
         this.route = route;
         this.mode = mode;
-        this.displayClass = displayClass;
         this.platform = Optional.empty();
         this.trip = trip;
         this.departTime = departTime;
@@ -67,10 +65,6 @@ public class VehicleStage implements TransportStage {
     @Override
     public TransportMode getMode() {
         return mode;
-    }
-
-    public String getDisplayClass() {
-        return displayClass;
     }
 
     public VehicleStage setCost(int cost) {
@@ -136,7 +130,6 @@ public class VehicleStage implements TransportStage {
                 ", lastStation=" + lastStation.getName() +
                 ", mode=" + mode +
                 ", routeId='" + route.getId() + '\'' +
-                ", displayClass='" + displayClass + '\'' +
                 ", tripId=" + trip.getId() +
                 ", passedStops=" + passedStops +
                 ", departTime=" + departTime +

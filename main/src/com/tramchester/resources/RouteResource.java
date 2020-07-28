@@ -35,9 +35,15 @@ public class RouteResource implements APIResource {
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response getAll() {
         logger.info("getAll routes");
-        List<RouteDTO> routes = repository.getAllRoutes();
+        try {
+            List<RouteDTO> routes = repository.getAllRoutes();
 
-        return Response.ok(routes).build();
+            return Response.ok(routes).build();
+        }
+        catch (Exception exception) {
+            logger.error("Exception while getting all routes", exception);
+            return Response.serverError().build();
+        }
     }
 
 }
