@@ -4,13 +4,16 @@ import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.RoutesForTesting;
+import com.tramchester.testSupport.Stations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -20,14 +23,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.BusStations.*;
+import static com.tramchester.testSupport.RoutesForTesting.ALTY_TO_PICC;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class BusRouteReachableTest {
+class BusRouteCostCalculatorTest {
     private static Dependencies dependencies;
 
-    private RouteReachable reachable;
     private Transaction txn;
-    private TransportData transportData;
+    private RouteCostCalculator routeCost;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() throws IOException {
@@ -43,9 +47,8 @@ class BusRouteReachableTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        reachable = dependencies.get(RouteReachable.class);
+        routeCost = dependencies.get(RouteCostCalculator.class);
         GraphDatabase database = dependencies.get(GraphDatabase.class);
-        transportData = dependencies.get(TransportData.class);
         txn = database.beginTx();
     }
 
@@ -57,30 +60,14 @@ class BusRouteReachableTest {
     @BusTest
     @Test
     void shouldFindCostsCorrectlyForBusJourneys() {
-        Assertions.assertEquals(40, reachable.getApproxCostBetween(txn, AltrinchamInterchange, StockportBusStation));
-        Assertions.assertEquals(40, reachable.getApproxCostBetween(txn, StockportBusStation, AltrinchamInterchange));
-        Assertions.assertEquals(55, reachable.getApproxCostBetween(txn, ShudehillInterchange, AltrinchamInterchange));
-        Assertions.assertEquals(54, reachable.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
-        Assertions.assertEquals(41, reachable.getApproxCostBetween(txn, ShudehillInterchange, StockportBusStation));
-        Assertions.assertEquals(42, reachable.getApproxCostBetween(txn, StockportBusStation, ShudehillInterchange));
-    }
+        Assertions.assertEquals(40, routeCost.getApproxCostBetween(txn, AltrinchamInterchange, StockportBusStation));
+        Assertions.assertEquals(40, routeCost.getApproxCostBetween(txn, StockportBusStation, AltrinchamInterchange));
 
-    @BusTest
-    @Test
-    void shouldHaveRoutesBetweenBusStations() {
-        Assertions.assertTrue(reachable.getRouteReachableWithInterchange(RoutesForTesting.ALTY_TO_STOCKPORT, AltrinchamInterchange,
-                StockportBusStation));
-        Assertions.assertTrue(reachable.getRouteReachableWithInterchange(RoutesForTesting.ALTY_TO_STOCKPORT, AltrinchamInterchange,
-                ShudehillInterchange));
-    }
+        Assertions.assertEquals(55, routeCost.getApproxCostBetween(txn, ShudehillInterchange, AltrinchamInterchange));
+        Assertions.assertEquals(54, routeCost.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
 
-    @BusTest
-    @Test
-    void shouldListRoutesBetweenBusStations() {
-        Map<IdFor<Station>, IdFor<Route>> stepsSeen = reachable.getShortestRoutesBetween(AltrinchamInterchange, StockportBusStation);
-
-        Assertions.assertEquals(4, stepsSeen.size());
-
+        Assertions.assertEquals(41, routeCost.getApproxCostBetween(txn, ShudehillInterchange, StockportBusStation));
+        Assertions.assertEquals(42, routeCost.getApproxCostBetween(txn, StockportBusStation, ShudehillInterchange));
     }
 
 }

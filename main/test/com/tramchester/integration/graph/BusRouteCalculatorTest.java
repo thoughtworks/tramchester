@@ -46,7 +46,6 @@ class BusRouteCalculatorTest {
     private static GraphDatabase database;
     private static IntegrationBusTestConfig testConfig;
     private RouteCalculator calculator;
-    private StationRepository stationRepository;
 
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
@@ -68,7 +67,6 @@ class BusRouteCalculatorTest {
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
-        stationRepository = dependencies.get(StationRepository.class);
     }
 
     @AfterEach
@@ -81,8 +79,7 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
-        GraphQuery graphQuery = dependencies.get(GraphQuery.class);
-
+//        GraphQuery graphQuery = dependencies.get(GraphQuery.class);
 //        String routeStationId = "1800AMIC001WBT:5A:I:";
 //        RouteStation routeStation = stationRepository.getRouteStation(StockportBusStation, RoutesForTesting.ALTY_TO_STOCKPORT_WBT);
 //        Node node = graphQuery.getRouteStationNode(txn, routeStation);

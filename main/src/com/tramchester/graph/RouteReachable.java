@@ -6,20 +6,19 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphalgo.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-import static com.tramchester.graph.GraphPropertyKey.*;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
 
 public class RouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(RouteReachable.class);
@@ -41,8 +40,8 @@ public class RouteReachable {
     }
 
     // supports building tram station reachability matrix
-    public boolean getRouteReachableWithInterchange(Route route, Station startStation, Station endStation) {
-        return hasAnyPaths(route, startStation, endStation);
+    public boolean getRouteReachableWithInterchange(RouteStation routeStation, Station endStation) {
+        return hasAnyPaths(routeStation, endStation);
     }
 
     // supports position inference on live data
@@ -66,46 +65,19 @@ public class RouteReachable {
         return results;
     }
 
-    // TEST ONLY
-    // TODO WIP to support bus routing
-    public Map<IdFor<Station>, IdFor<Route>> getShortestRoutesBetween(Station startStation, Station endStation) {
-        HashMap<IdFor<Station>, IdFor<Route>> results = new HashMap<>();
-        try (Transaction txn = graphDatabaseService.beginTx()) {
-            Node startNode = graphQuery.getStationNode(txn, startStation);
-            Node endNode = graphQuery.getStationNode(txn, endStation);
-
-            EvaluationContext context = graphDatabaseService.createContext(txn);
-            PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, fullExpanderForRoutes(), COST.getText());
-            Iterable<WeightedPath> paths = finder.findAllPaths(startNode, endNode);
-
-            paths.forEach(path -> path.relationships().forEach(relationship -> {
-
-                if (relationship.isType(BOARD) || relationship.isType(INTERCHANGE_BOARD)) {
-                    Node node = relationship.getEndNode();
-                    IdFor<Route> routeId = IdFor.getRouteIdFrom(node); //node.getProperty(ROUTE_ID).toString();
-                    IdFor<Station> stationId = GraphProps.getStationId(node);
-                    results.put(stationId, routeId);
-                }
-            }));
-            txn.commit();
-        }
-
-        return results;
-    }
-
-    private boolean hasAnyPaths(Route route, Station startStation, Station endStation) {
+    private boolean hasAnyPaths(RouteStation routeStation, Station endStation) {
 
         boolean hasAny = false;
         try (Transaction txn = graphDatabaseService.beginTx()) {
 
-            Node found = graphQuery.getStationNode(txn, startStation);
+            Node found = graphQuery.getStationNode(txn, routeStation.getStation());
             if (found==null) {
                 if (warnForMissing) {
-                    logger.warn("Cannot find node for station id " + startStation);
+                    logger.warn("Cannot find node for station id " + routeStation);
                 }
             } else  {
                 IdFor<Station> endStationId = endStation.getId();
-                Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId<>(endStationId, route.getId(),
+                Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId<>(endStationId, routeStation.getRoute().getId(),
                         interchangeRepository);
 
                 TraversalDescription traverserDesc = graphDatabaseService.traversalDescription(txn).
@@ -124,50 +96,6 @@ public class RouteReachable {
             }
         }
         return hasAny;
-    }
-
-    public int getApproxCostBetween(Transaction txn, Station station, Node endNode) {
-        Node startNode = graphQuery.getStationNode(txn, station);
-        return getApproxCostBetween(txn, startNode, endNode);
-    }
-
-    // startNode must have been found within supplied txn
-    public int getApproxCostBetween(Transaction txn, Node startNode, Station endStation) {
-        Node endNode = graphQuery.getStationNode(txn, endStation);
-        return getApproxCostBetween(txn, startNode, endNode);
-    }
-
-    public int getApproxCostBetween(Transaction txn, Station startStation, Station endStation) {
-        Node startNode = graphQuery.getStationNode(txn, startStation);
-        Node endNode = graphQuery.getStationNode(txn, endStation);
-        return getApproxCostBetween(txn, startNode, endNode);
-    }
-
-    // startNode and endNode must have been found within supplied txn
-    public int getApproxCostBetween(Transaction txn, Node startNode, Node endNode) {
-        // follow the ON_ROUTE relationships to quickly find a route without any timing information or check
-        PathExpander<Double> forTypesAndDirections = fullExpanderForRoutes();
-
-        EvaluationContext context = graphDatabaseService.createContext(txn);
-        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
-        WeightedPath path = finder.findSinglePath(startNode, endNode);
-        double weight  = Math.floor(path.weight());
-        return (int) weight;
-    }
-
-    private PathExpander<Double> fullExpanderForRoutes() {
-        return PathExpanders.forTypesAndDirections(
-                ON_ROUTE, Direction.OUTGOING,
-                ENTER_PLATFORM, Direction.OUTGOING,
-                LEAVE_PLATFORM, Direction.OUTGOING,
-                BOARD, Direction.OUTGOING,
-                DEPART, Direction.OUTGOING,
-                INTERCHANGE_BOARD, Direction.OUTGOING,
-                INTERCHANGE_DEPART, Direction.OUTGOING,
-                WALKS_TO, Direction.OUTGOING,
-                WALKS_FROM, Direction.OUTGOING,
-                FINISH_WALK, Direction.OUTGOING
-        );
     }
 
     private static class FindRouteNodesForDesintationAndRouteId<STATE> implements PathEvaluator<STATE> {
@@ -220,6 +148,5 @@ public class RouteReachable {
             return Evaluation.EXCLUDE_AND_CONTINUE;
         }
     }
-
 
 }

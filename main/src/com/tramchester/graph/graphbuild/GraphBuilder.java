@@ -25,7 +25,18 @@ public abstract class GraphBuilder implements Startable {
 
     public enum Labels implements Label
     {
-        ROUTE_STATION, TRAM_STATION, BUS_STATION, TRAIN_STATION, PLATFORM, QUERY_NODE, SERVICE, HOUR, MINUTE, VERSION, QUERY_NODE_MID;
+        ROUTE_STATION,
+        TRAM_STATION,
+        BUS_STATION,
+        TRAIN_STATION,
+        PLATFORM,
+        QUERY_NODE,
+        SERVICE,
+        HOUR,
+        MINUTE,
+        VERSION,
+        QUERY_NODE_MID,
+        NEIGHBOURS_ENABLED;
 
         public static Labels forMode(TransportMode mode) {
             switch (mode) {

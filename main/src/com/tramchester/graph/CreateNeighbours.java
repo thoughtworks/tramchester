@@ -5,6 +5,7 @@ import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
@@ -15,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -56,14 +59,29 @@ public class CreateNeighbours implements Startable {
     }
 
     public void buildWithNoCommit(Transaction txn) {
-        Set<Station> stations = repository.getStations();
-        logger.info(format("Adding neighbouring stations for %s stations and range %s KM", stations.size(), rangeInKM));
-        stations.forEach(station -> {
-            if (filter.shouldInclude(station)) {
-                Set<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM);
-                addRelationships(txn, filter, station, nearby);
-            }
-        });
+        if (hasDBFlag(txn)) {
+            logger.warn("Node NEIGHBOURS_ENABLED present, assuming neighbours already built");
+        } else {
+            Set<Station> stations = repository.getStations();
+            logger.info(format("Adding neighbouring stations for %s stations and range %s KM", stations.size(), rangeInKM));
+            stations.forEach(station -> {
+                if (filter.shouldInclude(station)) {
+                    Set<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM);
+                    addRelationships(txn, filter, station, nearby);
+                }
+            });
+            addDBFlag(txn);
+        }
+    }
+
+    boolean hasDBFlag(Transaction txn) {
+        ResourceIterator<Node> query = database.findNodes(txn, GraphBuilder.Labels.NEIGHBOURS_ENABLED);
+        List<Node> nodes = query.stream().collect(Collectors.toList());
+        return !nodes.isEmpty();
+    }
+
+    private void addDBFlag(Transaction txn) {
+        txn.createNode(GraphBuilder.Labels.NEIGHBOURS_ENABLED);
     }
 
     private void addRelationships(Transaction txn, GraphFilter filter, Station station, Set<Station> others) {

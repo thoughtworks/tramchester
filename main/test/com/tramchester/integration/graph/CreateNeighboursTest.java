@@ -51,6 +51,11 @@ class CreateNeighboursTest {
         protected List<DataSourceConfig> getDataSourceFORTESTING() {
             return Collections.singletonList(new TFGMTestDataSourceConfig("data/neighbours", TestEnv.tramAndBus));
         }
+
+        @Override
+        public boolean getCreateNeighbours() {
+            return true;
+        }
     }
 
     private static Dependencies dependencies;
@@ -73,7 +78,6 @@ class CreateNeighboursTest {
 
         CreateNeighbours createNeighbours = new CreateNeighbours(database, new IncludeAllFilter(), graphQuery, repository, stationLocations, testConfig);
         createNeighbours.buildWithNoCommit(txn);
-
     }
 
     @AfterAll

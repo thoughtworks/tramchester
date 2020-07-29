@@ -139,6 +139,7 @@ public class Dependencies {
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(MyLocationFactory.class);
         picoContainer.addComponent(RouteReachable.class);
+        picoContainer.addComponent(RouteCostCalculator.class);
         picoContainer.addComponent(TramReachabilityRepository.class);
 
         picoContainer.addComponent(CachedNodeOperations.class);

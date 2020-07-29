@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -58,11 +59,13 @@ public class GraphDatabase implements Startable {
         cleanDB = !existingFile;
         if (existingFile) {
             logger.info("Graph db file is present at " + graphFile.getAbsolutePath());
+        } else {
+            logger.info("No db file found at " + graphFile.getAbsolutePath());
         }
 
         databaseService = createGraphDatabaseService(graphFile);
 
-        if (existingFile && !upToDate()) {
+        if (existingFile && !upToDateVersionsAndNeighbourFlag()) {
             cleanDB = true;
             logger.warn("Graph is out of data, rebuild needed");
             managementService.shutdown();
@@ -92,7 +95,7 @@ public class GraphDatabase implements Startable {
         return cleanDB;
     }
 
-    private boolean upToDate() {
+    private boolean upToDateVersionsAndNeighbourFlag() {
         DataSourceInfo info = transportData.getDataSourceInfo();
         logger.info("Checking graph version information ");
 
@@ -102,19 +105,16 @@ public class GraphDatabase implements Startable {
         Map<DataSourceInfo.NameAndVersion, Boolean> upToDate = new HashMap<>();
         try(Transaction transaction = beginTx()) {
 
-            ResourceIterator<Node> query = findNodes(transaction, GraphBuilder.Labels.VERSION);
-            List<Node> nodes = query.stream().collect(Collectors.toList());
-
-            if (nodes.size()>1) {
-                logger.error("Too many VERSION nodes, will use first");
-            }
-
-            if (nodes.isEmpty()) {
-                logger.warn("Missing VERSION node, cannot check versions");
+            if (neighboursEnabledMismatch(transaction)) {
                 return false;
             }
 
-            Node versionNode = nodes.get(0);
+            List<Node> versionNodes = getNodes(transaction, GraphBuilder.Labels.VERSION);
+            if (versionNodes.isEmpty()) {
+                logger.warn("Missing VERSION node, cannot check versions");
+                return false;
+            }
+            Node versionNode = versionNodes.get(0);
             Map<String, Object> allProps = versionNode.getAllProperties();
 
             if (allProps.size()!=versions.size()) {
@@ -141,7 +141,32 @@ public class GraphDatabase implements Startable {
                 }
             });
         }
-       return upToDate.values().stream().allMatch(flag -> flag);
+        return upToDate.values().stream().allMatch(flag -> flag);
+    }
+
+    private boolean neighboursEnabledMismatch(Transaction txn) {
+        List<Node> nodes = getNodes(txn, GraphBuilder.Labels.NEIGHBOURS_ENABLED);
+
+        boolean dbValue = !nodes.isEmpty(); // presence of node means neighbours present
+        boolean configValue = configuration.getCreateNeighbours();
+
+        if (dbValue==configValue) {
+            logger.info("CreateNeighbours config matches DB setting of: " + dbValue);
+        } else {
+            logger.warn("CreateNeighbours config does not match DB setting of: " + dbValue);
+        }
+        return configValue != dbValue;
+    }
+
+    @NotNull
+    private List<Node> getNodes(Transaction transaction, GraphBuilder.Labels label) {
+        ResourceIterator<Node> query = findNodes(transaction, label);
+        List<Node> nodes = query.stream().collect(Collectors.toList());
+
+        if (nodes.size()>1) {
+            logger.warn("Too many "+label.name()+ " nodes, will use first");
+        }
+        return nodes;
     }
 
     private GraphDatabaseService createGraphDatabaseService(File graphFile) {

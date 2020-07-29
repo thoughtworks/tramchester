@@ -1,15 +1,14 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.graph.RouteReachable;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +26,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
     private RouteCalculatorArriveBy routeCalculatorArriveBy;
     private RouteCalculator routeCalculator;
-    private RouteReachable routeReachable;
+    private RouteCostCalculator costCalculator;
     private int costBetweenStartDest;
     private TramchesterConfig config;
     private Transaction txn;
@@ -36,10 +34,10 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         txn = createStrictMock(Transaction.class);
-        routeReachable = createStrictMock(RouteReachable.class);
+        costCalculator = createStrictMock(RouteCostCalculator.class);
         routeCalculator = createStrictMock(RouteCalculator.class);
         config = createStrictMock(TramchesterConfig.class);
-        routeCalculatorArriveBy = new RouteCalculatorArriveBy(routeReachable, routeCalculator, config);
+        routeCalculatorArriveBy = new RouteCalculatorArriveBy(costCalculator, routeCalculator, config);
         costBetweenStartDest = 15;
     }
 
@@ -56,7 +54,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         //EasyMock.expect(config.getTransportModes()).andReturn(Arrays.asList(GTFSTransportationType.tram));
 
-        EasyMock.expect(routeReachable.getApproxCostBetween(txn, start, destinationId)).andReturn(costBetweenStartDest);
+        EasyMock.expect(costCalculator.getApproxCostBetween(txn, start, destinationId)).andReturn(costBetweenStartDest);
         TramTime requiredDepartTime = arriveBy.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(serviceDate, requiredDepartTime, true,
                 5, 120);

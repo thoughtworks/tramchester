@@ -30,4 +30,8 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     @Override
     public int getNumberQueries() { return 1; }
 
+    @Override
+    public boolean getCreateNeighbours() {
+        return true;
+    }
 }

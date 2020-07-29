@@ -60,8 +60,7 @@ public class TramReachabilityRepository implements Disposable {
                 if (destinationStationId.equals(startStationId)) {
                     result = true;
                 } else {
-                    result = routeReachable.getRouteReachableWithInterchange(routeStation.getRoute(), routeStation.getStation(),
-                            destinationStation);
+                    result = routeReachable.getRouteReachableWithInterchange(routeStation, destinationStation);
                 }
                 flags[tramStationIndexing.indexOf(destinationStationId)] = result;
             });
@@ -70,6 +69,8 @@ public class TramReachabilityRepository implements Disposable {
         logger.info(format("Added %s entries", size));
     }
 
+    // use version that takes route station
+    @Deprecated
     public boolean stationReachable(Station startStation, Route route, Station destinationStation) {
         RouteStation routeStation =  transportData.getRouteStation(startStation, route);
         return stationReachable(routeStation, destinationStation);
