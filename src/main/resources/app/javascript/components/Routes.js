@@ -21,7 +21,7 @@ export default {
             var lat = station.latLong.lat;
             var lon = station.latLong.lon;
             var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 1 })
-            marker.bindTooltip(station.name + " (" + station.transportMode+")");
+            marker.bindTooltip(station.name + "<br> '" +station.id+ "' (" + station.transportMode+")");
             stationLayerGroup.addLayer(marker);
         });
     
@@ -61,7 +61,8 @@ export default {
                 steps.push([station.latLong.lat, station.latLong.lon]);
             })
             var line = L.polyline(steps); 
-            line.bindTooltip(route.routeName + " (" + route.transportMode+")");
+            line.bindTooltip(route.routeName + "<br>" 
+                + "'"+route.id + "' (" + route.transportMode+")");
             line.setStyle({className: this.classForRoute(route), weight: 6});
             line.on({
                 mouseover: this.highlightRoute,
