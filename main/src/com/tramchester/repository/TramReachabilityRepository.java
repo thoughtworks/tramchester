@@ -69,16 +69,8 @@ public class TramReachabilityRepository implements Disposable {
         logger.info(format("Added %s entries", size));
     }
 
-    // use version that takes route station
-    @Deprecated
-    public boolean stationReachable(Station startStation, Route route, Station destinationStation) {
-        RouteStation routeStation =  transportData.getRouteStation(startStation, route);
-        return stationReachable(routeStation, destinationStation);
-    }
-
     public boolean stationReachable(RouteStation routeStation, Station destinationStation) {
         if (TransportMode.isTram(routeStation) && TransportMode.isTram(destinationStation)) {
-            // route station is a tram station
             int index = tramStationIndexing.indexOf(destinationStation.getId());
             if (index<0) {
                 throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStation,

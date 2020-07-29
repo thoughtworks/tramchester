@@ -1,6 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.testSupport.RoutesForTesting;
@@ -33,32 +34,32 @@ class TramReachabilityRepositoryTest {
     void shouldCreateReachabilityMatrix() {
 
         // wrong direction
-        Assertions.assertFalse(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.PICC_TO_ALTY, Stations.TraffordBar));
+        Assertions.assertFalse(repository.stationReachable(new RouteStation(Stations.NavigationRoad, RoutesForTesting.PICC_TO_ALTY), Stations.TraffordBar));
         // right direction
-        Assertions.assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC, Stations.TraffordBar));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC), Stations.TraffordBar));
         // wrong direction
-        Assertions.assertFalse(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.PICC_TO_ALTY, Stations.ManAirport));
+        Assertions.assertFalse(repository.stationReachable(new RouteStation(Stations.NavigationRoad, RoutesForTesting.PICC_TO_ALTY), Stations.ManAirport));
         // right direction with interchange
-        Assertions.assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC, Stations.ManAirport));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC), Stations.ManAirport));
         // self reachable
-        Assertions.assertTrue(repository.stationReachable(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC, Stations.NavigationRoad));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.NavigationRoad, RoutesForTesting.ALTY_TO_PICC), Stations.NavigationRoad));
 
         // right direction
-        Assertions.assertTrue(repository.stationReachable(Stations.RochdaleRail, RoutesForTesting.ROCH_TO_DIDS, Stations.Monsall));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.RochdaleRail, RoutesForTesting.ROCH_TO_DIDS), Stations.Monsall));
         // wrong direction
-        Assertions.assertFalse(repository.stationReachable(Stations.RochdaleRail, RoutesForTesting.DIDS_TO_ROCH, Stations.Monsall));
+        Assertions.assertFalse(repository.stationReachable(new RouteStation(Stations.RochdaleRail, RoutesForTesting.DIDS_TO_ROCH), Stations.Monsall));
         // towards victoria, so find an interchange
-        Assertions.assertTrue(repository.stationReachable(Stations.Monsall, RoutesForTesting.ROCH_TO_DIDS, Stations.RochdaleRail));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.Monsall, RoutesForTesting.ROCH_TO_DIDS), Stations.RochdaleRail));
     }
 
     // TODO Lockdown
     @Test
     @Disabled("Not during lockdown")
     void shouldRepoIssueAltyToDeangates() {
-        Assertions.assertTrue(repository.stationReachable(Stations.Altrincham, RoutesForTesting.ALTY_TO_BURY, Stations.Deansgate));
-        Assertions.assertTrue(repository.stationReachable(Stations.Altrincham, RoutesForTesting.ALTY_TO_PICC, Stations.Deansgate));
-        Assertions.assertTrue(repository.stationReachable(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_BURY, Stations.Deansgate));
-        Assertions.assertTrue(repository.stationReachable(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_PICC, Stations.Deansgate));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.Altrincham, RoutesForTesting.ALTY_TO_BURY), Stations.Deansgate));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.Altrincham, RoutesForTesting.ALTY_TO_PICC), Stations.Deansgate));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_BURY), Stations.Deansgate));
+        Assertions.assertTrue(repository.stationReachable(new RouteStation(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_PICC), Stations.Deansgate));
     }
 
 

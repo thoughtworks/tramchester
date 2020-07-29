@@ -9,6 +9,7 @@ public class StationListDTO {
     private List<StationRefWithGroupDTO> stations;
     private List<ProximityGroup> proximityGroups;
 
+    @SuppressWarnings("unused")
     public StationListDTO() {
         // deserialization
     }
