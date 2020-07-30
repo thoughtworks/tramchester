@@ -144,7 +144,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
 
         validateWalkingStage(firstStage, LocalTime.of(10,25), "Walk to",
-                Stations.Altrincham.getName(), -1, "RouteWalking", "Walk", 0);
+                Stations.Altrincham.getName(), -1, "RouteClassWalk", "Walk", 0);
 
         Stage secondStage = stages.get(1);
         LocalTime departTime = LocalTime.of(10,31);
