@@ -138,9 +138,12 @@ public class RouteCalculator implements TramRouteCalculator {
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningServices, maxPathLength, destinations,
+                journeyRequest.getMaxJourneyDuration());
 
+        int changesLimit = journeyRequest.getMaxChanges();
         return queryTimes.stream().
-                map(queryTime -> createHeuristics(journeyRequest, runningServices, queryTime, destinations)).
+                map(queryTime -> createHeuristics(queryTime, journeyConstraints, changesLimit)).
                 flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
                         destinations, previousSuccessfulVisit,
                         new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
@@ -155,6 +158,9 @@ public class RouteCalculator implements TramRouteCalculator {
         final RunningServices runningServices = new RunningServices(journeyRequest.getDate(), transportData);
         final TramTime time = journeyRequest.getTime();
 
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningServices, maxPathLength, destinations,
+                journeyRequest.getMaxJourneyDuration());
+
         Set<Long> destinationNodeIds;
         try(Transaction txn = graphDatabaseService.beginTx()) {
            destinationNodeIds = destinations.stream().
@@ -163,7 +169,8 @@ public class RouteCalculator implements TramRouteCalculator {
                     collect(Collectors.toSet());
         }
 
-        final ServiceHeuristics serviceHeuristics = createHeuristics(journeyRequest, runningServices, time, destinations);
+        int changesLimit = journeyRequest.getMaxChanges();
+        final ServiceHeuristics serviceHeuristics = createHeuristics(time, journeyConstraints, changesLimit);
 
         return grouped.parallelStream().map(box -> {
 
@@ -203,15 +210,15 @@ public class RouteCalculator implements TramRouteCalculator {
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, transportData, serviceHeuristics,
                 sortsPosition, nodeOperations, endStations, config, nodeTypeRepository, destinationNodeIds, reasons);
 
-        return tramNetworkTraverser.findPaths(txn, startNode, previousSuccessfulVisit).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
+        return tramNetworkTraverser.
+                findPaths(txn, startNode, previousSuccessfulVisit).
+                map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
     }
 
     @NotNull
-    private ServiceHeuristics createHeuristics(JourneyRequest journeyRequest, RunningServices runningServicesIds,
-                                               TramTime time, Set<Station> destinations) {
-        return new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository, config,
-                time, runningServicesIds, destinations,
-                maxPathLength, journeyRequest);
+    private ServiceHeuristics createHeuristics(TramTime time, JourneyConstraints journeyConstraints, int maxNumChanges) {
+        return new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository,
+                journeyConstraints, time, maxNumChanges);
     }
 
     private static class TimedPath {

@@ -1,6 +1,5 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.TransportMode;
@@ -10,15 +9,11 @@ import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.states.HowIGotHere;
-import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ServiceHeuristics {
 
@@ -30,44 +25,32 @@ public class ServiceHeuristics {
         debugEnabled = logger.isDebugEnabled();
     }
 
-    private final RunningServices runningServices;
-    private final Set<Station> endTramStations;
+    private final JourneyConstraints journeyConstraints;
     private final TramTime queryTime;
     private final TramReachabilityRepository tramReachabilityRepository;
-    private final int maxPathLength;
 
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
-    private final int maxJourneyDuration;
 
     private final int maxWaitMinutes;
     private final int changesLimit;
     private final boolean tramOnly;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
-                             TramReachabilityRepository tramReachabilityRepository, TramchesterConfig config,
-                             TramTime queryTime, RunningServices runningServices, Set<Station> endStations,
-                             int maxPathLength, JourneyRequest journeyRequest) {
+                             TramReachabilityRepository tramReachabilityRepository,
+                             JourneyConstraints journeyConstraints, TramTime queryTime,
+                             int changesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.tramReachabilityRepository = tramReachabilityRepository;
 
-        this.maxWaitMinutes = config.getMaxWait();
+        this.maxWaitMinutes = journeyConstraints.getMaxWait();
+        this.journeyConstraints = journeyConstraints;
         this.queryTime = queryTime;
-        this.changesLimit = journeyRequest.getMaxChanges();
-        this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
-        this.runningServices = runningServices;
 
-        endTramStations = endStations.stream().
-                filter(TransportMode::isTram).
-                collect(Collectors.toSet());
+        tramOnly = journeyConstraints.getIsTramOnlyDestinations();
 
-        tramOnly = (endTramStations.size() == endStations.size());
-        if (tramOnly) {
-            logger.info("Checking only for tram destinations");
-        }
-
-        this.maxPathLength = maxPathLength;
+        this.changesLimit = changesLimit;
     }
     
     public ServiceReason checkServiceDate(Node node, HowIGotHere path, ServiceReasons reasons) {
@@ -75,7 +58,7 @@ public class ServiceHeuristics {
 
         IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
-        if (runningServices.isRunning(nodeServiceId)) {
+        if (journeyConstraints.isRunning(nodeServiceId)) {
             return valid(ServiceReason.ReasonCode.ServiceDateOk, path, reasons);
         }
 
@@ -88,10 +71,10 @@ public class ServiceHeuristics {
         IdFor<Service> serviceId = nodeOperations.getServiceId(node);
 
         // prepared to wait up to max wait for start of a service...
-        ServiceTime serviceStart = runningServices.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
+        ServiceTime serviceStart = journeyConstraints.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
 
         // BUT if arrive after service finished there is nothing to be done...
-        ServiceTime serviceEnd = runningServices.getServiceLatest(serviceId);
+        ServiceTime serviceEnd = journeyConstraints.getServiceLatest(serviceId);
 
         if (!currentClock.between(serviceStart, serviceEnd)) {
             return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));
@@ -169,7 +152,7 @@ public class ServiceHeuristics {
             }
 
             if (TransportMode.isTram(routeStation)) {
-                for(Station endStation : endTramStations) {
+                for(Station endStation : journeyConstraints.getEndTramStations()) {
                     if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
                         return valid(ServiceReason.ReasonCode.Reachable, path, reasons);
                     }
@@ -183,7 +166,7 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere path, ServiceReasons reasons) {
-        if (totalCost>maxJourneyDuration) {
+        if (totalCost>journeyConstraints.getMaxJourneyDuration()) {
             return reasons.recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), path));
         }
         return valid(ServiceReason.ReasonCode.DurationOk, path, reasons);
@@ -201,7 +184,7 @@ public class ServiceHeuristics {
     }
 
     public int getMaxPathLength() {
-        return maxPathLength;
+        return journeyConstraints.getMaxPathLength();
     }
 
 }
