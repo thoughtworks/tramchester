@@ -89,7 +89,8 @@ public class RouteCalculator implements TramRouteCalculator {
 
     @Override
     public Stream<Journey> calculateRoute(Transaction txn, Station startStation, Station destination, JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s for %s", startStation, destination, journeyRequest));
+        logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
+                startStation.getName(), startStation.getId(), destination.getName(), destination.getId(), journeyRequest));
 
         Node startNode = getStationNodeSafe(txn, startStation);
         Node endNode = getStationNodeSafe(txn, destination);
@@ -141,7 +142,8 @@ public class RouteCalculator implements TramRouteCalculator {
         return queryTimes.stream().
                 map(queryTime -> createHeuristics(journeyRequest, runningServices, queryTime, destinations)).
                 flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
-                        destinations, previousSuccessfulVisit, new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
+                        destinations, previousSuccessfulVisit,
+                        new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
                 map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest),
                         path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath())));
     }
@@ -198,7 +200,7 @@ public class RouteCalculator implements TramRouteCalculator {
                                                final Set<Station> endStations, PreviousSuccessfulVisits previousSuccessfulVisit,
                                                ServiceReasons reasons) {
 
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, serviceHeuristics,
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, transportData, serviceHeuristics,
                 sortsPosition, nodeOperations, endStations, config, nodeTypeRepository, destinationNodeIds, reasons);
 
         return tramNetworkTraverser.findPaths(txn, startNode, previousSuccessfulVisit).map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));

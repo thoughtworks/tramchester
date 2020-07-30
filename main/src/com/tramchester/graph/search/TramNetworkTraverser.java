@@ -13,6 +13,7 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.graph.search.states.TraversalState;
+import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
@@ -39,12 +40,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
+    private final TransportData transportData;
 
-    public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
+    public TramNetworkTraverser(GraphDatabase graphDatabaseService, TransportData transportData, ServiceHeuristics serviceHeuristics,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository,
                                 Set<Station> endStations, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons) {
         this.graphDatabaseService = graphDatabaseService;
+        this.transportData = transportData;
         this.serviceHeuristics = serviceHeuristics;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -99,7 +102,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
-            reasons.reportReasons(txn);
+            reasons.reportReasons(txn, transportData);
             tramRouteEvaluator.dispose();
             traversalState.dispose();
         });

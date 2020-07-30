@@ -12,7 +12,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         this("bus_tramchester.db");
     }
 
-    private IntegrationBusTestConfig(String dbName) {
+    public IntegrationBusTestConfig(String dbName) {
         super("integrationBusTest", dbName);
         dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus));
     }
@@ -33,5 +33,15 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     @Override
     public boolean getCreateNeighbours() {
         return true;
+    }
+
+    @Override
+    public int getMaxWait() {
+        return 45;
+    }
+
+    @Override
+    public int getMaxJourneyDuration() {
+        return 180;
     }
 }

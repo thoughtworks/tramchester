@@ -198,7 +198,7 @@ class GraphWithSimpleRouteTest {
     @Test
     void createDiagramOfTestNetwork() {
         DiagramCreator creator = new DiagramCreator(database, Integer.MAX_VALUE);
-        Assertions.assertAll(() -> creator.create("test_network.dot", FIRST_STATION));
+        Assertions.assertAll(() -> creator.create("test_network.dot", transportData.getFirst()));
     }
 
     private void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,

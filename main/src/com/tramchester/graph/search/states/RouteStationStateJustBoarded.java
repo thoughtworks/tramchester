@@ -99,9 +99,11 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
         private final Relationship relationship;
+        private final Long id;
         private final IdFor<Station> stationId;
 
         private RelationshipFacade(Relationship relationship) {
+            id = relationship.getId();
             this.relationship = relationship;
             this.stationId = IdFor.getTowardsStationIdFrom(relationship.getEndNode());
         }
@@ -113,16 +115,16 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
             RelationshipFacade that = (RelationshipFacade) o;
 
-            return stationId.equals(that.stationId);
+            return id.equals(that.id);
         }
 
         @Override
         public int hashCode() {
-            return stationId.hashCode();
+            return id.hashCode();
         }
 
         @Override
-        public IdFor<Station> getId() {
+        public IdFor<Station> getStationId() {
             return stationId;
         }
 

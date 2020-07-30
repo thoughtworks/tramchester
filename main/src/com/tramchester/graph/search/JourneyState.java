@@ -11,8 +11,6 @@ import java.util.Objects;
 
 public class JourneyState implements ImmutableJourneyState {
     private TramTime journeyClock;
-//    private boolean onTram;
-//    private boolean onBus;
     private TransportMode transportMode;
 
     private int journeyOffset;
@@ -23,8 +21,6 @@ public class JourneyState implements ImmutableJourneyState {
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
         journeyOffset = 0;
-//        onTram = false;
-//        onBus = false;
         transportMode = TransportMode.NotSet;
         this.traversalState = traversalState;
         numberOfBoardings = 0;
@@ -37,8 +33,6 @@ public class JourneyState implements ImmutableJourneyState {
     private JourneyState(JourneyState previousState) {
         this.journeyClock = previousState.journeyClock;
         this.transportMode = previousState.transportMode;
-//        this.onTram = previousState.onTram;
-//        this.onBus = previousState.onBus;
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
         if (onBoard()) {
@@ -97,22 +91,6 @@ public class JourneyState implements ImmutableJourneyState {
         transportMode = TransportMode.NotSet;
     }
 
-//    public void leaveBus(int totalCost) throws TramchesterException {
-//        if (!onBus) {
-//            throw new TramchesterException("Not currently on a bus");
-//        }
-//        leave(totalCost);
-//        transportMode = TransportMode.NotSet;
-//    }
-//
-//    public void leaveTram(int totalCost) throws TramchesterException {
-//        if (!onTram) {
-//            throw new TramchesterException("Not currently on a tram");
-//        }
-//        leave(totalCost);
-//        onTram = false;
-//    }
-
     private void leave(int currentTotalCost) {
 
         int tripCost = currentTotalCost - journeyOffset;
@@ -121,16 +99,6 @@ public class JourneyState implements ImmutableJourneyState {
         journeyOffset = currentTotalCost;
         boardingTime = null;
     }
-
-//    @Override
-//    public boolean onTram() {
-//        return onTram;
-//    }
-//
-//    @Override
-//    public boolean onBus() {
-//        return onBus;
-//    }
 
     @Override
     public int getNumberChanges() {
@@ -146,28 +114,10 @@ public class JourneyState implements ImmutableJourneyState {
         transportMode = mode;
     }
 
-//    public void boardTram() throws TramchesterException {
-//        guardAlreadyOnboard();
-//        numberOfBoardings = numberOfBoardings + 1;
-//        onTram = true;
-//    }
-//
-//    public void boardBus() throws TramchesterException {
-//        guardAlreadyOnboard();
-//        numberOfBoardings = numberOfBoardings + 1;
-//        onBus = true;
-//    }
-
     private void guardAlreadyOnboard() throws TramchesterException {
         if (!transportMode.equals(TransportMode.NotSet)) {
             throw new TramchesterException("Already on a " + transportMode);
         }
-//        if (onTram) {
-//            throw new TramchesterException("Already on a tram");
-//        }
-//        if (onBus) {
-//            throw new TramchesterException("Already on a bus");
-//        }
     }
 
     public TraversalState getTraversalState() {

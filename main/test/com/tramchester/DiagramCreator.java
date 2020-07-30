@@ -1,7 +1,7 @@
 package com.tramchester;
 
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -9,32 +9,36 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.HOUR;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 import static java.lang.String.format;
 
 
 // TODO Rewrite to use query instead
 public class DiagramCreator {
+    private static final Logger logger = LoggerFactory.getLogger(DiagramCreator.class);
 
-    private final GraphDatabase graphDatabaseService;
+    private final GraphDatabase graphDatabase;
     private final int depthLimit;
 
-    public DiagramCreator(GraphDatabase graphDatabaseService, int depthLimit) {
-        this.graphDatabaseService = graphDatabaseService;
+    public DiagramCreator(GraphDatabase graphDatabase, int depthLimit) {
+        this.graphDatabase = graphDatabase;
         this.depthLimit = depthLimit;
     }
 
-    public void create(String filename, String startPoint) throws IOException {
-        create(filename, Collections.singletonList(startPoint));
+    public void create(String filename, Station station) throws IOException {
+        create(filename, Collections.singletonList(station));
     }
 
-    public void create(String fileName, List<String> startPointsList) throws IOException {
+    public void create(String fileName, List<Station> startPointsList) throws IOException {
 
         Set<Long> nodeSeen = new HashSet<>();
         Set<Long> relationshipSeen = new HashSet<>();
@@ -45,12 +49,17 @@ public class DiagramCreator {
 
         DiagramBuild builder = new DiagramBuild(printStream);
 
-        try (Transaction tx = graphDatabaseService.beginTx()) {
+        try (Transaction txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
-                Node startNode = graphDatabaseService.findNode(tx, TRAM_STATION, STATION_ID.getText(), startPoint);
-                visit(startNode, builder, 0, nodeSeen, relationshipSeen);
+                Node startNode = graphDatabase.findNode(txn, GraphBuilder.Labels.forMode(startPoint.getTransportMode()),
+                        startPoint.getProp().getText(), startPoint.getId().getGraphId());
+                if (startNode==null) {
+                    logger.warn("Can't find start node for station " + startPoint);
+                } else {
+                    visit(startNode, builder, 0, nodeSeen, relationshipSeen);
+                }
             });
 
             builder.append("}");
@@ -105,7 +114,7 @@ public class DiagramCreator {
             addNode(builder, startNode);
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
 
-            if (relationshipType==TransportRelationshipTypes.TRAM_GOES_TO) {
+            if (relationshipType==TRAM_GOES_TO || relationshipType==BUS_GOES_TO || relationshipType==TRAIN_GOES_TO) {
                 if (!tramGoesToRelationships.containsKey(awayFrom.getId())) {
                     tramGoesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
@@ -140,9 +149,7 @@ public class DiagramCreator {
         }
         relationshipSeen.add(edge.getId());
 
-        if (relationshipType==TransportRelationshipTypes.TRAM_GOES_TO) {
-            // use outbound
-        } else if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
+        if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
             String routeId = GraphProps.getRouteId(edge).getGraphId();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "ROUTE:"+routeId));
         } else {
@@ -167,7 +174,7 @@ public class DiagramCreator {
         if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
             return "oval";
         }
-        if (node.hasLabel(TRAM_STATION)) {
+        if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
             return "house";
         }
         if (node.hasLabel(GraphBuilder.Labels.SERVICE)) {
@@ -230,6 +237,7 @@ public class DiagramCreator {
             case TRAM_GOES_TO: return "Tram";
             case DEPART: return "D";
             case BUS_GOES_TO: return "Bus";
+            case TRAIN_GOES_TO: return "Train";
             default: return "Unkn";
         }
     }

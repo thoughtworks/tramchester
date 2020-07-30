@@ -29,7 +29,7 @@ public class SortsPositions {
         startingPoints.forEach(container -> {
             double current = Double.MAX_VALUE;
             for (Station dest : dests) {
-                Station place = repository.getStationById(container.getId());
+                Station place = repository.getStationById(container.getStationId());
                 double distance = computeDistance(place, dest);
                 if (distance < current) {
                     current = distance;
@@ -51,7 +51,7 @@ public class SortsPositions {
         Map<HasStationId<CONTAINED>, Double> distances = new HashMap<>();
 
         startingPoints.forEach(container -> {
-                Station place = repository.getStationById(container.getId());
+                Station place = repository.getStationById(container.getStationId());
                 double distance = CoordinateTransforms.distanceFlat(place.getLatLong(), destination);
                 distances.put(container, distance);
         });
@@ -73,7 +73,7 @@ public class SortsPositions {
     }
 
     public interface HasStationId<T> {
-        IdFor<Station> getId();
+        IdFor<Station> getStationId();
         T getContained();
     }
 }

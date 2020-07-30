@@ -26,10 +26,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -79,19 +76,13 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
-//        GraphQuery graphQuery = dependencies.get(GraphQuery.class);
-//        String routeStationId = "1800AMIC001WBT:5A:I:";
-//        RouteStation routeStation = stationRepository.getRouteStation(StockportBusStation, RoutesForTesting.ALTY_TO_STOCKPORT_WBT);
-//        Node node = graphQuery.getRouteStationNode(txn, routeStation);
-//        Iterable<Relationship> services = node.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TO_SERVICE);
-//        Set<Relationship> list = new HashSet<>();
-//        services.forEach(list::add);
-//        assertEquals(4, list.size());
-
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, StockportBusStation,
                 AltrinchamInterchange, travelTime, nextMonday, 2, testConfig.getMaxJourneyDuration());
+
         // 2 changes means 3 stages or less
-        journeys.forEach(journey -> assertTrue(journey.getStages().size()<=3, journey.getStages().toString()));
+        List<Journey> over3 = journeys.stream().filter(journey -> journey.getStages().size() > 3).collect(Collectors.toList());
+        assertEquals(Collections.emptyList(), over3);
+        //journeys.forEach(journey -> assertTrue(journey.getStages().size()<=3, journey.getStages().toString()));
 
         Set<Journey> journeysMaxChanges = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, AltrinchamInterchange,
                 StockportBusStation, travelTime, nextMonday, 8, testConfig.getMaxJourneyDuration());

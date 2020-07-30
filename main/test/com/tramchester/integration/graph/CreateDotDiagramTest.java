@@ -3,20 +3,18 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
-import com.tramchester.domain.places.IdForDTO;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -55,16 +53,15 @@ class CreateDotDiagramTest {
         create(Arrays.asList(Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare), 4);
     }
 
-    private void create(List<Location> startPoints, int depthLimit) throws IOException {
+    private void create(List<Station> startPoints, int depthLimit) throws IOException {
         String filename = startPoints.get(0).getName();
         DiagramCreator creator = new DiagramCreator(database, depthLimit);
-        List<String> ids = startPoints.stream().map(IdForDTO::forDTO).collect(Collectors.toList());
-        creator.create(format("around_%s_trams.dot", filename), ids);
+        creator.create(format("around_%s_trams.dot", filename), startPoints);
     }
 
-    private void create(Location startPoint, int depthLimit) throws IOException {
+    private void create(Station startPoint, int depthLimit) throws IOException {
         DiagramCreator creator = new DiagramCreator(database, depthLimit);
-        creator.create(format("%s_trams.dot", startPoint.getName()), startPoint.forDTO());
+        creator.create(format("%s_trams.dot", startPoint.getName()), startPoint);
     }
 
 }

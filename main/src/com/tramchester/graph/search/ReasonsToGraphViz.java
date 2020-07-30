@@ -1,9 +1,11 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
+import com.tramchester.repository.TransportData;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -18,15 +20,17 @@ public class ReasonsToGraphViz {
 
     private final StringBuilder builder;
     private final Transaction transaction;
+    private final TransportData transportData;
 
     private final HashSet<Long> nodes;
     private final HashSet<String> reasonIds;
     private final HashSet<Pair<Long,Long>> relationships;
     private final HashSet<Pair<Long, String>> reasonRelationships;
 
-    private boolean includeAll = false;
+    private final boolean includeAll = false;
 
-    public ReasonsToGraphViz(StringBuilder builder, Transaction transaction) {
+    public ReasonsToGraphViz(Transaction transaction, TransportData transportData, StringBuilder builder) {
+        this.transportData = transportData;
         this.builder = builder;
         this.transaction = transaction;
 
@@ -96,6 +100,10 @@ public class ReasonsToGraphViz {
                 ids.append(System.lineSeparator());
             }
             ids.append(value);
+            if (GraphBuilder.Labels.isStation(graphLabel)) {
+                Station station = transportData.getStationById(IdFor.getStationIdFrom(node));
+                ids.append(System.lineSeparator()).append(station.getName());
+            }
         });
         return ids.toString();
     }

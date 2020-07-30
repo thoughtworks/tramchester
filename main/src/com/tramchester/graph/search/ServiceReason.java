@@ -15,8 +15,9 @@ public abstract class ServiceReason {
 
 
     public enum ReasonCode {
-        //Valid,
+
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk, WalkOk, Continue,
+
         NotOnQueryDate,
         NotAtQueryTime,
         NotReachable,
@@ -33,11 +34,11 @@ public abstract class ServiceReason {
         NotOnVehicle,
         SeenBusStationBefore,
         TooManyChanges,
+
         Arrived
     }
 
     private static final Logger logger;
-    //public static final ServiceReason isValid;
     private static final boolean debugEnabled;
 
     private final HowIGotHere howIGotHere;
@@ -49,7 +50,6 @@ public abstract class ServiceReason {
         if (debugEnabled) {
             logger.warn("Debug enabled here, performance impact");
         }
-        //isValid = new IsValid();
     }
 
     public HowIGotHere getHowIGotHere() {

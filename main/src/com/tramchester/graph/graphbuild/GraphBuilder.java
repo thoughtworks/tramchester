@@ -51,6 +51,9 @@ public abstract class GraphBuilder implements Startable {
             }
         }
 
+        public static boolean isStation(Labels label) {
+            return label==TRAM_STATION || label==BUS_STATION || label==TRAIN_STATION;
+        }
     }
 
     protected final TramchesterConfig config;

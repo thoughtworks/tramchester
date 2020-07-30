@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -52,9 +53,9 @@ public class ServiceReasons {
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(Transaction transaction) {
+    public void reportReasons(Transaction transaction, TransportData transportData) {
         if (createDotFile) {
-            createGraphFile(transaction);
+            createGraphFile(transaction, transportData);
         }
 
         if (!success || statsOn) {
@@ -108,7 +109,7 @@ public class ServiceReasons {
         }
     }
 
-    private void createGraphFile(Transaction transaction) {
+    private void createGraphFile(Transaction transaction, TransportData transportData) {
         String fileName = createFilename();
 
         if (reasons.isEmpty()) {
@@ -122,7 +123,7 @@ public class ServiceReasons {
             StringBuilder builder = new StringBuilder();
             builder.append("digraph G {\n");
 
-            ReasonsToGraphViz reasonsToGraphViz = new ReasonsToGraphViz(builder, transaction);
+            ReasonsToGraphViz reasonsToGraphViz = new ReasonsToGraphViz(transaction, transportData, builder);
 
             reasons.forEach(reasonsToGraphViz::add);
 

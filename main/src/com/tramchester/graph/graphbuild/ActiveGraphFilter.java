@@ -22,6 +22,10 @@ public class ActiveGraphFilter implements GraphFilter {
         routeCodes.add(route.getId());
     }
 
+    public void addRoute(IdFor<Route> id) {
+        routeCodes.add(id);
+    }
+
     public void addService(Service service) {
         serviceIds.add(service.getId());
     }

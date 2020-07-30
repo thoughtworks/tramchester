@@ -5,8 +5,8 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -14,7 +14,6 @@ import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -23,8 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 class RouteCalculatorSubGraphMonsallTest {
     private static Dependencies dependencies;
@@ -59,7 +56,7 @@ class RouteCalculatorSubGraphMonsallTest {
     }
 
     @AfterEach
-    void reproduceIssueWithTooManyStages() {
+    void afterEachTestRuns() {
         txn.close();
     }
 

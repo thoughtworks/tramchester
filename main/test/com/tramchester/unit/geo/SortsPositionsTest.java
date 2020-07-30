@@ -136,7 +136,7 @@ class SortsPositionsTest {
         }
 
         @Override
-        public IdFor<Station> getId() {
+        public IdFor<Station> getStationId() {
             return station.getId();
         }
 
