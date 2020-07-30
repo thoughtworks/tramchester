@@ -31,10 +31,7 @@ public class ServiceHeuristics {
 
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
-
-    private final int maxWaitMinutes;
     private final int changesLimit;
-    private final boolean tramOnly;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              TramReachabilityRepository tramReachabilityRepository,
@@ -44,12 +41,8 @@ public class ServiceHeuristics {
         this.nodeOperations = nodeOperations;
         this.tramReachabilityRepository = tramReachabilityRepository;
 
-        this.maxWaitMinutes = journeyConstraints.getMaxWait();
         this.journeyConstraints = journeyConstraints;
         this.queryTime = queryTime;
-
-        tramOnly = journeyConstraints.getIsTramOnlyDestinations();
-
         this.changesLimit = changesLimit;
     }
     
@@ -71,7 +64,8 @@ public class ServiceHeuristics {
         IdFor<Service> serviceId = nodeOperations.getServiceId(node);
 
         // prepared to wait up to max wait for start of a service...
-        ServiceTime serviceStart = journeyConstraints.getServiceEarliest(serviceId).minusMinutes(maxWaitMinutes);
+        // TODO Push DOWN
+        ServiceTime serviceStart = journeyConstraints.getServiceEarliest(serviceId).minusMinutes(journeyConstraints.getMaxWait());
 
         // BUT if arrive after service finished there is nothing to be done...
         ServiceTime serviceEnd = journeyConstraints.getServiceLatest(serviceId);
@@ -107,7 +101,7 @@ public class ServiceHeuristics {
     }
 
     private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
-        TramTime earliest = nodeTime.minusMinutes(maxWaitMinutes);
+        TramTime earliest = nodeTime.minusMinutes(journeyConstraints.getMaxWait());
         return elapsedTimed.between(earliest, nodeTime);
     }
 
@@ -128,7 +122,8 @@ public class ServiceHeuristics {
             previousHour = 23;
         }
         if (queryTimeHour == previousHour) {
-            int timeUntilNextHour = 60 - maxWaitMinutes;
+            // TODO Breaks if max wait > 60
+            int timeUntilNextHour = 60 - journeyConstraints.getMaxWait();
             if (journeyClockTime.getMinuteOfHour() >= timeUntilNextHour) {
                 return valid(ServiceReason.ReasonCode.HourOk, path, reasons);
             }
@@ -141,7 +136,7 @@ public class ServiceHeuristics {
 
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
-        if (tramOnly) {
+        if (journeyConstraints.getIsTramOnlyDestinations()) {
             IdFor<RouteStation> routeStationId = IdFor.getRouteStationIdFrom(endNode);
             RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 

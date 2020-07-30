@@ -1,7 +1,6 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
@@ -11,7 +10,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
-import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
@@ -33,10 +31,6 @@ import static java.lang.String.format;
 public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
-    private static final int BUSES_MAX_PATH_LENGTH = 1000; // todo right value?
-    private static final int TRAMS_MAX_PATH_LENGTH = 400;
-    private static final int TRAINS_MAX_PATH_LENGTH = 2000; // todo right value?
-
     private final MapPathToStages pathToStages;
     private final TramchesterConfig config;
     private final NodeContentsRepository nodeOperations;
@@ -48,7 +42,6 @@ public class RouteCalculator implements TramRouteCalculator {
     private final GraphDatabase graphDatabaseService;
     private final ProvidesLocalNow providesLocalNow;
     private final GraphQuery graphQuery;
-    private final int maxPathLength;
     private final SortsPositions sortsPosition;
     private final MapPathToLocations mapPathToLocations;
 
@@ -68,24 +61,10 @@ public class RouteCalculator implements TramRouteCalculator {
         this.graphQuery = graphQuery;
         this.nodeTypeRepository = nodeTypeRepository;
 
-        maxPathLength = getMaxPathLength();
         this.sortsPosition = sortsPosition;
         this.mapPathToLocations = mapPathToLocations;
     }
 
-    private int getMaxPathLength() {
-        return config.getTransportModes().stream().map(this::getPathMaxFor).max(Integer::compareTo).get();
-    }
-
-    private int getPathMaxFor(GTFSTransportationType mode) {
-        switch (mode) {
-            case tram: return TRAMS_MAX_PATH_LENGTH;
-            case bus: return BUSES_MAX_PATH_LENGTH;
-            case train: return TRAINS_MAX_PATH_LENGTH;
-            default:
-                throw new RuntimeException("Unexpected transport mode " + mode);
-        }
-    }
 
     @Override
     public Stream<Journey> calculateRoute(Transaction txn, Station startStation, Station destination, JourneyRequest journeyRequest) {
@@ -131,15 +110,12 @@ public class RouteCalculator implements TramRouteCalculator {
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              Set<Station> destinations, boolean walkAtStart) {
 
-        final RunningServices runningServices = new RunningServices(journeyRequest.getDate(), transportData);
-
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningServices, maxPathLength, destinations,
-                journeyRequest.getMaxJourneyDuration());
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
 
         int changesLimit = journeyRequest.getMaxChanges();
         return queryTimes.stream().
@@ -155,19 +131,11 @@ public class RouteCalculator implements TramRouteCalculator {
                                                   List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
 
-        final RunningServices runningServices = new RunningServices(journeyRequest.getDate(), transportData);
         final TramTime time = journeyRequest.getTime();
 
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningServices, maxPathLength, destinations,
-                journeyRequest.getMaxJourneyDuration());
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
 
-        Set<Long> destinationNodeIds;
-        try(Transaction txn = graphDatabaseService.beginTx()) {
-           destinationNodeIds = destinations.stream().
-                    map(station -> getStationNodeSafe(txn, station)).
-                    map(Entity::getId).
-                    collect(Collectors.toSet());
-        }
+        Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 
         int changesLimit = journeyRequest.getMaxChanges();
         final ServiceHeuristics serviceHeuristics = createHeuristics(time, journeyConstraints, changesLimit);
@@ -200,6 +168,18 @@ public class RouteCalculator implements TramRouteCalculator {
             }
         });
 
+    }
+
+    @NotNull
+    public Set<Long> getDestinationNodeIds(Set<Station> destinations) {
+        Set<Long> destinationNodeIds;
+        try(Transaction txn = graphDatabaseService.beginTx()) {
+           destinationNodeIds = destinations.stream().
+                    map(station -> getStationNodeSafe(txn, station)).
+                    map(Entity::getId).
+                    collect(Collectors.toSet());
+        }
+        return destinationNodeIds;
     }
 
     private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, Set<Long> destinationNodeIds,
