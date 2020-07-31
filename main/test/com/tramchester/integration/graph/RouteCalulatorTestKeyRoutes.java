@@ -155,7 +155,10 @@ class RouteCalulatorTestKeyRoutes {
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
                         Optional<Journey> optionalJourney = calculator.calculateRoute(txn, requested.getLeft(), requested.getRight(),
-                                new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3, testConfig.getMaxJourneyDuration()).setDiag(diag)).limit(1).findAny();
+                                new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
+                                        testConfig.getMaxJourneyDuration()).setDiag(diag)).
+                                limit(1).findAny();
+
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
                     }

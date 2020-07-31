@@ -82,7 +82,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
-                arriveBy, 3);
+                arriveBy, 0);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
         Assertions.assertTrue(journeys.size() > 0);
@@ -108,7 +108,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when), queryTime,
-                true, 3);
+                true, 0);
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
@@ -144,8 +144,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when), TramTime.of(17,45),
-                false, 3);
+        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when),
+                TramTime.of(17,45), false, 1);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
         Assertions.assertTrue(journeys.size()>0);

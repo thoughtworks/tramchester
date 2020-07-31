@@ -30,8 +30,6 @@ import static java.lang.String.format;
 
 class RouteCalculatorTestAllJourneys {
 
-    // TODO this needs to be > longest running test which is far from ideal
-    private static final int TXN_TIMEOUT_SECS = 4 * 60;
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
@@ -111,7 +109,8 @@ class RouteCalculatorTestAllJourneys {
                 map(journey -> {
                     try(Transaction txn=database.beginTx()) {
                         return Pair.of(journey,
-                            calculator.calculateRoute(txn, journey.getLeft(), journey.getRight(), journeyRequest).findAny());
+                            calculator.calculateRoute(txn, journey.getLeft(), journey.getRight(), journeyRequest)
+                                    .limit(1).findAny());
                         }
                 }).
                 forEach(stationsJourneyPair -> results.put(stationsJourneyPair.getLeft(), stationsJourneyPair.getRight()));

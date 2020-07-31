@@ -118,9 +118,10 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Deansgate, nearAltrincham,
-                TramTime.of(8, 0), false);
+                TramTime.of(8, 0), false, 3);
         List<Journey> twoStageJourneys = results.stream().
-                filter(journey -> journey.getStages().size() == 2).collect(Collectors.toList());
+                filter(journey -> journey.getStages().size() == 2).
+                limit(3).collect(Collectors.toList());
 
         assertFalse(twoStageJourneys.isEmpty());
         Journey firstJourney = twoStageJourneys.get(0);
@@ -179,7 +180,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 0);
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Deansgate, nearAltrincham,
-                queryTime, true);
+                queryTime, true, 3);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertTrue(journey.getQueryTime().isBefore(queryTime)));
@@ -197,7 +198,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingDirectAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Shudehill, nearShudehill,
-                queryTime, false);
+                queryTime, false, 3);
         assertFalse(results.isEmpty());
 
         results.forEach(journey -> {
@@ -212,7 +213,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
         List<Journey> results = getSortedJourneysForTramThenWalk(Stations.Altrincham, nearShudehill,
-                queryTime, false);
+                queryTime, false, 3);
 
         assertFalse(results.isEmpty());
 
@@ -258,14 +259,16 @@ class LocationJourneyPlannerTest {
     private Set<Journey> getJourneysForWalkThenTram(LatLong latLong, Station destination, TramTime queryTime, boolean arriveBy, int maxChanges) {
         TramServiceDate date = new TramServiceDate(when);
 
-        return getJourneySet(new JourneyRequest(date, queryTime, arriveBy, maxChanges, testConfig.getMaxJourneyDuration()), latLong, destination);
+        return getJourneySet(new JourneyRequest(date, queryTime, arriveBy, maxChanges,
+                testConfig.getMaxJourneyDuration()), latLong, destination);
     }
 
-    private List<Journey> getSortedJourneysForTramThenWalk(Station start, LatLong latLong, TramTime queryTime, boolean arriveBy) {
+    private List<Journey> getSortedJourneysForTramThenWalk(Station start, LatLong latLong, TramTime queryTime, boolean arriveBy, int maxChanges) {
         TramServiceDate date = new TramServiceDate(when);
 
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, start, latLong,
-                new JourneyRequest(date, queryTime, arriveBy, Integer.MAX_VALUE, testConfig.getMaxJourneyDuration())).sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));
+                new JourneyRequest(date, queryTime, arriveBy, maxChanges, testConfig.getMaxJourneyDuration())).
+                sorted(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));
         List<Journey> journeyList = journeyStream.collect(Collectors.toList());
         journeyStream.close();
         return journeyList;

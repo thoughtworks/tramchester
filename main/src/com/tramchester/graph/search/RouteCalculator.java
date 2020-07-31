@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -117,14 +118,22 @@ public class RouteCalculator implements TramRouteCalculator {
         PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
 
-        int changesLimit = journeyRequest.getMaxChanges();
-        return queryTimes.stream().
-                map(queryTime -> createHeuristics(queryTime, journeyConstraints, changesLimit)).
+        //int changesLimit = journeyRequest.getMaxChanges();
+        return IntStream.rangeClosed(0, journeyRequest.getMaxChanges()).boxed().
+                flatMap(numChanges -> queryTimes.stream().map(queryTime -> createHeuristics(queryTime, journeyConstraints, numChanges))).
                 flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
                         destinations, previousSuccessfulVisit,
                         new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
                 map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest),
                         path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath())));
+
+//        return queryTimes.stream().
+//                map(queryTime -> createHeuristics(queryTime, journeyConstraints, changesLimit)).
+//                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
+//                        destinations, previousSuccessfulVisit,
+//                        new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
+//                map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest),
+//                        path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath())));
     }
 
     public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,

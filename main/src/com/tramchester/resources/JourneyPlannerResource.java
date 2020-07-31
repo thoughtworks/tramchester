@@ -62,12 +62,12 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                   @QueryParam("lat") @DefaultValue("0") String lat,
                                   @QueryParam("lon") @DefaultValue("0") String lon,
                                   @QueryParam("arriveby") @DefaultValue("false") String arriveByRaw,
-                                  @QueryParam("maxChanges") @DefaultValue("9999") String maxChangesRaw,
+                                  @QueryParam("maxChanges") @DefaultValue("3") int maxChanges,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
                                   @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
                                   @Context UriInfo uriInfo) {
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
-                startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));
+                startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChanges));
 
         Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
         if (maybeDepartureTime.isEmpty()) {
@@ -80,7 +80,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         URI baseUri = uriInfo.getBaseUri();
 
         try(Transaction tx = graphDatabaseService.beginTx() ) {
-            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChangesRaw,
+            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
                     queryTime, config.getMaxJourneyDuration());
 
             Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
@@ -114,12 +114,12 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                   @QueryParam("lat") @DefaultValue("0") String lat,
                                   @QueryParam("lon") @DefaultValue("0") String lon,
                                   @QueryParam("arriveby") @DefaultValue("false") String arriveByRaw,
-                                  @QueryParam("maxChanges") @DefaultValue("9999") String maxChangesRaw,
+                                  @QueryParam("maxChanges") @DefaultValue("3") int maxChanges,
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
                                   @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
                                   @Context UriInfo uriInfo) {
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
-                startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChangesRaw));
+                startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChanges));
 
         Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
         if (maybeDepartureTime.isEmpty()) {
@@ -134,7 +134,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Transaction tx = graphDatabaseService.beginTx();
 
         try {
-            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChangesRaw,
+            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
                     queryTime, config.getMaxJourneyDuration());
             Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
 
@@ -151,12 +151,10 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     }
 
     @NotNull
-    private JourneyRequest createJourneyRequest(String departureDateRaw, String arriveByRaw, String maxChangesRaw,
+    private JourneyRequest createJourneyRequest(String departureDateRaw, String arriveByRaw, int maxChanges,
                                                 TramTime queryTime, int maxJourneyDuration) {
         LocalDate date = LocalDate.parse(departureDateRaw);
         TramServiceDate queryDate = new TramServiceDate(date);
-
-        int maxChanges = Integer.parseInt(maxChangesRaw);
 
         boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
         return new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges, maxJourneyDuration);

@@ -265,7 +265,7 @@ public class RouteCalculatorTest {
         Stream<Journey> stream = calculator.calculateRoute(txn, Stations.Bury, Stations.Altrincham,
                 new JourneyRequest(new TramServiceDate(when), TramTime.of(11,45), false,
                         4, config.getMaxJourneyDuration()));
-        Set<Journey> journeys = stream.collect(Collectors.toSet());
+        Set<Journey> journeys = stream.limit(3).collect(Collectors.toSet());
         stream.close();
 
         assertTrue(journeys.size()>0);
