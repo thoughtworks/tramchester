@@ -253,7 +253,7 @@ var app = new Vue({
             },
             queryServer() {
                 queryServerForJourneys(app, this.startStop, this.endStop, this.time,
-                    this.date, this.arriveBy,this.maxChanges);
+                    this.date, this.arriveBy, this.maxChanges);
                 displayLiveData(app);
             },
             setCookie() {
