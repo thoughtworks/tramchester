@@ -28,7 +28,6 @@ public class ServiceHeuristics {
     private final JourneyConstraints journeyConstraints;
     private final TramTime queryTime;
     private final TramReachabilityRepository tramReachabilityRepository;
-
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
     private final int changesLimit;

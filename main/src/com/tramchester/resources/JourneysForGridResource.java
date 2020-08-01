@@ -76,10 +76,11 @@ public class JourneysForGridResource implements APIResource {
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, queryTime,
                 false, maxChanges, maxDuration);
         journeyRequest.setWarnIfNoResults(false);
+        long numberToFind = maxChanges;
 
         logger.info("Create search");
         Stream<BoxWithCostDTO> results = search.
-                findForGridSizeAndDestination(destination, gridSize, journeyRequest).
+                findForGrid(destination, gridSize, journeyRequest, numberToFind).
                 map(box -> transformToDTO(box, tramServiceDate));
         logger.info("Creating stream");
         JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results);

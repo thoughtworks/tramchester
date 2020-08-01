@@ -4,14 +4,13 @@ import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.HasGridPosition;
 import com.tramchester.geo.StationLocations;
-import org.jetbrains.annotations.NotNull;
-import org.opengis.referencing.operation.TransformException;
+import com.tramchester.mappers.TramJourneyToDTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +27,16 @@ public class FastestRoutesForBoxes {
 
     private final StationLocations stationLocations;
     private final RouteCalculator calculator;
+    private final TramJourneyToDTOMapper dtoMapper;
 
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator, TramJourneyToDTOMapper dtoMapper) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;
+        this.dtoMapper = dtoMapper;
     }
 
-    public Stream<BoundingBoxWithCost> findForGridSizeAndDestination(Station destination, long gridSize,
-                                                                     JourneyRequest journeyRequest)  {
+    public Stream<BoundingBoxWithCost> findForGrid(Station destination, long gridSize,
+                                                   JourneyRequest journeyRequest, long numberToFind)  {
 
         logger.info("Creating station groups for gridsize " + gridSize);
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
@@ -49,11 +50,11 @@ public class FastestRoutesForBoxes {
         Set<Station> destinations = searchBoxWithDest.get().getStaions();
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
-        return calculator.calculateRoutes(destinations, journeyRequest, grouped).
-                map(box->cheapest(box, destination.getGridPosition()));
+        return calculator.calculateRoutes(destinations, journeyRequest, grouped, numberToFind).
+                map(box->cheapest(box, destination.getGridPosition(), journeyRequest));
     }
 
-    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, HasGridPosition destination) {
+    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, HasGridPosition destination, JourneyRequest request) {
 
         if (journeysForBox.getBox().contained(destination)) {
             return new BoundingBoxWithCost(journeysForBox.getBox(), 0, null);
@@ -68,8 +69,9 @@ public class FastestRoutesForBoxes {
         Journey currentBest = null;
 
         for (Journey journey: journeysForBox.getJourneys()) {
-            TramTime depart = getFirstDepartureTime(journey.getStages());
-            TramTime arrive = getExpectedArrivalTime(journey.getStages());
+            JourneyDTO dto = dtoMapper.createJourneyDTO(journey, request.getDate());
+            TramTime depart = dto.getFirstDepartureTime();
+            TramTime arrive = dto.getExpectedArrivalTime();
             int duration = TramTime.diffenceAsMinutes(depart, arrive);
             if (duration < currentLowestCost) {
                 currentBest = journey;
@@ -78,31 +80,6 @@ public class FastestRoutesForBoxes {
         }
 
         return new BoundingBoxWithCost(journeysForBox.getBox(), currentLowestCost, currentBest);
-    }
-
-    // TODO into journey???
-    // See also JourneyDTOFactory
-    private TramTime getFirstDepartureTime(List<TransportStage> allStages) {
-        if (allStages.size() == 0) {
-            return TramTime.midnight();
-        }
-        return getFirstStage(allStages).getFirstDepartureTime();
-    }
-
-    private TramTime getExpectedArrivalTime(List<TransportStage> allStages) {
-        if (allStages.size() == 0) {
-            return TramTime.of(0,0);
-        }
-        return getLastStage(allStages).getExpectedArrivalTime();
-    }
-
-    private TransportStage getLastStage(List<TransportStage> allStages) {
-        int index = allStages.size()-1;
-        return allStages.get(index);
-    }
-
-    private TransportStage getFirstStage(List<TransportStage> allStages) {
-        return allStages.get(0);
     }
 
 }

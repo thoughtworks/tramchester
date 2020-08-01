@@ -41,7 +41,9 @@ public class MapPathToStages {
         this.platformRepository = platformRepository;
     }
 
-    public List<TransportStage> mapDirect(Path path, TramTime queryTime, JourneyRequest journeyRequest) {
+    public List<TransportStage> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest) {
+        Path path = timedPath.getPath();
+        TramTime queryTime = timedPath.getQueryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s",
                 path.length(), journeyRequest, queryTime));
         ArrayList<TransportStage> results = new ArrayList<>();

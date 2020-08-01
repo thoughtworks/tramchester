@@ -77,7 +77,8 @@ class RouteCalulcatorForBoundingBoxTest {
 
         Set<Station> destinations = Collections.singleton(Stations.StPetersSquare);
 
-        Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped);
+        long numberToFind = 3;
+        Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped, numberToFind);
         List<JourneysForBox> groupedJourneys = stream.collect(Collectors.toList());
 
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).collect(Collectors.toList());

@@ -118,26 +118,16 @@ public class RouteCalculator implements TramRouteCalculator {
         PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
 
-        //int changesLimit = journeyRequest.getMaxChanges();
-        return IntStream.rangeClosed(0, journeyRequest.getMaxChanges()).boxed().
-                flatMap(numChanges -> queryTimes.stream().map(queryTime -> createHeuristics(queryTime, journeyConstraints, numChanges))).
-                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
-                        destinations, previousSuccessfulVisit,
-                        new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
-                map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest),
-                        path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath())));
-
-//        return queryTimes.stream().
-//                map(queryTime -> createHeuristics(queryTime, journeyConstraints, changesLimit)).
-//                flatMap(serviceHeuristics -> findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics,
-//                        destinations, previousSuccessfulVisit,
-//                        new ServiceReasons(journeyRequest, serviceHeuristics.getQueryTime(), providesLocalNow))).
-//                map(path -> new Journey(pathToStages.mapDirect(path.getPath(), path.getQueryTime(), journeyRequest),
-//                        path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath())));
+        return numChangesRange(journeyRequest).
+                flatMap(numChanges -> queryTimes.stream().
+                        map(queryTime-> new PathRequest(startNode, queryTime, numChanges, journeyConstraints))).
+                flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, previousSuccessfulVisit,
+                        createServiceReasons(journeyRequest, pathRequest.queryTime), pathRequest)).
+                map(path -> createJourney(journeyRequest, path));
     }
 
     public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
-                                                  List<BoundingBoxWithStations> grouped) {
+                                                  List<BoundingBoxWithStations> grouped, long numberToFind) {
         logger.info("Finding routes for bounding boxes");
 
         final TramTime time = journeyRequest.getTime();
@@ -145,9 +135,6 @@ public class RouteCalculator implements TramRouteCalculator {
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
 
         Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
-
-        int changesLimit = journeyRequest.getMaxChanges();
-        final ServiceHeuristics serviceHeuristics = createHeuristics(time, journeyConstraints, changesLimit);
 
         return grouped.parallelStream().map(box -> {
 
@@ -162,21 +149,31 @@ public class RouteCalculator implements TramRouteCalculator {
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
                         map(start -> getStationNodeSafe(txn, start)).
-                        flatMap(startNode -> {
-                            ServiceReasons reasons = new ServiceReasons(journeyRequest, time, providesLocalNow);
-                            return findShortestPath(txn, startNode, destinationNodeIds, serviceHeuristics, destinations,
-                                    previousSuccessfulVisit, reasons);
-                        }).
-                        map(timedPath -> new Journey(pathToStages.mapDirect(timedPath.getPath(), timedPath.getQueryTime(), journeyRequest),
-                                timedPath.getQueryTime(), mapPathToLocations.mapToLocations(timedPath.getPath())));
+                        flatMap(startNode -> numChangesRange(journeyRequest).
+                                map(numChanges -> new PathRequest(startNode, time, numChanges, journeyConstraints))).
+                        flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
+                                previousSuccessfulVisit, createServiceReasons(journeyRequest, time), pathRequest)).
+                        map(timedPath -> createJourney(journeyRequest, timedPath));
 
-                List<Journey> collect = journeys.collect(Collectors.toList());
+                // TODO Limit here, or return the stream?
+                List<Journey> collect = journeys.limit(numberToFind).collect(Collectors.toList());
 
                 // yielding
                 return new JourneysForBox(box, collect);
             }
         });
 
+    }
+
+    @NotNull
+    public Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
+        return IntStream.rangeClosed(0, journeyRequest.getMaxChanges()).boxed();
+    }
+
+    @NotNull
+    public ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time) {
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, time, providesLocalNow);
+        return reasons;
     }
 
     @NotNull
@@ -191,17 +188,23 @@ public class RouteCalculator implements TramRouteCalculator {
         return destinationNodeIds;
     }
 
-    private Stream<TimedPath> findShortestPath(Transaction txn, final Node startNode, Set<Long> destinationNodeIds,
-                                               final ServiceHeuristics serviceHeuristics,
+    private Stream<TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
                                                final Set<Station> endStations, PreviousSuccessfulVisits previousSuccessfulVisit,
-                                               ServiceReasons reasons) {
+                                               ServiceReasons reasons, PathRequest pathRequest) {
 
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, transportData, serviceHeuristics,
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, transportData,
+                pathRequest.serviceHeuristics,
                 sortsPosition, nodeOperations, endStations, config, nodeTypeRepository, destinationNodeIds, reasons);
 
         return tramNetworkTraverser.
-                findPaths(txn, startNode, previousSuccessfulVisit).
-                map(path -> new TimedPath(path, serviceHeuristics.getQueryTime()));
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit).
+                map(path -> new TimedPath(path, pathRequest.queryTime));
+    }
+
+    @NotNull
+    private Journey createJourney(JourneyRequest journeyRequest, TimedPath path) {
+        return new Journey(pathToStages.mapDirect(path, journeyRequest),
+                path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath()));
     }
 
     @NotNull
@@ -210,7 +213,23 @@ public class RouteCalculator implements TramRouteCalculator {
                 journeyConstraints, time, maxNumChanges);
     }
 
-    private static class TimedPath {
+    private class PathRequest {
+        private final Node startNode;
+        public final TramTime queryTime;
+        public final int numChanges;
+        private final ServiceHeuristics serviceHeuristics;
+
+
+        private PathRequest(Node startNode, TramTime queryTime, int numChanges, JourneyConstraints journeyConstraints) {
+            this.startNode = startNode;
+            this.queryTime = queryTime;
+            this.numChanges = numChanges;
+            this.serviceHeuristics = createHeuristics(queryTime, journeyConstraints, numChanges);
+        }
+    }
+
+
+    public static class TimedPath {
         private final Path path;
         private final TramTime queryTime;
 
