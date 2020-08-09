@@ -67,7 +67,7 @@ public class GraphDatabase implements Startable {
 
         if (existingFile && !upToDateVersionsAndNeighbourFlag()) {
             cleanDB = true;
-            logger.warn("Graph is out of data, rebuild needed");
+            logger.warn("Graph is out of date, rebuild needed");
             managementService.shutdown();
             int count = 10;
             while (databaseService.isAvailable(1000)) {

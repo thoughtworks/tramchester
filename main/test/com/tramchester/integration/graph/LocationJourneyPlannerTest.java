@@ -225,10 +225,12 @@ class LocationJourneyPlannerTest {
 
         List<TransportStage> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);
+
+        // Post lock down, no direct trams
+
 //        assertEquals(Stations.Shudehill, stages.get(0).getLastStation());
 //        assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
-        // Post lock down, no direct trams, walk from exchange after change at deansgate
-        assertEquals(Stations.Deansgate, stages.get(0).getLastStation());
+        assertEquals(Stations.StPetersSquare, stages.get(0).getLastStation());
         assertEquals(Stations.ExchangeSquare, stages.get(1).getLastStation());
     }
 

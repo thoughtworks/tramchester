@@ -55,10 +55,10 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimeNow() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
-        Station station = Stations.MarketStreet;
+        Station station = Stations.StPetersSquare;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
-        assertFalse(departures.isEmpty());
+        assertFalse(departures.isEmpty(), "no due trams");
         departures.forEach(depart -> assertEquals(station.getName(),depart.getFrom()));
     }
 
@@ -66,7 +66,7 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
-        Station station = Stations.MarketStreet;
+        Station station = Stations.StPetersSquare;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
         assertTrue(departures.isEmpty());
@@ -76,7 +76,7 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimeFuture() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
-        Station station = Stations.MarketStreet;
+        Station station = Stations.StPetersSquare;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
 
