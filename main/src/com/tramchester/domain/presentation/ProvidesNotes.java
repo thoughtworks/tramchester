@@ -71,12 +71,11 @@ public class ProvidesNotes {
     private Set<Note> createNotesForClosedStations() {
         Set<Note> messages = new HashSet<>();
         config.getClosedStations().
-                forEach(stationIdText ->
+                forEach(clousure ->
                 {
-                    IdFor<Station> stationId = IdFor.createId(stationIdText);
-                    Station closedStation = stationRepository.getStationById(stationId);
-                    String msg = format("%s is currently closed. %s", closedStation.getName(), website);
-                    messages.add(new StationNote(ClosedStation, msg, closedStation));
+                    Station station = clousure.getStation();
+                    String msg = format("%s is currently closed. %s", station.getName(), website);
+                    messages.add(new StationNote(ClosedStation, msg, station));
                 });
         return messages;
     }

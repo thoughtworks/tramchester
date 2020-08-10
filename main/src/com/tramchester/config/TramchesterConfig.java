@@ -1,6 +1,7 @@
 package com.tramchester.config;
 
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
 import io.dropwizard.bundles.assets.AssetsBundleConfiguration;
@@ -18,12 +19,6 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // name of the graph DB to use
     public abstract String getGraphName();
-
-    // a list of currently close stations
-    public abstract List<String> getClosedStations();
-
-    // transport modes to load
-//    public abstract List<GTFSTransportationType> getTransportModes();
 
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
@@ -104,6 +99,9 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // config for each of the data sources
     public abstract List<DataSourceConfig> getDataSourceConfig();
+
+    // a list of currently close stations
+    public abstract List<StationClosure> getClosedStations();
 
     // bounding box for stations to include
     public abstract BoundingBox getBounds();

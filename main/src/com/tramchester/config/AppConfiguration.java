@@ -2,6 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.bundles.assets.AssetsConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -27,9 +28,6 @@ public class AppConfiguration extends TramchesterConfig {
     @NotNull
     @JsonProperty("graphName")
     private String graphName;
-
-    @JsonProperty("closedStations")
-    private List<String> closedStations;
 
     @NotNull
     @JsonProperty("instanceDataUrl")
@@ -135,6 +133,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("dataSources")
     private List<DataSourceConfig> dataSourceConfig;
 
+    @Valid
+    @JsonProperty("closedStation")
+    private List<StationClosure> stationClosures;
+
     @NotNull
     @JsonProperty("bounds")
     private BoundingBox bounds;
@@ -225,10 +227,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getGraphName() { return graphName; }
 
-    @Override
-    public List<String> getClosedStations() {
-        return closedStations == null ? new ArrayList<>() : closedStations;
-    }
 
     @Override
     public String getLiveDataS3Bucket() {
@@ -288,6 +286,13 @@ public class AppConfiguration extends TramchesterConfig {
     public List<DataSourceConfig> getDataSourceConfig() {
         return dataSourceConfig;
     }
+
+    @Valid
+    @Override
+    public List<StationClosure> getClosedStations() {
+        return stationClosures == null ? new ArrayList<>() : stationClosures;
+    }
+
 
     @Valid
     @Override

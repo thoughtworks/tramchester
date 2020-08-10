@@ -2,6 +2,9 @@ package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.StationClosureConfig;
+import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.server.ServerFactory;
@@ -9,6 +12,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,12 +29,28 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean getChangeAtInterchangeOnly() { return true; }
 
     @Override
-    public List<String> getClosedStations() {
+    public List<StationClosure> getClosedStations() {
         return closedStations;
     }
 
     //////
-    private final List<String> closedStations = Collections.singletonList(Stations.StPetersSquare.forDTO());
+    private final List<StationClosure> closedStations = Collections.singletonList(
+            new StationClosure() {
+                @Override
+                public Station getStation() {
+                    return Stations.StPetersSquare;
+                }
+
+                @Override
+                public LocalDate getBegin() {
+                    return TestEnv.testDay();
+                }
+
+                @Override
+                public LocalDate getEnd() {
+                    return getBegin().plusWeeks(1);
+                }
+            });
 
     @Override
     public String getInstanceDataUrl() {

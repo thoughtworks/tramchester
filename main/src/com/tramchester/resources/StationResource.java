@@ -215,7 +215,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
             Set<Station> rawList = stationRepository.getStations();
             allStationsSorted = rawList.stream().
                     sorted(Comparator.comparing(Station::getName)).
-                    filter(station -> !closedStations.contains(station.getName())).
+                    //filter(station -> !closedStations.contains(station.getName())).
                     collect(Collectors.toList());
         }
         return allStationsSorted;
