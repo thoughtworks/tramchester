@@ -113,6 +113,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.DurationOk));
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.WalkOk));
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.Continue));
+        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.StationOpen));
+
     }
 
     @Test
@@ -129,6 +131,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotAtHour));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.AlreadyDeparted));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotAtQueryTime));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.StationClosed));
+
     }
 
     @Test
@@ -256,6 +260,39 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldExcludeIfStationIsClosed() throws TramchesterException {
+        TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
+        BranchState<JourneyState> state = new TestBranchState();
+        EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
+        EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
+        EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, howIGotHere, reasons)).
+                andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
+
+        TramTime time = TramTime.of(8, 15);
+        NotStartedState traversalState = getNotStartedState();
+        JourneyState journeyState = new JourneyState(time, traversalState);
+        journeyState.board(TransportMode.Tram);
+        state.setState(journeyState);
+
+        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(nodeIdLabelMap.isRouteStation(node)).andReturn(true);
+
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable));
+        EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
+                andReturn(ServiceReason.StationClosed(howIGotHere, Stations.Shudehill));
+        EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.StationClosed, node, TramTime.of(8,15));
+        EasyMock.expectLastCall();
+
+        replayAll();
+        Evaluation result = evaluator.evaluate(path, state);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        verifyAll();
+    }
+
+    @Test
     void shouldIncludeIfNotOnTramNode() throws TramchesterException {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
@@ -279,6 +316,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
+        EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
+                andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.StationOpen, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.WalkOk, node, TramTime.of(8,15));

@@ -1,10 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.Service;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.repository.RunningServices;
@@ -12,6 +9,7 @@ import com.tramchester.repository.TransportData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +25,7 @@ public class JourneyConstraints {
     private final TramchesterConfig config;
     private final int maxPathLength;
     private final Set<Station> endTramStations;
+    private final IdSet<Station> closedStations;
     private final boolean tramOnlyDestinations;
     private final int maxJourneyDuration;
 
@@ -42,6 +41,18 @@ public class JourneyConstraints {
 
         tramOnlyDestinations = (endTramStations.size() == endStations.size());
         this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+
+        LocalDate date = journeyRequest.getDate().getDate();
+
+        this.closedStations = config.getStationClosures().stream().
+                filter(closure -> date.isAfter(closure.getBegin()) || date.isEqual(closure.getBegin()) ).
+                filter(closure -> date.isBefore(closure.getEnd()) || date.isEqual(closure.getEnd())).
+                map(StationClosure::getStation).
+                collect(IdSet.idCollector());
+
+        if (!closedStations.isEmpty()) {
+            logger.info("Have closed stationed " + closedStations);
+        }
 
         if (tramOnlyDestinations) {
             logger.info("Checking only for tram destinations");
@@ -92,5 +103,9 @@ public class JourneyConstraints {
 
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
+    }
+
+    public boolean isClosed(Station station) {
+        return closedStations.contains(station.getId());
     }
 }

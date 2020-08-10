@@ -91,6 +91,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case ReachableNoCheck:
             case DurationOk:
             case WalkOk:
+            case StationOpen:
             case Continue:
                 return Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived:
@@ -106,6 +107,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case NotAtQueryTime:
             case NotOnQueryDate:
             case AlreadyDeparted:
+            case StationClosed:
                 return Evaluation.EXCLUDE_AND_PRUNE;
             default:
                 throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
@@ -165,10 +167,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return ServiceReason.ReasonCode.TookTooLong;
         }
 
-        // is even reachable from here?
+        // is even reachable from here? is the station open?
         if (nodeTypeRepository.isRouteStation(nextNode)) {
             if (!serviceHeuristics.canReachDestination(nextNode, howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;
+            }
+            if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
+                return ServiceReason.ReasonCode.StationClosed;
             }
         }
 

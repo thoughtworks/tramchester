@@ -45,19 +45,19 @@ public class ServiceHeuristics {
         this.changesLimit = changesLimit;
     }
     
-    public ServiceReason checkServiceDate(Node node, HowIGotHere path, ServiceReasons reasons) {
+    public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
         if (journeyConstraints.isRunning(nodeServiceId)) {
-            return valid(ServiceReason.ReasonCode.ServiceDateOk, path, reasons);
+            return valid(ServiceReason.ReasonCode.ServiceDateOk, howIGotHere, reasons);
         }
 
-        return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(path, nodeServiceId));
+        return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, nodeServiceId));
     }
 
-    public ServiceReason checkServiceTime(HowIGotHere path, Node node, TramTime currentClock, ServiceReasons reasons) {
+    public ServiceReason checkServiceTime(HowIGotHere howIGotHere, Node node, TramTime currentClock, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         IdFor<Service> serviceId = nodeOperations.getServiceId(node);
@@ -70,33 +70,33 @@ public class ServiceHeuristics {
         ServiceTime serviceEnd = journeyConstraints.getServiceLatest(serviceId);
 
         if (!currentClock.between(serviceStart, serviceEnd)) {
-            return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, path));
+            return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, howIGotHere));
         }
 
-        return valid(ServiceReason.ReasonCode.ServiceTimeOk, path, reasons);
+        return valid(ServiceReason.ReasonCode.ServiceTimeOk, howIGotHere, reasons);
     }
 
-    public ServiceReason checkNumberChanges(int currentNumChanges, HowIGotHere path, ServiceReasons reasons) {
+    public ServiceReason checkNumberChanges(int currentNumChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
        reasons.incrementTotalChecked();
 
        if (currentNumChanges>changesLimit) {
-         return reasons.recordReason(ServiceReason.TooManyChanges(path));
+         return reasons.recordReason(ServiceReason.TooManyChanges(howIGotHere));
        }
-       return valid(ServiceReason.ReasonCode.NumChangesOK, path, reasons);
+       return valid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere, reasons);
     }
 
-    public ServiceReason checkTime(HowIGotHere path, Node node, TramTime currentElapsed, ServiceReasons reasons) {
+    public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentElapsed, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         TramTime nodeTime = nodeOperations.getTime(node);
         if (currentElapsed.isAfter(nodeTime)) { // already departed
-            return reasons.recordReason(ServiceReason.AlreadyDeparted(currentElapsed, path));
+            return reasons.recordReason(ServiceReason.AlreadyDeparted(currentElapsed, howIGotHere));
         }
 
         if (operatesWithinTime(nodeTime, currentElapsed)) {
-            return valid(ServiceReason.ReasonCode.TimeOk, path, reasons);
+            return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
         }
-        return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, path));
+        return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, howIGotHere));
     }
 
     private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
@@ -104,7 +104,7 @@ public class ServiceHeuristics {
         return elapsedTimed.between(earliest, nodeTime);
     }
 
-    public ServiceReason interestedInHour(HowIGotHere path, Node node, TramTime journeyClockTime, ServiceReasons reasons) {
+    public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime, ServiceReasons reasons) {
         int hour = nodeOperations.getHour(node);
 
         reasons.incrementTotalChecked();
@@ -112,7 +112,7 @@ public class ServiceHeuristics {
         int queryTimeHour = journeyClockTime.getHourOfDay();
         if (hour == queryTimeHour) {
             // quick win
-            return valid(ServiceReason.ReasonCode.HourOk, path, reasons);
+            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
         // this only works if maxWaitMinutes<60
@@ -124,14 +124,29 @@ public class ServiceHeuristics {
             // TODO Breaks if max wait > 60
             int timeUntilNextHour = 60 - journeyConstraints.getMaxWait();
             if (journeyClockTime.getMinuteOfHour() >= timeUntilNextHour) {
-                return valid(ServiceReason.ReasonCode.HourOk, path, reasons);
+                return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
             }
         }
 
-        return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, path));
+        return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
     }
 
-    public ServiceReason canReachDestination(Node endNode, HowIGotHere path, ServiceReasons reasons) {
+
+    public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
+        IdFor<RouteStation> routeStationId = IdFor.getRouteStationIdFrom(node);
+        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
+
+        Station associatedStation = routeStation.getStation();
+
+        if (journeyConstraints.isClosed(associatedStation)) {
+           return reasons.recordReason(ServiceReason.StationClosed(howIGotHere, associatedStation));
+        }
+
+        return valid(ServiceReason.ReasonCode.StationOpen, howIGotHere, reasons);
+
+    }
+
+    public ServiceReason canReachDestination(Node endNode, HowIGotHere howIGotHere, ServiceReasons reasons) {
 
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
@@ -148,27 +163,27 @@ public class ServiceHeuristics {
             if (TransportMode.isTram(routeStation)) {
                 for(Station endStation : journeyConstraints.getEndTramStations()) {
                     if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
-                        return valid(ServiceReason.ReasonCode.Reachable, path, reasons);
+                        return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
                     }
                 }
-                return reasons.recordReason(ServiceReason.StationNotReachable(path));
+                return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
             }
         }
 
         // TODO can't exclude unless we know for sure not reachable, so include all for buses
-        return valid(ServiceReason.ReasonCode.ReachableNoCheck, path, reasons);
+        return valid(ServiceReason.ReasonCode.ReachableNoCheck, howIGotHere, reasons);
     }
 
-    public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere path, ServiceReasons reasons) {
+    public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         if (totalCost>journeyConstraints.getMaxJourneyDuration()) {
-            return reasons.recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), path));
+            return reasons.recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.DurationOk, path, reasons);
+        return valid(ServiceReason.ReasonCode.DurationOk, howIGotHere, reasons);
     }
 
-    private ServiceReason valid(ServiceReason.ReasonCode code, final HowIGotHere path, ServiceReasons reasons) {
+    private ServiceReason valid(ServiceReason.ReasonCode code, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         if (debugEnabled) {
-            return reasons.recordReason(ServiceReason.IsValid(code, path));
+            return reasons.recordReason(ServiceReason.IsValid(code, howIGotHere));
         }
         return reasons.recordReason(ServiceReason.IsValid(code));
     }

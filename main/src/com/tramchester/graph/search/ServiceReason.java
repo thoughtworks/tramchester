@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.states.HowIGotHere;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ public abstract class ServiceReason {
 
     public enum ReasonCode {
 
-        ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk, WalkOk, Continue,
+        ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk, WalkOk, StationOpen, Continue,
 
         NotOnQueryDate,
         NotAtQueryTime,
@@ -34,6 +35,7 @@ public abstract class ServiceReason {
         NotOnVehicle,
         SeenBusStationBefore,
         TooManyChanges,
+        StationClosed,
 
         Arrived
     }
@@ -196,6 +198,23 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static class StationClosed extends ServiceReason {
+
+        private final Station closed;
+
+        public StationClosed(HowIGotHere howIGotHere, Station closed) {
+            super(ReasonCode.StationClosed, howIGotHere);
+            this.closed = closed;
+        }
+
+        @Override
+        public String textForGraph() {
+            return format("%s%s%s", ReasonCode.StationClosed.name(), System.lineSeparator(), closed.getName());
+        }
+    }
+
+    //////////////
+
     private static class DoesNotOperateOnTime extends ServiceReason
     {
         private final TramTime elapsedTime;
@@ -287,6 +306,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason SeenBusStationBefore(HowIGotHere path) {
         return new ServiceReason.SeenBusStationBefore(path);
+    }
+
+    public static ServiceReason StationClosed(HowIGotHere howIGotHere, Station closed) {
+        return new ServiceReason.StationClosed(howIGotHere, closed);
     }
 
 }

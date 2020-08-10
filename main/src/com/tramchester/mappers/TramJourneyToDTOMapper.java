@@ -32,7 +32,6 @@ public class TramJourneyToDTOMapper {
 
     public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
         List<StageDTO> stages = new ArrayList<>();
-        List<StationRefWithPosition> path = new ArrayList<>();
 
         List<TransportStage> rawJourneyStages = journey.getStages();
         TramTime queryTime = journey.getQueryTime();

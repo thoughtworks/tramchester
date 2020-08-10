@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ServiceTime;
@@ -69,7 +70,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getIsTramOnlyDestinations()).andStubReturn(true);
         EasyMock.expect(journeyConstraints.getEndTramStations()).andStubReturn(endStations);
         EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(maxJourneyDuration);
-            //new JourneyConstraints(config30MinsWait, transportData, journeyRequest, endStationIds);
     }
 
     @NotNull
@@ -104,6 +104,38 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         result = serviceHeuristics.checkServiceDate(node, path, reasons);
         assertEquals(ServiceReason.ReasonCode.NotOnQueryDate, result.getReasonCode());
         verifyAll();
+    }
+
+    @Test
+    void shouldCheckNodeOpenStation() {
+        TramTime queryTime = TramTime.of(8,1);
+        JourneyRequest journeyRequest = getJourneyRequest(queryTime);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+
+        RouteStation routeStationA = new RouteStation(Stations.Bury, TestEnv.getTestRoute());
+        RouteStation routeStationB = new RouteStation(Stations.Shudehill, TestEnv.getTestRoute());
+
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations,
+                tramReachabilityRepository,
+                journeyConstraints, queryTime, MAX_NUM_CHANGES);
+
+        EasyMock.expect(journeyConstraints.isClosed(Stations.Bury)).andReturn(false);
+        EasyMock.expect(journeyConstraints.isClosed(Stations.Shudehill)).andReturn(true);
+
+        Node node = createMock(Node.class);
+        EasyMock.expect(node.getProperty("route_station_id")).andReturn("123");
+        EasyMock.expect(stationRepository.getRouteStationById(IdFor.createId("123"))).andReturn(routeStationA);
+        EasyMock.expect(node.getProperty("route_station_id")).andReturn("789");
+        EasyMock.expect(stationRepository.getRouteStationById(IdFor.createId("789"))).andReturn(routeStationB);
+
+        replayAll();
+        ServiceReason result = serviceHeuristics.checkStationOpen(node, path, reasons);
+        assertTrue(result.isValid());
+
+        result = serviceHeuristics.checkStationOpen(node, path, reasons);
+        assertEquals(ServiceReason.ReasonCode.StationClosed, result.getReasonCode());
+        verifyAll();
+
     }
 
     @Test
