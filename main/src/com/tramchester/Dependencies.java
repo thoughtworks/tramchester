@@ -5,7 +5,6 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.cloud.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
-import com.tramchester.domain.ClosedStations;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.ProximityGroups;
@@ -100,7 +99,6 @@ public class Dependencies {
         picoContainer.addComponent(ProximityGroups.class);
         picoContainer.addComponent(DeparturesResource.class);
         picoContainer.addComponent(DeparturesMapper.class);
-        picoContainer.addComponent(ClosedStations.class);
         picoContainer.addComponent(VersionResource.class);
 
         // WIP

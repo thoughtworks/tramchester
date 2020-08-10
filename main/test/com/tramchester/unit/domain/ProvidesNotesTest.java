@@ -24,9 +24,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.tramchester.domain.presentation.Note.NoteType.Live;
+import static java.lang.String.format;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -38,12 +40,11 @@ class ProvidesNotesTest extends EasyMockSupport {
     private ProvidesNotes provider;
     private LiveDataRepository liveDataRepository;
     private LocalDateTime lastUpdate;
-    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
         liveDataRepository = createStrictMock(LiveDataRepository.class);
-        stationRepository = createMock(StationRepository.class);
+        StationRepository stationRepository = createMock(StationRepository.class);
         provider = new ProvidesNotes(TestEnv.GET(), liveDataRepository, stationRepository);
         lastUpdate = TestEnv.LocalNow();
 
@@ -60,8 +61,11 @@ class ProvidesNotesTest extends EasyMockSupport {
                 TramTime.of(11,45), Collections.emptyList()), queryDate);
         verifyAll();
 
+        String expectedText = format("St Peter's Square is closed between %s and %s. ",
+                TestEnv.testDay().format(DateTimeFormatter.ISO_LOCAL_DATE),
+                TestEnv.testDay().plusWeeks(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         assertThat(result, hasItem(new StationNote(Note.NoteType.ClosedStation,
-                "St Peter's Square is currently closed. " + ProvidesNotes.website,
+                expectedText + ProvidesNotes.website,
                 Stations.StPetersSquare)));
     }
 

@@ -9,6 +9,7 @@ import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.StationListDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithGroupDTO;
 import com.tramchester.domain.presentation.LatLong;
@@ -42,7 +43,6 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     private List<Station> allStationsSorted;
     private final SpatialService spatialService;
-    private final ClosedStations closedStations;
     private final StationRepository stationRepository;
     private final MyLocationFactory locationFactory;
     private final ProximityGroups proximityGroups;
@@ -50,12 +50,11 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final TramchesterConfig config;
 
     public StationResource(StationRepository stationRepository, SpatialService spatialService,
-                           ClosedStations closedStations, UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
+                           UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            MyLocationFactory locationFactory, ProvidesNow providesNow, ProximityGroups proximityGroups,
                            StationLocations stationLocations, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
         this.spatialService = spatialService;
-        this.closedStations = closedStations;
         this.stationRepository = stationRepository;
         this.locationFactory = locationFactory;
         this.proximityGroups = proximityGroups;
@@ -105,6 +104,19 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         });
 
         return Response.ok(new StationListDTO(displayStations, proximityGroups.getGroups())).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/closures")
+    @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
+    public Response getClosures() {
+        logger.info("Get closed stations");
+
+        List<StationClosure> closures = config.getClosedStations();
+        List<StationClosureDTO> dtos = closures.stream().map(StationClosureDTO::new).collect(Collectors.toList());
+        return Response.ok(dtos).build();
+
     }
 
     @GET

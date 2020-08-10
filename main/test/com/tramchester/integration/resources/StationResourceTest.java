@@ -3,16 +3,16 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationAppExtension;
+import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,6 +101,20 @@ class StationResourceTest {
         // the nearest stops show come next
         Assertions.assertEquals(ProximityGroups.NEAREST_STOPS, stations.get(1).getProximityGroup());
 
+    }
+
+    @Test
+    void shouldGetClosedStations() {
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations/closures");
+        assertEquals(200, result.getStatus());
+
+        List<StationClosureDTO> results = result.readEntity(new GenericType<>() {});
+
+        assertEquals(1, results.size());
+        StationClosureDTO stationClosure = results.get(0);
+        assertEquals(Stations.StPetersSquare.forDTO(), stationClosure.getStation().getId());
+        assertEquals(TestEnv.testDay(), stationClosure.getBegin());
+        assertEquals(TestEnv.testDay().plusWeeks(1), stationClosure.getEnd());
     }
 
     @Test

@@ -11,6 +11,7 @@ public class StationRefWithGroupDTO extends StationRefDTO {
         this.proximityGroup = proximityGroup;
     }
 
+    @SuppressWarnings("unused")
     public StationRefWithGroupDTO() {
         // deserialisation
     }

@@ -11,6 +11,7 @@ import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationRepository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.tramchester.domain.presentation.Note.NoteType.*;
@@ -74,7 +75,9 @@ public class ProvidesNotes {
                 forEach(clousure ->
                 {
                     Station station = clousure.getStation();
-                    String msg = format("%s is currently closed. %s", station.getName(), website);
+                    String msg = format("%s is closed between %s and %s. %s",
+                            station.getName(), clousure.getBegin().format(DateTimeFormatter.ISO_LOCAL_DATE),
+                            clousure.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE), website);
                     messages.add(new StationNote(ClosedStation, msg, station));
                 });
         return messages;
