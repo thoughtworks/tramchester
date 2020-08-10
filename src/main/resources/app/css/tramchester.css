@@ -42,6 +42,10 @@
     list-style-type:circle;
 }
 
+.Closures {
+    list-style-type:circle;
+}
+
 /* NOTE: Dont set line width here as leaflet will silently fail to update it */
 
 /* Altincham to/from Bury */

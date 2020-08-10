@@ -14,6 +14,7 @@ import Journeys from './components/Journeys';
 import Footer from './components/Footer';
 import LiveDepartures from './components/LiveDepatures'
 import LocationSelection from './components/LocationSelection';
+import Closures from './components/Closures'
 
 const dateFormat = "YYYY-MM-DD";
 
@@ -225,7 +226,8 @@ var app = new Vue({
             'journeys' : Journeys,
             'app-footer' : Footer,
             'live-departures' : LiveDepartures,
-            'location-selection': LocationSelection
+            'location-selection': LocationSelection,
+            'closures' : Closures
         },
         methods: {
             plan(event){
