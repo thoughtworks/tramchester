@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.ProximityGroups;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new ClosedStationTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -123,14 +125,6 @@ class StationResourceTest {
         Collection<StationRefWithGroupDTO> stations = getAll().getStations();
 
         stations.forEach(station -> Assertions.assertNotEquals("My Location", station.getName()));
-    }
-
-    @Test
-    void shouldNotGetClosedStations() {
-        Collection<StationRefWithGroupDTO> stations = getAll().getStations();
-
-        assertThat(stations.stream().filter(station -> station.getName().equals("St Peters Square")).count()).isEqualTo(0);
-        assertThat(stations.stream().filter(station -> station.getName().equals(Stations.Altrincham.getName())).count()).isEqualTo(1);
     }
 
     @Test
@@ -298,4 +292,29 @@ class StationResourceTest {
         return result.readEntity(StationListDTO.class);
     }
 
+    private static class ClosedStationTestConfig extends IntegrationTramTestConfig {
+
+        @Override
+        public List<StationClosure> getStationClosures() {
+            return closedStations;
+        }
+
+        private final List<StationClosure> closedStations = Collections.singletonList(
+                new StationClosure() {
+                    @Override
+                    public IdFor<Station> getStation() {
+                        return Stations.StPetersSquare.getId();
+                    }
+
+                    @Override
+                    public LocalDate getBegin() {
+                        return TestEnv.testDay();
+                    }
+
+                    @Override
+                    public LocalDate getEnd() {
+                        return getBegin().plusWeeks(1);
+                    }
+                });
+    }
 }

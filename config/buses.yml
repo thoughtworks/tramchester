@@ -15,7 +15,7 @@ server:
 
 secureHost: tramchester.com
 graphName: buses.db
-closedStations: []
+stationClosures: []
 dataSources:
   -
     name: tfgm

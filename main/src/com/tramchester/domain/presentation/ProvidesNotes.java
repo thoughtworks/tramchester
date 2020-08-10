@@ -71,10 +71,10 @@ public class ProvidesNotes {
 
     private Set<Note> createNotesForClosedStations() {
         Set<Note> messages = new HashSet<>();
-        config.getClosedStations().
+        config.getStationClosures().
                 forEach(clousure ->
                 {
-                    Station station = clousure.getStation();
+                    Station station = stationRepository.getStationById(clousure.getStation());
                     String msg = format("%s is closed between %s and %s. %s",
                             station.getName(), clousure.getBegin().format(DateTimeFormatter.ISO_LOCAL_DATE),
                             clousure.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE), website);

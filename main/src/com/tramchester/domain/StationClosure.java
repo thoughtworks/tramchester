@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @JsonDeserialize(as=StationClosureConfig.class)
 public interface StationClosure {
 
-    Station getStation();
+    IdFor<Station> getStation();
     LocalDate getBegin();
     LocalDate getEnd();
 

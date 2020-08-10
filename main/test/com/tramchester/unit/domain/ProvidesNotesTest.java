@@ -1,6 +1,8 @@
 package com.tramchester.unit.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -15,6 +17,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -45,7 +48,8 @@ class ProvidesNotesTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         liveDataRepository = createStrictMock(LiveDataRepository.class);
         StationRepository stationRepository = createMock(StationRepository.class);
-        provider = new ProvidesNotes(TestEnv.GET(), liveDataRepository, stationRepository);
+        TramchesterConfig config = new TestConfigWithClosedStation();
+        provider = new ProvidesNotes(config, liveDataRepository, stationRepository);
         lastUpdate = TestEnv.LocalNow();
 
         EasyMock.expect(stationRepository.getStationById(Stations.StPetersSquare.getId())).andStubReturn(Stations.StPetersSquare);
@@ -304,4 +308,33 @@ class ProvidesNotesTest extends EasyMockSupport {
     }
 
 
+    private static class TestConfigWithClosedStation extends TestConfig {
+        @Override
+        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            return null;
+        }
+
+        @Override
+        public List<StationClosure> getStationClosures() {
+            return closedStations;
+        }
+
+        private final List<StationClosure> closedStations = Collections.singletonList(
+                new StationClosure() {
+                    @Override
+                    public IdFor<Station> getStation() {
+                        return Stations.StPetersSquare.getId();
+                    }
+
+                    @Override
+                    public LocalDate getBegin() {
+                        return TestEnv.testDay();
+                    }
+
+                    @Override
+                    public LocalDate getEnd() {
+                        return getBegin().plusWeeks(1);
+                    }
+                });
+    }
 }

@@ -101,7 +101,7 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     public abstract List<DataSourceConfig> getDataSourceConfig();
 
     // a list of currently close stations
-    public abstract List<StationClosure> getClosedStations();
+    public abstract List<StationClosure> getStationClosures();
 
     // bounding box for stations to include
     public abstract BoundingBox getBounds();

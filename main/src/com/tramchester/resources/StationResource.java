@@ -111,12 +111,18 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @Path("/closures")
     @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
     public Response getClosures() {
-        logger.info("Get closed stations");
+        List<StationClosure> closures = config.getStationClosures();
 
-        List<StationClosure> closures = config.getClosedStations();
-        List<StationClosureDTO> dtos = closures.stream().map(StationClosureDTO::new).collect(Collectors.toList());
+        logger.info("Get closed stations " + closures);
+
+        List<StationClosureDTO> dtos = closures.stream().map(this::createClosureDTO).collect(Collectors.toList());
         return Response.ok(dtos).build();
 
+    }
+
+    private StationClosureDTO createClosureDTO(StationClosure stationClosure) {
+        Station closedStation = stationRepository.getStationById(stationClosure.getStation());
+        return new StationClosureDTO(stationClosure, closedStation);
     }
 
     @GET

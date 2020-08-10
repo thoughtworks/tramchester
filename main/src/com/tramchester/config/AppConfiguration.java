@@ -133,8 +133,8 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("dataSources")
     private List<DataSourceConfig> dataSourceConfig;
 
-    @Valid
-    @JsonProperty("closedStation")
+    @NotNull
+    @JsonProperty("stationClosures")
     private List<StationClosure> stationClosures;
 
     @NotNull
@@ -289,10 +289,9 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Valid
     @Override
-    public List<StationClosure> getClosedStations() {
-        return stationClosures == null ? new ArrayList<>() : stationClosures;
+    public List<StationClosure> getStationClosures() {
+        return stationClosures;
     }
-
 
     @Valid
     @Override

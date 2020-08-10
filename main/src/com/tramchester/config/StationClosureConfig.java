@@ -1,33 +1,32 @@
 package com.tramchester.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.places.Station;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Valid
-@JsonIgnoreProperties(ignoreUnknown = false)
 public class StationClosureConfig extends Configuration implements StationClosure {
 
-    @NotNull
-    @JsonProperty(value = "station")
-    private Station station;
+    private final IdFor<Station> station;
+    private final LocalDate begin;
+    private final LocalDate end;
 
-    @NotNull
-    @JsonProperty(value = "begin")
-    private LocalDate begin;
+    public StationClosureConfig(@JsonProperty(value = "station", required = true) IdFor<Station> station,
+                                @JsonProperty(value = "begin", required = true) LocalDate begin,
+                                @JsonProperty(value = "end", required = true) LocalDate end) {
+        this.station = station;
+        this.begin = begin;
+        this.end = end;
+    }
 
-    @NotNull
-    @JsonProperty(value = "end")
-    private LocalDate end;
 
     @Override
-    public Station getStation() {
+    public IdFor<Station> getStation() {
         return station;
     }
 

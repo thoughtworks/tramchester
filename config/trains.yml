@@ -30,7 +30,7 @@ bounds:
   minNorthings: 30599
   maxEasting: 654747
   maxNorthings: 967921
-closedStations: []
+stationClosures: []
 instanceDataUrl: http://169.254.169.254
 liveDataUrl: https://api.tfgm.com/odata/Metrolinks
 liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
