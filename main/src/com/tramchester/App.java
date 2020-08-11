@@ -123,7 +123,7 @@ public class App extends Application<AppConfiguration>  {
 
         // api end points registration
         dependencies.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
-        // TOOD This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
+        // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
 
         MetricRegistry metricRegistry = environment.metrics();

@@ -100,11 +100,6 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     }
 
     @Override
-    public boolean isEnabledGeo() {
-        return enableGeo;
-    }
-
-    @Override
     public String toString() {
         return Name+"{" +
                 "geo=" + enableGeo +

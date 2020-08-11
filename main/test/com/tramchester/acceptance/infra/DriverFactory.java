@@ -30,7 +30,7 @@ public class DriverFactory {
             case ProvidesChromeDriver.Name:
                 return new ProvidesChromeDriver(enableGeo);
             case ProvidesChromeOnAndroid.Name:
-                return new ProvidesChromeOnAndroid(enableGeo);
+                return new ProvidesChromeOnAndroid();
             default:
                 throw new RuntimeException("Unknown browser " + browserName);
         }

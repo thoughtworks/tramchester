@@ -110,15 +110,15 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         }
     }
 
-    // Actions(getDriver()).moveToElement() broken since start on geckodriver, no sign of it ever being fixed
-    @Override
-    public void moveTo(WebElement webElement){
-        //new Actions(getDriver()).moveToElement(webElement).perform();
-        JavascriptExecutor executor = (JavascriptExecutor)driver;
-        executor.executeScript("arguments[0].scrollIntoView(true);", webElement);
-    }
+//    // Actions(getDriver()).moveToElement() broken since start on geckodriver, no sign of it ever being fixed
+//    @Override
+//    public void moveTo(WebElement webElement){
+//        //new Actions(getDriver()).moveToElement(webElement).perform();
+//        JavascriptExecutor executor = (JavascriptExecutor)driver;
+//        executor.executeScript("arguments[0].scrollIntoView(true);", webElement);
+//    }
 
-    // element click() unrealabile on geckodriver.....
+    // element click() unrealible on geckodriver.....
     @Override
     public void click(WebElement webElement) {
         JavascriptExecutor executor = (JavascriptExecutor)driver;
@@ -136,11 +136,6 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
         catch (NoSuchSessionException quitMustHaveAlreadyClosedTheSession) {
             driver=null;
         }
-    }
-
-    @Override
-    public boolean isEnabledGeo() {
-        return enableGeo;
     }
 
     @Override

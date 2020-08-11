@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class StaticAssetFilter implements Filter {
 
-    private int seconds;
+    private final int seconds;
 
     public StaticAssetFilter(int seconds) {
         this.seconds = seconds;
@@ -22,7 +22,6 @@ public class StaticAssetFilter implements Filter {
 
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        seconds = 30 * 60; // 30 minutes
         httpServletResponse.setHeader("Cache-Control", "public, max-age=" + seconds);
 
         chain.doFilter(request,response);

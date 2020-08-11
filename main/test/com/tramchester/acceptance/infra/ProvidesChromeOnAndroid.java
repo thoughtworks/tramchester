@@ -16,13 +16,10 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 public class ProvidesChromeOnAndroid extends ProvidesDriver {
 
     public final static String Name ="androidChrome";
-    private final boolean enableGeo;
     private AppiumDriver<WebElement> driver;
     private ProvidesDateInput providesDateInput;
 
-    public ProvidesChromeOnAndroid(boolean enableGeo) {
-        this.enableGeo = enableGeo;
-        // TODO - the non-geo tests won't pass until this is done
+    public ProvidesChromeOnAndroid() {
     }
 
     @Override
@@ -54,11 +51,6 @@ public class ProvidesChromeOnAndroid extends ProvidesDriver {
     @Override
     protected RemoteWebDriver getDriver() {
         return driver;
-    }
-
-    @Override
-    public boolean isEnabledGeo() {
-        return enableGeo;
     }
 
     @Override

@@ -23,7 +23,6 @@ public abstract class ProvidesDriver {
     public abstract Cookie getCookieNamed(String name);
     public abstract void setStubbedLocation(LatLong place) throws IOException;
     protected abstract String getDriverName();
-    public abstract boolean isEnabledGeo();
 
     protected void takeScreenShot(String testName) {
         TakesScreenshot driver = getDriver();
