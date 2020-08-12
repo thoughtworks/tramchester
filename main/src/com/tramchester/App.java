@@ -194,5 +194,9 @@ public class App extends Application<AppConfiguration>  {
                 addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST),true, pattern);
     }
 
+    public Dependencies getDependencies() {
+        return dependencies;
+    }
+
 
 }

@@ -4,14 +4,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.MyLocationFactory;
-import com.tramchester.domain.places.ProximityGroups;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.StationClosureDTO;
-import com.tramchester.domain.presentation.DTO.StationListDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithGroupDTO;
+import com.tramchester.domain.places.*;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -22,6 +16,7 @@ import com.tramchester.services.SpatialService;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,9 +74,10 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         }
     }
 
+    @Deprecated
     @GET
     @Timed
-    @ApiOperation(value = "Get all stations", response = StationListDTO.class)
+    @ApiOperation(value = "DEPRECATED use /all. Get all stations", response = StationListDTO.class)
     @CacheControl(noCache = true)
     public Response getAll(@CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {
         logger.info("Get all stations with cookie " + tranchesterRecent);
@@ -106,10 +102,70 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         return Response.ok(new StationListDTO(displayStations, proximityGroups.getGroups())).build();
     }
 
+
+    // TODO CACHE/304 based on version of the data
+    @GET
+    @Timed
+    @Path("/all")
+    @ApiOperation(value = "Get all stations", response = StationRefDTO.class, responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public Response getAll() {
+        logger.info("Get all stations");
+
+        Set<Station> allStations = stationRepository.getStations();
+
+        List<StationRefDTO> results = toStationRefDTOList(allStations);
+
+        return Response.ok(results).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/near")
+    @ApiOperation(value = "Get stations close to a given lat/lon", response = StationRefDTO.class, responseContainer = "List")
+    @CacheControl(noCache = true)
+    public Response getNear(@QueryParam("lat") double lat, @QueryParam("lon") double lon) {
+        logger.info(format("Get stations near to %s,%s", lat, lon));
+        LatLong latLong = new LatLong(lat,lon);
+
+        List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong, config.getNumOfNearestStops(),
+                config.getNearestStopRangeKM());
+
+        List<StationRefDTO> results = toStationRefDTOList(nearestStations);
+
+        return Response.ok(results).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/recent")
+    @ApiOperation(value = "Get recent stations based on supplied cookie", response = StationRefDTO.class, responseContainer = "List")
+    @CacheControl(noCache = true)
+    public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie) {
+        logger.info(format("Get recent stations for cookie %s", cookie));
+
+        RecentJourneys recentJourneys = recentFromCookie(cookie);
+
+        Set<Station> recent = recentJourneys.stream().map(Timestamped::getId).
+                map(id -> stationRepository.getStationById(IdFor.createId(id))).
+                collect(Collectors.toSet());
+
+        List<StationRefDTO> results = toStationRefDTOList(recent);
+
+        return Response.ok(results).build();
+    }
+
+    @NotNull
+    public List<StationRefDTO> toStationRefDTOList(Collection<Station> stations) {
+        return stations.stream().map(StationRefDTO::new).collect(Collectors.toList());
+    }
+
+    // TODO CACHE/304 based on version of the data
     @GET
     @Timed
     @Path("/closures")
     @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     public Response getClosures() {
         List<StationClosure> closures = config.getStationClosures();
 
@@ -149,10 +205,11 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         return Response.ok(new StationListDTO(displayStations, Collections.singletonList(ProximityGroups.RECENT))).build();
     }
 
+    @Deprecated
     @GET
     @Timed
     @Path("/{lat}/{lon}")
-    @ApiOperation(value = "Get geographically close stations", response = StationListDTO.class)
+    @ApiOperation(value = "DEPRECATED, use /near. Get geographically close stations", response = StationListDTO.class)
     @CacheControl(noCache = true)
     public Response getNearest(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                @CookieParam(TRAMCHESTER_RECENT) Cookie tranchesterRecent) {

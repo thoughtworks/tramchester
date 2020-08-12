@@ -27,6 +27,7 @@ public class Timestamped  {
         this.id = id;
     }
 
+    @SuppressWarnings("unused")
     public Timestamped() {
         // deserialisation
     }

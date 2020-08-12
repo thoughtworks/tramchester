@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationResourceTest {
@@ -61,8 +63,9 @@ class StationResourceTest {
         assertEquals(8, routes.size()); // 2 x 4
     }
 
+    @Deprecated
     @Test
-    void shouldGetNearestStations() {
+    void shouldGetNearestStationsOLDAPI() {
         StationListDTO stationListDTO = getNearest(TestEnv.nearPiccGardens);
         List<StationRefWithGroupDTO> stations = stationListDTO.getStations();
 
@@ -71,7 +74,7 @@ class StationResourceTest {
 
         Long one = 1L;
         Assertions.assertEquals(one, stationGroups.get(ProximityGroups.MY_LOCATION));
-        Assertions.assertTrue(stationGroups.get(ProximityGroups.NEAREST_STOPS) > 0);
+        assertTrue(stationGroups.get(ProximityGroups.NEAREST_STOPS) > 0);
         int ALL_STOPS_START = 7; // 6 + 1
         Assertions.assertEquals(ProximityGroups.STOPS, stations.get(ALL_STOPS_START).getProximityGroup());
         Assertions.assertEquals("Abraham Moss", stations.get(ALL_STOPS_START).getName());
@@ -82,17 +85,76 @@ class StationResourceTest {
         checkProximityGroupsForTrams(proximityGroups);
     }
 
-    private void checkProximityGroupsForTrams(List<ProximityGroup> proximityGroups) {
-        Assertions.assertEquals(4, proximityGroups.size());
-        Set<String> names = proximityGroups.stream().map(ProximityGroup::getName).collect(Collectors.toSet());
-        Assertions.assertTrue(names.contains(ProximityGroups.STOPS.getName()));
-        Assertions.assertTrue(names.contains(ProximityGroups.NEAREST_STOPS.getName()));
-        Assertions.assertTrue(names.contains(ProximityGroups.RECENT.getName()));
-        Assertions.assertTrue(names.contains(ProximityGroups.MY_LOCATION.getName()));
+    @Test
+    void shouldGetAllStations() {
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations/all");
+
+        assertEquals(200, result.getStatus());
+
+        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+
+        App app =  appExtension.getApplication();
+        StationRepository stationRepo = app.getDependencies().get(StationRepository.class);
+        Set<String> stationsIds = stationRepo.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+
+        assertEquals(stationsIds.size(), results.size());
+
+        Set<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+
+        assertTrue(stationsIds.containsAll(resultIds));
     }
 
     @Test
-    void shouldGetMyLocationPlaceholderStation() {
+    void shouldGetNearestStations() {
+
+        LatLong nearPiccGardens = TestEnv.nearPiccGardens;
+        Response result = IntegrationClient.getApiResponse(appExtension, String.format("stations/near?lat=%s&lon=%s",
+                nearPiccGardens.getLat(), nearPiccGardens.getLon()));
+        assertEquals(200, result.getStatus());
+
+        List<StationRefDTO> stationList = result.readEntity(new GenericType<>() {});
+
+        assertEquals(6,stationList.size());
+        Set<String> ids = stationList.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        assertTrue(ids.contains(Stations.PiccadillyGardens.forDTO()));
+        assertTrue(ids.contains(Stations.Piccadilly.forDTO()));
+        assertTrue(ids.contains(Stations.StPetersSquare.forDTO()));
+        assertTrue(ids.contains(Stations.MarketStreet.forDTO()));
+        assertTrue(ids.contains(Stations.ExchangeSquare.forDTO()));
+        assertTrue(ids.contains(Stations.Shudehill.forDTO()));
+    }
+
+    @Test
+    void shouldGetRecentStations() throws JsonProcessingException {
+        Cookie cookie = createRecentsCookieFor(Stations.Altrincham, Stations.Bury, Stations.ManAirport);
+
+        // All
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations/recent", cookie);
+        assertEquals(200, result.getStatus());
+
+        List<StationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
+
+        assertEquals(3, stationDtos.size());
+
+        Set<String> ids = stationDtos.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+
+        assertTrue(ids.contains(Stations.Altrincham.forDTO()));
+        assertTrue(ids.contains(Stations.Bury.forDTO()));
+        assertTrue(ids.contains(Stations.ManAirport.forDTO()));
+
+    }
+
+    private void checkProximityGroupsForTrams(List<ProximityGroup> proximityGroups) {
+        Assertions.assertEquals(4, proximityGroups.size());
+        Set<String> names = proximityGroups.stream().map(ProximityGroup::getName).collect(Collectors.toSet());
+        assertTrue(names.contains(ProximityGroups.STOPS.getName()));
+        assertTrue(names.contains(ProximityGroups.NEAREST_STOPS.getName()));
+        assertTrue(names.contains(ProximityGroups.RECENT.getName()));
+        assertTrue(names.contains(ProximityGroups.MY_LOCATION.getName()));
+    }
+
+    @Test
+    void shouldGetMyLocationPlaceholderStationOLDAPI() {
         List<StationRefWithGroupDTO> stations = getNearest(TestEnv.nearPiccGardens).getStations();
 
         StationRefWithGroupDTO station = stations.get(0);
@@ -119,6 +181,7 @@ class StationResourceTest {
         assertEquals(TestEnv.testDay().plusWeeks(1), stationClosure.getEnd());
     }
 
+    @Deprecated
     @Test
     void shouldNotGetMyLocationPlaceholderStationWhenGettingAllStations() {
         getNearest(TestEnv.nearPiccGardens);
@@ -127,6 +190,7 @@ class StationResourceTest {
         stations.forEach(station -> Assertions.assertNotEquals("My Location", station.getName()));
     }
 
+    @Deprecated
     @Test
     void shouldGetAllStationsWithRightOrderAndProxGroup() {
         StationListDTO stationListDTO = getAll();
@@ -139,6 +203,8 @@ class StationResourceTest {
         checkProximityGroupsForTrams(proximityGroups);
     }
 
+
+    @Deprecated
     @Test
     void shouldReturnRecentAllStationsGroupIfCookieSet() throws JsonProcessingException {
         Station alty = Stations.Altrincham;
@@ -151,6 +217,7 @@ class StationResourceTest {
         Assertions.assertEquals(ProximityGroups.RECENT, stationDtos.get(0).getProximityGroup());
     }
 
+    @Deprecated
     @Test
     void shouldReturnRecentAllAndNearbyStationsGroupIfCookieSet() throws JsonProcessingException {
         Station alty = Stations.Altrincham;
@@ -240,7 +307,7 @@ class StationResourceTest {
         Set<String> updatedNearbyIds = updatedNearby.stream().map(StationRefWithGroupDTO::getId).collect(Collectors.toSet());
 
         firstNearbyIds.retainAll(updatedNearbyIds);
-        Assertions.assertTrue(firstNearbyIds.isEmpty());
+        assertTrue(firstNearbyIds.isEmpty());
 
     }
 

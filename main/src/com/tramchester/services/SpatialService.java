@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class SpatialService {
     private static final Logger logger = LoggerFactory.getLogger(SpatialService.class);
 
