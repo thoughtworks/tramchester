@@ -61,7 +61,9 @@ class TransportDataFromFilesTest {
         assertEquals(1, transportData.getAgencies().size());
         assertEquals(99,transportData.getStations().size());
         assertEquals(12, transportData.getRoutes().size());
-        assertEquals(195, transportData.getPlatforms().size());
+
+        // deansgate-castlefield platform 2 (9400ZZMAGMX2) seems to missing from data as of 12/8/2020
+        assertEquals(194, transportData.getPlatforms().size());
     }
 
     @Test

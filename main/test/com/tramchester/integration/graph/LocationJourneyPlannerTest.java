@@ -230,8 +230,9 @@ class LocationJourneyPlannerTest {
 
 //        assertEquals(Stations.Shudehill, stages.get(0).getLastStation());
 //        assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
-        assertEquals(Stations.StPetersSquare, stages.get(0).getLastStation());
-        assertEquals(Stations.ExchangeSquare, stages.get(1).getLastStation());
+        int lastStageIndex = stages.size() - 1;
+        assertEquals(Stations.ExchangeSquare, stages.get(lastStageIndex-1).getLastStation());
+        assertEquals(Stations.ExchangeSquare, stages.get(lastStageIndex).getFirstStation());
     }
 
     @Disabled("Temporary: trams finish at 2300")

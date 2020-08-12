@@ -5,6 +5,7 @@ import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -63,9 +64,18 @@ public class AppPage extends Page {
     }
 
     private void findAndClickElement(String elementId) {
-        WebElement arriveByElement = driver.findElement(By.id(elementId));
+        WebElement webElement = driver.findElement(By.id(elementId));
+
+        Actions actions = moveToElement(webElement);
+        actions.click().perform();
+    }
+
+    @NotNull
+    private Actions moveToElement(WebElement webElement) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", webElement);
         Actions actions = new Actions(driver);
-        actions.moveToElement(arriveByElement).click().perform();
+        actions.moveToElement(webElement).perform();
+        return actions;
     }
 
     public void earlier() {
@@ -92,8 +102,7 @@ public class AppPage extends Page {
 
     private void setSelector(String start, String id) {
         WebElement element = driver.findElement(By.id(id));
-        Actions actions = new Actions(driver);
-        actions.moveToElement(element).perform();
+        moveToElement(element);
 
         Select selector = new Select(element);
         selector.selectByVisibleText(start);
@@ -103,8 +112,7 @@ public class AppPage extends Page {
         LocalDate currentDate = TestEnv.LocalNow().toLocalDate();
 
         WebElement dateElement = findElementById("date");
-        Actions actions = new Actions(driver);
-        actions.moveToElement(dateElement).click().perform();
+        moveToElement(dateElement).click().perform();
 
         WebElement dialog = waitForElement(By.xpath("//div[@aria-roledescription='TravelDateCalendar']"),
                 timeoutInSeconds);
@@ -375,8 +383,7 @@ public class AppPage extends Page {
         WebElement diag = driver.findElement(locator);
         WebElement button = diag.findElement(By.tagName("button"));
         createWait().until(webDriver -> button.isEnabled());
-        Actions actions = new Actions(driver);
-        actions.moveToElement(button).click().perform();
+        moveToElement(button).click().perform();
     }
 
     public void selectNow() {
@@ -398,8 +405,7 @@ public class AppPage extends Page {
         WebElement arriveByElement = driver.findElement(By.id("arriveBy"));
         boolean currently = arriveByElement.isSelected();
         if (currently!=arriveBy) {
-            Actions actions = new Actions(driver);
-            actions.moveToElement(arriveByElement).click().perform();
+            moveToElement(arriveByElement).click().perform();
         }
     }
 
