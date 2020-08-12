@@ -35,7 +35,7 @@ export default {
         <b-form-select v-bind:id="name+'Stop'"
                 :value="value"
                 v-on:input="updateValue($event)"
-                class="mb-2" required
+                class="mb-2" required 
                 v-if="!bus">
             <option :value="null" disabled>Please select {{name}}</option>
             <optgroup label="Nearby" name="Nearby" :id="name+'Nearby'" v-if="geo">

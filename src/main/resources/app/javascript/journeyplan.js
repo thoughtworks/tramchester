@@ -117,7 +117,7 @@ function getRecentAndNearest(app) {
             app.ready = true;
             reportError(error);
         });
-    if (app.hasGeo) {
+    if (app.hasGeo && app.location!=null) {
         var place = app.location;
         const url = '/api/stations/near/?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
         axios
