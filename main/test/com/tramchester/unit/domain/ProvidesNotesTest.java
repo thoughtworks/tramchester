@@ -1,23 +1,19 @@
 package com.tramchester.unit.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.config.DataSourceConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -27,11 +23,12 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static com.tramchester.domain.presentation.Note.NoteType.Live;
-import static java.lang.String.format;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -47,30 +44,8 @@ class ProvidesNotesTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         liveDataRepository = createStrictMock(LiveDataRepository.class);
-        StationRepository stationRepository = createMock(StationRepository.class);
-        TramchesterConfig config = new TestConfigWithClosedStation();
-        provider = new ProvidesNotes(config, liveDataRepository, stationRepository);
+        provider = new ProvidesNotes(liveDataRepository);
         lastUpdate = TestEnv.LocalNow();
-
-        EasyMock.expect(stationRepository.getStationById(Stations.StPetersSquare.getId())).andStubReturn(Stations.StPetersSquare);
-
-    }
-
-    @Test
-    void shouldAddNotesForClosedStations() {
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
-
-        replayAll();
-        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(),
-                TramTime.of(11,45), Collections.emptyList()), queryDate);
-        verifyAll();
-
-        String expectedText = format("St Peter's Square is closed between %s and %s. ",
-                TestEnv.testDay().format(DateTimeFormatter.ISO_LOCAL_DATE),
-                TestEnv.testDay().plusWeeks(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        assertThat(result, hasItem(new StationNote(Note.NoteType.ClosedStation,
-                expectedText + ProvidesNotes.website,
-                Stations.StPetersSquare)));
     }
 
     @Test
@@ -155,8 +130,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> notes = provider.createNotesForJourney(journey, serviceDate);
         verifyAll();
 
-        // 1 is for the closure
-        int expected = 1;
+        int expected = 0;
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
@@ -180,7 +154,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> notes = provider.createNotesForJourney(journey, serviceDate);
         verifyAll();
 
-        int expected = 1; // 1 is for the closure
+        int expected = 0;
         if (serviceDate.isWeekend()) {
             expected++;
         }
@@ -208,7 +182,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> notes = provider.createNotesForJourney(journey, queryDate);
         verifyAll();
 
-        int expected = 1; // 1 is for the closure
+        int expected = 0;
         if (queryDate.isWeekend()) {
             expected++;
         }
@@ -248,7 +222,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> notes = provider.createNotesForJourney(journey, serviceDate);
         verifyAll();
 
-        int expected = 5; // +1 for station closure
+        int expected = 4;
 
         if (serviceDate.isWeekend()) {
             // can't change date as need live data to be available, so update expectations instead
@@ -285,7 +259,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         List<Note> notes = provider.createNotesForStations(stations, queryDate, queryTime);
         verifyAll();
 
-        Assertions.assertEquals(4, notes.size()); // 3 + closure
+        Assertions.assertEquals(3, notes.size());
         assertThat(notes.toString(), notes.contains(new StationNote(Live,"first message", Stations.VeloPark)));
         assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", Stations.Cornbrook)));
         assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", Stations.Pomona)));
@@ -307,34 +281,4 @@ class ProvidesNotesTest extends EasyMockSupport {
         return vehicleStage;
     }
 
-
-    private static class TestConfigWithClosedStation extends TestConfig {
-        @Override
-        protected List<DataSourceConfig> getDataSourceFORTESTING() {
-            return null;
-        }
-
-        @Override
-        public List<StationClosure> getStationClosures() {
-            return closedStations;
-        }
-
-        private final List<StationClosure> closedStations = Collections.singletonList(
-                new StationClosure() {
-                    @Override
-                    public IdFor<Station> getStation() {
-                        return Stations.StPetersSquare.getId();
-                    }
-
-                    @Override
-                    public LocalDate getBegin() {
-                        return TestEnv.testDay();
-                    }
-
-                    @Override
-                    public LocalDate getEnd() {
-                        return getBegin().plusWeeks(1);
-                    }
-                });
-    }
 }

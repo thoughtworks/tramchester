@@ -72,7 +72,7 @@ public class AppPage extends Page {
 
     @NotNull
     private Actions moveToElement(WebElement webElement) {
-        // 
+        //
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", webElement);
         Actions actions = new Actions(driver);
         actions.moveToElement(webElement).perform();

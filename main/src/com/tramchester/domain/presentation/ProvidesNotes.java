@@ -1,21 +1,23 @@
 package com.tramchester.domain.presentation;
 
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.CallsAtPlatforms;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.StationRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.tramchester.domain.presentation.Note.NoteType.*;
-import static java.lang.String.format;
 
 public class ProvidesNotes {
     private static final String EMPTY = "<no message>";
@@ -24,14 +26,10 @@ public class ProvidesNotes {
     public static String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
     private static final int MESSAGE_LIFETIME = 5;
 
-    private final TramchesterConfig config;
     private final LiveDataRepository liveDataRepository;
-    private final StationRepository stationRepository;
 
-    public ProvidesNotes(TramchesterConfig config, LiveDataRepository liveDataRepository, StationRepository stationRepository) {
-        this.config = config;
+    public ProvidesNotes(LiveDataRepository liveDataRepository) {
         this.liveDataRepository = liveDataRepository;
-        this.stationRepository = stationRepository;
     }
 
     public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
@@ -65,22 +63,7 @@ public class ProvidesNotes {
         if (queryDate.isChristmasPeriod()) {
             notes.add(new Note(christmas, Christmas));
         }
-        notes.addAll(createNotesForClosedStations());
         return notes;
-    }
-
-    private Set<Note> createNotesForClosedStations() {
-        Set<Note> messages = new HashSet<>();
-        config.getStationClosures().
-                forEach(clousure ->
-                {
-                    Station station = stationRepository.getStationById(clousure.getStation());
-                    String msg = format("%s is closed between %s and %s. %s",
-                            station.getName(), clousure.getBegin().format(DateTimeFormatter.ISO_LOCAL_DATE),
-                            clousure.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE), website);
-                    messages.add(new StationNote(ClosedStation, msg, station));
-                });
-        return messages;
     }
 
     private <T extends CallsAtPlatforms> List<Note> liveNotesForJourney(T journey, TramServiceDate queryDate) {
@@ -114,18 +97,6 @@ public class ProvidesNotes {
         }
         addRelevantNote(messageMap, info);
     }
-
-//    private List<Note> createMessageList(Map<Note, Station> messageMap) {
-//        List<Note> messages = new ArrayList<>();
-//        messageMap.forEach((original,location) -> {
-//            if (location.isEmpty()) {
-//                messages.add(new StationNote(original.getNoteType(), format("'%s' - Metrolink", original.getText())));
-//            } else {
-//                messages.add(new StationNote(original.getNoteType(), format("'%s' - %s, Metrolink", original.getText(), location)));
-//            }
-//        });
-//        return messages;
-//    }
 
     private void addRelevantNote(List<Note> notes, HasPlatformMessage info) {
         String message = info.getMessage();
