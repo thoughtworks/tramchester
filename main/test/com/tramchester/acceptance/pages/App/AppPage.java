@@ -72,6 +72,7 @@ public class AppPage extends Page {
 
     @NotNull
     private Actions moveToElement(WebElement webElement) {
+        // 
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", webElement);
         Actions actions = new Actions(driver);
         actions.moveToElement(webElement).perform();
@@ -141,7 +142,7 @@ public class AppPage extends Page {
         String input = providesDateInput.createTimeFormat(time);
         int chars = input.length();
 
-        builder.moveToElement(element);
+        moveToElement(element);
         while (chars-- > 0) {
             builder.sendKeys(element, Keys.ARROW_LEFT);
         }
@@ -316,7 +317,7 @@ public class AppPage extends Page {
 
         WebElement disclaimerButton = driver.findElement(disclaimerButtonId);
         Actions action = new Actions(driver);
-        action.moveToElement(disclaimerButton).click().perform();
+        moveToElement(disclaimerButton).click().perform();
     }
 
     public boolean waitForDisclaimerVisible() {
