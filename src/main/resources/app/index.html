@@ -12,8 +12,9 @@
             <b-row align-h="start">
                 <b-col cols="11" class="pl-0">
                     <div id="selectStart">
-                        <location-selection :name="'start'" v-model="startStop" :proximitygroups="proximityGroups" 
-                            :stops="stops" :other="endStop" :bus="busEnabled"></location-selection>
+                        <location-selection :name="'start'" v-model="startStop" :other="endStop" :bus="busEnabled"
+                            :geo="hasGeo" :allstops="allStops" :recentstops="recentStops" :neareststops="nearestStops">
+                        </location-selection>
                     </div>
                 </b-col>
                 <b-col cols="1"></b-col>
@@ -21,8 +22,9 @@
             <b-row>
                 <b-col cols="11" class="pl-0">
                     <div id="selectEnd">
-                        <location-selection :name="'destination'" v-model="endStop" :proximitygroups="proximityGroups" 
-                            :stops="stops" :other="startStop" :bus="busEnabled"></location-selection>
+                        <location-selection :name="'destination'" v-model="endStop"  :other="startStop" :bus="busEnabled"
+                        :geo="hasGeo" :allstops="allStops" :recentstops="recentStops" :neareststops="nearestStops">
+                    </location-selection>
                     </div>
                 </b-col>
                 <b-col cols="1" class="pl-0" v-if="!busEnabled">

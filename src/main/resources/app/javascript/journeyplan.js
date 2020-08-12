@@ -91,21 +91,48 @@ function queryLiveData(url) {
 }
 
 function getStationsFromServer(app) {
-     axios
-         .get(stationsUrl(app, '/api/stations'))
+    axios
+         .get('/api/stations/all')
          .then(function (response) {
              app.networkError = false;
-             app.proximityGroups = response.data.proximityGroups;
-             app.stops = response.data.stations;
+             app.allStops = response.data;
              app.ready = true;
-             saveTramStops(app);
-             loadPostcodes(app);
          })
          .catch(function (error) {
             app.ready = true;
             reportError(error);
          });
+    getRecentAndNearest(app);
  }
+
+function getRecentAndNearest(app) {
+    axios
+        .get('/api/stations/recent')
+        .then(function (response) {
+            app.networkError = false;
+            app.recentStops = response.data;
+            app.ready = true;
+        })
+        .catch(function (error) {
+            app.ready = true;
+            reportError(error);
+        });
+    if (app.hasGeo) {
+        var place = app.location;
+        const url = '/api/stations/near/?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
+        axios
+            .get(url)
+            .then(function (response) {
+                app.networkError = false;
+                app.nearestStops = response.data;
+                app.ready = true;
+            })
+            .catch(function (error) {
+                app.ready = true;
+                reportError(error);
+            });
+    }
+}
 
  function loadPostcodes(app) {
      if (app.feedinfo.bus) {
@@ -123,20 +150,6 @@ function addPostcodes(postcodes) {
     app.stops = app.stops.concat(postcodes);
 }
 
- function updateStationsFromServer() {
-    axios
-    .get(stationsUrl(app, '/api/stations/update'))
-        .then(function (response) {
-            app.networkError = false;
-            refreshStops(response.data);
-            app.ready = true;
-        })
-        .catch(function (error) {
-            app.ready = true;
-            reportError(error);
-        });
- }
-
  function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
     var urlParams = {
         start: startStop, end: endStop, departureTime: time, departureDate: date, 
@@ -151,7 +164,7 @@ function addPostcodes(postcodes) {
         then(function (response) {
             app.networkError = false;
             app.journeys = response.data.journeys;
-            updateStationsFromServer();
+            getRecentAndNearest(app);
             app.searchInProgress = false;
         }).
         catch(function (error) {
@@ -192,14 +205,20 @@ function addPostcodes(postcodes) {
  function reportError(error) {
     app.networkError = true;
     console.log(error.message);
-    console.log("URL: " + error.request.responseURL);
     console.log("File: " + error.fileName);
     console.log("Line:" + error.lineNumber);
+    if (error.request!=null) {
+        console.log("URL: " + error.request.responseURL);
+    }
+
  }
 
  var data = {
     ready: false,                   // ready to respond
     stops: [],                      // all stops
+    allStops: [],
+    nearestStops: [],
+    recentStops: [],
     proximityGroups: [],
     tramStopIds: [], // only used when buses enables, stores tram station ids
     startStop: null,
