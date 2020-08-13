@@ -18,8 +18,8 @@ import java.time.format.DateTimeFormatter;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DataVersionResourceTest {
-    public static LocalDate validFrom = LocalDate.of(2020, 8, 12); // year, month, day
-    public static LocalDate validUntil = LocalDate.of(2020, 10, 12);
+    public static LocalDate validFrom = LocalDate.of(2020, 8, 13); // year, month, day
+    public static LocalDate validUntil = LocalDate.of(2020, 10, 13);
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 

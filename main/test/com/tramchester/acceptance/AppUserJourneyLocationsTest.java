@@ -26,6 +26,8 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class AppUserJourneyLocationsTest extends UserJourneyTest {
@@ -79,10 +81,15 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         List<String> nearestFromStops = appPage.getNearestFromStops();
         assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
+
         List<String> allFrom = appPage.getAllStopsFromStops();
-        assertThat(allFrom, not(contains(nearestFromStops)));
-        int recentFromCount = appPage.getRecentFromStops().size();
-        Assertions.assertEquals(Stations.NumberOf, nearestFromStops.size()+allFrom.size()+recentFromCount);
+        assertFalse(allFrom.contains(altrincham));
+        assertFalse(allFrom.contains(Stations.NavigationRoad.getName()));
+
+        List<String> recentFromStops = appPage.getRecentFromStops();
+        assertThat(allFrom, not(contains(recentFromStops)));
+        
+        Assertions.assertEquals(Stations.NumberOf, nearestFromStops.size() + allFrom.size() + recentFromStops.size());
 
         // to
         List<String> myLocationToStops = appPage.getNearbyToStops();
@@ -110,7 +117,6 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName()));
         // TODO to recent just bury, not alty
     }
-
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldCheckNearAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {

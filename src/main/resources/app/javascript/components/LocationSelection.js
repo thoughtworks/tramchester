@@ -9,24 +9,30 @@ export default {
     props: ['value','other','name','bus','allstops','recentstops','neareststops','geo'], 
     data: function () {
         return {
-            current: this.value
-        }
+            current: this.value        }
     },
     methods: {
-        filterStops(stops) {
-            if (stops==null) {
-                return [];
-            }
-
-            var result = [];
-            var avoidId = this.other
-            stops.forEach(function(stop) { 
-                if (stop.id!==avoidId) result.push(stop); 
-            } )
-            return result.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase());
-        },
         updateValue(value) {
             this.$emit('input', value);
+        },
+        sort(values) {
+            var results = values.filter(stop => !this.alreadyDisplayed.includes(stop.id));
+            return results.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase());
+        }
+    },
+    computed: {
+        otherId: function () {
+            return this.other;
+        },
+        alreadyDisplayed: function () {
+            var results = [];
+            this.recentstops.forEach(stop => {
+                results.push(stop.id)
+            });
+            this.neareststops.forEach(stop => {
+                results.push(stop.id)
+            });
+            return results;
         }
     },
     template: `
@@ -38,17 +44,20 @@ export default {
                 class="mb-2" required 
                 v-if="!bus">
             <option :value="null" disabled>Please select {{name}}</option>
-            <optgroup label="Nearby" name="Nearby" :id="name+'Nearby'" v-if="geo">
+            <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
                 <option class="stop" value="MyLocationPlaceholderId">My Location</option>
             </optgroup>
-            <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'Nearest Stops'" v-if="geo">
-                <option class="stop" v-for="stop in filterStops(neareststops)" :value="stop.id">{{stop.name}}</option>
+            <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
+                <option class="stop" v-for="stop in neareststops" :value="stop.id" 
+                :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
-            <optgroup label="Recent" name="Recent" :id="name+'Recent'">
-                <option class="stop" v-for="stop in filterStops(recentstops)" :value="stop.id">{{stop.name}}</option>
+            <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
+                <option class="stop" v-for="stop in recentstops" :value="stop.id"
+                :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
-            <optgroup label="All Stops" name="All Stops" :id="name+'GroupAll Stops'">
-                <option class="stop" v-for="stop in filterStops(allstops)" :value="stop.id">{{stop.name}}</option>
+            <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
+                <option class="stop" v-for="stop in sort(allstops)" :value="stop.id"
+                :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
         </b-form-select>
     <!-- buses -->

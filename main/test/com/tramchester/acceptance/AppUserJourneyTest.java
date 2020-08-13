@@ -137,11 +137,12 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         // so above station in recents
         appPage.setStart(Stations.ExchangeSquare.getName()); // so alty is available in the recents list
-        appPage.setDest(Stations.PiccadillyGardens.getName()); // so alty is available in the recents list
+        appPage.setDest(Stations.PiccadillyGardens.getName()); // so bury is available in the recents list
 
         // check 'from' recents are set
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));
+
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations

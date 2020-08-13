@@ -210,7 +210,7 @@ public class AppPage extends Page {
 
     public List<String> getRecentFromStops() {
         try {
-            return getStopsByGroupName(START_GROUP + "Recent");
+            return getEnabledStopsByGroupName(START_GROUP + "Recent");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -219,7 +219,7 @@ public class AppPage extends Page {
 
     public List<String> getRecentToStops() {
         try {
-            return getStopsByGroupName(DESTINATION_GROUP + "Recent");
+            return getEnabledStopsByGroupName(DESTINATION_GROUP + "Recent");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -227,24 +227,24 @@ public class AppPage extends Page {
     }
 
     public List<String> getAllStopsFromStops() {
-        return getStopsByGroupName(START_GROUP + "All Stops");
+        return getEnabledStopsByGroupName(START_GROUP + "AllStops");
     }
 
     public List<String> getAllStopsToStops() {
-        return getStopsByGroupName(DESTINATION_GROUP + "All Stops");
+        return getEnabledStopsByGroupName(DESTINATION_GROUP + "AllStops");
     }
 
     public List<String> getNearestFromStops() {
-        return getStopsByGroupName(START_GROUP + "Nearest Stops");
+        return getEnabledStopsByGroupName(START_GROUP + "NearestStops");
     }
 
     public List<String> getNearbyToStops() {
-        return getStopsByGroupName(DESTINATION_GROUP + "Nearby");
+        return getEnabledStopsByGroupName(DESTINATION_GROUP + "Nearby");
     }
 
     public List<String> getNearbyFromStops() {
         try {
-            return getStopsByGroupName(START_GROUP + "Nearby");
+            return getEnabledStopsByGroupName(START_GROUP + "Nearby");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -254,12 +254,14 @@ public class AppPage extends Page {
     public List<String> getToStops() {
         By toStops = By.id(TO_STOP);
         WebElement elements = waitForClickableLocator(toStops);
-        return getStopNames(elements);
+        return getEnabledStopNames(elements);
     }
 
-    private List<String> getStopNames(WebElement groupElement) {
+    private List<String> getEnabledStopNames(WebElement groupElement) {
         List<WebElement> stopElements = groupElement.findElements(By.className("stop"));
-        return stopElements.stream().map(WebElement::getText).map(String::trim).collect(Collectors.toList());
+        return stopElements.stream().filter(WebElement::isEnabled)
+                .map(WebElement::getText).
+                map(String::trim).collect(Collectors.toList());
     }
 
     public boolean noResults() {
@@ -410,9 +412,9 @@ public class AppPage extends Page {
         }
     }
 
-    private List<String> getStopsByGroupName(String groupName) {
+    private List<String> getEnabledStopsByGroupName(String groupName) {
         WebElement groupElement = waitForClickableLocator(By.id(groupName));
-        return getStopNames(groupElement);
+        return getEnabledStopNames(groupElement);
     }
 
     public boolean hasLocation() {

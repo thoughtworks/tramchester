@@ -11,7 +11,7 @@ import java.util.List;
 public class MyLocation extends MapIdToDTOId<MyLocation> implements Location, HasId<MyLocation>, GraphProperty {
 
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
-    public static final IdFor<MyLocation> LocationPlaceHolder = IdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
+    private static final IdFor<MyLocation> LocationPlaceHolder = IdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
 
     private final String area;
     private final LatLong latLong;
