@@ -26,17 +26,6 @@ function getCurrentDate() {
     return moment().format(dateFormat)
 }
 
-function stationsUrl(app, base) {
-    if (!app.hasGeo) {
-        return base;
-    }
-    var place = app.location;
-    if (place!=null) {
-        return base + '/' + place.coords.latitude + '/' + place.coords.longitude;
-    }
-    return base;
-}
-
 function livedataUrlFromLocation() {
     var place = app.location; // should not have location place holder without a valid location
     return '/api/departures/' + place.coords.latitude + '/' + place.coords.longitude;
@@ -48,16 +37,6 @@ function livedataUrl() {
     } else {
         return '/api/departures/station/'+app.startStop+'?querytime='+app.time;
     }
-}
-
-function saveTramStops(app) {
-    if (app.feedinfo.bus) {
-            app.stops.forEach(function(stop) { 
-                if (stop.tram) {
-                    app.tramStopIds.push(stop.id);
-                }
-        });
-    };
 }
 
 function displayLiveData(app) {
@@ -174,34 +153,6 @@ function addPostcodes(postcodes) {
         });
 }
 
- function refreshStops(updates) {
-    var updatedStops = updates.stations;
-    var updatedProxGroups = updates.proximityGroups;
-
-    var updatedProxGroupNames = [];
-    for(var i = 0; i< updatedProxGroups.length; i++) {
-        updatedProxGroupNames.push(updatedProxGroups[i].name)
-    }
-
-    var updatedStopIds = [];
-    for(var i = 0; i< updatedStops.length; i++) {
-        updatedStopIds.push(updatedStops[i].id)
-    }
-
-    for(var i = 0; i< app.stops.length; i++) {
-        var currentStop = app.stops[i]
-        var currentProxGroup = currentStop.proximityGroup.name;
-        if (updatedProxGroupNames.includes(currentProxGroup)) {
-            app.stops[i].proximityGroup = { order:4, name:"All Stops" }
-        }
-
-        if (updatedStopIds.includes(currentStop.id)) {
-            var indexIntoUpdated = updatedStopIds.indexOf(currentStop.id);
-            app.stops[i].proximityGroup = updatedStops[indexIntoUpdated].proximityGroup;
-        }
-    }
- }
-
  function reportError(error) {
     app.networkError = true;
     console.log(error.message);
@@ -215,12 +166,9 @@ function addPostcodes(postcodes) {
 
  var data = {
     ready: false,                   // ready to respond
-    stops: [],                      // all stops
     allStops: [],
     nearestStops: [],
     recentStops: [],
-    proximityGroups: [],
-    tramStopIds: [], // only used when buses enables, stores tram station ids
     startStop: null,
     endStop: null,
     arriveBy: false,

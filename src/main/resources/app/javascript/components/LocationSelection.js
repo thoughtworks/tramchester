@@ -1,6 +1,12 @@
 
 import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
 
+
+function sort(values,alreadyDisplayed) {
+    var results = values.filter(stop => !alreadyDisplayed.includes(stop.id));
+    return results.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase());
+}
+
 export default {
     components: {
         VueBootstrapTypeahead
@@ -9,23 +15,24 @@ export default {
     props: ['value','other','name','bus','allstops','recentstops','neareststops','geo'], 
     data: function () {
         return {
-            current: this.value        }
+            current: this.value
+        }
     },
     methods: {
         updateValue(value) {
             this.$emit('input', value);
-        },
-        sort(values) {
-            var results = values.filter(stop => !this.alreadyDisplayed.includes(stop.id));
-            return results.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase());
         }
     },
     computed: {
-        otherId: function () {
-            return this.other;
+        stops: function () {
+            return sort(this.allstops, this.alreadyDisplayed);
         },
         alreadyDisplayed: function () {
             var results = [];
+            if (this.bus) {
+                return results;
+            }
+
             this.recentstops.forEach(stop => {
                 results.push(stop.id)
             });
@@ -33,6 +40,9 @@ export default {
                 results.push(stop.id)
             });
             return results;
+        },
+        otherId: function() {
+            return this.other;
         }
     },
     template: `
@@ -56,7 +66,7 @@ export default {
                 :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
             <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
-                <option class="stop" v-for="stop in sort(allstops)" :value="stop.id"
+                <option class="stop" v-for="stop in stops" :value="stop.id"
                 :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
         </b-form-select>

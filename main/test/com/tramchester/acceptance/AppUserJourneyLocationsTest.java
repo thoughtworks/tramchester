@@ -88,7 +88,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         List<String> recentFromStops = appPage.getRecentFromStops();
         assertThat(allFrom, not(contains(recentFromStops)));
-        
+
         Assertions.assertEquals(Stations.NumberOf, nearestFromStops.size() + allFrom.size() + recentFromStops.size());
 
         // to
