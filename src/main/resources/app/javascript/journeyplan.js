@@ -41,9 +41,10 @@ function livedataUrl() {
 
 function displayLiveData(app) {
     if (app.feedinfo.bus) {
-        if ( ! app.tramStopIds.includes(app.startStop)) {
+        // only live data for trams
+        if ( ! app.startStop.startsWith('9400ZZ')) {
             app.liveDepartureResponse = null;
-            return; // only live data for trams
+            return; 
         }
     }
     var queryDate = moment(app.date, dateFormat);
@@ -74,7 +75,7 @@ function getStationsFromServer(app) {
          .get('/api/stations/all')
          .then(function (response) {
              app.networkError = false;
-             app.allStops = response.data;
+             app.stops.allStops = response.data;
              app.ready = true;
          })
          .catch(function (error) {
@@ -89,7 +90,7 @@ function getRecentAndNearest(app) {
         .get('/api/stations/recent')
         .then(function (response) {
             app.networkError = false;
-            app.recentStops = response.data;
+            app.stops.recentStops = response.data;
             app.ready = true;
         })
         .catch(function (error) {
@@ -103,7 +104,7 @@ function getRecentAndNearest(app) {
             .get(url)
             .then(function (response) {
                 app.networkError = false;
-                app.nearestStops = response.data;
+                app.stops.nearestStops = response.data;
                 app.ready = true;
             })
             .catch(function (error) {
@@ -124,10 +125,10 @@ function getRecentAndNearest(app) {
     }
 }
 
-// TODO app needed passed in for some browsers?
-function addPostcodes(postcodes) {
-    app.stops = app.stops.concat(postcodes);
-}
+// // TODO app needed passed in for some browsers?
+// function addPostcodes(postcodes) {
+//     app.stops = app.stops.concat(postcodes);
+// }
 
  function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
     var urlParams = {
@@ -166,9 +167,11 @@ function addPostcodes(postcodes) {
 
  var data = {
     ready: false,                   // ready to respond
-    allStops: [],
-    nearestStops: [],
-    recentStops: [],
+    stops: {
+        allStops: [],
+        nearestStops: [],
+        recentStops: []
+    },
     startStop: null,
     endStop: null,
     arriveBy: false,
