@@ -6,7 +6,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -57,7 +56,7 @@ public class StubbedAWSServer  {
 
     private class Handler extends AbstractHandler{
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
             calledUrl = request.getRequestURL().toString();
             contentHeader = request.getHeader("Content-Type");
             if (request.getMethod().equals(HttpGet.METHOD_NAME)) {
@@ -68,8 +67,8 @@ public class StubbedAWSServer  {
             } else if (request.getMethod().equals(HttpPut.METHOD_NAME)) {
                 response.setStatus(HttpServletResponse.SC_OK);
                 BufferedReader reader = request.getReader();
-                StringBuffer incoming = new StringBuffer();
-                reader.lines().forEach(line -> incoming.append(line));
+                StringBuilder incoming = new StringBuilder();
+                reader.lines().forEach(incoming::append);
                 postedData = incoming.toString();
             }
         }

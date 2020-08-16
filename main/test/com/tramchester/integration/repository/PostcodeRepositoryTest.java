@@ -4,15 +4,11 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.testSupport.WithPostcodesEnabled;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
 
 class PostcodeRepositoryTest {
 
@@ -20,7 +16,7 @@ class PostcodeRepositoryTest {
     private PostcodeRepository repository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new WithPostcodesEnabled());
     }

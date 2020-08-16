@@ -3,7 +3,6 @@ package com.tramchester.graph.search.states;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -50,7 +49,7 @@ public class TramStationState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node,
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
                                           JourneyState journeyState, int cost) {
         long nodeId = node.getId();
         if (destinationNodeIds.contains(nodeId)) {

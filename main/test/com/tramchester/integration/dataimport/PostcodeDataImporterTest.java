@@ -24,7 +24,7 @@ class PostcodeDataImporterTest {
     private Set<PostcodeData> loadedPostcodes;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig(); /// <= means tram stations only
         dependencies.initialise(testConfig);

@@ -32,10 +32,10 @@ public class AppPage extends Page {
     private final long timeoutInSeconds = 15;
 
     private static final String DATE_OUTPUT = "hiddendate";
-    private final String FROM_STOP = "startStop";
-    private final String TO_STOP = "destinationStop";
-    private final String TIME = "time";
-    private final String RESULTS = "results";
+    private static final String FROM_STOP = "startStop";
+    private static final String TO_STOP = "destinationStop";
+    private static final String TIME = "time";
+    private static final String RESULTS = "results";
 
     public AppPage(WebDriver driver, ProvidesDateInput providesDateInput) {
         super(driver);
@@ -318,7 +318,6 @@ public class AppPage extends Page {
         wait.until(driver -> ExpectedConditions.presenceOfElementLocated(disclaimerButtonId));
 
         WebElement disclaimerButton = driver.findElement(disclaimerButtonId);
-        Actions action = new Actions(driver);
         moveToElement(disclaimerButton).click().perform();
     }
 

@@ -42,7 +42,7 @@ class LocationJourneyPlannerTest {
     private LocationJourneyPlanner planner;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
@@ -145,9 +145,7 @@ class LocationJourneyPlannerTest {
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
         results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
 
-        results.forEach(result -> {
-            assertTrue(result.getPath().size()==11 || result.getPath().size()==12);
-        });
+        results.forEach(result -> assertTrue(result.getPath().size()==11 || result.getPath().size()==12));
 
         // via nav road
         results.stream().filter(journey -> journey.getPath().size()==11).forEach(journey -> {

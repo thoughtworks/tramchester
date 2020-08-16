@@ -33,7 +33,7 @@ public enum GTFSTransportationType {
         this.text = theText;
     }
 
-    public String getText() {
+    private String getText() {
         return text;
     }
 }

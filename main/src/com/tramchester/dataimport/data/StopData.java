@@ -2,7 +2,6 @@ package com.tramchester.dataimport.data;
 
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.Objects;
 

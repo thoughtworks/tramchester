@@ -45,7 +45,7 @@ public class RouteCalculatorTest {
     private Transaction txn;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         config = new IntegrationTramTestConfig();
         dependencies.initialise(config);

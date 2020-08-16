@@ -22,8 +22,8 @@ import static com.tramchester.domain.presentation.Note.NoteType.*;
 public class ProvidesNotes {
     private static final String EMPTY = "<no message>";
     public static final String website = "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
-    public static String weekend = "At the weekend your journey may be affected by improvement works." + website;
-    public static String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
+    public static final String weekend = "At the weekend your journey may be affected by improvement works." + website;
+    public static final String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
     private static final int MESSAGE_LIFETIME = 5;
 
     private final LiveDataRepository liveDataRepository;

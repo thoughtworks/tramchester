@@ -13,11 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-
-import static org.junit.Assert.assertEquals;
 
 class RecentJourneysTest {
 

@@ -3,7 +3,6 @@ package com.tramchester.graph.search.states;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 
 import java.util.LinkedList;
 
@@ -49,7 +48,7 @@ public class DestinationState extends TraversalState
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         throw new RuntimeException("Already at destination, id is " + destinationNodeIds);
     }
 

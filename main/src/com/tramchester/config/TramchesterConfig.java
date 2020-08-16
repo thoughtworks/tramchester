@@ -15,7 +15,7 @@ import java.util.Set;
 
 public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration {
 
-    public static ZoneId TimeZone = ZoneId.of("Europe/London");
+    public static final ZoneId TimeZone = ZoneId.of("Europe/London");
 
     // name of the graph DB to use
     public abstract String getGraphName();

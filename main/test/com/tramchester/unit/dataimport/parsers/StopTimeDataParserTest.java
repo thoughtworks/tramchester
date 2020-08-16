@@ -3,9 +3,7 @@ package com.tramchester.unit.dataimport.parsers;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.parsers.StopTimeDataMapper;
 import com.tramchester.domain.IdFor;
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +36,7 @@ class StopTimeDataParserTest {
     }
 
     @Test
-    void shouldParseStop() throws TramchesterException, IOException {
+    void shouldParseStop() throws IOException {
         String stop = "Trip000001,06:41:00,06:42:00,9400ZZMAABM1,0001,0,1\n";
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
@@ -51,7 +49,7 @@ class StopTimeDataParserTest {
     }
 
     @Test
-    void shouldCopeWith24TimeFormatInData() throws TramchesterException, IOException {
+    void shouldCopeWith24TimeFormatInData() throws IOException {
         String stop = "Trip000001,24:00:00,24:00:00,9400ZZMAABM1,0001,0,1\n";
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
@@ -61,7 +59,7 @@ class StopTimeDataParserTest {
     }
 
     @Test
-    void shouldCopeWith25TimeFormatInData() throws TramchesterException, IOException {
+    void shouldCopeWith25TimeFormatInData() throws IOException {
         String stop = "Trip000001,25:05:00,25:07:00,9400ZZMAABM1,0001,0,1\n";
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));

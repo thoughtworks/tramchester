@@ -70,7 +70,7 @@ public class StopCalls { //implements Iterable<StopCall> {
         private final StopCall first;
         private final StopCall second;
 
-        public StopLeg(StopCall first, StopCall second) {
+        private StopLeg(StopCall first, StopCall second) {
             this.first = first;
             this.second = second;
         }

@@ -5,7 +5,6 @@ import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
-import com.tramchester.repository.ProvidesFeedInfo;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;

@@ -12,12 +12,12 @@ import static java.lang.String.format;
 public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataMessagesHealthCheck.class);
 
-    private LiveDataRepository repository;
+    private final LiveDataRepository repository;
     private final ProvidesNow currentTimeProvider;
     private final TramchesterConfig config;
 
-    private TramTime startOfNight = TramTime.of(2,0);
-    private TramTime endOfNight = TramTime.of(6, 10);
+    private final TramTime startOfNight = TramTime.of(2,0);
+    private final TramTime endOfNight = TramTime.of(6, 10);
 
     public LiveDataMessagesHealthCheck(TramchesterConfig config, LiveDataRepository repository, ProvidesNow currentTimeProvider) {
         this.config = config;

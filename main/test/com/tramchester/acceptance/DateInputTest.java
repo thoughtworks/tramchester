@@ -8,10 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 class DateInputTest {
 
     private final ProvidesFirefoxDateInput firefoxProvider = new ProvidesFirefoxDateInput();

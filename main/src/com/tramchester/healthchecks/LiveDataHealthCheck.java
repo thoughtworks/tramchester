@@ -1,6 +1,5 @@
 package com.tramchester.healthchecks;
 
-import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
@@ -12,9 +11,9 @@ import static java.lang.String.format;
 public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHealthCheck.class);
 
-    private LiveDataRepository repository;
+    private final LiveDataRepository repository;
     private final ProvidesNow providesNow;
-    private final String noEntriesPresent = "no entries present";
+    private static final String noEntriesPresent = "no entries present";
 
     public LiveDataHealthCheck(LiveDataRepository repository, ProvidesNow providesNow) {
         this.repository = repository;

@@ -56,7 +56,7 @@ public abstract class GraphBuilder implements Startable {
         }
     }
 
-    protected final TramchesterConfig config;
+    private final TramchesterConfig config;
     private final GraphFilter graphFilter;
     private final GraphDatabase graphDatabase;
     private final NodeTypeRepository nodeIdLabelMap;

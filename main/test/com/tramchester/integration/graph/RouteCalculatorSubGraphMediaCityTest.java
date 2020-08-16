@@ -49,7 +49,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private Transaction txn;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(RoutesForTesting.ASH_TO_ECCLES);
         graphFilter.addRoute(RoutesForTesting.ROCH_TO_DIDS);

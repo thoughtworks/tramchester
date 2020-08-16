@@ -23,7 +23,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
 
     private static final java.lang.String USER_DATA_PATH = "/latest/user-data";
 
-    private URL instanceDataURL;
+    private final URL instanceDataURL;
 
     public FetchInstanceMetadata(TramchesterConfig tramchesterConfig) throws MalformedURLException {
         this.instanceDataURL = new URL(tramchesterConfig.getInstanceDataUrl());

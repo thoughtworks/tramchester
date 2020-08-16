@@ -5,7 +5,6 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.TransportMode;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 
 import static java.lang.String.format;

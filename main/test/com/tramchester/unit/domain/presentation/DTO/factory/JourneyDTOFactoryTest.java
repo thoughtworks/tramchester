@@ -256,7 +256,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         List<String> changeNames = journey.getChangeStations().stream().
-                map(ref -> ref.getName()).collect(Collectors.toList());
+                map(StationRefDTO::getName).collect(Collectors.toList());
         assertThat(changeNames, contains("Deansgate-Castlefield", "Market Street"));
     }
 

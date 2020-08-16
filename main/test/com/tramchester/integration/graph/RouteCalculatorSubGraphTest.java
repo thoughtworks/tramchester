@@ -19,7 +19,6 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +41,7 @@ class RouteCalculatorSubGraphTest {
     private TramTime tramTime;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
 

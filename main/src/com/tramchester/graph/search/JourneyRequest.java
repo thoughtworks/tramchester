@@ -3,7 +3,6 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public class JourneyRequest {

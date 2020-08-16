@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.tramchester.domain.GTFSPickupDropoffType.Regular;
 import static java.lang.String.format;
 
 public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {

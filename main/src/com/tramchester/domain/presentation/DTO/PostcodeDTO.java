@@ -2,14 +2,11 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.places.PostcodeLocation;
-import com.tramchester.domain.places.ProximityGroups;
-import com.tramchester.domain.presentation.ProximityGroup;
 import com.tramchester.domain.time.TramTime;
 
 import java.io.IOException;
@@ -19,19 +16,13 @@ import java.util.Optional;
 public class PostcodeDTO extends LocationDTO {
 
     public static final String PREFIX = "POSTCODE_";
-    private ProximityGroup proximityGroup;
 
     public PostcodeDTO(PostcodeLocation postcodeLocation) {
         super(postcodeLocation);
-        this.proximityGroup = ProximityGroups.POSTCODES;
     }
 
     public PostcodeDTO() {
         // deserialisation
-    }
-
-    public ProximityGroup getProximityGroup() {
-        return proximityGroup;
     }
 
     public boolean getPostcode() {
@@ -54,7 +45,7 @@ public class PostcodeDTO extends LocationDTO {
 
     private static class PostcodeDeserialize extends JsonDeserializer<String> {
         @Override
-        public String deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException, JsonProcessingException {
+        public String deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
             ObjectCodec oc = jsonParser.getCodec();
             JsonNode node = oc.readTree(jsonParser);
             Optional<TramTime> result;

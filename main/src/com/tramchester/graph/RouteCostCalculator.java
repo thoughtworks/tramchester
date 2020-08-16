@@ -9,7 +9,6 @@ import org.neo4j.graphdb.*;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.TransportRelationshipTypes.FINISH_WALK;
 
 public class RouteCostCalculator {
     private final GraphQuery graphQuery;

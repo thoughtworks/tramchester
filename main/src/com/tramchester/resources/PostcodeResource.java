@@ -3,7 +3,6 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
-import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.repository.PostcodeRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;

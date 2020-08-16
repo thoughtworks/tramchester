@@ -67,7 +67,7 @@ public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
         return theMap.values().stream().filter(theFilter::include).collect(Collectors.toUnmodifiableSet());
     }
 
-    public IdMap<T> addAll(IdMap<T> others) {
+    private IdMap<T> addAll(IdMap<T> others) {
         theMap.putAll(others.theMap);
         return this;
     }

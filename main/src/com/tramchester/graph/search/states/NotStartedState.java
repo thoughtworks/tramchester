@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
@@ -9,7 +8,6 @@ import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 
 import java.util.Set;
 
@@ -31,7 +29,7 @@ public class NotStartedState extends TraversalState {
         return 0;
     }
 
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
                 return builders.walking.fromStart(this, firstNode, cost);

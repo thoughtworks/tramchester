@@ -1,7 +1,6 @@
 package com.tramchester.geo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.presentation.LatLong;
 
 import javax.validation.Valid;
 

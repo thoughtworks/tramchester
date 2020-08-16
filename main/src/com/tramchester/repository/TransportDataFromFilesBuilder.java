@@ -26,8 +26,8 @@ public class TransportDataFromFilesBuilder {
 
     private TransportDataContainer toBuild;
 
-    public TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations,
-                                         TramchesterConfig config) {
+    private TransportDataFromFilesBuilder(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations,
+                                          TramchesterConfig config) {
         this.transportDataStreams = transportDataStreams;
         this.stationLocations = stationLocations;
         this.config = config;
@@ -353,12 +353,12 @@ public class TransportDataFromFilesBuilder {
         private final IdSet<Trip> excludedTrips;
         private final IdSet<Service> excludedServices;
 
-        public ExcludedTripAndServices(IdSet<Trip> excludedTrips, IdSet<Service> excludedServices) {
+        protected ExcludedTripAndServices(IdSet<Trip> excludedTrips, IdSet<Service> excludedServices) {
             this.excludedTrips = excludedTrips;
             this.excludedServices = excludedServices;
         }
 
-        public void clear() {
+        protected void clear() {
             excludedServices.clear();
             excludedTrips.clear();
         }

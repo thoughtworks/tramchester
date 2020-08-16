@@ -27,7 +27,7 @@ public class ReasonsToGraphViz {
     private final HashSet<Pair<Long,Long>> relationships;
     private final HashSet<Pair<Long, String>> reasonRelationships;
 
-    private final boolean includeAll = false;
+    private static final boolean includeAll = false;
 
     public ReasonsToGraphViz(Transaction transaction, TransportData transportData, StringBuilder builder) {
         this.transportData = transportData;

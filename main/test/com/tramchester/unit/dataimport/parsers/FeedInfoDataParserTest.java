@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FeedInfoDataParserTest {
-    private final String feedInfo = "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,20160530,20160615,feed_version";
+    private static final String feedInfo = "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,20160530,20160615,feed_version";
 
     @Test
     void shouldParserFeedInfo() throws IOException {

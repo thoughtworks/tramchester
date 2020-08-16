@@ -32,7 +32,7 @@ class TramPositionInferenceTest {
     private TramTime time;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);

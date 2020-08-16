@@ -41,7 +41,7 @@ class RouteCalulcatorForBoundingBoxTest {
     private StationLocations stationLocations;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);
@@ -84,10 +84,8 @@ class RouteCalulcatorForBoundingBoxTest {
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).collect(Collectors.toList());
         assertEquals(1, missed.size(), missed.toString()); // when start and dest match
 
-        groupedJourneys.forEach(group -> {
-            group.getJourneys().forEach(journey -> {
-                assertTrue(journey.getStages().size()>0); // catch case where starting point is dest
-            } );
-        });
+        groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
+            assertTrue(journey.getStages().size()>0); // catch case where starting point is dest
+        } ));
     }
 }

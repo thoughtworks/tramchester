@@ -1,5 +1,7 @@
 package com.tramchester.domain.time;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -58,7 +60,7 @@ public class  TramTime implements Comparable<TramTime> {
         return Optional.of(TramTime.of(hour,minutes));
     }
 
-    protected TramTime(int hour, int minute) {
+    private TramTime(int hour, int minute) {
         this.hour = hour;
         this.minute = minute;
         this.hash = Objects.hash(hour, minute);
@@ -169,7 +171,7 @@ public class  TramTime implements Comparable<TramTime> {
     }
 
     @Override
-    public int compareTo(TramTime other) {
+    public int compareTo(@NotNull TramTime other) {
         if (isLateNight(hour) && isEarlyMorning(other.hour)) {
             return -1; // is less than
         }

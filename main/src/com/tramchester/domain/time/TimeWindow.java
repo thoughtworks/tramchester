@@ -3,8 +3,8 @@ package com.tramchester.domain.time;
 import java.util.Objects;
 
 public class TimeWindow {
-    private TramTime queryTime;
-    private int withinMins;
+    private final TramTime queryTime;
+    private final int withinMins;
 
     public TimeWindow(TramTime queryTime, int withinMins) {
         this.queryTime = queryTime;

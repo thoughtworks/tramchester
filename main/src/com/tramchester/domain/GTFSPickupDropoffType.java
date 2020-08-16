@@ -28,7 +28,7 @@ public enum GTFSPickupDropoffType {
         this.text = text;
     }
 
-    public String getText() {
+    private String getText() {
         return text;
     }
 

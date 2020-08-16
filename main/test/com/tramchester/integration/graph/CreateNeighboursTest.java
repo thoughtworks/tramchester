@@ -17,7 +17,6 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.integration.IntegrationTestConfig;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
@@ -64,7 +63,7 @@ class CreateNeighboursTest {
     private static Transaction txn;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         testConfig = new NeighboursTestConfig();
         dependencies.initialise(testConfig);

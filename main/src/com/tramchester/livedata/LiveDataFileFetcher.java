@@ -10,7 +10,7 @@ import java.nio.file.Path;
 
 public class LiveDataFileFetcher implements LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataFileFetcher.class);
-    private Path path;
+    private final Path path;
 
     public LiveDataFileFetcher(Path path) {
         this.path = path;

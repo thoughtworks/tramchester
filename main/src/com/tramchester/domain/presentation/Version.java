@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation;
 
 public class Version {
-    public static String MajorVersion = "2";
+    public static final String MajorVersion = "2";
 
     private String buildNumber;
 

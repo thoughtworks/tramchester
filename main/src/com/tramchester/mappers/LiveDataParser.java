@@ -35,7 +35,7 @@ public class LiveDataParser {
     private static final List<String> NotADestination = Arrays.asList("See Tram Front", "Not in Service");
 
     // live data api has limit in number of results
-    private final int MAX_DUE_TRAMS = 4;
+    private static final int MAX_DUE_TRAMS = 4;
 
     public LiveDataParser(StationRepository stationRepository) {
         this.stationRepository = stationRepository;

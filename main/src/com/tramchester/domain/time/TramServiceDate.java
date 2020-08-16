@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
-import static java.lang.String.format;
-
 public class TramServiceDate {
     private final LocalDate date;
 

@@ -131,7 +131,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Label firstLabel = endNode.getLabels().iterator().next();
         GraphBuilder.Labels nodeLabel = GraphBuilder.Labels.valueOf(firstLabel.toString());
 
-        TraversalState traversalStateForChildren = traversalState.nextState(path, nodeLabel, endNode,
+        TraversalState traversalStateForChildren = traversalState.nextState(nodeLabel, endNode,
                 journeyStateForChildren, cost);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);

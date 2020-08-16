@@ -6,17 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Station;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class RecentJourneys  {

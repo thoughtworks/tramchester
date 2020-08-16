@@ -23,7 +23,7 @@ class TramRouteReachableTest {
     private StationRepository stationRepository;
 
     @BeforeAll
-    static void onceBeforeAnyTestRuns() throws IOException {
+    static void onceBeforeAnyTestRuns() {
         dependencies = new Dependencies();
         TramchesterConfig config = new IntegrationTramTestConfig();
         dependencies.initialise(config);
@@ -38,10 +38,6 @@ class TramRouteReachableTest {
     void beforeEachTestRuns() {
         stationRepository = dependencies.get(StationRepository.class);
         reachable = dependencies.get(RouteReachable.class);
-    }
-
-    @AfterEach
-    void afterEachTestRuns() {
     }
 
     @Test

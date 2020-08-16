@@ -3,7 +3,6 @@ package com.tramchester.router;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;

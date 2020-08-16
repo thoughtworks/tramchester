@@ -7,7 +7,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Collection;
@@ -45,7 +44,7 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node nextNode,
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
         switch (nodeLabel) {
             case PLATFORM:

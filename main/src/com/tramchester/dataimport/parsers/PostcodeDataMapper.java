@@ -2,14 +2,13 @@ package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.PostcodeData;
 import org.apache.commons.csv.CSVRecord;
-import org.neo4j.cypher.internal.ir.ProvidedOrder;
 
 import java.util.List;
 
 public class PostcodeDataMapper extends CSVEntryMapper<PostcodeData> {
-    private final int indexOfPostcode = 0;
-    private final int indexOfEastings = 2;
-    private final int indexOfNorthing = 3;
+    private static final int indexOfPostcode = 0;
+    private static final int indexOfEastings = 2;
+    private static final int indexOfNorthing = 3;
 
     private enum Columns implements ColumnDefination {
         Postcode, Eastings, Northings

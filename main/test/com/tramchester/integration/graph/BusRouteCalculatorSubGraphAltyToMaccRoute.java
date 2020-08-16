@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static java.lang.String.join;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
@@ -43,7 +42,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     private TransportData transportData;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(ROUTE_ID);
 

@@ -115,7 +115,7 @@ public class RouteCalculator implements TramRouteCalculator {
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
+        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
 
         return numChangesRange(journeyRequest).
@@ -140,7 +140,7 @@ public class RouteCalculator implements TramRouteCalculator {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
             // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
-            final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits(nodeTypeRepository);
+            final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
@@ -166,18 +166,17 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     @NotNull
-    public Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
+    private Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
         return IntStream.rangeClosed(0, journeyRequest.getMaxChanges()).boxed();
     }
 
     @NotNull
-    public ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time) {
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, time, providesLocalNow);
-        return reasons;
+    private ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time) {
+        return new ServiceReasons(journeyRequest, time, providesLocalNow);
     }
 
     @NotNull
-    public Set<Long> getDestinationNodeIds(Set<Station> destinations) {
+    private Set<Long> getDestinationNodeIds(Set<Station> destinations) {
         Set<Long> destinationNodeIds;
         try(Transaction txn = graphDatabaseService.beginTx()) {
            destinationNodeIds = destinations.stream().
@@ -215,8 +214,8 @@ public class RouteCalculator implements TramRouteCalculator {
 
     private class PathRequest {
         private final Node startNode;
-        public final TramTime queryTime;
-        public final int numChanges;
+        protected final TramTime queryTime;
+        protected final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
 
 
@@ -233,7 +232,7 @@ public class RouteCalculator implements TramRouteCalculator {
         private final Path path;
         private final TramTime queryTime;
 
-        public TimedPath(Path path, TramTime queryTime) {
+        protected TimedPath(Path path, TramTime queryTime) {
             this.path = path;
             this.queryTime = queryTime;
         }

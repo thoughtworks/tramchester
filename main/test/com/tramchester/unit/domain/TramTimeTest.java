@@ -1,6 +1,5 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Assertions;

@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static org.junit.Assert.assertEquals;
-
 class LocalDateJsonDeserializerTest {
 
     @Test

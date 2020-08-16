@@ -71,9 +71,7 @@ public class TramPositionInference {
         Set<StationDepartureInfo> departureInfos = new HashSet<>();
         routesBetween.forEach(route -> {
             List<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform -> {
-                liveDataSource.departuresFor(platform.getId(), date, time).ifPresent(departureInfos::add);
-            });
+            platforms.forEach(platform -> liveDataSource.departuresFor(platform.getId(), date, time).ifPresent(departureInfos::add));
         });
 
         if (departureInfos.isEmpty()) {

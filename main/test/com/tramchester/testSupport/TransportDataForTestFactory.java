@@ -9,7 +9,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataContainer;
-import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

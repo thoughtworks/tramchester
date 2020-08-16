@@ -2,7 +2,6 @@ package com.tramchester.integration;
 
 import com.tramchester.testSupport.TestConfig;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public abstract class IntegrationTestConfig extends TestConfig {

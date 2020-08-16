@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CallsAtPlatforms;
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.Note;
@@ -16,7 +15,6 @@ import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @JsonTypeName("journey")
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)

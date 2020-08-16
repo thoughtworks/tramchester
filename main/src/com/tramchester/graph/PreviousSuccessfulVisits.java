@@ -4,9 +4,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.ServiceReason;
 import org.neo4j.graphdb.Node;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -15,10 +12,7 @@ public class PreviousSuccessfulVisits {
     private final ConcurrentMap<Long, TramTime> hourVisits;
     private final Set<Long> timeVisits;
 
-    private final NodeTypeRepository nodeTypeRepository;
-
-    public PreviousSuccessfulVisits(NodeTypeRepository nodeTypeRepository) {
-        this.nodeTypeRepository = nodeTypeRepository;
+    public PreviousSuccessfulVisits() {
         hourVisits = new ConcurrentHashMap<>();
         timeVisits = ConcurrentHashMap.newKeySet();
     }

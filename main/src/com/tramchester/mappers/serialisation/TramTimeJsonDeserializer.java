@@ -17,7 +17,7 @@ public class TramTimeJsonDeserializer extends JsonDeserializer<TramTime> {
         JsonNode node = oc.readTree(jsonParser);
         Optional<TramTime> result;
         result = TramTime.parse(node.asText());
-        if (!result.isPresent()) {
+        if (result.isEmpty()) {
             throw new IOException("Failed to parse " + node.asText());
         }
         return result.get();

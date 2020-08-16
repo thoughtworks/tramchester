@@ -5,8 +5,6 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class TramInterchanges {
 

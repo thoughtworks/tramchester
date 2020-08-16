@@ -21,7 +21,7 @@ class RouteCostCalculatorTest {
     private RouteCostCalculator routeCostCalc;
 
     @BeforeAll
-    static void onceBeforeAnyTestRuns() throws IOException {
+    static void onceBeforeAnyTestRuns() {
         dependencies = new Dependencies();
         TramchesterConfig config = new IntegrationTramTestConfig();
         dependencies.initialise(config);
@@ -37,10 +37,6 @@ class RouteCostCalculatorTest {
 
         routeCostCalc = dependencies.get(RouteCostCalculator.class);
         database = dependencies.get(GraphDatabase.class);
-    }
-
-    @AfterEach
-    void afterEachTestRuns() {
     }
 
     @Test

@@ -5,7 +5,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
@@ -63,7 +62,7 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
 
         long nodeId = node.getId();
 

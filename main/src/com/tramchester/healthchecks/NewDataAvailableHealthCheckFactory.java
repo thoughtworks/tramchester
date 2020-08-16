@@ -35,9 +35,7 @@ public class NewDataAvailableHealthCheckFactory implements Startable, Disposable
 
     @Override
     public void start() {
-        config.getDataSourceConfig().forEach(config -> {
-            healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime));
-        });
+        config.getDataSourceConfig().forEach(config -> healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime)));
     }
 
     @Override

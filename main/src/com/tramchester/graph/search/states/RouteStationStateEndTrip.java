@@ -5,7 +5,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
@@ -36,7 +35,7 @@ public class RouteStationStateEndTrip extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node nextNode,
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
         switch (nodeLabel) {
             case PLATFORM:

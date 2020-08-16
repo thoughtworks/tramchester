@@ -514,7 +514,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             departs = new HashSet<>();
         }
 
-        public void clear() {
+        protected void clear() {
             routeStations.clear();
             stations.clear();
             platforms.clear();
@@ -522,15 +522,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             hourNodes.clear();
         }
 
-        public void putRouteStation(IdFor<RouteStation> id, Node routeStationNode) {
+        protected void putRouteStation(IdFor<RouteStation> id, Node routeStationNode) {
             routeStations.put(id, routeStationNode.getId());
         }
 
-        public void putStation(Station station, Node stationNode) {
+        protected void putStation(Station station, Node stationNode) {
             stations.put(station, stationNode.getId());
         }
 
-        public Node getRouteStation(Transaction txn, Route route, Station station) {
+        protected Node getRouteStation(Transaction txn, Route route, Station station) {
             IdFor<RouteStation> id = IdFor.createId(station,route);
             if (!routeStations.containsKey(id)) {
                 String message = "Cannot find routestation node in cache " + id + " station "
@@ -541,32 +541,32 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return txn.getNodeById(routeStations.get(id));
         }
 
-        public Node getStation(Transaction txn, Station station) {
+        protected Node getStation(Transaction txn, Station station) {
             return txn.getNodeById(stations.get(station));
         }
 
-        public Node getPlatform(Transaction txn, IdFor<Platform> platformId) {
+        protected Node getPlatform(Transaction txn, IdFor<Platform> platformId) {
             return txn.getNodeById(platforms.get(platformId));
         }
 
-        public void putPlatform(IdFor<Platform> platformId, Node platformNode) {
+        protected void putPlatform(IdFor<Platform> platformId, Node platformNode) {
             platforms.put(platformId, platformNode.getId());
         }
 
-        public Node getServiceNode(Transaction txn, Service service, Station startStation, Station endStation) {
+        protected Node getServiceNode(Transaction txn, Service service, Station startStation, Station endStation) {
             String id = CreateKeys.getServiceKey(service, startStation, endStation);
             return txn.getNodeById(svcNodes.get(id));
         }
 
-        public void putService(Service service, Station begin, Station end, Node svcNode) {
+        protected void putService(Service service, Station begin, Station end, Node svcNode) {
             svcNodes.put(CreateKeys.getServiceKey(service, begin, end), svcNode.getId());
         }
 
-        public void putHour(Service service, Station station, Integer hour, Node node) {
+        protected void putHour(Service service, Station station, Integer hour, Node node) {
             hourNodes.put(CreateKeys.getHourKey(service, station, hour), node.getId());
         }
 
-        public Node getHourNode(Transaction txn, Service service, Station station, Integer hour) {
+        protected Node getHourNode(Transaction txn, Service service, Station station, Integer hour) {
             String key = CreateKeys.getHourKey(service, station, hour);
             if (!hourNodes.containsKey(key)) {
                 throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",
@@ -575,29 +575,29 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return txn.getNodeById(hourNodes.get(key));
         }
 
-        public boolean hasBoarding(long boardingNodeId, long routeStationNodeId) {
+        protected boolean hasBoarding(long boardingNodeId, long routeStationNodeId) {
             return boardings.contains(Pair.of(boardingNodeId, routeStationNodeId));
         }
 
-        public void putBoarding(long boardingNodeId, long routeStationNodeId) {
+        protected void putBoarding(long boardingNodeId, long routeStationNodeId) {
             boardings.add(Pair.of(boardingNodeId, routeStationNodeId));
         }
 
-        public boolean hasDeparts(long routeStationNodeId, long boardingNodeId) {
+        protected boolean hasDeparts(long routeStationNodeId, long boardingNodeId) {
             return departs.contains(Pair.of(routeStationNodeId, boardingNodeId));
         }
 
-        public void putDepart(long boardingNodeId, long routeStationNodeId) {
+        protected void putDepart(long boardingNodeId, long routeStationNodeId) {
             departs.add(Pair.of(routeStationNodeId, boardingNodeId));
         }
     }
 
     private static class CreateKeys {
-        public static String getServiceKey(Service service, Station startStation, Station endStation) {
+        protected static String getServiceKey(Service service, Station startStation, Station endStation) {
             return startStation.getId().getGraphId()+"_"+endStation.getId().getGraphId()+"_"+ service.getId().getGraphId();
         }
 
-        public static String getHourKey(Service service, Station station, Integer hour) {
+        protected static String getHourKey(Service service, Station station, Integer hour) {
             return service.getId().getGraphId()+"_"+station.getId().getGraphId()+"_"+hour.toString();
         }
 

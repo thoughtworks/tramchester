@@ -208,7 +208,7 @@ public class MapPathToStages {
             reset();
         }
 
-        public void board(Relationship relationship) {
+        protected void board(Relationship relationship) {
             boardCost = getCost(relationship);
             boardingStation = transportData.getStationById(IdFor.getStationIdFrom(relationship));
             routeCode = IdFor.getRouteIdFrom(relationship);
@@ -220,7 +220,7 @@ public class MapPathToStages {
             departTime = null;
         }
 
-        public VehicleStage depart(Relationship relationship) {
+        protected VehicleStage depart(Relationship relationship) {
             IdFor<Station> stationId = IdFor.getStationIdFrom(relationship);
             Station departStation = transportData.getStationById(stationId);
             Trip trip = transportData.getTripById(tripId);
@@ -252,7 +252,7 @@ public class MapPathToStages {
             boardingPlatform = Optional.empty();
         }
 
-        public Optional<WalkingStage> beginTrip(Relationship relationship) {
+        protected Optional<WalkingStage> beginTrip(Relationship relationship) {
             IdFor<Trip> newTripId = IdFor.getTripIdFrom(relationship);
 
             if (tripId.notValid()) {
@@ -278,17 +278,17 @@ public class MapPathToStages {
             return Optional.of(walkingStage);
         }
 
-        public void passStop(Relationship relationship) {
+        protected void passStop(Relationship relationship) {
             tripCost = tripCost + getCost(relationship);
             stopsSeen = stopsSeen + 1;
         }
 
-        public void walk(Relationship relationship) {
+        protected void walk(Relationship relationship) {
             walkStarted = walkStarted(relationship);
         }
 
 
-        public TransportStage walkBetween(Relationship betweenStations) {
+        protected TransportStage walkBetween(Relationship betweenStations) {
             TramTime walkStartTime;
             if (departTime==null) {
                 walkStartTime = queryTime.plusMinutes(platformLeaveCost + departCost);
@@ -298,11 +298,11 @@ public class MapPathToStages {
             return createWalkFromNeighbour(betweenStations, walkStartTime);
         }
 
-        public void enterPlatform(Relationship relationship) {
+        protected void enterPlatform(Relationship relationship) {
             platformEnterCost = getCost(relationship);
         }
 
-        public TransportStage walkFrom(Relationship relationship) {
+        protected TransportStage walkFrom(Relationship relationship) {
             TramTime walkStartTime;
             if (departTime==null) {
                 walkStartTime = queryTime.plusMinutes(platformLeaveCost + departCost);
@@ -312,7 +312,7 @@ public class MapPathToStages {
             return createWalkFrom(relationship, walkStartTime);
         }
 
-        public void leavePlatform(Relationship relationship) {
+        protected void leavePlatform(Relationship relationship) {
             platformLeaveCost = getCost(relationship);
         }
 
@@ -323,7 +323,7 @@ public class MapPathToStages {
         private final Station destination;
         private final int cost;
 
-        public WalkStarted(MyLocation start, Station destination, int cost) {
+        protected WalkStarted(MyLocation start, Station destination, int cost) {
 
             this.start = start;
             this.destination = destination;

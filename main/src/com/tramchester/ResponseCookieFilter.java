@@ -10,7 +10,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.NewCookie;
-import java.io.IOException;
 import java.util.Map;
 
 public class ResponseCookieFilter implements ContainerResponseFilter {
@@ -22,7 +21,7 @@ public class ResponseCookieFilter implements ContainerResponseFilter {
     // TODO This is a workaround for the inability to set 'samesite' header via NewCookie class in jersey
     // Hopefully once new jersey out and Dropwizard updated then can be removed
     @Override
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
         Map<String, NewCookie> cookies = responseContext.getCookies();
         if (cookies.containsKey(UsesRecentCookie.TRAMCHESTER_RECENT)) {
             logger.debug("Cookie present, need to add samesite value");

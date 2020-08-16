@@ -29,7 +29,7 @@ class BusInterchangeRepositoryTest {
     private InterchangeRepository repository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationBusTestConfig());
     }

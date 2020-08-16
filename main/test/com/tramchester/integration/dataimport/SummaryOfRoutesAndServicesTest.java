@@ -43,19 +43,17 @@ class SummaryOfRoutesAndServicesTest {
         PrintStream printStream = new PrintStream(bufferedOutputStream);
 
         transportData.getRoutes().forEach(route -> {
-            printStream.println(format("Route ID:'%s' Name:'%s'", route.getId(), route.getName()));
+            printStream.printf("Route ID:'%s' Name:'%s'%n", route.getId(), route.getName());
             route.getServices().forEach(svc -> {
-                printStream.println(format("Service ID:%s  (%s)",svc.getId(), route.getName()));
+                printStream.printf("Service ID:%s  (%s)%n",svc.getId(), route.getName());
                 svc.summariseDates(printStream);
 
                 svc.getTripsFor(route).forEach(trip ->{
                     StopCalls stops = trip.getStops();
-                    stops.getLegs().forEach(leg -> {
-                        printStream.println(format("Trip: %s From: %s To: %s %s %s",
-                                trip.getId(), leg.getFirstStation().getName(),
-                                leg.getSecondStation().getName(),
-                                trip.earliestDepartTime().toPattern(), trip.latestDepartTime().toPattern()));
-                    });
+                    stops.getLegs().forEach(leg -> printStream.println(format("Trip: %s From: %s To: %s %s %s",
+                            trip.getId(), leg.getFirstStation().getName(),
+                            leg.getSecondStation().getName(),
+                            trip.earliestDepartTime().toPattern(), trip.latestDepartTime().toPattern())));
                 });
                 printStream.println();
 

@@ -2,8 +2,6 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import org.apache.commons.lang3.tuple.Pair;

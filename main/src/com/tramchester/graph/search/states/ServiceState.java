@@ -5,7 +5,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_HOUR;
@@ -47,7 +46,7 @@ public class ServiceState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == GraphBuilder.Labels.HOUR) {
             return builders.hour.FromService(this, node, cost, maybeExistingTrip);
         }

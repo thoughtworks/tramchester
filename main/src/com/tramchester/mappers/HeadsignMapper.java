@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HeadsignMapper {
-    Map<String, String> map;
+    private final Map<String, String> map;
 
     public HeadsignMapper() {
         map = new HashMap<>();
@@ -12,10 +12,4 @@ public class HeadsignMapper {
         map.put("Rochdale Interchange","Rochdale Town Centre");
     }
 
-    public String mapToDestination(String headSign) {
-        if (map.containsKey(headSign)) {
-            return map.get(headSign);
-        }
-        return headSign;
-    }
 }

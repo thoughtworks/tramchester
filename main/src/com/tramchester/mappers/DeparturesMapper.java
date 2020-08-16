@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DeparturesMapper {
-    public static String DUE = "Due";
+    public static final String DUE = "Due";
 
     public DeparturesMapper() {
     }

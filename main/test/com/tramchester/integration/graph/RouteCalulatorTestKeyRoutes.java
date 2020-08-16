@@ -37,7 +37,7 @@ class RouteCalulatorTestKeyRoutes {
     private final LocalDate when = TestEnv.testDay();
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);

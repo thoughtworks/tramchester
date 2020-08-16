@@ -3,8 +3,6 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
 import org.junit.jupiter.api.AfterAll;
@@ -24,7 +22,7 @@ class TrainDataLoadSpike {
     private TransportData data;
 
     @BeforeAll
-    static void beforeClass() throws IOException {
+    static void beforeClass() {
         TramchesterConfig testConfig = new IntegrationTrainTestConfig();
 
         dependencies = new Dependencies();

@@ -9,12 +9,12 @@ import com.tramchester.domain.time.ServiceTime;
 public abstract class StopCall {
     protected final Station station;
     private final ServiceTime arrivalTime;
-    protected final ServiceTime departureTime;
+    private final ServiceTime departureTime;
     private final int sequenceNumber;
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;
 
-    public StopCall(Station station, StopTimeData stopTimeData) {
+    protected StopCall(Station station, StopTimeData stopTimeData) {
         this.station = station;
         this.arrivalTime = stopTimeData.getArrivalTime();
         this.departureTime = stopTimeData.getDepartureTime();

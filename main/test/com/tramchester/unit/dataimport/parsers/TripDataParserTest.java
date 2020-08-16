@@ -10,13 +10,11 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Collections;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
 
 class TripDataParserTest {
-    private final String tripA = "MET:MET1:I:,Serv000001,Trip000001,\"Bury,Bury Interchange (Manchester Metrolink)\"";
-    private final String tripB = "MET:MET1:X:,Serv000001,Trip000001,\"Bury,Bury Interchange (Manchester Metrolink)\"";
+    private static final String tripA = "MET:MET1:I:,Serv000001,Trip000001,\"Bury,Bury Interchange (Manchester Metrolink)\"";
+    private static final String tripB = "MET:MET1:X:,Serv000001,Trip000001,\"Bury,Bury Interchange (Manchester Metrolink)\"";
 
     @Test
     void shouldFilter() throws IOException {

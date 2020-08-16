@@ -12,7 +12,7 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
     private final String theId;
 
-    protected IdFor(String theId) {
+    private IdFor(String theId) {
         this.theId = theId.intern();
     }
 

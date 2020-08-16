@@ -8,7 +8,6 @@ import com.tramchester.domain.presentation.LatLong;
 import java.util.List;
 
 public interface Location extends HasTransportMode, IdForDTO {
-//    String getId();
 
     String getName();
 

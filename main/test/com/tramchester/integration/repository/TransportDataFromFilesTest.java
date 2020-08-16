@@ -40,7 +40,7 @@ class TransportDataFromFilesTest {
     private Collection<Service> allServices;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }

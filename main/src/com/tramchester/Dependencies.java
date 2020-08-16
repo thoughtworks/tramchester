@@ -7,7 +7,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.MyLocationFactory;
-import com.tramchester.domain.places.ProximityGroups;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.ProvidesNotes;
@@ -27,7 +26,6 @@ import com.tramchester.mappers.*;
 import com.tramchester.repository.*;
 import com.tramchester.resources.*;
 import com.tramchester.router.ProcessPlanRequest;
-import com.tramchester.services.SpatialService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
@@ -35,7 +33,6 @@ import org.picocontainer.behaviors.Caching;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +60,7 @@ public class Dependencies {
     }
 
     // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
-    public void initialise(TramchesterConfig configuration) throws IOException {
+    public void initialise(TramchesterConfig configuration) {
         // caching is on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
 
@@ -96,7 +93,6 @@ public class Dependencies {
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
         picoContainer.addComponent(PostcodeResource.class);
-        picoContainer.addComponent(ProximityGroups.class);
         picoContainer.addComponent(DeparturesResource.class);
         picoContainer.addComponent(DeparturesMapper.class);
         picoContainer.addComponent(VersionResource.class);
@@ -119,7 +115,6 @@ public class Dependencies {
         picoContainer.addComponent(SortsPositions.class);
         picoContainer.addComponent(StagedTransportGraphBuilder.class);
 
-        picoContainer.addComponent(SpatialService.class);
         picoContainer.addComponent(ConfigFromInstanceUserData.class);
         picoContainer.addComponent(FetchInstanceMetadata.class);
         picoContainer.addComponent(SignalToCloudformationReady.class);
@@ -213,16 +208,10 @@ public class Dependencies {
         stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
     }
 
-    public TramchesterConfig getConfig() {
-        return get(TramchesterConfig.class);
-    }
-
     public List<TramchesterHealthCheck> getHealthChecks() {
         List<TramchesterHealthCheck> healthChecks = new ArrayList<>(picoContainer.getComponents(TramchesterHealthCheck.class));
         List<HealthCheckFactory> healthCheckFactorys = picoContainer.getComponents(HealthCheckFactory.class);
-        healthCheckFactorys.forEach(healthCheckFactory -> {
-            healthChecks.addAll(healthCheckFactory.getHealthChecks());
-        });
+        healthCheckFactorys.forEach(healthCheckFactory -> healthChecks.addAll(healthCheckFactory.getHealthChecks()));
 
         return healthChecks;
     }

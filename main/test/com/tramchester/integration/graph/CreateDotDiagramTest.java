@@ -23,7 +23,7 @@ class CreateDotDiagramTest {
     private GraphDatabase database;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
         dependencies.initialise(configuration);

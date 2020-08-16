@@ -36,7 +36,7 @@ class TramGraphBuilderTest {
     private StationRepository stationRepository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         dependencies.initialise(testConfig);

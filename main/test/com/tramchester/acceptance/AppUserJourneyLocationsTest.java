@@ -26,7 +26,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -150,7 +149,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
 
         validateWalkingStage(firstStage, LocalTime.of(10,25), "Walk to",
-                Stations.Altrincham.getName(), -1, "RouteClassWalk", "Walk", 0);
+                Stations.Altrincham.getName(), -1, "RouteClassWalk");
 
         Stage secondStage = stages.get(1);
         LocalTime departTime = LocalTime.of(10,31);
@@ -159,7 +158,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     }
 
     private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
-                                      String lineClass, String lineName, int stops) {
+                                      String lineClass) {
         Assertions.assertEquals(departTime, stage.getDepartTime(), "departtime");
         Assertions.assertEquals(action, stage.getAction(), "action");
         Assertions.assertEquals(actionStation, stage.getActionStation(), "actionStation");

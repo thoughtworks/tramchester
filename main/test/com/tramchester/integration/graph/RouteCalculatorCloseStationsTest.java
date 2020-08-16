@@ -33,16 +33,15 @@ class RouteCalculatorCloseStationsTest {
 
     private static Dependencies dependencies;
     private static GraphDatabase database;
-    private static TramchesterConfig config;
 
     private RouteCalculator calculator;
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
-        config = new ClosedStationsTramTestConfig();
+        TramchesterConfig config = new ClosedStationsTramTestConfig();
         dependencies.initialise(config);
         database = dependencies.get(GraphDatabase.class);
     }

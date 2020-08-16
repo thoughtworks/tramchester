@@ -195,9 +195,9 @@ public class Service implements HasId<Service>, GraphProperty {
     }
 
     public void summariseDates(PrintStream printStream) {
-        printStream.println(format("starts %s ends %s days %s",
-                startDate.toDateString(), endDate.toDateString(), reportDays()));
-        printStream.println(format("Earliest: %s Latest: %s", earliestDepartTime().toPattern(), latestDepartTime().toPattern()));
+        printStream.printf("starts %s ends %s days %s%n",
+                startDate.toDateString(), endDate.toDateString(), reportDays());
+        printStream.printf("Earliest: %s Latest: %s%n", earliestDepartTime().toPattern(), latestDepartTime().toPattern());
         if (!additional.isEmpty()) {
             printStream.println("Additional on: " + additional.toString());
         }

@@ -2,10 +2,7 @@ package com.tramchester.integration;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.GTFSTransportationType;
-import com.tramchester.testSupport.TestConfig;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 

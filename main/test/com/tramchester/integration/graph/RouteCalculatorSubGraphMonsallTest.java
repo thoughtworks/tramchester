@@ -33,7 +33,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private Transaction txn;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(RoutesForTesting.DIDS_TO_ROCH);
 

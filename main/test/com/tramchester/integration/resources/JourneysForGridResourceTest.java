@@ -7,7 +7,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;

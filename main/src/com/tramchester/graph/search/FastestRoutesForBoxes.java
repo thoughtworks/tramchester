@@ -5,7 +5,6 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.HasGridPosition;

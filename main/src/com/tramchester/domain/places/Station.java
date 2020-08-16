@@ -20,7 +20,7 @@ import static java.lang.String.format;
 public class Station extends MapIdToDTOId<Station> implements Location, HasId<Station>, GraphProperty {
     private static final Logger logger = LoggerFactory.getLogger(Station.class);
 
-    public static String METROLINK_PREFIX = "9400ZZ";
+    public static final String METROLINK_PREFIX = "9400ZZ";
 
     private final String area;
     private final IdFor<Station> id; // id is the "atoc code" for the tfgm data set

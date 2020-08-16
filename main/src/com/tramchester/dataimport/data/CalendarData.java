@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.data;
 
 
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
 

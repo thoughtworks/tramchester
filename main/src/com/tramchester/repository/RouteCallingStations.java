@@ -38,9 +38,7 @@ public class RouteCallingStations implements Startable, Disposable {
     @Override
     public void start() {
         Collection<Route> routes = transportData.getRoutes();
-        routes.forEach(route -> {
-            populateFromServices(route, route.getServices());
-        });
+        routes.forEach(route -> populateFromServices(route, route.getServices()));
     }
 
     private void populateFromServices(Route route, Set<Service> services) {

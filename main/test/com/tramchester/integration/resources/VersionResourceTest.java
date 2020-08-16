@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
-import java.util.Optional;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;

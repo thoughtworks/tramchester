@@ -7,21 +7,15 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 class TramInterchangeRepositoryTest {
     private static Dependencies dependencies;
     private InterchangeRepository repository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }

@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class ConfigFromInstanceUserData {
 
-    public static final String PREFIX = "#";
-    public static final String EQUALS = "=";
-    private FetchMetadata provider;
+    private static final String PREFIX = "#";
+    private static final String EQUALS = "=";
+    private final FetchMetadata provider;
     private Map<String,String> tokenToValue;
 
     public ConfigFromInstanceUserData(FetchMetadata provider) {

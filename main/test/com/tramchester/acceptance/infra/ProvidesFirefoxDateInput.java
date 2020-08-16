@@ -18,14 +18,15 @@ public class ProvidesFirefoxDateInput implements ProvidesDateInput {
         return localDate.format(dateFormatSimple);
     }
 
+    // local java localdatetime
+    @Deprecated
     @Override
     public String createTimeFormat(LocalTime time) {
 
 
         DateTimeFormatter format = DateTimeFormat.shortTime();
         org.joda.time.LocalTime jodaTime = new org.joda.time.LocalTime(time.getHour(), time.getMinute());
-        String output = format.print(jodaTime);
-        return output;
+        return format.print(jodaTime);
 //        element.sendKeys(output);
     }
 }

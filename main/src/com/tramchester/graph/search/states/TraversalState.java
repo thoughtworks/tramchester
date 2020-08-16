@@ -13,7 +13,6 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.*;
@@ -69,12 +68,12 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalCost();
     }
 
-    protected abstract TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node,
+    protected abstract TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
                                                       JourneyState journeyState, int cost);
 
-    public TraversalState nextState(Path path, GraphBuilder.Labels nodeLabel, Node node,
-                             JourneyState journeyState, int cost) {
-        child = createNextState(path, nodeLabel, node, journeyState, cost);
+    public TraversalState nextState(GraphBuilder.Labels nodeLabel, Node node,
+                                    JourneyState journeyState, int cost) {
+        child = createNextState(nodeLabel, node, journeyState, cost);
         return child;
     }
 

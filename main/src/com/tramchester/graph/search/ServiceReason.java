@@ -102,7 +102,7 @@ public abstract class ServiceReason {
 
         private final ReasonCode code;
 
-        public Unreachable(ReasonCode code, HowIGotHere path) {
+        protected Unreachable(ReasonCode code, HowIGotHere path) {
                 super(code , path);
             this.code = code;
         }
@@ -117,11 +117,11 @@ public abstract class ServiceReason {
 
     private static class IsValid extends ServiceReason
     {
-        public IsValid(ReasonCode code, HowIGotHere path) {
+        protected IsValid(ReasonCode code, HowIGotHere path) {
             super(code, path);
         }
 
-        public IsValid(ReasonCode code) {
+        protected IsValid(ReasonCode code) {
             super(code);
         }
 
@@ -138,7 +138,7 @@ public abstract class ServiceReason {
 
     private static class SeenBusStationBefore extends ServiceReason
     {
-        public SeenBusStationBefore(HowIGotHere path) {
+        protected SeenBusStationBefore(HowIGotHere path) {
 
             super(ReasonCode.SeenBusStationBefore, path);
         }
@@ -160,7 +160,7 @@ public abstract class ServiceReason {
     {
         private final IdFor<Service> nodeServiceId;
 
-        public DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
+        protected DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
             super(ReasonCode.NotOnQueryDate, path);
             this.nodeServiceId = nodeServiceId;
         }
@@ -180,7 +180,7 @@ public abstract class ServiceReason {
 
     private static class TooManyChanges extends ServiceReason {
 
-        public TooManyChanges(HowIGotHere path) {
+        protected TooManyChanges(HowIGotHere path) {
             super(ReasonCode.TooManyChanges, path);
         }
 
@@ -202,7 +202,7 @@ public abstract class ServiceReason {
 
         private final Station closed;
 
-        public StationClosed(HowIGotHere howIGotHere, Station closed) {
+        protected StationClosed(HowIGotHere howIGotHere, Station closed) {
             super(ReasonCode.StationClosed, howIGotHere);
             this.closed = closed;
         }
@@ -219,7 +219,7 @@ public abstract class ServiceReason {
     {
         private final TramTime elapsedTime;
 
-        public DoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, HowIGotHere path) {
+        protected DoesNotOperateOnTime(ReasonCode reasonCode, TramTime elapsedTime, HowIGotHere path) {
             super(reasonCode, path);
             if (elapsedTime==null) {
                 throw new RuntimeException("Must provide time");

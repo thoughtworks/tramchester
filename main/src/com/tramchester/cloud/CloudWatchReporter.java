@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class CloudWatchReporter extends ScheduledReporter {
     private static final Logger logger = LoggerFactory.getLogger(CloudWatchReporter.class);
     private final SendMetricsToCloudWatch client;
-    private ConfigFromInstanceUserData providesConfig;
+    private final ConfigFromInstanceUserData providesConfig;
 
     private static final String PREFIX_LOG_NAMESPACE = "ch.qos.logback.core.Appender.";
 
@@ -24,7 +24,6 @@ public class CloudWatchReporter extends ScheduledReporter {
         this.client = client;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void report(SortedMap<String, Gauge> unTypedGauges, SortedMap<String, Counter> counters,
                        SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters,

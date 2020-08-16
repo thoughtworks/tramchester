@@ -13,8 +13,6 @@ import java.time.LocalTime;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static junit.framework.TestCase.assertEquals;
-
 class DepartureDTOTest {
 
     @Test

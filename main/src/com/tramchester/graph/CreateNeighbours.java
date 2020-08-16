@@ -74,7 +74,7 @@ public class CreateNeighbours implements Startable {
         }
     }
 
-    boolean hasDBFlag(Transaction txn) {
+    private boolean hasDBFlag(Transaction txn) {
         ResourceIterator<Node> query = database.findNodes(txn, GraphBuilder.Labels.NEIGHBOURS_ENABLED);
         List<Node> nodes = query.stream().collect(Collectors.toList());
         return !nodes.isEmpty();

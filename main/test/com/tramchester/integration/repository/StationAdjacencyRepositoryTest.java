@@ -10,7 +10,6 @@ import com.tramchester.testSupport.Stations;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +21,7 @@ class StationAdjacencyRepositoryTest {
     private TransportData transportDataSource;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }

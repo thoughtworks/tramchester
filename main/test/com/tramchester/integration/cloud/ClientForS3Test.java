@@ -8,15 +8,9 @@ import com.amazonaws.waiters.WaiterParameters;
 import com.tramchester.cloud.ClientForS3;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.util.List;
-
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 class ClientForS3Test {
 

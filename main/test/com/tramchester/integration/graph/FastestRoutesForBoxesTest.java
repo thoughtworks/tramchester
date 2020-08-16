@@ -36,7 +36,7 @@ class FastestRoutesForBoxesTest {
     private FastestRoutesForBoxes calculator;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         IntegrationTramTestConfig config = new IntegrationTramTestConfig();
         dependencies.initialise(config);

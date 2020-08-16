@@ -3,7 +3,6 @@ package com.tramchester.graph.search.states;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -36,7 +35,7 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         // could be we've walked to our destination
         if (destinationNodeIds.contains(node.getId())) {
             return builders.destination.from(this, cost);

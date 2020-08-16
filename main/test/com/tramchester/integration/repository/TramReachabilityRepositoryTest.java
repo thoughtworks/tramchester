@@ -8,14 +8,12 @@ import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
-
 class TramReachabilityRepositoryTest {
     private TramReachabilityRepository repository;
     private static Dependencies dependencies;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
     }

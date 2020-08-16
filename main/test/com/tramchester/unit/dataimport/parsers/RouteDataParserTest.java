@@ -9,15 +9,13 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Collections;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
 
 class RouteDataParserTest {
-    private final String routeA = "MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
-    private final String routeB = "MET:MET4:O:,XXX,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
+    private static final String routeA = "MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
+    private static final String routeB = "MET:MET4:O:,XXX,MET4,Ashton-Under-Lyne - Manchester - Eccles,0";
 
-    private final String problemBusRoute = "JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3";
+    private static final String problemBusRoute = "JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3";
 
     @Test
     void shouldFilter() throws IOException {

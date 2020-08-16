@@ -11,8 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-
 class LiveDataRepositoryTest {
     private static Dependencies dependencies;
 
@@ -20,7 +18,7 @@ class LiveDataRepositoryTest {
     private LiveDataParser parser;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
         // don't want to fetch every time

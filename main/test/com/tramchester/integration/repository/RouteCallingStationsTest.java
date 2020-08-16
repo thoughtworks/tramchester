@@ -23,7 +23,7 @@ class RouteCallingStationsTest {
     private static TransportData transportData;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         dependencies.initialise(new IntegrationTramTestConfig());
         repo = dependencies.get(RouteCallingStations.class);

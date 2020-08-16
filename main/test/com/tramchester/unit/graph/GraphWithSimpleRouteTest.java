@@ -98,7 +98,7 @@ class GraphWithSimpleRouteTest {
                 transportData.getSecond(), journeyRequest).
                 collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, SECOND_STATION, 0, "RouteClass1");
+        assertFirstAndLast(journeys, FIRST_STATION, SECOND_STATION, 0);
     }
 
     @Test
@@ -139,7 +139,7 @@ class GraphWithSimpleRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, INTERCHANGE, 1, "RouteClass1");
+        assertFirstAndLast(journeys, FIRST_STATION, INTERCHANGE, 1);
         checkForPlatforms(journeys);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
     }
@@ -162,7 +162,7 @@ class GraphWithSimpleRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getLast(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, LAST_STATION, 2, "RouteClass1");
+        assertFirstAndLast(journeys, FIRST_STATION, LAST_STATION, 2);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
     }
 
@@ -219,7 +219,7 @@ class GraphWithSimpleRouteTest {
     }
 
     private void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
-                                    int passedStops, String displayClass) {
+                                    int passedStops) {
         Journey journey = (Journey)journeys.toArray()[0];
         List<TransportStage> stages = journey.getStages();
         TransportStage vehicleStage = stages.get(0);

@@ -6,7 +6,6 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
@@ -65,7 +64,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
     }
 
     @Override
-    public TraversalState createNextState(Path path, GraphBuilder.Labels nodeLabel, Node next, JourneyState journeyState, int cost) {
+    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node next, JourneyState journeyState, int cost) {
         long nodeId = next.getId();
         if (destinationNodeIds.contains(nodeId)) {
             // TODO Cost of bus depart?

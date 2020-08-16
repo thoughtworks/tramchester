@@ -37,7 +37,7 @@ class LiveDataHTTPFetcherTest {
     private LiveDataParser parser;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
         configuration = new IntegrationTramTestConfig();
         dependencies.initialise(configuration);

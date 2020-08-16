@@ -10,7 +10,7 @@ public class CdkStack extends Stack {
         this(scope, id, null);
     }
 
-    public CdkStack(final Construct scope, final String id, final StackProps props) {
+    private CdkStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
         Bucket.Builder.create(this, "CDKTestBucket")
