@@ -134,7 +134,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @Timed
     @Path("/closures")
     @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
+    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
         List<StationClosure> closures = config.getStationClosures();
 
