@@ -23,7 +23,6 @@ public class StageDTO {
     private String headSign;
 
     private TransportMode mode;
-//    private String displayClass;
     private int passedStops;
     private String action;
 

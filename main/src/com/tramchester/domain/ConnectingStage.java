@@ -28,7 +28,7 @@ public class ConnectingStage implements TransportStage  {
 
     @Override
     public String getRouteName() {
-        return "Walk to";
+        return "Walk";
     }
 
     @Override

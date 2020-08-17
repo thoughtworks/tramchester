@@ -69,6 +69,13 @@ function lineFormatter(value, key, row) {
     }
 }
 
+function actionFormatter(value, key, row) {
+    if (row.action=='Walk to' || row.action=='Walk from') {
+        return value;
+    }
+    return value + ' ' + row.actionStation.transportMode;
+}
+
 function lineClass(value, key, item) {
     const prefix = 'RouteClass'
     if (item.mode=='Tram') {
@@ -110,7 +117,7 @@ export default {
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
             stageFields: [{key:'firstDepartureTime', label:'Time', tdClass:'departTime'},
-                {key:'action', label:'Action',tdClass:'action' },
+                {key:'action', label:'Action', tdClass:'action', formatter: actionFormatter },
                 {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: stationFormatter},
                 {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                 {key:'headSign', label:'Headsign', tdClass: stageHeadsignClass },

@@ -27,7 +27,7 @@
     "moment": "^2.24.0",
     "oboe": "^2.1.5",
     "portal-vue": "^2.1.7",
-    "serialize-javascript": "^2.1.2",
+    "serialize-javascript": "^4.0.0",
     "vue": "^2.6.11",
     "vue-bootstrap-typeahead": "^0.2.6",
     "vue-cookies": "^1.7.0"

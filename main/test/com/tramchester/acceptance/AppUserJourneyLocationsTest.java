@@ -116,6 +116,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName()));
         // TODO to recent just bury, not alty
     }
+    
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldCheckNearAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {
@@ -153,7 +154,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         Stage secondStage = stages.get(1);
         LocalTime departTime = LocalTime.of(10,31);
-        validateAStage(secondStage, departTime, "Board", Stations.Altrincham.getName(), 1,
+        validateAStage(secondStage, departTime, "Board Tram", Stations.Altrincham.getName(), 1,
                 AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }
 

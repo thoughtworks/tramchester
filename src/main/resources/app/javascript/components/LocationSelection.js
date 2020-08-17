@@ -80,7 +80,7 @@ export default {
             v-model="current"
             maxMatches=20
             minMatchingChars=3
-            :serializer="item => item.name"
+            :serializer="item => item.name + ' (' + item.transportMode +')' "
             @hit="updateValue($event.id)"
             placeholder="Select a location"
             v-if="bus"

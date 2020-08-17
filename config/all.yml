@@ -16,7 +16,7 @@ server:
 secureHost: tramchester.com
 
 graphName: all.db
-closedStations: []
+stationClosures: []
 instanceDataUrl: http://169.254.169.254
 dataSources:
   -
@@ -51,8 +51,8 @@ postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
 maxWait: 25
-numberQueries: 3
-queryInterval: 12
+numberQueries: 8
+queryInterval: 15
 maxNumberResults: 5
 maxJourneyDuration: 112
 nearestStopRangeKM: 1.6

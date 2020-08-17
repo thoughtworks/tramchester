@@ -193,7 +193,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
 
-        validateAStage(stage, firstResult.getDepartTime(), "Board", altrincham, 1,
+        validateAStage(stage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
                 altyToPiccClass, altyToPicLineName, Stations.Piccadilly.getName(), 9);
     }
 
@@ -324,17 +324,17 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
-        validateAStage(firstStage, firstResult.getDepartTime(), "Board", altrincham, 1,
+        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
                 altyToPiccClass, altyToPicLineName,
                 Stations.Piccadilly.getName(), 7);
 
         // Too timetable dependent?
-        validateAStage(secondStage, LocalTime.parse("10:32"), "Change", Stations.TraffordBar.getName(),
+        validateAStage(secondStage, LocalTime.parse("10:32"), "Change Tram", Stations.TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
                 Stations.ManAirport.getName(), 17);
 
         assertEquals(Stations.TraffordBar.getName(), secondStage.getActionStation());
-        assertEquals("Change", secondStage.getAction());
+        assertEquals("Change Tram", secondStage.getAction());
 
     }
 

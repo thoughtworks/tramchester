@@ -115,8 +115,7 @@
 }
 
 .trainHeadSign {
-    color: red;
-    /* visibility: hidden; */
+    font-style: italic;
 }
 
 #leafletMap {

@@ -72,7 +72,7 @@ function queryLiveData(url) {
 
 function getStationsFromServer(app) {
     axios
-         .get('/api/stations/all')
+         .get('/api/stations/all', { timeout: 30000}) /// potential size of data means timeout neeeded here
          .then(function (response) {
              app.networkError = false;
              app.stops.allStops = response.data;
