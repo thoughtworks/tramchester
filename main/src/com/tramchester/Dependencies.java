@@ -146,7 +146,6 @@ public class Dependencies {
         picoContainer.addComponent(new ObjectMapper());
         picoContainer.addComponent(StageDTOFactory.class);
         picoContainer.addComponent(JourneyDTOFactory.class);
-        picoContainer.addComponent(HeadsignMapper.class);
         picoContainer.addComponent(TramPositionInference.class);
         picoContainer.addComponent(GraphHealthCheck.class);
         picoContainer.addComponent(DataExpiryHealthCheckFactory.class);
