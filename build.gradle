@@ -382,8 +382,6 @@ task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
 task uploadSupportFiles(dependsOn: 'cfnassist') {
     doLast {
         ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
-            Artifact(name: 'install', value: 'deploy/setupTramWebServer.sh')
-            Artifact(name: 'cloudinit', value: 'deploy/cloudInit.txt')
             Artifact(name: 'install', value: 'deploy/setupTramWebServerAWSLinux.sh')
             Artifact(name: 'cloudinit', value: 'deploy/cloudInitAWSLinux.txt')
             S3Create()
