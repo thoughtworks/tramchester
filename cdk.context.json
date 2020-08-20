@@ -1,4 +1,53 @@
 {
   "@aws-cdk/core:enableStackNameDuplicates": "true",
-  "aws-cdk:enableDiffNoFail": "true"
+  "aws-cdk:enableDiffNoFail": "true",
+  "vpc-provider:account=300752856189:filter.tag:CFN_ASSIST_ENV=ProdGreen:filter.tag:CFN_ASSIST_PROJECT=tramchesterB:region=eu-west-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-926e8bf7",
+    "vpcCidrBlock": "10.0.0.0/16",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-7928e60f",
+            "cidr": "10.0.12.0/24",
+            "availabilityZone": "eu-west-1a",
+            "routeTableId": "rtb-e28a3e86"
+          },
+          {
+            "subnetId": "subnet-7b28e60d",
+            "cidr": "10.0.100.0/24",
+            "availabilityZone": "eu-west-1a",
+            "routeTableId": "rtb-ed8a3e89"
+          },
+          {
+            "subnetId": "subnet-96db3fce",
+            "cidr": "10.0.212.0/24",
+            "availabilityZone": "eu-west-1b",
+            "routeTableId": "rtb-e28a3e86"
+          }
+        ]
+      },
+      {
+        "name": "Private",
+        "type": "Private",
+        "subnets": [
+          {
+            "subnetId": "subnet-7828e60e",
+            "cidr": "10.0.10.0/24",
+            "availabilityZone": "eu-west-1a",
+            "routeTableId": "rtb-e38a3e87"
+          },
+          {
+            "subnetId": "subnet-95db3fcd",
+            "cidr": "10.0.210.0/24",
+            "availabilityZone": "eu-west-1b",
+            "routeTableId": "rtb-e38a3e87"
+          }
+        ]
+      }
+    ]
+  }
 }

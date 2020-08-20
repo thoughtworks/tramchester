@@ -116,7 +116,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName()));
         // TODO to recent just bury, not alty
     }
-    
+
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldCheckNearAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {

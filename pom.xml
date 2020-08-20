@@ -52,12 +52,17 @@
         <dependency>
             <groupId>software.amazon.awscdk</groupId>
             <artifactId>core</artifactId>
-            <version>1.31.0</version>
+            <version>1.59.0</version>
         </dependency>
         <dependency>
           <groupId>software.amazon.awscdk</groupId>
           <artifactId>s3</artifactId>
-          <version>1.31.0</version>
+          <version>1.59.0</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
+            <artifactId>ec2</artifactId>
+            <version>1.59.0</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/junit/junit -->
