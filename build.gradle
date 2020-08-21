@@ -407,6 +407,10 @@ task deploy(dependsOn: cfnassist) {
     }
 }
 
+task deployCDK(type: Exec, dependsOn: [npmInstall, classes]) {
+    commandLine "./node_modules/.bin/cdk", "deploy"
+}
+
 task updateLB(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {

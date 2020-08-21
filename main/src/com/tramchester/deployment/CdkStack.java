@@ -21,41 +21,26 @@ public class CdkStack extends Stack {
     private final String cfnEnv;
     private final String releaseNumber;
 
-    public CdkStack(final Construct parentScope, final String id, final StackProps props, CloudFormationExistingResources existingResources) {
+    public CdkStack(final Construct parentScope, final String id, final StackProps props, CloudFormationExistingResources existingResources,
+                    String cfnProject, String cfnEnv, String releaseNumber) {
         super(parentScope, id, props);
         this.existingResources = existingResources;
+        this.cfnProject = cfnProject;
+        this.cfnEnv = cfnEnv;
+        this.releaseNumber = releaseNumber;
         CdkStack scope;
         scope = this;
-
-        cfnEnv = getEnvOrStop("CFN_ASSIST_ENV");
-        cfnProject = getEnvOrStop("CFN_ASSIST_PROJECT");
-        releaseNumber = getEnvOrStop("RELEASE_NUMBER");
 
         createStack(scope);
     }
 
     private void createStack(CdkStack scope) {
-        ISubnet webSubnetA = getSubnet();
 
         Tags.of(scope).add("CFN_ASSIST_BUILD_NUMBER", releaseNumber);
         Tags.of(scope).add("CFN_ASSIST_ENV", cfnEnv);
         Tags.of(scope).add("CFN_ASSIST_PROJECT", cfnProject);
 
-        @NotNull VpcLookupOptions lookupOptions = new VpcLookupOptions() {
-            @Override
-            public @Nullable Map<String, String> getTags() {
-                HashMap<String, String> tags = new HashMap<>();
-                tags.put("CFN_ASSIST_ENV", cfnEnv);
-                tags.put("CFN_ASSIST_PROJECT",cfnProject);
-                return tags;
-            }
-        };
-
-        IVpc vpc = Vpc.fromLookup(this, "existingVPC", lookupOptions);
-        logger.info("Found VPC " + vpc.getVpcId());
-
-        // TODO find from existing stack
-        IRole role = Role.fromRoleArn(scope, "role", "arn:aws:iam::300752856189:role/tramchester/ProdGreen/tramchesterBProdGreen010createInstanc-InstanceRole-1TXB1XQFBGP6");
+        IVpc vpc = getVpc();
 
         CfnWaitConditionHandle waitConditionHandle = new CfnWaitConditionHandle(scope, "webDoneWaitHandle");
 
@@ -66,9 +51,13 @@ public class CdkStack extends Stack {
 
         UserData userData = UserData.custom(createUserData(waitConditionHandle.getRef(), "tramchester2dist"));
 
+        IRole role = getRole(scope);
+
         @Nullable AmazonLinuxImageProps props = AmazonLinuxImageProps.builder().
                 generation(AmazonLinuxGeneration.AMAZON_LINUX_2).build();
         IMachineImage machineImage = MachineImage.latestAmazonLinux(props);
+
+        ISubnet webSubnetA = getSubnet();
         List<String> awsCdkWorkaround = Collections.singletonList("workaround");
         List<ISubnet> subnets = Collections.singletonList(webSubnetA);
         SubnetSelection subnetSelection = SubnetSelection.builder().subnets(subnets).availabilityZones(awsCdkWorkaround).build();
@@ -92,6 +81,33 @@ public class CdkStack extends Stack {
     }
 
     @NotNull
+    private IVpc getVpc() {
+        @NotNull VpcLookupOptions lookupOptions = new VpcLookupOptions() {
+            @Override
+            public @NotNull Map<String, String> getTags() {
+                HashMap<String, String> tags = new HashMap<>();
+                tags.put("CFN_ASSIST_ENV", cfnEnv);
+                tags.put("CFN_ASSIST_PROJECT",cfnProject);
+                return tags;
+            }
+        };
+
+        IVpc vpc = Vpc.fromLookup(this, "existingVPC", lookupOptions);
+        logger.info("Found VPC " + vpc.getVpcId());
+        return vpc;
+    }
+
+    @NotNull
+    private IRole getRole(CdkStack scope) {
+        String accountid = getEnvOrStop("CDK_DEFAULT_ACCOUNT");
+        String id = getPhysicalId("010createInstanceIAMRole", "InstanceRole");
+        logger.info("Got phsical id for instance role: " + id);
+        String arn = String.format("arn:aws:iam::%s:role/tramchester/%s/%s", accountid, cfnEnv, id);
+        logger.info("Trying arn " + arn);
+        return Role.fromRoleArn(scope, "role", arn);
+    }
+
+    @NotNull
     private String getKeyName() {
         return cfnProject+"_"+cfnEnv;
     }
@@ -99,8 +115,7 @@ public class CdkStack extends Stack {
     @NotNull
     private ISecurityGroup getSecurityGroup(CdkStack scope) {
         String securityGroupdId = getPhysicalId("003webSubnetAclAndSG", "sgWeb");
-        ISecurityGroup securityGroup = SecurityGroup.fromSecurityGroupId(scope, "webSg", securityGroupdId);
-        return securityGroup;
+        return SecurityGroup.fromSecurityGroupId(scope, "webSg", securityGroupdId);
     }
 
     @NotNull
@@ -136,7 +151,7 @@ public class CdkStack extends Stack {
                 "# TFGMAPIKEY=" + getEnvOrStop("TFGMAPIKEY") + "\n";
     }
 
-    private String getEnvOrStop(String name) {
+    static String getEnvOrStop(String name) {
         String result = System.getenv(name);
         if (result==null || result.isEmpty()) {
             logger.error("Missing mandatory env var " + name);

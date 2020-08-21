@@ -5,7 +5,7 @@ import software.amazon.awscdk.core.Environment;
 import software.amazon.awscdk.core.StackProps;
 import software.amazon.awssdk.services.cloudformation.CloudFormationClient;
 
-import java.io.IOException;
+import static com.tramchester.deployment.CdkStack.getEnvOrStop;
 
 public class CdkApp {
     public static void main(final String[] args) {
@@ -19,7 +19,14 @@ public class CdkApp {
 
         CloudFormationExistingResources existingResources = new CloudFormationExistingResources(CloudFormationClient.create());
 
-        new CdkStack(app, "TramchesterServers", stackProps, existingResources);
+        String cfnEnv = getEnvOrStop("ENV");
+        String releaseNumber = getEnvOrStop("RELEASE_NUMBER");
+        String cfnProject = "tramchesterB";
+
+        String stackId = String.format("%s%s%sservers", cfnProject, releaseNumber, cfnEnv);
+
+
+        new CdkStack(app, stackId, stackProps, existingResources, cfnProject, cfnEnv, releaseNumber);
 
         app.synth();
     }
