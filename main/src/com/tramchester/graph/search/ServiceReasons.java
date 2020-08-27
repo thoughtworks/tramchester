@@ -19,11 +19,9 @@ import static java.lang.String.format;
 public class ServiceReasons {
 
     private static final Logger logger;
-    private static final boolean createDotFile;
 
     static {
         logger = LoggerFactory.getLogger(ServiceReasons.class);
-        createDotFile = logger.isDebugEnabled();
     }
 
     private final TramTime queryTime;
@@ -33,7 +31,8 @@ public class ServiceReasons {
     // stats
     private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
     private final AtomicInteger totalChecked = new AtomicInteger(0);
-    private final boolean statsOn;
+    private final boolean diagnosticsEnabled;
+
     private boolean success;
 
     public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesLocalNow providesLocalNow) {
@@ -44,7 +43,7 @@ public class ServiceReasons {
         statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
         success = false;
-        statsOn = journeyRequest.getDiagnosticsEnabled();
+        diagnosticsEnabled = journeyRequest.getDiagnosticsEnabled();
     }
 
     private void reset() {
@@ -54,11 +53,11 @@ public class ServiceReasons {
     }
 
     public void reportReasons(Transaction transaction, TransportData transportData) {
-        if (createDotFile) {
+        if (diagnosticsEnabled) {
             createGraphFile(transaction, transportData);
         }
 
-        if (!success || statsOn) {
+        if (!success || diagnosticsEnabled) {
             reportStats();
         }
 
@@ -76,7 +75,7 @@ public class ServiceReasons {
     }
 
     public ServiceReason recordReason(final ServiceReason serviceReason) {
-        if (createDotFile) {
+        if (diagnosticsEnabled) {
             reasons.add(serviceReason);
         }
         incrementStat(serviceReason.getReasonCode());

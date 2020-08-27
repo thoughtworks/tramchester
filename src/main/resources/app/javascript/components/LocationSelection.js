@@ -28,6 +28,9 @@ export default {
         allstops: function () {
             return sort(this.stops.allStops, this.alreadyDisplayed);
         },
+        busstops: function () {
+            return this.stops.allStops.concat(this.stops.postcodes).filter(stop => !this.alreadyDisplayed.includes(stop.id));
+        },
         alreadyDisplayed: function () {
             var results = [];
             if (this.bus) {
@@ -76,7 +79,7 @@ export default {
     <!-- buses -->
         <vue-bootstrap-typeahead
             class="mb-4"
-            :data="allstops"
+            :data="busstops"
             v-model="current"
             maxMatches=20
             minMatchingChars=3

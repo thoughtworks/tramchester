@@ -31,11 +31,6 @@ if [ "$REDIRECTHTTP" == '' ]; then
         export REDIRECTHTTP=false
 fi
 
-export EXPERIMENTAL=true
-if [ "$PLACE" == 'ProdBlue' ] || [ "$PLACE" == 'ProdGreen' ]; then
-    unset EXPERIMENTAL
-fi
-
 logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $PLACE
 
 # fetch and install the package

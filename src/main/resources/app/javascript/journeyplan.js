@@ -71,6 +71,14 @@ function queryLiveData(url) {
 }
 
 function getStationsFromServer(app) {
+    if (app.feedinfo.bus) {
+        axios.get("/api/postcodes", { timeout: 30000}).then(function (response) {
+            app.networkError = false;
+            app.stops.postcodes = response.data;
+        }).catch(function (error){
+            reportError(error);
+        });
+    }
     axios
          .get('/api/stations/all', { timeout: 30000}) /// potential size of data means timeout neeeded here
          .then(function (response) {
@@ -114,22 +122,6 @@ function getRecentAndNearest(app) {
     }
 }
 
- function loadPostcodes(app) {
-     if (app.feedinfo.bus) {
-        axios.get("/api/postcodes").then(function (response) {
-            app.networkError = false;
-            addPostcodes(response.data);
-        }).catch(function (error){
-            reportError(error);
-        });
-    }
-}
-
-// // TODO app needed passed in for some browsers?
-// function addPostcodes(postcodes) {
-//     app.stops = app.stops.concat(postcodes);
-// }
-
  function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
     var urlParams = {
         start: startStop, end: endStop, departureTime: time, departureDate: date, 
@@ -170,7 +162,8 @@ function getRecentAndNearest(app) {
     stops: {
         allStops: [],
         nearestStops: [],
-        recentStops: []
+        recentStops: [],
+        postcodes: []
     },
     startStop: null,
     endStop: null,

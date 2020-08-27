@@ -38,7 +38,7 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
-        Station station = Stations.StPetersSquare;
+        Station station = Stations.Bury;
 
         Response response = IntegrationClient.getApiResponse(
                 appExtension, String.format("departures/station/%s", station.forDTO()));
@@ -46,9 +46,9 @@ class DeparturesResourceTest {
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
         SortedSet<DepartureDTO> departures = departureList.getDepartures();
-        assertFalse(departures.isEmpty());
-        departures.forEach(depart -> assertEquals(station.getName(),depart.getFrom()));
-        assertFalse(departureList.getNotes().isEmpty()); // off by deafult
+        assertFalse(departures.isEmpty(), "no departures found for " + station.getName());
+        departures.forEach(depart -> assertEquals(station.getName(), depart.getFrom()));
+        assertFalse(departureList.getNotes().isEmpty(), "no notes found for " + station.getName()); // off by deafult
     }
 
     @Test
@@ -135,7 +135,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataMessagesCategory
-    void shouldNotGetNearIfOutsideOfThreshold() {
+    void shouldNotGetNearbyIfOutsideOfThreshold() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
 
@@ -159,7 +159,7 @@ class DeparturesResourceTest {
         assertFalse(departureDTO.getDestination().isEmpty());
 
         List<Note> notes = departureList.getNotes();
-        assertFalse(notes.isEmpty());
+        assertFalse(notes.isEmpty(), "no notes");
         // ignore closure message which is always present, also if today is weekend exclude that
         int ignore = 1;
         DayOfWeek dayOfWeek = TestEnv.LocalNow().toLocalDate().getDayOfWeek();
@@ -171,20 +171,24 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataMessagesCategory
-    void shouldGetDueTramsForStationNotesOnOrOff() {
+    void shouldGetDueTramsForStationNotesRequestedOrNot() {
+        Station station = Stations.Bury;
+
+        // Notes disabled
         Response response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=1", Stations.StPetersSquare.forDTO()));
+                appExtension, String.format("departures/station/%s?notes=0", station.forDTO()));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        assertFalse(departureList.getNotes().isEmpty());
+        assertTrue(departureList.getNotes().isEmpty(), "no notes expected");
 
+        // Notes enabled
         response = IntegrationClient.getApiResponse(
-                appExtension, String.format("departures/station/%s?notes=0", Stations.StPetersSquare.forDTO()));
+                appExtension, String.format("departures/station/%s?notes=1", station.forDTO()));
         assertEquals(200, response.getStatus());
 
         departureList = response.readEntity(DepartureListDTO.class);
-        assertTrue(departureList.getNotes().isEmpty());
+        assertFalse(departureList.getNotes().isEmpty(), "no notes");
 
     }
 

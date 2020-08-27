@@ -19,6 +19,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static final IdFor<Route> ROUTE_ID = IdFor.createId("DGC:  88:O:");

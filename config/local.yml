@@ -16,15 +16,7 @@ server:
 secureHost: tramchester.com
 
 graphName: tramchester.db
-stationClosures:
-  -
-    station: 9400ZZMASHU
-    begin: 2020-08-08
-    end: 2020-08-18
-  -
-    station: 9400ZZMAMKT
-    begin: 2020-08-08
-    end: 2020-08-18
+stationClosures: []
 instanceDataUrl: http://169.254.169.254
 dataSources:
   -
