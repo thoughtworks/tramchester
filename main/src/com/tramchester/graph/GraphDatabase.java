@@ -1,11 +1,19 @@
 package com.tramchester.graph;
 
+import com.google.common.primitives.Bytes;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.DataSourceRepository;
+import io.dropwizard.util.DataSizeUnit;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.configuration.ExternalSettings;
+import org.neo4j.configuration.GraphDatabaseSettings;
+import org.neo4j.configuration.SettingValueParsers;
+import org.neo4j.configuration.connectors.BoltConnector;
+import org.neo4j.configuration.connectors.HttpConnector;
+import org.neo4j.configuration.connectors.HttpsConnector;
 import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -16,6 +24,7 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.logging.Level;
 import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -172,7 +181,23 @@ public class GraphDatabase implements Startable {
     private GraphDatabaseService createGraphDatabaseService(File graphFile) {
 
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
-                loadPropertiesFromFile("config/neo4j.conf").
+                setConfig(GraphDatabaseSettings.track_query_allocation, false).
+                setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
+
+                // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
+                setConfig(GraphDatabaseSettings.pagecache_memory, "100m"). // todo into config file
+                setConfig(ExternalSettings.initialHeapSize, "100m").
+                setConfig(ExternalSettings.maxHeapSize, "200m").
+                setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
+
+                // txn logs, no need to save beyond current ones
+                setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
+
+                // operating in embedded mode
+                setConfig(HttpConnector.enabled, false).
+                setConfig(HttpsConnector.enabled, false).
+                setConfig(BoltConnector.enabled, false).
+
                 setUserLogProvider(new Slf4jLogProvider()).
                 build();
 

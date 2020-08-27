@@ -46,8 +46,8 @@ class RouteCostCalculatorTest {
             assertEquals(5, routeCostCalc.getApproxCostBetween(txn, Stations.NavigationRoad, Stations.Altrincham));
             assertEquals(6, routeCostCalc.getApproxCostBetween(txn, Stations.Altrincham, Stations.NavigationRoad));
 
-            assertEquals(62, routeCostCalc.getApproxCostBetween(txn, Stations.Bury, Stations.Altrincham));
-            assertEquals(62, routeCostCalc.getApproxCostBetween(txn, Stations.Altrincham, Stations.Bury));
+            assertEquals(64, routeCostCalc.getApproxCostBetween(txn, Stations.Bury, Stations.Altrincham));
+            assertEquals(65, routeCostCalc.getApproxCostBetween(txn, Stations.Altrincham, Stations.Bury));
 
             assertEquals(61, routeCostCalc.getApproxCostBetween(txn, Stations.MediaCityUK, Stations.ManAirport));
             assertEquals(61, routeCostCalc.getApproxCostBetween(txn, Stations.ManAirport, Stations.MediaCityUK));
