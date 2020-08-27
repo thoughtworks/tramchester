@@ -15,6 +15,7 @@ server:
 
 secureHost: tramchester.com
 graphName: buses.db
+neo4jPagecacheMemory: 1300m
 stationClosures: []
 dataSources:
   -

@@ -20,6 +20,10 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // name of the graph DB to use
     public abstract String getGraphName();
 
+    // page cache memory for neo4j
+    // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
+    public abstract String getNeo4jPagecacheMemory();
+
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
 

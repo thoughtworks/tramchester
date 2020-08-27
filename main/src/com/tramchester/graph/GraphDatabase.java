@@ -1,11 +1,9 @@
 package com.tramchester.graph;
 
-import com.google.common.primitives.Bytes;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.DataSourceRepository;
-import io.dropwizard.util.DataSizeUnit;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.configuration.ExternalSettings;
@@ -72,7 +70,7 @@ public class GraphDatabase implements Startable {
             logger.info("No db file found at " + graphFile.getAbsolutePath());
         }
 
-        databaseService = createGraphDatabaseService(graphFile);
+        databaseService = createGraphDatabaseService(graphFile, configuration.getNeo4jPagecacheMemory());
 
         if (existingFile && !upToDateVersionsAndNeighbourFlag()) {
             cleanDB = true;
@@ -94,7 +92,7 @@ public class GraphDatabase implements Startable {
                 throw new RuntimeException(message,e);
             }
             graphFile = new File(graphName);
-            databaseService = createGraphDatabaseService(graphFile);
+            databaseService = createGraphDatabaseService(graphFile, configuration.getNeo4jPagecacheMemory());
         }
 
         logger.info("graph db started " + graphFile.getAbsolutePath());
@@ -178,14 +176,15 @@ public class GraphDatabase implements Startable {
         return nodes;
     }
 
-    private GraphDatabaseService createGraphDatabaseService(File graphFile) {
+    private GraphDatabaseService createGraphDatabaseService(File graphFile, String neo4jPagecacheMemory) {
 
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
                 setConfig(GraphDatabaseSettings.track_query_allocation, false).
                 setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
 
                 // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
-                setConfig(GraphDatabaseSettings.pagecache_memory, "100m"). // todo into config file
+
+                setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory). // todo into config file
                 setConfig(ExternalSettings.initialHeapSize, "100m").
                 setConfig(ExternalSettings.maxHeapSize, "200m").
                 setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).

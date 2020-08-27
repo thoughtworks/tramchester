@@ -16,6 +16,7 @@ server:
 secureHost: tramchester.com
 
 graphName: all.db
+neo4jPagecacheMemory: 1500m
 stationClosures: []
 instanceDataUrl: http://169.254.169.254
 dataSources:

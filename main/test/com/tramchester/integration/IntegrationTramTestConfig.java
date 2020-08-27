@@ -32,5 +32,9 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         return 6;
     }
 
+    @Override
+    public String getNeo4jPagecacheMemory() {
+        return "100m";
+    }
 }
 

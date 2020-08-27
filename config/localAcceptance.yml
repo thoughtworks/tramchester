@@ -10,6 +10,7 @@ server:
 secureHost: tramchester.com
 
 graphName: databases/tramchesterAcceptance.db
+neo4jPagecacheMemory: 100m
 stationClosures: []
 dataSources:
   -

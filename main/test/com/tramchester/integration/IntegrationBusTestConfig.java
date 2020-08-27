@@ -44,4 +44,9 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     public int getMaxJourneyDuration() {
         return 180;
     }
+
+    @Override
+    public String getNeo4jPagecacheMemory() {
+        return "1300m";
+    }
 }

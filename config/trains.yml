@@ -16,6 +16,7 @@ server:
 secureHost: tramchester.com
 
 graphName: trains.db
+neo4jPagecacheMemory: 1000m
 dataSources:
   -
     name: rail

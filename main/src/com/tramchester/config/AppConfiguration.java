@@ -12,7 +12,6 @@ import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.List;
 
-
 @SuppressWarnings("unused")
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
@@ -27,6 +26,10 @@ public class AppConfiguration extends TramchesterConfig {
     @NotNull
     @JsonProperty("graphName")
     private String graphName;
+
+    @NotNull
+    @JsonProperty("neo4jPagecacheMemory")
+    private String neo4jPagecacheMemory;
 
     @NotNull
     @JsonProperty("instanceDataUrl")
@@ -225,6 +228,11 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Override
     public String getGraphName() { return graphName; }
+
+    @Override
+    public String getNeo4jPagecacheMemory() {
+        return neo4jPagecacheMemory;
+    }
 
 
     @Override
