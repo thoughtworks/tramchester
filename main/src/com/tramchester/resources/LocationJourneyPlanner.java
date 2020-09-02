@@ -49,7 +49,8 @@ public class LocationJourneyPlanner {
         this.stationLocations = stationLocations;
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong latLong, Station destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong latLong, Station destination,
+                                                    JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", latLong, destination, journeyRequest));
 
         List<Relationship> addedRelationships = new LinkedList<>();

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class PostcodeDataImporter {
     // NOTE:
@@ -31,6 +32,7 @@ public class PostcodeDataImporter {
     private final StationLocations stationLocations;
     private final Unzipper unzipper;
     private final long margin;
+    private final Double range;
     private BoundingBox bounds;
 
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper) {
@@ -40,10 +42,10 @@ public class PostcodeDataImporter {
         this.config = config;
         this.stationLocations = stationLocations;
         this.unzipper = unzipper;
-
+        range = config.getNearestStopRangeKM();
     }
 
-    public Set<PostcodeData> loadLocalPostcodes() {
+    public Stream<PostcodeData> loadLocalPostcodes() {
         bounds = stationLocations.getBounds();
 
         Path postcodeZip = config.getPostcodeZip();
@@ -53,7 +55,7 @@ public class PostcodeDataImporter {
         logger.info("Load postcode files files from " + directory.toAbsolutePath());
         if (!Files.isDirectory(directory)) {
             logger.error("Cannot load postcode data, location is not a directory " + directory);
-            return Collections.emptySet();
+            return Stream.empty();
         }
 
         Set<Path> csvFiles;
@@ -64,7 +66,7 @@ public class PostcodeDataImporter {
                     collect(Collectors.toSet());
         } catch (IOException e) {
             logger.error("Cannot list files in postcode data location " + directory.toAbsolutePath(), e);
-            return Collections.emptySet();
+            return Stream.empty();
         }
 
         if (csvFiles.isEmpty()) {
@@ -73,36 +75,18 @@ public class PostcodeDataImporter {
             logger.info("Found " + csvFiles.size() + " files in " + directory.toAbsolutePath());
         }
 
-        Set<PostcodeData> loaded = new HashSet<>();
         PostcodeDataMapper mapper = new PostcodeDataMapper();
-        csvFiles.forEach(file -> loadDataFromFile(loaded, mapper, file));
+        return csvFiles.stream().flatMap(file -> loadDataFromFile(mapper, file));
 
-        if (loaded.isEmpty()) {
-            logger.error("Failed to load any postcode data from files in directory " + directory.toAbsolutePath());
-        } else {
-            logger.info("Loaded " + loaded.size() + " postcodes");
-        }
-        csvFiles.clear();
-
-        return loaded;
     }
 
-    private void loadDataFromFile(Set<PostcodeData> target, PostcodeDataMapper mapper, Path file) {
-        logger.debug("Load postcode data from " + file.toAbsolutePath());
-        int sizeBefore = target.size();
-        Double range = config.getNearestStopRangeKM();
+    private Stream<PostcodeData> loadDataFromFile(PostcodeDataMapper mapper, Path file) {
+        logger.info("Load postcode data from " + file.toAbsolutePath());
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
-        Stream<PostcodeData> stream = loader.loadFiltered(true);
-        stream.filter(postcode -> bounds.within(margin, postcode)).
-                filter(postcode -> stationLocations.hasAnyNearby(postcode, range)).
-                forEach(target::add);
-
-        int loaded = target.size()-sizeBefore;
-        if (loaded>0) {
-            logger.info("Loaded " + loaded + " records from " + file.toAbsolutePath());
-        }
-        stream.close();
+        Stream<PostcodeData> postcodeDataStream = loader.loadFiltered(true);
+        return postcodeDataStream.filter(postcode -> bounds.within(margin, postcode)).
+                filter(postcode -> stationLocations.hasAnyNearby(postcode, range));
     }
 
 }

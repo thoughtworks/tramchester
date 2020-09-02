@@ -5,7 +5,7 @@ import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationAppExtension;
-import com.tramchester.testSupport.WithPostcodesEnabled;
+import com.tramchester.testSupport.TramWithPostcodesEnabled;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class PostcodeResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new WithPostcodesEnabled());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
 
     @Test
     void shouldGetLoadedPostcodes() {

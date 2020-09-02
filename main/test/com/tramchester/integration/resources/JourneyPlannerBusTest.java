@@ -13,14 +13,13 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.testSupport.BusTest;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
@@ -31,9 +30,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.testSupport.BusStations.*;
-import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 
-@Disabled("Experimental")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerBusTest {
 
@@ -45,17 +43,6 @@ class JourneyPlannerBusTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-    }
-
-    @Category({BusTest.class})
-    @Test
-    void shouldPlanSimpleTramJourney() {
-        TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan =  JourneyPlannerResourceTest.getJourneyPlanRepresentation(appExt,
-                Stations.Deansgate, Stations.Altrincham, new TramServiceDate(when), queryTime, false, 3);
-
-        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
-        Assertions.assertFalse(found.isEmpty());
     }
 
     @Category({BusTest.class})
@@ -124,17 +111,6 @@ class JourneyPlannerBusTest {
 
     @Category({BusTest.class})
     @Test
-    void shouldPlanSimpleTramJourneyFromLocation() {
-        TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, Stations.StPetersSquare.getId(), queryTime,
-                new TramServiceDate(when), false);
-
-        List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
-        Assertions.assertFalse(found.isEmpty());
-    }
-
-    @Category({BusTest.class})
-    @Test
     void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan(StockportBusStation.getId(), AltrinchamInterchange.getId(), queryTime,
@@ -172,10 +148,8 @@ class JourneyPlannerBusTest {
 
     private JourneyPlanRepresentation getJourneyPlan(String startId, String endId, TramTime queryTime,
                                                      TramServiceDate queryDate, boolean arriveBy, int maxChanges) {
-        String date = queryDate.getDate().format(dateFormatDashes);
-        String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, startId, endId, time, date,
-                null, arriveBy, maxChanges);
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, startId, endId, queryTime.asLocalTime(),
+                queryDate.getDate(), null, arriveBy, maxChanges);
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
@@ -187,11 +161,9 @@ class JourneyPlannerBusTest {
 
     private JourneyPlanRepresentation getJourneyPlan(LatLong startLocation, String endId, TramTime queryTime,
                                                      TramServiceDate queryDate, boolean arriveBy) {
-        String date = queryDate.getDate().format(dateFormatDashes);
-        String time = queryTime.asLocalTime().format(TestEnv.timeFormatter);
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, MyLocation.MY_LOCATION_PLACEHOLDER_ID,
-                endId, time, date, startLocation, arriveBy, 3);
+                endId, queryTime.asLocalTime(), queryDate.getDate(), startLocation, arriveBy, 3);
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }

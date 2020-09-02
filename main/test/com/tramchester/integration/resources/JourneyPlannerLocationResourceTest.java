@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -36,9 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerLocationResourceTest {
 
-    private static final String TIME_PATTERN = "HH:mm:00";
     private static final AppConfiguration config = new IntegrationTramTestConfig();
-
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 
     private LocalDate when;
@@ -50,7 +47,8 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldFindStationsNearPiccGardensToExchangeSquare() {
-        validateJourneyFromLocation(TestEnv.nearPiccGardens, Stations.ExchangeSquare.getId(), LocalTime.of(9,0), false);
+        validateJourneyFromLocation(TestEnv.nearPiccGardens, Stations.ExchangeSquare.getId(), LocalTime.of(9,0),
+                false);
     }
 
     @Test
@@ -236,10 +234,8 @@ class JourneyPlannerLocationResourceTest {
     }
 
     private JourneyPlanRepresentation getPlanFor(Location start, Location end, LocalTime time) {
-        String date = when.format(TestEnv.dateFormatDashes);
-        String timeString = time.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                start.forDTO(), end.forDTO(), timeString, date, null, false, 3);
+                start.forDTO(), end.forDTO(), time, when, null, false, 3);
         assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
@@ -250,11 +246,8 @@ class JourneyPlannerLocationResourceTest {
 
     private Set<JourneyDTO> validateJourneyFromLocation(LatLong location, String destination, LocalTime queryTime, boolean arriveBy) {
 
-        String date = when.format(TestEnv.dateFormatDashes);
-        String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
-
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                MyLocation.MY_LOCATION_PLACEHOLDER_ID, destination, time, date, location, arriveBy, 3);
+                MyLocation.MY_LOCATION_PLACEHOLDER_ID, destination, queryTime, when, location, arriveBy, 3);
         assertEquals(200, response.getStatus());
 
         return validateJourneyPresent(response);
@@ -265,11 +258,9 @@ class JourneyPlannerLocationResourceTest {
     }
 
     private Set<JourneyDTO> validateJourneyToLocation(String startId, LatLong location, LocalTime queryTime, boolean arriveBy) {
-        String date = when.format(TestEnv.dateFormatDashes);
-        String time = queryTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, startId,
-                MyLocation.MY_LOCATION_PLACEHOLDER_ID, time, date, location, arriveBy, 3);
+                MyLocation.MY_LOCATION_PLACEHOLDER_ID, queryTime, when, location, arriveBy, 3);
         assertEquals(200, response.getStatus());
 
         return validateJourneyPresent(response);

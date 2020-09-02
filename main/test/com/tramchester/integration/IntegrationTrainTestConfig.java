@@ -37,7 +37,6 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     public String getNeo4jPagecacheMemory() {
-        // TODO
-        throw new RuntimeException("TODO Define me");
+       return "1000m";
     }
 }

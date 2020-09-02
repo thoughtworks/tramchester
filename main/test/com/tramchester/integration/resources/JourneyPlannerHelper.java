@@ -1,15 +1,15 @@
 package com.tramchester.integration.resources;
 
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
@@ -37,7 +37,7 @@ public abstract class JourneyPlannerHelper {
 
     JourneyPlanRepresentation validateAtLeastOneJourney(Location start, Location end, LocalDate date, TramTime queryTime)  {
         TramServiceDate queryDate = new TramServiceDate(date);
-        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryDate, queryTime, false, 3);
+        JourneyPlanRepresentation results = getJourneyPlan(start, end, queryDate, queryTime.asLocalTime(), false, 3);
         Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, queryTime, queryDate);
@@ -48,10 +48,10 @@ public abstract class JourneyPlannerHelper {
     }
 
     protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramTime queryTime, LocalDate queryDate)  {
-        return getJourneyPlan(start, end, new TramServiceDate(queryDate), queryTime, false, 3);
+        return getJourneyPlan(start, end, new TramServiceDate(queryDate), queryTime.asLocalTime(), false, 3);
     }
 
-    abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, TramTime queryTime,
+    abstract JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, LocalTime queryTime,
                                                       boolean arriveBy, int maxChanges);
 
 

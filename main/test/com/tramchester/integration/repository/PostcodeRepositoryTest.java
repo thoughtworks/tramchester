@@ -5,10 +5,8 @@ import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.PostcodeRepository;
-import com.tramchester.testSupport.WithPostcodesEnabled;
+import com.tramchester.testSupport.TramWithPostcodesEnabled;
 import org.junit.jupiter.api.*;
-
-import java.io.IOException;
 
 class PostcodeRepositoryTest {
 
@@ -18,7 +16,7 @@ class PostcodeRepositoryTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
-        dependencies.initialise(new WithPostcodesEnabled());
+        dependencies.initialise(new TramWithPostcodesEnabled());
     }
 
     @AfterAll

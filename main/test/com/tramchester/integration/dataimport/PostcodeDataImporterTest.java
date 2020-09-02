@@ -39,7 +39,7 @@ class PostcodeDataImporterTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        loadedPostcodes = importer.loadLocalPostcodes();
+        loadedPostcodes = importer.loadLocalPostcodes().collect(Collectors.toSet());
     }
 
     @Test

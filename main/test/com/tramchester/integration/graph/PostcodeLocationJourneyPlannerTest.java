@@ -14,7 +14,7 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.WithPostcodesEnabled;
+import com.tramchester.testSupport.TramWithPostcodesEnabled;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class PostcodeJourneyPlannerTest {
+class PostcodeLocationJourneyPlannerTest {
 
     // TODO WIP
 
@@ -43,7 +43,7 @@ class PostcodeJourneyPlannerTest {
     private static GraphDatabase database;
 
     private static final LocalDate when = TestEnv.testDay();
-    private static WithPostcodesEnabled testConfig;
+    private static TramWithPostcodesEnabled testConfig;
     private Transaction txn;
     private LocationJourneyPlanner planner;
     private PostcodeRepository repository;
@@ -51,9 +51,9 @@ class PostcodeJourneyPlannerTest {
     private static final TramTime planningTime = TramTime.of(11, 42);
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
+    static void onceBeforeAnyTestsRun() {
         dependencies = new Dependencies();
-        testConfig = new WithPostcodesEnabled();
+        testConfig = new TramWithPostcodesEnabled();
         dependencies.initialise(testConfig);
         database = dependencies.get(GraphDatabase.class);
     }
@@ -77,9 +77,12 @@ class PostcodeJourneyPlannerTest {
     }
 
     private static Stream<JourneyRequest> getRequest() {
+        int maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        TramServiceDate date = new TramServiceDate(when);
+        int maxChanges = 8;
         return Stream.of(
-                new JourneyRequest(new TramServiceDate(when), planningTime, false, 8, testConfig.getMaxJourneyDuration()),
-                new JourneyRequest(new TramServiceDate(when), planningTime, true, 8, testConfig.getMaxJourneyDuration()));
+                new JourneyRequest(date, planningTime, false, maxChanges, maxJourneyDuration),
+                new JourneyRequest(date, planningTime, true, maxChanges, maxJourneyDuration));
     }
 
     @ParameterizedTest
