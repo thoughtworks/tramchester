@@ -358,7 +358,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         String timeString = time.format(TestEnv.timeFormatter);
         String dateString = date.format(dateFormatDashes);
 
-
         String queryString = String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
                 start, end, timeString, dateString, arriveBy, maxChanges);
 

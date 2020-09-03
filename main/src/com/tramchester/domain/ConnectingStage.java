@@ -14,7 +14,6 @@ public class ConnectingStage implements TransportStage  {
     private final TramTime walkStartTime;
 
     public ConnectingStage(Station start, Station end, int cost, TramTime walkStartTime) {
-
         this.start = start;
         this.end = end;
         this.cost = cost;
@@ -79,5 +78,15 @@ public class ConnectingStage implements TransportStage  {
     @Override
     public int getPassedStops() {
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "ConnectingStage{" +
+                "start=" + start.getName() +
+                ", end=" + end.getName() +
+                ", cost=" + cost +
+                ", walkStartTime=" + walkStartTime +
+                '}';
     }
 }

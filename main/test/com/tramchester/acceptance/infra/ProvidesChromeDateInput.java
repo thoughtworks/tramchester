@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.util.Locale;
 
 public class ProvidesChromeDateInput implements ProvidesDateInput {
-    Locale locale = Locale.getDefault();
+    private final Locale locale = Locale.getDefault();
 
     @Override
     public String createDateInput(LocalDate localDate) {

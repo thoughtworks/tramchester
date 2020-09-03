@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class PostcodeRepository implements Disposable, Startable {
@@ -42,18 +43,21 @@ public class PostcodeRepository implements Disposable, Startable {
             return;
         }
 
-        Stream<PostcodeData> rawCodes = importer.loadLocalPostcodes();
+        List<Stream<PostcodeData>> sources = importer.loadLocalPostcodes();
 
-        rawCodes.forEach(code -> {
-            try {
-                postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(),
-                        code.getNorthings()), code.getId()));
-            } catch (TransformException e) {
-                logger.warn("Unable to convert position of postcode to lat/long " + code);
-            }
+        sources.forEach(source-> {
+            source.forEach(code -> {
+                try {
+                    postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(),
+                            code.getNorthings()), code.getId()));
+                } catch (TransformException e) {
+                    logger.warn("Unable to convert position of postcode to lat/long " + code);
+                }
+            });
+
+            source.close();
         });
 
-        rawCodes.close();
     }
 
     @Override

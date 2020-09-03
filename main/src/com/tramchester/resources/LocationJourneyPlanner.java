@@ -51,7 +51,8 @@ public class LocationJourneyPlanner {
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong latLong, Station destination,
                                                     JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s on %s", latLong, destination, journeyRequest));
+        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", latLong,
+                destination.getId(), destination.getName(), journeyRequest));
 
         List<Relationship> addedRelationships = new LinkedList<>();
 
@@ -76,7 +77,7 @@ public class LocationJourneyPlanner {
     }
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, Station start, LatLong destination, JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s on %s", start, destination, journeyRequest));
+        logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(), destination, journeyRequest));
 
         Set<Station> destinationStations = new HashSet<>();
         List<Relationship> addedRelationships = new LinkedList<>();
@@ -150,8 +151,8 @@ public class LocationJourneyPlanner {
     private Relationship createWalkRelationship(Transaction txn, Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
         Station walkStation = stationWalk.getStation();
         int cost = stationWalk.getCost();
-        logger.info(format("Add walking %s relationship between %s to %s cost %s direction",
-                direction, walkStation, walkNode,  cost));
+        logger.info(format("Add %s relationship between %s (%s) to %s cost %s direction",
+                direction, walkStation.getId(), walkStation.getName(), walkNode,  cost));
 
         Relationship walkingRelationship;
         Node stationNode = graphQuery.getStationNode(txn, walkStation);
@@ -170,7 +171,7 @@ public class LocationJourneyPlanner {
         Node startOfWalkNode = nodeTypeRepository.createQueryNode(graphDatabase, txn);
         GraphProps.setLatLong(startOfWalkNode, origin);
         GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
-        logger.info(format("Added walking node at %s as node %s", origin, startOfWalkNode));
+        logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
         return startOfWalkNode;
     }
 

@@ -53,6 +53,7 @@ public class DataLoader<T> {
                 try {
                     bufferedReader.close();
                     in.close();
+                    logger.info("Close " + fileName.toAbsolutePath());
                 } catch (IOException e) {
                     logger.error("Exception while closing file " + fileName.toAbsolutePath(), e);
                 }

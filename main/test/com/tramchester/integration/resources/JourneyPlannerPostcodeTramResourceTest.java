@@ -23,6 +23,7 @@ import java.time.LocalTime;
 import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerPostcodeTramResourceTest {
@@ -51,6 +52,7 @@ class JourneyPlannerPostcodeTramResourceTest {
         Assertions.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
+        assertFalse(journeys.isEmpty());
 
         // TODO WIP
         journeys.forEach(journeyDTO -> Assertions.assertEquals(3,journeyDTO.getStages().size()));
@@ -65,6 +67,7 @@ class JourneyPlannerPostcodeTramResourceTest {
         Assertions.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
+        assertFalse(journeys.isEmpty());
 
         // TODO WIP
         journeys.forEach(journeyDTO -> Assertions.assertEquals(2,journeyDTO.getStages().size()));
@@ -79,6 +82,7 @@ class JourneyPlannerPostcodeTramResourceTest {
         Assertions.assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
+        assertFalse(journeys.isEmpty());
 
         journeys.forEach(journeyDTO -> Assertions.assertEquals(2, journeyDTO.getStages().size()));
     }

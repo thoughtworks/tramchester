@@ -9,6 +9,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.junit.jupiter.api.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,7 +40,16 @@ class PostcodeDataImporterTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        loadedPostcodes = importer.loadLocalPostcodes().collect(Collectors.toSet());
+        loadedPostcodes = new HashSet<>();
+        importer.loadLocalPostcodes().forEach(source -> {
+            source.forEach(item -> loadedPostcodes.add(item));
+            source.close();
+        });
+    }
+
+    @AfterEach
+    void afterEachTest() {
+        loadedPostcodes.clear();
     }
 
     @Test

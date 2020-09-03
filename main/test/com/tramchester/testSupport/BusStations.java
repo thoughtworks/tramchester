@@ -13,6 +13,7 @@ public class BusStations {
     public static Station ShudehillInterchange = createStation("1800SHIC001", "Shudehill", "Shudehill Interchange");
     public static Station ManchesterAirportStation = createStation("1800MABS001", "Manchester Airport", "Manchester Airport The Station");
     public static Station KnutsfordStationStand3 = createStation("0600MA6022", "Knutsford", "Knutsford,Bus Station (Stand 3)");
+    public static Station BuryInterchange = createStation("1800BYIC001", "Bury", "Bury Interchange");
 
     private static Station createStation(String id, String area, String name) {
         try {

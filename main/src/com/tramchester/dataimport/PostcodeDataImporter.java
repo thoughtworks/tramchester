@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,7 +46,7 @@ public class PostcodeDataImporter {
         range = config.getNearestStopRangeKM();
     }
 
-    public Stream<PostcodeData> loadLocalPostcodes() {
+    public List<Stream<PostcodeData>> loadLocalPostcodes() {
         bounds = stationLocations.getBounds();
 
         Path postcodeZip = config.getPostcodeZip();
@@ -55,7 +56,7 @@ public class PostcodeDataImporter {
         logger.info("Load postcode files files from " + directory.toAbsolutePath());
         if (!Files.isDirectory(directory)) {
             logger.error("Cannot load postcode data, location is not a directory " + directory);
-            return Stream.empty();
+            return Collections.emptyList();
         }
 
         Set<Path> csvFiles;
@@ -66,7 +67,7 @@ public class PostcodeDataImporter {
                     collect(Collectors.toSet());
         } catch (IOException e) {
             logger.error("Cannot list files in postcode data location " + directory.toAbsolutePath(), e);
-            return Stream.empty();
+            return Collections.emptyList();
         }
 
         if (csvFiles.isEmpty()) {
@@ -76,14 +77,19 @@ public class PostcodeDataImporter {
         }
 
         PostcodeDataMapper mapper = new PostcodeDataMapper();
-        return csvFiles.stream().flatMap(file -> loadDataFromFile(mapper, file));
-
+//        Stream<PostcodeData> result = Stream.empty();
+//        csvFiles.forEach(file -> {
+//            Stream.concat(result, loadDataFromFile(mapper, file));
+//        });
+//        return result;
+        return csvFiles.stream().map(file -> loadDataFromFile(mapper, file)).collect(Collectors.toList());
     }
 
     private Stream<PostcodeData> loadDataFromFile(PostcodeDataMapper mapper, Path file) {
         logger.info("Load postcode data from " + file.toAbsolutePath());
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
+
         Stream<PostcodeData> postcodeDataStream = loader.loadFiltered(true);
         return postcodeDataStream.filter(postcode -> bounds.within(margin, postcode)).
                 filter(postcode -> stationLocations.hasAnyNearby(postcode, range));
