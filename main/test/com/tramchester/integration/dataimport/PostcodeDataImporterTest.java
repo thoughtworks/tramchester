@@ -8,6 +8,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class PostcodeDataImporterTest {
 
     private static Dependencies dependencies;

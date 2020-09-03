@@ -49,7 +49,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     }
 
     @Test
-    void shouldPlanJourneyFromPostcodeToPostcode() {
+    void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadily), time, day,
                 null, false, 5);

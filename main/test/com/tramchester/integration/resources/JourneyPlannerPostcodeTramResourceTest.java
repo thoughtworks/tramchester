@@ -15,6 +15,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
@@ -25,6 +26,7 @@ import java.util.Set;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerPostcodeTramResourceTest {
 
