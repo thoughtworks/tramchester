@@ -68,7 +68,7 @@ class PostcodeTramJourneyPlannerTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         planner = dependencies.get(LocationJourneyPlanner.class);
         repository = dependencies.get(PostcodeRepository.class);
-        centralLocation = repository.getPostcode(Postcodes.NearPiccadily);
+        centralLocation = repository.getPostcode(Postcodes.NearPiccadily.getId());
     }
 
     @AfterEach
@@ -117,7 +117,7 @@ class PostcodeTramJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHavePostcodeToPostcodeJourney(JourneyRequest request) {
-        PostcodeLocation buryPostcode = repository.getPostcode(Postcodes.CentralBury);
+        PostcodeLocation buryPostcode = repository.getPostcode(Postcodes.CentralBury.getId());
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, centralLocation.getLatLong(),
                 buryPostcode.getLatLong(), request);
 

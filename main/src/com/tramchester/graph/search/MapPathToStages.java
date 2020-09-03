@@ -128,7 +128,7 @@ public class MapPathToStages {
         }
         else if (relationship.isType(BUS_NEIGHBOUR) ||
                 relationship.isType(TRAM_NEIGHBOUR) ||
-                relationship.isType(TRAM_NEIGHBOUR) ) {
+                relationship.isType(TRAIN_NEIGHBOUR) ) {
             return createWalkFromNeighbour(relationship, timeWalkStarted);
         }
         else {

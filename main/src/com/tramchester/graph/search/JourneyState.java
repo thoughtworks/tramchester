@@ -17,6 +17,7 @@ public class JourneyState implements ImmutableJourneyState {
     private TramTime boardingTime;
     private TraversalState traversalState;
     private int numberOfBoardings;
+    private int numberOfConnections;
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
@@ -24,6 +25,7 @@ public class JourneyState implements ImmutableJourneyState {
         transportMode = TransportMode.NotSet;
         this.traversalState = traversalState;
         numberOfBoardings = 0;
+        numberOfConnections = 0;
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
@@ -108,6 +110,11 @@ public class JourneyState implements ImmutableJourneyState {
         return numberOfBoardings-1; // initial boarding
     }
 
+    @Override
+    public int getNumberConnections() {
+        return numberOfConnections;
+    }
+
     public void board(TransportMode mode) throws TramchesterException {
         guardAlreadyOnboard();
         numberOfBoardings = numberOfBoardings + 1;
@@ -156,5 +163,9 @@ public class JourneyState implements ImmutableJourneyState {
     @Override
     public TransportMode getTransportMode() {
         return transportMode;
+    }
+
+    public void connection() {
+        numberOfBoardings = numberOfConnections + 1;
     }
 }

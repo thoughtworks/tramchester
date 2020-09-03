@@ -74,6 +74,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
         switch (nodeLabel) {
             case QUERY_NODE:
             case QUERY_NODE_MID:
+                journeyState.connection();
                 return builders.walking.fromNoPlatformStation(this, next, cost);
             case ROUTE_STATION:
                 return toRouteStation(next, journeyState, cost);
@@ -92,7 +93,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
         try {
             journeyState.board(mode);
         } catch (TramchesterException e) {
-            throw new RuntimeException("unable to board bus", e);
+            throw new RuntimeException("unable to board vehicle", e);
         }
 
         return builders.routeStationJustBoarded.fromNoPlatformStation(this, node, cost, mode);

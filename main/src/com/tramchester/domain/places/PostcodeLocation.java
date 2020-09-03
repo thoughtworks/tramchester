@@ -80,4 +80,13 @@ public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements 
     public GraphPropertyKey getProp() {
         throw new RuntimeException("not graph property key for PostcodeLocation");
     }
+
+    @Override
+    public String toString() {
+        return "PostcodeLocation{" +
+                "LatLong=" + LatLong +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                "} " + super.toString();
+    }
 }

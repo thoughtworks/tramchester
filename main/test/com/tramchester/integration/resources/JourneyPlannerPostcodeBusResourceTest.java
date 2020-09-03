@@ -1,20 +1,17 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.IdFor;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.integration.IntegrationAppExtension;
-import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.testSupport.BusStations;
+import com.tramchester.testSupport.BusWithPostcodesEnabled;
 import com.tramchester.testSupport.Postcodes;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -44,7 +41,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         time = LocalTime.of(9,35);
     }
 
-    private String prefix(IdFor<PostcodeLocation> postcode) {
+    private String prefix(PostcodeLocation postcode) {
         return PostcodeDTO.PREFIX+postcode.forDTO();
     }
 
@@ -53,10 +50,10 @@ class JourneyPlannerPostcodeBusResourceTest {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadily), time, day,
                 null, false, 5);
-
         assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
+
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journeyDTO -> assertEquals(3,journeyDTO.getStages().size()));
@@ -127,11 +124,4 @@ class JourneyPlannerPostcodeBusResourceTest {
         journeys.forEach(journeyDTO -> assertEquals(journeyDTO.getEnd().getId(), BusStations.ShudehillInterchange.forDTO()));
     }
 
-    private static class BusWithPostcodesEnabled extends IntegrationBusTestConfig {
-
-        @Override
-        public boolean getLoadPostcodes() {
-            return true;
-        }
-    }
 }

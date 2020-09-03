@@ -41,7 +41,7 @@ class JourneyPlannerPostcodeTramResourceTest {
         time = LocalTime.of(9,35);
     }
 
-    private String prefix(IdFor<PostcodeLocation> postcode) {
+    private String prefix(PostcodeLocation postcode) {
         return PostcodeDTO.PREFIX+postcode.forDTO();
     }
 

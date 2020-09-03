@@ -68,11 +68,11 @@ class BusRouteCalculatorTest {
 
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, StockportBusStation,
                 AltrinchamInterchange, travelTime, nextMonday, 2, testConfig.getMaxJourneyDuration());
+        assertFalse(journeys.isEmpty());
 
-        // 2 changes means 3 stages or less
-        List<Journey> over3 = journeys.stream().filter(journey -> journey.getStages().size() > 3).collect(Collectors.toList());
-        assertEquals(Collections.emptyList(), over3);
-        //journeys.forEach(journey -> assertTrue(journey.getStages().size()<=3, journey.getStages().toString()));
+        // At least one direct
+        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        assertFalse(direct.isEmpty());
 
         Set<Journey> journeysMaxChanges = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, AltrinchamInterchange,
                 StockportBusStation, travelTime, nextMonday, 8, testConfig.getMaxJourneyDuration());
@@ -101,6 +101,7 @@ class BusRouteCalculatorTest {
                 new JourneyRequest(new TramServiceDate(when), travelTime, false, 8, testConfig.getMaxJourneyDuration()));
         Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
+        assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
             List<Location> seen = new ArrayList<>();
@@ -114,12 +115,14 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveShudehillToStockJourney() {
+    void shouldHavePiccadilyToStockportJourney() {
         int maxChanges = 2;
         Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn,
-                ShudehillInterchange, StockportBusStation,
+                PiccadilyStationStopA, StockportBusStation,
                 TramTime.of(8, 0), when, maxChanges, testConfig.getMaxJourneyDuration());
-        journeys.forEach(journey -> Assertions.assertTrue(journey.getStages().size()<=(maxChanges+1)));
+        assertFalse(journeys.isEmpty());
+        List<Journey> threeStagesOrLess = journeys.stream().filter(journey -> journey.getStages().size() <= (maxChanges + 1)).collect(Collectors.toList());
+        assertFalse(threeStagesOrLess.isEmpty());
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")

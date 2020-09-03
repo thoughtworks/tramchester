@@ -84,6 +84,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case ServiceDateOk:
             case ServiceTimeOk:
             case NumChangesOK:
+            case NumConnectionsOk:
             case TimeOk:
             case HourOk:
             case Reachable:
@@ -99,6 +100,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case SeenBusStationBefore:
             case PathTooLong:
             case TooManyChanges:
+            case TooManyConnections:
             case NotReachable:
             case TookTooLong:
             case ServiceNotRunningAtTime:
@@ -159,6 +161,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // number of changes?
         if (!serviceHeuristics.checkNumberChanges(journeyState.getNumberChanges(), howIGotHere, reasons).isValid()) {
             return ServiceReason.ReasonCode.TooManyChanges;
+        }
+
+        // number of connections
+        if (!serviceHeuristics.checkNumberConnections(journeyState.getNumberConnections(), howIGotHere, reasons).isValid()) {
+            return ServiceReason.ReasonCode.TooManyConnections;
         }
 
         // journey too long?

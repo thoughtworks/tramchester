@@ -18,11 +18,9 @@ import org.slf4j.LoggerFactory;
 public class ServiceHeuristics {
 
     private static final Logger logger;
-    private static final boolean debugEnabled;
 
     static {
         logger = LoggerFactory.getLogger(ServiceHeuristics.class);
-        debugEnabled = logger.isDebugEnabled();
     }
 
     private final JourneyConstraints journeyConstraints;
@@ -83,6 +81,15 @@ public class ServiceHeuristics {
          return reasons.recordReason(ServiceReason.TooManyChanges(howIGotHere));
        }
        return valid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere, reasons);
+    }
+
+    public ServiceReason checkNumberConnections(int currentNumConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
+        reasons.incrementTotalChecked();
+
+        if (currentNumConnections>changesLimit) {
+            return reasons.recordReason(ServiceReason.TooManyConnections(howIGotHere));
+        }
+        return valid(ServiceReason.ReasonCode.NumConnectionsOk, howIGotHere, reasons);
     }
 
     public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentElapsed, ServiceReasons reasons) {
@@ -182,10 +189,7 @@ public class ServiceHeuristics {
     }
 
     private ServiceReason valid(ServiceReason.ReasonCode code, final HowIGotHere howIGotHere, ServiceReasons reasons) {
-        if (debugEnabled) {
-            return reasons.recordReason(ServiceReason.IsValid(code, howIGotHere));
-        }
-        return reasons.recordReason(ServiceReason.IsValid(code));
+        return reasons.recordReason(ServiceReason.IsValid(code, howIGotHere));
     }
 
     public TramTime getQueryTime() {

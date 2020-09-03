@@ -5,8 +5,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.states.HowIGotHere;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -17,7 +15,8 @@ public abstract class ServiceReason {
 
     public enum ReasonCode {
 
-        ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk, WalkOk, StationOpen, Continue,
+        ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
+        WalkOk, StationOpen, Continue, NumConnectionsOk,
 
         NotOnQueryDate,
         NotAtQueryTime,
@@ -35,32 +34,17 @@ public abstract class ServiceReason {
         NotOnVehicle,
         SeenBusStationBefore,
         TooManyChanges,
+        TooManyConnections,
         StationClosed,
 
         Arrived
     }
 
-    private static final Logger logger;
-    private static final boolean debugEnabled;
-
     private final HowIGotHere howIGotHere;
     private final ReasonCode code;
 
-    static {
-        logger = LoggerFactory.getLogger(ServiceReason.class);
-        debugEnabled = logger.isDebugEnabled() && (System.getenv("CIRCLECI") == null);
-        if (debugEnabled) {
-            logger.warn("Debug enabled here, performance impact");
-        }
-    }
-
     public HowIGotHere getHowIGotHere() {
         return howIGotHere;
-    }
-
-    private ServiceReason(ReasonCode code) {
-        this.code = code;
-        howIGotHere = HowIGotHere.None();
     }
 
     protected ServiceReason(ReasonCode code, HowIGotHere path) {
@@ -119,10 +103,6 @@ public abstract class ServiceReason {
     {
         protected IsValid(ReasonCode code, HowIGotHere path) {
             super(code, path);
-        }
-
-        protected IsValid(ReasonCode code) {
-            super(code);
         }
 
         @Override
@@ -198,6 +178,26 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static class TooManyConnections extends ServiceReason {
+
+        protected TooManyConnections(HowIGotHere path) {
+            super(ReasonCode.TooManyConnections, path);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof TooManyChanges;
+        }
+
+
+        @Override
+        public String textForGraph() {
+            return ReasonCode.TooManyConnections.name();
+        }
+    }
+
+    //////////////
+
     private static class StationClosed extends ServiceReason {
 
         private final Station closed;
@@ -252,14 +252,6 @@ public abstract class ServiceReason {
 
     public static IsValid IsValid(ReasonCode code, HowIGotHere path) { return new IsValid( code, path);}
 
-    public static ServiceReason IsValid(ReasonCode code) {
-        return new IsValid(code);
-    }
-
-//    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, String nodeServiceId) {
-//        return new DoesNotRunOnQueryDate(path, nodeServiceId);
-//    }
-
     public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);
     }
@@ -278,6 +270,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason TooManyChanges(HowIGotHere path) {
         return new TooManyChanges(path);
+    }
+
+    public static ServiceReason TooManyConnections(HowIGotHere path) {
+        return new TooManyConnections(path);
     }
 
     public static ServiceReason TookTooLong(TramTime currentElapsed, HowIGotHere path) {
