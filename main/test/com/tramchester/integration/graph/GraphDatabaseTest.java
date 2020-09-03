@@ -69,6 +69,11 @@ class GraphDatabaseTest {
             public String getGraphName() {
                 return dbFile.toAbsolutePath().toString();
             }
+
+            @Override
+            public String getNeo4jPagecacheMemory() {
+                return "100m";
+            }
         };
     }
 
