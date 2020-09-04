@@ -196,7 +196,7 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private List<StationWalk> getStationWalks(LatLong latLong) { //, double rangeInKM) {
+    private List<StationWalk> getStationWalks(LatLong latLong) {
         int num = config.getNumOfNearestStopsForWalking();
         double rangeInKM = config.getNearestStopRangeKM();
         List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, num, rangeInKM);

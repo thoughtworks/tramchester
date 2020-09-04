@@ -40,7 +40,7 @@ public class StopCalls { //implements Iterable<StopCall> {
         return stops.get(callingNumber);
     }
 
-    public boolean callsAt(Location location) {
+    public boolean callsAt(Station location) {
         return stops.values().stream().anyMatch(stopCall -> stopCall.getStation().equals(location));
     }
 

@@ -1,8 +1,12 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
+import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 
 public enum TramStations {
@@ -49,11 +53,44 @@ public enum TramStations {
 
     private final Station station;
 
-    TramStations(String id, String area, String name, LatLong position) {
+    TramStations(String id, String area, String name, LatLong latlong) {
         try {
-            this.station = Station.forTest(id, area, name, position, TransportMode.Tram);
+            @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+            this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram);
         } catch (TransformException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static class TestStation extends Station {
+
+        private final TransportMode mode;
+
+        public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode mode) {
+            super(IdFor.createId(id), area, stationName, latLong, gridPosition);
+            this.mode = mode;
+        }
+
+        @Override
+        public TransportMode getTransportMode() {
+            return mode;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null) return false;
+
+            if (!(o instanceof Station)) {
+                return false;
+            }
+
+            Station station = (Station) o;
+
+            return getId().equals(station.getId());
+        }
+
+
+
     }
 }

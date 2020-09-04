@@ -32,6 +32,7 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
 
+    @Deprecated
     public Station(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
         this(IdFor.createId(id), area, stationName, latLong, gridPosition);
     }
@@ -114,7 +115,9 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
+
+        if (!(o instanceof Station)) return false;
 
         Station station = (Station) o;
 
