@@ -1,13 +1,11 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.HasTransportMode;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
 
-public interface Location extends HasTransportMode, IdForDTO {
+public interface Location<TYPE extends Location<?>> extends HasTransportMode, IdForDTO, HasId<TYPE>, GraphProperty {
 
     String getName();
 

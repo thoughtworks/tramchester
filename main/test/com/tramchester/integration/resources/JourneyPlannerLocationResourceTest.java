@@ -233,7 +233,7 @@ class JourneyPlannerLocationResourceTest {
         validateJourneyFromLocation(TestEnv.nearAltrincham, destination.getId(), queryTime, true);
     }
 
-    private JourneyPlanRepresentation getPlanFor(Location start, Location end, LocalTime time) {
+    private JourneyPlanRepresentation getPlanFor(Station start, Station end, LocalTime time) {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 start.forDTO(), end.forDTO(), time, when, null, false, 3);
         assertEquals(200, response.getStatus());

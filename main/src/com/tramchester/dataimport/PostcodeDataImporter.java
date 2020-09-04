@@ -12,12 +12,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class PostcodeDataImporter {
     // NOTE:
@@ -77,11 +75,7 @@ public class PostcodeDataImporter {
         }
 
         PostcodeDataMapper mapper = new PostcodeDataMapper();
-//        Stream<PostcodeData> result = Stream.empty();
-//        csvFiles.forEach(file -> {
-//            Stream.concat(result, loadDataFromFile(mapper, file));
-//        });
-//        return result;
+
         return csvFiles.stream().map(file -> loadDataFromFile(mapper, file)).collect(Collectors.toList());
     }
 

@@ -2,22 +2,16 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.IntegrationBusTestConfig;
-import com.tramchester.integration.resources.JourneyPlannerResourceTest;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
 import org.jetbrains.annotations.NotNull;
@@ -25,20 +19,13 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
-import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class PostcodeBusRouteCalculatorTest {
@@ -148,6 +135,10 @@ class PostcodeBusRouteCalculatorTest {
         Set<Journey> journeys = planner.quickestRouteForLocation(txn, BuryInterchange,
                 Postcodes.NearShudehill.getLatLong(), createRequest(3)).collect(Collectors.toSet());
 
+        int walkCost = CoordinateTransforms.calcCostInMinutes(Postcodes.NearShudehill.getLatLong(), BuryInterchange, testConfig.getWalkingMPH());
+
+        assertTrue(walkCost<15);
+
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
@@ -158,9 +149,25 @@ class PostcodeBusRouteCalculatorTest {
     }
 
     @Test
+    void shouldPlanJourneyFromBusStationToPostcodeCentral() {
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), time, false,
+                10, 5).setDiag(true);
+        Set<Journey> journeys = planner.quickestRouteForLocation(txn, BusStations.ShudehillInterchange,
+                Postcodes.NearPiccadily.getLatLong(), journeyRequest).collect(Collectors.toSet());
+
+        assertFalse(journeys.isEmpty());
+
+        journeys.forEach(journey -> {
+            assertEquals(2, journey.getStages().size());
+            assertEquals(TransportMode.Bus, journey.getStages().get(0).getMode());
+            assertEquals(Postcodes.NearPiccadily, getLastStage(journey).getLastStation());
+        });
+    }
+
+    @Test
     void shouldPlanJourneyFromBusStationToPostcodeNorthbound() {
         Set<Journey> journeys = planner.quickestRouteForLocation(txn, BusStations.ShudehillInterchange,
-                Postcodes.CentralBury.getLatLong(), createRequest(5).setDiag(true)).collect(Collectors.toSet());
+                Postcodes.CentralBury.getLatLong(), createRequest(5)).collect(Collectors.toSet());
 
         assertFalse(journeys.isEmpty());
 
@@ -169,7 +176,6 @@ class PostcodeBusRouteCalculatorTest {
             assertEquals(TransportMode.Bus, journey.getStages().get(0).getMode());
             assertEquals(Postcodes.CentralBury, getLastStage(journey).getLastStation());
         });
-
     }
 
 }

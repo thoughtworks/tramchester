@@ -8,7 +8,7 @@ import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.List;
 
-public class MyLocation extends MapIdToDTOId<MyLocation> implements Location, HasId<MyLocation>, GraphProperty {
+public class MyLocation extends MapIdToDTOId<MyLocation> implements Location<MyLocation> {
 
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
     private static final IdFor<MyLocation> LocationPlaceHolder = IdFor.createId(MY_LOCATION_PLACEHOLDER_ID);

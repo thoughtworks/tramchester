@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class Station extends MapIdToDTOId<Station> implements Location, HasId<Station>, GraphProperty {
+public class Station extends MapIdToDTOId<Station> implements Location<Station> {
     private static final Logger logger = LoggerFactory.getLogger(Station.class);
 
     public static final String METROLINK_PREFIX = "9400ZZ";
@@ -49,6 +49,7 @@ public class Station extends MapIdToDTOId<Station> implements Location, HasId<St
         this.area = area;
     }
 
+    @Deprecated
     public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) throws TransformException {
         Station station = new Station(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong));
         station.transportMode = mode;

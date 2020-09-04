@@ -7,7 +7,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import java.util.List;
 import java.util.Objects;
 
-public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements Location, HasId<PostcodeLocation>, GraphProperty {
+public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements Location<PostcodeLocation> {
 
     private final LatLong LatLong;
     private final IdFor<PostcodeLocation> id;
