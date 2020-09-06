@@ -11,8 +11,11 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -39,13 +42,14 @@ class RouteCalculatorSubGraphTest {
             Stations.Pomona);
     private Transaction txn;
     private TramTime tramTime;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
 
-        stations.forEach(graphFilter::addStation);
+        stations.forEach(station->graphFilter.addStation(station.getId()));
 
         dependencies = new Dependencies(graphFilter);
         config = new SubgraphConfig();
@@ -62,6 +66,7 @@ class RouteCalculatorSubGraphTest {
     @BeforeEach
     void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
+        stationRepository = dependencies.get(StationRepository.class);
         txn = database.beginTx();
         tramTime = TramTime.of(8, 0);
     }
@@ -106,29 +111,25 @@ class RouteCalculatorSubGraphTest {
 
     @Test
     void shouldHaveSimpleOneStopJourney() {
-        Set<Journey> results = calculator.calculateRoute(txn, Stations.Cornbrook, Stations.Pomona,
-                new JourneyRequest(new TramServiceDate(when), tramTime, false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
+        Set<Journey> results = getJourneys(TramStations.Cornbrook, TramStations.Pomona, when);
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
-        Set<Journey> results = calculator.calculateRoute(txn, Stations.Cornbrook, Stations.Pomona,
-                new JourneyRequest(new TramServiceDate(TestEnv.nextSaturday()), tramTime, false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
+        Set<Journey> results = getJourneys(TramStations.Cornbrook, TramStations.Pomona, TestEnv.nextSaturday());
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        Set<Journey> results = calculator.calculateRoute(txn, Stations.StPetersSquare, Stations.Deansgate,
-                new JourneyRequest(new TramServiceDate(when), tramTime, false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
+        Set<Journey> results = getJourneys(TramStations.StPetersSquare, TramStations.Deansgate, when);
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleJourney() {
-        Set<Journey> results = calculator.calculateRoute(txn, Stations.StPetersSquare, Stations.Cornbrook,
-                new JourneyRequest(new TramServiceDate(when), tramTime, false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
+        Set<Journey> results = getJourneys(TramStations.StPetersSquare, TramStations.Cornbrook, when);
         Assertions.assertTrue(results.size()>0);
     }
 
@@ -146,7 +147,14 @@ class RouteCalculatorSubGraphTest {
 
     }
 
+    @NotNull
+    private Set<Journey> getJourneys(TramStations start, TramStations destination, LocalDate when) {
+        return calculator.calculateRoute(txn, TramStations.real(stationRepository, start), TramStations.real(stationRepository,destination),
+                new JourneyRequest(new TramServiceDate(when), tramTime, false, 3,
+                        config.getMaxJourneyDuration())).collect(Collectors.toSet());
+    }
+
     private void validateAtLeastOneJourney(Station start, Station dest, TramTime time, LocalDate date) {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator, 1, txn, start, dest, time, date, 5, config.getMaxJourneyDuration());
+        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn, start, dest, time, date, 5, config.getMaxJourneyDuration());
     }
 }

@@ -49,6 +49,7 @@ public class Stations {
     public static Station RochdaleRail = TramStations.of(TramStations.RochdaleRail);
     public static Station Intu = TramStations.of(TramStations.Intu);
 
+    @Deprecated
     public static List<Station> EndOfTheLine = Arrays.asList(Altrincham,
             ManAirport,
             Eccles,
@@ -59,6 +60,7 @@ public class Stations {
             ExchangeSquare,
             Intu);
 
+    @Deprecated
     public static List<Station> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
             TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
 

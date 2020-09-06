@@ -10,9 +10,11 @@ import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -31,6 +33,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private RouteCalculator calculator;
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -52,6 +55,7 @@ class RouteCalculatorSubGraphMonsallTest {
     @BeforeEach
     void beforeEachTestRuns() {
         calculator = dependencies.get(RouteCalculator.class);
+        stationRepository = dependencies.get(StationRepository.class);
         txn = database.beginTx();
     }
 
@@ -64,28 +68,28 @@ class RouteCalculatorSubGraphMonsallTest {
     void shouldReproIssueWithNotFindingDirectRouting() {
 
         // Can be direct or with a change depending on the timetable data
-        validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,5),
+        validateNumberOfStages(TramStations.Monsall, TramStations.RochdaleRail, TramTime.of(8,5),
                 when, 1);
 
         // direct
-        validateNumberOfStages(Stations.Monsall, Stations.RochdaleRail, TramTime.of(8,10),
+        validateNumberOfStages(TramStations.Monsall, TramStations.RochdaleRail, TramTime.of(8,10),
                 when, 1);
     }
 
     @Test
     void shouldHaveEndToEnd() {
-        validateNumberOfStages(Stations.EastDidsbury, Stations.Rochdale, TramTime.of(8,0), when, 1);
+        validateNumberOfStages(TramStations.EastDidsbury, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
     @Test
     void shouldHaveJourneysTerminationPointsToEndOfLine() {
         // many trams only run as far as Shaw
-        validateNumberOfStages(Stations.ShawAndCrompton, Stations.Rochdale, TramTime.of(8,0), when, 1);
+        validateNumberOfStages(TramStations.ShawAndCrompton, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourney() {
-        validateNumberOfStages(Stations.RochdaleRail, Stations.Rochdale, TramTime.of(8,0), when, 1);
+        validateNumberOfStages(TramStations.RochdaleRail, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
@@ -96,8 +100,11 @@ class RouteCalculatorSubGraphMonsallTest {
 
     }
 
-    private void validateNumberOfStages(Station start, Station destination, TramTime time, LocalDate date, int numStages) {
-        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, new JourneyRequest(new TramServiceDate(date), time,
+    private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, LocalDate date, int numStages) {
+
+
+        Set<Journey> journeys = calculator.calculateRoute(txn, TramStations.real(stationRepository, start),
+                TramStations.real(stationRepository, destination), new JourneyRequest(new TramServiceDate(date), time,
                 false, 3, config.getMaxJourneyDuration())).
                 collect(Collectors.toSet());
 

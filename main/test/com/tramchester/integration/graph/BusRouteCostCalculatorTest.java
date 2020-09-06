@@ -48,13 +48,13 @@ class BusRouteCostCalculatorTest {
     @BusTest
     @Test
     void shouldFindCostsCorrectlyForBusJourneys() {
-        Assertions.assertEquals(40, routeCost.getApproxCostBetween(txn, AltrinchamInterchange, StockportBusStation));
-        Assertions.assertEquals(39, routeCost.getApproxCostBetween(txn, StockportBusStation, AltrinchamInterchange));
+        Assertions.assertEquals(41, routeCost.getApproxCostBetween(txn, AltrinchamInterchange, StockportBusStation));
+        Assertions.assertEquals(44, routeCost.getApproxCostBetween(txn, StockportBusStation, AltrinchamInterchange));
 
-        Assertions.assertEquals(56, routeCost.getApproxCostBetween(txn, ShudehillInterchange, AltrinchamInterchange));
-        Assertions.assertEquals(57, routeCost.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
+        Assertions.assertEquals(61, routeCost.getApproxCostBetween(txn, ShudehillInterchange, AltrinchamInterchange));
+        Assertions.assertEquals(59, routeCost.getApproxCostBetween(txn, AltrinchamInterchange, ShudehillInterchange));
 
-        Assertions.assertEquals(45, routeCost.getApproxCostBetween(txn, ShudehillInterchange, StockportBusStation));
+        Assertions.assertEquals(48, routeCost.getApproxCostBetween(txn, ShudehillInterchange, StockportBusStation));
         Assertions.assertEquals(41, routeCost.getApproxCostBetween(txn, StockportBusStation, ShudehillInterchange));
     }
 

@@ -1,15 +1,21 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.*;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 
-public enum TramStations {
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+public enum TramStations implements HasId<Station> {
 
     Altrincham("9400ZZMAALT", "Altrincham", "Altrincham", pos(53.38743, -2.34741)),
     Ashton("9400ZZMAAUL", "Ashton-under-Lyne", "Ashton-Under-Lyne", pos(53.49035, -2.09798)),
@@ -47,6 +53,19 @@ public enum TramStations {
     RochdaleRail("9400ZZMARRS", "Rochdale", "Rochdale Railway Station", pos(53.61102, -2.15449)),
     Intu("9400ZZMATRC", "The Trafford Centre", "intu Trafford Centre", pos(53.46782, -2.34751));
 
+    public static List<TramStations> EndOfTheLine = Arrays.asList(Altrincham,
+            ManAirport,
+            Eccles,
+            EastDidsbury,
+            Ashton,
+            Rochdale,
+            Bury,
+            ExchangeSquare,
+            Intu);
+
+    public static List<TramStations> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
+            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
+
     public static Station of(TramStations enumValue) {
         return enumValue.station;
     }
@@ -66,6 +85,24 @@ public enum TramStations {
         }
     }
 
+    public static Station real(StationRepository repository, TramStations enumValue) {
+        return repository.getStationById(enumValue.station.getId());
+    }
+
+    @Override
+    public IdFor<Station> getId() {
+        return station.getId();
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return station.getProp();
+    }
+
+    public String getName() {
+        return station.getName();
+    }
+
     private static class TestStation extends Station {
 
         private final TransportMode mode;
@@ -80,5 +117,60 @@ public enum TramStations {
             return mode;
         }
 
+        @Override
+        public boolean hasPlatforms() {
+            throw new RuntimeException("Use real Station");
+        }
+
+        @Override
+        public List<Platform> getPlatforms() {
+            throw new RuntimeException("Use real Station");
+        }
+
+        @Override
+        public List<Platform> getPlatformsForRoute(Route route) {
+            throw new RuntimeException("Use real Station");
+        }
+
+        @Override
+        public Set<Route> getRoutes() {
+            throw new RuntimeException("Use real Station");
+        }
+    }
+
+    public static class Pair {
+        private final TramStations start;
+        private final TramStations dest;
+
+        public Pair(TramStations start, TramStations dest) {
+            this.start = start;
+            this.dest = dest;
+        }
+
+        public TramStations getStart() {
+            return start;
+        }
+
+        public TramStations getDest() {
+            return dest;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Pair pair = (Pair) o;
+
+            if (getStart() != pair.getStart()) return false;
+            return getDest() == pair.getDest();
+        }
+
+        @Override
+        public int hashCode() {
+            int result = getStart().hashCode();
+            result = 31 * result + getDest().hashCode();
+            return result;
+        }
     }
 }

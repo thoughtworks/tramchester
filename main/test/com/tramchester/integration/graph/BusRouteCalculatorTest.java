@@ -9,6 +9,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -36,6 +37,7 @@ class BusRouteCalculatorTest {
 
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -54,6 +56,7 @@ class BusRouteCalculatorTest {
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
+        stationRepository = dependencies.get(StationRepository.class);
     }
 
     @AfterEach
@@ -66,7 +69,7 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
-        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, StockportBusStation,
+        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 3, txn, StockportBusStation,
                 AltrinchamInterchange, travelTime, nextMonday, 2, testConfig.getMaxJourneyDuration());
         assertFalse(journeys.isEmpty());
 
@@ -74,7 +77,7 @@ class BusRouteCalculatorTest {
         List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
         assertFalse(direct.isEmpty());
 
-        Set<Journey> journeysMaxChanges = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn, AltrinchamInterchange,
+        Set<Journey> journeysMaxChanges = RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 3, txn, AltrinchamInterchange,
                 StockportBusStation, travelTime, nextMonday, 8, testConfig.getMaxJourneyDuration());
         // algo seems to return very large number of changes even when 2 is possible??
         List<Journey> journeys2Stages = journeysMaxChanges.stream().filter(journey -> journey.getStages().size() <= 3).collect(Collectors.toList());
@@ -117,7 +120,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHavePiccadilyToStockportJourney() {
         int maxChanges = 2;
-        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, 3, txn,
+        Set<Journey> journeys = RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 3, txn,
                 PiccadilyStationStopA, StockportBusStation,
                 TramTime.of(8, 0), when, maxChanges, testConfig.getMaxJourneyDuration());
         assertFalse(journeys.isEmpty());
@@ -129,7 +132,7 @@ class BusRouteCalculatorTest {
     @Disabled("not loading tram stations")
     @Test
     void shouldHaveSimpleTramJourney() {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator, 1, txn, Stations.Altrincham, Stations.Cornbrook,
+        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn, Stations.Altrincham, Stations.Cornbrook,
                 TramTime.of(8, 0), when, 5, testConfig.getMaxJourneyDuration());
     }
 }

@@ -30,8 +30,8 @@ public class ActiveGraphFilter implements GraphFilter {
         serviceIds.add(service.getId());
     }
 
-    public void addStation(Station station) {
-        stations.add(station.getId());
+    public void addStation(IdFor<Station> id) {
+        stations.add(id);
     }
 
     public boolean shouldInclude(Route route) {

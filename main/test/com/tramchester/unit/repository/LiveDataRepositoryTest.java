@@ -153,7 +153,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     @Test
     void shouldUpdateStatusWhenRefreshingStaleData() {
         List<StationDepartureInfo> info = new LinkedList<>();
-        Station altrincham = Stations.Altrincham;
+        Station noPlatforms = Stations.Altrincham;
+        Station altrincham = new Station(noPlatforms.getId(), noPlatforms.getArea(), noPlatforms.getName(),
+                noPlatforms.getLatLong(), noPlatforms.getGridPosition());
+
         String platformId1 = Stations.Altrincham.getId() + "1";
         String platformId2 = Stations.Altrincham.getId() + "2";
 

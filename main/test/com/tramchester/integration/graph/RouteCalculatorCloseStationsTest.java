@@ -12,8 +12,10 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -37,6 +39,7 @@ class RouteCalculatorCloseStationsTest {
     private RouteCalculator calculator;
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -55,6 +58,7 @@ class RouteCalculatorCloseStationsTest {
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = dependencies.get(RouteCalculator.class);
+        stationRepository = dependencies.get(StationRepository.class);
     }
 
     @AfterEach
@@ -64,20 +68,21 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldFindUnaffectedRouteNormally() {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator,1, txn,
+        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn,
                 Stations.Altrincham, Stations.TraffordBar, TramTime.of(8,0), when, 2, 120 );
     }
     
     @Test
     void shouldFindRouteAroundClosedStation() {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator,1, txn,
+        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn,
                 Stations.PiccadillyGardens, Stations.Victoria, TramTime.of(8,0), when,
                 2, 120 );
     }
 
     @Test
     void shouldNotFindRouteToClosedStation() {
-        Stream<Journey> journeyStream = calculator.calculateRoute(txn, Stations.Bury, Stations.Shudehill,
+        Stream<Journey> journeyStream = calculator.calculateRoute(txn,
+                TramStations.real(stationRepository, TramStations.Bury), TramStations.real(stationRepository, TramStations.Shudehill),
                 new JourneyRequest(new TramServiceDate(when), TramTime.of(8,0),
                 false, 1, 120));
 
