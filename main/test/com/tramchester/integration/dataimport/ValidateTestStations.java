@@ -41,17 +41,16 @@ class ValidateTestStations {
     void shouldHaveCorrectTestTramStations() {
         List<TramStations> testStations = Arrays.asList(TramStations.values());
 
-        testStations.forEach(testStation -> {
-            Station station = TramStations.of(testStation);
+        testStations.forEach(enumValue -> {
+            Station testStation = TramStations.of(enumValue);
 
-            Station realStation = transportData.getStationById(station.getId());
+            Station realStation = transportData.getStationById(testStation.getId());
 
-            assertEquals(realStation.getArea(), station.getArea(),"area wrong for " +station.getName());
-            assertEquals(realStation.getName(), station.getName(), "name");
-            assertEquals(realStation.getTransportMode(), station.getTransportMode(), "mode wrong for " +station.getName());
-
-            // TODO
-            //assertEquals(realStation.getLatLong(), station.getLatLong());
+            String testStationName = testStation.getName();
+            assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
+            assertEquals(realStation.getArea(), testStation.getArea(),"area wrong for " + testStationName);
+            assertEquals(realStation.getTransportMode(), testStation.getTransportMode(), "mode wrong for " + testStationName);
+            assertEquals(realStation.getLatLong(), testStation.getLatLong(), "latlong wrong for " + testStationName);
 
         });
 
