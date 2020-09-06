@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ValidateTestStations {
+class ValidateTramTestStations {
 
         private static Dependencies dependencies;
 

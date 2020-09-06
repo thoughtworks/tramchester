@@ -4,6 +4,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
@@ -27,6 +28,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.testSupport.BusStations.AltrinchamInterchange;
+import static com.tramchester.testSupport.TramStations.Altrincham;
 import static com.tramchester.testSupport.TransportDataForTestFactory.TestTransportData.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -119,8 +122,9 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapJoruneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
-        ConnectingStage connectingStage = new ConnectingStage(BusStations.AltrinchamInterchange, Stations.Altrincham, 1, time);
-        VehicleStage tramStage = getRawVehicleStage(Stations.Altrincham, Stations.Shudehill, createRoute("route"), time.plusMinutes(1), 35, 9);
+        ConnectingStage connectingStage = new ConnectingStage(
+                BusStations.of(AltrinchamInterchange), TramStations.of(Altrincham), 1, time);
+        VehicleStage tramStage = getRawVehicleStage(TramStations.of(Altrincham), TramStations.of(TramStations.Shudehill), createRoute("route"), time.plusMinutes(1), 35, 9);
 
         stages.add(connectingStage);
         stages.add(tramStage);
@@ -152,10 +156,10 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
-        Location begin = Stations.Altrincham;
-        Location middleA = Stations.Deansgate;
-        Location middleB = Stations.MarketStreet;
-        Location end = Stations.Bury;
+        Location<Station> begin = Stations.Altrincham;
+        Location<Station> middleA = Stations.Deansgate;
+        Location<Station> middleB = Stations.MarketStreet;
+        Location<Station> end = Stations.Bury;
 
         VehicleStage rawStageA = getRawVehicleStage(begin, middleA, createRoute("route text"), am10, 42, 8);
         int walkCost = 10;

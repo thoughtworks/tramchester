@@ -11,10 +11,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.*;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -103,8 +100,8 @@ class RouteCalculatorSubGraphMonsallTest {
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, LocalDate date, int numStages) {
 
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, TramStations.real(stationRepository, start),
-                TramStations.real(stationRepository, destination), new JourneyRequest(new TramServiceDate(date), time,
+        Set<Journey> journeys = calculator.calculateRoute(txn, TestStation.real(stationRepository, start),
+                TestStation.real(stationRepository, destination), new JourneyRequest(new TramServiceDate(date), time,
                 false, 3, config.getMaxJourneyDuration())).
                 collect(Collectors.toSet());
 

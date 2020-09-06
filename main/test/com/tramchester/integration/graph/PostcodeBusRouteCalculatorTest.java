@@ -6,12 +6,14 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,8 +41,9 @@ class PostcodeBusRouteCalculatorTest {
 
     private final LocalDate day = TestEnv.testDay();
     private Transaction txn;
-    private TramTime time = TramTime.of(9,11);
+    private final TramTime time = TramTime.of(9,11);
     private LocationJourneyPlanner planner;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -58,6 +62,7 @@ class PostcodeBusRouteCalculatorTest {
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         planner = dependencies.get(LocationJourneyPlanner.class);
+        stationRepository = dependencies.get(StationRepository.class);
     }
 
     @AfterEach
@@ -82,17 +87,18 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldWalkFromPostcodeToNearbyStation() {
 
-        Set<Journey> journeys = planner.quickestRouteForLocation(txn, Postcodes.CentralBury.getLatLong(),
-                BusStations.BuryInterchange, createRequest(3)).collect(Collectors.toSet());
+        JourneyRequest request = createRequest(3);
+        Set<Journey> journeys = getJourney(request, Postcodes.CentralBury.getLatLong(), BuryInterchange).collect(Collectors.toSet());
 
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
             assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode());
-            assertEquals(BusStations.BuryInterchange, getLastStage(journey).getLastStation());
+            assertEquals(BusStations.BuryInterchange.getId(), getLastStage(journey).getLastStation().getId());
         });
     }
+
 
     private TransportStage getLastStage(Journey journey) {
         return journey.getStages().get(journey.getStages().size()-1);
@@ -104,45 +110,54 @@ class PostcodeBusRouteCalculatorTest {
         checkNearby(ShudehillInterchange, Postcodes.NearShudehill);
     }
 
-    private void checkNearby(Station start, PostcodeLocation end) {
-        Set<Journey> journeys = planner.quickestRouteForLocation(txn, start,
-                end.getLatLong(), createRequest(3)).collect(Collectors.toSet());
+    private void checkNearby(BusStations start, PostcodeLocation end) {
+        JourneyRequest request = createRequest(3);
+        Set<Journey> journeys = getJourneys(start, end, request);
 
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
             assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode());
-            assertEquals(start, journey.getStages().get(0).getFirstStation());
+            assertEquals(start.getId(), journey.getStages().get(0).getFirstStation().getId());
         });
+    }
+
+    @NotNull
+    private Set<Journey> getJourneys(BusStations start, PostcodeLocation end, JourneyRequest request) {
+        Station real = TestStation.real(stationRepository, start);
+        return planner.quickestRouteForLocation(txn, real, end.getLatLong(), request).collect(Collectors.toSet());
+    }
+
+    private Stream<Journey> getJourney(JourneyRequest request, LatLong latLong, BusStations busStation) {
+        return planner.quickestRouteForLocation(txn, latLong, TestStation.real(stationRepository,busStation), request);
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(txn, Postcodes.CentralBury.getLatLong(),
-                BusStations.ShudehillInterchange, createRequest(5)).collect(Collectors.toSet());
+        Set<Journey> journeys = getJourney(createRequest(5), Postcodes.CentralBury.getLatLong(), ShudehillInterchange).collect(Collectors.toSet());
 
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
             assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode());
-            assertEquals(BusStations.ShudehillInterchange, getLastStage(journey).getLastStation());
+            assertEquals(BusStations.ShudehillInterchange.getId(), getLastStage(journey).getLastStation().getId());
         });
     }
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeSouthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(txn, BuryInterchange,
-                Postcodes.NearShudehill.getLatLong(), createRequest(3)).collect(Collectors.toSet());
+        Set<Journey> journeys = getJourneys(BuryInterchange, Postcodes.NearShudehill, createRequest(3));
 
-        int walkCost = CoordinateTransforms.calcCostInMinutes(Postcodes.NearShudehill.getLatLong(), BuryInterchange, testConfig.getWalkingMPH());
+        Station busStation = TestStation.real(stationRepository, BuryInterchange);
+        int walkCost = CoordinateTransforms.calcCostInMinutes(Postcodes.NearShudehill.getLatLong(), busStation, testConfig.getWalkingMPH());
 
         assertTrue(walkCost<15);
 
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            assertEquals(BuryInterchange, journey.getStages().get(0).getFirstStation());
+            assertEquals(BuryInterchange.getId(), journey.getStages().get(0).getFirstStation().getId());
             assertEquals(Postcodes.NearShudehill.getLatLong(), getLastStage(journey).getLastStation().getLatLong());
         });
 
@@ -152,29 +167,27 @@ class PostcodeBusRouteCalculatorTest {
     void shouldPlanJourneyFromBusStationToPostcodeCentral() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), time, false,
                 10, 5).setDiag(true);
-        Set<Journey> journeys = planner.quickestRouteForLocation(txn, BusStations.ShudehillInterchange,
-                Postcodes.NearPiccadily.getLatLong(), journeyRequest).collect(Collectors.toSet());
+        Set<Journey> journeys = getJourneys(BusStations.ShudehillInterchange, Postcodes.NearPiccadily, journeyRequest);
 
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
             assertEquals(2, journey.getStages().size());
             assertEquals(TransportMode.Bus, journey.getStages().get(0).getMode());
-            assertEquals(Postcodes.NearPiccadily, getLastStage(journey).getLastStation());
+            assertEquals(Postcodes.NearPiccadily.getId(), getLastStage(journey).getLastStation().getId());
         });
     }
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeNorthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(txn, BusStations.ShudehillInterchange,
-                Postcodes.CentralBury.getLatLong(), createRequest(5)).collect(Collectors.toSet());
+        Set<Journey> journeys = getJourneys(BusStations.ShudehillInterchange, Postcodes.CentralBury, createRequest(5));
 
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
             assertEquals(2, journey.getStages().size());
             assertEquals(TransportMode.Bus, journey.getStages().get(0).getMode());
-            assertEquals(Postcodes.CentralBury, getLastStage(journey).getLastStation());
+            assertEquals(Postcodes.CentralBury.getId(), getLastStage(journey).getLastStation().getId());
         });
     }
 

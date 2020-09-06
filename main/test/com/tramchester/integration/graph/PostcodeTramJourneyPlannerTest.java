@@ -116,7 +116,7 @@ class PostcodeTramJourneyPlannerTest {
     }
 
     private Station real(TramStations station) {
-        return TramStations.real(stationRepository, station);
+        return TestStation.real(stationRepository, station);
     }
 
     @ParameterizedTest

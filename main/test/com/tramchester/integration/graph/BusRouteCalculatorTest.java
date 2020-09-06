@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -12,6 +13,7 @@ import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -88,7 +90,8 @@ class BusRouteCalculatorTest {
     void shouldFindAltyToKnutfordAtExpectedTime() {
         TramTime travelTime = TramTime.of(9, 55);
 
-        Stream<Journey> journeyStream = calculator.calculateRoute(txn, AltrinchamInterchange, KnutsfordStationStand3,
+        Stream<Journey> journeyStream = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
+                AltrinchamInterchange, KnutsfordStationStand3,
                 new JourneyRequest(new TramServiceDate(when), travelTime, false, 8, testConfig.getMaxJourneyDuration()));
         Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
@@ -100,16 +103,18 @@ class BusRouteCalculatorTest {
     void shouldNotRevisitSameBusStationAltyToKnutsford() {
         TramTime travelTime = TramTime.of(15, 25);
 
-        Stream<Journey> journeyStream = calculator.calculateRoute(txn, AltrinchamInterchange, KnutsfordStationStand3,
-                new JourneyRequest(new TramServiceDate(when), travelTime, false, 8, testConfig.getMaxJourneyDuration()));
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 8, testConfig.getMaxJourneyDuration());
+        Stream<Journey> journeyStream = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
+                AltrinchamInterchange, KnutsfordStationStand3,
+                request);
         Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            List<Location> seen = new ArrayList<>();
+            List<Location<Station>> seen = new ArrayList<>();
             journey.getStages().forEach(stage -> {
-                Location actionStation = stage.getActionStation();
+                Location<Station> actionStation = stage.getActionStation();
                 assertFalse(seen.contains(actionStation), "Already seen " + actionStation + " for " + journey.toString());
                 seen.add(actionStation);
             });
@@ -132,7 +137,8 @@ class BusRouteCalculatorTest {
     @Disabled("not loading tram stations")
     @Test
     void shouldHaveSimpleTramJourney() {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn, Stations.Altrincham, Stations.Cornbrook,
+        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn,
+                TramStations.Altrincham, TramStations.Cornbrook,
                 TramTime.of(8, 0), when, 5, testConfig.getMaxJourneyDuration());
     }
 }

@@ -15,6 +15,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -79,7 +80,7 @@ class RouteCalulcatorForBoundingBoxTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,30),
                 false, 3, testConfig.getMaxJourneyDuration());
 
-        Set<Station> destinations = Collections.singleton(TramStations.real(stationRepository, TramStations.StPetersSquare));
+        Set<Station> destinations = Collections.singleton(TestStation.real(stationRepository, TramStations.StPetersSquare));
 
         long numberToFind = 3;
         Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped, numberToFind);

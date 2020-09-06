@@ -1,19 +1,18 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public enum TramStations implements HasId<Station> {
 
@@ -85,10 +84,6 @@ public enum TramStations implements HasId<Station> {
         }
     }
 
-    public static Station real(StationRepository repository, TramStations enumValue) {
-        return repository.getStationById(enumValue.station.getId());
-    }
-
     @Override
     public IdFor<Station> getId() {
         return station.getId();
@@ -101,41 +96,6 @@ public enum TramStations implements HasId<Station> {
 
     public String getName() {
         return station.getName();
-    }
-
-    private static class TestStation extends Station {
-
-        private final TransportMode mode;
-
-        public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode mode) {
-            super(IdFor.createId(id), area, stationName, latLong, gridPosition);
-            this.mode = mode;
-        }
-
-        @Override
-        public TransportMode getTransportMode() {
-            return mode;
-        }
-
-        @Override
-        public boolean hasPlatforms() {
-            throw new RuntimeException("Use real Station");
-        }
-
-        @Override
-        public List<Platform> getPlatforms() {
-            throw new RuntimeException("Use real Station");
-        }
-
-        @Override
-        public List<Platform> getPlatformsForRoute(Route route) {
-            throw new RuntimeException("Use real Station");
-        }
-
-        @Override
-        public Set<Route> getRoutes() {
-            throw new RuntimeException("Use real Station");
-        }
     }
 
     public static class Pair {

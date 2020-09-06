@@ -2,6 +2,7 @@ package com.tramchester.integration.resources;
 
 
 import com.tramchester.App;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -141,13 +142,13 @@ class JourneyPlannerBusTest {
     }
 
 
-    private void validateHasJourney(TramTime queryTime, Station start, Station end, int maxChanges) {
+    private void validateHasJourney(TramTime queryTime, HasId<Station>  start, HasId<Station>  end, int maxChanges) {
         JourneyPlanRepresentation plan = createPlan(queryTime, start, end, maxChanges, false);
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
     }
 
-    private JourneyPlanRepresentation createPlan(TramTime queryTime, Station start, Station end, int maxChanges, boolean arriveBy) {
+    private JourneyPlanRepresentation createPlan(TramTime queryTime, HasId<Station> start, HasId<Station>  end, int maxChanges, boolean arriveBy) {
         return getJourneyPlan(start.getId(), end.getId(), queryTime,
                 new TramServiceDate(when), arriveBy, maxChanges);
     }

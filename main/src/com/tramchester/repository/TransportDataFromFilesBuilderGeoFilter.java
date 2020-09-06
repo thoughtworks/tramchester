@@ -274,7 +274,8 @@ public class TransportDataFromFilesBuilderGeoFilter {
         IdSet<Route> excludedRoutes = new IdSet<>();
         routeDataStream.forEach(routeData -> {
             IdFor<Agency> agencyId = routeData.getAgencyId();
-            if (!allAgencies.hasId(agencyId)) {
+            boolean missingAgency = !allAgencies.hasId(agencyId);
+            if (missingAgency) {
                 logger.error("Missing agency " + agencyId);
             }
 
@@ -291,7 +292,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
                 }
 
                 count.getAndIncrement();
-                Agency agency = allAgencies.get(agencyId);
+                Agency agency = missingAgency ? createMissingAgency(allAgencies, agencyId) : allAgencies.get(agencyId);
                 Route route = new Route(routeId, routeData.getShortName().trim(), routeName, agency,
                         TransportMode.fromGTFS(routeType));
                 agency.addRoute(route);
@@ -303,6 +304,13 @@ public class TransportDataFromFilesBuilderGeoFilter {
         });
         logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ excludedRoutes.size());
         return excludedRoutes;
+    }
+
+    private Agency createMissingAgency(IdMap<Agency> allAgencies, IdFor<Agency> agencyId) {
+        Agency unknown = new Agency(agencyId.getGraphId(), "UNKNOWN");
+        logger.error("Created " + unknown);
+        allAgencies.add(unknown);
+        return unknown;
     }
 
     private IdMap<Station> preLoadStations(Stream<StopData> stops) {

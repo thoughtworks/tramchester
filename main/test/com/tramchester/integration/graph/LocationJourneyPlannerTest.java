@@ -17,6 +17,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -95,7 +96,7 @@ class LocationJourneyPlannerTest {
 
     private Set<Journey> getJourneySet(JourneyRequest journeyRequest, LatLong nearPiccGardens, TramStations dest) {
         Stream<Journey> journeyStream = planner.quickestRouteForLocation(txn, nearPiccGardens,
-                TramStations.real(stationRepository, dest), journeyRequest);
+                TestStation.real(stationRepository, dest), journeyRequest);
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
         return journeySet;

@@ -15,6 +15,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -82,7 +83,7 @@ class RouteCalculatorCloseStationsTest {
     @Test
     void shouldNotFindRouteToClosedStation() {
         Stream<Journey> journeyStream = calculator.calculateRoute(txn,
-                TramStations.real(stationRepository, TramStations.Bury), TramStations.real(stationRepository, TramStations.Shudehill),
+                TestStation.real(stationRepository, TramStations.Bury), TestStation.real(stationRepository, TramStations.Shudehill),
                 new JourneyRequest(new TramServiceDate(when), TramTime.of(8,0),
                 false, 1, 120));
 

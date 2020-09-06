@@ -14,6 +14,7 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -149,7 +150,7 @@ class RouteCalculatorSubGraphTest {
 
     @NotNull
     private Set<Journey> getJourneys(TramStations start, TramStations destination, LocalDate when) {
-        return calculator.calculateRoute(txn, TramStations.real(stationRepository, start), TramStations.real(stationRepository,destination),
+        return calculator.calculateRoute(txn, TestStation.real(stationRepository, start), TestStation.real(stationRepository,destination),
                 new JourneyRequest(new TramServiceDate(when), tramTime, false, 3,
                         config.getMaxJourneyDuration())).collect(Collectors.toSet());
     }

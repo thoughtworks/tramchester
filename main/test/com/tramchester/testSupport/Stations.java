@@ -8,6 +8,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.util.Arrays;
 import java.util.List;
 
+@Deprecated
 public class Stations {
     public static int NumberOf = 99;
 
@@ -21,10 +22,9 @@ public class Stations {
     public static Station VeloPark = TramStations.of(TramStations.VeloPark);
     public static Station Cornbrook = TramStations.of(TramStations.Cornbrook);
     public static Station Piccadilly = TramStations.of(TramStations.Piccadilly);
-    public static Station HoltTown = TramStations.of(TramStations.HoltTown);
     public static Station Eccles = TramStations.of(TramStations.Eccles);
     public static Station Bury = TramStations.of(TramStations.Bury);
-    public static Station EastDidsbury = TramStations.of(TramStations.EastDidsbury);
+    private static Station EastDidsbury = TramStations.of(TramStations.EastDidsbury);
     public static Station Rochdale = TramStations.of(TramStations.Rochdale);
     public static Station Pomona = TramStations.of(TramStations.Pomona);
     public static Station Deansgate = TramStations.of(TramStations.Deansgate);
@@ -41,11 +41,6 @@ public class Stations {
     public static Station StWerburghsRoad = TramStations.of(TramStations.StWerburghsRoad);
     public static Station Shudehill = TramStations.of(TramStations.Shudehill);
     public static Station Monsall = TramStations.of(TramStations.Monsall);
-    public static Station ExchangeQuay = TramStations.of(TramStations.ExchangeQuay);
-    public static Station SalfordQuay = TramStations.of(TramStations.SalfordQuay);
-    public static Station Anchorage = TramStations.of(TramStations.Anchorage);
-    public static Station HeatonPark = TramStations.of(TramStations.HeatonPark);
-    public static Station BurtonRoad = TramStations.of(TramStations.BurtonRoad);
     public static Station RochdaleRail = TramStations.of(TramStations.RochdaleRail);
     public static Station Intu = TramStations.of(TramStations.Intu);
 

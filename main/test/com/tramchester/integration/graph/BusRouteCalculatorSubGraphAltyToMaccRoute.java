@@ -15,6 +15,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.repository.RouteCallingStations;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.TestEnv;
@@ -84,7 +85,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, 120);
-        Stream<Journey> stream = calculator.calculateRoute(txn, BusStations.AltrinchamInterchange, endOfRoute, journeyRequest);
+        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(calculator, transportData, txn, BusStations.AltrinchamInterchange, endOfRoute, journeyRequest);
         List<Journey> results = stream.collect(Collectors.toList());
 
         assertFalse(results.isEmpty());

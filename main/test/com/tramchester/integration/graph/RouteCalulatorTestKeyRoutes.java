@@ -3,7 +3,6 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -12,7 +11,6 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.DataExpiryCategory;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import org.apache.commons.lang3.tuple.Pair;
@@ -26,7 +24,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalulatorTestKeyRoutes {
@@ -83,9 +82,8 @@ class RouteCalulatorTestKeyRoutes {
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
                                 3, testConfig.getMaxJourneyDuration());
                         journeyRequest.setDiag(diag);
-                        Optional<Journey> optionalJourney = calculator.calculateRoute(txn,
-                                TramStations.real(stationRepository, requested.getStart()),
-                                TramStations.real(stationRepository, requested.getDest()),
+                        Optional<Journey> optionalJourney = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
+                                requested.getStart(), requested.getDest(),
                                 journeyRequest).limit(1).findAny();
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
@@ -160,9 +158,8 @@ class RouteCalulatorTestKeyRoutes {
         return combinations.parallelStream().
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
-                        Optional<Journey> optionalJourney = calculator.calculateRoute(txn,
-                                TramStations.real(stationRepository, requested.getStart()),
-                                TramStations.real(stationRepository, requested.getDest()),
+                        Optional<Journey> optionalJourney = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
+                                requested.getStart(), requested.getDest(),
                                 new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
                                         testConfig.getMaxJourneyDuration()).setDiag(diag)).
                                 limit(1).findAny();

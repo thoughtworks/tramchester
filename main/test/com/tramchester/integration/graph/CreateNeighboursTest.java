@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
@@ -105,12 +106,12 @@ class CreateNeighboursTest {
 
     @Test
     void shouldDirectWalkIfStationIsNeighbourTramToBus() {
-        validateDirectWalk(Stations.Shudehill, BusStations.ShudehillInterchange);
+        validateDirectWalk(TramStations.Shudehill, BusStations.ShudehillInterchange);
     }
 
     @Test
     void shouldDirectWalkIfStationIsNeighbourBusToTram() {
-        validateDirectWalk(BusStations.ShudehillInterchange, TramStations.real(stationRepository, TramStations.Shudehill));
+        validateDirectWalk(BusStations.ShudehillInterchange, TramStations.Shudehill);
     }
 
     @Test
@@ -143,9 +144,10 @@ class CreateNeighboursTest {
                 TramTime.of(11,53), false, 0, testConfig.getMaxJourneyDuration());
         request.setDiag(true);
 
-        Station startStation = Stations.Bury;
-        Station end = BusStations.ShudehillInterchange;
-        Set<Journey> allJourneys = routeCalculator.calculateRoute(txn, startStation, end, request).collect(Collectors.toSet());
+        TramStations startStation = TramStations.Bury;
+        BusStations end = BusStations.ShudehillInterchange;
+        Set<Journey> allJourneys = RouteCalculatorTest.calculateRoute(routeCalculator, stationRepository, txn,
+                startStation, end, request).collect(Collectors.toSet());
 
         Set<Journey> maybeTram = allJourneys.stream().filter(journey -> journey.getStages().size()<=2).collect(Collectors.toSet());
         assertFalse(maybeTram.isEmpty());
@@ -158,14 +160,15 @@ class CreateNeighboursTest {
         });
     }
 
-    private void validateDirectWalk(Station startStation, Station end) {
+    private void validateDirectWalk(HasId<Station> start, HasId<Station> end) {
 
         RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request =
                 new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
                         false, 0, testConfig.getMaxJourneyDuration());
 
-        Stream<Journey> stream = routeCalculator.calculateRoute(txn, startStation, end, request);
+        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(routeCalculator, stationRepository, txn, start, end, request);
+//        Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, end, request);
 
         Set<Journey> journeys = stream.collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
@@ -174,6 +177,10 @@ class CreateNeighboursTest {
             TransportStage stage = journey.getStages().get(0);
             assertEquals(TransportMode.Connect, stage.getMode());
         });
+    }
+
+    private boolean seenNode(Transaction txn, BusStations station, Iterable<Relationship> outbounds, SelectNode selectNode) {
+        return seenNode(txn, BusStations.real(stationRepository, station), outbounds, selectNode);
     }
 
     private boolean seenNode(Transaction txn, Station station, Iterable<Relationship> outbounds, SelectNode selectNode) {

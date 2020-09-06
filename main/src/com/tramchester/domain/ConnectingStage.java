@@ -36,17 +36,17 @@ public class ConnectingStage implements TransportStage  {
     }
 
     @Override
-    public Location getActionStation() {
+    public Location<Station> getActionStation() {
         return start;
     }
 
     @Override
-    public Location getLastStation() {
+    public Location<Station> getLastStation() {
         return end;
     }
 
     @Override
-    public Location getFirstStation() {
+    public Location<Station> getFirstStation() {
         return start;
     }
 

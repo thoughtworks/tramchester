@@ -100,8 +100,8 @@ class RouteCalculatorSubGraphMediaCityTest {
                         LocalDate day = when.plusDays(i);
                         JourneyRequest journeyRequest =
                                 new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0), false, 3, config.getMaxJourneyDuration());
-                        Set<Journey> journeys = calculator.calculateRoute(txn, TramStations.real(stationRepository,start),
-                                TramStations.real(stationRepository, destination), journeyRequest).collect(Collectors.toSet());
+                        Set<Journey> journeys = calculator.calculateRoute(txn, TestStation.real(stationRepository,start),
+                                TestStation.real(stationRepository, destination), journeyRequest).collect(Collectors.toSet());
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
                         }
@@ -126,8 +126,8 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        Set<Journey> results = calculator.calculateRoute(txn, TramStations.real(stationRepository, TramStations.Pomona),
-                TramStations.real(stationRepository, TramStations.MediaCityUK),
+        Set<Journey> results = calculator.calculateRoute(txn, TestStation.real(stationRepository, TramStations.Pomona),
+                TestStation.real(stationRepository, TramStations.MediaCityUK),
                 new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false, 3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
         Assertions.assertTrue(results.size()>0);
     }

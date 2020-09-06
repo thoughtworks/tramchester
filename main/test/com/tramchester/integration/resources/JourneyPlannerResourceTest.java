@@ -21,6 +21,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
@@ -60,6 +61,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     private LocalDate when;
     private LocalDateTime now;
     private ParseStream<JourneyDTO> parseStream;
+
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -333,12 +335,12 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         return RecentJourneys.decodeCookie(mapper,value);
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location start, Location end, TramServiceDate queryDate, LocalTime queryTime,
+    protected JourneyPlanRepresentation getJourneyPlan(Location<Station> start, Location<Station> end, TramServiceDate queryDate, LocalTime queryTime,
                                                        boolean arriveBy, int maxChanges) {
         return getJourneyPlanRepresentation(appExtension, start, end, queryDate, queryTime, arriveBy, maxChanges);
     }
 
-    static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationAppExtension rule, Location start, Location end,
+    static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationAppExtension rule, Location<Station> start, Location<Station> end,
                                                                   TramServiceDate queryDate, LocalTime queryTime,
                                                                   boolean arriveBy, int maxChanges) {
         Response response = getResponseForJourney(rule, start.forDTO(), end.forDTO(), queryTime, queryDate.getDate(),

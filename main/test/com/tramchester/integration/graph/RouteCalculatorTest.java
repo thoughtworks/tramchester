@@ -1,6 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.VehicleStage;
@@ -14,10 +15,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.DataExpiryCategory;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.*;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -108,9 +106,10 @@ public class RouteCalculatorTest {
     @Test
     void shouldHaveReasonableJourneyAltyToDeansgate() {
         TramServiceDate tramServiceDate = new TramServiceDate(when);
-        Set<Journey> results = calculator.calculateRoute(txn, TramStations.real(stationRepository, Altrincham),
-                TramStations.real(stationRepository, TramStations.Deansgate),
-                new JourneyRequest(tramServiceDate, TramTime.of(10, 15), false,3, config.getMaxJourneyDuration())).collect(Collectors.toSet());
+        JourneyRequest request = new JourneyRequest(tramServiceDate, TramTime.of(10, 15), false, 3, config.getMaxJourneyDuration());
+        Set<Journey> results = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn, Altrincham,
+                TramStations.Deansgate,
+                request).collect(Collectors.toSet());
         assertFalse(results.isEmpty());
         results.forEach(journey -> {
             assertEquals(1, journey.getStages().size()); // should be one stage only
@@ -176,9 +175,11 @@ public class RouteCalculatorTest {
     void shouldLimitNumberChangesResultsInNoJourneys() {
         TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
 
-        Stream<Journey> stream = calculator.calculateRoute(txn,
-                TramStations.real(stationRepository, Altrincham), TramStations.real(stationRepository, TramStations.ManAirport),
-                new JourneyRequest(today, TramTime.of(11, 43), false, 0, config.getMaxJourneyDuration()));
+        JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, 0,
+                config.getMaxJourneyDuration());
+        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
+                Altrincham, TramStations.ManAirport,
+                request);
         Set<Journey> results = stream.collect(Collectors.toSet());
         stream.close();
 
@@ -189,9 +190,9 @@ public class RouteCalculatorTest {
     void testJourneyFromAltyToAirport() {
         TramServiceDate today = new TramServiceDate(TestEnv.LocalNow().toLocalDate());
 
-        Stream<Journey> stream = calculator.calculateRoute(txn, TramStations.real(stationRepository, Altrincham),
-                TramStations.real(stationRepository, TramStations.ManAirport),
-                new JourneyRequest(today, TramTime.of(11, 43), false,3, config.getMaxJourneyDuration()));
+        JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, 3, config.getMaxJourneyDuration());
+        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
+                Altrincham, TramStations.ManAirport, request);
         Set<Journey> results = stream.collect(Collectors.toSet());
         stream.close();
 
@@ -269,10 +270,10 @@ public class RouteCalculatorTest {
 
         Set<List<TransportStage>> stages = new HashSet<>();
 
-        Stream<Journey> stream = calculator.calculateRoute(txn,
-                TramStations.real(stationRepository, Bury), TramStations.real(stationRepository, Altrincham),
-                new JourneyRequest(new TramServiceDate(when), TramTime.of(11,45), false,
-                        4, config.getMaxJourneyDuration()));
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(11, 45), false,
+                4, config.getMaxJourneyDuration());
+        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
+                Bury, Altrincham, request);
         Set<Journey> journeys = stream.limit(3).collect(Collectors.toSet());
         stream.close();
 
@@ -364,29 +365,30 @@ public class RouteCalculatorTest {
         }
     }
 
-    private Set<Journey> validateAtLeastNJourney(int maxToReturn, TramStations station, TramStations dest, TramTime time, LocalDate date) {
+    private Set<Journey> validateAtLeastNJourney(int maxToReturn, HasId<Station>  station, HasId<Station>  dest, TramTime time, LocalDate date) {
         return validateAtLeastNJourney(calculator, stationRepository, maxToReturn, txn, station, dest, time, date, 5, config.getMaxJourneyDuration());
     }
 
-    public static Stream<Journey> calculateRoute(RouteCalculator calculator, StationRepository stationRepository, Transaction txn, TramStations start,
-                                                 TramStations end, JourneyRequest request) {
-        return calculator.calculateRoute(txn, TramStations.real(stationRepository, start), TramStations.real(stationRepository, end), request);
+    public static Stream<Journey> calculateRoute(RouteCalculator calculator, StationRepository stationRepository, Transaction txn,
+                                                 HasId<Station> start, HasId<Station> end, JourneyRequest request) {
+        return calculator.calculateRoute(txn, stationRepository.getStationById(start.getId()),
+                stationRepository.getStationById(end.getId()), request);
     }
 
     public static Set<Journey> validateAtLeastNJourney(RouteCalculator theCalculator, StationRepository stationRepository, int maxToReturn,
                                                        Transaction transaction,
-                                                       TramStations start, TramStations destination, TramTime time, LocalDate date, int maxChanges,
+                                                       HasId<Station> start, HasId<Station>  destination, TramTime time, LocalDate date, int maxChanges,
                                                        int maxJourneyDuration) {
         TramServiceDate queryDate = new TramServiceDate(date);
-        Stream<Journey> journeyStream = theCalculator.calculateRoute(transaction,
-                TramStations.real(stationRepository, start),
-                TramStations.real(stationRepository, destination), new JourneyRequest(new TramServiceDate(date), time,
-                        false, maxChanges, maxJourneyDuration));
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), time, false, maxChanges, maxJourneyDuration);
+
+        Stream<Journey> journeyStream = RouteCalculatorTest.calculateRoute(theCalculator, stationRepository, transaction,
+                start, destination, journeyRequest);
 
         Set<Journey> journeys = journeyStream.limit(maxToReturn).collect(Collectors.toSet());
         journeyStream.close();
 
-        String message = "from " + start.name() + " to " + destination.name() + " at " + time + " on " + queryDate;
+        String message = "from " + start.getId() + " to " + destination.getId() + " at " + time + " on " + queryDate;
         assertTrue(journeys.size() > 0, "Unable to find journey " + message);
         journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), message + " missing stages for journey" + journey));
         journeys.forEach(RouteCalculatorTest::checkStages);
@@ -435,9 +437,10 @@ public class RouteCalculatorTest {
         for (int hour = 6; hour < latestHour; hour++) {
             for (int minutes = minsOffset; minutes < 59; minutes=minutes+5) {
                 TramTime time = TramTime.of(hour, minutes);
-                Stream<Journey> journeys = calculator.calculateRoute(txn, TramStations.real(stationRepository, start),
-                        TramStations.real(stationRepository, dest),
-                        new JourneyRequest(new TramServiceDate(when), time, false, 3, config.getMaxJourneyDuration()));
+                JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), time, false, 3,
+                        config.getMaxJourneyDuration());
+                Stream<Journey> journeys = RouteCalculatorTest.calculateRoute(calculator, stationRepository,txn,
+                        start, dest, journeyRequest);
                 if (journeys.limit(1).findFirst().isEmpty()) {
                     missing.add(time);
                 }
@@ -450,7 +453,7 @@ public class RouteCalculatorTest {
 
     private Set<Journey> calculateRoutes(TramStations start, TramStations destination, TramTime queryTime, TramServiceDate today) {
         Stream<Journey> journeyStream = calculator.calculateRoute(txn,
-                TramStations.real(stationRepository,start), TramStations.real(stationRepository,destination),
+                TestStation.real(stationRepository,start), TestStation.real(stationRepository,destination),
                 new JourneyRequest(today, queryTime, false, 3, config.getMaxJourneyDuration()));
         Set<Journey> journeySet = journeyStream.collect(Collectors.toSet());
         journeyStream.close();
