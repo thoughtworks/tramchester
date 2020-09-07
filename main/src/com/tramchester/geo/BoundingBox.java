@@ -62,6 +62,27 @@ public class BoundingBox {
                 (position.getNorthings() <= maxNorthings);
     }
 
+    public boolean overlapsWith(BoundingBox other) {
+        GridPosition bottomLeft = new GridPosition(minEastings, minNorthings);
+        GridPosition topLeft = new GridPosition(minEastings, maxNorthings);
+        GridPosition topRight = new GridPosition(maxEasting, maxNorthings);
+        GridPosition bottomRight = new GridPosition(maxEasting, minNorthings);
+        if (other.contained(bottomLeft)) {
+            return true;
+        }
+        if (other.contained(topLeft)) {
+            return true;
+        }
+        if (other.contained(topRight)) {
+            return true;
+        }
+        if (other.contained(bottomRight)) {
+            return true;
+        }
+        return false;
+
+    }
+
     @Override
     public String toString() {
         return "BoundingBox{" +
@@ -93,4 +114,6 @@ public class BoundingBox {
         result = 31 * result + (int) (getMaxNorthings() ^ (getMaxNorthings() >>> 32));
         return result;
     }
+
+
 }

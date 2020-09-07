@@ -52,6 +52,7 @@ public class Dependencies {
 
         picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(StationLocations.class);
+        picoContainer.addComponent(PostcodeBoundingBoxs.class);
         picoContainer.addComponent(PostcodeDataImporter.class);
         picoContainer.addComponent(Unzipper.class);
         picoContainer.addComponent(URLDownloadAndModTime.class);

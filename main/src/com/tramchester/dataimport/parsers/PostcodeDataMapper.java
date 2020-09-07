@@ -10,9 +10,9 @@ public class PostcodeDataMapper extends CSVEntryMapper<PostcodeData> {
     private static final int indexOfEastings = 2;
     private static final int indexOfNorthing = 3;
 
-    private enum Columns implements ColumnDefination {
-        Postcode, Eastings, Northings
-    }
+//    private enum Columns implements ColumnDefination {
+//        Postcode, Eastings, Northings
+//    }
 
     // Header from docs
     // Postcode,Positional_quality_indicator,Eastings,Northings,Country_code,NHS_regional_HA_code,

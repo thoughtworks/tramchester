@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalTime;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -16,10 +17,11 @@ import static java.lang.String.format;
 public class Unzipper {
     private static final Logger logger = LoggerFactory.getLogger(Unzipper.class);
 
-    public boolean unpack(Path filename, Path targetDirectory) {
-        logger.info(format("Unziping data from %s to %s ", filename, targetDirectory));
+    public boolean unpack(Path zipFilename, Path targetDirectory) {
+        logger.info(format("Unziping data from %s to %s ", zipFilename, targetDirectory));
         try {
-            ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(filename.toFile()));
+            File zipFile = zipFilename.toFile();
+            ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
             ZipEntry zipEntry = zipInputStream.getNextEntry();
             while (zipEntry!=null) {
                 extractEntryTo(targetDirectory, zipEntry, zipInputStream);
@@ -27,9 +29,14 @@ public class Unzipper {
                 zipEntry = zipInputStream.getNextEntry();
             }
             zipInputStream.close();
+            // update mod time
+            long zipMod = zipFile.lastModified();
+            logger.info("Set "+ targetDirectory.toAbsolutePath()+" mod time to : " + zipMod);
+            targetDirectory.toFile().setLastModified(zipMod);
+
             return true;
         } catch (IOException e) {
-            logger.warn("Unable to unzip "+filename, e);
+            logger.warn("Unable to unzip "+zipFilename, e);
             return false;
         }
     }
@@ -70,6 +77,7 @@ public class Unzipper {
         }
         Files.copy(zipInputStream, name);
         unpackTarget.setLastModified(zipEntry.getLastModifiedTime().toMillis());
+
     }
 
 }
