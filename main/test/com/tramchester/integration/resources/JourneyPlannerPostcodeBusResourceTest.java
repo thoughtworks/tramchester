@@ -48,7 +48,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadily), time, day,
+                prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadilyGardens), time, day,
                 null, false, 5);
         assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);

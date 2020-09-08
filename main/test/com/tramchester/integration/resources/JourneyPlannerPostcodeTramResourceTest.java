@@ -1,7 +1,6 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -23,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -48,7 +46,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadily), time, day,
+                prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadilyGardens), time, day,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());

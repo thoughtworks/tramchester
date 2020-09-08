@@ -16,7 +16,9 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTestConfig;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.apache.commons.io.FileUtils;
@@ -41,7 +43,7 @@ class GraphWithSimpleRouteTest {
     private static RouteCalculator calculator;
     private static Dependencies dependencies;
     private static GraphDatabase database;
-    private static LocationJourneyPlanner locationJourneyPlanner;
+    private static LocationJourneyPlannerTestFacade locationJourneyPlanner;
     private static SimpleGraphConfig config;
 
     private TramServiceDate queryDate;
@@ -64,7 +66,6 @@ class GraphWithSimpleRouteTest {
 
         database = dependencies.get(GraphDatabase.class);
         calculator = dependencies.get(RouteCalculator.class);
-        locationJourneyPlanner = dependencies.get(LocationJourneyPlanner.class);
     }
 
     @AfterAll
@@ -75,9 +76,12 @@ class GraphWithSimpleRouteTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        txn = database.beginTx();
+
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
-        txn = database.beginTx();
+        StationRepository stationRepo = dependencies.get(StationRepository.class);
+        locationJourneyPlanner = new LocationJourneyPlannerTestFacade(dependencies.get(LocationJourneyPlanner.class), stationRepo, txn);
     }
 
     @NotNull
@@ -105,9 +109,8 @@ class GraphWithSimpleRouteTest {
     void shouldHaveJourneyWithLocationBasedStart() {
         LatLong origin = TestEnv.nearAltrincham;
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, origin,  transportData.getSecond(),
-                createJourneyRequest(TramTime.of(7,55), 0)).
-                collect(Collectors.toSet());
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecond(),
+                createJourneyRequest(TramTime.of(7,55), 0));
 
         Assertions.assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
@@ -121,8 +124,8 @@ class GraphWithSimpleRouteTest {
     void shouldHaveJourneyWithLocationBasedEnd() {
         LatLong origin = TestEnv.nearShudehill;
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(txn, transportData.getSecond(), origin,
-                createJourneyRequest(TramTime.of(7,55), 0)).collect(Collectors.toSet());
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getSecond(), origin,
+                createJourneyRequest(TramTime.of(7,55), 0));
 
         Assertions.assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
