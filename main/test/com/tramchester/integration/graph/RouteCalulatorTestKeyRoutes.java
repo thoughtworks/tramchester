@@ -10,9 +10,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.DataExpiryCategory;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -82,9 +80,7 @@ class RouteCalulatorTestKeyRoutes {
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
                                 3, testConfig.getMaxJourneyDuration());
                         journeyRequest.setDiag(diag);
-                        Optional<Journey> optionalJourney = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
-                                requested.getStart(), requested.getDest(),
-                                journeyRequest).limit(1).findAny();
+                        Optional<Journey> optionalJourney = findJourneys(txn, requested.getStart(), requested.getDest(), journeyRequest);
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
                     }
@@ -92,6 +88,7 @@ class RouteCalulatorTestKeyRoutes {
 
         assertFalse(failed.isPresent());
     }
+
 
     @Test
     void shouldFindEndOfLinesToInterchanges() {
@@ -158,11 +155,9 @@ class RouteCalulatorTestKeyRoutes {
         return combinations.parallelStream().
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
-                        Optional<Journey> optionalJourney = RouteCalculatorTest.calculateRoute(calculator, stationRepository, txn,
-                                requested.getStart(), requested.getDest(),
-                                new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
-                                        testConfig.getMaxJourneyDuration()).setDiag(diag)).
-                                limit(1).findAny();
+                        JourneyRequest request = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
+                                testConfig.getMaxJourneyDuration()).setDiag(diag);
+                        Optional<Journey> optionalJourney = findJourneys(txn, requested.getStart(), requested.getDest(), request);
 
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
@@ -181,6 +176,10 @@ class RouteCalulatorTestKeyRoutes {
             }
         }
         return combinations;
+    }
+
+    private Optional<Journey> findJourneys(Transaction txn, TramStations start, TramStations dest, JourneyRequest journeyRequest) {
+        return calculator.calculateRoute(txn, TestStation.real(stationRepository, start), TestStation.real(stationRepository, dest), journeyRequest).limit(1).findAny();
     }
 
     private static class JourneyOrNot {

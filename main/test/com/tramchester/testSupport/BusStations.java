@@ -1,6 +1,5 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
@@ -12,7 +11,7 @@ import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 
-public enum BusStations implements HasId<Station> {
+public enum BusStations implements TestStations {
 
     AltrinchamInterchange("1800AMIC001", "Altrincham", "Altrincham, Altrincham Interchange", new LatLong(53.38745, -2.34771)),
     StockportBusStation("1800STBS001", "Stockport", "Stockport, Stockport Bus Station", new LatLong(53.4091,-2.16293)),
@@ -26,7 +25,9 @@ public enum BusStations implements HasId<Station> {
     PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens", "Piccadilly Gardens, Piccadilly Gardens (Stop H)",
             new LatLong(53.48063,-2.23825)),
     PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens", "Piccadilly Gardens, Piccadilly Gardens (Stop N)",
-            new LatLong(53.48017, -2.23723));
+            new LatLong(53.48017, -2.23723)),
+    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
+            new LatLong(53.25831, -2.12502));
 
     private final TestStation station;
 

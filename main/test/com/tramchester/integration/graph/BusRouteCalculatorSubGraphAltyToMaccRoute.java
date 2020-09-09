@@ -18,13 +18,16 @@ import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.BusStations;
+import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,11 +41,10 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private RouteCalculator calculator;
+    private RouteCalculatorTestFacade calculator;
     private Transaction txn;
     private TramServiceDate when;
     private List<Station> routeStations;
-    private TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -63,10 +65,10 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        calculator = dependencies.get(RouteCalculator.class);
-        transportData = dependencies.get(TransportData.class);
+        TransportData transportData = dependencies.get(TransportData.class);
         RouteCallingStations routeCallingStations = dependencies.get(RouteCallingStations.class);
         txn = database.beginTx();
+        calculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class), transportData, txn);
 
         when = new TramServiceDate(TestEnv.testDay());
         Route route = transportData.getRouteById(ROUTE_ID);
@@ -81,12 +83,11 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     @Test
     void shouldHaveJourneyOneEndToTheOther() {
-        Station endOfRoute = transportData.getStationById(IdFor.createId("0600MA6154")); // macc bus station bay 1
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, 120);
-        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(calculator, transportData, txn, BusStations.AltrinchamInterchange, endOfRoute, journeyRequest);
-        List<Journey> results = stream.collect(Collectors.toList());
+        Set<Journey> results = calculator.calculateRouteAsSet(BusStations.AltrinchamInterchange, BusStations.MacclefieldBusStationBay1,
+                journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -104,8 +105,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         for (int i = 1; i <= knutsfordIndex; i++) {
             Station secondStation = routeStations.get(i);
-            Stream<Journey> stream = calculator.calculateRoute(txn, firstStation, secondStation, journeyRequest);
-            List<Journey> result = stream.collect(Collectors.toList());
+            Set<Journey> result = calculator.calculateRouteAsSet(firstStation, secondStation, journeyRequest);
             assertFalse(result.isEmpty());
         }
     }

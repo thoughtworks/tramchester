@@ -6,6 +6,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.TramStations;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,11 @@ class BusStationsLocationsTest {
     void beforeEachTestRuns() {
         stationLocations = dependencies.get(StationLocations.class);
         nearestStopRangeKM = testConfig.getNearestStopForWalkingRangeKM();
+    }
+
+    @AfterEach
+    void afterEachTestRuns() {
+        dependencies.close();
     }
 
     //

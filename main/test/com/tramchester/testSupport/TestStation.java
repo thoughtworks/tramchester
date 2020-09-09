@@ -43,7 +43,7 @@ public class TestStation extends Station {
         throw new RuntimeException("Use real Station");
     }
 
-    public static Station real(StationRepository repository, HasId<Station> hasId) {
+    public static Station real(StationRepository repository, TestStations hasId) {
         return repository.getStationById(hasId.getId());
     }
 

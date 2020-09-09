@@ -14,7 +14,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.util.Arrays;
 import java.util.List;
 
-public enum TramStations implements HasId<Station> {
+public enum TramStations implements TestStations {
 
     Altrincham("9400ZZMAALT", "Altrincham", "Altrincham", pos(53.38743, -2.34741)),
     Ashton("9400ZZMAAUL", "Ashton-under-Lyne", "Ashton-Under-Lyne", pos(53.49035, -2.09798)),

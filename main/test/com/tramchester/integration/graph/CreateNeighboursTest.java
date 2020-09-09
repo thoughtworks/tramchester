@@ -3,7 +3,6 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
@@ -21,10 +20,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTestConfig;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.BusStations;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Direction;
@@ -36,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CreateNeighboursTest {
 
     private static StationRepository stationRepository;
+    private static RouteCalculatorTestFacade routeCalculator;
 
     static class NeighboursTestConfig extends IntegrationTestConfig {
         public NeighboursTestConfig() {
@@ -81,6 +77,9 @@ class CreateNeighboursTest {
 
         CreateNeighbours createNeighbours = new CreateNeighbours(database, new IncludeAllFilter(), graphQuery, stationRepository, stationLocations, testConfig);
         createNeighbours.buildWithNoCommit(txn);
+
+        routeCalculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class),
+                stationRepository, txn);
     }
 
     @AfterAll
@@ -117,17 +116,14 @@ class CreateNeighboursTest {
     @Test
     void shouldTramNormally() {
 
-        RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
-
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 8, testConfig.getMaxJourneyDuration());
         //request.setDiag(true);
 
         TramStations startStation = TramStations.Bury;
         TramStations end = TramStations.Shudehill;
-        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(routeCalculator, stationRepository, txn, startStation, end, request);
+        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(startStation, end, request);
 
-        Set<Journey> journeys = stream.collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
@@ -139,15 +135,13 @@ class CreateNeighboursTest {
     @Test
     void shouldTramThenWalk() {
 
-        RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 0, testConfig.getMaxJourneyDuration());
         request.setDiag(true);
 
         TramStations startStation = TramStations.Bury;
         BusStations end = BusStations.ShudehillInterchange;
-        Set<Journey> allJourneys = RouteCalculatorTest.calculateRoute(routeCalculator, stationRepository, txn,
-                startStation, end, request).collect(Collectors.toSet());
+        Set<Journey> allJourneys = routeCalculator.calculateRouteAsSet(startStation, end, request);
 
         Set<Journey> maybeTram = allJourneys.stream().filter(journey -> journey.getStages().size()<=2).collect(Collectors.toSet());
         assertFalse(maybeTram.isEmpty());
@@ -160,17 +154,14 @@ class CreateNeighboursTest {
         });
     }
 
-    private void validateDirectWalk(HasId<Station> start, HasId<Station> end) {
+    private void validateDirectWalk(TestStations start, TestStations end) {
 
-        RouteCalculator routeCalculator = dependencies.get(RouteCalculator.class);
         JourneyRequest request =
                 new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
                         false, 0, testConfig.getMaxJourneyDuration());
 
-        Stream<Journey> stream = RouteCalculatorTest.calculateRoute(routeCalculator, stationRepository, txn, start, end, request);
-//        Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, end, request);
+        Set<Journey> journeys =  routeCalculator.calculateRouteAsSet(start, end, request);
 
-        Set<Journey> journeys = stream.collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());

@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public class JourneyRequest {
@@ -15,17 +16,8 @@ public class JourneyRequest {
     private final int maxJourneyDuration;
     private boolean warnIfNoResults;
 
-    @Override
-    public String toString() {
-        return "JourneyRequest{" +
-                "uid=" + uid +
-                ", date=" + date +
-                ", time=" + time +
-                ", arriveBy=" + arriveBy +
-                ", maxChanges=" + maxChanges +
-                ", diagnostics=" + diagnostics +
-                ", maxJourneyDuration=" + maxJourneyDuration +
-                '}';
+    public JourneyRequest(LocalDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration) {
+        this(new TramServiceDate(date), time, arriveBy, maxChanges, maxJourneyDuration);
     }
 
     public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration) {
@@ -38,6 +30,19 @@ public class JourneyRequest {
         
         diagnostics = false;
         warnIfNoResults = true;
+    }
+
+    @Override
+    public String toString() {
+        return "JourneyRequest{" +
+                "uid=" + uid +
+                ", date=" + date +
+                ", time=" + time +
+                ", arriveBy=" + arriveBy +
+                ", maxChanges=" + maxChanges +
+                ", diagnostics=" + diagnostics +
+                ", maxJourneyDuration=" + maxJourneyDuration +
+                '}';
     }
 
     public TramServiceDate getDate() {

@@ -2,7 +2,6 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -11,14 +10,15 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.testSupport.RoutesForTesting;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -27,10 +27,9 @@ class RouteCalculatorSubGraphMonsallTest {
     private static GraphDatabase database;
     private static SubgraphConfig config;
 
-    private RouteCalculator calculator;
+    private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
-    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -51,9 +50,10 @@ class RouteCalculatorSubGraphMonsallTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        calculator = dependencies.get(RouteCalculator.class);
-        stationRepository = dependencies.get(StationRepository.class);
+        StationRepository stationRepository = dependencies.get(StationRepository.class);
         txn = database.beginTx();
+        calculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class), stationRepository, txn);
+
     }
 
     @AfterEach
@@ -98,15 +98,11 @@ class RouteCalculatorSubGraphMonsallTest {
     }
 
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, LocalDate date, int numStages) {
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), time,
+                false, 3, config.getMaxJourneyDuration());
+        Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
 
-
-        Set<Journey> journeys = calculator.calculateRoute(txn, TestStation.real(stationRepository, start),
-                TestStation.real(stationRepository, destination), new JourneyRequest(new TramServiceDate(date), time,
-                false, 3, config.getMaxJourneyDuration())).
-                collect(Collectors.toSet());
-
-        Assertions.assertFalse(
-                journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));
+        Assertions.assertFalse(journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));
         journeys.forEach(journey -> Assertions.assertEquals(numStages, journey.getStages().size()));
     }
 }

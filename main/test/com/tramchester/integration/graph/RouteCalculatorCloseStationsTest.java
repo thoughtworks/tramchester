@@ -13,9 +13,8 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -25,9 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteCalculatorCloseStationsTest {
@@ -37,10 +35,9 @@ class RouteCalculatorCloseStationsTest {
     private static Dependencies dependencies;
     private static GraphDatabase database;
 
-    private RouteCalculator calculator;
+    private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
-    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -58,8 +55,8 @@ class RouteCalculatorCloseStationsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        calculator = dependencies.get(RouteCalculator.class);
-        stationRepository = dependencies.get(StationRepository.class);
+        StationRepository stationRepository = dependencies.get(StationRepository.class);
+        calculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class), stationRepository, txn);
     }
 
     @AfterEach
@@ -69,27 +66,26 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldFindUnaffectedRouteNormally() {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn,
-                Stations.Altrincham, Stations.TraffordBar, TramTime.of(8,0), when, 2, 120 );
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
+                2,120 );
+        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest, 1);
+        assertFalse(result.isEmpty());
     }
     
     @Test
     void shouldFindRouteAroundClosedStation() {
-        RouteCalculatorTest.validateAtLeastNJourney(calculator, stationRepository, 1, txn,
-                Stations.PiccadillyGardens, Stations.Victoria, TramTime.of(8,0), when,
-                2, 120 );
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
+                2,120 );
+        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.PiccadillyGardens, TramStations.Victoria,
+                journeyRequest, 1);
+        assertFalse(result.isEmpty());
     }
 
     @Test
     void shouldNotFindRouteToClosedStation() {
-        Stream<Journey> journeyStream = calculator.calculateRoute(txn,
-                TestStation.real(stationRepository, TramStations.Bury), TestStation.real(stationRepository, TramStations.Shudehill),
-                new JourneyRequest(new TramServiceDate(when), TramTime.of(8,0),
-                false, 1, 120));
-
-        Set<Journey> journeys = journeyStream.limit(1).collect(Collectors.toSet());
-        journeyStream.close();
-
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0),
+                false, 1, 120);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Shudehill, journeyRequest,1);
         assertTrue(journeys.isEmpty());
     }
 
@@ -101,14 +97,14 @@ class RouteCalculatorCloseStationsTest {
         }
 
         private final List<StationClosure> closedStations = Collections.singletonList(
-                new StationClosureForTest(Stations.Shudehill));
+                new StationClosureForTest(TramStations.Shudehill));
     }
 
     private static class StationClosureForTest implements StationClosure {
 
-        private final Station station;
+        private final TramStations station;
 
-        private StationClosureForTest(Station station) {
+        private StationClosureForTest(TramStations station) {
             this.station = station;
         }
 
