@@ -66,7 +66,7 @@ public class DeparturesResource implements APIResource  {
                                          @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
         LatLong latLong = new LatLong(lat,lon);
         List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong,
-                config.getNumOfNearestStops(), config.getNearestStopRangeKM());
+                config.getNumOfNearestStopsToOffer(), config.getNearestStopRangeKM());
 
         TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
 

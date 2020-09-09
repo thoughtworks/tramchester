@@ -8,7 +8,7 @@ import org.opengis.referencing.operation.TransformException;
 
 public class Postcodes {
     public static PostcodeLocation CentralBury = createLocation("BL90AY", 380377, 410652);
-    public static PostcodeLocation NearPiccadilyGardens = createLocation("M11RG", 384415, 398217);
+    public static PostcodeLocation NearPiccadillyGardens = createLocation("M11RG", 384415, 398217);
     public static PostcodeLocation NearShudehill = createLocation("M44AA", 384339, 398749);
 
     @NotNull

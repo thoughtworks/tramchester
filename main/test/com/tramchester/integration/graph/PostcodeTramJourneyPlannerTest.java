@@ -65,7 +65,7 @@ class PostcodeTramJourneyPlannerTest {
         StationRepository stationRepository = dependencies.get(StationRepository.class);
         planner =  new LocationJourneyPlannerTestFacade(dependencies.get(LocationJourneyPlanner.class), stationRepository, txn);
         repository = dependencies.get(PostcodeRepository.class);
-        centralLocation = repository.getPostcode(Postcodes.NearPiccadilyGardens.getId());
+        centralLocation = repository.getPostcode(Postcodes.NearPiccadillyGardens.getId());
     }
 
     @AfterEach

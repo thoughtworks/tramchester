@@ -39,12 +39,12 @@ public class PostcodeDataImporter {
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper,
                                 PostcodeBoundingBoxs postcodeBounds) {
         this.directory = config.getPostcodeDataPath();
+        range = config.getNearestStopForWalkingRangeKM();
         // meters
-        margin = Math.round(config.getNearestStopRangeKM() * 1000D);
+        margin = Math.round(range * 1000D);
         this.config = config;
         this.stationLocations = stationLocations;
         this.unzipper = unzipper;
-        range = config.getNearestStopRangeKM();
         this.postcodeBounds = postcodeBounds;
     }
 

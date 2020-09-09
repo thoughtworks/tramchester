@@ -110,7 +110,8 @@ public class StationLocations implements StationLocationsRepository, Disposable 
             stationList = unsorted.sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
                     limit(maxToFind).
                     map(Map.Entry::getKey).collect(Collectors.toList());
-            logger.debug(format("Found %s stations within %s meters of grid %s", stationList.size(), rangeInMeters, gridPosition));
+            logger.debug(format("Found %s (of %s) stations within %s meters of grid %s",
+                    stationList.size(), maxToFind, rangeInMeters, gridPosition));
         } else {
             stationList = unsorted.limit(maxToFind).map(Map.Entry::getKey).
                     collect(Collectors.toList());
@@ -125,9 +126,9 @@ public class StationLocations implements StationLocationsRepository, Disposable 
         return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
-    public List<Station> getNearestStationsTo(LatLong latLong, int numberOfNearest, double rangeInKM) {
-        List<Station> result = nearestStationsSorted(latLong, numberOfNearest, rangeInKM);
-        logger.info(format("Found %s stations close to %s", result.size(), latLong));
+    public List<Station> getNearestStationsTo(LatLong latLong, int maxNumberToFind, double rangeInKM) {
+        List<Station> result = nearestStationsSorted(latLong, maxNumberToFind, rangeInKM);
+        logger.info(format("Found %s (of max %s) stations close to %s", result.size(), maxNumberToFind, latLong));
         return result;
     }
 

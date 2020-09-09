@@ -98,6 +98,10 @@ public enum TramStations implements HasId<Station> {
         return station.getName();
     }
 
+    public LatLong getLatLong() {
+        return station.getLatLong();
+    }
+
     public static class Pair {
         private final TramStations start;
         private final TramStations dest;

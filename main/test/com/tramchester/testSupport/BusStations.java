@@ -24,7 +24,9 @@ public enum BusStations implements HasId<Station> {
     PiccadilyStationStopA("1800EB01201", "Manchester City Centre", "Manchester City Centre, Piccadilly Station (Stop A)",
             new LatLong(53.47683, -2.23146)),
     PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens", "Piccadilly Gardens, Piccadilly Gardens (Stop H)",
-            new LatLong(53.48063,-2.23825));
+            new LatLong(53.48063,-2.23825)),
+    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens", "Piccadilly Gardens, Piccadilly Gardens (Stop N)",
+            new LatLong(53.48017, -2.23723));
 
     private final TestStation station;
 

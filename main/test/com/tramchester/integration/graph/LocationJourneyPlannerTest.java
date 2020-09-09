@@ -1,6 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.WalkingStage;
@@ -20,10 +21,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -227,8 +225,9 @@ class LocationJourneyPlannerTest {
 //        assertEquals(Stations.Shudehill, stages.get(0).getLastStation());
 //        assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
         int lastStageIndex = stages.size() - 1;
-        assertEquals(Stations.ExchangeSquare, stages.get(lastStageIndex-1).getLastStation());
-        assertEquals(Stations.ExchangeSquare, stages.get(lastStageIndex).getFirstStation());
+        List<IdFor<Station>> nearStationIds = Arrays.asList(TramStations.Shudehill.getId(), TramStations.ExchangeSquare.getId());
+        assertTrue(nearStationIds.contains(stages.get(lastStageIndex-1).getLastStation().getId()));
+        assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
     }
 
     @Disabled("Temporary: trams finish at 2300")

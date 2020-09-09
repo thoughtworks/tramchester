@@ -41,6 +41,21 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
+    public int getNumOfNearestStopsForWalking() {
+        return 50;
+    }
+
+    @Override
+    public Double getNearestStopRangeKM() {
+        return 1.0D;
+    }
+
+    @Override
+    public Double getNearestStopForWalkingRangeKM() {
+        return 0.5D;
+    }
+
+    @Override
     public int getMaxJourneyDuration() {
         return 180;
     }

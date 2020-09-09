@@ -48,8 +48,9 @@ queryInterval: 15
 maxNumberResults: 5
 maxJourneyDuration: 170
 nearestStopRangeKM: 1.6
-numOfNearestStops: 5
-numOfNearestStopsForWalking: 3
+nearestStopForWalkingRangeKM: 1
+numOfNearestStopsToOffer: 5
+numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3

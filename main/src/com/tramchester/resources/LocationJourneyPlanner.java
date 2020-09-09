@@ -138,7 +138,8 @@ public class LocationJourneyPlanner {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, startNode,  endWalk, destinationStations,
                     journeyRequest);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endWalk, destinationStations, journeyRequest);
+            journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endWalk, destinationStations,
+                    journeyRequest);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -198,7 +199,7 @@ public class LocationJourneyPlanner {
 
     private List<StationWalk> getStationWalks(LatLong latLong) {
         int num = config.getNumOfNearestStopsForWalking();
-        double rangeInKM = config.getNearestStopRangeKM();
+        double rangeInKM = config.getNearestStopForWalkingRangeKM();
         List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, num, rangeInKM);
         List<StationWalk> stationWalks = createWalks(latLong, nearbyStations);
         logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));

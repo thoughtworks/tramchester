@@ -96,7 +96,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         logger.info(format("Get stations near to %s,%s", lat, lon));
         LatLong latLong = new LatLong(lat,lon);
 
-        List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong, config.getNumOfNearestStops(),
+        List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong, config.getNumOfNearestStopsToOffer(),
                 config.getNearestStopRangeKM());
 
         List<StationRefDTO> results = toStationRefDTOList(nearestStations);

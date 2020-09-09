@@ -50,8 +50,12 @@ public class AppConfiguration extends TramchesterConfig {
     private Double nearestStopRangeKM;
 
     @NotNull
-    @JsonProperty("numOfNearestStops")
-    private Integer numOfNearestStops;
+    @JsonProperty("nearestStopForWalkingRangeKM")
+    private Double nearestStopForWalkingRangeKM;
+
+    @NotNull
+    @JsonProperty("numOfNearestStopsToOffer")
+    private Integer numOfNearestStopsToOffer;
 
     @NotNull
     @JsonProperty("numOfNearestStopsForWalking")
@@ -212,8 +216,13 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public int getNumOfNearestStops() {
-        return numOfNearestStops;
+    public Double getNearestStopForWalkingRangeKM() {
+        return nearestStopForWalkingRangeKM;
+    }
+
+    @Override
+    public int getNumOfNearestStopsToOffer() {
+        return numOfNearestStopsToOffer;
     }
 
     @Override
@@ -233,7 +242,6 @@ public class AppConfiguration extends TramchesterConfig {
     public String getNeo4jPagecacheMemory() {
         return neo4jPagecacheMemory;
     }
-
 
     @Override
     public String getLiveDataS3Bucket() {

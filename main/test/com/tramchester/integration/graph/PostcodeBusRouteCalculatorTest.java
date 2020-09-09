@@ -69,9 +69,9 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToPicc() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearPiccadilyGardens, createRequest(3));
-        assertFalse(journeys.isEmpty());
-        assertWalkAtStart(journeys);
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearPiccadillyGardens,
+                createRequest(5));
+        assertFalse(journeys.isEmpty(), "no journeys");
     }
 
     @Test
@@ -85,25 +85,33 @@ class PostcodeBusRouteCalculatorTest {
     void shouldWalkFromBusStationToNearbyPostcode() {
         checkNearby(BuryInterchange, Postcodes.CentralBury);
         checkNearby(ShudehillInterchange, Postcodes.NearShudehill);
-        checkNearby(PiccadillyGardensStopH, Postcodes.NearPiccadilyGardens);
     }
 
     @Test
     void shouldWalkFromPostcodeToBusStationNearby() {
         checkNearby(Postcodes.CentralBury, BuryInterchange);
         checkNearby(Postcodes.NearShudehill, ShudehillInterchange);
-        checkNearby(Postcodes.NearPiccadilyGardens, PiccadillyGardensStopH);
+    }
+
+    @Test
+    void shouldWalkFromPiccadillyGardensStopHToNearPiccadilyGardens() {
+        checkNearby(PiccadillyGardensStopN, Postcodes.NearPiccadillyGardens);
+    }
+
+    @Test
+    void shouldWalkFromNearPiccadilyGardensToPiccadillyGardensStopH() {
+        checkNearby(Postcodes.NearPiccadillyGardens, PiccadillyGardensStopN);
     }
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeSouthbound() {
-        Set<Journey> journeys = getJourneys(BuryInterchange, Postcodes.NearShudehill, createRequest(3));
+        Set<Journey> journeys = planner.quickestRouteForLocation(BuryInterchange, Postcodes.NearShudehill, createRequest(3));
         assertFalse(journeys.isEmpty());
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
-        Set<Journey> journeys = getJourneys(Postcodes.CentralBury, ShudehillInterchange, createRequest(5));
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, ShudehillInterchange, createRequest(5));
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
     }
@@ -112,7 +120,7 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToBusStationCentral() {
         JourneyRequest journeyRequest = createRequest(3);
-        Set<Journey> journeys = getJourneys(Postcodes.NearPiccadilyGardens, ShudehillInterchange, journeyRequest);
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, ShudehillInterchange, journeyRequest);
 
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
@@ -120,32 +128,26 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeCentral() {
-        JourneyRequest journeyRequest = createRequest(3);
-        Set<Journey> journeys = getJourneys(ShudehillInterchange, Postcodes.NearPiccadilyGardens, journeyRequest);
+        JourneyRequest journeyRequest = createRequest(2);
+        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.NearPiccadillyGardens, journeyRequest);
 
         assertFalse(journeys.isEmpty());
-        assertBusAtStart(journeys);
     }
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeNorthbound() {
-        Set<Journey> journeys = getJourneys(ShudehillInterchange, Postcodes.CentralBury, createRequest(5));
+        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.CentralBury, createRequest(2));
 
         assertFalse(journeys.isEmpty());
-
-        assertBusAtStart(journeys);
-        journeys.forEach(journey -> {
-            assertEquals(2, journey.getStages().size());
-        });
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusNorthbound() {
-        Set<Journey> journeys = getJourneys(Postcodes.NearShudehill, BuryInterchange, createRequest(5));
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearShudehill, BuryInterchange, createRequest(5));
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
 
-        Set<Journey> fromPicc = getJourneys(Postcodes.NearPiccadilyGardens, BuryInterchange, createRequest(5));
+        Set<Journey> fromPicc = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, BuryInterchange, createRequest(5));
         assertFalse(fromPicc.isEmpty());
         assertWalkAtStart(fromPicc);
     }
@@ -163,24 +165,9 @@ class PostcodeBusRouteCalculatorTest {
         journeys.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
     }
 
-
-    @NotNull
-    private Set<Journey> getJourneys(BusStations start, PostcodeLocation end, JourneyRequest request) {
-        return planner.quickestRouteForLocation(start, end, request);
-//        Stream<Journey> journeyStream = planner.
-//                quickestRouteForLocation(txn, TestStation.real(stationRepository, start), end.getLatLong(), request);
-//        Set<Journey> result = journeyStream.collect(Collectors.toSet());
-//        journeyStream.close();
-//        return result;
-    }
-
-    private Set<Journey> getJourneys(PostcodeLocation start, BusStations end, JourneyRequest request) {
-        return planner.quickestRouteForLocation(start, end, request);
-    }
-
     private void checkNearby(PostcodeLocation start, BusStations end) {
         JourneyRequest request = createRequest(3);
-        Set<Journey> journeys = getJourneys(start, end, request);
+        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
 
@@ -198,7 +185,7 @@ class PostcodeBusRouteCalculatorTest {
 
     private void checkNearby(BusStations start, PostcodeLocation end) {
         JourneyRequest request = createRequest(1);
-        Set<Journey> journeys = getJourneys(start, end, request);
+        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
         Set<Journey> oneStage = journeys.stream().filter(journey->journey.getStages().size()==1).collect(Collectors.toSet());

@@ -27,11 +27,14 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
 
-    // range to scan for nearby stations
+    // range to scan for nearby stations to display
     public abstract Double getNearestStopRangeKM();
 
+    // range to scan for nearby stations when routing walking to/from
+    public abstract Double getNearestStopForWalkingRangeKM();
+
     // limit on number of near stops to display front-end
-    public abstract int getNumOfNearestStops();
+    public abstract int getNumOfNearestStopsToOffer();
 
     // limit on number of near stops to consider when walking to/from a station
     public abstract int getNumOfNearestStopsForWalking();
