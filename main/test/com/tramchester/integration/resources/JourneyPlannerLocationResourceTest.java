@@ -219,7 +219,6 @@ class JourneyPlannerLocationResourceTest {
         });
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindRouteNearEndOfServiceTimes() {
         Station destination = TramStations.of(Deansgate);

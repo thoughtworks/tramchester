@@ -88,7 +88,6 @@ class RouteCalculatorSubGraphTest {
         validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, TramTime.of(19,56), when);
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightDirect() {
         validateAtLeastOneJourney(Cornbrook, TramStations.StPetersSquare, TramTime.of(23,55), when);
@@ -131,7 +130,6 @@ class RouteCalculatorSubGraphTest {
     }
 
     @Test
-    //@Disabled
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(database, 7);
         creator.create(format("%s_trams.dot", "subgraph"), TramStations.of(Cornbrook));

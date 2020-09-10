@@ -129,7 +129,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Assertions.assertTrue(plan.getJourneys().isEmpty());
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
         LocalTime timeForQuery = LocalTime.of(23,11);
@@ -207,31 +206,26 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindRouteVicToShawAndCrompton() {
-        validateAtLeastOneJourney(TramStations.Victoria, TramStations.ShawAndCrompton, when, TramTime.of(23,34));
+        validateAtLeastOneJourney(TramStations.Victoria, TramStations.ShawAndCrompton, when, TramTime.of(23,15));
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindRouteDeansgateToVictoria() {
         validateAtLeastOneJourney(TramStations.Deansgate, TramStations.Victoria, when, TramTime.of(23,41));
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindEndOfDayTwoStageJourney() {
         validateAtLeastOneJourney(TramStations.Altrincham, TramStations.ManAirport, when, TramTime.of(22,56));
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindEndOfDayThreeStageJourney() {
         validateAtLeastOneJourney(TramStations.Altrincham, TramStations.ShawAndCrompton, when, TramTime.of(22,45));
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldOnlyReturnFullJourneysForEndOfDaysJourney() {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(TramStations.Deansgate,

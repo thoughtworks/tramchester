@@ -208,24 +208,21 @@ public class RouteCalculatorTest {
         }
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightWithChange() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,20));
         assertGetAndCheckJourneys(journeyRequest, TramStations.Cornbrook, TramStations.ManAirport);
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightDirect() {
         JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23,55));
         assertGetAndCheckJourneys(journeyRequestA, TramStations.Cornbrook, TramStations.StPetersSquare);
 
-        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(23,51));
+        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(23,25));
         assertGetAndCheckJourneys(journeyRequestB, Altrincham, TramStations.TraffordBar);
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleAfterMidnightDirect() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0));
@@ -417,11 +414,10 @@ public class RouteCalculatorTest {
 
     private List<TramTime> checkRangeOfTimes(TramStations start, TramStations dest) {
 
-        // TODO Lockdown TEMPORARY 23 Changed to 21
         // TODO lockdown services after 6.10
         int minsOffset = 10;
         List<TramTime> missing = new LinkedList<>();
-        int latestHour = 21;
+        int latestHour = 23;
         for (int hour = 6; hour < latestHour; hour++) {
             for (int minutes = minsOffset; minutes < 59; minutes=minutes+ maxChanges) {
                 TramTime time = TramTime.of(hour, minutes);

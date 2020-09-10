@@ -131,7 +131,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         Assertions.assertTrue(results.size()>0);
     }
 
-    //@Disabled
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(database, 3);

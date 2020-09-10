@@ -63,14 +63,15 @@ class TramReachabilityRepositoryTest {
         return new RouteStation(TramStations.of(station), route);
     }
 
-    // TODO Lockdown
     @Test
-    @Disabled("Not during lockdown")
     void shouldRepoIssueAltyToDeangates() {
-        Assertions.assertTrue(reachable(getRouteStation(Altrincham, RoutesForTesting.ALTY_TO_BURY), Deansgate));
         Assertions.assertTrue(reachable(getRouteStation(Altrincham, RoutesForTesting.ALTY_TO_PICC), Deansgate));
-        Assertions.assertTrue(reachable(getRouteStation(StPetersSquare, RoutesForTesting.ALTY_TO_BURY), Deansgate));
         Assertions.assertTrue(reachable(getRouteStation(StPetersSquare, RoutesForTesting.ALTY_TO_PICC), Deansgate));
+
+        // TODO Lockdown
+        // no alty to bury route
+//        Assertions.assertTrue(reachable(getRouteStation(Altrincham, RoutesForTesting.ALTY_TO_BURY), Deansgate));
+//        Assertions.assertTrue(reachable(getRouteStation(StPetersSquare, RoutesForTesting.ALTY_TO_BURY), Deansgate));
     }
 
 

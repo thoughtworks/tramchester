@@ -111,7 +111,6 @@ class RouteCalulatorTestKeyRoutes {
     }
 
     @Test
-    @Disabled
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
         Set<TramStations.Pair> combinations = createJourneyPairs(TramStations.EndOfTheLine, TramStations.EndOfTheLine);
 

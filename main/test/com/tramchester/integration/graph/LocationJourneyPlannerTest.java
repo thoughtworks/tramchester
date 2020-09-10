@@ -227,7 +227,6 @@ class LocationJourneyPlannerTest {
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
     }
 
-    @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindJourneyWithWalkingEndOfDay() {
         Set<Journey> results = getJourneysForWalkThenTram(nearAltrincham, TramStations.Deansgate,
