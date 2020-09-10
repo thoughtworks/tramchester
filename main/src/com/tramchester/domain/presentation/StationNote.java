@@ -12,9 +12,9 @@ public class StationNote extends Note {
         super();
     }
 
-    public StationNote(NoteType noteType, String text, Station location) {
+    public StationNote(NoteType noteType, String text, Station station) {
         super(text, noteType);
-        this.stationRef = new StationRefDTO(location);
+        this.stationRef = new StationRefDTO(station);
     }
 
     @SuppressWarnings("WeakerAccess")

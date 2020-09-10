@@ -7,7 +7,6 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class VehicleStage implements TransportStage<Station, Station> {
     private final Station firstStation;
@@ -20,14 +19,14 @@ public class VehicleStage implements TransportStage<Station, Station> {
     private final Route route;
 
     protected int cost;
-    private Optional<Platform> platform;
+    private Platform platform;
 
     public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
                         TramTime departTime, Station lastStation, int passedStops) {
         this.firstStation = firstStation;
         this.route = route;
         this.mode = mode;
-        this.platform = Optional.empty();
+        this.platform = null;
         this.trip = trip;
         this.departTime = departTime;
         this.lastStation = lastStation;
@@ -74,11 +73,19 @@ public class VehicleStage implements TransportStage<Station, Station> {
     }
 
     public void setPlatform(Platform platform) {
-        this.platform = Optional.of(platform);
+        this.platform = platform;
     }
 
-    public Optional<Platform> getBoardingPlatform() {
+    public Platform getBoardingPlatform() {
+        if (platform==null) {
+            throw new RuntimeException("No platform");
+        }
         return platform;
+    }
+
+    @Override
+    public boolean hasBoardingPlatform() {
+        return true;
     }
 
     public int getCost() {

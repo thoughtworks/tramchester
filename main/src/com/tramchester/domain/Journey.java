@@ -30,10 +30,9 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
     }
 
     @Override
-    public IdSet<Platform>  getCallingPlatformIds() {
-       return stages.stream().map(TransportStage::getBoardingPlatform).
-               filter(Optional::isPresent).
-               map(Optional::get).
+    public IdSet<Platform> getCallingPlatformIds() {
+       return stages.stream().filter(TransportStage::hasBoardingPlatform).
+               map(TransportStage::getBoardingPlatform).
                collect(IdSet.collector());
     }
 

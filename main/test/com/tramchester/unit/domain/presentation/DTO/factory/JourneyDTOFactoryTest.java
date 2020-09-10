@@ -2,7 +2,6 @@ package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;
@@ -14,7 +13,9 @@ import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMockSupport;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,8 +29,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyDTOFactoryTest extends EasyMockSupport {
-    private final Location stationA = Station.forTest("stationA", "area", "nameA", new LatLong(-2, -1), TransportMode.Tram);
-    private final Location stationB = Station.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
+    private final Station stationA = Station.forTest("stationA", "area", "nameA", new LatLong(-2, -1), TransportMode.Tram);
+    private final Station stationB = Station.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
     private JourneyDTOFactory factory;
     private MyLocationFactory myLocationFactory;
 
@@ -44,7 +45,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         myLocationFactory = new MyLocationFactory(new ObjectMapper());
         factory = new JourneyDTOFactory();
-        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", Stations.Bury));
+        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", TramStations.of(TramStations.Bury)));
     }
 
     @Test
@@ -91,18 +92,18 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldHaveRightSummaryAndHeadingFor2Stage() {
 
-        PlatformDTO boardingPlatformA = new PlatformDTO(new Platform(Stations.Altrincham.getId()+"1", Stations.Altrincham.getName()));
-        StageDTO stageA = new StageDTO(new StationRefWithPosition(Stations.Altrincham), new StationRefWithPosition(Stations.Cornbrook),
-                new StationRefWithPosition(Stations.Altrincham),
-                true, boardingPlatformA, TramTime.of(10, 8), TramTime.of(10, 20),
+        PlatformDTO boardingPlatformA = new PlatformDTO(new Platform(TramStations.Altrincham.getId()+"1", TramStations.Altrincham.getName()));
+        StageDTO stageA = new StageDTO(createStationRef(TramStations.Altrincham), createStationRef(TramStations.Cornbrook),
+                createStationRef(TramStations.Altrincham),
+                boardingPlatformA, TramTime.of(10, 8), TramTime.of(10, 20),
                 20-8,
                 "headSign", TransportMode.Tram, 9, "routeName",
                 TravelAction.Board, "routeShortName");
 
-        PlatformDTO boardingPlatformB = new PlatformDTO(new Platform(Stations.Cornbrook.getId()+"1", Stations.Cornbrook.getName()));
-        StageDTO stageB = new StageDTO(new StationRefWithPosition(Stations.Cornbrook), new StationRefWithPosition(Stations.Deansgate),
-                new StationRefWithPosition(Stations.Cornbrook),
-                true, boardingPlatformB, TramTime.of(10, 8), TramTime.of(10, 20),
+        PlatformDTO boardingPlatformB = new PlatformDTO(new Platform(TramStations.Cornbrook.getId()+"1", TramStations.Cornbrook.getName()));
+        StageDTO stageB = new StageDTO(createStationRef(TramStations.Cornbrook), createStationRef(TramStations.Deansgate),
+                createStationRef(TramStations.Cornbrook),
+                boardingPlatformB, TramTime.of(10, 8), TramTime.of(10, 20),
                 20-8,
                 "headSign", TransportMode.Tram, 9, "routeName",
                 TravelAction.Change, "routeShortName");
@@ -115,10 +116,10 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
         assertEquals(2, journeyDTO.getStages().size());
         assertFalse(journeyDTO.getIsDirect());
-        assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(Stations.Deansgate.forDTO(), journeyDTO.getEnd().getId());
+        assertEquals(TramStations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(TramStations.Deansgate.forDTO(), journeyDTO.getEnd().getId());
         assertEquals(1, journeyDTO.getChangeStations().size());
-        assertEquals(Stations.Cornbrook.forDTO(), journeyDTO.getChangeStations().get(0).getId());
+        assertEquals(TramStations.Cornbrook.forDTO(), journeyDTO.getChangeStations().get(0).getId());
 
         IdSet<Platform> callingPlatformIds = journeyDTO.getCallingPlatformIds();
         assertEquals(2, callingPlatformIds.size());
@@ -130,9 +131,9 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldHaveRightSummaryAndHeadingFor3Stage() {
         List<StageDTO> stages = new LinkedList<>();
-        stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook, 9));
-        stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
-        stages.add(createStage(Stations.Deansgate, TravelAction.Change, Stations.Bury, 1));
+        stages.add(createStage(TramStations.Altrincham, TravelAction.Board, TramStations.Cornbrook, 9));
+        stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, TramStations.Deansgate, 1));
+        stages.add(createStage(TramStations.Deansgate, TravelAction.Change, TramStations.Bury, 1));
 
 
         replayAll();
@@ -140,61 +141,22 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertFalse(journeyDTO.getIsDirect());
-        assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(Stations.Bury.forDTO(), journeyDTO.getEnd().getId());
+        assertEquals(TramStations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(TramStations.Bury.forDTO(), journeyDTO.getEnd().getId());
 
         List<String> changes = journeyDTO.getChangeStations().stream().
                 map(StationRefDTO::getName).collect(Collectors.toList());
-        assertEquals(Arrays.asList(Stations.Cornbrook.getName(), Stations.Deansgate.getName()), changes);
+        assertEquals(Arrays.asList(TramStations.Cornbrook.getName(), TramStations.Deansgate.getName()), changes);
     }
-
-//    @Test
-//    void shouldCreateJourneyDTOWithDueTram() {
-//        LocalDateTime when = LocalDateTime.of(2017,11,30,18,41);
-//
-//        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 5);
-//
-//        replayAll();
-//        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
-//        verifyAll();
-//
-//        assertEquals("Double tram Due at 18:46", journeyDTO.getDueTram());
-//    }
-//
-//    @Test
-//    void shouldCreateJourneyDTOWithDueTramTimeOutOfRange() {
-//
-//        LocalDateTime dateTime = LocalDateTime.of(2017,11,30,18,41);
-//        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, dateTime, 22);
-//
-//        replayAll();
-//        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
-//        verifyAll();
-//
-//        Assertions.assertNull(journeyDTO.getDueTram());
-//    }
-//
-//    @Test
-//    void shouldCreateJourneyDTOWithLaterDueTramMatching() {
-//        LocalDateTime when = LocalDateTime.of(2017,11,30, 18,41);
-//        StageDTO stageDTO = createStageDTOWithDueTram(Stations.Cornbrook, when, 7);
-//
-//        replayAll();
-//        JourneyDTO journeyDTO = factory.build(Collections.singletonList(stageDTO), queryTime, notes);
-//        verifyAll();
-//
-//        // select due tram that is closer to stage departure when more than one available
-//        assertEquals("Double tram Due at 18:48", journeyDTO.getDueTram());
-//    }
 
     @Test
     void shouldHaveCorrectSummaryAndHeadingForWalkAndTram() {
         List<StageDTO> stages = new LinkedList<>();
-        Location start = myLocationFactory.create(new LatLong(-2,1));
-        Location destination = Stations.Cornbrook;
+        MyLocation start = myLocationFactory.create(new LatLong(-2,1));
+        TramStations destination = TramStations.Cornbrook;
 
         stages.add(createWalkingStage(start, destination, TramTime.of(8,13), TramTime.of(8,16)));
-        stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Deansgate, 1));
+        stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, TramStations.Deansgate, 1));
 
         replayAll();
         JourneyDTO journey = factory.build(stages, queryTime, notes, path);
@@ -213,14 +175,14 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path);
         verifyAll();
 
-        assertEquals(Stations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(Stations.ExchangeSquare.forDTO(), journeyDTO.getEnd().getId());
+        assertEquals(TramStations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(TramStations.ExchangeSquare.forDTO(), journeyDTO.getEnd().getId());
     }
 
     @Test
     void shouldHaveRightSummaryAndHeadingFor4Stage() {
         List<StageDTO> stages = createThreeStages();
-        stages.add(createStage(Stations.ExchangeSquare, TravelAction.Change, Stations.Rochdale, 24));
+        stages.add(createStage(TramStations.ExchangeSquare, TravelAction.Change, TramStations.Rochdale, 24));
 
         replayAll();
         JourneyDTO journey = factory.build(stages, queryTime, notes, path);
@@ -235,7 +197,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     void shouldHaveCorrectSummaryAndHeadingForSingleWalkingStage() {
         List<StageDTO> stages = new LinkedList<>();
         MyLocation myLocation = myLocationFactory.create(new LatLong(-1, 2));
-        stages.add(createWalkingStage(myLocation, Stations.Victoria, TramTime.of(8,13), TramTime.of(8,16)));
+        stages.add(createWalkingStage(myLocation, TramStations.Victoria, TramTime.of(8,13), TramTime.of(8,16)));
 
         replayAll();
         JourneyDTO journey = factory.build(stages, queryTime, notes, path);
@@ -247,9 +209,9 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldHaveCorrectSummaryAndHeadingForTramStagesConnectedByWalk() {
         List<StageDTO> stages = new LinkedList<>();
-        stages.add(createStage(Stations.ManAirport, TravelAction.Board, Stations.Deansgate, 13));
-        stages.add(createWalkingStage(Stations.Deansgate, Stations.MarketStreet, TramTime.of(8,13), TramTime.of(8,16)));
-        stages.add(createStage(Stations.MarketStreet, TravelAction.Change, Stations.Bury, 16));
+        stages.add(createStage(TramStations.ManAirport, TravelAction.Board, TramStations.Deansgate, 13));
+        stages.add(createConnectingStage(TramStations.Deansgate, TramStations.MarketStreet, TramTime.of(8,13), TramTime.of(8,16)));
+        stages.add(createStage(TramStations.MarketStreet, TravelAction.Change, TramStations.Bury, 16));
 
         replayAll();
         JourneyDTO journey = factory.build(stages, queryTime, notes, path);
@@ -264,7 +226,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     void reproduceIssueWithJourneyWithJustWalking() {
         List<StageDTO> stages = new LinkedList<>();
         MyLocation start = myLocationFactory.create(new LatLong(1, 2));
-        stages.add(createWalkingStage(start, Stations.Altrincham, TramTime.of(8,0), TramTime.of(8,10)));
+        stages.add(createWalkingStage(start, TramStations.Altrincham, TramTime.of(8,0), TramTime.of(8,10)));
 
         replayAll();
         JourneyDTO journey = factory.build(stages, queryTime, notes, path);
@@ -277,56 +239,50 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
     private List<StageDTO> createThreeStages() {
         List<StageDTO> stages = new LinkedList<>();
-        stages.add(createStage(Stations.Altrincham, TravelAction.Board, Stations.Cornbrook, 7));
-        stages.add(createStage(Stations.Cornbrook, TravelAction.Change, Stations.Victoria, 3));
-        stages.add(createStage(Stations.Victoria, TravelAction.Change, Stations.ExchangeSquare, 13));
+        stages.add(createStage(TramStations.Altrincham, TravelAction.Board, TramStations.Cornbrook, 7));
+        stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, TramStations.Victoria, 3));
+        stages.add(createStage(TramStations.Victoria, TravelAction.Change, TramStations.ExchangeSquare, 13));
         return stages;
     }
 
-    private StageDTO createStage(Location firstStation, TravelAction travelAction, Location lastStation, int passedStops) {
-        return new StageDTO(new StationRefWithPosition(firstStation), new StationRefWithPosition(lastStation), new StationRefWithPosition(firstStation),
-                false, null, TramTime.of(10, 8), TramTime.of(10, 20), 20-8,
+    private StageDTO createStage(TramStations firstStation, TravelAction travelAction, TramStations lastStation, int passedStops) {
+        return new StageDTO(createStationRef(firstStation), createStationRef(lastStation), createStationRef(firstStation),
+                TramTime.of(10, 8), TramTime.of(10, 20), 20-8,
                 "headSign", TransportMode.Tram,
                 passedStops, "routeName", travelAction, "routeShortName");
     }
 
+    private StationRefWithPosition createStationRef(TramStations station) {
+        return new StationRefWithPosition(TramStations.of(station));
+    }
+
     private StageDTO createStage(TramTime departs, TramTime arrivesEnd, int passedStops) {
         return new StageDTO(new StationRefWithPosition(stationA), new StationRefWithPosition(stationB), new StationRefWithPosition(stationA),
-                false, null, departs, arrivesEnd, 42,
+                departs, arrivesEnd, 42,
                 "headSign", TransportMode.Tram,
                 passedStops, "routeName", TravelAction.Board, "routeShortName");
 
     }
 
-    private StageDTO createWalkingStage(Location start, Location destination, TramTime departs, TramTime arrivesEnd) {
+    private StageDTO createConnectingStage(TramStations start, TramStations destination, TramTime departs, TramTime arrivesEnd) {
 
-        return new StageDTO(new StationRefWithPosition(start), new StationRefWithPosition(destination), new StationRefWithPosition(stationA),
-                false, null, departs, arrivesEnd, 9,
+        return new StageDTO(createStationRef(start), createStationRef(destination), new StationRefWithPosition(stationA),
+                departs, arrivesEnd, 9,
                 "walking", TransportMode.Walk,
                 0, "walking", TravelAction.Board, "routeShortName");
     }
 
-//    private StageDTO createStageDTO(Station station, LocalDateTime whenTime, int wait) {
-//        StationDepartureInfo departureInfo = new StationDepartureInfo("displayId", "lineName",
-//                StationDepartureInfo.Direction.Incoming, "platform", station, "message", whenTime);
-//
-//        LocalTime when = whenTime.toLocalTime();
-//
-//        departureInfo.addDueTram(new DueTram(Stations.Deansgate, "Due", 10, "Single", when));
-//        departureInfo.addDueTram(new DueTram(station, "Departed", 0, "Single",when));
-//        departureInfo.addDueTram(new DueTram(station, "Due", wait, "Double",when));
-//        departureInfo.addDueTram(new DueTram(station, "Due", wait+2, "Double",when));
-//
-//        PlatformDTO platform = new PlatformDTO(new Platform("platformId", "platformName"));
-////        platform.setDepartureInfo(new StationDepartureInfoDTO(departureInfo));
-//
-//        int durationOfStage = 15;
-//        return new StageDTO(new LocationDTO(stationA),
-//                new LocationDTO(stationB), new LocationDTO(stationB),
-//                true, platform, TramTime.of(when.plusMinutes(1)),
-//                TramTime.of(when.plusMinutes(durationOfStage)),
-//                durationOfStage,
-//                station.getName(), TransportMode.Tram,
-//                "displayClass", 23,"routeName", TravelAction.Board, "routeShortName");
-//    }
+    private StageDTO createWalkingStage(MyLocation start, TramStations destination, TramTime departs, TramTime arrivesEnd) {
+
+        return new StageDTO(new StationRefWithPosition(start), createStationRef(destination), new StationRefWithPosition(stationA),
+                departs, arrivesEnd, 9,
+                "walking", TransportMode.Walk,
+                0, "walking", TravelAction.Board, "routeShortName");
+    }
+
+    @NotNull
+    private StationRefWithPosition createStationRef(Station station) {
+        return new StationRefWithPosition(station);
+    }
+
 }

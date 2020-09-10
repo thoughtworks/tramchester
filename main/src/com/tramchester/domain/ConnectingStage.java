@@ -66,8 +66,13 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     }
 
     @Override
-    public Optional<Platform> getBoardingPlatform() {
-        return Optional.empty();
+    public Platform getBoardingPlatform() {
+        throw new RuntimeException("No platform");
+    }
+
+    @Override
+    public boolean hasBoardingPlatform() {
+        return false;
     }
 
     @Override

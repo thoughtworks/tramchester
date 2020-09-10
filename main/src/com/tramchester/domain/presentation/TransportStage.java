@@ -20,7 +20,9 @@ public interface TransportStage<FROM extends Location<?>, DEST extends Location<
 
     int getDuration();
 
-    Optional<Platform> getBoardingPlatform();
+    Platform getBoardingPlatform();
+
+    boolean hasBoardingPlatform();
 
     TransportMode getMode();
     int getPassedStops();

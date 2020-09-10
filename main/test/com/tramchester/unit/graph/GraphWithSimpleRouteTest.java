@@ -148,7 +148,7 @@ class GraphWithSimpleRouteTest {
     }
 
     private void checkForPlatforms(Set<Journey> journeys) {
-        journeys.forEach(journey -> journey.getStages().forEach(stage -> Assertions.assertTrue(stage.getBoardingPlatform().isPresent())));
+        journeys.forEach(journey -> journey.getStages().forEach(stage -> Assertions.assertTrue(stage.hasBoardingPlatform())));
     }
 
     @Test
@@ -229,7 +229,7 @@ class GraphWithSimpleRouteTest {
         Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
         Assertions.assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
         Assertions.assertEquals(passedStops,  vehicleStage.getPassedStops());
-        Assertions.assertTrue(vehicleStage.getBoardingPlatform().isPresent());
+        Assertions.assertTrue(vehicleStage.hasBoardingPlatform());
 
         TramTime departTime = vehicleStage.getFirstDepartureTime();
         Assertions.assertTrue(departTime.isAfter(queryTime));

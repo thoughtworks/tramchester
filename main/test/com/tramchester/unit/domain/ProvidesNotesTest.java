@@ -120,7 +120,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate serviceDate = new TramServiceDate(date);
 
         StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "<no message>");
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), serviceDate, queryTime)).
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
                 andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -144,7 +144,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
         StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "a message");
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), serviceDate, queryTime)).
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
                 andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -172,7 +172,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "a message");
 
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), queryDate, queryTime))
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), queryDate, queryTime))
                 .andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -208,10 +208,10 @@ class ProvidesNotesTest extends EasyMockSupport {
         StationDepartureInfo infoC = createDepartureInfo(lastUpdate, TramStations.of(Cornbrook), "Some long message");
         StationDepartureInfo infoE = createDepartureInfo(lastUpdate, TramStations.of(MediaCityUK), "Some long message");
 
-        EasyMock.expect(liveDataRepository.departuresFor(stageE.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoE));
-        EasyMock.expect(liveDataRepository.departuresFor(stageB.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoB));
-        EasyMock.expect(liveDataRepository.departuresFor(stageC.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoC));
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoA));
+        EasyMock.expect(liveDataRepository.departuresFor(stageE.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoE));
+        EasyMock.expect(liveDataRepository.departuresFor(stageB.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoB));
+        EasyMock.expect(liveDataRepository.departuresFor(stageC.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoC));
+        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoA));
 
         List<TransportStage<?,?>> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 

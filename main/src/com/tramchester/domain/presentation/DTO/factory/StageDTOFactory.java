@@ -14,15 +14,31 @@ public class StageDTOFactory {
 
     public StageDTO build(TransportStage<?,?> source, TravelAction travelAction) {
 
-        return new StageDTO(new StationRefWithPosition(source.getFirstStation()),
-                new StationRefWithPosition(source.getLastStation()),
-                new StationRefWithPosition(source.getActionStation()),
-                source.getBoardingPlatform().isPresent(),
-                source.getBoardingPlatform().map(PlatformDTO::new).orElse(null),
-                source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
-                source.getDuration(), source.getHeadSign(),
-                source.getMode(),
-                source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
+        StationRefWithPosition firstStation = new StationRefWithPosition(source.getFirstStation());
+        StationRefWithPosition lastStation = new StationRefWithPosition(source.getLastStation());
+        StationRefWithPosition actionStation = new StationRefWithPosition(source.getActionStation());
+
+        if (source.hasBoardingPlatform()) {
+            PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());
+            return new StageDTO(firstStation,
+                    lastStation,
+                    actionStation,
+                    boardingPlatform,
+                    source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
+                    source.getDuration(), source.getHeadSign(),
+                    source.getMode(),
+                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
+        } else {
+            return new StageDTO(firstStation,
+                    lastStation,
+                    actionStation,
+                    source.getFirstDepartureTime(), source.getExpectedArrivalTime(),
+                    source.getDuration(), source.getHeadSign(),
+                    source.getMode(),
+                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
+
+        }
+
     }
 
 }

@@ -63,8 +63,13 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     }
 
     @Override
-    public Optional<Platform> getBoardingPlatform() {
-        return Optional.empty();
+    public Platform getBoardingPlatform() {
+        throw new RuntimeException("No platform");
+    }
+
+    @Override
+    public boolean hasBoardingPlatform() {
+        return false;
     }
 
     @Override

@@ -7,12 +7,11 @@ public class StationRefWithPosition extends StationRefDTO {
 
     private LatLong latLong;
 
-    public StationRefWithPosition(Location location) {
+    public StationRefWithPosition(Location<?> location) {
         super(location);
         this.latLong = location.getLatLong();
     }
 
-    @SuppressWarnings("unused")
     public StationRefWithPosition() {
         // deserialisation
     }

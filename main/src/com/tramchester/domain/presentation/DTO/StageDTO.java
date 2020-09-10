@@ -30,21 +30,41 @@ public class StageDTO {
     private String routeName;
     private String routeShortName;
 
-    public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation, boolean hasPlatform,
+    public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
+                    TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
+                    String headSign, TransportMode mode, int passedStops,
+                    String routeName, TravelAction action, String routeShortName) {
+        this.firstStation = firstStation;
+        this.lastStation = lastStation;
+        this.actionStation = actionStation;
+        this.hasPlatform = false;
+        this.platform = null;
+        this.firstDepartureTime = firstDepartureTime;
+        this.expectedArrivalTime = expectedArrivalTime;
+        this.duration = duration;
+        this.headSign = headSign;
+        this.mode = mode;
+        this.passedStops = passedStops;
+        this.routeName = routeName;
+        this.action = action.toString();
+        this.routeShortName = routeShortName;
+    }
+
+
+    public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
                     PlatformDTO boardingPlatform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
                     String routeName, TravelAction action, String routeShortName) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
-        this.hasPlatform = hasPlatform;
+        this.hasPlatform = true;
         this.platform = boardingPlatform;
         this.firstDepartureTime = firstDepartureTime;
         this.expectedArrivalTime = expectedArrivalTime;
         this.duration = duration;
         this.headSign = headSign;
         this.mode = mode;
-//        this.displayClass = displayClass;
         this.passedStops = passedStops;
         this.routeName = routeName;
         this.action = action.toString();

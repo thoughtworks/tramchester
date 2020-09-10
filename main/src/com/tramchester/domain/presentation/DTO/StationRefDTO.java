@@ -9,14 +9,13 @@ public class StationRefDTO {
     private String area;
     private TransportMode transportMode;
 
-    public StationRefDTO(Location location) {
+    public StationRefDTO(Location<?> location) {
         this.id = location.forDTO();
         this.name = location.getName();
         this.transportMode = location.getTransportMode();
         this.area = location.getArea();
     }
 
-    @SuppressWarnings("unused")
     public StationRefDTO() {
         // deserialization
     }
