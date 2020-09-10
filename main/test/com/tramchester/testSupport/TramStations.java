@@ -102,6 +102,10 @@ public enum TramStations implements TestStations {
         return station.getLatLong();
     }
 
+    public String forDTO() {
+        return station.forDTO();
+    }
+
     public static class Pair {
         private final TramStations start;
         private final TramStations dest;

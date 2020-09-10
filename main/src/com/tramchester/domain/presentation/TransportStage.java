@@ -12,7 +12,7 @@ public interface TransportStage {
     String getRouteName();
     String getRouteShortName();
 
-    Location<Station> getActionStation(); // place where action happens, i.e. Board At X or Walk To X
+    Location<?> getActionStation(); // place where action happens, i.e. Board At X or Walk To X
     Location<Station> getLastStation();
     Location<Station> getFirstStation();
 

@@ -121,8 +121,8 @@ public class MapPathToStages {
     private TransportStage directWalk(Relationship relationship, TramTime timeWalkStarted) {
         if (relationship.isType(WALKS_TO)) {
             WalkStarted walkStarted = walkStarted(relationship);
-            return new WalkingStage(walkStarted.start, walkStarted.destination,
-                    walkStarted.cost, timeWalkStarted, false);
+            return new WalkingToStationStage(walkStarted.start, walkStarted.destination,
+                    walkStarted.cost, timeWalkStarted);
         } else if (relationship.isType(WALKS_FROM)) {
             return createWalkFrom(relationship, timeWalkStarted);
         }
@@ -164,7 +164,7 @@ public class MapPathToStages {
         LatLong latLong = GraphProps.getLatLong(endNode);
         MyLocation walkEnd = myLocationFactory.create(latLong);
 
-        return new WalkingStage(start, walkEnd, cost, walkStartTime, true);
+        return new WalkingFromStationStage(start, walkEnd, cost, walkStartTime);
     }
 
     private TransportStage createWalkFromNeighbour(Relationship relationship, TramTime walkStartTime) {
@@ -272,8 +272,8 @@ public class MapPathToStages {
             if (timeWalkStarted.isBefore(queryTime)) {
                 logger.error("Computed walk start ahead of query time");
             }
-            WalkingStage walkingStage = new WalkingStage(walkStarted.start, walkStarted.destination,
-                    walkStarted.cost, timeWalkStarted, false);
+            WalkingStage walkingStage = new WalkingToStationStage(walkStarted.start, walkStarted.destination,
+                    walkStarted.cost, timeWalkStarted);
             walkStarted = null;
             return Optional.of(walkingStage);
         }

@@ -113,11 +113,11 @@ class BusRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            List<Location<Station>> seen = new ArrayList<>();
+            List<String> seenId = new ArrayList<>();
             journey.getStages().forEach(stage -> {
-                Location<Station> actionStation = stage.getActionStation();
-                assertFalse(seen.contains(actionStation), "Already seen " + actionStation + " for " + journey.toString());
-                seen.add(actionStation);
+                String actionStation = stage.getActionStation().forDTO();
+                assertFalse(seenId.contains(actionStation), "Already seen " + actionStation + " for " + journey.toString());
+                seenId.add(actionStation);
             });
         });
 

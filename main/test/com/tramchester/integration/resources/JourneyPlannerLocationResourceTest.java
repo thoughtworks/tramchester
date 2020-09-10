@@ -3,7 +3,6 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.IdFor;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -13,8 +12,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -30,6 +29,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TramStations.Deansgate;
+import static com.tramchester.testSupport.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -47,13 +48,13 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldFindStationsNearPiccGardensToExchangeSquare() {
-        validateJourneyFromLocation(TestEnv.nearPiccGardens, Stations.ExchangeSquare.getId(), LocalTime.of(9,0),
+        validateJourneyFromLocation(TestEnv.nearPiccGardens, TramStations.ExchangeSquare.getId(), LocalTime.of(9,0),
                 false);
     }
 
     @Test
     void planRouteAllowingForWalkingTime() {
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Stations.Deansgate.getId(),
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Deansgate.getId(),
                 LocalTime.of(19,1), false);
         assertTrue(journeys.size()>0);
 
@@ -87,7 +88,7 @@ class JourneyPlannerLocationResourceTest {
     void reproCacheStalenessIssueWithNearAltyToDeansgate() {
         for (int i = 0; i <1000; i++) {
             LocalTime localTime = LocalTime.of(10, 15);
-            Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Stations.Deansgate.getId(),
+            Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Deansgate.getId(),
                     localTime, false);
             assertTrue(journeys.size()>0);
 
@@ -105,7 +106,7 @@ class JourneyPlannerLocationResourceTest {
     @Test
     void planRouteAllowingForWalkingTimeArriveBy() {
         LocalTime queryTime = LocalTime.of(20, 9);
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Stations.Deansgate.getId(), queryTime, true);
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Deansgate.getId(), queryTime, true);
         assertTrue(journeys.size()>0);
 
         journeys.forEach(journeyDTO -> {
@@ -119,7 +120,7 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldPlanRouteEndingInAWalk() {
-        Set<JourneyDTO> journeys = validateJourneyToLocation(Stations.Deansgate.getId(), TestEnv.nearAltrincham,
+        Set<JourneyDTO> journeys = validateJourneyToLocation(Deansgate.getId(), TestEnv.nearAltrincham,
                 LocalTime.of(20,9), false);
 
         journeys.forEach(journeyDTO -> {
@@ -127,7 +128,7 @@ class JourneyPlannerLocationResourceTest {
             assertEquals(2, stages.size());
             StageDTO walkingStage = stages.get(1);
 
-            assertEquals(Stations.NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
+            assertEquals(NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
             assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
             assertEquals(14, walkingStage.getDuration());
         });
@@ -136,7 +137,7 @@ class JourneyPlannerLocationResourceTest {
     @Test
     void shouldPlanRouteEndingInAWalkArriveBy() {
         LocalTime queryTime = LocalTime.of(19, 9);
-        Set<JourneyDTO> results = validateJourneyToLocation(Stations.Deansgate.getId(), TestEnv.nearAltrincham,
+        Set<JourneyDTO> results = validateJourneyToLocation(Deansgate.getId(), TestEnv.nearAltrincham,
                 queryTime, true);
 
         List<JourneyDTO> journeys = results.stream().filter(journeyDTO -> journeyDTO.getStages().size() == 2).collect(Collectors.toList());
@@ -147,14 +148,14 @@ class JourneyPlannerLocationResourceTest {
         StageDTO walkingStage = stages.get(1);
         assertTrue(firstJourney.getFirstDepartureTime().isBefore(TramTime.of(queryTime)));
 
-        assertEquals(Stations.NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
+        assertEquals(NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
         assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
         assertEquals(14, walkingStage.getDuration());
     }
 
     @Test
     void shouldGiveWalkingRouteFromMyLocationToNearbyStop() {
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Stations.Altrincham.getId(),
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, TramStations.Altrincham.getId(),
                 LocalTime.of(22, 9), false);
         assertTrue(journeys.size()>0);
         JourneyDTO first = getEarliestArrivingJourney(journeys);
@@ -167,7 +168,7 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldGiveWalkingRouteFromStationToMyLocation() {
-        Set<JourneyDTO> journeys = validateJourneyToLocation(Stations.Altrincham.getId(), TestEnv.nearAltrincham,
+        Set<JourneyDTO> journeys = validateJourneyToLocation(TramStations.Altrincham.getId(), TestEnv.nearAltrincham,
                 LocalTime.of(22, 9), false);
         assertTrue(journeys.size()>0);
         JourneyDTO first = getEarliestArrivingJourney(journeys);
@@ -180,7 +181,7 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnly() {
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearPiccGardens, Stations.PiccadillyGardens.getId(),
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearPiccGardens, TramStations.PiccadillyGardens.getId(),
                 LocalTime.of(9,0), false);
         checkAltyToPiccGardens(journeys);
     }
@@ -188,7 +189,7 @@ class JourneyPlannerLocationResourceTest {
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnlyArriveBy() {
         LocalTime queryTime = LocalTime.of(9, 0);
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearPiccGardens, Stations.PiccadillyGardens.getId(),
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearPiccGardens, TramStations.PiccadillyGardens.getId(),
                 queryTime, true);
         journeys.forEach(journeyDTO -> assertTrue(journeyDTO.getFirstDepartureTime().isBefore(TramTime.of(queryTime))));
     }
@@ -199,7 +200,7 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(TramTime.of(9,0), first.getFirstDepartureTime(), journeys.toString());
         assertEquals(TramTime.of(9,3), first.getExpectedArrivalTime(), journeys.toString());
-        assertEquals(Stations.PiccadillyGardens.forDTO(), first.getEnd().getId());
+        assertEquals(TramStations.PiccadillyGardens.forDTO(), first.getEnd().getId());
 
         assertEquals(1, stages.size());
         StageDTO stage = stages.get(0);
@@ -209,11 +210,11 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void reproduceIssueNearAltyToAshton()  {
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Stations.Ashton.getId(),
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, TramStations.Ashton.getId(),
                 LocalTime.of(19,47), false);
 
         journeys.forEach(journey -> {
-            assertEquals(Stations.Ashton.forDTO(), journey.getEnd().getId());
+            assertEquals(TramStations.Ashton.forDTO(), journey.getEnd().getId());
             assertEquals(3, journey.getStages().size());
         });
     }
@@ -221,11 +222,11 @@ class JourneyPlannerLocationResourceTest {
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindRouteNearEndOfServiceTimes() {
-        Station destination = Stations.Deansgate;
+        Station destination = TramStations.of(Deansgate);
 
         LocalTime queryTime = LocalTime.of(23,0);
         int walkingTime = 13;
-        JourneyPlanRepresentation directFromStationNoWalking = getPlanFor(Stations.NavigationRoad, destination,
+        JourneyPlanRepresentation directFromStationNoWalking = getPlanFor(TramStations.of(NavigationRoad), destination,
                 queryTime.plusMinutes(walkingTime));
         assertTrue(directFromStationNoWalking.getJourneys().size()>0);
         // now check walking

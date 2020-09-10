@@ -4,6 +4,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
@@ -29,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.tramchester.testSupport.BusStations.AltrinchamInterchange;
-import static com.tramchester.testSupport.TramStations.Altrincham;
+import static com.tramchester.testSupport.TramStations.*;
 import static com.tramchester.testSupport.TransportDataForTestFactory.TestTransportData.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -44,6 +45,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     private StageDTOFactory stageFactory;
     private ProvidesNotes providesNotes;
     private List<Note> notes;
+    private MyLocation nearPiccGardensLocation;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -58,11 +60,12 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         stageFactory = createMock(StageDTOFactory.class);
         providesNotes = createMock(ProvidesNotes.class);
 
-        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", Stations.StPetersSquare));
+        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", of(StPetersSquare)));
 
         mapper = new TramJourneyToDTOMapper(journeyFactory, stageFactory, providesNotes);
         stages = new LinkedList<>();
         tramServiceDate = new TramServiceDate(when);
+        nearPiccGardensLocation = new MyLocation("Manchester", TestEnv.nearPiccGardens);
     }
 
     private Route createRoute(String name) {
@@ -73,18 +76,17 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapWalkingStageJourneyFromMyLocation() {
         TramTime pm10 = TramTime.of(22,0);
 
-        boolean towardsMyLocation = false;
-        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, towardsMyLocation);
+        WalkingToStationStage walkingStage = new WalkingToStationStage(nearPiccGardensLocation, of(MarketStreet), 10, pm10);
         stages.add(walkingStage);
 
         StageDTO stageDTOA = new StageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo)).andReturn(stageDTOA);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(Stations.Deansgate));
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Deansgate)));
         EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes, refWithPositions)).andReturn(journeyDTO);
 
-        Journey journey = new Journey(stages, pm10, Collections.singletonList(Stations.Deansgate));
+        Journey journey = new Journey(stages, pm10, Collections.singletonList(of(Deansgate)));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -98,18 +100,17 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapWalkingStageJourneyToMyLocation() {
         TramTime pm10 = TramTime.of(22,0);
 
-        boolean towardsMyLocation = true;
-        WalkingStage walkingStage = new WalkingStage(Stations.Deansgate, Stations.MarketStreet, 10, pm10, towardsMyLocation);
+        WalkingFromStationStage walkingStage = new WalkingFromStationStage(of(Deansgate), nearPiccGardensLocation, 10, pm10);
         stages.add(walkingStage);
 
         StageDTO stageDTOA = new StageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom)).andReturn(stageDTOA);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(Stations.Deansgate));
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Deansgate)));
         EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes, refWithPositions)).andReturn(journeyDTO);
 
-        Journey journey = new Journey(stages, pm10, Collections.singletonList(Stations.Deansgate));
+        Journey journey = new Journey(stages, pm10, Collections.singletonList(of(Deansgate)));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -139,11 +140,11 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change)).andReturn(stageDTOB);
 
         JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(Stations.Altrincham));
+        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Altrincham)));
 
         EasyMock.expect(journeyFactory.build(dtoStages,time, notes, refWithPositions)).andReturn(journeyDTO);
 
-        Journey journey = new Journey(stages, time, Collections.singletonList(Stations.Altrincham));
+        Journey journey = new Journey(stages, time, Collections.singletonList(of(Altrincham)));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -156,14 +157,14 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
-        Location<Station> begin = Stations.Altrincham;
-        Location<Station> middleA = Stations.Deansgate;
-        Location<Station> middleB = Stations.MarketStreet;
-        Location<Station> end = Stations.Bury;
+        Location<Station> begin = of(Altrincham);
+        MyLocation middleA = nearPiccGardensLocation;
+        Station middleB = of(MarketStreet);
+        Location<Station> end = of(Bury);
 
         VehicleStage rawStageA = getRawVehicleStage(begin, middleA, createRoute("route text"), am10, 42, 8);
         int walkCost = 10;
-        WalkingStage walkingStage = new WalkingStage(middleA, middleB, walkCost, am10, false);
+        WalkingToStationStage walkingStage = new WalkingToStationStage(middleA, middleB, walkCost, am10);
         VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42, 9);
 
         stages.add(rawStageA);
@@ -199,9 +200,9 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMap2StageJoruneyWithChange() {
         TramTime startTime = TramTime.of(22,50);
-        Location start = transportData.getFirst();
-        Location middle = transportData.getSecond();
-        Location finish = transportData.getInterchange();
+        Location<?> start = transportData.getFirst();
+        Location<?> middle = transportData.getSecond();
+        Location<?> finish = transportData.getInterchange();
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
                 18, 8);
@@ -233,7 +234,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journeyDTO, result);
     }
 
-    private VehicleStage getRawVehicleStage(Location start, Location finish, Route route, TramTime startTime,
+    private VehicleStage getRawVehicleStage(Location<?> start, Location<?> finish, Route route, TramTime startTime,
                                             int cost, int passedStops) {
 
         Trip validTrip = transportData.getTripById(IdFor.createId(TRIP_A_ID));

@@ -237,6 +237,8 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldHaveAllEndOfLineTramStations() {
+
+        // Makes sure none are missing from the data
         List<Station> filteredStations = transportData.getStations().stream()
                 .filter(station -> Stations.EndOfTheLine.contains(station)).collect(Collectors.toList());
 

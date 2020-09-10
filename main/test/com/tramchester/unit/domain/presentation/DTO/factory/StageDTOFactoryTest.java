@@ -2,17 +2,20 @@ package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static com.tramchester.testSupport.TramStations.*;
 
 class StageDTOFactoryTest extends EasyMockSupport {
 
@@ -26,8 +29,9 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldCreateStageDTOCorrectlyForWalking() {
-        WalkingStage stage = new WalkingStage(Stations.Altrincham, Stations.NavigationRoad, 15,
-                TramTime.of(8,11), false);
+        MyLocation location = new MyLocation("nearAlty", TestEnv.nearAltrincham);
+        WalkingFromStationStage stage = new WalkingFromStationStage(TramStations.of(Altrincham), location, 15,
+                TramTime.of(8,11));
 
         StageDTO build = factory.build(stage, TravelAction.WalkTo);
         replayAll();
@@ -41,8 +45,8 @@ class StageDTOFactoryTest extends EasyMockSupport {
         Service service = new Service("svcId", testRoute);
 
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
-        VehicleStage vehicleStage = new VehicleStage(Stations.MarketStreet, testRoute,
-                TransportMode.Tram, trip, TramTime.of(0, 0), Stations.Bury, 23);
+        VehicleStage vehicleStage = new VehicleStage(TramStations.of(MarketStreet), testRoute,
+                TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury), 23);
         vehicleStage.setCost(5);
 
         Platform platform = new Platform("platFormId", "platformName");

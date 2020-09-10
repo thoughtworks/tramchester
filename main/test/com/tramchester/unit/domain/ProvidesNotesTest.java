@@ -1,6 +1,5 @@
 package com.tramchester.unit.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -13,8 +12,8 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -29,12 +28,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.domain.presentation.Note.NoteType.Live;
+import static com.tramchester.testSupport.TramStations.*;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-
 
 class ProvidesNotesTest extends EasyMockSupport {
     private ProvidesNotes provider;
@@ -120,7 +119,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         }
         TramServiceDate serviceDate = new TramServiceDate(date);
 
-        StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "<no message>");
+        StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "<no message>");
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), serviceDate, queryTime)).
                 andReturn(Optional.of(info));
 
@@ -144,7 +143,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
-        StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "a message");
+        StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "a message");
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), serviceDate, queryTime)).
                 andReturn(Optional.of(info));
 
@@ -171,7 +170,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
-        StationDepartureInfo info = createDepartureInfo(lastUpdate, Stations.Pomona, "a message");
+        StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "a message");
 
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), queryDate, queryTime))
                 .andReturn(Optional.of(info));
@@ -197,17 +196,17 @@ class ProvidesNotesTest extends EasyMockSupport {
         TransportStage stageA = createStageWithBoardingPlatform("platformId1");
         TransportStage stageB = createStageWithBoardingPlatform("platformId2");
         TransportStage stageC = createStageWithBoardingPlatform("platformId3");
-        TransportStage stageD = new WalkingStage(MyLocation.create(new ObjectMapper(), TestEnv.nearAltrincham),
-                Stations.Ashton, 7, TramTime.of(8,11), false );
+        TransportStage stageD = new WalkingToStationStage(new MyLocation("Altrincham",TestEnv.nearAltrincham),
+                TramStations.of(Ashton), 7, TramTime.of(8,11));
         TransportStage stageE = createStageWithBoardingPlatform("platformId5");
 
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
-        StationDepartureInfo infoA = createDepartureInfo(lastUpdate, Stations.Pomona, "Some long message");
-        StationDepartureInfo infoB = createDepartureInfo(lastUpdate, Stations.Altrincham, "Some Location Long message");
-        StationDepartureInfo infoC = createDepartureInfo(lastUpdate, Stations.Cornbrook, "Some long message");
-        StationDepartureInfo infoE = createDepartureInfo(lastUpdate, Stations.MediaCityUK, "Some long message");
+        StationDepartureInfo infoA = createDepartureInfo(lastUpdate, TramStations.of(Pomona), "Some long message");
+        StationDepartureInfo infoB = createDepartureInfo(lastUpdate, TramStations.of(Altrincham), "Some Location Long message");
+        StationDepartureInfo infoC = createDepartureInfo(lastUpdate, TramStations.of(Cornbrook), "Some long message");
+        StationDepartureInfo infoE = createDepartureInfo(lastUpdate, TramStations.of(MediaCityUK), "Some long message");
 
         EasyMock.expect(liveDataRepository.departuresFor(stageE.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoE));
         EasyMock.expect(liveDataRepository.departuresFor(stageB.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoB));
@@ -234,25 +233,25 @@ class ProvidesNotesTest extends EasyMockSupport {
         }
 
         Assertions.assertEquals(expected, notes.size());
-        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some long message", Stations.Pomona)), notes.toString());
-        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some long message", Stations.Cornbrook)), notes.toString());
-        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some long message", Stations.MediaCityUK)), notes.toString());
-        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some Location Long message", Stations.Altrincham)), notes.toString());
+        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some long message", of(Pomona))), notes.toString());
+        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some long message", of(Cornbrook))), notes.toString());
+        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some long message", of(MediaCityUK))), notes.toString());
+        Assertions.assertTrue(notes.contains(new StationNote(Live,"Some Location Long message", of(Altrincham))), notes.toString());
     }
 
     @Test
     void shouldAddNotesForStations() {
 
-        List<Station> stations = Arrays.asList(Stations.Pomona, Stations.VeloPark, Stations.Cornbrook);
+        List<Station> stations = Arrays.asList(of(Pomona), of(VeloPark), of(Cornbrook));
 
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016, 10, 25));
         TramTime queryTime = TramTime.of(lastUpdate);
-        EasyMock.expect(liveDataRepository.departuresFor(Stations.Pomona, queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, Stations.Pomona, "second message")));
-        EasyMock.expect(liveDataRepository.departuresFor(Stations.VeloPark, queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, Stations.VeloPark, "first message")));
-        EasyMock.expect(liveDataRepository.departuresFor(Stations.Cornbrook, queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, Stations.Cornbrook, "second message")));
+        EasyMock.expect(liveDataRepository.departuresFor(of(Pomona), queryDate, queryTime)).
+                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, of(Pomona), "second message")));
+        EasyMock.expect(liveDataRepository.departuresFor(of(VeloPark), queryDate, queryTime)).
+                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, of(VeloPark), "first message")));
+        EasyMock.expect(liveDataRepository.departuresFor(of(Cornbrook), queryDate, queryTime)).
+                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, of(Cornbrook), "second message")));
 
         replayAll();
 
@@ -260,9 +259,9 @@ class ProvidesNotesTest extends EasyMockSupport {
         verifyAll();
 
         Assertions.assertEquals(3, notes.size());
-        assertThat(notes.toString(), notes.contains(new StationNote(Live,"first message", Stations.VeloPark)));
-        assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", Stations.Cornbrook)));
-        assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", Stations.Pomona)));
+        assertThat(notes.toString(), notes.contains(new StationNote(Live,"first message", of(VeloPark))));
+        assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", of(Cornbrook))));
+        assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", of(Pomona))));
     }
 
     private StationDepartureInfo createDepartureInfo(LocalDateTime time, Station station, String message) {
@@ -274,8 +273,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramTime departTime = TramTime.of(11,22);
         Service service = new Service("serviceId", TestEnv.getTestRoute());
         Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
-        VehicleStage vehicleStage = new VehicleStage(Stations.Ashton, TestEnv.getTestRoute(), TransportMode.Tram,
-                trip, departTime, Stations.PiccadillyGardens, 12);
+        VehicleStage vehicleStage = new VehicleStage(of(Ashton), TestEnv.getTestRoute(), TransportMode.Tram,
+                trip, departTime, of(PiccadillyGardens), 12);
         Platform platform = new Platform(platformId, "platformName");
         vehicleStage.setPlatform(platform);
         return vehicleStage;

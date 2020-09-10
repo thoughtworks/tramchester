@@ -7,19 +7,17 @@ import com.tramchester.domain.time.TramTime;
 import java.util.Objects;
 import java.util.Optional;
 
-public class WalkingStage implements TransportStage {
-    private final Location start;
-    private final Location destination;
+public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage {
+    private final FROM start;
+    protected final DEST destination;
     private final int duration;
     private final TramTime beginTime;
-    private final boolean towardsMyLocation;
 
-    public WalkingStage(Location start, Location destination, int duration, TramTime beginTime, boolean towardsMyLocation) {
+    public WalkingStage(FROM start, DEST destination, int duration, TramTime beginTime) {
         this.start = start;
         this.destination = destination;
         this.duration = duration;
         this.beginTime = beginTime;
-        this.towardsMyLocation = towardsMyLocation;
     }
 
     @Override
@@ -31,26 +29,11 @@ public class WalkingStage implements TransportStage {
         return duration;
     }
 
-    public Location getStart() {
-        return start;
-    }
-
-    public Location getDestination() {
+    public Location<?> getDestination() {
         return destination;
     }
 
-    public boolean getTowardsMyLocation() {
-        return towardsMyLocation;
-    }
-
-    @Override
-    public String getHeadSign() {
-        if (towardsMyLocation) {
-            return "My Location";
-        } else {
-            return destination.getName();
-        }
-    }
+    public abstract boolean getTowardsMyLocation();
 
     @Override
     public String getRouteName() {
@@ -63,20 +46,12 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
-    public Location getActionStation() {
-        if (towardsMyLocation) {
-            return start;
-        }
-        return destination;
-    }
-
-    @Override
     public Location getLastStation() {
         return getDestination();
     }
 
     @Override
-    public Location getFirstStation() { return getStart(); }
+    public Location getFirstStation() { return start; }
 
     @Override
     public TramTime getFirstDepartureTime() {
@@ -94,15 +69,6 @@ public class WalkingStage implements TransportStage {
     }
 
     @Override
-    public String toString() {
-        return "WalkingStage{" +
-                "start=" + start +
-                ", destination=" + destination +
-                ", duration=" + duration +
-                '}';
-    }
-
-    @Override
     public int getPassedStops() {
         return 0;
     }
@@ -111,14 +77,33 @@ public class WalkingStage implements TransportStage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WalkingStage that = (WalkingStage) o;
-        return duration == that.duration &&
-                start.equals(that.start) &&
-                destination.equals(that.destination);
+
+        WalkingStage<?, ?> that = (WalkingStage<?, ?>) o;
+
+        if (getDuration() != that.getDuration()) return false;
+        if (!start.equals(that.start)) return false;
+        if (!getDestination().equals(that.getDestination())) return false;
+        return beginTime.equals(that.beginTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(start, destination, duration);
+        int result = start.hashCode();
+        result = 31 * result + getDestination().hashCode();
+        result = 31 * result + getDuration();
+        result = 31 * result + beginTime.hashCode();
+        return result;
     }
+
+    @Override
+    public String toString() {
+        return "WalkingStage{" +
+                "start=" + start +
+                ", destination=" + destination +
+                ", duration=" + duration +
+                ", beginTime=" + beginTime +
+                '}';
+    }
+
+
 }

@@ -29,7 +29,7 @@ public class MyLocation extends MapIdToDTOId<MyLocation> implements Location<MyL
         return "MyLocation{" + area + '}';
     }
 
-    private MyLocation(String area, LatLong latLong) {
+    public MyLocation(String area, LatLong latLong) {
         this.area = area;
         this.latLong = latLong;
     }
