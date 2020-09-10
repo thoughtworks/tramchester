@@ -4,10 +4,9 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 
-import java.util.Objects;
 import java.util.Optional;
 
-public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage {
+public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST> {
     private final FROM start;
     protected final DEST destination;
     private final int duration;
@@ -29,7 +28,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
         return duration;
     }
 
-    public Location<?> getDestination() {
+    public DEST getDestination() {
         return destination;
     }
 
@@ -46,12 +45,12 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     }
 
     @Override
-    public Location getLastStation() {
-        return getDestination();
+    public DEST getLastStation() {
+        return destination;
     }
 
     @Override
-    public Location getFirstStation() { return start; }
+    public FROM getFirstStation() { return start; }
 
     @Override
     public TramTime getFirstDepartureTime() {
@@ -82,15 +81,15 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
 
         if (getDuration() != that.getDuration()) return false;
         if (!start.equals(that.start)) return false;
-        if (!getDestination().equals(that.getDestination())) return false;
+        if (!destination.equals(that.destination)) return false;
         return beginTime.equals(that.beginTime);
     }
 
     @Override
     public int hashCode() {
         int result = start.hashCode();
-        result = 31 * result + getDestination().hashCode();
-        result = 31 * result + getDuration();
+        result = 31 * result + destination.hashCode();
+        result = 31 * result + duration;
         result = 31 * result + beginTime.hashCode();
         return result;
     }

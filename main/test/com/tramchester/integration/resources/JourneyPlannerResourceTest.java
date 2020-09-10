@@ -21,10 +21,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.BusStations;
-import com.tramchester.testSupport.ParseStream;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.*;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,7 +98,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
             Assertions.assertEquals("1", platform.getPlatformNumber());
             Assertions.assertEquals("Altrincham platform 1", platform.getName());
-            Assertions.assertEquals(Stations.Altrincham.forDTO() + "1", platform.getId());
+            Assertions.assertEquals(TramStations.Altrincham.forDTO() + "1", platform.getId());
         });
 
     }
@@ -167,8 +164,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             // multiple possible places to change depending on timetable etc
             assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
             assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.forDTO()+"1",
-                    Stations.Cornbrook.forDTO()+"1",
-                    Stations.StPetersSquare.forDTO()+"1")));
+                    TramStations.Cornbrook.forDTO()+"1",
+                    TramStations.StPetersSquare.forDTO()+"1")));
         });
 
     }
@@ -268,7 +265,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         // cookie with ashton
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped ashton = new Timestamped(Stations.Ashton.getId(), now);
+        Timestamped ashton = new Timestamped(TramStations.Ashton.getId(), now);
         recentJourneys.setRecentIds(Sets.newHashSet(ashton));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
@@ -307,8 +304,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldSpikeResultsAsStream() throws IOException {
-        IdFor<Station> start = Stations.Bury.getId();
-        IdFor<Station> end = Stations.ManAirport.getId();
+        IdFor<Station> start = TramStations.Bury.getId();
+        IdFor<Station> end = TramStations.ManAirport.getId();
         String time = TramTime.of(11,45).toPattern();
         String date = when.format(dateFormatDashes);
 

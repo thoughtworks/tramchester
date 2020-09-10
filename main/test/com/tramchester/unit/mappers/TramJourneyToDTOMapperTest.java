@@ -39,7 +39,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     private final LocalDate when = TestEnv.testDay();
 
     private TramJourneyToDTOMapper mapper;
-    private List<TransportStage> stages;
+    private List<TransportStage<?,?>> stages;
     private TramServiceDate tramServiceDate;
     private JourneyDTOFactory journeyFactory;
     private StageDTOFactory stageFactory;
@@ -154,15 +154,17 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journeyDTO, result);
     }
 
+    // TODO MAKE REALISTIC
     @Test
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
-        Location<Station> begin = of(Altrincham);
+        Station begin = of(Altrincham);
         MyLocation middleA = nearPiccGardensLocation;
         Station middleB = of(MarketStreet);
-        Location<Station> end = of(Bury);
+        Station end = of(Bury);
 
-        VehicleStage rawStageA = getRawVehicleStage(begin, middleA, createRoute("route text"), am10, 42, 8);
+        VehicleStage rawStageA = getRawVehicleStage(begin, of(PiccadillyGardens), createRoute("route text"), am10, 42, 8);
+
         int walkCost = 10;
         WalkingToStationStage walkingStage = new WalkingToStationStage(middleA, middleB, walkCost, am10);
         VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42, 9);
@@ -200,9 +202,9 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMap2StageJoruneyWithChange() {
         TramTime startTime = TramTime.of(22,50);
-        Location<?> start = transportData.getFirst();
-        Location<?> middle = transportData.getSecond();
-        Location<?> finish = transportData.getInterchange();
+        Station start = transportData.getFirst();
+        Station middle = transportData.getSecond();
+        Station finish = transportData.getInterchange();
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
                 18, 8);
@@ -234,7 +236,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         assertEquals(journeyDTO, result);
     }
 
-    private VehicleStage getRawVehicleStage(Location<?> start, Location<?> finish, Route route, TramTime startTime,
+    private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
                                             int cost, int passedStops) {
 
         Trip validTrip = transportData.getTripById(IdFor.createId(TRIP_A_ID));

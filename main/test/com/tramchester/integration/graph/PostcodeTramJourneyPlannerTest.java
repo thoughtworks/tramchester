@@ -116,13 +116,13 @@ class PostcodeTramJourneyPlannerTest {
         journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
         // walk at end
         journeySet.forEach(journey -> {
-            List<TransportStage> stages = journey.getStages();
+            List<TransportStage<?,?>> stages = journey.getStages();
             int lastIndex = stages.size()-1;
             assertEquals(TransportMode.Walk, stages.get(lastIndex).getMode());
         });
         // trams in the middle
         journeySet.forEach(journey -> {
-            List<TransportStage> stages = journey.getStages();
+            List<TransportStage<?,?>> stages = journey.getStages();
             for (int i = 1; i < stages.size()-1; i++) {
                 assertEquals(TransportMode.Tram, stages.get(i).getMode());
             }

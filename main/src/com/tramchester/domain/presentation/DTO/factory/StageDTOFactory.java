@@ -12,7 +12,7 @@ public class StageDTOFactory {
     public StageDTOFactory() {
     }
 
-    public StageDTO build(TransportStage source, TravelAction travelAction) {
+    public StageDTO build(TransportStage<?,?> source, TravelAction travelAction) {
 
         return new StageDTO(new StationRefWithPosition(source.getFirstStation()),
                 new StationRefWithPosition(source.getLastStation()),

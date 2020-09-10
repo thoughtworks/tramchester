@@ -9,23 +9,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-public class Journey implements Iterable<TransportStage>, CallsAtPlatforms {
+public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms {
 
     private final List<Location<?>> path;
-    private final List<TransportStage> stages;
+    private final List<TransportStage<?,?>> stages;
     private final TramTime queryTime;
 
-    public Journey(List<TransportStage> stages, TramTime queryTime, List<Location<?>> path) {
+    public Journey(List<TransportStage<?,?>> stages, TramTime queryTime, List<Location<?>> path) {
         this.stages = stages;
         this.queryTime = queryTime;
         this.path = path;
     }
     
-    public @NotNull Iterator<TransportStage> iterator() {
+    public @NotNull Iterator<TransportStage<?,?>> iterator() {
         return stages.iterator();
     }
 
-    public List<TransportStage> getStages() {
+    public List<TransportStage<?,?>> getStages() {
         return stages;
     }
 

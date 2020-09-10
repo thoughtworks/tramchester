@@ -7,7 +7,7 @@ import com.tramchester.domain.time.TramTime;
 
 import java.util.Optional;
 
-public class ConnectingStage implements TransportStage  {
+public class ConnectingStage implements TransportStage<Station, Station>  {
     private final Station start;
     private final Station end;
     private final int cost;
@@ -41,12 +41,12 @@ public class ConnectingStage implements TransportStage  {
     }
 
     @Override
-    public Location<Station> getLastStation() {
+    public Station getLastStation() {
         return end;
     }
 
     @Override
-    public Location<Station> getFirstStation() {
+    public Station getFirstStation() {
         return start;
     }
 

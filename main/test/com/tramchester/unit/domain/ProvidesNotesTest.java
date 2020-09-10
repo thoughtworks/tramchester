@@ -110,7 +110,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldNotAddMessageIfNotMessageForJourney() {
-        TransportStage stageA = createStageWithBoardingPlatform("platformId");
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId");
 
         TramTime queryTime = TramTime.of(8,11);
         LocalDate date = TestEnv.LocalNow().toLocalDate();
@@ -138,7 +138,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
-        TransportStage stageA = createStageWithBoardingPlatform("platformId");
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId");
 
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
@@ -165,7 +165,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
-        TransportStage stageA = createStageWithBoardingPlatform("platformId");
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId");
 
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
@@ -193,12 +193,12 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
-        TransportStage stageA = createStageWithBoardingPlatform("platformId1");
-        TransportStage stageB = createStageWithBoardingPlatform("platformId2");
-        TransportStage stageC = createStageWithBoardingPlatform("platformId3");
-        TransportStage stageD = new WalkingToStationStage(new MyLocation("Altrincham",TestEnv.nearAltrincham),
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId1");
+        VehicleStage stageB = createStageWithBoardingPlatform("platformId2");
+        VehicleStage stageC = createStageWithBoardingPlatform("platformId3");
+        WalkingToStationStage stageD = new WalkingToStationStage(new MyLocation("Altrincham",TestEnv.nearAltrincham),
                 TramStations.of(Ashton), 7, TramTime.of(8,11));
-        TransportStage stageE = createStageWithBoardingPlatform("platformId5");
+        VehicleStage stageE = createStageWithBoardingPlatform("platformId5");
 
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
@@ -213,7 +213,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(liveDataRepository.departuresFor(stageC.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoC));
         EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().get().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoA));
 
-        List<TransportStage> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
+        List<TransportStage<?,?>> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
         Journey journey = new Journey(stages, queryTime, Collections.emptyList());
 
@@ -269,7 +269,7 @@ class ProvidesNotesTest extends EasyMockSupport {
                 "platform", station, message, time);
     }
 
-    private TransportStage createStageWithBoardingPlatform(String platformId) {
+    private VehicleStage createStageWithBoardingPlatform(String platformId) {
         TramTime departTime = TramTime.of(11,22);
         Service service = new Service("serviceId", TestEnv.getTestRoute());
         Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());

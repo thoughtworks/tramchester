@@ -73,10 +73,10 @@ class LocationJourneyPlannerTest {
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
-            List<TransportStage> stages = journey.getStages();
+            List<TransportStage<?,?>> stages = journey.getStages();
             WalkingToStationStage first = (WalkingToStationStage) stages.get(0);
             assertEquals(nearPiccGardens, first.getFirstStation().getLatLong());
-            assertEquals(TramStations.PiccadillyGardens.getId(), first.getDestination().getId());
+            assertEquals(TramStations.PiccadillyGardens.getId(), first.getLastStation().getId());
         });
 
         unsortedResults.forEach(journey -> {
@@ -101,10 +101,10 @@ class LocationJourneyPlannerTest {
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
-            List<TransportStage> stages = journey.getStages();
+            List<TransportStage<?,?>> stages = journey.getStages();
             WalkingFromStationStage first = (WalkingFromStationStage) stages.get(0);
             assertEquals(TramStations.PiccadillyGardens.getId(), first.getFirstStation().getId());
-            assertEquals(nearPiccGardens, first.getDestination().getLatLong());
+            assertEquals(nearPiccGardens, first.getLastStation().getLatLong());
         });
     }
 
@@ -118,8 +118,8 @@ class LocationJourneyPlannerTest {
 
         assertFalse(twoStageJourneys.isEmpty());
         Journey firstJourney = twoStageJourneys.get(0);
-        TransportStage tramStage = firstJourney.getStages().get(0);
-        TransportStage walkStage = firstJourney.getStages().get(1);
+        TransportStage<?,?> tramStage = firstJourney.getStages().get(0);
+        TransportStage<?,?> walkStage = firstJourney.getStages().get(1);
 
         assertTrue(walkStage.getFirstDepartureTime().isAfter(tramStage.getExpectedArrivalTime()));
         assertEquals(TramStations.Deansgate.getId(), tramStage.getFirstStation().getId());
@@ -214,7 +214,7 @@ class LocationJourneyPlannerTest {
         // 33 -> 39
         assertEquals(39, RouteCalculatorTest.costOfJourney(lowestCostJourney), lowestCostJourney.toString());
 
-        List<TransportStage> stages = lowestCostJourney.getStages();
+        List<TransportStage<?,?>> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);
 
         // Post lock down, no direct trams
@@ -243,10 +243,10 @@ class LocationJourneyPlannerTest {
         assertFalse(results.isEmpty());
         results.forEach(journey-> {
             assertEquals(1,journey.getStages().size());
-            TransportStage rawStage = journey.getStages().get(0);
+            TransportStage<?,?> rawStage = journey.getStages().get(0);
             assertEquals(TransportMode.Walk, rawStage.getMode());
-            assertEquals(TramStations.PiccadillyGardens.getId(), ((WalkingStage) rawStage).getDestination().getId());
-            assertEquals(nearPiccGardens, ((WalkingStage) rawStage).getFirstStation().getLatLong());
+            assertEquals(TramStations.PiccadillyGardens.getId(), rawStage.getLastStation().getId());
+            assertEquals(nearPiccGardens, rawStage.getFirstStation().getLatLong());
             assertEquals(3, rawStage.getDuration());
         });
     }

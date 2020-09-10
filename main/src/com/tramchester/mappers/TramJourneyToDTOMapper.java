@@ -33,10 +33,10 @@ public class TramJourneyToDTOMapper {
     public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
         List<StageDTO> stages = new ArrayList<>();
 
-        List<TransportStage> rawJourneyStages = journey.getStages();
+        List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
         TramTime queryTime = journey.getQueryTime();
 
-        for(TransportStage rawStage : rawJourneyStages) {
+        for(TransportStage<?,?> rawStage : rawJourneyStages) {
             logger.info("Adding stage " + rawStage);
             TravelAction action = decideTravelAction(stages, rawStage);
             StageDTO stageDTO = stageFactory.build(rawStage, action);
@@ -49,7 +49,7 @@ public class TramJourneyToDTOMapper {
         return journeyFactory.build(stages, queryTime, notes, mappedPath);
     }
 
-    private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage rawStage) {
+    private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage<?,?> rawStage) {
         switch (rawStage.getMode()) {
             case Tram:
             case Bus:
@@ -64,7 +64,7 @@ public class TramJourneyToDTOMapper {
         }
     }
 
-    private TravelAction decideWalkingAction(TransportStage rawStage) {
+    private TravelAction decideWalkingAction(TransportStage<?,?> rawStage) {
         WalkingStage walkingStage = (WalkingStage) rawStage;
         return walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo;
     }

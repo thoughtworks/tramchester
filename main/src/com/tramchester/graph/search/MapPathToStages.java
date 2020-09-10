@@ -41,12 +41,12 @@ public class MapPathToStages {
         this.platformRepository = platformRepository;
     }
 
-    public List<TransportStage> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest) {
+    public List<TransportStage<?,?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest) {
         Path path = timedPath.getPath();
         TramTime queryTime = timedPath.getQueryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s",
                 path.length(), journeyRequest, queryTime));
-        ArrayList<TransportStage> results = new ArrayList<>();
+        ArrayList<TransportStage<?,?>> results = new ArrayList<>();
 
         List<Relationship> relationships = new ArrayList<>();
         path.relationships().forEach(relationships::add);
@@ -118,7 +118,7 @@ public class MapPathToStages {
         return results;
     }
 
-    private TransportStage directWalk(Relationship relationship, TramTime timeWalkStarted) {
+    private TransportStage<?,?> directWalk(Relationship relationship, TramTime timeWalkStarted) {
         if (relationship.isType(WALKS_TO)) {
             WalkStarted walkStarted = walkStarted(relationship);
             return new WalkingToStationStage(walkStarted.start, walkStarted.destination,
@@ -153,7 +153,7 @@ public class MapPathToStages {
         return new WalkStarted(start, destination, cost);
     }
 
-    private WalkingStage createWalkFrom(Relationship relationship, TramTime walkStartTime) {
+    private WalkingFromStationStage createWalkFrom(Relationship relationship, TramTime walkStartTime) {
         // station -> position
         int cost = getCost(relationship);
 
@@ -252,7 +252,7 @@ public class MapPathToStages {
             boardingPlatform = Optional.empty();
         }
 
-        protected Optional<WalkingStage> beginTrip(Relationship relationship) {
+        protected Optional<WalkingToStationStage> beginTrip(Relationship relationship) {
             IdFor<Trip> newTripId = IdFor.getTripIdFrom(relationship);
 
             if (tripId.notValid()) {
@@ -272,7 +272,7 @@ public class MapPathToStages {
             if (timeWalkStarted.isBefore(queryTime)) {
                 logger.error("Computed walk start ahead of query time");
             }
-            WalkingStage walkingStage = new WalkingToStationStage(walkStarted.start, walkStarted.destination,
+            WalkingToStationStage walkingStage = new WalkingToStationStage(walkStarted.start, walkStarted.destination,
                     walkStarted.cost, timeWalkStarted);
             walkStarted = null;
             return Optional.of(walkingStage);
@@ -302,7 +302,7 @@ public class MapPathToStages {
             platformEnterCost = getCost(relationship);
         }
 
-        protected TransportStage walkFrom(Relationship relationship) {
+        protected WalkingFromStationStage walkFrom(Relationship relationship) {
             TramTime walkStartTime;
             if (departTime==null) {
                 walkStartTime = queryTime.plusMinutes(platformLeaveCost + departCost);

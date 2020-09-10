@@ -24,9 +24,7 @@ public class Stations {
     public static Station Piccadilly = TramStations.of(TramStations.Piccadilly);
     public static Station Eccles = TramStations.of(TramStations.Eccles);
     public static Station Bury = TramStations.of(TramStations.Bury);
-    private static Station EastDidsbury = TramStations.of(TramStations.EastDidsbury);
     public static Station Rochdale = TramStations.of(TramStations.Rochdale);
-    public static Station Pomona = TramStations.of(TramStations.Pomona);
     public static Station Deansgate = TramStations.of(TramStations.Deansgate);
     public static Station Broadway = TramStations.of(TramStations.Broadway);
     public static Station PiccadillyGardens = TramStations.of(TramStations.PiccadillyGardens);
@@ -48,7 +46,7 @@ public class Stations {
     public static List<Station> EndOfTheLine = Arrays.asList(Altrincham,
             ManAirport,
             Eccles,
-            EastDidsbury,
+            TramStations.of(TramStations.EastDidsbury),
             Ashton,
             Rochdale,
             Bury,

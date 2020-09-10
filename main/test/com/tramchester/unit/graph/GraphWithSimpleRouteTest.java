@@ -114,7 +114,7 @@ class GraphWithSimpleRouteTest {
 
         Assertions.assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
-            List<TransportStage> stages = journey.getStages();
+            List<TransportStage<?,?>> stages = journey.getStages();
             Assertions.assertEquals(2, stages.size());
             Assertions.assertEquals(stages.get(0).getMode(), TransportMode.Walk);
         });
@@ -129,7 +129,7 @@ class GraphWithSimpleRouteTest {
 
         Assertions.assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
-            List<TransportStage> stages = journey.getStages();
+            List<TransportStage<?,?>> stages = journey.getStages();
             Assertions.assertEquals(1, stages.size());
             Assertions.assertEquals(stages.get(0).getMode(), TransportMode.Walk);
         });
@@ -224,8 +224,8 @@ class GraphWithSimpleRouteTest {
     private void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
                                     int passedStops) {
         Journey journey = (Journey)journeys.toArray()[0];
-        List<TransportStage> stages = journey.getStages();
-        TransportStage vehicleStage = stages.get(0);
+        List<TransportStage<?,?>> stages = journey.getStages();
+        TransportStage<?,?> vehicleStage = stages.get(0);
         Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
         Assertions.assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
         Assertions.assertEquals(passedStops,  vehicleStage.getPassedStops());

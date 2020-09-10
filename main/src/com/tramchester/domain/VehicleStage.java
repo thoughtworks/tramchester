@@ -2,15 +2,16 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class VehicleStage implements TransportStage {
-    private final Location firstStation;
-    private final Location lastStation;
+public class VehicleStage implements TransportStage<Station, Station> {
+    private final Station firstStation;
+    private final Station lastStation;
 
     protected final TransportMode mode;
     private final Trip trip;
@@ -21,8 +22,8 @@ public class VehicleStage implements TransportStage {
     protected int cost;
     private Optional<Platform> platform;
 
-    public VehicleStage(Location firstStation, Route route, TransportMode mode, Trip trip,
-                        TramTime departTime, Location lastStation, int passedStops) {
+    public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
+                        TramTime departTime, Station lastStation, int passedStops) {
         this.firstStation = firstStation;
         this.route = route;
         this.mode = mode;
@@ -33,7 +34,7 @@ public class VehicleStage implements TransportStage {
         this.passedStops = passedStops;
     }
 
-    public Location getFirstStation() {
+    public Station getFirstStation() {
         return firstStation;
     }
 
@@ -42,11 +43,11 @@ public class VehicleStage implements TransportStage {
         return cost;
     }
 
-    public Location getLastStation() {
+    public Station getLastStation() {
         return lastStation;
     }
 
-    public Location getActionStation() { return firstStation; }
+    public Location<?> getActionStation() { return firstStation; }
 
     @Override
     public String getHeadSign() {

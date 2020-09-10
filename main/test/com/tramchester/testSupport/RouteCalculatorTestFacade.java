@@ -2,21 +2,15 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RouteCalculatorTestFacade {
     private final RouteCalculator theCalulcator;
@@ -27,28 +21,6 @@ public class RouteCalculatorTestFacade {
        this.theCalulcator = theCalulcator;
         this.repository = repository;
         this.txn = txn;
-    }
-
-    public Set<Journey> validateAtLeastNJourney(int maxToReturn, JourneyRequest journeyRequest, Station start, Station destination) {
-        Set<Journey> journeys = calculateRouteAsSet(maxToReturn, journeyRequest, start, destination);
-
-        String message = "from " + start.getName() + " to " + destination.getName() + " at " + journeyRequest.getTime() + " on " + journeyRequest.getDate();
-        assertTrue(journeys.size() > 0, "Unable to find journey " + message);
-        journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), message + " missing stages for journey" + journey));
-        journeys.forEach(RouteCalculatorTestFacade::checkStages);
-        return journeys;
-    }
-
-    private static void checkStages(Journey journey) {
-        List<TransportStage> stages = journey.getStages();
-        TramTime earliestAtNextStage = null;
-        for (TransportStage stage : stages) {
-            if (earliestAtNextStage!=null) {
-                assertFalse(
-                        stage.getFirstDepartureTime().isBefore(earliestAtNextStage), stage.toString() + " arrived before " + earliestAtNextStage);
-            }
-            earliestAtNextStage = stage.getFirstDepartureTime().plusMinutes(stage.getDuration());
-        }
     }
 
     public Set<Journey> calculateRouteAsSet(TestStations start, TestStations dest, JourneyRequest request) {

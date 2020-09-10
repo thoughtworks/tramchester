@@ -193,7 +193,7 @@ public class RouteCalculatorTest {
 
         assertTrue(results.size()>0, "no results");    // results is iterator
         for (Journey result : results) {
-            List<TransportStage> stages = result.getStages();
+            List<TransportStage<?,?>> stages = result.getStages();
             assertEquals(2,stages.size());
             VehicleStage firstStage = (VehicleStage) stages.get(0);
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
@@ -255,7 +255,7 @@ public class RouteCalculatorTest {
 
 
     public static int costOfJourney(Journey journey) {
-        List<TransportStage> stages = journey.getStages();
+        List<TransportStage<?,?>> stages = journey.getStages();
         TramTime departs = stages.get(0).getFirstDepartureTime();
         TramTime arrive = stages.get(stages.size() - 1).getExpectedArrivalTime();
 
@@ -271,7 +271,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldNotGenerateDuplicateJourneys() {
 
-        Set<List<TransportStage>> stages = new HashSet<>();
+        Set<List<TransportStage<?,?>>> stages = new HashSet<>();
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(11, 45), false,
                 4, maxJourneyDuration);
@@ -402,9 +402,9 @@ public class RouteCalculatorTest {
         assertTrue(journeys.size() > 0, "Unable to find journey " + message);
         journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), message + " missing stages for journey" + journey));
         journeys.forEach(journey -> {
-            List<TransportStage> stages = journey.getStages();
+            List<TransportStage<?,?>> stages = journey.getStages();
             TramTime earliestAtNextStage = null;
-            for (TransportStage stage : stages) {
+            for (TransportStage<?,?> stage : stages) {
                 if (earliestAtNextStage!=null) {
                     assertFalse(
                             stage.getFirstDepartureTime().isBefore(earliestAtNextStage), stage.toString() + " arrived before " + earliestAtNextStage);
