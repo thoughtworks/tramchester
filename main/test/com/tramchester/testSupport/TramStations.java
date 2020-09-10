@@ -13,7 +13,6 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,6 +53,8 @@ public enum TramStations implements TestStations {
     BurtonRoad("9400ZZMABNR", "West Didsbury", "Burton Road", pos(53.42908, -2.24064)),
     RochdaleRail("9400ZZMARRS", "Rochdale", "Rochdale Railway Station", pos(53.61102, -2.15449)),
     Intu("9400ZZMATRC", "The Trafford Centre", "intu Trafford Centre", pos(53.46782, -2.34751));
+
+    public static int NumberOf = 99;
 
     public static Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
             ManAirport,
@@ -119,6 +120,10 @@ public enum TramStations implements TestStations {
 
     public String forDTO() {
         return station.forDTO();
+    }
+
+    public String getArea() {
+        return station.getArea();
     }
 
     public static class Pair {

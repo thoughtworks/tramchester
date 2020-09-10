@@ -71,7 +71,7 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldHaveCorrectLocationForAirportInTestEnvironment() {
-        Station actualStation = transportData.getStationById(Stations.ManAirport.getId());
+        Station actualStation = transportData.getStationById(TramStations.ManAirport.getId());
         assertEquals(TestEnv.manAirportLocation, actualStation.getLatLong());
     }
 
@@ -130,7 +130,7 @@ class TransportDataFromFilesTest {
         IdSet<Service> sundayServiceIds = sundayServices.stream().collect(IdSet.collector());
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
-                filter(trip -> trip.getStops().callsAt(Stations.Cornbrook)).collect(Collectors.toSet());
+                filter(trip -> trip.getStops().callsAt(TramStations.Cornbrook)).collect(Collectors.toSet());
 
         Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.
                 contains(trip.getService().getId())).collect(Collectors.toSet());
@@ -209,27 +209,27 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldGetStation() {
-        assertTrue(transportData.hasStationId(Stations.Altrincham.getId()));
-        Station station = transportData.getStationById(Stations.Altrincham.getId());
+        assertTrue(transportData.hasStationId(TramStations.Altrincham.getId()));
+        Station station = transportData.getStationById(TramStations.Altrincham.getId());
         assertEquals("Altrincham", station.getName());
 
         assertTrue(station.hasPlatforms());
         // only one platform at alty, well according to the timetable anyway....
         assertEquals(1, station.getPlatforms().size());
         Platform platformOne = station.getPlatforms().get(0);
-        assertEquals( Stations.Altrincham.forDTO()+"1", platformOne.getId().forDTO());
+        assertEquals( TramStations.Altrincham.forDTO()+"1", platformOne.getId().forDTO());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
     }
 
     @Test
     void shouldHavePlatform() {
-        IdFor<Platform> id = IdFor.createId(Stations.StPetersSquare.forDTO() + "3");
+        IdFor<Platform> id = IdFor.createId(TramStations.StPetersSquare.forDTO() + "3");
 
         assertTrue(transportData.hasPlatformId(id));
         Platform platform = transportData.getPlatform(id);
         assertEquals("St Peter's Square platform 3", platform.getName());
-        assertEquals(Stations.StPetersSquare.forDTO()+"3", platform.getId().forDTO());
+        assertEquals(TramStations.StPetersSquare.forDTO()+"3", platform.getId().forDTO());
     }
 
     @Test
@@ -295,11 +295,11 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
-        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Stations.Cornbrook);
+        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), TramStations.Cornbrook);
 
         IdSet<Service> toMediaCity = allTrips.stream().
-                filter(trip -> trip.getStops().callsAt(Stations.Cornbrook)).
-                filter(trip -> trip.getStops().callsAt(Stations.MediaCityUK)).
+                filter(trip -> trip.getStops().callsAt(TramStations.Cornbrook)).
+                filter(trip -> trip.getStops().callsAt(TramStations.MediaCityUK)).
                 filter(trip -> trip.getRoute().getId().equals(RoutesForTesting.ASH_TO_ECCLES.getId())).
                 map(trip -> trip.getService().getId()).collect(IdSet.idCollector());
 
@@ -324,7 +324,7 @@ class TransportDataFromFilesTest {
     @DataExpiryCategory
     @Test
     void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
-        Set<Trip> origTrips = getTripsFor(transportData.getTrips(), Stations.VeloPark);
+        Set<Trip> origTrips = getTripsFor(transportData.getTrips(), TramStations.VeloPark);
         //List<String> ashtonXRoutes = Collections.singletonList(RoutesForTesting.ASH_TO_ECCLES.getId());
 
         LocalDate aMonday = TestEnv.nextMonday();
@@ -345,7 +345,7 @@ class TransportDataFromFilesTest {
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<StopCall> stoppingAtVelopark = filteredTrips.stream()
                 .filter(trip -> mondayAshToManServices.contains(trip.getService().getId()))
-                .map(trip -> getStopsFor(trip, Stations.VeloPark.getId()))
+                .map(trip -> getStopsFor(trip, TramStations.VeloPark.getId()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 

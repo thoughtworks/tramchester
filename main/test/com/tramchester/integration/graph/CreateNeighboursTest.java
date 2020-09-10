@@ -91,16 +91,16 @@ class CreateNeighboursTest {
     @Test
     void shouldCreateNeighbourRelationships() {
 
-        Node shudehillTramNode = graphQuery.getStationNode(txn, Stations.Shudehill);
+        Node shudehillTramNode = graphQuery.getStationNode(txn, TramStations.of(TramStations.Shudehill));
         Iterable<Relationship> busOutbounds = shudehillTramNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.BUS_NEIGHBOUR);
         assertTrue(seenNode(txn, BusStations.ShudehillInterchange, busOutbounds, Relationship::getEndNode));
 
         Iterable<Relationship> tramOutbounds = shudehillTramNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TRAM_NEIGHBOUR);
-        assertTrue(seenNode(txn, Stations.Victoria, tramOutbounds,  Relationship::getEndNode));
+        assertTrue(seenNode(txn, TramStations.of(TramStations.Victoria), tramOutbounds,  Relationship::getEndNode));
 
         Iterable<Relationship> inbounds = shudehillTramNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.TRAM_NEIGHBOUR);
         assertTrue(seenNode(txn, BusStations.ShudehillInterchange, inbounds, Relationship::getStartNode));
-        assertTrue(seenNode(txn, Stations.Victoria, inbounds, Relationship::getStartNode));
+        assertTrue(seenNode(txn, TramStations.of(TramStations.Victoria), inbounds, Relationship::getStartNode));
     }
 
     @Test
@@ -127,7 +127,7 @@ class CreateNeighboursTest {
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
-            TransportStage stage = journey.getStages().get(0);
+            TransportStage<?,?> stage = journey.getStages().get(0);
             assertEquals(TransportMode.Tram, stage.getMode());
         });
     }
@@ -147,9 +147,9 @@ class CreateNeighboursTest {
         assertFalse(maybeTram.isEmpty());
 
         maybeTram.forEach(journey -> {
-            TransportStage first = journey.getStages().get(0);
+            TransportStage<?,?> first = journey.getStages().get(0);
             assertEquals(TransportMode.Tram, first.getMode());
-            TransportStage second = journey.getStages().get(1);
+            TransportStage<?,?> second = journey.getStages().get(1);
             assertEquals(TransportMode.Connect, second.getMode());
         });
     }
@@ -165,7 +165,7 @@ class CreateNeighboursTest {
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
-            TransportStage stage = journey.getStages().get(0);
+            TransportStage<?,?> stage = journey.getStages().get(0);
             assertEquals(TransportMode.Connect, stage.getMode());
         });
     }

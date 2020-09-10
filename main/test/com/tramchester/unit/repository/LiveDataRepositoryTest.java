@@ -9,13 +9,13 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.testSupport.TramStations.Altrincham;
+import static com.tramchester.testSupport.TramStations.Bury;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LiveDataRepositoryTest extends EasyMockSupport {
@@ -51,7 +53,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         StationDepartureInfo departureInfo = addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId",
-                "some message", Stations.Altrincham);
+                "some message", TramStations.of(Altrincham));
 
         EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
@@ -79,7 +81,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     void shouldGetDueTramsWithinTimeWindows() throws TransformException {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId", "some message", Stations.Altrincham);
+        addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId", "some message",
+                TramStations.of(Altrincham));
 
         EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
@@ -109,9 +112,9 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         List<StationDepartureInfo> info = new LinkedList<>();
 
         addStationInfoWithDueTram(info, lastUpdate.plusMinutes(14), "yyy", "platformIdA",
-                "some message", Stations.Altrincham);
+                "some message", TramStations.of(Altrincham));
         addStationInfoWithDueTram(info, lastUpdate.plusMinutes(21), "303", "platformIdB",
-                "some message", Stations.Altrincham);
+                "some message", TramStations.of(Altrincham));
 
         EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
@@ -133,8 +136,8 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     void shouldUpdateMessageCountWhenRefreshingDataOK() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        addStationInfoWithDueTram(info, lastUpdate, "yyy", "platformIdA", "some message", Stations.Altrincham);
-        addStationInfoWithDueTram(info, lastUpdate, "303", "platformIdB", "<no message>", Stations.Altrincham);
+        addStationInfoWithDueTram(info, lastUpdate, "yyy", "platformIdA", "some message", TramStations.of(Altrincham));
+        addStationInfoWithDueTram(info, lastUpdate, "303", "platformIdB", "<no message>", TramStations.of(Altrincham));
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -152,17 +155,18 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldUpdateStatusWhenRefreshingStaleData() {
+    void shouldUpdateStatusWhenRefreshingStaleData() throws TransformException {
         List<StationDepartureInfo> info = new LinkedList<>();
-        Station noPlatforms = Stations.Altrincham;
-        Station altrincham = new Station(noPlatforms.getId(), noPlatforms.getArea(), noPlatforms.getName(),
-                noPlatforms.getLatLong(), noPlatforms.getGridPosition());
 
-        String platformId1 = Stations.Altrincham.getId() + "1";
-        String platformId2 = Stations.Altrincham.getId() + "2";
+        String stationId = "stationId";
+        Station altrincham = TestStation.forTest(stationId, "Some Area", "Station Name",
+                TestEnv.nearPiccGardens, TransportMode.Tram);
 
-        altrincham.addPlatform(new Platform(platformId1, "Altrincham Platform 1"));
-        altrincham.addPlatform(new Platform(platformId2, "Altrincham Platform 2"));
+        String platformId1 = stationId + "1";
+        String platformId2 = stationId + "2";
+
+        altrincham.addPlatform(new Platform(platformId1, "Station Name Platform 1"));
+        altrincham.addPlatform(new Platform(platformId2, "Station Name Platform 2"));
 
         LocalDateTime current = TestEnv.LocalNow();
         LocalDateTime staleDataAndTime = current.minusDays(5).minusMinutes(60); // stale
@@ -184,18 +188,19 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         assertEquals(1, repository.upToDateEntries());
         assertEquals(1, repository.entriesWithMessages());
         assertEquals(2, repository.missingDataCount());
-        //assertEquals(1, repository.upToDateEntries()); // TramTime.of(current)
 
         List<DueTram> dueTrams = repository.dueTramsFor(altrincham, TramServiceDate.of(current), TramTime.of(current));
         assertEquals(0, dueTrams.size());
     }
 
     public static StationDepartureInfo addStationInfoWithDueTram(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
-                                                                 String displayId, String platformId, String message, Station location) {
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName", StationDepartureInfo.Direction.Incoming,
-                platformId, location, message, lastUpdate);
+                                                                 String displayId, String platformId, String message,
+                                                                 Station location) {
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName",
+                StationDepartureInfo.Direction.Incoming, platformId, location, message, lastUpdate);
         info.add(departureInfo);
-        departureInfo.addDueTram(new DueTram(Stations.Bury, "Due", 42, "Single", lastUpdate.toLocalTime()));
+        DueTram dueTram = new DueTram(TramStations.of(Bury), "Due", 42, "Single", lastUpdate.toLocalTime());
+        departureInfo.addDueTram(dueTram);
         return departureInfo;
     }
 }

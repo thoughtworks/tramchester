@@ -6,10 +6,7 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.integration.IntegrationAppExtension;
-import com.tramchester.testSupport.Postcodes;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramWithPostcodesEnabled;
+import com.tramchester.testSupport.*;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +58,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), Stations.Piccadilly.forDTO(), time, day,
+                prefix(Postcodes.CentralBury), TramStations.Piccadilly.forDTO(), time, day,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());
@@ -76,7 +73,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromStationToPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                Stations.Piccadilly.forDTO(), prefix(Postcodes.CentralBury), time, day,
+                TramStations.Piccadilly.forDTO(), prefix(Postcodes.CentralBury), time, day,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());

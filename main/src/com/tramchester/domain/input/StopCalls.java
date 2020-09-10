@@ -1,12 +1,15 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.places.Location;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 
 public class StopCalls { //implements Iterable<StopCall> {
@@ -40,8 +43,9 @@ public class StopCalls { //implements Iterable<StopCall> {
         return stops.get(callingNumber);
     }
 
-    public boolean callsAt(Station location) {
-        return stops.values().stream().anyMatch(stopCall -> stopCall.getStation().equals(location));
+    public boolean callsAt(HasId<Station> location) {
+        return stops.values().stream().anyMatch(stopCall ->
+                stopCall.getStation().getId().equals(location.getId()));
     }
 
     public Stream<StopCall> stream() {

@@ -28,17 +28,17 @@ class DeparturesResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
-    private final List<String> nearby = Arrays.asList(Stations.PiccadillyGardens.getName(),
-            Stations.StPetersSquare.getName(),
-            Stations.Piccadilly.getName(),
-            Stations.MarketStreet.getName(),
-            Stations.ExchangeSquare.getName(),
+    private final List<String> nearby = Arrays.asList(TramStations.PiccadillyGardens.getName(),
+            TramStations.StPetersSquare.getName(),
+            TramStations.Piccadilly.getName(),
+            TramStations.MarketStreet.getName(),
+            TramStations.ExchangeSquare.getName(),
             "Shudehill");
 
     @Test
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
-        Station station = Stations.Bury;
+        TramStations station = TramStations.Bury;
 
         Response response = IntegrationClient.getApiResponse(
                 appExtension, String.format("departures/station/%s", station.forDTO()));
@@ -55,7 +55,7 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimeNow() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
-        Station station = Stations.StPetersSquare;
+        TramStations station = TramStations.StPetersSquare;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
         assertFalse(departures.isEmpty(), "no due trams");
@@ -66,7 +66,7 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
-        Station station = Stations.StPetersSquare;
+        TramStations station = TramStations.StPetersSquare;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
         assertTrue(departures.isEmpty());
@@ -76,14 +76,14 @@ class DeparturesResourceTest {
     @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimeFuture() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
-        Station station = Stations.StPetersSquare;
+        TramStations station = TramStations.StPetersSquare;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
 
         assertTrue(departures.isEmpty());
     }
 
-    private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, Station station) {
+    private SortedSet<DepartureDTO> getDeparturesForStationTime(LocalTime queryTime, TramStations station) {
         String time = queryTime.format(TestEnv.timeFormatter);
         Response response = IntegrationClient.getApiResponse(
                 appExtension, String.format("departures/station/%s?querytime=%s", station.forDTO(), time));
@@ -172,7 +172,7 @@ class DeparturesResourceTest {
     @Test
     @LiveDataMessagesCategory
     void shouldGetDueTramsForStationNotesRequestedOrNot() {
-        Station station = Stations.Bury;
+        TramStations station = TramStations.Bury;
 
         // Notes disabled
         Response response = IntegrationClient.getApiResponse(

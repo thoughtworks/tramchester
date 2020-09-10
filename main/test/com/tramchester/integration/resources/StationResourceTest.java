@@ -14,8 +14,8 @@ import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +44,7 @@ class StationResourceTest {
 
     @Test
     void shouldGetSingleStationWithPlatforms() {
-        String id = Stations.StPetersSquare.getId().forDTO();
+        String id = TramStations.StPetersSquare.forDTO();
         String endPoint = "stations/" + id;
         Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
         Assertions.assertEquals(200,response.getStatus());
@@ -94,17 +94,17 @@ class StationResourceTest {
 
         assertEquals(6,stationList.size());
         Set<String> ids = stationList.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
-        assertTrue(ids.contains(Stations.PiccadillyGardens.forDTO()));
-        assertTrue(ids.contains(Stations.Piccadilly.forDTO()));
-        assertTrue(ids.contains(Stations.StPetersSquare.forDTO()));
-        assertTrue(ids.contains(Stations.MarketStreet.forDTO()));
-        assertTrue(ids.contains(Stations.ExchangeSquare.forDTO()));
-        assertTrue(ids.contains(Stations.Shudehill.forDTO()));
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.forDTO()));
+        assertTrue(ids.contains(TramStations.Piccadilly.forDTO()));
+        assertTrue(ids.contains(TramStations.StPetersSquare.forDTO()));
+        assertTrue(ids.contains(TramStations.MarketStreet.forDTO()));
+        assertTrue(ids.contains(TramStations.ExchangeSquare.forDTO()));
+        assertTrue(ids.contains(TramStations.Shudehill.forDTO()));
     }
 
     @Test
     void shouldGetRecentStations() throws JsonProcessingException {
-        Cookie cookie = createRecentsCookieFor(Stations.Altrincham, Stations.Bury, Stations.ManAirport);
+        Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
 
         // All
         Response result = IntegrationClient.getApiResponse(appExtension, "stations/recent", cookie);
@@ -116,9 +116,9 @@ class StationResourceTest {
 
         Set<String> ids = stationDtos.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
 
-        assertTrue(ids.contains(Stations.Altrincham.forDTO()));
-        assertTrue(ids.contains(Stations.Bury.forDTO()));
-        assertTrue(ids.contains(Stations.ManAirport.forDTO()));
+        assertTrue(ids.contains(TramStations.Altrincham.forDTO()));
+        assertTrue(ids.contains(TramStations.Bury.forDTO()));
+        assertTrue(ids.contains(TramStations.ManAirport.forDTO()));
 
     }
 
@@ -131,17 +131,17 @@ class StationResourceTest {
 
         assertEquals(1, results.size());
         StationClosureDTO stationClosure = results.get(0);
-        assertEquals(Stations.StPetersSquare.forDTO(), stationClosure.getStation().getId());
+        assertEquals(TramStations.StPetersSquare.forDTO(), stationClosure.getStation().getId());
         assertEquals(TestEnv.testDay(), stationClosure.getBegin());
         assertEquals(TestEnv.testDay().plusWeeks(1), stationClosure.getEnd());
     }
 
     @NotNull
-    private Cookie createRecentsCookieFor(Station... stations) throws JsonProcessingException {
+    private Cookie createRecentsCookieFor(TramStations... stations) throws JsonProcessingException {
         RecentJourneys recentJourneys = new RecentJourneys();
 
         Set<Timestamped> recents = new HashSet<>();
-        for (Station station : stations) {
+        for (TramStations station : stations) {
             Timestamped timestamped = new Timestamped(station.getId(), TestEnv.LocalNow());
             recents.add(timestamped);
         }
@@ -162,7 +162,7 @@ class StationResourceTest {
                 new StationClosure() {
                     @Override
                     public IdFor<Station> getStation() {
-                        return Stations.StPetersSquare.getId();
+                        return TramStations.StPetersSquare.getId();
                     }
 
                     @Override

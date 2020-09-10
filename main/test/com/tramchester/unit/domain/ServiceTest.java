@@ -6,8 +6,8 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -76,11 +76,12 @@ class ServiceTest {
         Service service = new Service("SVC002", TestEnv.getTestRoute());
         Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
         IdFor<Trip> tripId = trip.getId();
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", Stations.Deansgate,3, ServiceTime.of(9,5), ServiceTime.of(9,6)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId2", Stations.Deansgate, 2, ServiceTime.of(8,15), ServiceTime.of(8,16)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId3", Stations.Deansgate, 4, ServiceTime.of(10,25), ServiceTime.of(10,26)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId4", Stations.Deansgate,  5, ServiceTime.of(0,1), ServiceTime.of(0,1)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId5", Stations.Deansgate, 1, ServiceTime.of(6,30), ServiceTime.of(6,30)));
+        TramStations deansgate = TramStations.Deansgate;
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", deansgate,3, ServiceTime.of(9,5), ServiceTime.of(9,6)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId2", deansgate, 2, ServiceTime.of(8,15), ServiceTime.of(8,16)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId3", deansgate, 4, ServiceTime.of(10,25), ServiceTime.of(10,26)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId4", deansgate,  5, ServiceTime.of(0,1), ServiceTime.of(0,1)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId5", deansgate, 1, ServiceTime.of(6,30), ServiceTime.of(6,30)));
 
         service.addTrip(trip);
 

@@ -14,8 +14,8 @@ import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,7 +94,7 @@ class FastestRoutesForBoxesTest {
 
     @Test
     void shouldFindRoutesForAllExceptStart() throws TransformException {
-        Station testStationWithInvalidPosition = Stations.StPetersSquare;
+        TramStations testStationWithInvalidPosition = TramStations.StPetersSquare;
 
         LatLong latLong = TestEnv.stPetersSquareLocation();
         GridPosition grid = CoordinateTransforms.getGridPosition(latLong);

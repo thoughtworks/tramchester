@@ -7,13 +7,12 @@ import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.List;
 
 class RouteCallingStationsTest {
@@ -38,19 +37,19 @@ class RouteCallingStationsTest {
     @Test
     void shouldGetCorrectStationsForARouteAltToPicc() {
         List<Station> stations = repo.getStationsFor(RoutesForTesting.ALTY_TO_PICC);
-        Assertions.assertEquals(Stations.Altrincham.getId(), stations.get(0).getId());
-        Assertions.assertEquals(Stations.NavigationRoad.getId(), stations.get(1).getId());
-        Assertions.assertEquals(Stations.Cornbrook.getId(), stations.get(9).getId());
-        Assertions.assertEquals(Stations.Piccadilly.getId(), stations.get(13).getId());
+        Assertions.assertEquals(TramStations.Altrincham.getId(), stations.get(0).getId());
+        Assertions.assertEquals(TramStations.NavigationRoad.getId(), stations.get(1).getId());
+        Assertions.assertEquals(TramStations.Cornbrook.getId(), stations.get(9).getId());
+        Assertions.assertEquals(TramStations.Piccadilly.getId(), stations.get(13).getId());
     }
 
     @Test
     void shouldGetCorrectStationsForARouteEcclesToAsh() {
         List<Station> stations = repo.getStationsFor(RoutesForTesting.ECCLES_TO_ASH);
-        Assertions.assertEquals(Stations.Eccles.getId(), stations.get(0).getId());
-        Assertions.assertEquals(Stations.MediaCityUK.getId(), stations.get(5).getId());
-        Assertions.assertEquals(Stations.Deansgate.getId(), stations.get(12).getId());
-        Assertions.assertEquals(Stations.Ashton.getId(), stations.get(27).getId());
+        Assertions.assertEquals(TramStations.Eccles.getId(), stations.get(0).getId());
+        Assertions.assertEquals(TramStations.MediaCityUK.getId(), stations.get(5).getId());
+        Assertions.assertEquals(TramStations.Deansgate.getId(), stations.get(12).getId());
+        Assertions.assertEquals(TramStations.Ashton.getId(), stations.get(27).getId());
     }
 
     @Test

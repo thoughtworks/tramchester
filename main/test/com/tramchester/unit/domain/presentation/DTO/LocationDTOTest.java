@@ -8,9 +8,9 @@ import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -49,16 +49,14 @@ class LocationDTOTest {
         Assertions.assertEquals(2, dto.getPlatforms().size());
 
         PlatformDTO platformDTOA = dto.getPlatforms().get(0);
-        Assertions.assertEquals(Stations.Altrincham.forDTO()+"1", platformDTOA.getId());
+        Assertions.assertEquals(TramStations.Altrincham.forDTO()+"1", platformDTOA.getId());
         Assertions.assertEquals("Altrincham platform 1", platformDTOA.getName());
         Assertions.assertEquals("1", platformDTOA.getPlatformNumber());
 
-
         PlatformDTO platformDTOB = dto.getPlatforms().get(1);
-        Assertions.assertEquals(Stations.Altrincham.forDTO()+"2", platformDTOB.getId());
+        Assertions.assertEquals(TramStations.Altrincham.forDTO()+"2", platformDTOB.getId());
         Assertions.assertEquals("Altrincham platform 2", platformDTOB.getName());
         Assertions.assertEquals("2", platformDTOB.getPlatformNumber());
-
 
     }
 

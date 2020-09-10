@@ -1,7 +1,7 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 
 import java.util.Collection;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class TransportDataFilter {
 
-    public static Set<Trip> getTripsFor(Collection<Trip> trips, Station station) {
+    public static Set<Trip> getTripsFor(Collection<Trip> trips, HasId<Station> station) {
         Set<Trip> callingTrips = new HashSet<>();
         trips.forEach(trip -> {
             if (trip.getStops().callsAt(station)) {

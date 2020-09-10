@@ -6,12 +6,9 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -23,19 +20,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TripTest {
 
-    private Station stationA;
-    private Station stationB;
+    private TramStations stationA;
+    private TramStations stationB;
+    private TramStations stationC;
+
     private Trip trip;
-    private Station stationC;
 
     @BeforeEach
     void beforeEachTestRuns() throws TransformException {
         Service service = new Service("svcId", TestEnv.getTestRoute());
 
         trip = new Trip("tripId","headSign", service, TestEnv.getTestRoute());
-        stationA = TestStation.forTest("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), TransportMode.Bus);
-        stationB = TestStation.forTest("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), TransportMode.Bus);
-        stationC = TestStation.forTest("statC","areaA", "stopNameB", new LatLong(2.0, -2.0), TransportMode.Bus);
+
+        stationA = TramStations.Ashton;
+        stationB = TramStations.Broadway;
+        stationC = TramStations.Cornbrook;
     }
 
     @Test
@@ -100,8 +99,8 @@ class TripTest {
 
     @Test
     void shouldFindLatestDepartCorrectly() {
-        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId3", Stations.Deansgate, (byte) 3, ServiceTime.of(10,25), ServiceTime.of(10,26)));
-        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId4", Stations.Deansgate, (byte) 4, ServiceTime.of(0,1), ServiceTime.of(0,1)));
+        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId3", TramStations.Deansgate, (byte) 3, ServiceTime.of(10,25), ServiceTime.of(10,26)));
+        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId4", TramStations.Deansgate, (byte) 4, ServiceTime.of(0,1), ServiceTime.of(0,1)));
 
         assertEquals(ServiceTime.of(0,1), trip.latestDepartTime());
 

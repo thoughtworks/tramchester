@@ -8,9 +8,7 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.*;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,8 +45,8 @@ class RouteResourceTest {
 
         assertEquals("3", ashtonRoute.getShortName().trim());
         List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
-        assertTrue(ids.contains(Stations.Ashton.forDTO()));
-        assertTrue(ids.contains(Stations.Eccles.forDTO()));
+        assertTrue(ids.contains(TramStations.Ashton.forDTO()));
+        assertTrue(ids.contains(TramStations.Eccles.forDTO()));
     }
 
     @Test
@@ -61,11 +59,11 @@ class RouteResourceTest {
 
         List<StationRefWithPosition> stations = routes.get(index).getStations();
         StationRefWithPosition first = stations.get(0);
-        assertEquals(Stations.ManAirport.forDTO(), first.getId());
+        assertEquals(TramStations.ManAirport.forDTO(), first.getId());
         assertEquals(TestEnv.manAirportLocation, first.getLatLong());
         assertEquals(TransportMode.Tram, first.getTransportMode());
 
-        assertEquals(Stations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
+        assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
     }
 
     private List<RouteDTO> getRouteResponse() {

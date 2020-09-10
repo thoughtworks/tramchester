@@ -4,7 +4,7 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ class RouteDTOTest {
     void shouldUseRouteNameForEquality() {
 
         List<StationRefWithPosition> stations = new ArrayList<>();
-        stations.add(new StationRefWithPosition(Stations.Intu));
+        stations.add(new StationRefWithPosition(TramStations.of(TramStations.Intu)));
         RouteDTO routeDTO = new RouteDTO(RoutesForTesting.INTU_TO_CORN, stations);
 
         assertEquals("MET:   7:I:", routeDTO.getId());
@@ -28,7 +28,7 @@ class RouteDTOTest {
 
         List<StationRefWithPosition> stationsDTO = routeDTO.getStations();
         assertEquals(1, stationsDTO.size());
-        assertEquals(Stations.Intu.forDTO(), stations.get(0).getId());
+        assertEquals(TramStations.Intu.forDTO(), stations.get(0).getId());
 
     }
 }

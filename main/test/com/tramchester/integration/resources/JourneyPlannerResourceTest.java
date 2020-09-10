@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -21,7 +20,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.ParseStream;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,7 +81,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     }
 
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when),
+        JourneyPlanRepresentation plan = getJourneyPlan(TramStations.Altrincham, TramStations.Cornbrook, new TramServiceDate(when),
                 queryTime.asLocalTime(), arriveBy, 0);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
@@ -106,7 +107,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldPlanSimpleJourneyArriveByHasAtLeastOneDepartByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Cornbrook, new TramServiceDate(when),
+        JourneyPlanRepresentation plan = getJourneyPlan(TramStations.Altrincham, TramStations.Cornbrook, new TramServiceDate(when),
                 queryTime.asLocalTime(), true, 0);
 
         List<JourneyDTO> found = new ArrayList<>();
@@ -123,7 +124,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldGetNoResultsToAirportWhenLimitOnChanges() {
         LocalTime queryTime = LocalTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.ManAirport, new TramServiceDate(when),
+        JourneyPlanRepresentation plan = getJourneyPlan(TramStations.Altrincham, TramStations.ManAirport, new TramServiceDate(when),
                 queryTime, true, 0);
         Assertions.assertTrue(plan.getJourneys().isEmpty());
     }
@@ -132,7 +133,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
         LocalTime timeForQuery = LocalTime.of(23,11);
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Shudehill, Stations.Altrincham,
+        JourneyPlanRepresentation plan = getJourneyPlan(TramStations.Shudehill, TramStations.Altrincham,
                 new TramServiceDate(now.toLocalDate()), timeForQuery, false, 3);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
@@ -143,7 +144,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 
-        JourneyPlanRepresentation plan = getJourneyPlan(Stations.Altrincham, Stations.Ashton, new TramServiceDate(when),
+        JourneyPlanRepresentation plan = getJourneyPlan(TramStations.Altrincham, TramStations.Ashton, new TramServiceDate(when),
                 LocalTime.of(17,45), false, 1);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
@@ -155,7 +156,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
             Assertions.assertEquals("1", platform1.getPlatformNumber());
             Assertions.assertEquals( "Altrincham platform 1", platform1.getName());
-            Assertions.assertEquals( Stations.Altrincham.forDTO()+"1", platform1.getId());
+            Assertions.assertEquals( TramStations.Altrincham.forDTO()+"1", platform1.getId());
 
             StageDTO secondStage = journey.getStages().get(1);
             PlatformDTO platform2 = secondStage.getPlatform();
@@ -163,7 +164,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             Assertions.assertEquals("1", platform2.getPlatformNumber());
             // multiple possible places to change depending on timetable etc
             assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
-            assertThat( platform2.getId(), is(oneOf(Stations.Piccadilly.forDTO()+"1",
+            assertThat( platform2.getId(), is(oneOf(TramStations.Piccadilly.forDTO()+"1",
                     TramStations.Cornbrook.forDTO()+"1",
                     TramStations.StPetersSquare.forDTO()+"1")));
         });
@@ -174,7 +175,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     void testAltyToManAirportHasRealisticTranferAtCornbrook() {
         LocalDate nextSunday = TestEnv.nextSunday();
 
-        JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
+        JourneyPlanRepresentation results = getJourneyPlan(TramStations.Altrincham, TramStations.ManAirport,
                 TramTime.of(11,0), nextSunday);
 
         Set<JourneyDTO> journeys = results.getJourneys();
@@ -189,17 +190,17 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Note weekendNote = new Note("At the weekend your journey may be affected by improvement works."
                 + ProvidesNotes.website, Note.NoteType.Weekend);
 
-        JourneyPlanRepresentation results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
+        JourneyPlanRepresentation results = getJourneyPlan(TramStations.Altrincham, TramStations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextSunday());
 
         results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
 
-        results = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
+        results = getJourneyPlan(TramStations.Altrincham, TramStations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextSaturday());
 
         results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
 
-        JourneyPlanRepresentation notWeekendResult = getJourneyPlan(Stations.Altrincham, Stations.ManAirport,
+        JourneyPlanRepresentation notWeekendResult = getJourneyPlan(TramStations.Altrincham, TramStations.ManAirport,
                 TramTime.of(11, 43), TestEnv.nextMonday());
 
         notWeekendResult.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), not(hasItem(weekendNote))));
@@ -209,40 +210,40 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindRouteVicToShawAndCrompton() {
-        validateAtLeastOneJourney(Stations.Victoria, Stations.ShawAndCrompton, when, TramTime.of(23,34));
+        validateAtLeastOneJourney(TramStations.Victoria, TramStations.ShawAndCrompton, when, TramTime.of(23,34));
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindRouteDeansgateToVictoria() {
-        validateAtLeastOneJourney(Stations.Deansgate, Stations.Victoria, when, TramTime.of(23,41));
+        validateAtLeastOneJourney(TramStations.Deansgate, TramStations.Victoria, when, TramTime.of(23,41));
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindEndOfDayTwoStageJourney() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ManAirport, when, TramTime.of(22,56));
+        validateAtLeastOneJourney(TramStations.Altrincham, TramStations.ManAirport, when, TramTime.of(22,56));
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldFindEndOfDayThreeStageJourney() {
-        validateAtLeastOneJourney(Stations.Altrincham, Stations.ShawAndCrompton, when, TramTime.of(22,45));
+        validateAtLeastOneJourney(TramStations.Altrincham, TramStations.ShawAndCrompton, when, TramTime.of(22,45));
     }
 
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldOnlyReturnFullJourneysForEndOfDaysJourney() {
-        JourneyPlanRepresentation results = validateAtLeastOneJourney(Stations.Deansgate,
-                Stations.ManAirport, when, TramTime.of(23,5));
+        JourneyPlanRepresentation results = validateAtLeastOneJourney(TramStations.Deansgate,
+                TramStations.ManAirport, when, TramTime.of(23,5));
 
         Assertions.assertTrue(results.getJourneys().size()>0);
     }
 
     @Test
     void shouldSetCookieForRecentJourney() throws IOException {
-        IdFor<Station> start = Stations.Bury.getId();
-        IdFor<Station> end = Stations.ManAirport.getId();
+        IdFor<Station> start = TramStations.Bury.getId();
+        IdFor<Station> end = TramStations.ManAirport.getId();
 
         Response result = getResponseForJourney(appExtension, start, end, now.toLocalTime(), now.toLocalDate(), null,
                 false, 3);
@@ -258,8 +259,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldUdateCookieForRecentJourney() throws IOException {
-        IdFor<Station> start = Stations.Bury.getId();
-        IdFor<Station> end = Stations.ManAirport.getId();
+        IdFor<Station> start = TramStations.Bury.getId();
+        IdFor<Station> end = TramStations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
 
@@ -289,7 +290,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         String start = MyLocation.MY_LOCATION_PLACEHOLDER_ID;
-        IdFor<Station> end = Stations.ManAirport.getId();
+        IdFor<Station> end = TramStations.ManAirport.getId();
 
         Response response = getResponseForJourney(appExtension, start, end.forDTO(), now.toLocalTime(),  now.toLocalDate(),
                 latlong, false, 3);
@@ -332,12 +333,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         return RecentJourneys.decodeCookie(mapper,value);
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location<Station> start, Location<Station> end, TramServiceDate queryDate, LocalTime queryTime,
+    protected JourneyPlanRepresentation getJourneyPlan(TramStations start, TramStations end, TramServiceDate queryDate, LocalTime queryTime,
                                                        boolean arriveBy, int maxChanges) {
         return getJourneyPlanRepresentation(appExtension, start, end, queryDate, queryTime, arriveBy, maxChanges);
     }
 
-    static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationAppExtension rule, Location<Station> start, Location<Station> end,
+    static JourneyPlanRepresentation getJourneyPlanRepresentation(IntegrationAppExtension rule, TramStations start,
+                                                                  TramStations end,
                                                                   TramServiceDate queryDate, LocalTime queryTime,
                                                                   boolean arriveBy, int maxChanges) {
         Response response = getResponseForJourney(rule, start.forDTO(), end.forDTO(), queryTime, queryDate.getDate(),

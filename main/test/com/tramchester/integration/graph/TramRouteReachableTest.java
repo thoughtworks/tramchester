@@ -8,10 +8,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
+import java.util.List;
 
 import static com.tramchester.testSupport.RoutesForTesting.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,43 +43,51 @@ class TramRouteReachableTest {
 
     @Test
     void shouldHaveCorrectReachabilityOrInterchanges() {
-        assertTrue(reachable.getRouteReachableWithInterchange(getRouteStation(ALTY_TO_PICC, Stations.NavigationRoad), Stations.ManAirport));
-        assertFalse(reachable.getRouteReachableWithInterchange(getRouteStation(PICC_TO_ALTY, Stations.NavigationRoad), Stations.ManAirport));
+        assertTrue(reachable(ALTY_TO_PICC, TramStations.NavigationRoad, TramStations.ManAirport));
+        assertFalse(reachable(PICC_TO_ALTY, TramStations.NavigationRoad, TramStations.ManAirport));
 
-        assertTrue(reachable.getRouteReachableWithInterchange(getRouteStation(AIR_TO_VIC, Stations.ManAirport), Stations.StWerburghsRoad));
-        assertFalse(reachable.getRouteReachableWithInterchange(getRouteStation(VIC_TO_AIR, Stations.ManAirport), Stations.StWerburghsRoad));
-    }
-
-    private RouteStation getRouteStation(Route route, Station station) {
-        return new RouteStation(station, route);
+        assertTrue(reachable(AIR_TO_VIC, TramStations.ManAirport, TramStations.StWerburghsRoad));
+        assertFalse(reachable(VIC_TO_AIR, TramStations.ManAirport, TramStations.StWerburghsRoad));
     }
 
     @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachable.getRouteReachableWithInterchange(getRouteStation(ROCH_TO_DIDS, Stations.RochdaleRail), Stations.Monsall));
-        assertTrue(reachable.getRouteReachableWithInterchange(getRouteStation(DIDS_TO_ROCH, Stations.Monsall), Stations.RochdaleRail));
+        assertTrue(reachable(ROCH_TO_DIDS, TramStations.RochdaleRail, TramStations.Monsall));
+        assertTrue(reachable(DIDS_TO_ROCH, TramStations.Monsall, TramStations.RochdaleRail));
     }
 
     @Test
     void shouldHaveAdjacentRoutesCorrectly() {
 
         // TODO Lockdown 2->1 for next two tests, only one route to alty now
-        assertEquals(1,reachable.getRoutesFromStartToNeighbour(getReal(Stations.NavigationRoad), Stations.Altrincham).size());
-        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.NavigationRoad).size());
+        assertEquals(1, getRoutes(TramStations.NavigationRoad, TramStations.Altrincham).size());
+        assertEquals(1, getRoutes(TramStations.Altrincham, TramStations.NavigationRoad).size());
 
         // 5 not the 7 on the map, only 6 routes modelled in timetable data, 1 of which does not go between these 2
         // TODO Lockdown 5->4
-        assertEquals(4, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Deansgate), Stations.StPetersSquare).size());
+        assertEquals(4, getRoutes(TramStations.Deansgate, TramStations.StPetersSquare).size());
 
-        assertEquals(2, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.PiccadillyGardens).size());
+        assertEquals(2, getRoutes(TramStations.StPetersSquare, TramStations.PiccadillyGardens).size());
 
         // TODO Lockdown 2->1
-        assertEquals(1, reachable.getRoutesFromStartToNeighbour(getReal(Stations.StPetersSquare), Stations.MarketStreet).size());
+        assertEquals(1, getRoutes(TramStations.StPetersSquare, TramStations.MarketStreet).size());
 
-        assertEquals(0, reachable.getRoutesFromStartToNeighbour(getReal(Stations.Altrincham), Stations.Cornbrook).size());
+        assertEquals(0, getRoutes(TramStations.Altrincham, TramStations.Cornbrook).size());
     }
 
-    private Station getReal(Station testStation) {
-        return stationRepository.getStationById(testStation.getId());
+    private List<Route> getRoutes(TramStations start, TramStations neighbour) {
+        return reachable.getRoutesFromStartToNeighbour(getReal(start), getReal(neighbour));
+    }
+
+    private Station getReal(TramStations stations) {
+        return TestStation.real(stationRepository, stations);
+    }
+
+    private boolean reachable(Route route, TramStations routeStation, TramStations dest) {
+        return reachable.getRouteReachableWithInterchange(getRouteStation(route, getReal(routeStation)), getReal(dest));
+    }
+
+    private RouteStation getRouteStation(Route route, Station station) {
+        return new RouteStation(station, route);
     }
 }

@@ -11,8 +11,8 @@ import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.ParseStream;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,7 @@ class JourneysForGridResourceTest {
     @Test
     void shouldHaveJourneysForWholeGrid() throws IOException {
         LatLong destPos = TestEnv.stPetersSquareLocation();
-        IdFor<Station> destination = Stations.StPetersSquare.getId();
+        IdFor<Station> destination = TramStations.StPetersSquare.getId();
 
         String queryString = String.format("grid?gridSize=%s&destination=%s&departureTime=%s&departureDate=%s&maxChanges=%s&maxDuration=%s",
                 gridSize, destination.forDTO(), time, date, maxChanges, maxDuration);

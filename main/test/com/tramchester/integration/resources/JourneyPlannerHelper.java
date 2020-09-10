@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.testSupport.TramStations;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -36,7 +37,7 @@ public abstract class JourneyPlannerHelper {
         }
     }
 
-    JourneyPlanRepresentation validateAtLeastOneJourney(Location<Station> start, Location<Station> end, LocalDate date, TramTime queryTime)  {
+    JourneyPlanRepresentation validateAtLeastOneJourney(TramStations start, TramStations end, LocalDate date, TramTime queryTime)  {
         TramServiceDate queryDate = new TramServiceDate(date);
         JourneyPlanRepresentation results = getJourneyPlan(start, end, queryDate, queryTime.asLocalTime(), false, 3);
         Set<JourneyDTO> journeys = results.getJourneys();
@@ -48,11 +49,11 @@ public abstract class JourneyPlannerHelper {
         return results;
     }
 
-    protected JourneyPlanRepresentation getJourneyPlan(Location<Station> start, Location<Station> end, TramTime queryTime, LocalDate queryDate)  {
+    protected JourneyPlanRepresentation getJourneyPlan(TramStations start, TramStations end, TramTime queryTime, LocalDate queryDate)  {
         return getJourneyPlan(start, end, new TramServiceDate(queryDate), queryTime.asLocalTime(), false, 3);
     }
 
-    abstract JourneyPlanRepresentation getJourneyPlan(Location<Station> start, Location<Station> end, TramServiceDate queryDate, LocalTime queryTime,
+    abstract JourneyPlanRepresentation getJourneyPlan(TramStations start, TramStations end, TramServiceDate queryDate, LocalTime queryTime,
                                                       boolean arriveBy, int maxChanges);
 
 

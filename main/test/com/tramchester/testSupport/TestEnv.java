@@ -162,15 +162,17 @@ public class TestEnv {
         return System.getenv("CIRCLECI") != null;
     }
 
-    public static TramStopCall createTramStopCall(IdFor<Trip> tripId, String stopId, Station station, int seq, ServiceTime arrive, ServiceTime depart) {
+    public static TramStopCall createTramStopCall(IdFor<Trip> tripId, String stopId, TramStations station, int seq,
+                                                  ServiceTime arrive, ServiceTime depart) {
         return createTramStopCall(tripId.forDTO(), stopId, station, seq, arrive, depart);
     }
 
-    public static TramStopCall createTramStopCall(String tripId, String stopId, Station station, int seq, ServiceTime arrive, ServiceTime depart) {
+    public static TramStopCall createTramStopCall(String tripId, String stopId, TramStations station, int seq, ServiceTime arrive,
+                                                  ServiceTime depart) {
         Platform platform = createPlatform(stopId);
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
         StopTimeData stopTimeData = new StopTimeData(tripId, arrive, depart, stopId, seq, pickupDropoff, pickupDropoff);
-        return new TramStopCall(platform, station, stopTimeData);
+        return new TramStopCall(platform, TramStations.of(station), stopTimeData);
     }
 
     private static Platform createPlatform(String id) {

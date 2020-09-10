@@ -11,7 +11,6 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.TramStations.Cornbrook;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -35,7 +35,7 @@ class RouteCalculatorSubGraphTest {
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
     private static final List<TramStations> stations = Arrays.asList(
-            TramStations.Cornbrook,
+            Cornbrook,
             TramStations.StPetersSquare,
             TramStations.Deansgate,
             TramStations.Pomona);
@@ -79,9 +79,9 @@ class RouteCalculatorSubGraphTest {
     void reproduceIssueEdgePerTrip() {
 
         validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Deansgate, TramTime.of(19,51), when);
-        validateAtLeastOneJourney(TramStations.Cornbrook, TramStations.Pomona, TramTime.of(19,51).plusMinutes(6), when);
+        validateAtLeastOneJourney(Cornbrook, TramStations.Pomona, TramTime.of(19,51).plusMinutes(6), when);
 
-        validateAtLeastOneJourney(TramStations.Deansgate, TramStations.Cornbrook, TramTime.of(19,51).plusMinutes(3), when);
+        validateAtLeastOneJourney(TramStations.Deansgate, Cornbrook, TramTime.of(19,51).plusMinutes(3), when);
         validateAtLeastOneJourney(TramStations.Deansgate, TramStations.Pomona, TramTime.of(19,51).plusMinutes(3), when);
 
         validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, TramTime.of(19,51), when);
@@ -91,7 +91,7 @@ class RouteCalculatorSubGraphTest {
     @Disabled("Temporary: trams finish at 2300")
     @Test
     void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(TramStations.Cornbrook, TramStations.StPetersSquare, TramTime.of(23,55), when);
+        validateAtLeastOneJourney(Cornbrook, TramStations.StPetersSquare, TramTime.of(23,55), when);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -108,13 +108,13 @@ class RouteCalculatorSubGraphTest {
 
     @Test
     void shouldHaveSimpleOneStopJourney() {
-        Set<Journey> results = getJourneys(TramStations.Cornbrook, TramStations.Pomona, when);
+        Set<Journey> results = getJourneys(Cornbrook, TramStations.Pomona, when);
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
-        Set<Journey> results = getJourneys(TramStations.Cornbrook, TramStations.Pomona, TestEnv.nextSaturday());
+        Set<Journey> results = getJourneys(Cornbrook, TramStations.Pomona, TestEnv.nextSaturday());
         Assertions.assertTrue(results.size()>0);
     }
 
@@ -126,7 +126,7 @@ class RouteCalculatorSubGraphTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        Set<Journey> results = getJourneys(TramStations.StPetersSquare, TramStations.Cornbrook, when);
+        Set<Journey> results = getJourneys(TramStations.StPetersSquare, Cornbrook, when);
         Assertions.assertTrue(results.size()>0);
     }
 
@@ -134,7 +134,7 @@ class RouteCalculatorSubGraphTest {
     //@Disabled
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(database, 7);
-        creator.create(format("%s_trams.dot", "subgraph"), Stations.Cornbrook);
+        creator.create(format("%s_trams.dot", "subgraph"), TramStations.of(Cornbrook));
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

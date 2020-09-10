@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
+import static com.tramchester.testSupport.TramStations.MediaCityUK;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -44,7 +45,7 @@ class RouteCalculatorSubGraphMediaCityTest {
             TramStations.SalfordQuay,
             TramStations.Anchorage,
             TramStations.HarbourCity,
-            TramStations.MediaCityUK,
+            MediaCityUK,
             TramStations.TraffordBar);
     private Transaction txn;
 
@@ -83,9 +84,9 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void shouldHaveMediaCityToExchangeSquare() {
-        validateAtLeastOneJourney(TramStations.MediaCityUK, TramStations.Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
-        validateAtLeastOneJourney(TramStations.MediaCityUK, TramStations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
-        validateAtLeastOneJourney(TramStations.MediaCityUK, TramStations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
+        validateAtLeastOneJourney(MediaCityUK, TramStations.Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(MediaCityUK, TramStations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(MediaCityUK, TramStations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @DataExpiryCategory
@@ -114,19 +115,19 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void reproduceMediaCityIssue() {
-        validateAtLeastOneJourney(TramStations.ExchangeSquare, TramStations.MediaCityUK, TramTime.of(12,0), when);
+        validateAtLeastOneJourney(TramStations.ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
     }
 
     @Test
     void reproduceMediaCityIssueSaturdays() {
-        validateAtLeastOneJourney(TramStations.ExchangeSquare, TramStations.MediaCityUK, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(TramStations.ExchangeSquare, MediaCityUK, TramTime.of(9,0), TestEnv.nextSaturday());
     }
 
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false, 3,
                 config.getMaxJourneyDuration());
-        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, TramStations.MediaCityUK, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, MediaCityUK, journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
 
@@ -134,7 +135,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = new DiagramCreator(database, 3);
-        creator.create(format("%s_trams.dot", "subgraph_mediacity"), Stations.MediaCityUK);
+        creator.create(format("%s_trams.dot", "subgraph_mediacity"), TramStations.of(MediaCityUK));
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

@@ -6,7 +6,7 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static com.tramchester.testSupport.TramStations.*;
 
 class LiveDataParserTest extends EasyMockSupport {
 
@@ -37,18 +39,18 @@ class LiveDataParserTest extends EasyMockSupport {
         StationRepository stationRepository = createStrictMock(StationRepository.class);
         parser = new LiveDataParser(stationRepository);
 
-        EasyMock.expect(stationRepository.getStationById(Stations.MediaCityUK.getId())).andStubReturn(Stations.MediaCityUK);
-        EasyMock.expect(stationRepository.getStationById(Stations.ManAirport.getId())).andStubReturn(Stations.ManAirport);
+        EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(TramStations.of(MediaCityUK));
+        EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(TramStations.of(ManAirport));
 
-        EasyMock.expect(stationRepository.getTramStationByName("Piccadilly")).andStubReturn(Optional.of(Stations.Piccadilly));
-        EasyMock.expect(stationRepository.hasStationId(Stations.MediaCityUK.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getTramStationByName("MediaCityUK")).andStubReturn(Optional.of(Stations.MediaCityUK));
+        EasyMock.expect(stationRepository.getTramStationByName("Piccadilly")).andStubReturn(Optional.of(TramStations.of(Piccadilly)));
+        EasyMock.expect(stationRepository.hasStationId(MediaCityUK.getId())).andStubReturn(true);
+        EasyMock.expect(stationRepository.getTramStationByName("MediaCityUK")).andStubReturn(Optional.of(TramStations.of(MediaCityUK)));
 
-        EasyMock.expect(stationRepository.hasStationId(Stations.ManAirport.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getTramStationByName("Manchester Airport")).andStubReturn(Optional.of(Stations.ManAirport));
+        EasyMock.expect(stationRepository.hasStationId(ManAirport.getId())).andStubReturn(true);
+        EasyMock.expect(stationRepository.getTramStationByName("Manchester Airport")).andStubReturn(Optional.of(of(ManAirport)));
 
         EasyMock.expect(stationRepository.getTramStationByName("")).andStubReturn(Optional.empty());
-        EasyMock.expect(stationRepository.getTramStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(Stations.Deansgate));
+        EasyMock.expect(stationRepository.getTramStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(of(Deansgate)));
         EasyMock.expect(stationRepository.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
     }
 
@@ -99,7 +101,7 @@ class LiveDataParserTest extends EasyMockSupport {
         Assertions.assertEquals("1", departureInfoA.getDisplayId());
         Assertions.assertEquals("Eccles", departureInfoA.getLineName());
         Assertions.assertEquals(IdFor.createId("9400ZZMAMCU2"), departureInfoA.getStationPlatform());
-        Assertions.assertEquals(Stations.MediaCityUK, departureInfoA.getStation());
+        Assertions.assertEquals(MediaCityUK.getId(), departureInfoA.getStation().getId());
         Assertions.assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +
                 "ahead with additional time for travel.", departureInfoA.getMessage());
@@ -135,7 +137,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         Assertions.assertEquals(2, info.size());
         StationDepartureInfo departureInfoB = info.get(1);
-        Assertions.assertEquals(Stations.ManAirport, departureInfoB.getStation());
+        Assertions.assertEquals(ManAirport.getId(), departureInfoB.getStation().getId());
         Assertions.assertEquals(2, departureInfoB.getDueTrams().size());
     }
 
@@ -149,7 +151,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         Assertions.assertEquals(2, info.size());
         StationDepartureInfo departureInfoB = info.get(1);
-        Assertions.assertEquals(Stations.ManAirport, departureInfoB.getStation());
+        Assertions.assertEquals(ManAirport.getId(), departureInfoB.getStation().getId());
         Assertions.assertEquals(1, departureInfoB.getDueTrams().size());
     }
 

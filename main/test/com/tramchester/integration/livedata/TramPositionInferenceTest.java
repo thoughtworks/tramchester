@@ -1,23 +1,25 @@
 package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
-import com.tramchester.testSupport.LiveDataMessagesCategory;
-import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.repository.StationRepository;
-import org.junit.jupiter.api.*;
+import com.tramchester.repository.TramStationAdjacenyRepository;
+import com.tramchester.testSupport.LiveDataMessagesCategory;
+import com.tramchester.testSupport.LiveDataTestCategory;
+import com.tramchester.testSupport.TramStations;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,8 +68,8 @@ class TramPositionInferenceTest {
         // Guess this is down to signalling, track, etc.
         int cost = 3; // cost between the stations, no due trams outside this limit should appear
 
-        Station first = stationRepository.getStationById(Stations.Deansgate.getId());
-        Station second = stationRepository.getStationById(Stations.Cornbrook.getId());
+        Station first = stationRepository.getStationById(TramStations.Deansgate.getId());
+        Station second = stationRepository.getStationById(TramStations.Cornbrook.getId());
 
         TramPosition between = positionInference.findBetween(first, second, date, time);
         assertEquals(first, between.getFirst());

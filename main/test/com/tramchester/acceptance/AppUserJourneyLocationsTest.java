@@ -6,8 +6,8 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +34,9 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
     public static AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
 
-    private final String bury = Stations.Bury.getName();
-    private final String altrincham = Stations.Altrincham.getName();
-    private final String deansgate = Stations.Deansgate.getName();
+    private final String bury = TramStations.Bury.getName();
+    private final String altrincham = TramStations.Altrincham.getName();
+    private final String deansgate = TramStations.Deansgate.getName();
 
     private LocalDate when;
     private String url;
@@ -79,27 +79,27 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Assertions.assertEquals(1, myLocationStops.size());
 
         List<String> nearestFromStops = appPage.getNearestFromStops();
-        assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
+        assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, TramStations.NavigationRoad.getName()));
 
         List<String> allFrom = appPage.getAllStopsFromStops();
         assertFalse(allFrom.contains(altrincham));
-        assertFalse(allFrom.contains(Stations.NavigationRoad.getName()));
+        assertFalse(allFrom.contains(TramStations.NavigationRoad.getName()));
 
         List<String> recentFromStops = appPage.getRecentFromStops();
         assertThat(allFrom, not(contains(recentFromStops)));
 
-        Assertions.assertEquals(Stations.NumberOf, nearestFromStops.size() + allFrom.size() + recentFromStops.size());
+        Assertions.assertEquals(TramStations.NumberOf, nearestFromStops.size() + allFrom.size() + recentFromStops.size());
 
         // to
         List<String> myLocationToStops = appPage.getNearbyToStops();
         Assertions.assertEquals(1, myLocationToStops.size());
 
         List<String> nearestToStops = appPage.getNearestFromStops();
-        assertThat(nearestToStops, hasItems(altrincham, Stations.NavigationRoad.getName()));
+        assertThat(nearestToStops, hasItems(altrincham, TramStations.NavigationRoad.getName()));
         List<String> allTo = appPage.getAllStopsToStops();
         assertThat(allTo, not(contains(nearestToStops)));
         int recentToCount = appPage.getRecentToStops().size();
-        Assertions.assertEquals(Stations.NumberOf, nearestToStops.size()+allTo.size()+recentToCount);
+        Assertions.assertEquals(TramStations.NumberOf, nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
         desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
@@ -107,13 +107,13 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         appPage.waitForReady();
 
         // set start/dest to some other stations
-        appPage.setStart(Stations.Piccadilly.getName());
-        appPage.setDest(Stations.ManAirport.getName());
+        appPage.setStart(TramStations.Piccadilly.getName());
+        appPage.setDest(TramStations.ManAirport.getName());
 
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));
         nearestFromStops = appPage.getNearestFromStops();
-        assertThat(nearestFromStops, hasItems(Stations.NavigationRoad.getName()));
+        assertThat(nearestFromStops, hasItems(TramStations.NavigationRoad.getName()));
         // TODO to recent just bury, not alty
     }
 
@@ -150,11 +150,11 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
 
         validateWalkingStage(firstStage, LocalTime.of(10,25), "Walk to",
-                Stations.Altrincham.getName(), -1, "RouteClassWalk");
+                TramStations.Altrincham.getName(), -1, "RouteClassWalk");
 
         Stage secondStage = stages.get(1);
         LocalTime departTime = LocalTime.of(10,31);
-        validateAStage(secondStage, departTime, "Board Tram", Stations.Altrincham.getName(), 1,
+        validateAStage(secondStage, departTime, "Board Tram", TramStations.Altrincham.getName(), 1,
                 AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }
 

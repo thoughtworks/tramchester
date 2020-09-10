@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -18,10 +19,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramStopCallsTest {
-    private Station stationA;
-    private Station stationB;
-    private Station stationC;
-    private Station stationD;
+    private TramStations stationA;
+    private TramStations stationB;
+    private TramStations stationC;
+    private TramStations stationD;
     private TramStopCall stopA;
     private TramStopCall stopB;
     private TramStopCall stopC;
@@ -29,14 +30,20 @@ class TramStopCallsTest {
 
     @BeforeEach
     void beforeEachTestRuns() throws TransformException {
-        stationA = TestStation.forTest("statA", "areaA", "nameA", new LatLong(-1,1), TransportMode.Bus);
-        stationB = TestStation.forTest("statB", "areaB", "nameB", new LatLong(-2,2), TransportMode.Bus);
-        stationC = TestStation.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
-        stationD = TestStation.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
+//        stationA = TestStation.forTest("statA", "areaA", "nameA", new LatLong(-1,1), TransportMode.Bus);
+//        stationB = TestStation.forTest("statB", "areaB", "nameB", new LatLong(-2,2), TransportMode.Bus);
+//        stationC = TestStation.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
+//        stationD = TestStation.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
+
+        stationA = TramStations.Ashton;
+        stationB = TramStations.Broadway;
+        stationC = TramStations.Cornbrook;
+        stationD = TramStations.Deansgate;
 
         stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 3, ServiceTime.of(10, 10), ServiceTime.of(10, 11));
         stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, ServiceTime.of(10, 3), ServiceTime.of(10, 4));
         stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
+
 
         stops = new StopCalls();
 

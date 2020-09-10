@@ -7,8 +7,8 @@ import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.SummaryResult;
 import com.tramchester.integration.resources.DataVersionResourceTest;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,9 +38,9 @@ class AppUserJourneyTest extends UserJourneyTest {
 
     private static final AcceptanceAppExtenstion appExtenstion = new AcceptanceAppExtenstion(App.class, configPath);
 
-    private final String bury = Stations.Bury.getName();
-    private final String altrincham = Stations.Altrincham.getName();
-    private final String deansgate = Stations.Deansgate.getName();
+    private final String bury = TramStations.Bury.getName();
+    private final String altrincham = TramStations.Altrincham.getName();
+    private final String deansgate = TramStations.Deansgate.getName();
 
     // useful consts, keep around as can swap when timetable changes
     private static final String altyToBuryClass = "RouteClass1";
@@ -136,8 +137,8 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         // so above station in recents
-        appPage.setStart(Stations.ExchangeSquare.getName()); // so alty is available in the recents list
-        appPage.setDest(Stations.PiccadillyGardens.getName()); // so bury is available in the recents list
+        appPage.setStart(TramStations.ExchangeSquare.getName()); // so alty is available in the recents list
+        appPage.setDest(TramStations.PiccadillyGardens.getName()); // so bury is available in the recents list
 
         // check 'from' recents are set
         List<String> fromRecent = appPage.getRecentFromStops();
@@ -146,17 +147,17 @@ class AppUserJourneyTest extends UserJourneyTest {
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations
-        assertEquals(Stations.NumberOf-1, remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
+        assertEquals(TramStations.NumberOf-1, remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
 
         // check 'to' recents are set
         List<String> toRecent = appPage.getRecentToStops();
         assertThat(toRecent, hasItems(altrincham,bury));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
-        assertEquals(Stations.NumberOf-1, remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
+        assertEquals(TramStations.NumberOf-1, remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, Stations.ExchangeSquare.getName(), Stations.PiccadillyGardens.getName(), "10:15", when, false);
+        assertJourney(appPage, TramStations.ExchangeSquare.getName(), TramStations.PiccadillyGardens.getName(), "10:15", when, false);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -194,7 +195,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage stage = stages.get(0);
 
         validateAStage(stage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPiccClass, altyToPicLineName, Stations.Piccadilly.getName(), 9);
+                altyToPiccClass, altyToPicLineName, TramStations.Piccadilly.getName(), 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -203,7 +204,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
 
-        appPage.waitForToStopsContains(Stations.Bury);
+        appPage.waitForToStopsContains(TramStations.Bury);
         List<String> destStops = appPage.getToStops();
         assertFalse(destStops.contains(altrincham), "should not contain alty");
     }
@@ -296,7 +297,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
         LocalTime planTime = LocalTime.parse("10:00");
-        desiredJourney(appPage, altrincham, Stations.ManAirport.getName(), when, planTime, false);
+        desiredJourney(appPage, altrincham, TramStations.ManAirport.getName(), when, planTime, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
@@ -308,7 +309,7 @@ class AppUserJourneyTest extends UserJourneyTest {
             LocalTime arriveTime = result.getArriveTime();
             assertTrue(arriveTime.isAfter(result.getDepartTime()));
             assertTrue(arriveTime.isAfter(previousArrivalTime) || arriveTime.equals(previousArrivalTime));
-            assertEquals(result.getChanges(), Stations.TraffordBar.getName());
+            assertEquals(result.getChanges(), TramStations.TraffordBar.getName());
             previousArrivalTime = arriveTime;
         }
 
@@ -326,14 +327,14 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
                 altyToPiccClass, altyToPicLineName,
-                Stations.Piccadilly.getName(), 7);
+                TramStations.Piccadilly.getName(), 7);
 
         // Too timetable dependent?
-        validateAStage(secondStage, LocalTime.parse("10:32"), "Change Tram", Stations.TraffordBar.getName(),
+        validateAStage(secondStage, LocalTime.parse("10:32"), "Change Tram", TramStations.TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
-                Stations.ManAirport.getName(), 17);
+                TramStations.ManAirport.getName(), 17);
 
-        assertEquals(Stations.TraffordBar.getName(), secondStage.getActionStation());
+        assertEquals(TramStations.TraffordBar.getName(), secondStage.getActionStation());
         assertEquals("Change Tram", secondStage.getAction());
 
     }

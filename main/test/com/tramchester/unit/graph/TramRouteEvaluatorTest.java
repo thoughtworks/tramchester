@@ -17,9 +17,9 @@ import com.tramchester.graph.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static com.tramchester.testSupport.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
@@ -293,7 +294,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
-                andReturn(ServiceReason.StationClosed(howIGotHere, Stations.Shudehill));
+                andReturn(ServiceReason.StationClosed(howIGotHere, TramStations.of(Shudehill)));
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.StationClosed, node, TramTime.of(8,15));
         EasyMock.expectLastCall();

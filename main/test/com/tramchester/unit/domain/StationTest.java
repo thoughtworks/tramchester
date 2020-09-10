@@ -3,10 +3,8 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

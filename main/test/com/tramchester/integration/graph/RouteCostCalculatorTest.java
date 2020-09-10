@@ -5,11 +5,9 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -43,15 +41,19 @@ class RouteCostCalculatorTest {
     void shouldComputeSimpleCostBetweenStations() {
 
         try(Transaction txn = database.beginTx()) {
-            assertEquals(5, routeCostCalc.getApproxCostBetween(txn, Stations.NavigationRoad, Stations.Altrincham));
-            assertEquals(6, routeCostCalc.getApproxCostBetween(txn, Stations.Altrincham, Stations.NavigationRoad));
+            assertEquals(5, getApproxCostBetween(txn, TramStations.NavigationRoad, TramStations.Altrincham));
+            assertEquals(6, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.NavigationRoad));
 
-            assertEquals(64, routeCostCalc.getApproxCostBetween(txn, Stations.Bury, Stations.Altrincham));
-            assertEquals(65, routeCostCalc.getApproxCostBetween(txn, Stations.Altrincham, Stations.Bury));
+            assertEquals(64, getApproxCostBetween(txn, TramStations.Bury, TramStations.Altrincham));
+            assertEquals(65, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
 
-            assertEquals(61, routeCostCalc.getApproxCostBetween(txn, Stations.MediaCityUK, Stations.ManAirport));
-            assertEquals(61, routeCostCalc.getApproxCostBetween(txn, Stations.ManAirport, Stations.MediaCityUK));
+            assertEquals(61, getApproxCostBetween(txn, TramStations.MediaCityUK, TramStations.ManAirport));
+            assertEquals(61, getApproxCostBetween(txn, TramStations.ManAirport, TramStations.MediaCityUK));
         }
+    }
+
+    private int getApproxCostBetween(Transaction txn, TramStations start, TramStations dest) {
+        return routeCostCalc.getApproxCostBetween(txn, TramStations.of(start), TramStations.of(dest));
     }
 
 }

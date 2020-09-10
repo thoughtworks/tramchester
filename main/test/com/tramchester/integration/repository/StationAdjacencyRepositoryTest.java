@@ -6,7 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TramStations;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
@@ -39,17 +39,17 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldGiveCorrectCostForAdjaceny() {
-        Assertions.assertEquals(3, getAdjacent(Stations.Altrincham, Stations.NavigationRoad));
-        Assertions.assertEquals(3, getAdjacent(Stations.Altrincham, Stations.NavigationRoad));
-        Assertions.assertEquals(3, getAdjacent(Stations.Cornbrook, Stations.Deansgate));
-        Assertions.assertEquals(3, getAdjacent(Stations.Deansgate, Stations.Cornbrook));
-        Assertions.assertEquals(-1, getAdjacent(Stations.NavigationRoad, Stations.Cornbrook));
+        Assertions.assertEquals(3, getAdjacent(TramStations.Altrincham, TramStations.NavigationRoad));
+        Assertions.assertEquals(3, getAdjacent(TramStations.Altrincham, TramStations.NavigationRoad));
+        Assertions.assertEquals(3, getAdjacent(TramStations.Cornbrook, TramStations.Deansgate));
+        Assertions.assertEquals(3, getAdjacent(TramStations.Deansgate, TramStations.Cornbrook));
+        Assertions.assertEquals(-1, getAdjacent(TramStations.NavigationRoad, TramStations.Cornbrook));
     }
 
     @Test
     void shouldHavePairsOfStations() {
         Set<Pair<Station, Station>> pairs = repository.getTramStationParis();
-        IdFor<Station> stationId = Stations.NavigationRoad.getId();
+        IdFor<Station> stationId = TramStations.NavigationRoad.getId();
 
         List<Pair<Station, Station>> results = pairs.stream().
                 filter(pair -> pair.getLeft().getId().equals(stationId) ||
@@ -58,7 +58,7 @@ class StationAdjacencyRepositoryTest {
         Assertions.assertEquals(4, results.size(), pairs.toString());
     }
 
-    private int getAdjacent(Station first, Station second) {
+    private int getAdjacent(TramStations first, TramStations second) {
         return repository.getAdjacent(transportDataSource.getStationById(first.getId()),
                 transportDataSource.getStationById(second.getId()));
     }

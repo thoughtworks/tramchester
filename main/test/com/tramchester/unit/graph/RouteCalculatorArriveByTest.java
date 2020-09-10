@@ -9,8 +9,8 @@ import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,8 +46,8 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
         TramTime arriveBy = TramTime.of(14,35);
         LocalDate localDate = TestEnv.testDay();
 
-        Station start = Stations.Bury;
-        Station destinationId = Stations.Cornbrook;
+        Station start = TramStations.of(TramStations.Bury);
+        Station destinationId = TramStations.of(TramStations.Cornbrook);
         TramServiceDate serviceDate = TramServiceDate.of(localDate);
 
         Stream<Journey> journeyStream = Stream.empty();

@@ -168,7 +168,7 @@ public class TransportDataForTestFactory {
         public static final String FIRST_STATION = METROLINK_PREFIX + "_ST_FIRST";
         public static final String SECOND_STATION = METROLINK_PREFIX + "_ST_SECOND";
         public static final String LAST_STATION = METROLINK_PREFIX + "_ST_LAST";
-        public static final String INTERCHANGE = Stations.Cornbrook.getId().forDTO();
+        public static final String INTERCHANGE = TramStations.Cornbrook.forDTO();
         private static final String STATION_FOUR = METROLINK_PREFIX + "_ST_FOUR";
         private static final String STATION_FIVE = METROLINK_PREFIX + "_ST_FIVE";
 

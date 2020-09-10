@@ -17,8 +17,8 @@ import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -32,13 +32,15 @@ import java.util.Set;
 
 import static com.tramchester.graph.GraphPropertyKey.HOUR;
 import static com.tramchester.graph.GraphPropertyKey.SERVICE_ID;
+import static com.tramchester.testSupport.TramStations.Bury;
+import static com.tramchester.testSupport.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
     private static final int MAX_NUM_CHANGES = 5;
-    private final Set<Station> endStations = Collections.singleton(Stations.Deansgate);
+    private final Set<Station> endStations = Collections.singleton(TramStations.of(TramStations.Deansgate));
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private NodeContentsRepository nodeOperations;
@@ -112,15 +114,15 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
 
-        RouteStation routeStationA = new RouteStation(Stations.Bury, TestEnv.getTestRoute());
-        RouteStation routeStationB = new RouteStation(Stations.Shudehill, TestEnv.getTestRoute());
+        RouteStation routeStationA = new RouteStation(TramStations.of(Bury), TestEnv.getTestRoute());
+        RouteStation routeStationB = new RouteStation(TramStations.of(Shudehill), TestEnv.getTestRoute());
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations,
                 tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
-        EasyMock.expect(journeyConstraints.isClosed(Stations.Bury)).andReturn(false);
-        EasyMock.expect(journeyConstraints.isClosed(Stations.Shudehill)).andReturn(true);
+        EasyMock.expect(journeyConstraints.isClosed(TramStations.of(Bury))).andReturn(false);
+        EasyMock.expect(journeyConstraints.isClosed(TramStations.of(Shudehill))).andReturn(true);
 
         Node node = createMock(Node.class);
         EasyMock.expect(node.getProperty("route_station_id")).andReturn("123");

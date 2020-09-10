@@ -8,8 +8,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ import java.util.Set;
 
 class UpdateRecentJourneysTest {
 
-    private final IdFor<Station> altyId = Stations.Altrincham.getId();
+    private final IdFor<Station> altyId = TramStations.Altrincham.getId();
     private final UpdateRecentJourneys updater = new UpdateRecentJourneys(TestEnv.GET());
     private final ProvidesNow providesNow = new ProvidesLocalNow();
 
