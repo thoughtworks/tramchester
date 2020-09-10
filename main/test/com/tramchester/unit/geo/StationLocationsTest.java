@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.*;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +63,7 @@ class StationLocationsTest {
 
     @NotNull
     private Station createTestStation(String id, String name, LatLong location) throws TransformException {
-        return Station.forTest(id, "area", name, location, TransportMode.Tram);
+        return TestStation.forTest(id, "area", name, location, TransportMode.Tram);
     }
 
     @Test

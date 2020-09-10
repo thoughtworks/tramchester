@@ -1,19 +1,10 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
-import org.opengis.referencing.operation.TransformException;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Deprecated
 public class Stations {
     public static int NumberOf = 99;
-
-    // TEST DATA For stations
-    private static final LatLong position = new LatLong(1,1);
 
     public static Station Altrincham = TramStations.of(TramStations.Altrincham);
     public static Station Ashton = TramStations.of(TramStations.Ashton);
@@ -41,28 +32,5 @@ public class Stations {
     public static Station Monsall = TramStations.of(TramStations.Monsall);
     public static Station RochdaleRail = TramStations.of(TramStations.RochdaleRail);
     public static Station Intu = TramStations.of(TramStations.Intu);
-
-    @Deprecated
-    public static List<Station> EndOfTheLine = Arrays.asList(Altrincham,
-            ManAirport,
-            Eccles,
-            TramStations.of(TramStations.EastDidsbury),
-            Ashton,
-            Rochdale,
-            Bury,
-            ExchangeSquare,
-            Intu);
-
-    @Deprecated
-    public static List<Station> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
-            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
-
-    public static Station createStation(String id, String area, String name) {
-        try {
-            return Station.forTest(id, area, name, position, TransportMode.Tram);
-        } catch (TransformException exception) {
-            throw new RuntimeException(exception);
-        }
-    }
 
 }

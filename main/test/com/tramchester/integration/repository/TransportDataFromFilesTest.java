@@ -15,10 +15,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.DataExpiryCategory;
-import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.Stations;
-import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.*;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -240,9 +237,9 @@ class TransportDataFromFilesTest {
 
         // Makes sure none are missing from the data
         List<Station> filteredStations = transportData.getStations().stream()
-                .filter(station -> Stations.EndOfTheLine.contains(station)).collect(Collectors.toList());
+                .filter(TramStations::isEndOfLine).collect(Collectors.toList());
 
-        assertEquals(Stations.EndOfTheLine.size(), filteredStations.size());
+        assertEquals(TramStations.EndOfTheLine.size(), filteredStations.size());
     }
 
     @Test

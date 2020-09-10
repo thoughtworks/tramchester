@@ -15,6 +15,7 @@ import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.LiveDataRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +60,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
-        Station station = Station.forTest("stationId", "area", "stopName",
+        Station station = TestStation.forTest("stationId", "area", "stopName",
                 new LatLong(1,1), TransportMode.Tram);
         Platform platform = new Platform("platformId", "platformName");
         station.addPlatform(platform);
@@ -87,7 +88,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
-        Station station = Station.forTest("stationId", "area", "stopName", new LatLong(1,1), TransportMode.Tram);
+        Station station = TestStation.forTest("stationId", "area", "stopName", new LatLong(1,1), TransportMode.Tram);
         Platform platform = new Platform("platformId", "platformName");
         station.addPlatform(platform);
 

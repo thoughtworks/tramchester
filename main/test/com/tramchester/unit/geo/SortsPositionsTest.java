@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@ class SortsPositionsTest {
         nearAltrincham = dataForTest.getFirst();         // near Altrincham
         nearStockportBus = dataForTest.getFifthStation();  // nearStockportBus
 
-        alsoNearAlty = Station.forTest("ALSO1122", "area2", "alsoNearAltr", TestEnv.nearAltrincham, TransportMode.Tram);
+        alsoNearAlty = TestStation.forTest("ALSO1122", "area2", "alsoNearAltr", TestEnv.nearAltrincham, TransportMode.Tram);
         dataForTest.addStation(alsoNearAlty);
     }
 

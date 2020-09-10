@@ -7,6 +7,7 @@ import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -14,13 +15,8 @@ import org.opengis.referencing.operation.TransformException;
 class StationTest {
 
     @Test
-    void shouldHaveCorrectTestDataForStationInterchanges() {
-        Assertions.assertEquals(TramInterchanges.stations().size(), Stations.Interchanges.size());
-    }
-
-    @Test
     void testShouldSetTramNameCorrecly() throws TransformException {
-        Station tramStation = Station.forTest("id", "area", "stopName",
+        Station tramStation = TestStation.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Tram);
 
         Assertions.assertEquals("stopName", tramStation.getName());
@@ -33,7 +29,7 @@ class StationTest {
 
     @Test
     void testShouldSetBusNameCorrecly() throws TransformException {
-        Station busStation = Station.forTest("id", "area", "stopName",
+        Station busStation = TestStation.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Bus);
 
         Assertions.assertEquals("stopName", busStation.getName());

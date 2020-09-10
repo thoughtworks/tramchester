@@ -13,10 +13,12 @@ import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,12 +34,15 @@ class JourneyStateTest {
     // TODO ON BUS
 
     @BeforeEach
-    void onceBeforeEachTestRuns() {
+    void onceBeforeEachTestRuns() throws TransformException {
         LatLong latLongHint = TestEnv.manAirportLocation;
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(42L);
 
-        Set<Station> destinations = Collections.singleton(Stations.createStation("destinationStationId", "area", "name"));
+        Station station = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1,1), TransportMode.Tram);
+        station.addRoute(TestEnv.getTestRoute());
+        
+        Set<Station> destinations = Collections.singleton(station);
         StationLocations locations = new StationLocations();
         StationRepository repository = new TransportDataForTestFactory(locations).get();
         SortsPositions sortsPositions = new SortsPositions(repository);

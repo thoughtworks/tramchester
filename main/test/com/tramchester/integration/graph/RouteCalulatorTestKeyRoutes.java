@@ -166,7 +166,7 @@ class RouteCalulatorTestKeyRoutes {
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
-    private Set<TramStations.Pair> createJourneyPairs(List<TramStations> starts, List<TramStations> ends) {
+    private Set<TramStations.Pair> createJourneyPairs(Set<TramStations> starts, Set<TramStations> ends) {
         Set<TramStations.Pair> combinations = new HashSet<>();
         for (TramStations start : starts) {
             for (TramStations dest : ends) {

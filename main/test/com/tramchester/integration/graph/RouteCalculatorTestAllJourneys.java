@@ -11,14 +11,17 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -66,8 +69,8 @@ class RouteCalculatorTestAllJourneys {
         Set<Pair<Station, Station>> combinations = allStations.stream().flatMap(start -> allStations.stream().
                 map(dest -> Pair.of(start, dest))).
                 filter(pair -> !pair.getRight().getId().equals(pair.getLeft().getId())).
-                filter(pair -> !matches(pair, Stations.Interchanges)).
-                filter(pair -> !matches(pair, Stations.EndOfTheLine)).
+                filter(pair -> !interchanes(pair)).
+                filter(pair -> !endsOfLine(pair)).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
                 collect(Collectors.toSet());
 
@@ -89,8 +92,12 @@ class RouteCalculatorTestAllJourneys {
         Assertions.assertEquals(39, maxNumberStops.get().intValue());
     }
 
-    private boolean matches(Pair<Station, Station> locationPair, List<Station> locations) {
-        return locations.contains(locationPair.getLeft()) && locations.contains(locationPair.getRight());
+    private boolean endsOfLine(Pair<Station, Station> pair) {
+        return TramStations.isEndOfLine(pair.getLeft()) && TramStations.isEndOfLine(pair.getRight());
+    }
+
+    private boolean interchanes(Pair<Station, Station> pair) {
+        return TramStations.isInterchange(pair.getLeft()) && TramStations.isInterchange(pair.getRight());
     }
 
     private Map<Pair<Station, Station>, Optional<Journey>> validateAllHaveAtLeastOneJourney(

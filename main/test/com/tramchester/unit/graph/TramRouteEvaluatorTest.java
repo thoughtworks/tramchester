@@ -19,6 +19,7 @@ import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
-    private final Set<Station> destinationStationIds = Collections.singleton(Stations.createStation("destinationStationId", "area", "name"));
+    private Set<Station> destinationStations;
     private ServiceHeuristics serviceHeuristics;
     private NodeContentsRepository nodeOperations;
     private Path path;
@@ -55,7 +57,11 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private Relationship lastRelationship;
 
     @BeforeEach
-    void onceBeforeEachTestRuns() {
+    void onceBeforeEachTestRuns() throws TransformException {
+        Station forTest = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1, 1), TransportMode.Tram);
+        destinationStations = Collections.singleton(forTest);
+        forTest.addRoute(TestEnv.getTestRoute());
+
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         previousSuccessfulVisit = createMock(PreviousSuccessfulVisits.class);
         nodeOperations = new CachedNodeOperations();
@@ -90,7 +96,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NotStartedState getNotStartedState() {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
-        return new NotStartedState(sortsPositions, nodeOperations, destinationNodeIds, destinationStationIds, latLongHint, config);
+        return new NotStartedState(sortsPositions, nodeOperations, destinationNodeIds, destinationStations, latLongHint, config);
     }
 
     @NotNull

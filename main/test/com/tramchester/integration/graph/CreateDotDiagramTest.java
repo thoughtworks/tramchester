@@ -6,7 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.tramchester.testSupport.TramStations.*;
 import static java.lang.String.format;
 
 class CreateDotDiagramTest {
@@ -39,18 +40,17 @@ class CreateDotDiagramTest {
         dependencies.close();
     }
 
-    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldProduceADotDiagramOfTheTramNetwork() throws IOException {
         int depthLimit = 2;
 
-        create(Stations.Deansgate, depthLimit);
-        create(Stations.StPetersSquare, depthLimit);
-        create(Stations.Cornbrook, depthLimit);
-        create(Stations.ExchangeSquare, depthLimit);
-        create(Stations.MarketStreet, depthLimit);
-        create(Stations.Victoria, depthLimit);
-        create(Arrays.asList(Stations.ExchangeSquare,Stations.Deansgate,Stations.Cornbrook,Stations.ExchangeSquare), 4);
+        create(TramStations.of(Deansgate), depthLimit);
+        create(TramStations.of(StPetersSquare), depthLimit);
+        create(TramStations.of(Cornbrook), depthLimit);
+        create(TramStations.of(ExchangeSquare), depthLimit);
+        create(TramStations.of(MarketStreet), depthLimit);
+        create(TramStations.of(Victoria), depthLimit);
+        create(Arrays.asList(of(ExchangeSquare), of(Deansgate), of(Cornbrook), of(ExchangeSquare)), 4);
     }
 
     private void create(List<Station> startPoints, int depthLimit) throws IOException {

@@ -50,13 +50,6 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
         this.area = area;
     }
 
-    @Deprecated
-    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) throws TransformException {
-        Station station = new Station(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong));
-        station.transportMode = mode;
-        return station;
-    }
-
     @Override
     public IdFor<Station> getId() {
         return id;

@@ -2,14 +2,18 @@ package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.operation.TransformException;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,9 +22,9 @@ import java.util.stream.Collectors;
 class LocationDTOTest {
 
     @Test
-    void shouldCreateDTOAsExpected() {
+    void shouldCreateDTOAsExpected() throws TransformException {
 
-        Station testStation = Stations.createStation("9400ZZMAALT", "Altrincham area", "Altrincham");
+        Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham", new LatLong(1,1), TransportMode.Tram);
 
         testStation.addRoute(TestEnv.getTestRoute(IdFor.createId("routeIdA")));
         testStation.addRoute(TestEnv.getTestRoute(IdFor.createId("routeIdB")));

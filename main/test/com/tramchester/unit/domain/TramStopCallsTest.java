@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -28,10 +29,10 @@ class TramStopCallsTest {
 
     @BeforeEach
     void beforeEachTestRuns() throws TransformException {
-        stationA = Station.forTest("statA", "areaA", "nameA", new LatLong(-1,1), TransportMode.Bus);
-        stationB = Station.forTest("statB", "areaB", "nameB", new LatLong(-2,2), TransportMode.Bus);
-        stationC = Station.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
-        stationD = Station.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
+        stationA = TestStation.forTest("statA", "areaA", "nameA", new LatLong(-1,1), TransportMode.Bus);
+        stationB = TestStation.forTest("statB", "areaB", "nameB", new LatLong(-2,2), TransportMode.Bus);
+        stationC = TestStation.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
+        stationD = TestStation.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
 
         stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 3, ServiceTime.of(10, 10), ServiceTime.of(10, 11));
         stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, ServiceTime.of(10, 3), ServiceTime.of(10, 4));

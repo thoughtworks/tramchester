@@ -1,7 +1,10 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.*;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;
@@ -12,7 +15,7 @@ import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.Stations;
+import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +32,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyDTOFactoryTest extends EasyMockSupport {
-    private final Station stationA = Station.forTest("stationA", "area", "nameA", new LatLong(-2, -1), TransportMode.Tram);
-    private final Station stationB = Station.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
+    private final Station stationA = TestStation.forTest("stationA", "area", "nameA", new LatLong(-2, -1), TransportMode.Tram);
+    private final Station stationB = TestStation.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
     private JourneyDTOFactory factory;
     private MyLocationFactory myLocationFactory;
 

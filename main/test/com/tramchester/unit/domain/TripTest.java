@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.Stations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -32,9 +33,9 @@ class TripTest {
         Service service = new Service("svcId", TestEnv.getTestRoute());
 
         trip = new Trip("tripId","headSign", service, TestEnv.getTestRoute());
-        stationA = Station.forTest("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), TransportMode.Bus);
-        stationB = Station.forTest("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), TransportMode.Bus);
-        stationC = Station.forTest("statC","areaA", "stopNameB", new LatLong(2.0, -2.0), TransportMode.Bus);
+        stationA = TestStation.forTest("statA","areaA", "stopNameA", new LatLong(1.0, -1.0), TransportMode.Bus);
+        stationB = TestStation.forTest("statB","areaA", "stopNameB", new LatLong(2.0, -2.0), TransportMode.Bus);
+        stationC = TestStation.forTest("statC","areaA", "stopNameB", new LatLong(2.0, -2.0), TransportMode.Bus);
     }
 
     @Test

@@ -12,7 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum TramStations implements TestStations {
 
@@ -52,7 +55,7 @@ public enum TramStations implements TestStations {
     RochdaleRail("9400ZZMARRS", "Rochdale", "Rochdale Railway Station", pos(53.61102, -2.15449)),
     Intu("9400ZZMATRC", "The Trafford Centre", "intu Trafford Centre", pos(53.46782, -2.34751));
 
-    public static List<TramStations> EndOfTheLine = Arrays.asList(Altrincham,
+    public static Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
             ManAirport,
             Eccles,
             EastDidsbury,
@@ -60,10 +63,22 @@ public enum TramStations implements TestStations {
             Rochdale,
             Bury,
             ExchangeSquare,
-            Intu);
+            Intu));
 
-    public static List<TramStations> Interchanges = Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
-            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton);
+    public static Set<TramStations> Interchanges = new HashSet<>(Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
+            TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton));
+
+    public static boolean isInterchange(HasId<Station> station) {
+        return containedIn(station, Interchanges);
+    }
+    public static boolean isEndOfLine(Station station) {
+        return containedIn(station, EndOfTheLine);
+    }
+
+    private static boolean containedIn(HasId<Station> station, Set<TramStations> theSet) {
+        Set<IdFor<Station>> ids = theSet.stream().map(TramStations::getId).collect(Collectors.toSet());
+        return ids.contains(station.getId());
+    }
 
     public static Station of(TramStations enumValue) {
         return enumValue.station;
