@@ -73,7 +73,6 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
 
         switch (nodeLabel) {
             case QUERY_NODE:
-            case QUERY_NODE_MID:
                 journeyState.connection();
                 return builders.walking.fromNoPlatformStation(this, next, cost);
             case ROUTE_STATION:

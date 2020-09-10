@@ -13,7 +13,6 @@ public interface NodeTypeRepository {
     boolean isTrainStation(Node node);
 
     Node createQueryNode(GraphDatabase graphDatabase, Transaction txn);
-    Node createQueryNodeMidPoint(GraphDatabase graphDatabase, Transaction txn);
     void deleteQueryNode(Node queryNode);
 
     void populateNodeLabelMap(GraphDatabase graphDatabase);

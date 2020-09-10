@@ -83,16 +83,12 @@ public class LocationJourneyPlanner {
         List<Relationship> addedRelationships = new LinkedList<>();
 
         List<StationWalk> walksToDest = getStationWalks(destination);
-        Node midWalkNode = createMidWalkingNode(txn, destination, journeyRequest);
+        Node endWalk = createWalkingNode(txn, destination, journeyRequest);
 
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
-            addedRelationships.add(createWalkRelationship(txn, midWalkNode, stationWalk, TransportRelationshipTypes.WALKS_FROM));
+            addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk, TransportRelationshipTypes.WALKS_FROM));
         });
-        Node endWalk = createWalkingNode(txn, destination, journeyRequest);
-        Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
-        GraphProps.setCostProp(relationshipTo, 0);
-        addedRelationships.add(relationshipTo);
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -102,7 +98,7 @@ public class LocationJourneyPlanner {
         }
 
         //noinspection ResultOfMethodCallIgnored
-        journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, midWalkNode, endWalk));
+        journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, endWalk));
 
         return journeys;
     }
@@ -176,13 +172,13 @@ public class LocationJourneyPlanner {
         return startOfWalkNode;
     }
 
-    private Node createMidWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
-        Node startOfWalkNode = nodeTypeRepository.createQueryNodeMidPoint(graphDatabase, txn);
-        GraphProps.setLatLong(startOfWalkNode, origin);
-        GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
-        logger.info(format("Adding mid walking node at %s as node %s", origin, startOfWalkNode));
-        return startOfWalkNode;
-    }
+//    private Node createMidWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
+//        Node startOfWalkNode = nodeTypeRepository.createQueryNodeMidPoint(graphDatabase, txn);
+//        GraphProps.setLatLong(startOfWalkNode, origin);
+//        GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
+//        logger.info(format("Adding mid walking node at %s as node %s", origin, startOfWalkNode));
+//        return startOfWalkNode;
+//    }
 
     // TODO Creation and deletion of walk nodes into own facade which can then be auto-closable
     @Deprecated

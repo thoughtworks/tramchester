@@ -41,11 +41,6 @@ public class NodeTypeDirect implements NodeTypeRepository {
         return graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE);
     }
 
-    @Override
-    public Node createQueryNodeMidPoint(GraphDatabase graphDatabase, Transaction txn) {
-        return graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE_MID);
-    }
-
     // for deleting query nodes, to support MyLocation journeys
     public void deleteQueryNode(Node node) {
         node.delete();

@@ -42,7 +42,6 @@ public enum GraphPropertyKey {
             case PLATFORM:
                 return PLATFORM_ID;
             case QUERY_NODE:
-            case QUERY_NODE_MID:
                 return WALK_ID;
             case HOUR:
                 return HOUR;
