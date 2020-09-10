@@ -157,10 +157,6 @@ class PostcodeBusRouteCalculatorTest {
         return new JourneyRequest(new TramServiceDate(day), time, false, maxChanges, testConfig.getMaxJourneyDuration());
     }
 
-    private void assertBusAtStart(Set<Journey> journeys) {
-        journeys.forEach(journey -> assertEquals(TransportMode.Bus, journey.getStages().get(0).getMode()));
-    }
-
     private void assertWalkAtStart(Set<Journey> journeys) {
         journeys.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
     }
@@ -176,7 +172,7 @@ class PostcodeBusRouteCalculatorTest {
 
         oneStage.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
-            TransportStage transportStage = journey.getStages().get(0);
+            TransportStage<?,?> transportStage = journey.getStages().get(0);
             assertEquals(TransportMode.Walk, transportStage.getMode());
             assertEquals(start.getLatLong(), transportStage.getFirstStation().getLatLong());
             assertEquals(end.getId(), transportStage.getLastStation().getId());

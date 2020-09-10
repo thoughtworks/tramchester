@@ -167,7 +167,7 @@ public class MapPathToStages {
         return new WalkingFromStationStage(start, walkEnd, cost, walkStartTime);
     }
 
-    private TransportStage createWalkFromNeighbour(Relationship relationship, TramTime walkStartTime) {
+    private ConnectingStage createWalkFromNeighbour(Relationship relationship, TramTime walkStartTime) {
         // station -> station, neighbours...
         int cost = getCost(relationship);
 
@@ -287,8 +287,7 @@ public class MapPathToStages {
             walkStarted = walkStarted(relationship);
         }
 
-
-        protected TransportStage walkBetween(Relationship betweenStations) {
+        protected ConnectingStage walkBetween(Relationship betweenStations) {
             TramTime walkStartTime;
             if (departTime==null) {
                 walkStartTime = queryTime.plusMinutes(platformLeaveCost + departCost);

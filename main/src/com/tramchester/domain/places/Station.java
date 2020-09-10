@@ -32,11 +32,6 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
 
-    @Deprecated
-    public Station(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
-        this(IdFor.createId(id), area, stationName, latLong, gridPosition);
-    }
-
     public Station(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
         this.gridPosition = gridPosition;
         platforms = new LinkedList<>();

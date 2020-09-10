@@ -68,25 +68,29 @@ public class TransportDataForTestFactory {
         Trip tripA = new Trip(TestTransportData.TRIP_A_ID, "headSign", serviceA, routeA);
 
         //LatLong latLong = new LatLong(latitude, longitude);
-        Station first = new Station(TestTransportData.FIRST_STATION, "area1", "startStation", TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid);
+        Station first = new TestStation(TestTransportData.FIRST_STATION, "area1", "startStation",
+                TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Tram);
         container.addStation(first);
         addRouteStation(container, first, routeA);
         TramStopCall stopA = createStop(container, tripA, first, ServiceTime.of(8, 0), ServiceTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
-        Station second = new Station(TestTransportData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens, TestEnv.nearPiccGardensGrid);
+        Station second = new TestStation(TestTransportData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
+                TestEnv.nearPiccGardensGrid, TransportMode.Tram);
         container.addStation(second);
         addRouteStation(container, second, routeA);
         TramStopCall stopB = createStop(container, tripA, second, ServiceTime.of(8, 11), ServiceTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
-        Station interchangeStation = new Station(TestTransportData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill, TestEnv.nearShudehillGrid);
+        Station interchangeStation = new TestStation(TestTransportData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
+                TestEnv.nearShudehillGrid, TransportMode.Tram);
         container.addStation(interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
         TramStopCall stopC = createStop(container, tripA, interchangeStation, ServiceTime.of(8, 20), ServiceTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
-        Station last = new Station(TestTransportData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens, TestEnv.nearPiccGardensGrid);
+        Station last = new TestStation(TestTransportData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
+                TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
         container.addStation(last);
         addRouteStation(container, last, routeA);
         TramStopCall stopD = createStop(container, tripA, last, ServiceTime.of(8, 40), ServiceTime.of(8, 40), 4);
@@ -95,10 +99,12 @@ public class TransportDataForTestFactory {
         // service A
         serviceA.addTrip(tripA);
 
-        Station stationFour = new Station(TestTransportData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens, TestEnv.nearPiccGardensGrid);
+        Station stationFour = new TestStation(TestTransportData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
+                TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
         container.addStation(stationFour);
 
-        Station stationFive = new Station(TestTransportData.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus, TestEnv.nearStockportBusGrid);
+        Station stationFive = new TestStation(TestTransportData.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus,
+                TestEnv.nearStockportBusGrid,  TransportMode.Tram);
         container.addStation(stationFive);
 
         //
