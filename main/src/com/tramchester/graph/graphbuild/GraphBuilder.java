@@ -35,7 +35,6 @@ public abstract class GraphBuilder implements Startable {
         HOUR,
         MINUTE,
         VERSION,
-        //QUERY_NODE_MID,
         NEIGHBOURS_ENABLED;
 
         public static Labels forMode(TransportMode mode) {

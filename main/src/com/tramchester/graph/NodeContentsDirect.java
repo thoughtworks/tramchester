@@ -18,7 +18,7 @@ public class NodeContentsDirect implements NodeContentsRepository{
 
     @Override
     public TramTime getTime(Node node) {
-        return TramTime.of(GraphProps.getTime(node));
+        return GraphProps.getTime(node);
     }
 
     @Override

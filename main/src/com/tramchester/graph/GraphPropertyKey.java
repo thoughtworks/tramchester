@@ -13,6 +13,7 @@ public enum GraphPropertyKey {
     COST("cost"),
     HOUR("hour"),
     TIME("time"),
+    DAY_OFFSET("day_offset"),
     TRIPS("trips"),
     TOWARDS_STATION_ID("towards_id"),
     LATITUDE("latitude"),

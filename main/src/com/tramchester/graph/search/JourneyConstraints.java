@@ -32,7 +32,7 @@ public class JourneyConstraints {
     public JourneyConstraints(TramchesterConfig config, TransportData transportData, JourneyRequest journeyRequest,
                               Set<Station> endStations) {
         this.config = config;
-        this.runningServices = new RunningServices(journeyRequest.getDate(), transportData);
+        this.runningServices = new RunningServices(journeyRequest.getDate(), transportData, config);
         this.maxPathLength = computeMaxPathLength();
 
         endTramStations = endStations.stream().

@@ -3,7 +3,6 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -16,7 +15,10 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.BusStations;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeAll;
@@ -125,7 +127,8 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         TramTime time = TramTime.of(15,45);
         ConnectingStage connectingStage = new ConnectingStage(
                 BusStations.of(AltrinchamInterchange), TramStations.of(Altrincham), 1, time);
-        VehicleStage tramStage = getRawVehicleStage(TramStations.of(Altrincham), TramStations.of(TramStations.Shudehill), createRoute("route"), time.plusMinutes(1), 35, 9);
+        VehicleStage tramStage = getRawVehicleStage(TramStations.of(Altrincham), TramStations.of(TramStations.Shudehill),
+                createRoute("route"), time.plusMinutes(1), 35, 9, true);
 
         stages.add(connectingStage);
         stages.add(tramStage);
@@ -163,11 +166,13 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         Station middleB = of(MarketStreet);
         Station end = of(Bury);
 
-        VehicleStage rawStageA = getRawVehicleStage(begin, of(PiccadillyGardens), createRoute("route text"), am10, 42, 8);
+        VehicleStage rawStageA = getRawVehicleStage(begin, of(PiccadillyGardens),
+                createRoute("route text"), am10, 42, 8, true);
 
         int walkCost = 10;
         WalkingToStationStage walkingStage = new WalkingToStationStage(middleA, middleB, walkCost, am10);
-        VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42, 9);
+        VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42,
+                9, true);
 
         stages.add(rawStageA);
         stages.add(walkingStage);
@@ -207,9 +212,9 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         Station finish = transportData.getInterchange();
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
-                18, 8);
+                18, 8, true);
         VehicleStage rawStageB = getRawVehicleStage(middle, finish, createRoute("route2 text"), startTime.plusMinutes(18),
-                42, 9);
+                42, 9, true);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
@@ -237,12 +242,12 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
-                                            int cost, int passedStops) {
+                                            int cost, int passedStops, boolean hasPlatforms) {
 
         Trip validTrip = transportData.getTripById(IdFor.createId(TRIP_A_ID));
 
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,
-                startTime.plusMinutes(1), finish, passedStops);
+                startTime.plusMinutes(1), finish, passedStops, hasPlatforms);
 
         vehicleStage.setCost(cost);
         Platform platform = new Platform(start.forDTO() + "1", "platform name");

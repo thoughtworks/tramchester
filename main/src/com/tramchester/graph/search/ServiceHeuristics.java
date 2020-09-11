@@ -107,7 +107,8 @@ public class ServiceHeuristics {
     }
 
     private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
-        TramTime earliest = nodeTime.minusMinutes(journeyConstraints.getMaxWait());
+        int maxWait = journeyConstraints.getMaxWait();
+        TramTime earliest = (nodeTime.getMinuteOfDay()>maxWait) ? nodeTime.minusMinutes(maxWait) : TramTime.of(0,0);
         return elapsedTimed.between(earliest, nodeTime);
     }
 

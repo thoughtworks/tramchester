@@ -274,7 +274,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         Service service = new Service("serviceId", TestEnv.getTestRoute());
         Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
         VehicleStage vehicleStage = new VehicleStage(of(Ashton), TestEnv.getTestRoute(), TransportMode.Tram,
-                trip, departTime, of(PiccadillyGardens), 12);
+                trip, departTime, of(PiccadillyGardens), 12, true);
         Platform platform = new Platform(platformId, "platformName");
         vehicleStage.setPlatform(platform);
         return vehicleStage;

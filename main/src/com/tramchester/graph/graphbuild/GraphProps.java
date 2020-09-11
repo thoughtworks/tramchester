@@ -5,6 +5,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
@@ -56,12 +58,20 @@ public class GraphProps {
         relationship.setProperty(COST.getText(), value);
     }
 
-    public static LocalTime getTime(Entity entity) {
-        return (LocalTime) getProperty(entity, TIME);
+    public static TramTime getTime(Entity entity) {
+        LocalTime localTime = (LocalTime) getProperty(entity, TIME);
+        boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
+        if (nextDay) {
+            return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
+        }
+        return TramTime.of(localTime.getHour(), localTime.getMinute());
     }
 
-    static void setTimeProp(Entity entity, LocalTime time) {
-        entity.setProperty(TIME.getText(), time);
+    static void setTimeProp(Entity entity, ServiceTime time) {
+        entity.setProperty(TIME.getText(), time.asLocalTime());
+        if (time.getFollowingDay()) {
+            entity.setProperty(DAY_OFFSET.getText(), time.getFollowingDay());
+        }
     }
 
     public static boolean hasProperty(GraphPropertyKey key, Entity entity) {

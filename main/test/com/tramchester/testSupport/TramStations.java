@@ -52,6 +52,7 @@ public enum TramStations implements TestStations {
     HeatonPark("9400ZZMAHEA", "Heaton Park", "Heaton Park", pos(53.53036, -2.26699)),
     BurtonRoad("9400ZZMABNR", "West Didsbury", "Burton Road", pos(53.42908, -2.24064)),
     RochdaleRail("9400ZZMARRS", "Rochdale", "Rochdale Railway Station", pos(53.61102, -2.15449)),
+    OldTrafford("9400ZZMAOLD", "Old Trafford", "Old Trafford", pos(53.45634, -2.28496)),
     Intu("9400ZZMATRC", "The Trafford Centre", "intu Trafford Centre", pos(53.46782, -2.34751));
 
     public static int NumberOf = 99;

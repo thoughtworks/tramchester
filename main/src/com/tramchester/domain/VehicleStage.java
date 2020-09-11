@@ -13,22 +13,25 @@ public class VehicleStage implements TransportStage<Station, Station> {
     private final Station lastStation;
 
     protected final TransportMode mode;
+    private final boolean hasPlatforms;
     private final Trip trip;
     private final int passedStops;
-    private final TramTime departTime;
+    private final TramTime departFirstStationTime;
     private final Route route;
 
     protected int cost;
     private Platform platform;
 
     public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
-                        TramTime departTime, Station lastStation, int passedStops) {
+                        TramTime departFirstStationTime, Station lastStation, int passedStops,
+                        boolean hasPlatforms) {
         this.firstStation = firstStation;
         this.route = route;
         this.mode = mode;
+        this.hasPlatforms = hasPlatforms;
         this.platform = null;
         this.trip = trip;
-        this.departTime = departTime;
+        this.departFirstStationTime = departFirstStationTime;
         this.lastStation = lastStation;
         this.passedStops = passedStops;
     }
@@ -73,6 +76,9 @@ public class VehicleStage implements TransportStage<Station, Station> {
     }
 
     public void setPlatform(Platform platform) {
+        if (!hasPlatforms) {
+            throw new RuntimeException("Adding platforms to a non-platform vehical stage " + toString());
+        }
         this.platform = platform;
     }
 
@@ -85,7 +91,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     @Override
     public boolean hasBoardingPlatform() {
-        return true;
+        return hasPlatforms;
     }
 
     public int getCost() {
@@ -94,17 +100,17 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     @Deprecated
     public TramTime getDepartTime() {
-        return departTime;
+        return departFirstStationTime;
     }
 
     @Override
     public TramTime getFirstDepartureTime() {
-        return departTime;
+        return departFirstStationTime;
     }
 
     @Override
     public TramTime getExpectedArrivalTime() {
-        return departTime.plusMinutes(cost);
+        return departFirstStationTime.plusMinutes(cost);
     }
 
     public int getPassedStops() {
@@ -122,13 +128,13 @@ public class VehicleStage implements TransportStage<Station, Station> {
                 lastStation.equals(that.lastStation) &&
                 mode == that.mode &&
                 trip.equals(that.trip) &&
-                departTime.equals(that.departTime) &&
+                departFirstStationTime.equals(that.departFirstStationTime) &&
                 Objects.equals(platform, that.platform);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstStation, lastStation, mode, trip, passedStops, departTime, cost, platform);
+        return Objects.hash(firstStation, lastStation, mode, trip, passedStops, departFirstStationTime, cost, platform);
     }
 
     @Override
@@ -140,7 +146,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
                 ", routeId='" + route.getId() + '\'' +
                 ", tripId=" + trip.getId() +
                 ", passedStops=" + passedStops +
-                ", departTime=" + departTime +
+                ", departTime=" + departFirstStationTime +
                 ", cost=" + cost +
                 ", platform=" + platform +
                 '}';

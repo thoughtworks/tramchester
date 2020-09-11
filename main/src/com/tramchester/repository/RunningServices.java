@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Service;
@@ -18,16 +19,22 @@ public class RunningServices {
     private final Map<IdFor<Service>, ServiceTime> latestTimeMap;
     private final Map<IdFor<Service>, ServiceTime> earliestTimeMap;
 
-    public RunningServices(TramServiceDate date, TransportData transportData) {
+    public RunningServices(TramServiceDate date, TransportData transportData, TramchesterConfig config) {
         serviceIds = new IdSet<>();
         latestTimeMap = new HashMap<>();
         earliestTimeMap = new HashMap<>();
+
+        ServiceTime earliest = ServiceTime.of(0,0).plusMinutes(config.getMaxWait());
 
         transportData.getServicesOnDate(date).forEach(svc -> {
             IdFor<Service> serviceId = svc.getId();
             serviceIds.add(serviceId);
             latestTimeMap.put(serviceId, svc.latestDepartTime());
-            earliestTimeMap.put(serviceId, svc.earliestDepartTime());
+            ServiceTime earliestDepartTime = svc.earliestDepartTime();
+            if (earliestDepartTime.isBefore(earliest)) {
+                earliestDepartTime = earliest;
+            }
+            earliestTimeMap.put(serviceId, earliestDepartTime);
         });
 
         if (serviceIds.size()>0) {

@@ -10,10 +10,9 @@ import java.io.IOException;
 public class TramTimeJsonSerializer extends JsonSerializer<TramTime> {
 
     @Override
-    public void serialize(TramTime time, JsonGenerator gen,
-                          SerializerProvider arg2)
+    public void serialize(TramTime time, JsonGenerator gen, SerializerProvider serializerProvider)
             throws IOException {
 
-        gen.writeString(time.toPattern());
+        gen.writeString(time.serialize());
     }
 }

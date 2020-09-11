@@ -85,7 +85,7 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
 
     public TramTime getTime(Node node) {
         long nodeId = node.getId();
-        return times.get(nodeId, id -> TramTime.of(GraphProps.getTime(node)));
+        return times.get(nodeId, id -> GraphProps.getTime(node));
     }
 
     public IdFor<Service> getServiceId(Node node) {

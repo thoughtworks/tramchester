@@ -210,8 +210,8 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHandleCrossingMidnightWithChange() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,20));
-        assertGetAndCheckJourneys(journeyRequest, TramStations.Cornbrook, TramStations.ManAirport);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,30));
+        assertGetAndCheckJourneys(journeyRequest, Intu, TraffordBar);
     }
 
     @Test
@@ -219,14 +219,14 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23,55));
         assertGetAndCheckJourneys(journeyRequestA, TramStations.Cornbrook, TramStations.StPetersSquare);
 
-        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(23,25));
-        assertGetAndCheckJourneys(journeyRequestB, Altrincham, TramStations.TraffordBar);
+        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(0,0));
+        assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford); // depot run
     }
 
     @Test
     void shouldHandleAfterMidnightDirect() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0));
-        assertGetAndCheckJourneys(journeyRequest, Altrincham, TramStations.NavigationRoad);
+        assertGetAndCheckJourneys(journeyRequest, Altrincham, TramStations.NavigationRoad); // depot run
     }
 
     @Test

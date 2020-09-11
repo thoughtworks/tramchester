@@ -27,6 +27,7 @@ public class ServiceReasons {
     private final TramTime queryTime;
     private final ProvidesLocalNow providesLocalNow;
     private final JourneyRequest journeyRequest;
+    private final int numChanges;
     private final List<ServiceReason> reasons;
     // stats
     private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
@@ -35,10 +36,11 @@ public class ServiceReasons {
 
     private boolean success;
 
-    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesLocalNow providesLocalNow) {
+    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesLocalNow providesLocalNow, int numChanges) {
         this.queryTime = queryTime;
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;
+        this.numChanges = numChanges;
         reasons = new ArrayList<>();
         statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
@@ -66,7 +68,7 @@ public class ServiceReasons {
 
     private void reportStats() {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for " + journeyRequest.toString() + " at " + queryTime);
+            logger.warn("No result found for " + journeyRequest.toString() + " at " + queryTime + " max changes " + numChanges);
         }
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(

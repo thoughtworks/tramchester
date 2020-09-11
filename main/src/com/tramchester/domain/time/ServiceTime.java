@@ -11,22 +11,17 @@ public class ServiceTime {
         for(int day=0; day < 2; day++) {
             for (int hour = 0; hour < 24; hour++) {
                 for (int minute = 0; minute < 60; minute++) {
-                    serviceTimes[day][hour][minute] = new ServiceTime(TramTime.of(hour,minute), day==1);
+                    serviceTimes[day][hour][minute] =
+                            new ServiceTime(day==1? TramTime.nextDay(hour,minute) : TramTime.of(hour,minute));
                 }
             }
         }
     }
 
-    private final boolean followingDay;
     private final TramTime tramTime;
 
-    private ServiceTime(TramTime tramTime, boolean followingDay) {
+    private ServiceTime(TramTime tramTime) {
         this.tramTime = tramTime;
-        this.followingDay = followingDay;
-    }
-
-    private static ServiceTime of(TramTime time, boolean followingDay) {
-        return of(time.getHourOfDay(), time.getMinuteOfHour(), followingDay);
     }
 
     public static ServiceTime of(int hours, int minutes) {
@@ -37,44 +32,62 @@ public class ServiceTime {
         return serviceTimes[followingDay?1:0][hours][minutes];
     }
 
+    private static ServiceTime of(TramTime time) {
+        return of(time.getHourOfDay(), time.getMinuteOfHour(), time.isNextDay());
+    }
+
     public static ServiceTime of(LocalTime time) {
         return serviceTimes[0][time.getHour()][time.getMinute()];
     }
 
     public static Optional<ServiceTime> parseTime(String text) {
-        String[] split = text.split(":",3);
-
-        boolean nextDay = false;
-        int hour = Integer.parseInt(split[0]);
-        // gtfs standard represents service next day by time > 24:00:00
-        if (hour>=24) {
-            hour = hour - 24;
-            nextDay = true;
-        }
-        if (hour>23) {
-            // spanning 2 days, cannot handle yet
+        Optional<TramTime> maybe = TramTime.parse(text);
+        if (maybe.isEmpty()) {
             return Optional.empty();
         }
-        int minutes = Integer.parseInt(split[1]);
-        if (minutes > 59) {
-            return Optional.empty();
-        }
-        return Optional.of(ServiceTime.of(hour, minutes, nextDay));
+        TramTime time = maybe.get();
+        return Optional.of(ServiceTime.of(time));
     }
 
-    // TODO Use following day flag
     public static int diffenceAsMinutes(ServiceTime departureTime, ServiceTime arrivalTime) {
         return TramTime.diffenceAsMinutes(departureTime.tramTime, arrivalTime.tramTime);
     }
 
-    public static boolean isBetween(TramTime tramTime, ServiceTime start, ServiceTime end) {
-        return tramTime.between(start.tramTime, end.tramTime);
+    public int getHourOfDay() {
+        return tramTime.getHourOfDay();
+    }
+
+    public boolean isBefore(ServiceTime other) {
+        return tramTime.isBefore(other.tramTime);
+    }
+
+    public boolean isAfter(ServiceTime other) {
+        return tramTime.isAfter(other.tramTime);
+    }
+
+    public String toPattern() {
+        return tramTime.toPattern();
+    }
+
+    public LocalTime asLocalTime() {
+        return tramTime.asLocalTime();
+    }
+
+    public ServiceTime minusMinutes(int amount) {
+        return of(tramTime.minusMinutes(amount));
+    }
+
+    public ServiceTime plusMinutes(int amount) {
+        return of(tramTime.plusMinutes(amount));
+    }
+
+    public boolean getFollowingDay() {
+        return tramTime.isNextDay();
     }
 
     @Override
     public String toString() {
         return "ServiceTime{" +
-                "followingDay=" + followingDay +
                 ", tramTime=" + tramTime +
                 '}';
     }
@@ -86,49 +99,15 @@ public class ServiceTime {
 
         ServiceTime that = (ServiceTime) o;
 
-        if (followingDay != that.followingDay) return false;
-        return tramTime == that.tramTime;
+        return tramTime.equals(that.tramTime);
     }
 
     @Override
     public int hashCode() {
-        int result = (followingDay ? 1 : 0);
-        result = 31 * result + tramTime.hashCode();
-        return result;
+        return tramTime.hashCode();
     }
 
-    public String tramDataFormat() {
-        return tramTime.tramDataFormat();
-    }
-
-    public int getHourOfDay() {
-        return tramTime.getHourOfDay();
-    }
-
-    // TODO Use following day flag
-    public boolean isBefore(ServiceTime other) {
-        return tramTime.isBefore(other.tramTime);
-    }
-
-    // TODO Use following day flag
-    public boolean isAfter(ServiceTime other) {
-        return tramTime.isAfter(other.tramTime);
-    }
-
-    // TODO Use following day flag
-    public String toPattern() {
-        return tramTime.toPattern();
-    }
-
-    public LocalTime asLocalTime() {
-        return tramTime.asLocalTime();
-    }
-
-    public ServiceTime minusMinutes(int amount) {
-        return ServiceTime.of(tramTime.minusMinutes(amount), followingDay);
-    }
-
-    public boolean getFollowingDay() {
-        return followingDay;
+    public TramTime asTramTime() {
+        return tramTime;
     }
 }

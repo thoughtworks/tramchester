@@ -16,8 +16,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 public class Service implements HasId<Service>, GraphProperty {
 
     private final IdFor<Service> serviceId;

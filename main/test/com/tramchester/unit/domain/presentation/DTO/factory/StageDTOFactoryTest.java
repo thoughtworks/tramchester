@@ -46,7 +46,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
         VehicleStage vehicleStage = new VehicleStage(TramStations.of(MarketStreet), testRoute,
-                TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury), 23);
+                TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury), 23, true);
         vehicleStage.setCost(5);
 
         Platform platform = new Platform("platFormId", "platformName");

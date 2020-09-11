@@ -443,18 +443,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNodes;
     }
 
-    private Node createMinuteNode(Transaction tx, Service service, Trip trip, Station start, ServiceTime departureTime, RouteBuilderCache stationCache) {
-        LocalTime time = departureTime.asLocalTime();
+    private Node createMinuteNode(Transaction tx, Service service, Trip trip, Station start, ServiceTime departureTime,
+                                  RouteBuilderCache stationCache) {
+        //LocalTime time = departureTime.asLocalTime();
 
         Node timeNode = createGraphNode(tx, Labels.MINUTE);
-        setTimeProp(timeNode, time);
+        setTimeProp(timeNode, departureTime);
         setProperty(timeNode, trip);
 
         // hour node -> time node
         Node hourNode = stationCache.getHourNode(tx, service, start, departureTime.getHourOfDay());
         Relationship fromPrevious = createRelationship(hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
         setCostProp(fromPrevious, 0);
-        setTimeProp(fromPrevious, time);
+        setTimeProp(fromPrevious, departureTime);
         setProperty(fromPrevious, trip);
 
         return timeNode;

@@ -226,9 +226,10 @@ public class MapPathToStages {
             Trip trip = transportData.getTripById(tripId);
 
             int passedStops = stopsSeen - 1;
+            TransportMode transportMode = route.getTransportMode();
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
-                    route.getTransportMode(), trip, boardingTime,
-                    departStation, passedStops);
+                    transportMode, trip, boardingTime,
+                    departStation, passedStops, TransportMode.isTram(transportMode));
 
             if (stopsSeen == 0) {
                 logger.error("Zero passed stops " + vehicleStage);
@@ -257,8 +258,7 @@ public class MapPathToStages {
 
             if (tripId.notValid()) {
                 this.tripId = newTripId;
-                LocalTime property = GraphProps.getTime(relationship);
-                boardingTime = TramTime.of(property);
+                boardingTime = GraphProps.getTime(relationship);
             } else if (!tripId.equals(newTripId)){
                 throw new RuntimeException(format("Mid flight change of trip from %s to %s", tripId, newTripId));
             }

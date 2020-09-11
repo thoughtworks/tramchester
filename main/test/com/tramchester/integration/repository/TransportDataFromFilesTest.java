@@ -189,7 +189,8 @@ class TransportDataFromFilesTest {
                     callingTripsOnDate.forEach(trip -> {
                         Set<StopCall> onTime = trip.getStops().stream().
                                 filter(stop -> stop.getStation().equals(station)).
-                                filter(stop -> tramTime.between(stop.getArrivalTime().minusMinutes(maxwait), stop.getArrivalTime())).
+                                filter(stop -> tramTime.plusMinutes(maxwait).
+                                        between(stop.getArrivalTime(), stop.getArrivalTime().plusMinutes(maxwait))).
                                 collect(Collectors.toSet());
                         calling.addAll(onTime);
                     });

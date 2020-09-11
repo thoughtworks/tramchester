@@ -52,6 +52,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private IdFor<Service> serviceIdB;
     private JourneyConstraints journeyConstraints;
     private int maxJourneyDuration;
+    private int numChanges = 3;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -84,7 +85,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckNodeBasedOnServiceId() {
         TramTime queryTime = TramTime.of(8,1);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations,
                 tramReachabilityRepository,
@@ -112,7 +113,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckNodeOpenStation() {
         TramTime queryTime = TramTime.of(8,1);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         RouteStation routeStationA = new RouteStation(TramStations.of(Bury), TestEnv.getTestRoute());
         RouteStation routeStationB = new RouteStation(TramStations.of(Shudehill), TestEnv.getTestRoute());
@@ -147,7 +148,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elaspsedTramTime = TramTime.of(elaspsedTime);
 
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -190,7 +191,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         Node endsAfterMidnight = createMock(Node.class);
         EasyMock.expect(endsAfterMidnight.getId()).andReturn(43L);
         EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(5,23));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(0,1));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(0,1, true));
 
         replayAll();
         assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, path),
@@ -211,7 +212,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(9,1);
 
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -243,7 +244,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursCrossesNextHour() {
         TramTime queryTime = TramTime.of(7,0);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -272,7 +273,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursPriorToMidnight() {
         TramTime queryTime = TramTime.of(23,10);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
@@ -304,7 +305,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursPriorAcrossMidnight() {
         TramTime queryTime = TramTime.of(23,40);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -335,7 +336,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursEarlyMorning() {
         TramTime queryTime = TramTime.of(0,5);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -362,7 +363,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursEarlyMorningNextHour() {
         TramTime queryTime = TramTime.of(0,50);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -389,7 +390,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckTimeAtNodeCorrectly() {
         TramTime queryTime = TramTime.of(7,0);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -397,21 +398,21 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         LocalTime nodeTime = LocalTime.of(8, 0);
 
         // 7.10 too early, too long to wait
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(10), nodeTime, false, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(10), nodeTime, false, reasons, false);
         // 7.29 too early, too long to wait
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(29), nodeTime, false, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(29), nodeTime, false, reasons, false);
 
         // 8
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(60), nodeTime, true, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(60), nodeTime, true, reasons, false);
         // 7.30
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(30), nodeTime, true, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(30), nodeTime, true, reasons, false);
         // 7.45
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(45), nodeTime, true, reasons);
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(59), nodeTime, true, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(45), nodeTime, true, reasons, false);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(59), nodeTime, true, reasons, false);
 
         // 8.01 - you missed it
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(61), nodeTime, false, reasons);
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(120), nodeTime, false, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(61), nodeTime, false, reasons, false);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(120), nodeTime, false, reasons, false);
 
     }
 
@@ -419,27 +420,29 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckTimeAtNodeCorrectlyOvermidnight() {
         TramTime queryTime = TramTime.of(23,50);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         LocalTime nodeTime = LocalTime.of(0, 5);
 
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(9), nodeTime, true, reasons);
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(10), nodeTime, true, reasons);
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(11), nodeTime, true, reasons);
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(15), nodeTime, true, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(9), nodeTime, true, reasons, true);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(10), nodeTime, true, reasons, false);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(11), nodeTime, true, reasons, false);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(15), nodeTime, true, reasons, false);
 
-        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(16), nodeTime, false, reasons);
+        checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(16), nodeTime, false, reasons, false);
     }
 
-    private void checkForNodeTime(ServiceHeuristics serviceHeuristics, TramTime currentElapsed, LocalTime nodeTime, boolean expect, ServiceReasons reasons) {
+    private void checkForNodeTime(ServiceHeuristics serviceHeuristics, TramTime currentElapsed, LocalTime nodeTime,
+                                  boolean expect, ServiceReasons reasons, Boolean nextDay) {
         resetAll();
 
         Node node = createMock(Node.class);
         EasyMock.expect(node.getId()).andStubReturn(42L); // ok IFF node time always same
         EasyMock.expect(node.getProperty(GraphPropertyKey.TIME.getText())).andStubReturn(nodeTime);
+        EasyMock.expect(node.hasProperty(GraphPropertyKey.DAY_OFFSET.getText())).andStubReturn(nextDay);
         EasyMock.expect(journeyConstraints.getMaxWait()).andStubReturn(MAX_WAIT);
 
         replayAll();
@@ -451,7 +454,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursOverMidnightLongerJourney() {
         TramTime queryTime = TramTime.of(23,10);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -481,7 +484,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(11,20);
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(TestEnv.nextSaturday()), queryTime,
                 false, 3, maxJourneyDuration);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
@@ -503,7 +506,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(11,20);
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(TestEnv.nextSaturday()), queryTime,
                 false, 2, 160);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime,
@@ -520,7 +523,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(23,20);
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(TestEnv.nextSaturday()), queryTime,
                 false, 3, maxJourneyDuration);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations, tramReachabilityRepository,
                 journeyConstraints, queryTime,

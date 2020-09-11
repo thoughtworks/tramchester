@@ -28,6 +28,7 @@ class ServiceTimeTest {
         Assertions.assertEquals("svcId", timeA.getServiceId());
         Assertions.assertEquals("headSign", timeA.getHeadSign());
     }
+
     @Test
     void shouldHaveEquality() {
         Assertions.assertEquals(timeA, timeC);
@@ -57,7 +58,7 @@ class ServiceTimeTest {
     void correctOrderingInSortedSetAccrossMidnight() {
         SortedSet<ServiceTime> set = new TreeSet<>();
         ServiceTime timeBeforeMid = new ServiceTime(TramTime.of(23, 50), TramTime.of(23, 55), "svcId", "headSign", "tripId");
-        ServiceTime timeAfterMid = new ServiceTime(TramTime.of(0, 10), TramTime.of(0, 15), "svcId", "headSign", "tripId");
+        ServiceTime timeAfterMid = new ServiceTime(TramTime.nextDay(0, 10), TramTime.nextDay(0, 15), "svcId", "headSign", "tripId");
 
         set.add(timeAfterMid);
         set.add(timeBeforeMid);

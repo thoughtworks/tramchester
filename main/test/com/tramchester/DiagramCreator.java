@@ -209,9 +209,10 @@ public class DiagramCreator {
             return GraphProps.getHour(node).toString();
         }
         if (node.hasLabel(MINUTE)) {
-            String fullTime = GraphProps.getTime(node).toString();
-            int index = fullTime.indexOf(":");
-            return fullTime.substring(index);
+            return GraphProps.getTime(node).toString();
+//            String fullTime = GraphProps.getTime(node).toString();
+//            int index = fullTime.indexOf(":");
+//            return fullTime.substring(index);
         }
 
         return "No_Label";

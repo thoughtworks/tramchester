@@ -122,7 +122,7 @@ public class RouteCalculator implements TramRouteCalculator {
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime-> new PathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, previousSuccessfulVisit,
-                        createServiceReasons(journeyRequest, pathRequest.queryTime), pathRequest)).
+                        createServiceReasons(journeyRequest, pathRequest.queryTime, pathRequest.numChanges), pathRequest)).
                 map(path -> createJourney(journeyRequest, path));
     }
 
@@ -152,7 +152,7 @@ public class RouteCalculator implements TramRouteCalculator {
                         flatMap(startNode -> numChangesRange(journeyRequest).
                                 map(numChanges -> new PathRequest(startNode, time, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                previousSuccessfulVisit, createServiceReasons(journeyRequest, time), pathRequest)).
+                                previousSuccessfulVisit, createServiceReasons(journeyRequest, time, pathRequest.numChanges), pathRequest)).
                         map(timedPath -> createJourney(journeyRequest, timedPath));
 
                 // TODO Limit here, or return the stream?
@@ -171,8 +171,8 @@ public class RouteCalculator implements TramRouteCalculator {
     }
 
     @NotNull
-    private ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time) {
-        return new ServiceReasons(journeyRequest, time, providesLocalNow);
+    private ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time, int numChanges) {
+        return new ServiceReasons(journeyRequest, time, providesLocalNow, numChanges);
     }
 
     @NotNull

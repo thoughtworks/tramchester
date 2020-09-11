@@ -111,10 +111,6 @@ public class StageDTO {
         return mode;
     }
 
-//    public String getDisplayClass() {
-//        return displayClass;
-//    }
-
     public PlatformDTO getPlatform() {
         return platform;
     }

@@ -16,7 +16,6 @@ public class LocalDateTimeJsonDeserializer extends JsonDeserializer<LocalDateTim
     public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        //DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
         return LocalDateTime.parse(node.asText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }

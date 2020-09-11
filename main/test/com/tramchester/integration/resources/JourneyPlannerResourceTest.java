@@ -218,7 +218,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldFindEndOfDayTwoStageJourney() {
-        validateAtLeastOneJourney(TramStations.Altrincham, TramStations.ManAirport, when, TramTime.of(22,56));
+        validateAtLeastOneJourney(TramStations.Intu, TramStations.TraffordBar, when, TramTime.of(23,30));
     }
 
     @Test
