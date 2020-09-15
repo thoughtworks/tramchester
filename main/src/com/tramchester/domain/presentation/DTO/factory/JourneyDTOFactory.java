@@ -7,6 +7,8 @@ import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,13 +19,13 @@ public class JourneyDTOFactory {
     }
 
     public JourneyDTO build(List<StageDTO> stages, TramTime queryTime, List<Note> notes,
-                            List<StationRefWithPosition> path) {
+                            List<StationRefWithPosition> path, LocalDate queryDate) {
         boolean isDirect = isDirect(stages);
         StationRefWithPosition begin = getBegin(stages);
         StationRefWithPosition end = getEnd(stages);
 
-        return new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages),
-                getFirstDepartureTime(stages),
+        return new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages, queryDate),
+                getFirstDepartureTime(stages, queryDate),
                 isDirect, getChangeStationNames(stages), queryTime, notes, path);
     }
 
@@ -69,18 +71,20 @@ public class JourneyDTOFactory {
         return result;
     }
 
-    private TramTime getFirstDepartureTime(List<StageDTO> allStages) {
+    private LocalDateTime getFirstDepartureTime(List<StageDTO> allStages, LocalDate queryDate) {
         if (allStages.size() == 0) {
-            return TramTime.midnight();
+            return LocalDateTime.of(queryDate, TramTime.midnight().asLocalTime());
         }
-        return getFirstStage(allStages).getFirstDepartureTime();
+        TramTime firstDepartureTime = getFirstStage(allStages).getFirstDepartureTime();
+        return firstDepartureTime.toDate(queryDate);
     }
 
-    private TramTime getExpectedArrivalTime(List<StageDTO> allStages) {
+    private LocalDateTime getExpectedArrivalTime(List<StageDTO> allStages, LocalDate queryDate) {
         if (allStages.size() == 0) {
-            return TramTime.of(0,0);
+            return LocalDateTime.of(queryDate, TramTime.midnight().asLocalTime());
         }
-        return getLastStage(allStages).getExpectedArrivalTime();
+        TramTime tramTime = getLastStage(allStages).getExpectedArrivalTime();
+        return tramTime.toDate(queryDate);
     }
 
     private StageDTO getLastStage(List<StageDTO> allStages) {

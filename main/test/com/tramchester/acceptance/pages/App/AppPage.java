@@ -194,15 +194,15 @@ public class AppPage extends Page {
         }
     }
 
-    public List<SummaryResult> getResults() {
-        List<SummaryResult> results = new ArrayList<>();
+    public List<TestResultSummaryRow> getResults() {
+        List<TestResultSummaryRow> results = new ArrayList<>();
         By resultsById = By.id(RESULTS);
         WebElement resultsDiv = new WebDriverWait(driver, 10).
                 until(ExpectedConditions.elementToBeClickable(resultsById));
 
         WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
         List<WebElement> rows = tableBody.findElements(By.className("journeySummary"));
-        rows.forEach(row -> results.add(new SummaryResult(row, tableBody)));
+        rows.forEach(row -> results.add(new TestResultSummaryRow(row, tableBody)));
 
         return results;
     }

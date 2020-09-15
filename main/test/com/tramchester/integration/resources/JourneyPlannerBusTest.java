@@ -24,7 +24,9 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -120,8 +122,9 @@ class JourneyPlannerBusTest {
         // TODO 20 mins gap? Estimation is too optimistic for Buses?
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
-            Assertions.assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
-            if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<20) {
+            Assertions.assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
+            Duration duration = Duration.between(journeyDTO.getExpectedArrivalTime(), queryTime.toDate(when));
+            if (duration.getSeconds() < 20*60) {
                 found.add(journeyDTO);
             }
         });
@@ -131,10 +134,10 @@ class JourneyPlannerBusTest {
     private List<JourneyDTO> getValidJourneysAfter(TramTime queryTime, JourneyPlanRepresentation plan) {
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
-            TramTime firstDepartureTime = journeyDTO.getFirstDepartureTime();
-            Assertions.assertTrue(firstDepartureTime.isAfter(queryTime)
-                    || firstDepartureTime.equals(queryTime), firstDepartureTime.toString());
-            if (journeyDTO.getExpectedArrivalTime().isAfter(queryTime)) {
+            LocalDateTime firstDepartureTime = journeyDTO.getFirstDepartureTime();
+            Assertions.assertTrue(firstDepartureTime.isAfter(queryTime.toDate(when))
+                    || firstDepartureTime.equals(queryTime.toDate(when)), firstDepartureTime.toString());
+            if (journeyDTO.getExpectedArrivalTime().isAfter(queryTime.toDate(when))) {
                 found.add(journeyDTO);
             }
         });

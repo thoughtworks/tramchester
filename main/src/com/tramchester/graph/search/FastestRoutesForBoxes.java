@@ -13,6 +13,9 @@ import com.tramchester.mappers.TramJourneyToDTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,16 +72,21 @@ public class FastestRoutesForBoxes {
 
         for (Journey journey: journeysForBox.getJourneys()) {
             JourneyDTO dto = dtoMapper.createJourneyDTO(journey, request.getDate());
-            TramTime depart = dto.getFirstDepartureTime();
-            TramTime arrive = dto.getExpectedArrivalTime();
-            int duration = TramTime.diffenceAsMinutes(depart, arrive);
-            if (duration < currentLowestCost) {
+            long minutes = getDiffInMinutes(dto);
+            if (minutes < currentLowestCost) {
                 currentBest = journey;
-                currentLowestCost = duration;
+                currentLowestCost = (int) minutes;
             }
         }
 
         return new BoundingBoxWithCost(journeysForBox.getBox(), currentLowestCost, currentBest);
+    }
+
+    private long getDiffInMinutes(JourneyDTO dto) {
+        LocalDateTime depart = dto.getFirstDepartureTime();
+        LocalDateTime arrive = dto.getExpectedArrivalTime();
+        Duration period = Duration.between(depart, arrive);
+        return Math.abs(period.getSeconds()) / 60;
     }
 
 }

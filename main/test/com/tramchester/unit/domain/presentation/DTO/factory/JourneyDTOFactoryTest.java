@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMockSupport;
@@ -24,6 +25,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +40,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     private final Station stationB = TestStation.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
     private JourneyDTOFactory factory;
     private MyLocationFactory myLocationFactory;
+    private final LocalDate when = TestEnv.testDay();
 
     private final TramTime queryTime = TramTime.of(8,46);
     private List<Note> notes;
@@ -57,11 +62,11 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         StageDTO transportStage = createStage(TramTime.of(10, 8), TramTime.of(10, 20), 11);
 
         replayAll();
-        JourneyDTO journeyDTO = factory.build(Collections.singletonList(transportStage), queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(Collections.singletonList(transportStage), queryTime, notes, path, when);
         verifyAll();
 
-        assertEquals(TramTime.of(10, 20), journeyDTO.getExpectedArrivalTime());
-        assertEquals(TramTime.of(10, 8), journeyDTO.getFirstDepartureTime());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(10, 20)), journeyDTO.getExpectedArrivalTime());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(10, 8)), journeyDTO.getFirstDepartureTime());
         assertEquals(stationA.forDTO(), journeyDTO.getBegin().getId());
         assertEquals(stationB.forDTO(), journeyDTO.getEnd().getId());
         assertTrue(journeyDTO.getIsDirect());
@@ -77,11 +82,11 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         StageDTO transportStageB = createStage(TramTime.of(10, 22), TramTime.of(11, 45), 30);
 
         replayAll();
-        JourneyDTO journeyDTO = factory.build(Arrays.asList(transportStageA, transportStageB), queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(Arrays.asList(transportStageA, transportStageB), queryTime, notes, path, when);
         verifyAll();
 
-        assertEquals(TramTime.of(10, 8), journeyDTO.getFirstDepartureTime());
-        assertEquals(TramTime.of(11, 45), journeyDTO.getExpectedArrivalTime());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(10, 8)), journeyDTO.getFirstDepartureTime());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(11, 45)), journeyDTO.getExpectedArrivalTime());
         assertEquals(stationA.forDTO(), journeyDTO.getBegin().getId());
         assertEquals(stationB.forDTO(), journeyDTO.getEnd().getId());
         assertFalse(journeyDTO.getIsDirect());
@@ -114,7 +119,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         List<StageDTO> stages = Arrays.asList(stageA, stageB);
 
         replayAll();
-        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
         assertEquals(2, journeyDTO.getStages().size());
@@ -140,7 +145,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
 
         replayAll();
-        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
         assertFalse(journeyDTO.getIsDirect());
@@ -162,10 +167,10 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, TramStations.Deansgate, 1));
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journey = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
-        assertEquals(TramTime.of(8,13), journey.getFirstDepartureTime());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(8,13)), journey.getFirstDepartureTime());
         Assertions.assertTrue(journey.getChangeStations().isEmpty());
         Assertions.assertTrue(journey.getIsDirect());
     }
@@ -175,7 +180,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         List<StageDTO> stages = createThreeStages();
 
         replayAll();
-        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
         assertEquals(TramStations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
@@ -188,7 +193,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         stages.add(createStage(TramStations.ExchangeSquare, TravelAction.Change, TramStations.Rochdale, 24));
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journey = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
         List<String> changeStations = journey.getChangeStations().stream().
@@ -203,7 +208,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         stages.add(createWalkingStage(myLocation, TramStations.Victoria, TramTime.of(8,13), TramTime.of(8,16)));
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journey = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
         Assertions.assertTrue(journey.getChangeStations().isEmpty());
@@ -217,7 +222,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         stages.add(createStage(TramStations.MarketStreet, TravelAction.Change, TramStations.Bury, 16));
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journey = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
         List<String> changeNames = journey.getChangeStations().stream().
@@ -232,7 +237,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         stages.add(createWalkingStage(start, TramStations.Altrincham, TramTime.of(8,0), TramTime.of(8,10)));
 
         replayAll();
-        JourneyDTO journey = factory.build(stages, queryTime, notes, path);
+        JourneyDTO journey = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
         ObjectMapper objectMapper = new ObjectMapper();

@@ -30,7 +30,7 @@ public class TramJourneyToDTOMapper {
         this.providesNotes = providesNotes;
     }
 
-    public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate tramServiceDate) {
+    public JourneyDTO createJourneyDTO(Journey journey, TramServiceDate queryDate) {
         List<StageDTO> stages = new ArrayList<>();
 
         List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
@@ -45,8 +45,8 @@ public class TramJourneyToDTOMapper {
 
         List<StationRefWithPosition> mappedPath = journey.getPath().stream().map(StationRefWithPosition::new).collect(Collectors.toList());
 
-        List<Note> notes = providesNotes.createNotesForJourney(journey, tramServiceDate);
-        return journeyFactory.build(stages, queryTime, notes, mappedPath);
+        List<Note> notes = providesNotes.createNotesForJourney(journey, queryDate);
+        return journeyFactory.build(stages, queryTime, notes, mappedPath, queryDate.getDate());
     }
 
     private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage<?,?> rawStage) {

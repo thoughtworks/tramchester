@@ -2,6 +2,7 @@ package com.tramchester.domain.time;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -302,5 +303,11 @@ public class  TramTime implements Comparable<TramTime> {
             result = result + nextDaySuffix;
         }
         return result;
+    }
+
+    // to date, respecting day offsetttt
+    public LocalDateTime toDate(LocalDate startDate) {
+        LocalDateTime base = LocalDateTime.of(startDate, asLocalTime());
+        return base.plusDays(offsetDays);
     }
 }

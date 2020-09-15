@@ -16,12 +16,12 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -75,7 +75,7 @@ class JourneyPlannerLocationResourceTest {
 
         // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
         // todo new lockdown timetable
-        assertEquals(TramTime.of(19,34), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(19,34)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
     }
 
     private JourneyDTO getEarliestArrivingJourney(Set<JourneyDTO> journeys) {
@@ -92,12 +92,12 @@ class JourneyPlannerLocationResourceTest {
                     localTime, false);
             assertTrue(journeys.size()>0);
 
-            TramTime planTime = TramTime.of(localTime);
+            LocalDateTime planTime = localTime.atDate(when);
             for (JourneyDTO result : journeys) {
-                TramTime departTime = result.getFirstDepartureTime();
+                LocalDateTime departTime = result.getFirstDepartureTime();
                 assertTrue(departTime.isAfter(planTime), result.toString());
 
-                TramTime arriveTime = result.getExpectedArrivalTime();
+                LocalDateTime arriveTime = result.getExpectedArrivalTime();
                 assertTrue(arriveTime.isAfter(departTime), result.toString());
             }
         }
@@ -110,7 +110,7 @@ class JourneyPlannerLocationResourceTest {
         assertTrue(journeys.size()>0);
 
         journeys.forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(TramTime.of(queryTime)));
+            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.atDate(when)));
 
             List<StageDTO> stages = journeyDTO.getStages();
             assertEquals(2, stages.size());
@@ -146,7 +146,7 @@ class JourneyPlannerLocationResourceTest {
         JourneyDTO firstJourney = journeys.get(0);
         List<StageDTO> stages = firstJourney.getStages();
         StageDTO walkingStage = stages.get(1);
-        assertTrue(firstJourney.getFirstDepartureTime().isBefore(TramTime.of(queryTime)));
+        assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.atDate(when)));
 
         assertEquals(NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
         assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
@@ -191,15 +191,15 @@ class JourneyPlannerLocationResourceTest {
         LocalTime queryTime = LocalTime.of(9, 0);
         Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearPiccGardens, TramStations.PiccadillyGardens.getId(),
                 queryTime, true);
-        journeys.forEach(journeyDTO -> assertTrue(journeyDTO.getFirstDepartureTime().isBefore(TramTime.of(queryTime))));
+        journeys.forEach(journeyDTO -> assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.atDate(when))));
     }
 
     private void checkAltyToPiccGardens(Set<JourneyDTO> journeys) {
         assertTrue(journeys.size()>0);
         JourneyDTO first = getEarliestArrivingJourney(journeys);
         List<StageDTO> stages = first.getStages();
-        assertEquals(TramTime.of(9,0), first.getFirstDepartureTime(), journeys.toString());
-        assertEquals(TramTime.of(9,3), first.getExpectedArrivalTime(), journeys.toString());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(9,0)), first.getFirstDepartureTime(), journeys.toString());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(9,3)), first.getExpectedArrivalTime(), journeys.toString());
         assertEquals(TramStations.PiccadillyGardens.forDTO(), first.getEnd().getId());
 
         assertEquals(1, stages.size());

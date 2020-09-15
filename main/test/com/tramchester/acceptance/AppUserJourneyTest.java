@@ -5,7 +5,7 @@ import com.tramchester.acceptance.infra.AcceptanceAppExtenstion;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
-import com.tramchester.acceptance.pages.App.SummaryResult;
+import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
+import static com.tramchester.testSupport.TramStations.Intu;
+import static com.tramchester.testSupport.TramStations.TraffordBar;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -170,12 +172,12 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         assertTrue(appPage.resultsClickable());
 
-        List<SummaryResult> results = appPage.getResults();
+        List<TestResultSummaryRow> results = appPage.getResults();
         // TODO Lockdown 3->2
         assertTrue(results.size()>=2, "at least 2 results");
 
         LocalTime previous = queryTime;
-        for (SummaryResult result : results) {
+        for (TestResultSummaryRow result : results) {
             LocalTime currentArrivalTime = result.getArriveTime();
             assertTrue(currentArrivalTime.isAfter(previous) || currentArrivalTime.equals(previous),
                     "arrival time order for " + result + " previous: " + previous);
@@ -185,7 +187,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         }
 
         // select first journey
-        SummaryResult firstResult = results.get(0);
+        TestResultSummaryRow firstResult = results.get(0);
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);
@@ -196,6 +198,25 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         validateAStage(stage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
                 altyToPiccClass, altyToPicLineName, TramStations.Piccadilly.getName(), 9);
+    }
+
+    @ParameterizedTest(name = "{displayName} {arguments}")
+    @MethodSource("getProvider")
+    void shouldCheckLateNightJourney(ProvidesDriver providesDriver) {
+        AppPage appPage = prepare(providesDriver, url);
+        LocalTime queryTime = LocalTime.parse("23:30");
+        desiredJourney(appPage, Intu.getName(), TraffordBar.getName(), when, queryTime, false);
+        appPage.planAJourney();
+
+        assertTrue(appPage.resultsClickable());
+
+        List<TestResultSummaryRow> results = appPage.getResults();
+
+        for (TestResultSummaryRow result : results) {
+            LocalTime arrivalTime = result.getArriveTime();
+            assertTrue(arrivalTime.isAfter(LocalTime.of(0,0)));
+            assertTrue(arrivalTime.isBefore(LocalTime.of(1,0)));
+        }
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -231,7 +252,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
-        List<SummaryResult> results = appPage.getResults();
+        List<TestResultSummaryRow> results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen), "depart not after " + tenFifteen);
 
         desiredJourney(appPage, altrincham, bury, when, eightFifteen, false);
@@ -241,7 +262,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
-        List<SummaryResult> updatedResults = appPage.getResults();
+        List<TestResultSummaryRow> updatedResults = appPage.getResults();
         assertTrue(updatedResults.get(0).getDepartTime().isBefore(tenFifteen));
         assertTrue(updatedResults.get(0).getDepartTime().isAfter(eightFifteen));
     }
@@ -257,7 +278,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
-        List<SummaryResult> results = appPage.getResults();
+        List<TestResultSummaryRow> results = appPage.getResults();
         LocalTime firstDepartureTime = results.get(0).getDepartTime();
         assertTrue(firstDepartureTime.isAfter(tenFifteen));
 
@@ -265,7 +286,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
-        List<SummaryResult> updatedResults = appPage.getResults();
+        List<TestResultSummaryRow> updatedResults = appPage.getResults();
         assertTrue(updatedResults.get(0).getDepartTime().isBefore(firstDepartureTime));
     }
 
@@ -280,7 +301,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
-        List<SummaryResult> results = appPage.getResults();
+        List<TestResultSummaryRow> results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
         LocalTime lastDepartureTime = results.get(results.size() - 1).getDepartTime();
 
@@ -288,7 +309,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
-        List<SummaryResult> updatedResults = appPage.getResults();
+        List<TestResultSummaryRow> updatedResults = appPage.getResults();
         assertTrue(updatedResults.get(0).getDepartTime().isAfter(lastDepartureTime));
     }
 
@@ -301,20 +322,20 @@ class AppUserJourneyTest extends UserJourneyTest {
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
-        List<SummaryResult> results = appPage.getResults();
+        List<TestResultSummaryRow> results = appPage.getResults();
         // TODO pre-lockdown timetable was 3
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
         LocalTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
-        for (SummaryResult result : results) {
+        for (TestResultSummaryRow result : results) {
             LocalTime arriveTime = result.getArriveTime();
             assertTrue(arriveTime.isAfter(result.getDepartTime()));
             assertTrue(arriveTime.isAfter(previousArrivalTime) || arriveTime.equals(previousArrivalTime));
-            assertEquals(result.getChanges(), TramStations.TraffordBar.getName());
+            assertEquals(result.getChanges(), TraffordBar.getName());
             previousArrivalTime = arriveTime;
         }
 
         // select first journey
-        SummaryResult firstResult = results.get(0);
+        TestResultSummaryRow firstResult = results.get(0);
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);
@@ -330,11 +351,11 @@ class AppUserJourneyTest extends UserJourneyTest {
                 TramStations.Piccadilly.getName(), 7);
 
         // Too timetable dependent?
-        validateAStage(secondStage, LocalTime.parse("10:32"), "Change Tram", TramStations.TraffordBar.getName(),
+        validateAStage(secondStage, LocalTime.parse("10:32"), "Change Tram", TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
                 TramStations.ManAirport.getName(), 17);
 
-        assertEquals(TramStations.TraffordBar.getName(), secondStage.getActionStation());
+        assertEquals(TraffordBar.getName(), secondStage.getActionStation());
         assertEquals("Change Tram", secondStage.getAction());
 
     }

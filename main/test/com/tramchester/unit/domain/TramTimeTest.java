@@ -2,9 +2,13 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -396,6 +400,28 @@ class TramTimeTest {
 
         assertEquals(11, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
+    }
+
+    @Test
+    void shouldGetCorrectDaySameDay() {
+        LocalDate beginDate = TestEnv.testDay();
+
+        TramTime sameDay = TramTime.of(11,42);
+
+        LocalDateTime result = sameDay.toDate(beginDate);
+        assertEquals(sameDay.asLocalTime(), result.toLocalTime());
+        assertEquals(beginDate, result.toLocalDate());
+    }
+
+    @Test
+    void shouldGetCorrectDayNextDay() {
+        LocalDate beginDate = TestEnv.testDay();
+
+        TramTime sameDay = TramTime.nextDay(11,42);
+
+        LocalDateTime result = sameDay.toDate(beginDate);
+        assertEquals(sameDay.asLocalTime(), result.toLocalTime());
+        assertEquals(beginDate.plusDays(1), result.toLocalDate());
     }
 
     private void checkCorrectTimePresent(Optional<TramTime> resultA, int hours, int minutes, boolean nextDay) {

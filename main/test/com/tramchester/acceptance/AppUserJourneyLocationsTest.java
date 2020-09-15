@@ -5,7 +5,7 @@ import com.tramchester.acceptance.infra.AcceptanceAppExtenstion;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
-import com.tramchester.acceptance.pages.App.SummaryResult;
+import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -126,11 +126,11 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         desiredJourney(appPage, "My Location", deansgate, when, planTime, false);
         appPage.planAJourney();
 
-        List<SummaryResult> results = appPage.getResults();
+        List<TestResultSummaryRow> results = appPage.getResults();
         // TODO lockdown timetable: 3 -> 2
         Assertions.assertTrue(results.size()>=2, "at least some results");
 
-        for (SummaryResult result : results) {
+        for (TestResultSummaryRow result : results) {
             LocalTime departTime = result.getDepartTime();
             Assertions.assertTrue(departTime.isAfter(planTime), departTime.toString());
 
@@ -140,7 +140,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         }
 
         // select first journey
-        SummaryResult firstResult = results.get(0);
+        TestResultSummaryRow firstResult = results.get(0);
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);

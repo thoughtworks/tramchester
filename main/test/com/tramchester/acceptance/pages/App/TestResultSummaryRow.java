@@ -1,6 +1,7 @@
 package com.tramchester.acceptance.pages.App;
 
 import com.tramchester.acceptance.infra.ProvidesDriver;
+import com.tramchester.domain.time.TramTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -8,7 +9,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SummaryResult {
+public class TestResultSummaryRow {
     private final LocalTime departTime;
     private final LocalTime arriveTime;
     private final String changes;
@@ -24,14 +25,14 @@ public class SummaryResult {
                 '}';
     }
 
-    public SummaryResult(WebElement row, WebElement parent) {
+    public TestResultSummaryRow(WebElement row, WebElement parent) {
         this.row = row;
         this.parent = parent;
 
         String departTimeTxt = row.findElement(By.className("departTime")).getText();
         departTime = LocalTime.parse(departTimeTxt);
         String arriveTimeTxt = row.findElement(By.className("arriveTime")).getText();
-        arriveTime = LocalTime.parse(arriveTimeTxt);
+        arriveTime = TramTime.parse(arriveTimeTxt).get().asLocalTime();
         changes = row.findElement(By.className("changes")).getText();
     }
 

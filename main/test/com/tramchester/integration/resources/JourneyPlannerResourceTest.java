@@ -26,7 +26,6 @@ import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -35,6 +34,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -59,7 +59,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     private LocalDate when;
     private LocalDateTime now;
     private ParseStream<JourneyDTO> parseStream;
-
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -92,9 +91,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             StageDTO firstStage = journey.getStages().get(0);
             PlatformDTO platform = firstStage.getPlatform();
             if (arriveBy) {
-                Assertions.assertTrue(journey.getFirstDepartureTime().isBefore(queryTime));
+                Assertions.assertTrue(journey.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
             } else {
-                Assertions.assertTrue(journey.getFirstDepartureTime().isAfter(queryTime));
+                Assertions.assertTrue(journey.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
             }
 
             Assertions.assertEquals("1", platform.getPlatformNumber());
@@ -112,9 +111,10 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
-            Assertions.assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime));
+            Assertions.assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
             // TODO lockdown less frequent services during lockdown mean threshhold here increased to 12
-            if (TramTime.diffenceAsMinutes(journeyDTO.getExpectedArrivalTime(),queryTime)<=12) {
+            Duration duration = Duration.between(journeyDTO.getExpectedArrivalTime(), queryTime.toDate(when));
+            if (duration.getSeconds()<=(12*60)) {
                 found.add(journeyDTO);
             }
         });
