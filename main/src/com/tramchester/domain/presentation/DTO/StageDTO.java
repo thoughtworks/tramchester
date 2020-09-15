@@ -5,8 +5,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
+
+import java.time.LocalDateTime;
 
 public class StageDTO {
     private StationRefWithPosition firstStation;
@@ -16,8 +20,8 @@ public class StageDTO {
     private boolean hasPlatform;
     private PlatformDTO platform;
 
-    private TramTime firstDepartureTime;
-    private TramTime expectedArrivalTime;
+    private LocalDateTime firstDepartureTime;
+    private LocalDateTime expectedArrivalTime;
     private int duration;
 
     private String headSign;
@@ -31,7 +35,7 @@ public class StageDTO {
     private String routeShortName;
 
     public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
-                    TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
+                    LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
                     String routeName, TravelAction action, String routeShortName) {
         this.firstStation = firstStation;
@@ -52,7 +56,7 @@ public class StageDTO {
 
 
     public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
-                    PlatformDTO boardingPlatform, TramTime firstDepartureTime, TramTime expectedArrivalTime, int duration,
+                    PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
                     String routeName, TravelAction action, String routeShortName) {
         this.firstStation = firstStation;
@@ -91,15 +95,15 @@ public class StageDTO {
         return firstStation;
     }
 
-    @JsonSerialize(using = TramTimeJsonSerializer.class)
-    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
-    public TramTime getFirstDepartureTime() {
+    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
+    public LocalDateTime getFirstDepartureTime() {
         return firstDepartureTime;
     }
 
-    @JsonSerialize(using = TramTimeJsonSerializer.class)
-    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
-    public TramTime getExpectedArrivalTime() {
+    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
+    public LocalDateTime getExpectedArrivalTime() {
         return expectedArrivalTime;
     }
 

@@ -81,7 +81,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         stages.add(walkingStage);
 
         StageDTO stageDTOA = new StageDTO();
-        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOA);
 
         JourneyDTO journeyDTO = new JourneyDTO();
         List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Deansgate)));
@@ -105,7 +105,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         stages.add(walkingStage);
 
         StageDTO stageDTOA = new StageDTO();
-        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, when)).andReturn(stageDTOA);
 
         JourneyDTO journeyDTO = new JourneyDTO();
         List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Deansgate)));
@@ -136,10 +136,10 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         StageDTO stageDTOB = new StageDTO();
         List<StageDTO> dtoStages = Arrays.asList(stageDTOA, stageDTOB);
 
-        EasyMock.expect(stageFactory.build(connectingStage, TravelAction.ConnectTo)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(connectingStage, TravelAction.ConnectTo, when)).andReturn(stageDTOA);
 
         // TODO Should be board
-        EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change)).andReturn(stageDTOB);
+        EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change, when)).andReturn(stageDTOB);
 
         JourneyDTO journeyDTO = new JourneyDTO();
         List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Altrincham)));
@@ -183,10 +183,10 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
 
         List<StageDTO> dtoStages = Arrays.asList(stageDTOA, stageDTOB, stageDTOC);
 
-        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board)).andReturn(stageDTOA);
-        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo)).andReturn(stageDTOB);
+        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOB);
         // TODO Ought to be Board?
-        EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change)).andReturn(stageDTOC);
+        EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change, when)).andReturn(stageDTOC);
 
         JourneyDTO journeyDTO = new JourneyDTO();
         List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(begin));
@@ -222,8 +222,8 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
         StageDTO stageDTOB = new StageDTO();
         List<StageDTO> dtoStages = Arrays.asList(stageDTOA, stageDTOB);
 
-        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board)).andReturn(stageDTOA);
-        EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change)).andReturn(stageDTOB);
+        EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
+        EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, when)).andReturn(stageDTOB);
 
         JourneyDTO journeyDTO = new JourneyDTO();
         List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(start));

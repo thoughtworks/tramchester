@@ -1,8 +1,6 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.domain.TransportMode;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
@@ -11,6 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TramStations;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -22,10 +21,10 @@ public abstract class JourneyPlannerHelper {
 
     static void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {
         for(JourneyDTO journey: journeys) {
-            TramTime previousArrive = null;
+            LocalDateTime previousArrive = null;
             for(StageDTO stage : journey.getStages()) {
                 if (previousArrive!=null) {
-                    TramTime firstDepartureTime = stage.getFirstDepartureTime();
+                    LocalDateTime firstDepartureTime = stage.getFirstDepartureTime();
                     String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
                             firstDepartureTime, previousArrive, stage);
                     if (stage.getMode()!= TransportMode.Walk) {

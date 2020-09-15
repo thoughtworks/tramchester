@@ -48,6 +48,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.oneOf;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -95,6 +96,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             } else {
                 Assertions.assertTrue(journey.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
             }
+            assertEquals(when, journey.getQueryDate());
 
             Assertions.assertEquals("1", platform.getPlatformNumber());
             Assertions.assertEquals("Altrincham platform 1", platform.getName());
@@ -117,6 +119,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             if (duration.getSeconds()<=(12*60)) {
                 found.add(journeyDTO);
             }
+            assertEquals(when, journeyDTO.getQueryDate());
         });
         Assertions.assertFalse(found.isEmpty(), "no journeys found");
     }

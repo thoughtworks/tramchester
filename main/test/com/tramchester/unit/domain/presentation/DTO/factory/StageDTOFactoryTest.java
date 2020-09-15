@@ -15,15 +15,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static com.tramchester.testSupport.TramStations.*;
 
 class StageDTOFactoryTest extends EasyMockSupport {
 
     private StageDTOFactory factory;
+    private LocalDate when;
 
     @BeforeEach
     void beforeEachTestRun() {
         factory = new StageDTOFactory();
+        when = TestEnv.testDay();
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -33,7 +37,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         WalkingFromStationStage stage = new WalkingFromStationStage(TramStations.of(Altrincham), location, 15,
                 TramTime.of(8,11));
 
-        StageDTO build = factory.build(stage, TravelAction.WalkTo);
+        StageDTO build = factory.build(stage, TravelAction.WalkTo, when);
         replayAll();
         checkValues(stage, build, false, TravelAction.WalkTo);
         verifyAll();
@@ -53,7 +57,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         vehicleStage.setPlatform(platform);
 
         replayAll();
-        StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board);
+        StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
         verifyAll();
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board);
@@ -62,9 +66,9 @@ class StageDTOFactoryTest extends EasyMockSupport {
     private void checkValues(TransportStage<?,?> stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
         Assertions.assertEquals(stage.getActionStation().forDTO(), dto.getActionStation().getId());
         Assertions.assertEquals(stage.getMode(), dto.getMode());
-        Assertions.assertEquals(stage.getFirstDepartureTime(), dto.getFirstDepartureTime());
+        Assertions.assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());
         Assertions.assertEquals(stage.getLastStation().forDTO(), dto.getLastStation().getId());
-        Assertions.assertEquals(stage.getExpectedArrivalTime(), dto.getExpectedArrivalTime());
+        Assertions.assertEquals(stage.getExpectedArrivalTime().toDate(when), dto.getExpectedArrivalTime());
         Assertions.assertEquals(stage.getDuration(), dto.getDuration());
         Assertions.assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
         Assertions.assertEquals(stage.getHeadSign(), dto.getHeadSign());

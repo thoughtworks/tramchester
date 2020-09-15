@@ -11,11 +11,9 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
-import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
-import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
+import com.tramchester.mappers.serialisation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,6 +31,7 @@ public class JourneyDTO implements CallsAtPlatforms {
     private TramTime queryTime;
     private List<Note> notes;
     private List<StationRefWithPosition> path;
+    private LocalDate queryDate;
 
     public JourneyDTO() {
         // Deserialization
@@ -41,7 +40,7 @@ public class JourneyDTO implements CallsAtPlatforms {
     public JourneyDTO(StationRefWithPosition begin, StationRefWithPosition end, List<StageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime, boolean isDirect,
                       List<StationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
-                      List<StationRefWithPosition> path) {
+                      List<StationRefWithPosition> path, LocalDate queryDate) {
         this.begin = begin;
         this.end = end;
         this.stages = stages;
@@ -52,6 +51,7 @@ public class JourneyDTO implements CallsAtPlatforms {
         this.queryTime = queryTime;
         this.notes = notes;
         this.path = path;
+        this.queryDate = queryDate;
     }
 
     public List<StageDTO> getStages() {
@@ -122,5 +122,11 @@ public class JourneyDTO implements CallsAtPlatforms {
 
     public List<StationRefWithPosition> getPath() {
         return path;
+    }
+
+    @JsonSerialize(using = LocalDateJsonSerializer.class)
+    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
+    public LocalDate getQueryDate() {
+        return queryDate;
     }
 }

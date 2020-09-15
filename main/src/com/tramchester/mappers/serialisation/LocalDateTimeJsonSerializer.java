@@ -13,7 +13,6 @@ public class LocalDateTimeJsonSerializer extends JsonSerializer<LocalDateTime> {
     @Override
     public void serialize(LocalDateTime time, JsonGenerator gen, SerializerProvider arg2) throws IOException {
 
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern(LocalDateTimeJsonDeserializer.pattern);
         gen.writeString(time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
     }
 }

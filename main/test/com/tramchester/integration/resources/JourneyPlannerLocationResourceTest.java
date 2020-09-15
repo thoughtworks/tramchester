@@ -9,7 +9,6 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -63,13 +62,13 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = firstJourney.getStages();
         assertEquals(2, stages.size());
         StageDTO walkingStage = stages.get(0);
-        TramTime departureTime = walkingStage.getFirstDepartureTime();
+        LocalDateTime departureTime = walkingStage.getFirstDepartureTime();
 
         // two walks result in same arrival time
         //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
         // todo new lockdown timetable
-        List<TramTime> possibleTimes = Collections.singletonList(TramTime.of(19, 5));
+        List<LocalDateTime> possibleTimes = Collections.singletonList(LocalDateTime.of(when, LocalTime.of(19, 5)));
 
         assertTrue(possibleTimes.contains(departureTime), "Expected time "+departureTime.toString());
 
@@ -163,7 +162,7 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertEquals(TramTime.of(22,9), walkingStage.getFirstDepartureTime());
+        assertEquals(LocalDateTime.of(when,LocalTime.of(22,9)), walkingStage.getFirstDepartureTime());
     }
 
     @Test
@@ -176,7 +175,7 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
         StageDTO walkingStage = stages.get(0);
-        assertEquals(TramTime.of(22,9), walkingStage.getFirstDepartureTime());
+        assertEquals(LocalDateTime.of(when,LocalTime.of(22,9)), walkingStage.getFirstDepartureTime());
     }
 
     @Test
@@ -204,8 +203,8 @@ class JourneyPlannerLocationResourceTest {
 
         assertEquals(1, stages.size());
         StageDTO stage = stages.get(0);
-        assertEquals(TramTime.of(9,0), stage.getFirstDepartureTime());
-        assertEquals(TramTime.of(9,3), stage.getExpectedArrivalTime());
+        assertEquals(LocalDateTime.of(when,LocalTime.of(9,0)), stage.getFirstDepartureTime());
+        assertEquals(LocalDateTime.of(when,LocalTime.of(9,3)), stage.getExpectedArrivalTime());
     }
 
     @Test

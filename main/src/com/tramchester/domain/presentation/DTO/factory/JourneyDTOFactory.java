@@ -26,7 +26,7 @@ public class JourneyDTOFactory {
 
         return new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages, queryDate),
                 getFirstDepartureTime(stages, queryDate),
-                isDirect, getChangeStationNames(stages), queryTime, notes, path);
+                isDirect, getChangeStationNames(stages), queryTime, notes, path, queryDate);
     }
 
 
@@ -75,16 +75,14 @@ public class JourneyDTOFactory {
         if (allStages.size() == 0) {
             return LocalDateTime.of(queryDate, TramTime.midnight().asLocalTime());
         }
-        TramTime firstDepartureTime = getFirstStage(allStages).getFirstDepartureTime();
-        return firstDepartureTime.toDate(queryDate);
+        return getFirstStage(allStages).getFirstDepartureTime();
     }
 
     private LocalDateTime getExpectedArrivalTime(List<StageDTO> allStages, LocalDate queryDate) {
         if (allStages.size() == 0) {
             return LocalDateTime.of(queryDate, TramTime.midnight().asLocalTime());
         }
-        TramTime tramTime = getLastStage(allStages).getExpectedArrivalTime();
-        return tramTime.toDate(queryDate);
+        return getLastStage(allStages).getExpectedArrivalTime();
     }
 
     private StageDTO getLastStage(List<StageDTO> allStages) {
