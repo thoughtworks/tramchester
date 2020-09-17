@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 
 import static com.tramchester.testSupport.TramStations.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StageDTOFactoryTest extends EasyMockSupport {
 
@@ -64,17 +65,18 @@ class StageDTOFactoryTest extends EasyMockSupport {
     }
 
     private void checkValues(TransportStage<?,?> stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
-        Assertions.assertEquals(stage.getActionStation().forDTO(), dto.getActionStation().getId());
-        Assertions.assertEquals(stage.getMode(), dto.getMode());
-        Assertions.assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());
-        Assertions.assertEquals(stage.getLastStation().forDTO(), dto.getLastStation().getId());
-        Assertions.assertEquals(stage.getExpectedArrivalTime().toDate(when), dto.getExpectedArrivalTime());
-        Assertions.assertEquals(stage.getDuration(), dto.getDuration());
-        Assertions.assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
-        Assertions.assertEquals(stage.getHeadSign(), dto.getHeadSign());
-        Assertions.assertEquals(stage.getRouteName(), dto.getRouteName());
-        Assertions.assertEquals(stage.getPassedStops(), dto.getPassedStops());
-        Assertions.assertEquals(action.toString(), dto.getAction());
-        Assertions.assertEquals(hasPlatform, dto.getHasPlatform());
+        assertEquals(stage.getActionStation().forDTO(), dto.getActionStation().getId());
+        assertEquals(stage.getMode(), dto.getMode());
+        assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());
+        assertEquals(stage.getLastStation().forDTO(), dto.getLastStation().getId());
+        assertEquals(stage.getExpectedArrivalTime().toDate(when), dto.getExpectedArrivalTime());
+        assertEquals(stage.getDuration(), dto.getDuration());
+        assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
+        assertEquals(stage.getHeadSign(), dto.getHeadSign());
+        assertEquals(stage.getRouteName(), dto.getRouteName());
+        assertEquals(stage.getPassedStops(), dto.getPassedStops());
+        assertEquals(action.toString(), dto.getAction());
+        assertEquals(hasPlatform, dto.getHasPlatform());
+        assertEquals(when, dto.getQueryDate());
     }
 }

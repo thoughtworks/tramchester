@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -16,7 +17,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -102,7 +102,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Assertions.assertEquals(TramStations.NumberOf, nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
-        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
         appPage.planAJourney();
         appPage.waitForReady();
 
@@ -122,7 +122,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     void shouldCheckNearAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);
 
-        LocalTime planTime = LocalTime.of(10,15);
+        TramTime planTime = TramTime.of(10,15);
         desiredJourney(appPage, "My Location", deansgate, when, planTime, false);
         appPage.planAJourney();
 
@@ -131,10 +131,10 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Assertions.assertTrue(results.size()>=2, "at least some results");
 
         for (TestResultSummaryRow result : results) {
-            LocalTime departTime = result.getDepartTime();
+            TramTime departTime = result.getDepartTime();
             Assertions.assertTrue(departTime.isAfter(planTime), departTime.toString());
 
-            LocalTime arriveTime = result.getArriveTime();
+            TramTime arriveTime = result.getArriveTime();
             Assertions.assertTrue(arriveTime.isAfter(departTime), arriveTime.toString());
             Assertions.assertEquals("Direct", result.getChanges());
         }
@@ -149,16 +149,16 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Assertions.assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
 
-        validateWalkingStage(firstStage, LocalTime.of(10,25), "Walk to",
+        validateWalkingStage(firstStage, TramTime.of(10,25), "Walk to",
                 TramStations.Altrincham.getName(), -1, "RouteClassWalk");
 
         Stage secondStage = stages.get(1);
-        LocalTime departTime = LocalTime.of(10,31);
+        TramTime departTime = TramTime.of(10,31);
         validateAStage(secondStage, departTime, "Board Tram", TramStations.Altrincham.getName(), 1,
                 AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }
 
-    private void validateWalkingStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
+    private void validateWalkingStage(Stage stage, TramTime departTime, String action, String actionStation, int platform,
                                       String lineClass) {
         Assertions.assertEquals(departTime, stage.getDepartTime(), "departtime");
         Assertions.assertEquals(action, stage.getAction(), "action");

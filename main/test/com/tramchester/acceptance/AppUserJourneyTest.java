@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
@@ -103,9 +104,9 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
 
-        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
         assertJourney(appPage, altrincham, bury, "10:15", when, false);
-        desiredJourney(appPage, altrincham, bury, when.plusMonths(1), LocalTime.parse("03:15"), false);
+        desiredJourney(appPage, altrincham, bury, when.plusMonths(1), TramTime.of(3,15), false);
         assertJourney(appPage, altrincham, bury, "03:15", when.plusMonths(1), false);
 
         appPage.selectNow();
@@ -132,7 +133,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable());
@@ -166,7 +167,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        LocalTime queryTime = LocalTime.parse("10:00");
+        TramTime queryTime = TramTime.of(10,0);
         desiredJourney(appPage, altrincham, deansgate, when, queryTime, false);
         appPage.planAJourney();
 
@@ -176,9 +177,9 @@ class AppUserJourneyTest extends UserJourneyTest {
         // TODO Lockdown 3->2
         assertTrue(results.size()>=2, "at least 2 results");
 
-        LocalTime previous = queryTime;
+        TramTime previous = queryTime;
         for (TestResultSummaryRow result : results) {
-            LocalTime currentArrivalTime = result.getArriveTime();
+            TramTime currentArrivalTime = result.getArriveTime();
             assertTrue(currentArrivalTime.isAfter(previous) || currentArrivalTime.equals(previous),
                     "arrival time order for " + result + " previous: " + previous);
             assertTrue(currentArrivalTime.isAfter(result.getDepartTime()), "arrived before depart");
@@ -204,7 +205,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldCheckLateNightJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        LocalTime queryTime = LocalTime.parse("23:30");
+        TramTime queryTime = TramTime.of(23,30);
         desiredJourney(appPage, Intu.getName(), TraffordBar.getName(), when, queryTime, false);
         appPage.planAJourney();
 
@@ -213,9 +214,9 @@ class AppUserJourneyTest extends UserJourneyTest {
         List<TestResultSummaryRow> results = appPage.getResults();
 
         for (TestResultSummaryRow result : results) {
-            LocalTime arrivalTime = result.getArriveTime();
-            assertTrue(arrivalTime.isAfter(LocalTime.of(0,0)));
-            assertTrue(arrivalTime.isBefore(LocalTime.of(1,0)));
+            TramTime arrivalTime = result.getArriveTime();
+            assertTrue(arrivalTime.isAfter(TramTime.of(0,0)));
+            assertTrue(arrivalTime.isBefore(TramTime.nextDay(1,0)));
         }
     }
 
@@ -223,7 +224,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldHideStationInToListWhenSelectedInFromList(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("10:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
 
         appPage.waitForToStopsContains(TramStations.Bury);
         List<String> destStops = appPage.getToStops();
@@ -234,7 +235,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldShowNoRoutesMessage(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, LocalTime.parse("03:15"), false);
+        desiredJourney(appPage, altrincham, bury, when, TramTime.of(3,15), false);
         appPage.planAJourney();
 
         assertTrue(appPage.noResults());
@@ -243,8 +244,8 @@ class AppUserJourneyTest extends UserJourneyTest {
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldUpdateWhenNewJourneyIsEntered(ProvidesDriver providesDriver) {
-        LocalTime tenFifteen = LocalTime.parse("10:15");
-        LocalTime eightFifteen = LocalTime.parse("08:15");
+        TramTime tenFifteen = TramTime.of(10,15);
+        TramTime eightFifteen = TramTime.of(9,15);
 
         AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
@@ -270,7 +271,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldUpdateWhenEarlierClicked(ProvidesDriver providesDriver) {
-        LocalTime tenFifteen = LocalTime.parse("10:15");
+        TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
@@ -279,7 +280,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        LocalTime firstDepartureTime = results.get(0).getDepartTime();
+        TramTime firstDepartureTime = results.get(0).getDepartTime();
         assertTrue(firstDepartureTime.isAfter(tenFifteen));
 
         appPage.earlier();
@@ -287,13 +288,16 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
-        assertTrue(updatedResults.get(0).getDepartTime().isBefore(firstDepartureTime));
+        TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        assertTrue(updatedDepartTime.isBefore(firstDepartureTime), "should be before current first departure time");
+        assertTrue(TramTime.diffenceAsMinutes(firstDepartureTime, updatedDepartTime)<60,
+                "Too much gap between " + firstDepartureTime + " and update: " + updatedDepartTime);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldUpdateWhenLaterClicked(ProvidesDriver providesDriver) {
-        LocalTime tenFifteen = LocalTime.parse("10:15");
+        TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
@@ -303,21 +307,24 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         List<TestResultSummaryRow> results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen));
-        LocalTime lastDepartureTime = results.get(results.size() - 1).getDepartTime();
+        TramTime lastDepartureTime = results.get(results.size() - 1).getDepartTime();
 
         appPage.later();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
-        assertTrue(updatedResults.get(0).getDepartTime().isAfter(lastDepartureTime));
+        TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        assertTrue(updatedDepartTime.isAfter(lastDepartureTime), "should be after current departure time");
+        assertTrue(TramTime.diffenceAsMinutes(lastDepartureTime, updatedDepartTime)<60,
+                "Too much gap between " + lastDepartureTime + " and update: " + updatedDepartTime);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        LocalTime planTime = LocalTime.parse("10:00");
+        TramTime planTime = TramTime.of(10,0);
         desiredJourney(appPage, altrincham, TramStations.ManAirport.getName(), when, planTime, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
@@ -325,9 +332,9 @@ class AppUserJourneyTest extends UserJourneyTest {
         List<TestResultSummaryRow> results = appPage.getResults();
         // TODO pre-lockdown timetable was 3
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
-        LocalTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
+        TramTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
         for (TestResultSummaryRow result : results) {
-            LocalTime arriveTime = result.getArriveTime();
+            TramTime arriveTime = result.getArriveTime();
             assertTrue(arriveTime.isAfter(result.getDepartTime()));
             assertTrue(arriveTime.isAfter(previousArrivalTime) || arriveTime.equals(previousArrivalTime));
             assertEquals(result.getChanges(), TraffordBar.getName());
@@ -351,7 +358,7 @@ class AppUserJourneyTest extends UserJourneyTest {
                 TramStations.Piccadilly.getName(), 7);
 
         // Too timetable dependent?
-        validateAStage(secondStage, LocalTime.parse("10:32"), "Change Tram", TraffordBar.getName(),
+        validateAStage(secondStage, TramTime.of(10,32), "Change Tram", TraffordBar.getName(),
                 2, "RouteClass6", "Victoria - Manchester Airport",
                 TramStations.ManAirport.getName(), 17);
 
@@ -363,7 +370,7 @@ class AppUserJourneyTest extends UserJourneyTest {
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) {
-        LocalTime time = LocalTime.parse("10:15");
+        TramTime time = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
         LocalDate aSaturday = TestEnv.nextSaturday();
@@ -447,7 +454,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.waitForDisclaimerInvisible());
     }
 
-    public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, LocalTime time, boolean arriveBy) {
+    public static void desiredJourney(AppPage appPage, String start, String dest, LocalDate date, TramTime time, boolean arriveBy) {
         appPage.setStart(start);
         appPage.setDest(dest);
         appPage.setSpecificDate(date);
@@ -463,7 +470,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(arriveBy, appPage.getArriveBy());
     }
 
-    public static void validateAStage(Stage stage, LocalTime departTime, String action, String actionStation, int platform,
+    public static void validateAStage(Stage stage, TramTime departTime, String action, String actionStation, int platform,
                                       String lineClass, String lineName, String headsign, int passedStops) {
         assertEquals(departTime, stage.getDepartTime(), "departTime");
         assertEquals(action, stage.getAction(), "action");

@@ -1,5 +1,6 @@
 package com.tramchester.acceptance.pages.App;
 
+import com.tramchester.domain.time.TramTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -13,8 +14,10 @@ public class Stage {
         this.row = row;
     }
 
-    public LocalTime getDepartTime() {
-        return LocalTime.parse(getFieldText("departTime"));
+    public TramTime getDepartTime() {
+        String fieldText = getFieldText("departTime");
+        fieldText = fieldText.replace(" +1d","+24").trim();
+        return TramTime.parse(fieldText).get();
     }
 
     public String getAction() {

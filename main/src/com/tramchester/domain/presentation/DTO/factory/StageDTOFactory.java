@@ -33,7 +33,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
+                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName(), queryDate);
         } else {
             return new StageDTO(firstStation,
                     lastStation,
@@ -41,7 +41,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName());
+                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName(), queryDate);
         }
 
     }

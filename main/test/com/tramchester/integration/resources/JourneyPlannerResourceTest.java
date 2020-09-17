@@ -48,8 +48,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.oneOf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
@@ -85,24 +84,27 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 queryTime.asLocalTime(), arriveBy, 0);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
-        Assertions.assertTrue(journeys.size() > 0);
+        assertTrue(journeys.size() > 0);
         //JourneyDTO journey = journeys.first();
 
         journeys.forEach(journey -> {
             StageDTO firstStage = journey.getStages().get(0);
             PlatformDTO platform = firstStage.getPlatform();
             if (arriveBy) {
-                Assertions.assertTrue(journey.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
+                assertTrue(journey.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
             } else {
-                Assertions.assertTrue(journey.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
+                assertTrue(journey.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
             }
             assertEquals(when, journey.getQueryDate());
 
-            Assertions.assertEquals("1", platform.getPlatformNumber());
-            Assertions.assertEquals("Altrincham platform 1", platform.getName());
-            Assertions.assertEquals(TramStations.Altrincham.forDTO() + "1", platform.getId());
-        });
+            assertEquals("1", platform.getPlatformNumber());
+            assertEquals("Altrincham platform 1", platform.getName());
+            assertEquals(TramStations.Altrincham.forDTO() + "1", platform.getId());
 
+            journey.getStages().forEach(stage -> {
+                assertEquals(when, stage.getQueryDate());
+            });
+        });
     }
 
     @Test
@@ -113,7 +115,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         List<JourneyDTO> found = new ArrayList<>();
         plan.getJourneys().forEach(journeyDTO -> {
-            Assertions.assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
+            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
             // TODO lockdown less frequent services during lockdown mean threshhold here increased to 12
             Duration duration = Duration.between(journeyDTO.getExpectedArrivalTime(), queryTime.toDate(when));
             if (duration.getSeconds()<=(12*60)) {
@@ -129,7 +131,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         LocalTime queryTime = LocalTime.of(11,45);
         JourneyPlanRepresentation plan = getJourneyPlan(TramStations.Altrincham, TramStations.ManAirport, new TramServiceDate(when),
                 queryTime, true, 0);
-        Assertions.assertTrue(plan.getJourneys().isEmpty());
+        assertTrue(plan.getJourneys().isEmpty());
     }
 
     @Test
@@ -139,8 +141,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 new TramServiceDate(now.toLocalDate()), timeForQuery, false, 3);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
-        Assertions.assertTrue(journeys.size()>0);
-        journeys.forEach(journeyDTO -> Assertions.assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
+        assertTrue(journeys.size()>0);
+        journeys.forEach(journeyDTO -> assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
     @Test
@@ -150,7 +152,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 LocalTime.of(17,45), false, 1);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
-        Assertions.assertTrue(journeys.size()>0);
+        assertTrue(journeys.size()>0);
 
         journeys.forEach(journey -> {
             StageDTO firstStage = journey.getStages().get(0);
@@ -182,7 +184,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        Assertions.assertTrue(journeys.size()>0);
+        assertTrue(journeys.size()>0);
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
     }
 
@@ -234,7 +236,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(TramStations.Deansgate,
                 TramStations.ManAirport, when, TramTime.of(23,5));
 
-        Assertions.assertTrue(results.getJourneys().size()>0);
+        assertTrue(results.getJourneys().size()>0);
     }
 
     @Test
@@ -250,8 +252,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         RecentJourneys recentJourneys = getRecentJourneysFromCookie(result);
 
         Assertions.assertEquals(2,recentJourneys.getRecentIds().size());
-        Assertions.assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, now)));
-        Assertions.assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, now)));
+        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, now)));
+        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, now)));
     }
 
     @Test
@@ -278,9 +280,9 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         // ashton, bury and man airport now in cookie
         Set<Timestamped> recents = result.getRecentIds();
         Assertions.assertEquals(3, recents.size());
-        Assertions.assertTrue(recents.contains(new Timestamped(start, now)));
-        Assertions.assertTrue(recents.contains(ashton));
-        Assertions.assertTrue(recents.contains(new Timestamped(end, now)));
+        assertTrue(recents.contains(new Timestamped(start, now)));
+        assertTrue(recents.contains(ashton));
+        assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     @Test
@@ -297,7 +299,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Set<Timestamped> recents = result.getRecentIds();
         Assertions.assertEquals(1, recents.size());
         // checks ID only
-        Assertions.assertTrue(recents.contains(new Timestamped(end, now)));
+        assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     @Test

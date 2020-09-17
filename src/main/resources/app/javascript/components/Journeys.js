@@ -69,6 +69,32 @@ function lineFormatter(value, key, row) {
     }
 }
 
+function dateTimeFormatter(value, key, row) {
+    var queryDate = moment(row.journey.queryDate);
+    var journeyDate = moment(value);
+    return formatDate(queryDate, journeyDate)
+}
+
+function stageDateTimeFormatter(value, key, row) {
+    var queryDate = moment(row.queryDate);
+    var journeyDate = moment(value);
+    return formatDate(queryDate, journeyDate)
+}
+
+function formatDate(queryDate, journeyDateTime) {
+    var diff = journeyDateTime.dayOfYear() - queryDate.dayOfYear();
+    if (diff<0) {
+        // end of year
+        diff = 366 + diff;
+    }
+
+    var time = journeyDateTime.format("HH:mm");
+    if (diff>0) {
+        return time + ' +' + diff + 'd';
+    }
+    return time;
+}
+
 function actionFormatter(value, key, row) {
     if (row.action=='Walk to' || row.action=='Walk from') {
         return value;
@@ -85,9 +111,13 @@ function lineClass(value, key, item) {
 }
 
 function earliestDepartTime(journeys) {
-    var earliestDepart = moment('23:59','HH:mm');
+
+    var earliestDepart = null;
     journeys.forEach(item => {
-        var currnet = moment(item.journey.firstDepartureTime,'HH:mm');
+        var currnet = moment(item.journey.firstDepartureTime);
+        if (earliestDepart==null) {
+            earliestDepart = currnet;
+        }
         if (currnet.isBefore(earliestDepart)) {
             earliestDepart = currnet;
         }
@@ -96,9 +126,13 @@ function earliestDepartTime(journeys) {
 }
 
 function lastDepartTime(journeys) {
-    var lastDepart = moment('00:01','HH:mm');
+
+    var lastDepart = null;
     journeys.forEach(item => {
-        var currnet = moment(item.journey.firstDepartureTime,'HH:mm');
+        var currnet = moment(item.journey.firstDepartureTime);
+        if (lastDepart==null) {
+            lastDepart = currnet;
+        }
         if (currnet.isAfter(lastDepart)) {
             lastDepart = currnet;
         }
@@ -111,12 +145,14 @@ export default {
         return {
             journeyFields: [
                 {key:'_showDetails',label:'', formatter: rowExpandedFormatter},
-                {key:'journey.firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime'},
+                {key:'journey.firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime', 
+                    formatter: dateTimeFormatter },
                 {key:'journey.begin',label:'From', sortable:true, tdClass:'station', formatter: fromFormatter},
-                {key:'journey.expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'},
+                {key:'journey.expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'
+                    , formatter: dateTimeFormatter},
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
-            stageFields: [{key:'firstDepartureTime', label:'Time', tdClass:'departTime'},
+            stageFields: [{key:'firstDepartureTime', label:'Time', tdClass:'departTime', formatter: stageDateTimeFormatter},
                 {key:'action', label:'Action', tdClass:'action', formatter: actionFormatter },
                 {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: stationFormatter},
                 {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
@@ -160,13 +196,13 @@ export default {
         },
         earlier() {
             const current = earliestDepartTime(this.journeysresponse); 
-            var newTime = moment(current,"HH:mm").subtract(24, 'minutes');
+            var newTime = current.subtract(24, 'minutes');
             const newDepartTime = newTime.format("HH:mm");
             this.$emit('earlier-tram', newDepartTime);
         },
         later() {
             const current = lastDepartTime(this.journeysresponse); 
-            var newTime = moment(current,"HH:mm").add(1, 'minutes');
+            var newTime = current.add(1, 'minutes');
             const newDepartTime = newTime.format("HH:mm");
             this.$emit('later-tram', newDepartTime);
         }

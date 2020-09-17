@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestResultSummaryRow {
-    private final LocalTime departTime;
-    private final LocalTime arriveTime;
+    private final TramTime departTime;
+    private final TramTime arriveTime;
     private final String changes;
     private final WebElement row;
     private final WebElement parent;
@@ -30,17 +30,22 @@ public class TestResultSummaryRow {
         this.parent = parent;
 
         String departTimeTxt = row.findElement(By.className("departTime")).getText();
-        departTime = LocalTime.parse(departTimeTxt);
+        departTime = parse(departTimeTxt);
         String arriveTimeTxt = row.findElement(By.className("arriveTime")).getText();
-        arriveTime = TramTime.parse(arriveTimeTxt).get().asLocalTime();
+        arriveTime = parse(arriveTimeTxt);
         changes = row.findElement(By.className("changes")).getText();
     }
 
-    public LocalTime getDepartTime() {
+    private TramTime parse(String timeString) {
+        timeString = timeString.replace(" +1d","+24").trim();
+        return TramTime.parse(timeString).get();
+    }
+
+    public TramTime getDepartTime() {
         return departTime;
     }
 
-    public LocalTime getArriveTime() {
+    public TramTime getArriveTime() {
         return arriveTime;
     }
 

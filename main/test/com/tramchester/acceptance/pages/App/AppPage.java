@@ -2,6 +2,7 @@ package com.tramchester.acceptance.pages.App;
 
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import org.jetbrains.annotations.NotNull;
@@ -134,11 +135,11 @@ public class AppPage extends Page {
         dialog.sendKeys(Keys.ENTER);
     }
 
-    public void setTime(LocalTime time) {
+    public void setTime(TramTime time) {
         WebElement element = getTimeElement();
 
         Actions builder  = new Actions(driver);
-        String input = providesDateInput.createTimeFormat(time);
+        String input = providesDateInput.createTimeFormat(time.asLocalTime());
         int chars = input.length();
 
         moveToElement(element);
