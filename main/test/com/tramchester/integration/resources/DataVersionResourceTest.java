@@ -35,7 +35,6 @@ public class DataVersionResourceTest {
         Assertions.assertEquals(validFrom.format(DateTimeFormatter.ofPattern("YYYYMMdd")), result.getVersion());
         Assertions.assertEquals(validFrom, result.validFrom());
         Assertions.assertEquals(validUntil, result.validUntil());
-        Assertions.assertFalse(result.getBus());
     }
 
 }

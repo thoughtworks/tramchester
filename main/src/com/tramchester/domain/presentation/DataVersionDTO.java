@@ -11,7 +11,6 @@ import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 import java.time.LocalDate;
 
 public class DataVersionDTO {
-    private boolean bus;
     private String version;
     private LocalDate validFrom;
     private LocalDate validUntil;
@@ -24,7 +23,6 @@ public class DataVersionDTO {
         this.validFrom = feedInfo.validFrom();
         this.validUntil = feedInfo.validUntil();
         this.version = feedInfo.getVersion();
-        this.bus = config.getTransportModes().contains(GTFSTransportationType.bus);
     }
 
     public String getVersion() {
@@ -43,7 +41,4 @@ public class DataVersionDTO {
         return validUntil;
     }
 
-    public boolean getBus() {
-        return bus;
-    }
 }

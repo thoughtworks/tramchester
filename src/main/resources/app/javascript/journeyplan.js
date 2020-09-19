@@ -39,22 +39,32 @@ function livedataUrl() {
     }
 }
 
+function tramsEnabled(scope) {
+    return scope.modes.includes('Tram');
+}
+
+function busEnabled(scope) {
+    return scope.modes.includes('Bus');
+}
+
 function displayLiveData(app) {
-    if (app.feedinfo.bus) {
+    if (busEnabled(app)) {
         // only live data for trams
-        if ( ! app.startStop.startsWith('9400ZZ')) {
+        // TODO nearby when buses enabled?
+        if (!app.startStop.startsWith('9400ZZ')) {
             app.liveDepartureResponse = null;
             return; 
         }
     }
     var queryDate = moment(app.date, dateFormat);
-    var today = moment();
-    // check live data for today only 
-    if (today.month()==queryDate.month()
-        && today.year()==queryDate.year()
-        && today.date()==queryDate.date()) {
-        queryLiveData(livedataUrl());
-    }
+            var today = moment();
+            // check live data for today only 
+            if (today.month()==queryDate.month()
+                && today.year()==queryDate.year()
+                && today.date()==queryDate.date()) {
+                queryLiveData(livedataUrl());
+            }
+
 }
 
 function queryLiveData(url) {
@@ -71,7 +81,7 @@ function queryLiveData(url) {
 }
 
 function getStationsFromServer(app) {
-    if (app.feedinfo.bus) {
+    if (busEnabled(app)) {
         axios.get("/api/postcodes", { timeout: 30000}).then(function (response) {
             app.networkError = false;
             app.stops.postcodes = response.data;
@@ -174,6 +184,7 @@ function getRecentAndNearest(app) {
     journeys: null,
     liveDepartureResponse: null,
     feedinfo: [],
+    modes: [],
     searchInProgress: false,    // searching for routes
     liveInProgress: false,      // looking for live data
     networkError: false,        // network error on either query
@@ -250,6 +261,14 @@ var app = new Vue({
                 .catch(function (error) {
                     reportError(error);
                 });
+            axios.get('/api/version/modes')
+                .then(function (response) {
+                    app.networkError = false;
+                    app.modes = response.data;
+                })
+                .catch(function (error) {
+                    reportError(error);
+                });
             if (this.hasGeo) {
                 navigator.geolocation.getCurrentPosition(pos => {
                       this.location = pos;
@@ -273,7 +292,7 @@ var app = new Vue({
                 return this.hasGeo && (this.location!=null);
             },
             busEnabled: function () {
-                return this.feedinfo.bus;
+                return busEnabled(this);
             }
         }
     })
