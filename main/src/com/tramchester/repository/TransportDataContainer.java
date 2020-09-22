@@ -78,6 +78,11 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
+    public Set<Station> getStationsForMode(TransportMode mode) {
+        return stationsById.filter(item -> item.getTransportMode()==mode);
+    }
+
+    @Override
     public Set<RouteStation> getRouteStations() {
         return routeStations.getValues();
     }
@@ -102,7 +107,6 @@ public class TransportDataContainer implements TransportData, Disposable {
         return trips.getValues();
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasRouteStationId(IdFor<RouteStation> routeStationId) {
         return routeStations.hasId(routeStationId);
     }

@@ -4,15 +4,19 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.integration.IntegrationClient;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -23,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -31,8 +36,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.BusStations.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -46,6 +54,26 @@ class JourneyPlannerBusTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
+    }
+
+    @Test
+    void shouldHaveBusStationsStations() {
+        Response result = IntegrationClient.getApiResponse(appExt, "stations/mode/Bus");
+
+        assertEquals(200, result.getStatus());
+
+        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+
+        App app =  appExt.getApplication();
+        StationRepository stationRepo = app.getDependencies().get(StationRepository.class);
+        Set<String> stationsIds = stationRepo.getStationsForMode(TransportMode.Bus).stream().
+                map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+
+        assertEquals(stationsIds.size(), results.size());
+
+        Set<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+
+        assertTrue(stationsIds.containsAll(resultIds));
     }
 
     @Category({BusTest.class})

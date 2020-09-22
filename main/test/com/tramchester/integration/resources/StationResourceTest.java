@@ -83,6 +83,42 @@ class StationResourceTest {
     }
 
     @Test
+    void shouldGetTramStations() {
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations/mode/Tram");
+
+        assertEquals(200, result.getStatus());
+
+        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+
+        App app =  appExtension.getApplication();
+        StationRepository stationRepo = app.getDependencies().get(StationRepository.class);
+        Set<String> stationsIds = stationRepo.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+
+        assertEquals(stationsIds.size(), results.size());
+
+        Set<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+
+        assertTrue(stationsIds.containsAll(resultIds));
+    }
+
+    @Test
+    void shouldGetBusStations() {
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations/mode/Bus");
+
+        assertEquals(200, result.getStatus());
+
+        // buses disabled, but should still get a list back, albeit empty
+        List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
+        assertEquals(0, results.size());
+    }
+
+    @Test
+    void should404ForUnknownMode() {
+        Response result = IntegrationClient.getApiResponse(appExtension, "stations/mode/Jumping");
+        assertEquals(404, result.getStatus());
+    }
+
+    @Test
     void shouldGetNearestStations() {
 
         LatLong nearPiccGardens = TestEnv.nearPiccGardens;

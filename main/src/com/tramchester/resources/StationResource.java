@@ -3,10 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.StationClosure;
-import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
@@ -75,7 +72,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @GET
     @Timed
     @Path("/all")
-    @ApiOperation(value = "Get all stations", response = StationRefDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all stations, use /mode instead if possible", response = StationRefDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
         logger.info("Get all stations");
@@ -85,6 +82,28 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         List<StationRefDTO> results = toStationRefDTOList(allStations);
 
         return Response.ok(results).build();
+    }
+
+    // TODO CACHE/304 based on version of the data
+    @GET
+    @Timed
+    @Path("/mode/{mode}")
+    @ApiOperation(value = "Get all stations", response = StationRefDTO.class, responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public Response geByMode(@PathParam("mode") String rawMode) {
+        logger.info("Get stations for transport mode: " + rawMode);
+
+        try {
+            TransportMode mode = TransportMode.valueOf(rawMode);
+            Set<Station> matching = stationRepository.getStationsForMode(mode);
+            List<StationRefDTO> results = toStationRefDTOList(matching);
+            return Response.ok(results).build();
+        }
+        catch(IllegalArgumentException missing) {
+            logger.warn("Unable to match transport mode " + rawMode, missing);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
     }
 
     @GET
