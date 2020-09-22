@@ -226,7 +226,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
 
-        appPage.waitForToStopsContains(TramStations.Bury);
+        appPage.waitForStops(AppPage.FROM_STOP);
         List<String> destStops = appPage.getToStops();
         assertFalse(destStops.contains(altrincham), "should not contain alty");
     }

@@ -80,7 +80,47 @@ function queryLiveData(url) {
             });
 }
 
-function getStationsFromServer(app) {
+
+function getFeedinfo(app) {
+    axios.get('/api/datainfo')
+        .then(function (response) {
+            app.networkError = false;
+            app.feedinfo = response.data;
+        })
+        .catch(function (error) {
+            reportError(error);
+        });
+}
+
+function getTransportModesThenStations(app) {
+    axios.get('/api/version/modes')
+        .then(function (response) {
+            app.networkError = false;
+            app.modes = response.data;
+            getStations(app);
+        })
+        .catch(function (error) {
+            reportError(error);
+        });
+}
+
+function getStations(app) {
+    app.location = null;
+    if (app.hasGeo) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            app.location = pos;
+            getStationsFromServer(app);
+        }, err => {
+            console.log("Location disabled: " + err.message);
+            getStationsFromServer(app);
+        });
+    } else {
+        console.log("Location disabled");
+        getStationsFromServer(app);
+    }
+}
+
+async function getStationsFromServer(app) {
     if (busEnabled(app)) {
         axios.get("/api/postcodes", { timeout: 30000}).then(function (response) {
             app.networkError = false;
@@ -89,44 +129,48 @@ function getStationsFromServer(app) {
             reportError(error);
         });
     }
-    axios
-         .get('/api/stations/all', { timeout: 30000}) /// potential size of data means timeout neeeded here
-         .then(function (response) {
-             app.networkError = false;
-             app.stops.allStops = response.data;
-             app.ready = true;
-         })
-         .catch(function (error) {
-            app.ready = true;
-            reportError(error);
-         });
+
+    var gets = [];
+    app.modes.forEach(mode => {
+        gets.push(axios.get('/api/stations/mode/'+mode));
+    });
+
+    if (gets.length==0) {
+        console.error("No modes?");
+    }
+
+    await Promise.allSettled(gets).then(function(results) {
+        results.forEach(result => {
+            var receivedStops = result.value.data;
+            app.stops.allStops = app.stops.allStops.concat(receivedStops);
+        });
+        app.ready = true;
+    });
+
     getRecentAndNearest(app);
+    app.networkError = false;
  }
 
-function getRecentAndNearest(app) {
-    axios
+async function getRecentAndNearest(app) {
+    await axios
         .get('/api/stations/recent')
         .then(function (response) {
             app.networkError = false;
             app.stops.recentStops = response.data;
-            app.ready = true;
         })
         .catch(function (error) {
-            app.ready = true;
             reportError(error);
         });
     if (app.hasGeo && app.location!=null) {
         var place = app.location;
         const url = '/api/stations/near/?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
-        axios
+        await axios
             .get(url)
             .then(function (response) {
                 app.networkError = false;
                 app.stops.nearestStops = response.data;
-                app.ready = true;
             })
             .catch(function (error) {
-                app.ready = true;
                 reportError(error);
             });
     }
@@ -148,6 +192,7 @@ function getRecentAndNearest(app) {
             app.journeys = response.data.journeys;
             getRecentAndNearest(app);
             app.searchInProgress = false;
+            app.ready = true;
         }).
         catch(function (error) {
             app.ready = true;
@@ -253,34 +298,8 @@ var app = new Vue({
             if (cookie==null) {
                 this.$refs.cookieModal.show();
             }
-            axios.get('/api/datainfo')
-                .then(function (response) {
-                    app.networkError = false;
-                    app.feedinfo = response.data;
-                })
-                .catch(function (error) {
-                    reportError(error);
-                });
-            axios.get('/api/version/modes')
-                .then(function (response) {
-                    app.networkError = false;
-                    app.modes = response.data;
-                })
-                .catch(function (error) {
-                    reportError(error);
-                });
-            if (this.hasGeo) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                      this.location = pos;
-                      getStationsFromServer(this);
-                }, err => {
-                      this.location = null;
-                      getStationsFromServer(this);
-                })
-            } else {
-                getStationsFromServer(this);
-            }
-
+            getFeedinfo(this);
+            getTransportModesThenStations(this);
         },
         created() {
             if("geolocation" in navigator) {
@@ -296,7 +315,6 @@ var app = new Vue({
             }
         }
     })
-
 
 
 

@@ -12,7 +12,7 @@
             <b-row align-h="start">
                 <b-col cols="11" class="pl-0">
                     <div id="selectStart">
-                        <location-selection :name="'start'" v-model="startStop" :other="endStop" :bus="busEnabled"
+                        <location-selection :disabled='!ready' :name="'start'" v-model="startStop" :other="endStop" :bus="busEnabled"
                             :geo="havePos" :stops="stops">
                         </location-selection>
                     </div>
@@ -22,7 +22,7 @@
             <b-row>
                 <b-col cols="11" class="pl-0">
                     <div id="selectEnd">
-                        <location-selection :name="'destination'" v-model="endStop"  :other="startStop" :bus="busEnabled"
+                        <location-selection :disabled='!ready' :name="'destination'" v-model="endStop"  :other="startStop" :bus="busEnabled"
                         :geo="havePos" :stops="stops" >
                     </location-selection>
                     </div>

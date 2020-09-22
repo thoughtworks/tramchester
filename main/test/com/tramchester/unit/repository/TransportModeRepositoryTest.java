@@ -7,7 +7,6 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.testSupport.TestConfig;
-import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +35,7 @@ class TransportModeRepositoryTest {
     }
 
     @Test
-    void shouldHaveCorrectTransportModesMultiple() {
+    void shouldHaveCorrectTransportModesMultipleForSameSource() {
         Set<GTFSTransportationType> configModes = new HashSet<>();
         configModes.add(GTFSTransportationType.tram);
         configModes.add(GTFSTransportationType.bus);
@@ -49,6 +48,33 @@ class TransportModeRepositoryTest {
         assertEquals(2, modes.size());
         assertTrue(modes.contains(TransportMode.Tram));
         assertTrue(modes.contains(TransportMode.Bus));
+    }
+
+    @Test
+    void shouldHaveCorrectTransportModesMultipleForDiffSource() {
+        Set<GTFSTransportationType> configModesSourceA = new HashSet<>();
+        configModesSourceA.add(GTFSTransportationType.tram);
+        configModesSourceA.add(GTFSTransportationType.train);
+
+        List<DataSourceConfig> dataSources = new LinkedList<>();
+        DataSourceConfig sourceA = new TFGMTestDataSourceConfig("folder/some/pathA", configModesSourceA);
+        dataSources.add(sourceA);
+
+        Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
+        configModesSourceB.add(GTFSTransportationType.bus);
+        configModesSourceB.add(GTFSTransportationType.train);
+        DataSourceConfig sourceB = new TFGMTestDataSourceConfig("folder/some/pathB", configModesSourceB);
+        dataSources.add(sourceB);
+
+        TramchesterConfig config = new ModeConfig(dataSources);
+
+        TransportModeRepository repository = new TransportModeRepository(config);
+        Set<TransportMode> modes = repository.getModes();
+
+        assertEquals(3, modes.size());
+        assertTrue(modes.contains(TransportMode.Tram));
+        assertTrue(modes.contains(TransportMode.Bus));
+        assertTrue(modes.contains(TransportMode.Train));
     }
 
     @NotNull

@@ -9,16 +9,16 @@ import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 public class AppPage extends Page {
     private static final String MODAL_COOKIE_CONSENT = "modal-cookieConsent";
@@ -32,7 +32,7 @@ public class AppPage extends Page {
     private final long timeoutInSeconds = 15;
 
     private static final String DATE_OUTPUT = "hiddendate";
-    private static final String FROM_STOP = "startStop";
+    public static final String FROM_STOP = "startStop";
     private static final String TO_STOP = "destinationStop";
     private static final String TIME = "time";
     private static final String RESULTS = "results";
@@ -47,15 +47,18 @@ public class AppPage extends Page {
     }
 
     public boolean waitForToStops() {
-        TramStations station = TramStations.ManAirport;
-        return waitForToStopsContains(station);
+        //TramStations station = TramStations.ManAirport;
+        int expected = TramStations.NumberOf;
+        return waitForStops(FROM_STOP) && waitForStops(TO_STOP);
     }
 
-    public boolean waitForToStopsContains(TramStations station) {
-        WebDriverWait wait = createWait();
-        wait.until(webDriver -> ExpectedConditions.presenceOfElementLocated(By.id(FROM_STOP)));
-        WebElement fromStopElement = waitForElement(FROM_STOP, 8);// findElementById(FROM_STOP);
-        wait.until(webDriver -> ExpectedConditions.textToBePresentInElement(fromStopElement, station.getName()));
+    public boolean waitForStops(String stopId) {
+        WebElement fromStopElement = createWait().until(presenceOfElementLocated(By.id(stopId)));
+
+        createWait().until(presenceOfNestedElementLocatedBy(fromStopElement, By.className("stop")));
+        //createWait().until(numberOfElementsToBe(By.className("stop"), 10));
+        //createWait().until(textToBePresentInElement(fromStopElement, station.getName()));
+
         return fromStopElement.isEnabled() && fromStopElement.isDisplayed();
     }
 
@@ -72,7 +75,7 @@ public class AppPage extends Page {
 
     @NotNull
     private Actions moveToElement(WebElement webElement) {
-        //
+        // sigh
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", webElement);
         Actions actions = new Actions(driver);
         actions.moveToElement(webElement).perform();
@@ -89,24 +92,25 @@ public class AppPage extends Page {
 
     public boolean searchEnabled() {
         WebElement planButton = findElementById(PLAN);
-        createWait().until(ExpectedConditions.elementToBeClickable(planButton));
+        createWait().until(elementToBeClickable(planButton));
         return planButton.isEnabled();
     }
 
     public void setStart(String start) {
-        setSelector(start, FROM_STOP);
+        setSelector(FROM_STOP, start);
     }
 
     public void setDest(String destination) {
-        setSelector(destination, TO_STOP);
+        setSelector(TO_STOP, destination);
     }
 
-    private void setSelector(String start, String id) {
+    private void setSelector(String id, String selectionName) {
         WebElement element = driver.findElement(By.id(id));
         moveToElement(element);
+        createWait().until(elementToBeClickable(element));
 
         Select selector = new Select(element);
-        selector.selectByVisibleText(start);
+        selector.selectByVisibleText(selectionName);
     }
 
     public void setSpecificDate(LocalDate targetDate) {
@@ -199,7 +203,7 @@ public class AppPage extends Page {
         List<TestResultSummaryRow> results = new ArrayList<>();
         By resultsById = By.id(RESULTS);
         WebElement resultsDiv = new WebDriverWait(driver, 10).
-                until(ExpectedConditions.elementToBeClickable(resultsById));
+                until(elementToBeClickable(resultsById));
 
         WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
         List<WebElement> rows = tableBody.findElements(By.className("journeySummary"));
@@ -275,24 +279,24 @@ public class AppPage extends Page {
     }
 
     public void waitForClickable(WebElement element) {
-        createWait().until(webDriver -> ExpectedConditions.elementToBeClickable(element));
+        createWait().until(webDriver -> elementToBeClickable(element));
     }
 
     private WebElement waitForClickableLocator(By selector) {
-        return createWait().until(ExpectedConditions.elementToBeClickable(selector));
+        return createWait().until(elementToBeClickable(selector));
     }
 
     public boolean notesPresent() {
-        return waitForCondition(ExpectedConditions.presenceOfElementLocated(By.id("NotesList")));
+        return waitForCondition(presenceOfElementLocated(By.id("NotesList")));
     }
 
     public boolean hasWeekendMessage() {
-        return waitForCondition(ExpectedConditions.presenceOfElementLocated(By.id("Weekend")));
+        return waitForCondition(presenceOfElementLocated(By.id("Weekend")));
     }
 
     public boolean noWeekendMessage() {
-        return waitForCondition(ExpectedConditions.not(
-                ExpectedConditions.presenceOfElementLocated(By.id("Weekend"))));
+        return waitForCondition(not(
+                presenceOfElementLocated(By.id("Weekend"))));
     }
 
     public String getBuild() {
@@ -308,14 +312,14 @@ public class AppPage extends Page {
     }
 
     private String waitForAndGet(By locator) {
-        createWait().until(webDriver -> ExpectedConditions.presenceOfElementLocated(locator));
+        createWait().until(webDriver -> presenceOfElementLocated(locator));
         return driver.findElement(locator).getText();
     }
 
     public void displayDisclaimer() {
         WebDriverWait wait = createWait();
         By disclaimerButtonId = By.id("disclaimerButton");
-        wait.until(driver -> ExpectedConditions.presenceOfElementLocated(disclaimerButtonId));
+        wait.until(driver -> presenceOfElementLocated(disclaimerButtonId));
 
         WebElement disclaimerButton = driver.findElement(disclaimerButtonId);
         moveToElement(disclaimerButton).click().perform();
@@ -346,10 +350,10 @@ public class AppPage extends Page {
     }
 
     private boolean waitForModalToOpen(By byId) {
-        waitForCondition(ExpectedConditions.elementToBeClickable(byId));
+        waitForCondition(elementToBeClickable(byId));
         WebElement diag = driver.findElement(byId);
         WebElement button = diag.findElement(By.tagName("button"));
-        return waitForCondition(ExpectedConditions.elementToBeClickable(button));
+        return waitForCondition(elementToBeClickable(button));
     }
 
     private boolean waitForModalToClose(By byId) {

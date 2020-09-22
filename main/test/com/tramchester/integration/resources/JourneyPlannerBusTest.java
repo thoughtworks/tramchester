@@ -32,22 +32,19 @@ import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerBusTest {
 
+    private static final IntegrationBusTestConfig configuration = new IntegrationBusTestConfig();
     private static final IntegrationAppExtension appExt = new IntegrationAppExtension(App.class,
-            new IntegrationBusTestConfig());
+            configuration);
 
     private LocalDate when;
 
@@ -56,8 +53,9 @@ class JourneyPlannerBusTest {
         when = TestEnv.testDay();
     }
 
+    @Category({BusTest.class})
     @Test
-    void shouldHaveBusStationsStations() {
+    void shouldHaveBusStations() {
         Response result = IntegrationClient.getApiResponse(appExt, "stations/mode/Bus");
 
         assertEquals(200, result.getStatus());
@@ -74,6 +72,20 @@ class JourneyPlannerBusTest {
         Set<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
 
         assertTrue(stationsIds.containsAll(resultIds));
+    }
+
+    @Category({BusTest.class})
+    @Test
+    void shouldGetTransportModes() {
+        Response responce = IntegrationClient.getApiResponse(appExt, "version/modes");
+        assertEquals(200, responce.getStatus());
+
+        List<TransportMode> results = responce.readEntity(new GenericType<>() {});
+
+        assertFalse(results.isEmpty());
+
+        List<TransportMode> expected = Collections.singletonList(TransportMode.Bus);
+        assertEquals(expected, results);
     }
 
     @Category({BusTest.class})

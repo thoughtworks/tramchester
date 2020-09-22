@@ -12,7 +12,7 @@ export default {
         VueBootstrapTypeahead
     },
     /// NOTE: don't camel case these, browser will treat them as all lowercase....
-    props: ['value','other','name','bus','stops','geo'], 
+    props: ['value','other','name','bus','stops','geo','disabled'], 
     data: function () {
         return {
             current: this.value,
@@ -55,6 +55,7 @@ export default {
     <div>
     <!-- trams -->
         <b-form-select v-bind:id="name+'Stop'"
+                :disabled="disabled"
                 :value="value"
                 v-on:input="updateValue($event)"
                 class="mb-2" required 
@@ -78,6 +79,7 @@ export default {
         </b-form-select>
     <!-- buses -->
         <vue-bootstrap-typeahead
+            :disabled="disabled"
             class="mb-4"
             :data="busstops"
             v-model="current"
