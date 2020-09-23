@@ -4,6 +4,8 @@ import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
@@ -43,7 +45,8 @@ class JourneyStateTest {
         
         Set<Station> destinations = Collections.singleton(station);
         StationLocations locations = new StationLocations();
-        StationRepository repository = new TransportDataForTestFactory(locations).get();
+        ProvidesNow providesNow = new ProvidesLocalNow();
+        StationRepository repository = new TransportDataForTestFactory(locations, providesNow).get();
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(),

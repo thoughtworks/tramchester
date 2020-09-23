@@ -1,5 +1,7 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TransportDataForTestFactory;
@@ -15,9 +17,9 @@ class StationAdjacencyRepositoryTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         StationLocations stationLocations = new StationLocations();
-        transportDataSource = new TransportDataForTestFactory(stationLocations).get();
+        ProvidesNow providesNow = new ProvidesLocalNow();
+        transportDataSource = new TransportDataForTestFactory(stationLocations, providesNow).get();
         repository = new TramStationAdjacenyRepository(transportDataSource);
-        //transportDataSource.start();
         repository.start();
     }
 

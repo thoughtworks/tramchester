@@ -1,48 +1,45 @@
 package com.tramchester.domain;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public class DataSourceInfo {
-    private final Set<NameAndVersion> nameAndVersions;
 
-    public DataSourceInfo(Set<NameAndVersion> nameAndVersions) {
-        this.nameAndVersions = nameAndVersions;
+    private final String name;
+    private final String version;
+    private final LocalDateTime lastModTime;
+    private final Set<TransportMode> modes;
+
+    public DataSourceInfo(String name, String version, LocalDateTime lastModTime, Set<TransportMode> modes) {
+        this.name = name;
+        this.version = version;
+        this.lastModTime = lastModTime;
+        this.modes = modes;
     }
 
-    public Set<NameAndVersion> getVersions() {
-        return nameAndVersions;
+    public String getName() {
+        return name;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public LocalDateTime getLastModTime() {
+        return lastModTime;
+    }
+
+    public Set<TransportMode> getModes() {
+        return modes;
     }
 
     @Override
     public String toString() {
         return "DataSourceInfo{" +
-                "nameAndVersions=" + nameAndVersions +
+                "name='" + name + '\'' +
+                ", version='" + version + '\'' +
+                ", lastModTime=" + lastModTime +
+                ", modes=" + modes +
                 '}';
-    }
-
-    public static class NameAndVersion {
-        @Override
-        public String toString() {
-            return "NameAndVersion{" +
-                    "name='" + name + '\'' +
-                    ", version=" + version +
-                    '}';
-        }
-
-        private final String name;
-        private final String version;
-
-        public NameAndVersion(String name, String version) {
-            this.name = name;
-            this.version = version;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getVersion() {
-            return version;
-        }
     }
 }

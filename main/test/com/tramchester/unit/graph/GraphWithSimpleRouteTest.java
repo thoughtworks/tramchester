@@ -8,6 +8,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
@@ -56,7 +57,7 @@ class GraphWithSimpleRouteTest {
 
         StationLocations stationLocations = dependencies.get(StationLocations.class);
 
-        TransportDataForTestFactory factory = new TransportDataForTestFactory(stationLocations);
+        TransportDataForTestFactory factory = new TransportDataForTestFactory(stationLocations, dependencies.get(ProvidesNow.class));
         transportData = factory.get();
 
         config = new SimpleGraphConfig();

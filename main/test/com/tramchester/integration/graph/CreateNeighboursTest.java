@@ -137,7 +137,7 @@ class CreateNeighboursTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 0, testConfig.getMaxJourneyDuration());
-        request.setDiag(true);
+        //request.setDiag(true);
 
         TramStations startStation = TramStations.Bury;
         BusStations end = BusStations.ShudehillInterchange;

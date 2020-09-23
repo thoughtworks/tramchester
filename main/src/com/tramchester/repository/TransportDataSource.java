@@ -2,12 +2,12 @@ package com.tramchester.repository;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.*;
-import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.DataSourceInfo;
 
 import java.util.stream.Stream;
 
-public class TransportDataStreams {
+public class TransportDataSource {
     final Stream<StopData> stops;
     final Stream<RouteData> routes;
     final Stream<TripData> trips;
@@ -17,14 +17,14 @@ public class TransportDataStreams {
     final Stream<CalendarDateData> calendarsDates;
     private final DataSourceConfig config;
     final Stream<AgencyData> agencies;
-    final private DataSourceInfo.NameAndVersion nameAndVersion;
+    final private DataSourceInfo dataSourceInfo;
 
-    public TransportDataStreams(DataSourceInfo.NameAndVersion nameAndVersion, Stream<AgencyData> agencies, Stream<StopData> stops,
-                                Stream<RouteData> routes, Stream<TripData> trips, Stream<StopTimeData> stopTimes,
-                                Stream<CalendarData> calendars,
-                                Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates,
-                                DataSourceConfig config) {
-        this.nameAndVersion = nameAndVersion;
+    public TransportDataSource(DataSourceInfo dataSourceInfo, Stream<AgencyData> agencies, Stream<StopData> stops,
+                               Stream<RouteData> routes, Stream<TripData> trips, Stream<StopTimeData> stopTimes,
+                               Stream<CalendarData> calendars,
+                               Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates,
+                               DataSourceConfig config) {
+        this.dataSourceInfo = dataSourceInfo;
         this.agencies = agencies;
         this.stops = stops;
         this.routes = routes;
@@ -47,8 +47,8 @@ public class TransportDataStreams {
         agencies.close();
     }
 
-    public DataSourceInfo.NameAndVersion getNameAndVersion() {
-        return nameAndVersion;
+    public DataSourceInfo getNameAndVersion() {
+        return dataSourceInfo;
     }
 
     public DataSourceConfig getConfig() {

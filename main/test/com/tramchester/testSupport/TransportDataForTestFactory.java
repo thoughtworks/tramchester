@@ -6,6 +6,7 @@ import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataContainer;
@@ -20,13 +21,15 @@ import static java.lang.String.format;
 
 public class TransportDataForTestFactory {
     private final StationLocations stationLocations;
+    private final ProvidesNow providesNow;
 
-    public TransportDataForTestFactory(StationLocations stationLocations) {
+    public TransportDataForTestFactory(StationLocations stationLocations, ProvidesNow providesNow) {
         this.stationLocations = stationLocations;
+        this.providesNow = providesNow;
     }
 
     public TestTransportData get() {
-        TestTransportData container = new TestTransportData(stationLocations);
+        TestTransportData container = new TestTransportData(stationLocations, providesNow);
         populateTestData(container);
         return container;
     }
@@ -180,7 +183,8 @@ public class TransportDataForTestFactory {
 
         private final StationLocations stationLocations;
 
-        public TestTransportData(StationLocations stationLocations) {
+        public TestTransportData(StationLocations stationLocations, ProvidesNow providesNow) {
+            super(providesNow);
             this.stationLocations = stationLocations;
         }
 

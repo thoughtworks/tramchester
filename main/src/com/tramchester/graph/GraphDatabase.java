@@ -103,13 +103,13 @@ public class GraphDatabase implements Startable {
     }
 
     private boolean upToDateVersionsAndNeighbourFlag() {
-        DataSourceInfo info = transportData.getDataSourceInfo();
+        Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
         logger.info("Checking graph version information ");
 
-        Set<DataSourceInfo.NameAndVersion> versions = info.getVersions();
+        //Set<NameAndVersion> versions = info.getVersions();
 
         // version -> flag
-        Map<DataSourceInfo.NameAndVersion, Boolean> upToDate = new HashMap<>();
+        Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
         try(Transaction transaction = beginTx()) {
 
             if (neighboursEnabledMismatch(transaction)) {
@@ -124,12 +124,12 @@ public class GraphDatabase implements Startable {
             Node versionNode = versionNodes.get(0);
             Map<String, Object> allProps = versionNode.getAllProperties();
 
-            if (allProps.size()!=versions.size()) {
-                logger.warn("VERSION node property mismatch, got " +allProps.size() + " expected " + versions.size());
+            if (allProps.size()!=dataSourceInfo.size()) {
+                logger.warn("VERSION node property mismatch, got " +allProps.size() + " expected " + dataSourceInfo.size());
                 return false;
             }
 
-            versions.forEach(nameAndVersion -> {
+            dataSourceInfo.forEach(nameAndVersion -> {
                 String name = nameAndVersion.getName();
                 logger.info("Checking version for " + name);
 

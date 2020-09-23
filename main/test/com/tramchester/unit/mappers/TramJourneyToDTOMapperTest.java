@@ -11,6 +11,8 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
@@ -52,7 +54,8 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         StationLocations stationLocations = new StationLocations();
-        transportData = new TransportDataForTestFactory(stationLocations).get();
+        ProvidesNow providesNow = new ProvidesLocalNow();
+        transportData = new TransportDataForTestFactory(stationLocations, providesNow).get();
     }
 
     @BeforeEach

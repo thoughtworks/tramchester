@@ -26,10 +26,9 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,6 +87,7 @@ class StationResourceTest {
 
         assertEquals(200, result.getStatus());
 
+
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
         App app =  appExtension.getApplication();
@@ -99,6 +99,17 @@ class StationResourceTest {
         Set<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
 
         assertTrue(stationsIds.containsAll(resultIds));
+    }
+
+    @Test
+    void shouldGetTramStation304response() {
+        Response resultA = IntegrationClient.getApiResponse(appExtension, "stations/mode/Tram");
+        assertEquals(200, resultA.getStatus());
+
+        Date lastMod = resultA.getLastModified();
+
+        Response resultB = IntegrationClient.getApiResponse(appExtension, "stations/mode/Tram", lastMod);
+        assertEquals(304, resultB.getStatus());
     }
 
     @Test

@@ -79,7 +79,7 @@ class RouteCalulatorTestKeyRoutes {
                     try (Transaction txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
                                 3, testConfig.getMaxJourneyDuration());
-                        journeyRequest.setDiag(diag);
+                        //journeyRequest.setDiag(diag);
                         Optional<Journey> optionalJourney = findJourneys(txn, requested.getStart(), requested.getDest(), journeyRequest);
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
@@ -155,7 +155,7 @@ class RouteCalulatorTestKeyRoutes {
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
                         JourneyRequest request = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
-                                testConfig.getMaxJourneyDuration()).setDiag(diag);
+                                testConfig.getMaxJourneyDuration()); //.setDiag(diag);
                         Optional<Journey> optionalJourney = findJourneys(txn, requested.getStart(), requested.getDest(), request);
 
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);

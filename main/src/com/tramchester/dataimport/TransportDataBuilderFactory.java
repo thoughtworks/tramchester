@@ -8,7 +8,7 @@ import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
-import com.tramchester.repository.TransportDataStreams;
+import com.tramchester.repository.TransportDataSource;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -33,7 +33,7 @@ public class TransportDataBuilderFactory {
         // streams, so no data read yet
 
         Set<String> includeAll = Collections.emptySet();
-        List<TransportDataStreams> dataStreams = new ArrayList<>();
+        List<TransportDataSource> dataStreams = new ArrayList<>();
 
         transportDataReaders.forEach(transportDataReader -> {
             Stream<FeedInfo> feedInfoData = Stream.empty();
@@ -50,14 +50,14 @@ public class TransportDataBuilderFactory {
             Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
             Stream<AgencyData> agencyData = transportDataReader.getAgencies(new AgencyDataMapper(includeAll));
 
-            TransportDataStreams transportDataStreams =
-                    new TransportDataStreams(transportDataReader.getNameAndVersion(),
+            TransportDataSource transportDataSource =
+                    new TransportDataSource(transportDataReader.getNameAndVersion(),
                             agencyData, stopData, routeData, tripData,
                             stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig);
-            dataStreams.add(transportDataStreams);
+            dataStreams.add(transportDataSource);
         });
 
-        return new TransportDataFromFilesBuilderGeoFilter(dataStreams, stationLocations, config);
+        return new TransportDataFromFilesBuilderGeoFilter(dataStreams, stationLocations, config, providesNow);
     }
 }
 

@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -21,10 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -39,15 +41,17 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
 
     private final StationRepository stationRepository;
+    private final DataSourceRepository dataSourceRepository;
     private final StationLocations stationLocations;
     private final TramchesterConfig config;
 
     public StationResource(StationRepository stationRepository,
                            UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            ProvidesNow providesNow,
-                           StationLocations stationLocations, TramchesterConfig config) {
+                           DataSourceRepository dataSourceRepository, StationLocations stationLocations, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
         this.stationRepository = stationRepository;
+        this.dataSourceRepository = dataSourceRepository;
         this.stationLocations = stationLocations;
         this.config = config;
     }
@@ -84,26 +88,39 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         return Response.ok(results).build();
     }
 
-    // TODO CACHE/304 based on version of the data
     @GET
     @Timed
     @Path("/mode/{mode}")
     @ApiOperation(value = "Get all stations", response = StationRefDTO.class, responseContainer = "List")
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
-    public Response geByMode(@PathParam("mode") String rawMode) {
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
+    public Response getByMode(@PathParam("mode") String rawMode, @Context Request request) {
         logger.info("Get stations for transport mode: " + rawMode);
 
         try {
             TransportMode mode = TransportMode.valueOf(rawMode);
             Set<Station> matching = stationRepository.getStationsForMode(mode);
-            List<StationRefDTO> results = toStationRefDTOList(matching);
-            return Response.ok(results).build();
+
+            LocalDateTime modTime = dataSourceRepository.getNewestModTimeFor(mode);
+            Date date = Date.from(modTime.toInstant(ZoneOffset.UTC));
+
+            Response.ResponseBuilder builder = request.evaluatePreconditions(date);
+
+            if (builder==null) {
+                logger.debug("modified");
+                List<StationRefDTO> results = toStationRefDTOList(matching);
+                if (results.isEmpty()) {
+                    logger.info("No stations found for " + mode.name());
+                }
+                return Response.ok(results).lastModified(date).build();
+            } else {
+                logger.debug("Not modified");
+                return builder.build();
+            }
         }
         catch(IllegalArgumentException missing) {
-            logger.warn("Unable to match transport mode " + rawMode, missing);
+            logger.warn("Unable to match transport mode string " + rawMode, missing);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
     }
 
     @GET
@@ -148,7 +165,6 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         return stations.stream().map(StationRefDTO::new).collect(Collectors.toList());
     }
 
-    // TODO CACHE/304 based on version of the data
     @GET
     @Timed
     @Path("/closures")

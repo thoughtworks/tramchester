@@ -18,8 +18,8 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
 
-    static void setProp(Node node, DataSourceInfo.NameAndVersion nameAndVersion) {
-        node.setProperty(nameAndVersion.getName(), nameAndVersion.getVersion());
+    static void setProp(Node node, DataSourceInfo dataSourceInfo) {
+        node.setProperty(dataSourceInfo.getName(), dataSourceInfo.getVersion());
     }
 
     public static <C extends GraphProperty>  void setProperty(Entity entity, HasId<C> item) {

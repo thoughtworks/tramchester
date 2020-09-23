@@ -2,8 +2,9 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.DataSourceRepository;
@@ -21,10 +22,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,8 +38,7 @@ class GraphDatabaseTest {
 
     private TramchesterConfig config;
     private DataSourceRepository repository;
-    private DataSourceInfo dataSourceInfo;
-    private Set<DataSourceInfo.NameAndVersion> namesAndVersions;
+    private Set<DataSourceInfo> namesAndVersions;
     private List<DataSourceConfig> dataSourceConfigs;
     private Path dbFile;
     private GraphDatabase graphDatabase;
@@ -57,8 +55,18 @@ class GraphDatabaseTest {
         namesAndVersions = new HashSet<>();
         dataSourceConfigs = new ArrayList<>();
 
-        dataSourceInfo = new DataSourceInfo(namesAndVersions);
-        repository = () -> dataSourceInfo;
+        repository = new DataSourceRepository() {
+            @Override
+            public Set<DataSourceInfo> getDataSourceInfo() {
+                return namesAndVersions;
+            }
+
+            @Override
+            public LocalDateTime getNewestModTimeFor(TransportMode mode) {
+                return null;
+            }
+        };
+
         config = new TestConfig() {
             @Override
             protected List<DataSourceConfig> getDataSourceFORTESTING() {
@@ -245,10 +253,13 @@ class GraphDatabaseTest {
 
     @Test
     void shouldRecreateIfVersionsPresentWithOneMissingFromDB() {
+        LocalDateTime lastModTime = LocalDateTime.now();
+        Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
+
         dataSourceConfigs.add(createDataSource(SRC_1_NAME));
         dataSourceConfigs.add(createDataSource(SRC_2_NAME));
-        namesAndVersions.add(new DataSourceInfo.NameAndVersion(SRC_1_NAME, VERSION_1_VALID));
-        namesAndVersions.add(new DataSourceInfo.NameAndVersion(SRC_2_NAME, "version42"));
+        namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
+        namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, "version42", lastModTime, modes));
 
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();
@@ -272,17 +283,23 @@ class GraphDatabaseTest {
     }
 
     private void createWithTwoNamesAndVersions() {
+        LocalDateTime lastModTime = LocalDateTime.now();
+        Set<TransportMode> modes = Collections.singleton(TransportMode.Bus);
+
         dataSourceConfigs.add(createDataSource(SRC_1_NAME));
-        namesAndVersions.add(new DataSourceInfo.NameAndVersion(SRC_1_NAME, VERSION_1_VALID));
+        namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         dataSourceConfigs.add(createDataSource(SRC_2_NAME));
-        namesAndVersions.add(new DataSourceInfo.NameAndVersion(SRC_2_NAME, VERSION_2_VALID));
+        namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, VERSION_2_VALID, lastModTime, modes));
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();
     }
 
     private void createWithSingleNameAndVersion() {
+        LocalDateTime lastModTime = LocalDateTime.now();
+        Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
+
         dataSourceConfigs.add(createDataSource(SRC_1_NAME));
-        namesAndVersions.add(new DataSourceInfo.NameAndVersion(SRC_1_NAME, VERSION_1_VALID));
+        namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();
     }

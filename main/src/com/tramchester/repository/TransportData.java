@@ -9,6 +9,6 @@ public interface TransportData extends StationRepository, ProvidesFeedInfo, Serv
         PlatformRepository, DataSourceRepository {
 
     Set<Agency> getAgencies();
-    DataSourceInfo getDataSourceInfo();
+    Set<DataSourceInfo> getDataSourceInfo();
 
 }

@@ -73,10 +73,10 @@ class TramTransportDataBuilderFactoryTest {
         assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
 
-        DataSourceInfo dataSourceInfo = transportData.getDataSourceInfo();
-        Set<DataSourceInfo.NameAndVersion> versions = dataSourceInfo.getVersions();
-        assertEquals(1, versions.size());
-        DataSourceInfo.NameAndVersion result = versions.iterator().next();
+        Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
+        //Set<NameAndVersion> versions = dataSourceInfo.getVersions();
+        assertEquals(1, dataSourceInfo.size());
+        DataSourceInfo result = dataSourceInfo.iterator().next();
         assertThat(result.getVersion()).isEqualTo("20150617");
         assertThat(result.getName()).isEqualTo("tfgm");
 

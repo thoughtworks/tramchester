@@ -4,14 +4,14 @@ package com.tramchester.dataimport;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
-import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.DataSourceInfo;
 
 import java.util.stream.Stream;
 
 public class TransportDataReader {
 
-    private final DataSourceInfo.NameAndVersion nameAndVersion;
+    private final DataSourceInfo dataSourceInfo;
     private final DataSourceConfig config;
 
     public DataSourceConfig getConfig() {
@@ -24,14 +24,14 @@ public class TransportDataReader {
 
     private final DataLoaderFactory factory;
 
-    public TransportDataReader(DataSourceInfo.NameAndVersion nameAndVersion, DataLoaderFactory factory, DataSourceConfig config) {
-        this.nameAndVersion = nameAndVersion;
+    public TransportDataReader(DataSourceInfo dataSourceInfo, DataLoaderFactory factory, DataSourceConfig config) {
+        this.dataSourceInfo = dataSourceInfo;
         this.factory = factory;
         this.config = config;
     }
 
-    public DataSourceInfo.NameAndVersion getNameAndVersion() {
-        return nameAndVersion;
+    public DataSourceInfo getNameAndVersion() {
+        return dataSourceInfo;
     }
 
     public Stream<CalendarData> getCalendar(CalendarDataMapper calendarDataMapper) {

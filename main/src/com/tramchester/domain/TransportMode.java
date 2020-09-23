@@ -1,5 +1,8 @@
 package com.tramchester.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public enum TransportMode implements HasTransportMode {
     Bus, Tram, Depart, Board, Walk, Connect, Train, NotSet;
 
@@ -24,6 +27,12 @@ public enum TransportMode implements HasTransportMode {
 
     public static boolean isTrain(HasTransportMode item) {
         return item.getTransportMode().equals(TransportMode.Train);
+    }
+
+    public static Set<TransportMode> fromGTFS(Set<GTFSTransportationType> gtfsTransportationTypes) {
+        Set<TransportMode> result = new HashSet<>();
+        gtfsTransportationTypes.forEach(gtfsTransportationType -> result.add(fromGTFS(gtfsTransportationType)));
+        return result;
     }
 
     @Override

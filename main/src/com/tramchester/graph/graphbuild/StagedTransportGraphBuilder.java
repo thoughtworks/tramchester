@@ -20,7 +20,6 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -94,10 +93,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         System.gc();
     }
 
-    private void addVersionNode(GraphDatabase graphDatabase, DataSourceInfo infos) {
+    private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, Labels.VERSION);
-            infos.getVersions().forEach(nameAndVersion -> setProp(node, nameAndVersion));
+            infos.forEach(nameAndVersion -> setProp(node, nameAndVersion));
             tx.commit();
         }
     }

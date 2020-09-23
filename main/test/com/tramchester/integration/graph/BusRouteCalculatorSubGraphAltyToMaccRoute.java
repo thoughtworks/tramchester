@@ -101,7 +101,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(9, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, 120);
-        journeyRequest.setDiag(true);
+        //journeyRequest.setDiag(true);
 
         for (int i = 1; i <= knutsfordIndex; i++) {
             Station secondStation = routeStations.get(i);

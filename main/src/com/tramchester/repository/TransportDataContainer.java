@@ -4,17 +4,21 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.lang.String.format;
 
 public class TransportDataContainer implements TransportData, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataContainer.class);
+
+    private final ProvidesNow providesNow;
 
     private final IdMap<Trip> trips = new IdMap<>();        // trip id -> trip
     private final IdMap<Station> stationsById = new IdMap<>();  // station id -> station
@@ -24,9 +28,15 @@ public class TransportDataContainer implements TransportData, Disposable {
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
     private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
 
-    private final Map<String, Station> tramStationsByName = new HashMap<>();  // station id -> station
-    private final Set<DataSourceInfo.NameAndVersion> nameAndVersions = new HashSet<>();
+    private final Map<String, Station> tramStationsByName = new HashMap<>();  // tram station name -> station
+    private final Set<DataSourceInfo> dataSourceInfos = new HashSet<>();
+
+    // data source name -> feedinfo (if present)
     private final Map<String, FeedInfo> feedInfoMap = new HashMap<>();
+
+    public TransportDataContainer(ProvidesNow providesNow) {
+        this.providesNow = providesNow;
+    }
 
     @Override
     public void dispose() {
@@ -43,7 +53,7 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     public void reportNumbers() {
-        logger.info("From " + nameAndVersions.toString());
+        logger.info("From " + dataSourceInfos.toString());
         logger.info(format("%s agencies", agencies.size()));
         logger.info(format("%s routes", routes.size()));
         logger.info(stationsById.size() + " stations " + platforms.size() + " platforms ");
@@ -144,8 +154,21 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
-    public DataSourceInfo getDataSourceInfo() {
-        return new DataSourceInfo(nameAndVersions);
+    public Set<DataSourceInfo> getDataSourceInfo() {
+        return dataSourceInfos;
+    }
+
+    @Override
+    public LocalDateTime getNewestModTimeFor(TransportMode mode) {
+        Optional<LocalDateTime> result = this.dataSourceInfos.stream().
+                filter(info -> info.getModes().contains(mode)).
+                map(DataSourceInfo::getLastModTime).max(Comparator.naturalOrder());
+        if (result.isEmpty()) {
+            logger.error("Cannot find latest mod time for transport mode " + mode);
+            return providesNow.getDateTime();
+        } else {
+            return result.get();
+        }
     }
 
     @Override
@@ -233,8 +256,8 @@ public class TransportDataContainer implements TransportData, Disposable {
         return routes.hasId(routeId);
     }
 
-    public void addNameAndVersion(DataSourceInfo.NameAndVersion nameAndVersion) {
-        nameAndVersions.add(nameAndVersion);
+    public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {
+        dataSourceInfos.add(dataSourceInfo);
     }
 
     @Override

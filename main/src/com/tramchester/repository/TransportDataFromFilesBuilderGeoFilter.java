@@ -7,6 +7,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
@@ -22,17 +23,19 @@ import static java.lang.String.format;
 public class TransportDataFromFilesBuilderGeoFilter {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFilesBuilderGeoFilter.class);
 
-    private final List<TransportDataStreams> transportDataStreams;
+    private final List<TransportDataSource> transportDataStreams;
     private final StationLocations stationLocations;
     private final TramchesterConfig config;
+    private final ProvidesNow providesNow;
 
     private TransportDataContainer toBuild;
 
-    public TransportDataFromFilesBuilderGeoFilter(List<TransportDataStreams> transportDataStreams, StationLocations stationLocations,
-                                                  TramchesterConfig config) {
+    public TransportDataFromFilesBuilderGeoFilter(List<TransportDataSource> transportDataStreams, StationLocations stationLocations,
+                                                  TramchesterConfig config, ProvidesNow providesNow) {
         this.transportDataStreams = transportDataStreams;
         this.stationLocations = stationLocations;
         this.config = config;
+        this.providesNow = providesNow;
         toBuild = null;
     }
 
@@ -41,41 +44,43 @@ public class TransportDataFromFilesBuilderGeoFilter {
     }
 
     public void load() {
-        toBuild = new TransportDataContainer();
+        toBuild = new TransportDataContainer(providesNow);
         logger.info("Loading transport data from files");
         transportDataStreams.forEach(transportDataStream -> load(transportDataStream, toBuild));
         logger.info("Finished loading transport data");
     }
 
-    private void load(TransportDataStreams streams, TransportDataContainer buildable) {
-        String sourceName = streams.getNameAndVersion().getName();
-        DataSourceConfig sourceConfig = streams.getConfig();
+    private void load(TransportDataSource dataSource, TransportDataContainer buildable) {
+        DataSourceInfo dataSourceInfo = dataSource.getNameAndVersion();
+
+        String sourceName = dataSourceInfo.getName();
+        DataSourceConfig sourceConfig = dataSource.getConfig();
         logger.info("Loading data for " + sourceName);
 
-        DataSourceInfo.NameAndVersion fromStreams = streams.getNameAndVersion();
         if(sourceConfig.getHasFeedInfo()) {
-            FeedInfo feedInfo = streams.feedInfo.findFirst().get();
-            String name = fromStreams.getName();
-            buildable.addNameAndVersion(new DataSourceInfo.NameAndVersion(name, feedInfo.getVersion()));
-            buildable.addFeedInfo(name, feedInfo);
+            // replace version string (which is from mod time) with the one from the feedinfo file, if present
+            FeedInfo feedInfo = dataSource.feedInfo.findFirst().get();
+            buildable.addDataSourceInfo(new DataSourceInfo(sourceName, feedInfo.getVersion(),
+                    dataSourceInfo.getLastModTime(), dataSource.getNameAndVersion().getModes()));
+            buildable.addFeedInfo(sourceName, feedInfo);
         } else {
             logger.warn("No feedinfo for " + sourceName);
-            buildable.addNameAndVersion(fromStreams);
+            buildable.addDataSourceInfo(dataSourceInfo);
         }
 
-        IdMap<Agency> allAgencies = preloadAgencys(streams.agencies);
-        IdSet<Route> excludedRoutes = populateRoutes(buildable, streams.routes, allAgencies, sourceConfig);
+        IdMap<Agency> allAgencies = preloadAgencys(dataSource.agencies);
+        IdSet<Route> excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, sourceConfig);
         logger.info("Excluding " + excludedRoutes.size()+" routes ");
         allAgencies.clear();
 
-        TripAndServices tripsAndServices = loadTripsAndServices(buildable, streams.trips, excludedRoutes);
+        TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.trips, excludedRoutes);
         excludedRoutes.clear();
 
-        IdMap<Station> allStations = preLoadStations(streams.stops);
-        IdMap<Service> services = populateStopTimes(buildable, streams.stopTimes, allStations, tripsAndServices.trips);
+        IdMap<Station> allStations = preLoadStations(dataSource.stops);
+        IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations, tripsAndServices.trips);
         allStations.clear();
 
-        populateCalendars(buildable, streams.calendars, streams.calendarsDates, services);
+        populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services);
         tripsAndServices.clear();
 
         buildable.updateTimesForServices();
@@ -86,7 +91,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
                 svc -> logger.warn(format("source %s Service %s has missing date data or runs on zero days",
                         sourceName, svc.getId()))
         );
-        streams.closeAll();
+        dataSource.closeAll();
         logger.info("Finishing Loading data for " + sourceName);
         logger.info("Bounds for loaded stations " + stationLocations.getBounds());
     }

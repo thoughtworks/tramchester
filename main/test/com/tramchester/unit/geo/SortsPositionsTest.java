@@ -5,6 +5,8 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
@@ -30,9 +32,9 @@ class SortsPositionsTest {
     @BeforeEach
     void beforeEachTestRuns() throws TransformException {
         StationLocations stationLocations = new StationLocations();
+        ProvidesNow providesNow = new ProvidesLocalNow();
 
-        dataForTest = new TransportDataForTestFactory(stationLocations).get();
-//        dataForTest.start();
+        dataForTest = new TransportDataForTestFactory(stationLocations, providesNow).get();
 
         nearPiccGardens = dataForTest.getSecond(); // near PiccGardens
         nearShudehill = dataForTest.getInterchange();   // near Shudehill
