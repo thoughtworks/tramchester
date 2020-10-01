@@ -21,6 +21,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -104,6 +106,12 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
 
+        List<String> allFromStops = appPage.getAllStopsFromStops();
+        checkSorted(allFromStops);
+
+        List<String> allToStops = appPage.getAllStopsToStops();
+        checkSorted(allToStops);
+
         desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
         assertJourney(appPage, altrincham, bury, "10:15", when, false);
         desiredJourney(appPage, altrincham, bury, when.plusMonths(1), TramTime.of(3,15), false);
@@ -114,6 +122,14 @@ class AppUserJourneyTest extends UserJourneyTest {
 
         appPage.selectToday();
         assertEquals(TestEnv.LocalNow().toLocalDate(), appPage.getDate());
+    }
+
+    private void checkSorted(List<String> allStops) {
+        List<String> sortedAllStops = new LinkedList<>(allStops);
+        sortedAllStops.sort(Comparator.comparing(String::toLowerCase));
+        for (int i = 0; i < allStops.size(); i++) {
+            assertEquals(sortedAllStops.get(i), allStops.get(i), "sorted?");
+        }
     }
 
     private void validateCurrentTimeIsSelected(AppPage appPage) {

@@ -4,7 +4,11 @@ import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
 
 function sort(values, alreadyDisplayed) {
     var results = values.filter(stop => !alreadyDisplayed.includes(stop.id));
-    return results.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase());
+    return results.sort((a,b) => {
+        var x = a.name.toLowerCase();
+        var y = b.name.toLowerCase();
+        return x.localeCompare(y);
+    });
 }
 
 export default {
@@ -29,6 +33,7 @@ export default {
             return sort(this.stops.allStops, this.alreadyDisplayed);
         },
         busstops: function () {
+            // todo use sort?
             return this.stops.allStops.concat(this.stops.postcodes).filter(stop => !this.alreadyDisplayed.includes(stop.id));
         },
         alreadyDisplayed: function () {
@@ -61,21 +66,21 @@ export default {
                 class="mb-2" required 
                 v-if="!bus">
             <option :value="null" disabled>Please select {{name}}</option>
-            <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
-                <option class="stop" value="MyLocationPlaceholderId">My Location</option>
-            </optgroup>
-            <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
-                <option class="stop" v-for="stop in stops.nearestStops" :value="stop.id" 
-                :disabled="stop.id == otherId">{{stop.name}}</option>
-            </optgroup>
-            <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
-                <option class="stop" v-for="stop in stops.recentStops" :value="stop.id"
-                :disabled="stop.id == otherId">{{stop.name}}</option>
-            </optgroup>
-            <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
-                <option class="stop" v-for="stop in allstops" :value="stop.id"
-                :disabled="stop.id == otherId">{{stop.name}}</option>
-            </optgroup>
+                <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
+                    <option class="stop" value="MyLocationPlaceholderId">My Location</option>
+                </optgroup>
+                <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
+                    <option class="stop" v-for="stop in stops.nearestStops" :value="stop.id" 
+                    :disabled="stop.id == otherId">{{stop.name}}</option>
+                </optgroup>
+                <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
+                    <option class="stop" v-for="stop in stops.recentStops" :value="stop.id"
+                    :disabled="stop.id == otherId">{{stop.name}}</option>
+                </optgroup>
+                <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
+                    <option class="stop" v-for="stop in allstops" :value="stop.id"
+                    :disabled="stop.id == otherId">{{stop.name}}</option>
+                </optgroup>
         </b-form-select>
     <!-- buses -->
         <vue-bootstrap-typeahead

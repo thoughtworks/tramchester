@@ -25,10 +25,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -162,7 +159,11 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     @NotNull
     public List<StationRefDTO> toStationRefDTOList(Collection<Station> stations) {
-        return stations.stream().map(StationRefDTO::new).collect(Collectors.toList());
+        return stations.stream().
+                map(StationRefDTO::new).
+                // sort server side is here as an optimisation for front end sorting time
+                sorted(Comparator.comparing(dto -> dto.getName().toLowerCase())).
+                collect(Collectors.toList());
     }
 
     @GET

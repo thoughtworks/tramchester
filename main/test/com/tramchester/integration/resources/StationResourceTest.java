@@ -87,18 +87,24 @@ class StationResourceTest {
 
         assertEquals(200, result.getStatus());
 
-
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
         App app =  appExtension.getApplication();
         StationRepository stationRepo = app.getDependencies().get(StationRepository.class);
-        Set<String> stationsIds = stationRepo.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
 
-        assertEquals(stationsIds.size(), results.size());
+        Set<String> expectedIds = stationRepo.getStations().stream().map(station -> station.getId().forDTO()).collect(Collectors.toSet());
+        assertEquals(expectedIds.size(), results.size());
 
-        Set<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        List<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toList());
+        assertTrue(expectedIds.containsAll(resultIds));
 
-        assertTrue(stationsIds.containsAll(resultIds));
+        ArrayList<StationRefDTO> sortedResults = new ArrayList<>(results);
+        sortedResults.sort(Comparator.comparing(item -> item.getName().toLowerCase()));
+
+        for (int i = 0; i < sortedResults.size(); i++) {
+            assertEquals(results.get(i), sortedResults.get(i), "not sorted");
+        }
+
     }
 
     @Test
