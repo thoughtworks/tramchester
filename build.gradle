@@ -154,8 +154,9 @@ clean {
         include '*.txt'
     }
     delete fileTree('data/codepo_gb') {
-        include '**'
+        include '**/*.csv'
     }
+    delete('data/codepo_gb')
 }
 
 run {
