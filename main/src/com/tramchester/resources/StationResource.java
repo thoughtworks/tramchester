@@ -69,7 +69,6 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         }
     }
 
-    // TODO CACHE/304 based on version of the data
     @GET
     @Timed
     @Path("/all")

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -34,12 +35,14 @@ public class PostcodeDataImporter {
     private final long margin;
     private final Double range;
     private final PostcodeBoundingBoxs postcodeBounds;
+    private final FetchFileModTime fetchFileModTime;
     private BoundingBox requiredBounds;
 
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper,
-                                PostcodeBoundingBoxs postcodeBounds) {
+                                PostcodeBoundingBoxs postcodeBounds, FetchFileModTime fetchFileModTime) {
         this.directory = config.getPostcodeDataPath();
         range = config.getNearestStopForWalkingRangeKM();
+        this.fetchFileModTime = fetchFileModTime;
         // meters
         margin = Math.round(range * 1000D);
         this.config = config;
@@ -84,10 +87,14 @@ public class PostcodeDataImporter {
 
     private void unzipIfRequired() {
         Path postcodeZip = config.getPostcodeZip();
-        Path unzipTarget = Path.of(config.getPostcodeZip().toAbsolutePath().toString().replace(".zip",""));
+        Path unzipTarget = getTargetPath();
         if (refreshNeeded(postcodeZip, unzipTarget)) {
             unzipper.unpack(postcodeZip, unzipTarget);
         }
+    }
+
+    private Path getTargetPath() {
+        return Path.of(config.getPostcodeZip().toAbsolutePath().toString().replace(".zip", ""));
     }
 
     private boolean refreshNeeded(Path postcodeZip, Path unzipTarget)  {
@@ -136,4 +143,7 @@ public class PostcodeDataImporter {
 
     }
 
+    public LocalDateTime getTargetFolderModTime() {
+        return fetchFileModTime.getFor(getTargetPath());
+    }
 }

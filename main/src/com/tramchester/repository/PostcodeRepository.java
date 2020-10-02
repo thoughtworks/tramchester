@@ -13,6 +13,7 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ public class PostcodeRepository implements Disposable, Startable {
     private final TramchesterConfig config;
 
     private final IdMap<PostcodeLocation> postcodes; // Id -> PostcodeLocation
+    private LocalDateTime lastModifiedTime;
 
     public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config) {
         this.importer = importer;
@@ -58,6 +60,7 @@ public class PostcodeRepository implements Disposable, Startable {
             source.close();
         });
 
+        this.lastModifiedTime = importer.getTargetFolderModTime();
     }
 
     @Override
@@ -80,5 +83,9 @@ public class PostcodeRepository implements Disposable, Startable {
 
     public int getNumberOf() {
         return postcodes.size();
+    }
+
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedTime;
     }
 }

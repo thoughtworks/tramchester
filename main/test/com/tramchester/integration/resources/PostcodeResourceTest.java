@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class PostcodeResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
+    private final String endPoint = "postcodes";
 
     @Test
     void shouldGetLoadedPostcodes() {
-        String endPoint = "postcodes";
         Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, response.getStatus());
 
@@ -46,6 +47,17 @@ class PostcodeResourceTest {
         LatLong position = result.getLatLong();
         assertEquals(lat, position.getLat(), 0.001);
         assertEquals(lon, position.getLon(), 0.001);
+    }
+
+    @Test
+    void shouldGetTramStation304response() {
+        Response resultA = IntegrationClient.getApiResponse(appExtension, endPoint);
+        assertEquals(200, resultA.getStatus());
+
+        Date lastMod = resultA.getLastModified();
+
+        Response resultB = IntegrationClient.getApiResponse(appExtension, endPoint, lastMod);
+        assertEquals(304, resultB.getStatus());
     }
 
 }

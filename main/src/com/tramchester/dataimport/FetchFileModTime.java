@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 
 public class FetchFileModTime {
 
-    private LocalDateTime getFor(Path file) {
-        long localModMillis = file.toFile().lastModified();
+    public LocalDateTime getFor(Path filePath) {
+        long localModMillis = filePath.toFile().lastModified();
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
     }
 

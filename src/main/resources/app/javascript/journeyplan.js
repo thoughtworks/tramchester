@@ -39,9 +39,9 @@ function livedataUrl() {
     }
 }
 
-function tramsEnabled(scope) {
-    return scope.modes.includes('Tram');
-}
+// function tramsEnabled(scope) {
+//     return scope.modes.includes('Tram');
+// }
 
 function busEnabled(scope) {
     return scope.modes.includes('Bus');
@@ -124,7 +124,7 @@ async function getStationsFromServer(app) {
     if (busEnabled(app)) {
         axios.get("/api/postcodes", { timeout: 30000}).then(function (response) {
             app.networkError = false;
-            app.stops.postcodes = response.data;
+            app.stops.postcodes = Object.freeze(response.data);
         }).catch(function (error){
             reportError(error);
         });
@@ -144,6 +144,7 @@ async function getStationsFromServer(app) {
             var receivedStops = result.value.data;
             app.stops.allStops = app.stops.allStops.concat(receivedStops);
         });
+        app.stops.allStops = Object.freeze(app.stops.allStops);
         app.ready = true;
     });
 

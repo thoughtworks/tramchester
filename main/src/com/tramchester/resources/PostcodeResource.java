@@ -13,9 +13,15 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -35,15 +41,26 @@ public class PostcodeResource implements APIResource {
     @GET
     @Timed
     @ApiOperation(value = "Return all loaded (local) postcodes", response = PostcodeDTO.class, responseContainer = "List")
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
-    public Response getAll() {
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS, isPrivate = false)
+    public Response getAll(@Context Request request) {
         logger.info("Get all postcodes");
 
         Collection<PostcodeLocation> allPostcodes = postcodeRepository.getPostcodes();
 
-        List<PostcodeDTO> postcodeDTOs = mapToDTO(allPostcodes);
-        return Response.ok(postcodeDTOs).build();
+        LocalDateTime modTime = postcodeRepository.getLastModifiedDate();
+        Date date = Date.from(modTime.toInstant(ZoneOffset.UTC));
 
+        Response.ResponseBuilder builder = request.evaluatePreconditions(date);
+
+        if (builder==null) {
+            logger.debug("modified");
+            List<PostcodeDTO> postcodeDTOs = mapToDTO(allPostcodes);
+            return Response.ok(postcodeDTOs).lastModified(date).build();
+        } else {
+            logger.debug("Not modified");
+            return builder.build();
+        }
+        
     }
 
     private List<PostcodeDTO> mapToDTO(Collection<PostcodeLocation> allPostcodes) {
