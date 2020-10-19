@@ -51,6 +51,7 @@ class JourneyPlannerPostcodeBusResourceTest {
                 prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadillyGardens), time, day,
                 null, false, 5);
         assertEquals(200, response.getStatus());
+
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
 
@@ -65,6 +66,7 @@ class JourneyPlannerPostcodeBusResourceTest {
                 prefix(Postcodes.CentralBury), BusStations.BuryInterchange.forDTO(), time, day,
                 null, false, 5);
         assertEquals(200, response.getStatus());
+
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
@@ -82,6 +84,7 @@ class JourneyPlannerPostcodeBusResourceTest {
                 BusStations.BuryInterchange.forDTO(), prefix(Postcodes.CentralBury),  time, day,
                 null, false, 5);
         assertEquals(200, response.getStatus());
+
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());

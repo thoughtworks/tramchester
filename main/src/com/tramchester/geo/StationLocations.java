@@ -116,6 +116,7 @@ public class StationLocations implements StationLocationsRepository, Disposable 
             stationList = unsorted.limit(maxToFind).map(Map.Entry::getKey).
                     collect(Collectors.toList());
         }
+        unsorted.close();
 
         return stationList;
     }
@@ -139,7 +140,8 @@ public class StationLocations implements StationLocationsRepository, Disposable 
     }
 
     @NotNull
-    private Stream<Map.Entry<Station, HasGridPosition>> getNearbyStreamSquare(@NotNull HasGridPosition otherPosition, long rangeInMeters) {
+    private Stream<Map.Entry<Station, HasGridPosition>> getNearbyStreamSquare(@NotNull HasGridPosition otherPosition,
+                                                                              long rangeInMeters) {
         return positions.entrySet().stream().
                 // crude filter initially
                         filter(entry -> GridPositions.withinDistEasting(otherPosition, entry.getValue(), rangeInMeters)).

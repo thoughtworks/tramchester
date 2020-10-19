@@ -72,7 +72,6 @@ class RouteCalulatorTestKeyRoutes {
 
         LocalDate queryDate = when;
         TramTime queryTime = TramTime.of(8,0);
-        boolean diag = true;
 
         Optional<Pair<TramStations.Pair, JourneyOrNot>> failed = combinations.parallelStream().
                 map(requested -> {
@@ -105,7 +104,7 @@ class RouteCalulatorTestKeyRoutes {
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
-        // todo: changed from 9 to 10.15 as airport to eccles fails for 10.15am
+        // todo: lockdown, changed from 9 to 10.15 as airport to eccles fails for 10.15am
         Set<TramStations.Pair> combinations = createJourneyPairs(TramStations.EndOfTheLine, TramStations.EndOfTheLine);
         checkRouteNextNDays(combinations, when, TramTime.of(10,15));
     }

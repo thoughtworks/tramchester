@@ -6,10 +6,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.IntegrationBusTestConfig;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.TramStations;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.List;
@@ -37,8 +34,8 @@ class BusStationsLocationsTest {
         nearestStopRangeKM = testConfig.getNearestStopForWalkingRangeKM();
     }
 
-    @AfterEach
-    void afterEachTestRuns() {
+    @AfterAll
+    static void afterEachTestRuns() {
         dependencies.close();
     }
 
