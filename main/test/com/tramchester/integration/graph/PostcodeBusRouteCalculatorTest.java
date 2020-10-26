@@ -19,6 +19,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -70,13 +71,14 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToPicc() {
         Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearPiccadillyGardens,
-                createRequest(5));
+                createRequest(5), 7);
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToShudehill() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearShudehill, createRequest(5));
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearShudehill,
+                createRequest(5), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
     }
@@ -105,13 +107,15 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeSouthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(BuryInterchange, Postcodes.NearShudehill, createRequest(3));
+        Set<Journey> journeys = planner.quickestRouteForLocation(BuryInterchange, Postcodes.NearShudehill,
+                createRequest(3), 4);
         assertFalse(journeys.isEmpty());
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, ShudehillInterchange, createRequest(5));
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, ShudehillInterchange,
+                createRequest(5), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
     }
@@ -120,7 +124,7 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToBusStationCentral() {
         JourneyRequest journeyRequest = createRequest(3);
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, ShudehillInterchange, journeyRequest);
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, ShudehillInterchange, journeyRequest, 4);
 
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
@@ -129,25 +133,52 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeCentral() {
         JourneyRequest journeyRequest = createRequest(2);
-        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.NearPiccadillyGardens, journeyRequest);
+        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.NearPiccadillyGardens, journeyRequest, 3);
 
         assertFalse(journeys.isEmpty());
     }
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeNorthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.CentralBury, createRequest(2));
+        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.CentralBury,
+                createRequest(2), 3);
 
         assertFalse(journeys.isEmpty());
+
+        journeys.forEach(journey -> {
+            // connecting stage first as bus only
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            int size = stages.size();
+
+            assertEquals( TransportMode.Connect, stages.get(0).getMode());
+            assertEquals( TransportMode.Walk, stages.get(size-1).getMode());
+            assertEquals(3, size);
+        });
+    }
+
+    @Test
+    void shouldPlanJourneyFromPostcodeToPostcodesSouthbound() {
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearPiccadillyGardens,
+                createRequest(5), 6);
+
+        assertFalse(journeys.isEmpty());
+
+        journeys.forEach(journey -> {
+            assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode());
+            assertEquals(1, journey.getStages().size(), journey.toString());
+            //assertEquals(BusStations.BuryInterchange.getId().forDTO(), journey.getEnd().getId());
+        });
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusNorthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearShudehill, BuryInterchange, createRequest(5));
+        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearShudehill, BuryInterchange,
+                createRequest(5), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
 
-        Set<Journey> fromPicc = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, BuryInterchange, createRequest(5));
+        Set<Journey> fromPicc = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, BuryInterchange,
+                createRequest(5), 6);
         assertFalse(fromPicc.isEmpty());
         assertWalkAtStart(fromPicc);
     }
@@ -163,7 +194,7 @@ class PostcodeBusRouteCalculatorTest {
 
     private void checkNearby(PostcodeLocation start, BusStations end) {
         JourneyRequest request = createRequest(3);
-        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request);
+        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request, 4);
 
         assertFalse(journeys.isEmpty(), "no journeys");
 
@@ -181,7 +212,7 @@ class PostcodeBusRouteCalculatorTest {
 
     private void checkNearby(BusStations start, PostcodeLocation end) {
         JourneyRequest request = createRequest(1);
-        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request);
+        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request, 3);
 
         assertFalse(journeys.isEmpty(), "no journeys");
         Set<Journey> oneStage = journeys.stream().filter(journey->journey.getStages().size()==1).collect(Collectors.toSet());

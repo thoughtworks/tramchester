@@ -118,6 +118,7 @@ public class LocationJourneyPlanner {
         // Add Walks at the end
         Set<Station> destinationStations = new HashSet<>();
         List<StationWalk> walksToDest = getStationWalks(destLatLong);
+        // TODO is mid walk node still needed?
         Node midWalkNode = createWalkingNode(txn, destLatLong, journeyRequest);
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
@@ -172,14 +173,6 @@ public class LocationJourneyPlanner {
         return startOfWalkNode;
     }
 
-//    private Node createMidWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
-//        Node startOfWalkNode = nodeTypeRepository.createQueryNodeMidPoint(graphDatabase, txn);
-//        GraphProps.setLatLong(startOfWalkNode, origin);
-//        GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
-//        logger.info(format("Adding mid walking node at %s as node %s", origin, startOfWalkNode));
-//        return startOfWalkNode;
-//    }
-
     // TODO Creation and deletion of walk nodes into own facade which can then be auto-closable
     @Deprecated
     private void removeWalkNodeAndRelationships(List<Relationship> relationshipsToDelete, Node... nodesToDelete) {
@@ -194,9 +187,9 @@ public class LocationJourneyPlanner {
     }
 
     private List<StationWalk> getStationWalks(LatLong latLong) {
-        int num = config.getNumOfNearestStopsForWalking();
+        int maxResults = config.getNumOfNearestStopsForWalking();
         double rangeInKM = config.getNearestStopForWalkingRangeKM();
-        List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, num, rangeInKM);
+        List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, maxResults, rangeInKM);
         List<StationWalk> stationWalks = createWalks(latLong, nearbyStations);
         logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));
         return stationWalks;

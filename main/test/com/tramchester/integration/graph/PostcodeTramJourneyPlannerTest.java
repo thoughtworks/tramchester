@@ -45,6 +45,7 @@ class PostcodeTramJourneyPlannerTest {
     private PostcodeRepository repository;
     private PostcodeLocation centralLocation;
     private static final TramTime planningTime = TramTime.of(11, 42);
+    private int maxStages = 9;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -85,7 +86,7 @@ class PostcodeTramJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromCentralPostcodeToBury(JourneyRequest request) {
-        Set<Journey> journeySet =  planner.quickestRouteForLocation(centralLocation.getLatLong(), TramStations.Bury, request);
+        Set<Journey> journeySet =  planner.quickestRouteForLocation(centralLocation.getLatLong(), TramStations.Bury, request, maxStages);
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
@@ -95,7 +96,7 @@ class PostcodeTramJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromBuryToCentralPostcode(JourneyRequest request) {
-        Set<Journey> journeySet =  planner.quickestRouteForLocation(TramStations.Bury, centralLocation.getLatLong(), request);
+        Set<Journey> journeySet =  planner.quickestRouteForLocation(TramStations.Bury, centralLocation.getLatLong(), request, maxStages);
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertEquals(TransportMode.Tram, journey.getStages().get(0).getMode()));
@@ -108,7 +109,7 @@ class PostcodeTramJourneyPlannerTest {
     void shouldHavePostcodeToPostcodeJourney(JourneyRequest request) {
         PostcodeLocation buryPostcode = repository.getPostcode(Postcodes.CentralBury.getId());
         Set<Journey> journeySet = planner.quickestRouteForLocation(centralLocation.getLatLong(),
-                buryPostcode.getLatLong(), request);
+                buryPostcode.getLatLong(), request, maxStages);
 
         assertFalse(journeySet.isEmpty());
         journeySet.forEach(journey -> assertTrue(journey.getStages().size()>=3));

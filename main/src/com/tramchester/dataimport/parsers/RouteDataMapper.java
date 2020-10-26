@@ -18,6 +18,8 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
     private int indexOfLongName = -1;
     private int indexOfType = -1;
 
+    private static final String METROLINK = "MET";
+
     private enum Columns implements ColumnDefination {
         route_id,agency_id,route_short_name,route_long_name,route_type
     }
@@ -55,6 +57,13 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
             String longName = data.get(indexOfLongName);
             String routeTypeText = data.get(indexOfType);
             GTFSTransportationType transportationType = GTFSTransportationType.parser.parse(routeTypeText);
+
+            // tfgm data issue workaround
+            if (METROLINK.equals(agency) && transportationType!=GTFSTransportationType.tram) {
+                logger.error("Agency " + METROLINK + " seen with transport type " + transportationType.name() + " for " + data.toString());
+                logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + data.toString());
+                transportationType = GTFSTransportationType.tram;
+            }
 
             return new RouteData(id, agency, shortName, longName, transportationType);
         } catch (ParseException parseException) {

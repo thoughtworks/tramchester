@@ -106,15 +106,15 @@ public class StationLocations implements StationLocationsRepository, Disposable 
 
         @NotNull List<Station> stationList;
         if (maxToFind > 1) {
-            // only sort if more than one, as sorting expensive
-            stationList = unsorted.sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
+            // only sort if more than one, as sorting potentially expensive
+            stationList = unsorted.
+                    sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
                     limit(maxToFind).
                     map(Map.Entry::getKey).collect(Collectors.toList());
             logger.debug(format("Found %s (of %s) stations within %s meters of grid %s",
                     stationList.size(), maxToFind, rangeInMeters, gridPosition));
         } else {
-            stationList = unsorted.limit(maxToFind).map(Map.Entry::getKey).
-                    collect(Collectors.toList());
+            stationList = unsorted.limit(maxToFind).map(Map.Entry::getKey).collect(Collectors.toList());
         }
         unsorted.close();
 

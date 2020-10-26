@@ -38,15 +38,27 @@ class RouteCostCalculatorTest {
     }
 
     @Test
-    void shouldComputeSimpleCostBetweenStations() {
+    void shouldComputeSimpleCostBetweenStationsAltyNavRoad() {
 
         try(Transaction txn = database.beginTx()) {
             assertEquals(5, getApproxCostBetween(txn, TramStations.NavigationRoad, TramStations.Altrincham));
             assertEquals(6, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.NavigationRoad));
+        }
+    }
 
-            assertEquals(62, getApproxCostBetween(txn, TramStations.Bury, TramStations.Altrincham));
-            assertEquals(65, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
+    @Test
+    void shouldComputeSimpleCostBetweenStationsAltyBury() {
 
+        try(Transaction txn = database.beginTx()) {
+            assertEquals(64, getApproxCostBetween(txn, TramStations.Bury, TramStations.Altrincham));
+            assertEquals(62, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
+        }
+    }
+
+    @Test
+    void shouldComputeSimpleCostBetweenStationsMediaCityAirport() {
+
+        try(Transaction txn = database.beginTx()) {
             assertEquals(61, getApproxCostBetween(txn, TramStations.MediaCityUK, TramStations.ManAirport));
             assertEquals(61, getApproxCostBetween(txn, TramStations.ManAirport, TramStations.MediaCityUK));
         }

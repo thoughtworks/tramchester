@@ -67,9 +67,11 @@ class LocationJourneyPlannerTest {
     void shouldHaveDirectWalkNearPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(when);
 
+        JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0), false,
+                2, testConfig.getMaxJourneyDuration());
         Set<Journey> unsortedResults = getJourneySet(
-                new JourneyRequest(queryDate,TramTime.of(9, 0), false, 2, testConfig.getMaxJourneyDuration()) ,
-                nearPiccGardens, TramStations.PiccadillyGardens);
+                journeyRequest,
+                nearPiccGardens, TramStations.PiccadillyGardens, 3);
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -87,17 +89,18 @@ class LocationJourneyPlannerTest {
         });
     }
 
-    private Set<Journey> getJourneySet(JourneyRequest journeyRequest, LatLong nearPiccGardens, TramStations dest) {
-        return planner.quickestRouteForLocation(nearPiccGardens, dest, journeyRequest);
+    private Set<Journey> getJourneySet(JourneyRequest journeyRequest, LatLong nearPiccGardens, TramStations dest, int maxStages) {
+        return planner.quickestRouteForLocation(nearPiccGardens, dest, journeyRequest, maxStages);
     }
 
     @Test
     void shouldHaveDirectWalkFromPiccadily() {
         TramServiceDate queryDate = new TramServiceDate(when);
 
+        JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0),
+                false, 1, testConfig.getMaxJourneyDuration());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(TramStations.PiccadillyGardens,
-                nearPiccGardens, new JourneyRequest(queryDate, TramTime.of(9, 0),
-                        false, 1, testConfig.getMaxJourneyDuration()));
+                nearPiccGardens, journeyRequest, 2);
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -254,14 +257,14 @@ class LocationJourneyPlannerTest {
         TramServiceDate date = new TramServiceDate(when);
 
         return getJourneySet(new JourneyRequest(date, queryTime, arriveBy, maxChanges,
-                testConfig.getMaxJourneyDuration()), latLong, destination);
+                testConfig.getMaxJourneyDuration()), latLong, destination, maxChanges+1);
     }
 
     private List<Journey> getSortedJourneysForTramThenWalk(TramStations start, LatLong latLong, TramTime queryTime, boolean arriveBy, int maxChanges) {
         TramServiceDate date = new TramServiceDate(when);
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(start, latLong,
-                new JourneyRequest(date, queryTime, arriveBy, maxChanges, testConfig.getMaxJourneyDuration()));
+                new JourneyRequest(date, queryTime, arriveBy, maxChanges, testConfig.getMaxJourneyDuration()), maxChanges+1);
 
         List<Journey> journeyList = new LinkedList<>(journeySet);
         journeyList.sort(Comparator.comparingInt(RouteCalculatorTest::costOfJourney));

@@ -25,36 +25,36 @@ public class LocationJourneyPlannerTestFacade {
         this.txn = txn;
     }
 
-    public Set<Journey> quickestRouteForLocation(LatLong start, Station dest, JourneyRequest request) {
-        return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request));
+    public Set<Journey> quickestRouteForLocation(LatLong start, Station dest, JourneyRequest request, int maxStages) {
+        return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request), maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(Station start, LatLong dest, JourneyRequest request) {
-        return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request));
+    public Set<Journey> quickestRouteForLocation(Station start, LatLong dest, JourneyRequest request, int maxStages) {
+        return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request), maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(PostcodeLocation start, PostcodeLocation dest, JourneyRequest request) {
-        return asSetClosed(planner.quickestRouteForLocation(txn, start.getLatLong(), dest.getLatLong(), request));
+    public Set<Journey> quickestRouteForLocation(PostcodeLocation start, PostcodeLocation dest, JourneyRequest request, int maxStages) {
+        return asSetClosed(planner.quickestRouteForLocation(txn, start.getLatLong(), dest.getLatLong(), request), maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(BusStations start, PostcodeLocation dest, JourneyRequest request) {
-        return quickestRouteForLocation(getReal(start), dest.getLatLong(), request);
+    public Set<Journey> quickestRouteForLocation(BusStations start, PostcodeLocation dest, JourneyRequest request, int maxStages) {
+        return quickestRouteForLocation(getReal(start), dest.getLatLong(), request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(PostcodeLocation start, BusStations dest, JourneyRequest request) {
-        return quickestRouteForLocation(start.getLatLong(), getReal(dest), request);
+    public Set<Journey> quickestRouteForLocation(PostcodeLocation start, BusStations dest, JourneyRequest request, int maxStages) {
+        return quickestRouteForLocation(start.getLatLong(), getReal(dest), request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(LatLong start, TramStations dest, JourneyRequest request) {
-        return quickestRouteForLocation(start, getReal(dest), request);
+    public Set<Journey> quickestRouteForLocation(LatLong start, TramStations dest, JourneyRequest request, int maxStages) {
+        return quickestRouteForLocation(start, getReal(dest), request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(TramStations start, LatLong dest, JourneyRequest request) {
-        return quickestRouteForLocation(getReal(start), dest, request);
+    public Set<Journey> quickestRouteForLocation(TramStations start, LatLong dest, JourneyRequest request, int maxStages) {
+        return quickestRouteForLocation(getReal(start), dest, request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(LatLong start, LatLong dest, JourneyRequest request) {
-        return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request));
+    public Set<Journey> quickestRouteForLocation(LatLong start, LatLong dest, JourneyRequest request, int maxStages) {
+        return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request), maxStages);
     }
 
     private Station getReal(BusStations testStation) {
@@ -66,8 +66,8 @@ public class LocationJourneyPlannerTestFacade {
     }
 
     @NotNull
-    private Set<Journey> asSetClosed(Stream<Journey> theStream) {
-        Set<Journey> result = theStream.collect(Collectors.toSet());
+    private Set<Journey> asSetClosed(Stream<Journey> theStream, int maxStages) {
+        Set<Journey> result = theStream.filter(journey -> journey.getStages().size()<=maxStages).collect(Collectors.toSet());
         theStream.close();
         return result;
     }
