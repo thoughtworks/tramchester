@@ -191,4 +191,12 @@ public class TestEnv {
     public static LatLong stPetersSquareLocation() {
         return new LatLong(53.47825,-2.24314);
     }
+
+    public static LatLong nearWythenshaweHosp() {
+        return new LatLong(53.3874309,-2.2945628);
+    }
+
+    public static String postcodeForWythenshaweHosp() {
+       return "M239LT";
+    }
 }

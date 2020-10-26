@@ -7,6 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class PostcodeDataImporterTest {
@@ -61,13 +63,14 @@ class PostcodeDataImporterTest {
 
         Set<String> postcodes = loadedPostcodes.stream().map(PostcodeData::getId).collect(Collectors.toSet());
 
-        Assertions.assertTrue(postcodes.contains("M44BF")); // central manchester
+        assertTrue(postcodes.contains("M44BF")); // central manchester
+        assertTrue(postcodes.contains(TestEnv.postcodeForWythenshaweHosp()));
         assertFalse(postcodes.contains("EC1A1XH")); // no london, outside area
 
         // outside stations box but within margin and within range of a station
-        Assertions.assertTrue(postcodes.contains("WA142RQ"));
-        Assertions.assertTrue(postcodes.contains("OL161JZ"));
-        Assertions.assertTrue(postcodes.contains("WA144UR"));
+        assertTrue(postcodes.contains("WA142RQ"));
+        assertTrue(postcodes.contains("OL161JZ"));
+        assertTrue(postcodes.contains("WA144UR"));
 
         // Check bounding box formed by stations plus margin
         long margin = Math.round(testConfig.getNearestStopRangeKM() * 1000D);
@@ -76,13 +79,13 @@ class PostcodeDataImporterTest {
         long eastingsMin = loadedPostcodes.stream().map(PostcodeData::getEastings).min(Long::compareTo).get();
 
         BoundingBox bounds = stationLocations.getBounds();
-        Assertions.assertTrue(eastingsMax <= bounds.getMaxEasting()+margin);
-        Assertions.assertTrue(eastingsMin >= bounds.getMinEastings()-margin);
+        assertTrue(eastingsMax <= bounds.getMaxEasting()+margin);
+        assertTrue(eastingsMin >= bounds.getMinEastings()-margin);
 
         long northingsMax = loadedPostcodes.stream().map(PostcodeData::getNorthings).max(Long::compareTo).get();
         long northingsMin = loadedPostcodes.stream().map(PostcodeData::getNorthings).min(Long::compareTo).get();
-        Assertions.assertTrue(northingsMax < bounds.getMaxNorthings()+margin);
-        Assertions.assertTrue(northingsMin > bounds.getMinNorthings()-margin);
+        assertTrue(northingsMax < bounds.getMaxNorthings()+margin);
+        assertTrue(northingsMin > bounds.getMinNorthings()-margin);
 
         loadedPostcodes.clear();
     }
@@ -93,7 +96,7 @@ class PostcodeDataImporterTest {
                 filter(this::outsideStationRange).
                 collect(Collectors.toSet());
         assertFalse(loadedPostcodes.isEmpty());
-        Assertions.assertTrue(postcodesOutsideRangeOfAStation.isEmpty(), postcodesOutsideRangeOfAStation.toString());
+        assertTrue(postcodesOutsideRangeOfAStation.isEmpty(), postcodesOutsideRangeOfAStation.toString());
     }
 
     private boolean outsideStationRange(PostcodeData postcode) {

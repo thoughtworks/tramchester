@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
@@ -105,7 +106,7 @@ public class DeparturesResource implements APIResource  {
                                            @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
 
         IdFor<Station> stationId = IdFor.createId(stationIdText);
-        logger.info(format("Get departs for station %s at %s with notes %s ", stationId, queryTimeRaw, notesParam));
+        logger.info(format("Get departs for station %s at '%s' with notes enabled:'%s'", stationId, queryTimeRaw, notesParam));
         if (!stationRepository.hasStationId(stationId)) {
             logger.warn("Unable to find station " + stationId);
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -128,17 +129,23 @@ public class DeparturesResource implements APIResource  {
         }
         TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
 
-        logger.info("Found station, now find departures");
         Station station = stationRepository.getStationById(stationId);
+        logger.info("Found station " + HasId.asId(station) + " Find departures at " + queryDate + " " +queryTime);
 
         //trams
         List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
+        if (dueTramList.isEmpty()) {
+            logger.warn("Departures list empty for " + HasId.asId(station) + " at " + queryDate + " " +queryTime);
+        }
         SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
 
         //notes
         List<Note> notes = Collections.emptyList();
         if (includeNotes) {
             notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
+            if (notes.isEmpty()) {
+                logger.warn("Notes empty for " + HasId.asId(station) + " at " + queryDate + " " +queryTime);
+            }
         }
 
         return Response.ok(new DepartureListDTO(dueTrams, notes)).build();

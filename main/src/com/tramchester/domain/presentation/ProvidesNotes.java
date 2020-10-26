@@ -10,6 +10,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.LiveDataRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +22,8 @@ import java.util.Optional;
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
 public class ProvidesNotes {
+    private static final Logger logger = LoggerFactory.getLogger(ProvidesNotes.class);
+
     private static final String EMPTY = "<no message>";
     public static final String website = "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
     public static final String weekend = "At the weekend your journey may be affected by improvement works." + website;
@@ -75,33 +79,40 @@ public class ProvidesNotes {
         journey.getCallingPlatformIds().forEach(platform -> addRelevantNote(notes, platform, queryDate,
                 journey.getQueryTime()));
 
-        //return createMessageList(notes);
         return notes;
     }
 
-    private void addRelevantNote(List<Note> messageMap, IdFor<Platform> platformId, TramServiceDate queryDate, TramTime queryTime) {
+    private void addRelevantNote(List<Note> notes, IdFor<Platform> platformId, TramServiceDate queryDate, TramTime queryTime) {
         Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
+            logger.warn("No departure info found for " + platformId + " at " + queryDate +  " " + queryTime);
             return;
         }
         StationDepartureInfo info = maybe.get();
         LocalDateTime lastUpdate = info.getLastUpdate();
         if (!lastUpdate.toLocalDate().isEqual(queryDate.getDate())) {
             // message is not for journey time, perhaps journey is a future date or live data is stale
+            logger.info("No messages available for " + queryDate + " last up date was " + lastUpdate);
             return;
         }
         TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
         // 1 minutes here as time sync on live api has been out by 1 min
         if (!queryTime.between(updateTime.minusMinutes(1), updateTime.plusMinutes(MESSAGE_LIFETIME))) {
+            logger.info("No data available for " + queryTime + " as not between " + updateTime.minusMinutes(1) +
+                    " and " + updateTime.plusMinutes(MESSAGE_LIFETIME));
             return;
         }
-        addRelevantNote(messageMap, info);
+        addRelevantNote(notes, info);
     }
 
     private void addRelevantNote(List<Note> notes, HasPlatformMessage info) {
+
         String message = info.getMessage();
         if (usefulNote(message)) {
+            logger.info("Added message from " + info);
             notes.add(new StationNote(Live, message, info.getStation()));
+        } else {
+            logger.info("Filtered message from " + info);
         }
     }
 

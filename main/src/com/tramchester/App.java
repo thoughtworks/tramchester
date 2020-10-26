@@ -137,7 +137,7 @@ public class App extends Application<AppConfiguration>  {
             metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "number"),
                     (Gauge<Integer>) liveDataRepository::upToDateEntries);
             metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
-                    (Gauge<Integer>) liveDataRepository::entriesWithMessages);
+                    (Gauge<Integer>) liveDataRepository::countEntriesWithMessages);
 
             // refresh live data job
             int initialDelay = 10;

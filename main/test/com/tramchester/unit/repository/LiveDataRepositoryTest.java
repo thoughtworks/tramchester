@@ -128,7 +128,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(1,repository.upToDateEntries());
-        assertEquals(1,repository.entriesWithMessages());
+        assertEquals(1,repository.countEntriesWithMessages());
         assertEquals(1, repository.missingDataCount());
     }
 
@@ -150,7 +150,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(2,repository.upToDateEntries());
-        assertEquals(1,repository.entriesWithMessages());
+        assertEquals(1,repository.countEntriesWithMessages());
 
     }
 
@@ -186,7 +186,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(1, repository.upToDateEntries());
-        assertEquals(1, repository.entriesWithMessages());
+        assertEquals(1, repository.countEntriesWithMessages());
         assertEquals(2, repository.missingDataCount());
 
         List<DueTram> dueTrams = repository.dueTramsFor(altrincham, TramServiceDate.of(current), TramTime.of(current));

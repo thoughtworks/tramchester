@@ -3,6 +3,7 @@ package com.tramchester.unit.geo;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.HasGridPosition;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -38,5 +39,17 @@ class CoordinateTransformsTest {
         double lon = -1.496557148808237;
         Assertions.assertEquals(lat, result.getLat(), 0.00000000001);
         Assertions.assertEquals(lon, result.getLon(), 0.00000000001);
+    }
+
+    @Test
+    void shouldConvertForWythenshaweHops() throws TransformException {
+        long easting = 380598;
+        long northing = 387938;
+
+        LatLong result = CoordinateTransforms.getLatLong(easting, northing);
+
+        LatLong expected = TestEnv.nearWythenshaweHosp();
+        Assertions.assertEquals(expected.getLat(), result.getLat(), 0.01);
+        Assertions.assertEquals(expected.getLon(), result.getLon(), 0.01);
     }
 }

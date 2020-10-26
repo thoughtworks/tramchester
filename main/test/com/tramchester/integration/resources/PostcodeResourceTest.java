@@ -5,6 +5,7 @@ import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationAppExtension;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramWithPostcodesEnabled;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
@@ -34,19 +35,19 @@ class PostcodeResourceTest {
         assertFalse(results.isEmpty());
 
         Optional<PostcodeDTO> found = results.stream().
-                filter(postcodeDTO -> postcodeDTO.getId().equals("M139WL")).findFirst();
+                filter(postcodeDTO -> postcodeDTO.getId().equals(TestEnv.postcodeForWythenshaweHosp())).findFirst();
         assertTrue(found.isPresent());
 
         PostcodeDTO result = found.get();
 
-        assertEquals("M13", result.getArea());
-        assertEquals("M139WL", result.getName());
+        assertEquals("M23", result.getArea());
+        assertEquals(TestEnv.postcodeForWythenshaweHosp(), result.getName());
 
-        double lat = 53.4620378;
-        double lon = -2.2280871;
+
+        LatLong expected = TestEnv.nearWythenshaweHosp();
         LatLong position = result.getLatLong();
-        assertEquals(lat, position.getLat(), 0.001);
-        assertEquals(lon, position.getLon(), 0.001);
+        assertEquals(expected.getLat(), position.getLat(), 0.01);
+        assertEquals(expected.getLon(), position.getLon(), 0.01);
     }
 
     @Test

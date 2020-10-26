@@ -43,8 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JourneyPlannerBusTest {
 
     private static final IntegrationBusTestConfig configuration = new IntegrationBusTestConfig();
-    private static final IntegrationAppExtension appExt = new IntegrationAppExtension(App.class,
-            configuration);
+    private static final IntegrationAppExtension appExt = new IntegrationAppExtension(App.class, configuration);
 
     private LocalDate when;
 

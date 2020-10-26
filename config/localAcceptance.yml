@@ -40,8 +40,8 @@ maxNumberResults: 5
 maxJourneyDuration:  124
 numberQueries: 3
 queryInterval: 12
-nearestStopRangeKM: 2
-nearestStopForWalkingRangeKM: 2
+nearestStopRangeKM: 1.6
+nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer:  5
 numOfNearestStopsForWalking:  3
 walkingMPH: 3
@@ -50,7 +50,7 @@ dataExpiryThreadhold: 3
 maxNumberMissingLiveMessages: 5
 changeAtInterchangeOnly: true
 createNeighbours: false
-distanceToNeighboursKM: 1
+distanceToNeighboursKM: 0.4
 
 swagger:
   resourcePackage: com.tramchester.resources

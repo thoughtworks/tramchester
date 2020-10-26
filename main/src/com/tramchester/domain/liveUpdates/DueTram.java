@@ -1,5 +1,6 @@
 package com.tramchester.domain.liveUpdates;
 
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
@@ -63,7 +64,7 @@ public class DueTram {
     public String toString() {
         return "DueTram{" +
                 "status='" + status + '\'' +
-                ", destination='" + destination + '\'' +
+                ", destination='" + HasId.asId(destination) + '\'' +
                 ", wait=" + wait +
                 ", carriages='" + carriages + '\'' +
                 '}';

@@ -31,7 +31,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnhealthyIfNoData() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.entriesWithMessages()).andReturn(0);
+        EasyMock.expect(repository.countEntriesWithMessages()).andReturn(0);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
 
         replayAll();
@@ -45,7 +45,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldNOTReportUnhealthyIfNoDataLateAtNight() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.entriesWithMessages()).andReturn(0);
+        EasyMock.expect(repository.countEntriesWithMessages()).andReturn(0);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(4,0));
 
         replayAll();
@@ -58,7 +58,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnhealthyIfHaveDataAndOverThreshold() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.entriesWithMessages()).andReturn(34);
+        EasyMock.expect(repository.countEntriesWithMessages()).andReturn(34);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
 
         replayAll();
@@ -71,7 +71,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldNOTReportUnhealthyIfHaveDataAndOverThresholdLateAtNight() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.entriesWithMessages()).andReturn(37);
+        EasyMock.expect(repository.countEntriesWithMessages()).andReturn(37);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(3,0));
 
         replayAll();
@@ -84,7 +84,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportHealthyIfHaveDataAndWithinThreshold() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.entriesWithMessages()).andReturn(38);
+        EasyMock.expect(repository.countEntriesWithMessages()).andReturn(38);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
 
         replayAll();
@@ -97,7 +97,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.entriesWithMessages()).andReturn(40);
+        EasyMock.expect(repository.countEntriesWithMessages()).andReturn(40);
         EasyMock.expect(providesNow.getNow()).andReturn(TramTime.of(11,0));
 
         replayAll();

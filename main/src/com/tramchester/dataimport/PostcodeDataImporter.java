@@ -139,8 +139,6 @@ public class PostcodeDataImporter {
                 filter(postcode -> requiredBounds.within(margin, postcode)).
                 filter(postcode -> stationLocations.hasAnyNearby(postcode, range));
 
-
-
     }
 
     public LocalDateTime getTargetFolderModTime() {

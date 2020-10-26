@@ -34,7 +34,7 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     public Result check() {
         logger.info("Checking live data health");
         int entries = repository.upToDateEntries();
-        int messages = repository.entriesWithMessages();
+        int messages = repository.countEntriesWithMessages();
 
         int offset = entries - messages;
         boolean lateNight = currentTimeProvider.getNow().between(startOfNight, endOfNight);

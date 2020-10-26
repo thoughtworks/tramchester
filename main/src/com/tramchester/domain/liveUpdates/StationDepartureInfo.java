@@ -1,5 +1,6 @@
 package com.tramchester.domain.liveUpdates;
 
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
@@ -122,11 +123,11 @@ public class StationDepartureInfo implements HasPlatformMessage {
         return "StationDepartureInfo{" +
                 "lineName='" + lineName + '\'' +
                 ", stationPlatform='" + stationPlatform + '\'' +
+                ", location='" + HasId.asId(station) + '\'' +
                 ", message='" + message + '\'' +
                 ", dueTrams=" + dueTrams +
                 ", lastUpdate=" + lastUpdate +
                 ", displayId='" + displayId + '\'' +
-                ", location='" + station + '\'' +
                 ", direction=" + direction +
                 '}';
     }

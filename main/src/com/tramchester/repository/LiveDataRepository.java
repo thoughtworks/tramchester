@@ -17,6 +17,7 @@ import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.mappers.LiveDataParser;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -82,7 +84,8 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
         if (currentSize != updatesConsumed) {
             logger.warn(format("Unable to fully refresh (current: %s consumed: %s) live data", currentSize, updatesConsumed));
         } else {
-            logger.info("Refreshed live data, count is: " + departureInfoCache.estimatedSize());
+            logger.info("Refreshed live data, count is: " + departureInfoCache.estimatedSize() +
+                    " Message count: " + countEntriesWithMessages());
         }
         lastRefresh = providesNow.getDateTime();
         invokeObservers();
@@ -161,13 +164,15 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
         }
         Optional<StationDepartureInfo> maybe = departuresFor(platform);
         if (maybe.isEmpty()) {
+            logger.info("No departures found for platform: " + platform);
             return Optional.empty();
         }
         StationDepartureInfo departureInfo = maybe.get();
 
         LocalDateTime infoLastUpdate = departureInfo.getLastUpdate();
         if (!withinTime(queryTime, infoLastUpdate.toLocalTime())) {
-           return Optional.empty();
+            logger.info("last update of departure info (" + infoLastUpdate +") not within query time " + queryTime);
+            return Optional.empty();
         }
         return Optional.of(departureInfo);
     }
@@ -199,8 +204,13 @@ public class LiveDataRepository implements LiveDataSource, ReportsCacheStats, Di
         return (int) departureInfoCache.estimatedSize();
     }
 
-    public int entriesWithMessages() {
-        return (int) departureInfoCache.asMap().values().stream().filter(info -> !info.getMessage().isEmpty()).count();
+    public int countEntriesWithMessages() {
+        return (int) getEntriesWithMessages().count();
+    }
+
+    @NotNull
+    public Stream<StationDepartureInfo> getEntriesWithMessages() {
+        return departureInfoCache.asMap().values().stream().filter(info -> !info.getMessage().isEmpty());
     }
 
     public long missingDataCount() {
