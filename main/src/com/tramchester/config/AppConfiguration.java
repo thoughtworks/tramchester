@@ -132,8 +132,12 @@ public class AppConfiguration extends TramchesterConfig {
     private Double distanceToNeighboursKM;
 
     @NotNull
-    @JsonProperty("maxNumberMissingLiveMessages")
-    private Integer maxNumberMissingLiveMessages;
+    @JsonProperty("maxNumberStationsWithoutMessages")
+    private Integer maxNumberStationsWithoutMessages;
+
+    @NotNull
+    @JsonProperty("maxNumberStationsWithoutData")
+    private Integer maxNumberStationsWithoutData;
 
     @Valid
     @JsonProperty("dataSources")
@@ -267,8 +271,13 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public int getMaxNumberMissingLiveMessages() {
-        return maxNumberMissingLiveMessages;
+    public int getMaxNumberStationsWithoutMessages() {
+        return maxNumberStationsWithoutMessages;
+    }
+
+    @Override
+    public int getMaxNumberStationsWithoutData() {
+        return maxNumberStationsWithoutData;
     }
 
     @Override

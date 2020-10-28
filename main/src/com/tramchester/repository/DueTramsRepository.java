@@ -63,11 +63,11 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
         return consumed;
     }
 
-    private int consumeDepartInfo(List<StationDepartureInfo> receivedUpdate) {
+    private int consumeDepartInfo(List<StationDepartureInfo> departureInfos) {
         IdSet<Platform> platformsSeen = new IdSet<>();
 
-        for (StationDepartureInfo newDepartureInfo : receivedUpdate) {
-            updateCacheFor(newDepartureInfo, platformsSeen);
+        for (StationDepartureInfo departureInfo : departureInfos) {
+            updateCacheFor(departureInfo, platformsSeen);
         }
         return platformsSeen.size();
     }
@@ -166,8 +166,26 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
                 Pair.of("PlatformMessageRepository:messageCache", dueTramsCache.stats()));
     }
 
+    // for healthcheck
     public int upToDateEntries() {
         dueTramsCache.cleanUp();
         return (int) dueTramsCache.estimatedSize();
+    }
+
+    // for healthcheck
+    public int getNumStationsWithData(LocalDateTime queryDateTime) {
+        if (!queryDateTime.toLocalDate().equals(lastRefresh.toLocalDate())) {
+            return 0;
+        }
+
+        TramTime queryTime = TramTime.of(queryDateTime);
+        return dueTramsCache.asMap().values().stream().
+                filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
+                map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
+    }
+
+    // for metrics
+    public Integer getNumStationsWithDataNow() {
+        return getNumStationsWithData(providesNow.getDateTime());
     }
 }

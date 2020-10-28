@@ -1,10 +1,12 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.livedata.LiveDataUpdater;
+import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.repository.DueTramsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -12,35 +14,24 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 class LiveDataHealthCheckTest extends EasyMockSupport {
 
-    private LiveDataUpdater repository;
+    private DueTramsRepository repository;
     private LiveDataHealthCheck healthCheck;
-    private TramTime now;
+    private StationRepository stationRepository;
+    private ProvidesNow providesNow;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        now = TramTime.of(TestEnv.LocalNow());
-        repository = createMock(LiveDataUpdater.class);
-        healthCheck = new LiveDataHealthCheck(repository, new ProvidesNow() {
-            @Override
-            public TramTime getNow() {
-                return now;
-            }
+        repository = createMock(DueTramsRepository.class);
+        stationRepository = createMock(StationRepository.class);
+        providesNow = createMock(ProvidesNow.class);
+        TramchesterConfig config =  new IntegrationTramTestConfig();
 
-            @Override
-            public LocalDate getDate() {
-                return null;
-            }
-
-            @Override
-            public LocalDateTime getDateTime() {
-                return null;
-            }
-        });
+        healthCheck = new LiveDataHealthCheck(repository, providesNow, stationRepository, config);
     }
 
     @Test
@@ -56,10 +47,13 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportHealthyIfHaveDataAndNoStaleEntry() {
+    void shouldReportHealthyWithAllStations() {
+        LocalDateTime now = TestEnv.LocalNow();
+        EasyMock.expect(providesNow.getDateTime()).andReturn(now);
+
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.missingDataCount()).andReturn(0L);
-        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
+        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(87);
+        EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(87);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
@@ -69,29 +63,52 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportUnhealthIfStaleDate() {
+    void shouldReportHealthyWithAllStationsWithinThreshhold() {
+        LocalDateTime now = TestEnv.LocalNow();
+        EasyMock.expect(providesNow.getDateTime()).andReturn(now);
+
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.missingDataCount()).andReturn(2L);
+        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(87);
+        EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(83);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
-        Assertions.assertFalse(result.isHealthy());
-        Assertions.assertEquals("2 of 40 entries are stale", result.getMessage());
+        Assertions.assertTrue(result.isHealthy());
     }
 
     @Test
-    void shouldReportUnhealthIfStaleTime() {
+    void shouldReportUnhealthyIfGoodEntriesButNoEnoughStations() {
+        LocalDateTime now = TestEnv.LocalNow();
+        EasyMock.expect(providesNow.getDateTime()).andReturn(now);
+
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);
-        EasyMock.expect(repository.upToDateEntries()).andReturn(20);
-        EasyMock.expect(repository.missingDataCount()).andReturn(0L);
+        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(111);
+        EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(3);
 
         replayAll();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
         Assertions.assertFalse(result.isHealthy());
-        Assertions.assertEquals("20 of 40 entries are expired at "+now.toString(), result.getMessage());
+        Assertions.assertEquals("Only 3 of 111 stations have data, 40 entries present", result.getMessage());
     }
+
+    @Test
+    void shouldNOTReportUnhealthyIfGoodEntriesButNoEnoughStationsLateNight() {
+        LocalDateTime now = LocalDateTime.of(TestEnv.testDay(), LocalTime.of(4,0));
+        EasyMock.expect(providesNow.getDateTime()).andReturn(now);
+
+        EasyMock.expect(repository.upToDateEntries()).andReturn(40);
+        EasyMock.expect(stationRepository.getNumberOfStations()).andReturn(111);
+        EasyMock.expect(repository.getNumStationsWithData(now)).andReturn(40);
+
+        replayAll();
+        HealthCheck.Result result = healthCheck.check();
+        verifyAll();
+
+        Assertions.assertTrue(result.isHealthy());
+    }
+
 }

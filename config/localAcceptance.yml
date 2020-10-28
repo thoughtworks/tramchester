@@ -47,7 +47,8 @@ numOfNearestStopsForWalking:  3
 walkingMPH: 3
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
-maxNumberMissingLiveMessages: 5
+maxNumberStationsWithoutMessages: 10
+maxNumberStationsWithoutData: 5
 changeAtInterchangeOnly: true
 createNeighbours: false
 distanceToNeighboursKM: 0.4

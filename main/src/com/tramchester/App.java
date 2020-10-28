@@ -8,6 +8,8 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.LiveDataUpdater;
+import com.tramchester.repository.DueTramsRepository;
+import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -130,30 +132,7 @@ public class App extends Application<AppConfiguration>  {
 
         // only enable live data if tram's enabled
         if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
-            // initial load of live data
-            LiveDataUpdater dueTramRepo = dependencies.get(LiveDataUpdater.class);
-            dueTramRepo.refreshRespository();
-            // custom metrics for live data and messages
-            metricRegistry.register(MetricRegistry.name(LiveDataUpdater.class, "liveData", "number"),
-                    (Gauge<Integer>) dueTramRepo::upToDateEntries);
-            metricRegistry.register(MetricRegistry.name(LiveDataUpdater.class, "liveData", "messages"),
-                    (Gauge<Integer>) dueTramRepo::countEntriesWithMessages);
-
-            // refresh live data job
-            int initialDelay = 10;
-            ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
-                try {
-                    dueTramRepo.refreshRespository();
-                } catch (Exception exeception) {
-                    logger.error("Unable to refresh live data", exeception);
-                }
-            }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
-
-            // archive live data in S3
-            UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
-            dueTramRepo.observeUpdates(observer);
-
-            environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
+            initLiveDataMetricAndHealthcheck(configuration, environment, executor, metricRegistry);
         }
 
         CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
@@ -180,6 +159,41 @@ public class App extends Application<AppConfiguration>  {
         signaller.send();
 
         logger.warn("Now running");
+    }
+
+    private void initLiveDataMetricAndHealthcheck(AppConfiguration configuration, Environment environment, ScheduledExecutorService executor, MetricRegistry metricRegistry) {
+        // initial load of live data
+        LiveDataUpdater updatesData = dependencies.get(LiveDataUpdater.class);
+        updatesData.refreshRespository();
+
+        // refresh live data job
+        int initialDelay = 10;
+        ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
+            try {
+                updatesData.refreshRespository();
+            } catch (Exception exeception) {
+                logger.error("Unable to refresh live data", exeception);
+            }
+        }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
+        environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
+
+        // archive live data in S3
+        UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
+        updatesData.observeUpdates(observer);
+
+        // custom metrics for live data and messages
+        DueTramsRepository dueTramsRepository = dependencies.get(DueTramsRepository.class);
+        metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "number"),
+                (Gauge<Integer>) dueTramsRepository::upToDateEntries);
+        metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithData"),
+                (Gauge<Integer>) dueTramsRepository::getNumStationsWithDataNow);
+
+        PlatformMessageRepository messageRepository = dependencies.get(PlatformMessageRepository.class);
+        metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "messages"),
+                (Gauge<Integer>) messageRepository::numberOfEntries);
+        metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "stationsWithMessages"),
+                (Gauge<Integer>) messageRepository::numberStationsWithMessagesNow);
+
     }
 
     private void filtersForStaticContent(Environment environment) {

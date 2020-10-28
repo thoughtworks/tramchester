@@ -57,6 +57,8 @@ class ConfigMismatchTest {
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM());
         assertEquals(expected.getLoadPostcodes(), testConfig.getLoadPostcodes());
         assertEquals(expected.getTransportModes(), testConfig.getTransportModes());
+        assertEquals(expected.getMaxNumberStationsWithoutMessages(), testConfig.getMaxNumberStationsWithoutMessages());
+        assertEquals(expected.getMaxNumberStationsWithoutData(), testConfig.getMaxNumberStationsWithoutData());
     }
 
     private AppConfiguration loadConfigFromFile(String configFilename) throws IOException, ConfigurationException {

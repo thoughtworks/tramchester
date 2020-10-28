@@ -72,6 +72,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(2, repository.upToDateEntries());
+        assertEquals(2, repository.getNumStationsWithData(lastUpdate));
 
         TramTime queryTime = TramTime.of(lastUpdate);
         List<DueTram> results = repository.dueTramsFor(station, lastUpdate.toLocalDate(), queryTime);
@@ -104,6 +105,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(1, repository.upToDateEntries());
+        assertEquals(1, repository.getNumStationsWithData(lastUpdate));
 
         TramTime queryTime = TramTime.of(lastUpdate);
 
@@ -135,6 +137,9 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         assertEquals(1, dueTramsNow.size());
         assertEquals(1, dueTramsEarlier.size());
         assertEquals(1, dueTramsLater.size());
+
+        assertEquals(1, repository.getNumStationsWithData(lastUpdate.minusMinutes(5)));
+        assertEquals(1, repository.getNumStationsWithData(lastUpdate.plusMinutes(5)));
     }
 
     @Test
@@ -153,11 +158,15 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         List<DueTram> dueTramsNow = repository.dueTramsFor(station, queryDate, TramTime.of(lastUpdate));
         List<DueTram> dueTramsEarlier = repository.dueTramsFor(station, queryDate, TramTime.of(lastUpdate.minusMinutes(21)));
         List<DueTram> dueTramsLater = repository.dueTramsFor(station, queryDate, TramTime.of(lastUpdate.plusMinutes(21)));
+
         verifyAll();
 
         assertEquals(1, dueTramsNow.size());
         assertEquals(0, dueTramsEarlier.size());
         assertEquals(0, dueTramsLater.size());
+
+        assertEquals(0, repository.getNumStationsWithData(lastUpdate.minusMinutes(21)));
+        assertEquals(0, repository.getNumStationsWithData(lastUpdate.plusMinutes(21)));
     }
 
 

@@ -93,6 +93,11 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @Override
+    public int getNumberOfStations() {
+        return stationsById.size();
+    }
+
+    @Override
     public Set<RouteStation> getRouteStations() {
         return routeStations.getValues();
     }

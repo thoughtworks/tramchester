@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PlatformMessageRepository implements PlatformMessageSource, Disposable, ReportsCacheStats {
@@ -41,7 +42,6 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
 
     public PlatformMessageRepository(ProvidesNow providesNow) {
         this.providesNow = providesNow;
-
         messageCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
     }
@@ -57,7 +57,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
         consumeDepartInfo(departureInfos);
         messageCache.cleanUp();
         lastRefresh = providesNow.getDate();
-        int entries = countEntriesWithMessages();
+        int entries = numberOfEntries();
         logger.info("Cache now has " + entries + " entries");
         return entries;
     }
@@ -73,7 +73,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
         }
 
         if (emptyMessages>0) {
-            logger.warn("Received "+emptyMessages+" empty messages");
+            logger.info("Received "+emptyMessages+" empty messages");
         }
     }
 
@@ -148,7 +148,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
         return queryTime.between(limitBefore, limitAfter);
     }
 
-    public int countEntriesWithMessages() {
+    public int numberOfEntries() {
         messageCache.cleanUp();
         return (int) messageCache.estimatedSize();
     }
@@ -174,4 +174,20 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
                 Pair.of("PlatformMessageRepository:messageCache", messageCache.stats()));
     }
 
+    // for healthcheck
+    public int numberStationsWithMessages(LocalDateTime queryDateTime) {
+        if (!queryDateTime.toLocalDate().equals(lastRefresh)) {
+            return 0;
+        }
+
+        TramTime queryTime = TramTime.of(queryDateTime);
+        return messageCache.asMap().values().stream().
+                filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
+                map(PlatformMessage::getStation).collect(Collectors.toSet()).size();
+    }
+
+    // for metrics
+    public Integer numberStationsWithMessagesNow() {
+        return numberStationsWithMessages(providesNow.getDateTime());
+    }
 }

@@ -7,7 +7,6 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.search.states.TramStationState;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
@@ -66,7 +65,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         repository.updateCache(infos);
         verifyAll();
 
-        assertEquals(2, repository.countEntriesWithMessages());
+        assertEquals(2, repository.numberOfEntries());
 
         Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), updateTime);
         assertTrue(platformMessage.isPresent());
@@ -105,7 +104,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         repository.updateCache(infos);
         verifyAll();
 
-        assertEquals(0, repository.countEntriesWithMessages());
+        assertEquals(0, repository.numberOfEntries());
     }
 
     @Test
@@ -123,7 +122,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         repository.updateCache(infos);
         verifyAll();
 
-        assertEquals(0, repository.countEntriesWithMessages());
+        assertEquals(0, repository.numberOfEntries());
     }
 
     @Test
@@ -195,7 +194,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         repository.updateCache(infos);
         verifyAll();
 
-        assertEquals(1, repository.countEntriesWithMessages());
+        assertEquals(1, repository.numberOfEntries());
 
         Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), updateTime);
         assertTrue(platformMessage.isPresent());
@@ -222,7 +221,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         repository.updateCache(infos);
         verifyAll();
 
-        assertEquals(1, repository.countEntriesWithMessages());
+        assertEquals(1, repository.numberOfEntries());
 
         Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), updateTime);
         assertTrue(platformMessage.isPresent());

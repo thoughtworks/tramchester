@@ -1,7 +1,5 @@
 package com.tramchester.livedata;
 
-import com.tramchester.domain.IdSet;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -9,6 +7,7 @@ import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.LiveDataObserver;
 import com.tramchester.repository.PlatformMessageRepository;
+import org.jetbrains.annotations.NotNull;
 import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ public class LiveDataUpdater implements Disposable {
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
 
-    private final IdSet<Platform> uniquePlatformsSeen;
     private final List<LiveDataObserver> observers;
     private final PlatformMessageRepository platformMessageRepository;
     private final DueTramsRepository dueTramsRepository;
@@ -43,51 +41,54 @@ public class LiveDataUpdater implements Disposable {
         this.parser = parser;
         this.providesNow = providesNow;
 
-        uniquePlatformsSeen = new IdSet<>();
         observers = new LinkedList<>();
     }
 
     @Override
     public void dispose() {
-        uniquePlatformsSeen.clear();
         observers.clear();
     }
 
     public void refreshRespository()  {
-
         logger.info("Refresh repository");
         String payload  = fetcher.fetch();
         List<StationDepartureInfo> receivedInfos = Collections.emptyList();
         if (payload.length()>0) {
             receivedInfos = parser.parse(payload);
         }
-
         int received = receivedInfos.size();
         logger.info(format("Received %s updates", received));
 
+        List<StationDepartureInfo> fresh = filterForFreshness(receivedInfos);
+        logger.info(fresh.size() + " of " + received + " are fresh");
+
+        dueTramsRepository.updateCache(fresh);
+        platformMessageRepository.updateCache(fresh);
+        invokeObservers(fresh);
+
+        fresh.clear();
+        receivedInfos.clear();
+    }
+
+    @NotNull
+    public List<StationDepartureInfo> filterForFreshness(List<StationDepartureInfo> receivedInfos) {
         TramTime now = providesNow.getNow();
         LocalDate date = providesNow.getDate();
         int stale = 0;
 
         List<StationDepartureInfo> fresh = new ArrayList<>();
         for (StationDepartureInfo departureInfo : receivedInfos) {
-            uniquePlatformsSeen.add(departureInfo.getStationPlatform());
             if (isTimely(departureInfo, date, now)) {
                 fresh.add(departureInfo);
             } else {
                 stale = stale + 1;
-                logger.warn("Received stale departure info " + departureInfo);
+                logger.info("Received stale departure info " + departureInfo);
             }
         }
-
-        dueTramsRepository.updateCache(fresh);
-        platformMessageRepository.updateCache(fresh);
-
-        invokeObservers(fresh);
-
-        fresh.clear();
-        receivedInfos.clear();
-
+        if (stale >0) {
+            logger.warn("Received " + stale + " messages");
+        }
+        return fresh;
     }
 
     private boolean isTimely(StationDepartureInfo newDepartureInfo, LocalDate date, TramTime now) {
@@ -111,24 +112,6 @@ public class LiveDataUpdater implements Disposable {
         catch (RuntimeException runtimeException) {
             logger.error("Error invoking observer", runtimeException);
         }
-    }
-
-    public int upToDateEntries() {
-        return dueTramsRepository.upToDateEntries();
-    }
-
-    public int countEntriesWithMessages() {
-        return platformMessageRepository.countEntriesWithMessages();
-    }
-
-    public long missingDataCount() {
-        long upToDateEntries = upToDateEntries();
-        long totalSeen = uniquePlatformsSeen.size();
-
-        if (upToDateEntries < totalSeen) {
-            logger.error(format("%s out of %s records are within of cuttoff time %s minutes", upToDateEntries, totalSeen, TIME_LIMIT));
-        }
-        return totalSeen-upToDateEntries;
     }
 
     public void observeUpdates(LiveDataObserver observer) {

@@ -12,6 +12,7 @@ import java.util.Set;
 public interface StationRepository {
     Set<Station> getStations();
     Set<Station> getStationsForMode(TransportMode mode);
+    int getNumberOfStations();
 
     Station getStationById(IdFor<Station> stationId);
     boolean hasStationId(IdFor<Station> stationId);

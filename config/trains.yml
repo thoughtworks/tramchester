@@ -55,8 +55,8 @@ numOfNearestStopsForWalking: 5
 walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
-maxNumberMissingLiveMessages: 10
-
+maxNumberStationsWithoutMessages: 10
+maxNumberStationsWithoutData: 5
 changeAtInterchangeOnly: true
 
 swagger:

@@ -1,52 +1,61 @@
 package com.tramchester.healthchecks;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.LiveDataUpdater;
+import com.tramchester.repository.DueTramsRepository;
+import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
 public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHealthCheck.class);
 
-    private final LiveDataUpdater repository;
+    private final DueTramsRepository repository;
     private final ProvidesNow providesNow;
-    private static final String noEntriesPresent = "no entries present";
+    private final StationRepository stationRepository;
+    private final TramchesterConfig config;
 
-    public LiveDataHealthCheck(LiveDataUpdater repository, ProvidesNow providesNow) {
+
+    public LiveDataHealthCheck(DueTramsRepository repository, ProvidesNow providesNow, StationRepository stationRepository, TramchesterConfig config) {
         this.repository = repository;
         this.providesNow = providesNow;
+        this.stationRepository = stationRepository;
+        this.config = config;
     }
 
     @Override
     public Result check() {
         logger.info("Checking live data health");
-        int total = repository.upToDateEntries();
+        int entries = repository.upToDateEntries();
 
-        if (total==0) {
+        String noEntriesPresent = "no entries present";
+
+        if (entries==0) {
             logger.error(noEntriesPresent);
             return Result.unhealthy(noEntriesPresent);
         }
 
-        long stale = repository.missingDataCount();
-        if (stale!=0L) {
-            String message = format("%s of %s entries are stale", stale, total);
-            logger.error(message);
-            return Result.unhealthy(message);
+        int numberOfStations = stationRepository.getNumberOfStations();
+        LocalDateTime dateTime = providesNow.getDateTime();
+        int stationsWithData = repository.getNumStationsWithData(dateTime);
+        int offset = numberOfStations-stationsWithData;
+
+        if (offset > config.getMaxNumberStationsWithoutData()) {
+            if (!isLateNight(dateTime)) {
+                String msg = format("Only %s of %s stations have data, %s entries present", stationsWithData,
+                        numberOfStations, entries);
+
+                logger.warn(msg);
+                return Result.unhealthy(msg);
+            }
         }
 
-        TramTime queryTime = providesNow.getNow();
-
-        long notExpired = repository.upToDateEntries();
-        if (notExpired!=total) {
-            String message = format("%s of %s entries are expired at %s", total-notExpired, total, queryTime);
-            logger.error(message);
-            return Result.unhealthy(message);
-        }
-
-        String msg = format("Live data healthy with %s entires", total);
+        String msg = format("Live data healthy with %s entires and %s of %s stations", entries, stationsWithData,
+                numberOfStations);
         logger.info(msg);
         return Result.healthy(msg);
     }

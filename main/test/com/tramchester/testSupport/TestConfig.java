@@ -123,7 +123,12 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public int getMaxNumberMissingLiveMessages() {
+    public int getMaxNumberStationsWithoutMessages() {
+        return 10;
+    }
+
+    @Override
+    public int getMaxNumberStationsWithoutData() {
         return 5;
     }
 

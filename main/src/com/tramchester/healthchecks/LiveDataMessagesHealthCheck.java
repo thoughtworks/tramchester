@@ -2,52 +2,62 @@ package com.tramchester.healthchecks;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.LiveDataUpdater;
+import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
 public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataMessagesHealthCheck.class);
 
-    private final LiveDataUpdater repository;
+    private final PlatformMessageRepository repository;
     private final ProvidesNow currentTimeProvider;
     private final TramchesterConfig config;
+    private final StationRepository stationRepository;
 
-    private final TramTime startOfNight = TramTime.of(2,0);
-    private final TramTime endOfNight = TramTime.of(6, 10);
-
-    public LiveDataMessagesHealthCheck(TramchesterConfig config, LiveDataUpdater repository, ProvidesNow currentTimeProvider) {
+    public LiveDataMessagesHealthCheck(TramchesterConfig config, PlatformMessageRepository repository,
+                                       ProvidesNow currentTimeProvider, StationRepository stationRepository) {
         this.config = config;
         this.repository = repository;
         this.currentTimeProvider = currentTimeProvider;
+        this.stationRepository = stationRepository;
     }
 
     // normally only between 2 and 4 missing
-    //private static final int MISSING_MSGS_LIMIT = 4;
-
+    // private static final int MISSING_MSGS_LIMIT = 4;
     // during night hours gradually goes to zero than back to full about 6.05am
 
     @Override
     public Result check() {
         logger.info("Checking live data health");
-        int entries = repository.upToDateEntries();
-        int messages = repository.countEntriesWithMessages();
+        int entries = repository.numberOfEntries();
 
-        int offset = entries - messages;
-        boolean lateNight = currentTimeProvider.getNow().between(startOfNight, endOfNight);
+        if (entries==0) {
+            String msg = "No entires present";
+            logger.warn(msg);
+            return Result.unhealthy(msg);
+        }
 
-        if (offset>config.getMaxNumberMissingLiveMessages()) {
+        int numberStations = stationRepository.getNumberOfStations();
+        LocalDateTime dateTime = currentTimeProvider.getDateTime();
+        int stationsWithMessages = repository.numberStationsWithMessages(dateTime);
+
+        int offset = numberStations - stationsWithMessages;
+        boolean lateNight = isLateNight(dateTime);
+
+        if (offset > config.getMaxNumberStationsWithoutMessages()) {
             if (!lateNight) {
-                String message = format("Not enough messages present, %s out of %s entries", messages, entries);
+                String message = format("Not enough messages present, %s out of %s stations", stationsWithMessages, entries);
                 logger.warn(message);
                 return Result.unhealthy(message);
             }
         }
 
-        String msg = format("Live data messages healthy with %s entries", messages);
+        String msg = format("Live data messages healthy with %s entries for %s stations ", entries, stationsWithMessages);
         logger.info(msg);
         return Result.healthy(msg);
     }

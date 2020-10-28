@@ -4,7 +4,7 @@ import com.tramchester.cloud.ClientForS3;
 import com.tramchester.cloud.UploadsLiveData;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.testSupport.TramStations;
-import com.tramchester.unit.repository.LiveDataRepositoryTest;
+import com.tramchester.unit.repository.LiveDataUpdaterTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -32,8 +32,8 @@ class UploadsLiveDataTest extends EasyMockSupport {
         s3facade = createStrictMock(ClientForS3.class);
         uploadsLiveData = new UploadsLiveData(s3facade);
         liveData = new LinkedList<>();
-        LiveDataRepositoryTest.addStationInfoWithDueTram(liveData, lastUpdateTime, "displayId", "platforId",
-                "messageTxt", TramStations.of(TramStations.NavigationRoad));
+        liveData.add(LiveDataUpdaterTest.createDepartureInfoWithDueTram(lastUpdateTime, "displayId",
+                "platforId", "messageTxt", TramStations.of(TramStations.NavigationRoad)));
     }
 
     @Test
