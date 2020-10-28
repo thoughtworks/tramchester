@@ -6,6 +6,7 @@ import com.tramchester.cloud.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
@@ -129,7 +130,9 @@ public class Dependencies {
         picoContainer.addComponent(RouteResource.class);
         picoContainer.addComponent(LiveDataHTTPFetcher.class);
         picoContainer.addComponent(LiveDataParser.class);
-        picoContainer.addComponent(LiveDataRepository.class);
+        picoContainer.addComponent(PlatformMessageRepository.class);
+        picoContainer.addComponent(DueTramsRepository.class);
+        picoContainer.addComponent(LiveDataUpdater.class);
         picoContainer.addComponent(ClientForS3.class);
         picoContainer.addComponent(UploadsLiveData.class);
         picoContainer.addComponent(MyLocationFactory.class);

@@ -5,11 +5,11 @@ import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.PlatformMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +30,10 @@ public class ProvidesNotes {
     public static final String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
     private static final int MESSAGE_LIFETIME = 5;
 
-    private final LiveDataRepository liveDataRepository;
+    private final PlatformMessageSource platformMessageSource;
 
-    public ProvidesNotes(LiveDataRepository liveDataRepository) {
-        this.liveDataRepository = liveDataRepository;
+    public ProvidesNotes(PlatformMessageSource platformMessageSource) {
+        this.platformMessageSource = platformMessageSource;
     }
 
     public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
@@ -53,7 +53,7 @@ public class ProvidesNotes {
     private List<Note> createLiveNotesForStations(List<Station> stations, TramServiceDate date, TramTime time) {
         List<Note> notes = new ArrayList<>();
 
-        stations.forEach(station -> liveDataRepository.departuresFor(station, date, time).forEach(info ->
+        stations.forEach(station -> platformMessageSource.messagesFor(station, date, time).forEach(info ->
                 addRelevantNote(notes, info)));
 
         return notes;
@@ -83,12 +83,12 @@ public class ProvidesNotes {
     }
 
     private void addRelevantNote(List<Note> notes, IdFor<Platform> platformId, TramServiceDate queryDate, TramTime queryTime) {
-        Optional<StationDepartureInfo> maybe = liveDataRepository.departuresFor(platformId, queryDate, queryTime);
+        Optional<PlatformMessage> maybe = platformMessageSource.messagesFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
             logger.warn("No departure info found for " + platformId + " at " + queryDate +  " " + queryTime);
             return;
         }
-        StationDepartureInfo info = maybe.get();
+        PlatformMessage info = maybe.get();
         LocalDateTime lastUpdate = info.getLastUpdate();
         if (!lastUpdate.toLocalDate().isEqual(queryDate.getDate())) {
             // message is not for journey time, perhaps journey is a future date or live data is stale

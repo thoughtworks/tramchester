@@ -3,18 +3,19 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.DepartureListDTO;
-import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.IntegrationAppExtension;
 import com.tramchester.integration.IntegrationClient;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.LiveDataMessagesCategory;
+import com.tramchester.testSupport.LiveDataTestCategory;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -34,12 +35,11 @@ class DeparturesResourceTest {
             TramStations.ExchangeSquare.getName(),
             "Shudehill");
 
-    private final TramStations stationWithNotes = TramStations.Wharfside;
+    private final TramStations stationWithNotes = TramStations.ShawAndCrompton;
 
     @Test
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
-        //TramStations station = TramStations.Bury;
 
         Response response = IntegrationClient.getApiResponse(
                 appExtension, String.format("departures/station/%s", stationWithNotes.forDTO()));

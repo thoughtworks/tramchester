@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
@@ -11,7 +11,7 @@ import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.PlatformMessageSource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMock;
@@ -37,13 +37,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 class ProvidesNotesTest extends EasyMockSupport {
     private ProvidesNotes provider;
-    private LiveDataRepository liveDataRepository;
+    private PlatformMessageSource messageSource;
     private LocalDateTime lastUpdate;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        liveDataRepository = createStrictMock(LiveDataRepository.class);
-        provider = new ProvidesNotes(liveDataRepository);
+        messageSource = createStrictMock(PlatformMessageSource.class);
+        provider = new ProvidesNotes(messageSource);
         lastUpdate = TestEnv.LocalNow();
     }
 
@@ -119,8 +119,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         }
         TramServiceDate serviceDate = new TramServiceDate(date);
 
-        StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "<no message>");
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
+        PlatformMessage info = createPlatformMessage(lastUpdate, of(Pomona), "<no message>");
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
                 andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -143,8 +143,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
-        StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "a message");
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
+        PlatformMessage info = createPlatformMessage(lastUpdate, of(Pomona), "a message");
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
                 andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -170,9 +170,9 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
-        StationDepartureInfo info = createDepartureInfo(lastUpdate, of(Pomona), "a message");
+        PlatformMessage info = createPlatformMessage(lastUpdate, of(Pomona), "a message");
 
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), queryDate, queryTime))
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), queryDate, queryTime))
                 .andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -203,15 +203,15 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
-        StationDepartureInfo infoA = createDepartureInfo(lastUpdate, TramStations.of(Pomona), "Some long message");
-        StationDepartureInfo infoB = createDepartureInfo(lastUpdate, TramStations.of(Altrincham), "Some Location Long message");
-        StationDepartureInfo infoC = createDepartureInfo(lastUpdate, TramStations.of(Cornbrook), "Some long message");
-        StationDepartureInfo infoE = createDepartureInfo(lastUpdate, TramStations.of(MediaCityUK), "Some long message");
+        PlatformMessage infoA = createPlatformMessage(lastUpdate, TramStations.of(Pomona), "Some long message");
+        PlatformMessage infoB = createPlatformMessage(lastUpdate, TramStations.of(Altrincham), "Some Location Long message");
+        PlatformMessage infoC = createPlatformMessage(lastUpdate, TramStations.of(Cornbrook), "Some long message");
+        PlatformMessage infoE = createPlatformMessage(lastUpdate, TramStations.of(MediaCityUK), "Some long message");
 
-        EasyMock.expect(liveDataRepository.departuresFor(stageE.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoE));
-        EasyMock.expect(liveDataRepository.departuresFor(stageB.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoB));
-        EasyMock.expect(liveDataRepository.departuresFor(stageC.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoC));
-        EasyMock.expect(liveDataRepository.departuresFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoA));
+        EasyMock.expect(messageSource.messagesFor(stageE.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoE));
+        EasyMock.expect(messageSource.messagesFor(stageB.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoB));
+        EasyMock.expect(messageSource.messagesFor(stageC.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoC));
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoA));
 
         List<TransportStage<?,?>> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
@@ -246,12 +246,12 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016, 10, 25));
         TramTime queryTime = TramTime.of(lastUpdate);
-        EasyMock.expect(liveDataRepository.departuresFor(of(Pomona), queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, of(Pomona), "second message")));
-        EasyMock.expect(liveDataRepository.departuresFor(of(VeloPark), queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, of(VeloPark), "first message")));
-        EasyMock.expect(liveDataRepository.departuresFor(of(Cornbrook), queryDate, queryTime)).
-                andReturn(Collections.singletonList(createDepartureInfo(lastUpdate, of(Cornbrook), "second message")));
+        EasyMock.expect(messageSource.messagesFor(of(Pomona), queryDate, queryTime)).
+                andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, of(Pomona), "second message")));
+        EasyMock.expect(messageSource.messagesFor(of(VeloPark), queryDate, queryTime)).
+                andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, of(VeloPark), "first message")));
+        EasyMock.expect(messageSource.messagesFor(of(Cornbrook), queryDate, queryTime)).
+                andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, of(Cornbrook), "second message")));
 
         replayAll();
 
@@ -264,9 +264,10 @@ class ProvidesNotesTest extends EasyMockSupport {
         assertThat(notes.toString(), notes.contains(new StationNote(Live,"second message", of(Pomona))));
     }
 
-    private StationDepartureInfo createDepartureInfo(LocalDateTime time, Station station, String message) {
-        return new StationDepartureInfo("displayId", "lineName", StationDepartureInfo.Direction.Incoming,
-                "platform", station, message, time);
+    private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, Station station, String message) {
+        Platform platform = new Platform(station.forDTO() + "1", station.getName() + " platform 1");
+        station.addPlatform(platform);
+        return new PlatformMessage(platform.getId(), message, lastUpdate, station);
     }
 
     private VehicleStage createStageWithBoardingPlatform(String platformId) {

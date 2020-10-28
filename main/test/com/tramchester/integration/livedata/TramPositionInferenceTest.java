@@ -9,9 +9,7 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
-import com.tramchester.repository.LiveDataRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TramStationAdjacenyRepository;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TramStations;
@@ -45,11 +43,13 @@ class TramPositionInferenceTest {
     void onceBeforeEachTestRuns() {
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
 
-        LiveDataRepository liveDataSource = dependencies.get(LiveDataRepository.class);
+        LiveDataUpdater liveDataSource = dependencies.get(LiveDataUpdater.class);
         liveDataSource.refreshRespository();
         RouteReachable routeReachable = dependencies.get(RouteReachable.class);
         TramStationAdjacenyRepository adjacenyMatrix = dependencies.get(TramStationAdjacenyRepository.class);
-        positionInference = new TramPositionInference(liveDataSource, adjacenyMatrix, routeReachable);
+        DueTramsSource dueTramsRepo = dependencies.get(DueTramsRepository.class);
+
+        positionInference = new TramPositionInference(dueTramsRepo, adjacenyMatrix, routeReachable);
         stationRepository = dependencies.get(StationRepository.class);
         date = TramServiceDate.of(providesLocalNow.getDate());
         time = providesLocalNow.getNow();

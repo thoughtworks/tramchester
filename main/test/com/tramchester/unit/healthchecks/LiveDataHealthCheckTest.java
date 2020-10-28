@@ -4,7 +4,7 @@ import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataUpdater;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -17,14 +17,14 @@ import java.time.LocalDateTime;
 
 class LiveDataHealthCheckTest extends EasyMockSupport {
 
-    private LiveDataRepository repository;
+    private LiveDataUpdater repository;
     private LiveDataHealthCheck healthCheck;
     private TramTime now;
 
     @BeforeEach
     void beforeEachTestRuns() {
         now = TramTime.of(TestEnv.LocalNow());
-        repository = createMock(LiveDataRepository.class);
+        repository = createMock(LiveDataUpdater.class);
         healthCheck = new LiveDataHealthCheck(repository, new ProvidesNow() {
             @Override
             public TramTime getNow() {

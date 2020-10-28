@@ -17,7 +17,7 @@ import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.DeparturesMapper;
-import com.tramchester.repository.LiveDataSource;
+import com.tramchester.repository.DueTramsSource;
 import com.tramchester.repository.StationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -40,17 +40,17 @@ public class DeparturesResource implements APIResource  {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final StationLocations stationLocations;
-    private final LiveDataSource liveDataSource;
+    private final DueTramsSource dueTramsSource;
     private final DeparturesMapper departuresMapper;
     private final ProvidesNotes providesNotes;
     private final StationRepository stationRepository;
     private final ProvidesNow providesNow;
     private final TramchesterConfig config;
 
-    public DeparturesResource(StationLocations stationLocations, LiveDataSource liveDataSource,
+    public DeparturesResource(StationLocations stationLocations, DueTramsSource dueTramsSource,
                               DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository, ProvidesNow providesNow, TramchesterConfig config) {
         this.stationLocations = stationLocations;
-        this.liveDataSource = liveDataSource;
+        this.dueTramsSource = dueTramsSource;
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
@@ -84,7 +84,7 @@ public class DeparturesResource implements APIResource  {
         // trams
         SortedSet<DepartureDTO> departs = new TreeSet<>();
         nearbyStations.forEach(station -> {
-            List<DueTram> dueTrams = liveDataSource.dueTramsFor(station, queryDate, queryTime);
+            List<DueTram> dueTrams = dueTramsSource.dueTramsFor(station, queryDate, queryTime);
             departs.addAll(departuresMapper.mapToDTO(station, dueTrams));
         });
 
@@ -133,7 +133,7 @@ public class DeparturesResource implements APIResource  {
         logger.info("Found station " + HasId.asId(station) + " Find departures at " + queryDate + " " +queryTime);
 
         //trams
-        List<DueTram> dueTramList = liveDataSource.dueTramsFor(station, queryDate, queryTime);
+        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, queryDate, queryTime);
         if (dueTramList.isEmpty()) {
             logger.warn("Departures list empty for " + HasId.asId(station) + " at " + queryDate + " " +queryTime);
         }

@@ -2,12 +2,12 @@ package com.tramchester.livedata;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
-import com.tramchester.repository.LiveDataSource;
+import com.tramchester.repository.DueTramsSource;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -23,11 +23,11 @@ public class TramPositionInference {
 
     private static final String DEPARTING = "Departing";
 
-    private final LiveDataSource liveDataSource;
+    private final DueTramsSource liveDataSource;
     private final TramStationAdjacenyRepository adjacenyRepository;
     private final RouteReachable routeReachable;
 
-    public TramPositionInference(LiveDataSource liveDataSource, TramStationAdjacenyRepository adjacenyRepository, RouteReachable routeReachable) {
+    public TramPositionInference(DueTramsSource liveDataSource, TramStationAdjacenyRepository adjacenyRepository, RouteReachable routeReachable) {
         this.liveDataSource = liveDataSource;
         this.adjacenyRepository = adjacenyRepository;
         this.routeReachable = routeReachable;
@@ -68,17 +68,17 @@ public class TramPositionInference {
         List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(start, neighbour);
 
         // get departure info at neighbouring station for relevant routes
-        Set<StationDepartureInfo> departureInfos = new HashSet<>();
+        Set<PlatformDueTrams> platformDueTrams = new HashSet<>();
         routesBetween.forEach(route -> {
             List<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform -> liveDataSource.departuresFor(platform.getId(), date, time).ifPresent(departureInfos::add));
+            platforms.forEach(platform -> liveDataSource.dueTramsFor(platform.getId(), date, time).ifPresent(platformDueTrams::add));
         });
 
-        if (departureInfos.isEmpty()) {
+        if (platformDueTrams.isEmpty()) {
             logger.warn("Unable to find departure information for " + neighbour.getPlatforms());
             return Collections.emptySet();
         } else {
-            return departureInfos.stream().
+            return platformDueTrams.stream().
                     map(info -> info.getDueTramsWithinWindow(cost)).
                     flatMap(Collection::stream).
                     filter(dueTram -> !DEPARTING.equals(dueTram.getStatus())).

@@ -6,7 +6,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataMessagesHealthCheck;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataUpdater;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
 
-    private LiveDataRepository repository;
+    private LiveDataUpdater repository;
     private LiveDataMessagesHealthCheck healthCheck;
     private ProvidesNow providesNow;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        repository = createMock(LiveDataRepository.class);
+        repository = createMock(LiveDataUpdater.class);
         providesNow = createMock(ProvidesNow.class);
         TramchesterConfig config = new IntegrationTramTestConfig();
         healthCheck = new LiveDataMessagesHealthCheck(config, repository, providesNow);

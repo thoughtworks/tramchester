@@ -1,13 +1,14 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataUpdater;
+import com.tramchester.repository.PlatformMessageRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +19,11 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LiveDataRepositoryTest {
+class LiveDataUpdaterTest {
     private static Dependencies dependencies;
 
-    private LiveDataRepository repository;
+    private LiveDataUpdater liveDataUpdater;
+    private PlatformMessageRepository messageRepo;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -39,20 +41,24 @@ class LiveDataRepositoryTest {
     void beforeEachTestRuns() {
         LiveDataParser parser = dependencies.get(LiveDataParser.class);
         LiveDataHTTPFetcher fetcher = dependencies.get(LiveDataHTTPFetcher.class);
-        repository = new LiveDataRepository(fetcher, parser, new ProvidesLocalNow());
-        repository.refreshRespository();
+        messageRepo = dependencies.get(PlatformMessageRepository.class);
+        liveDataUpdater = dependencies.get(LiveDataUpdater.class);
+        //liveDataUpdater = new LiveDataUpdater(platformMessageRepository, dueTramsRepository, fetcher, parser, new ProvidesLocalNow());
+        liveDataUpdater.refreshRespository();
     }
 
     @Test
     void findAtleastOneStationWithNotes() {
-        assertNotEquals(repository.countEntriesWithMessages(), 0);
+        assertNotEquals(liveDataUpdater.countEntriesWithMessages(), 0);
 
-        Set<StationDepartureInfo> haveMessages = repository.getEntriesWithMessages().collect(Collectors.toSet());
+        Set<PlatformMessage> haveMessages = messageRepo.getEntriesWithMessages().collect(Collectors.toSet());
         assertFalse(haveMessages.isEmpty());
 
-        Set<Station> stations = haveMessages.stream().map(StationDepartureInfo::getStation).collect(Collectors.toSet());
+        Set<Station> stations = haveMessages.stream().map(PlatformMessage::getStation).collect(Collectors.toSet());
         assertTrue(stations.size()>1);
     }
+
+    // TODO add missing tests
 
     @Test
     void spikeOnDuplicatePlatformDisplayHandling() {

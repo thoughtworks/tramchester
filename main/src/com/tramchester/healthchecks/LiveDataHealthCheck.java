@@ -2,7 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,11 +11,11 @@ import static java.lang.String.format;
 public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHealthCheck.class);
 
-    private final LiveDataRepository repository;
+    private final LiveDataUpdater repository;
     private final ProvidesNow providesNow;
     private static final String noEntriesPresent = "no entries present";
 
-    public LiveDataHealthCheck(LiveDataRepository repository, ProvidesNow providesNow) {
+    public LiveDataHealthCheck(LiveDataUpdater repository, ProvidesNow providesNow) {
         this.repository = repository;
         this.providesNow = providesNow;
     }

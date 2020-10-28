@@ -9,11 +9,11 @@ public class StationRefDTO {
     private String area;
     private TransportMode transportMode;
 
-    public StationRefDTO(Location<?> location) {
-        this.id = location.forDTO();
-        this.name = location.getName();
-        this.transportMode = location.getTransportMode();
-        this.area = location.getArea();
+    public StationRefDTO(Location<?> station) {
+        this.id = station.forDTO();
+        this.name = station.getName();
+        this.transportMode = station.getTransportMode();
+        this.area = station.getArea();
     }
 
     public StationRefDTO() {

@@ -7,7 +7,7 @@ import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
-import com.tramchester.repository.LiveDataRepository;
+import com.tramchester.repository.LiveDataUpdater;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -131,19 +131,19 @@ public class App extends Application<AppConfiguration>  {
         // only enable live data if tram's enabled
         if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
             // initial load of live data
-            LiveDataRepository liveDataRepository = dependencies.get(LiveDataRepository.class);
-            liveDataRepository.refreshRespository();
+            LiveDataUpdater dueTramRepo = dependencies.get(LiveDataUpdater.class);
+            dueTramRepo.refreshRespository();
             // custom metrics for live data and messages
-            metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "number"),
-                    (Gauge<Integer>) liveDataRepository::upToDateEntries);
-            metricRegistry.register(MetricRegistry.name(LiveDataRepository.class, "liveData", "messages"),
-                    (Gauge<Integer>) liveDataRepository::countEntriesWithMessages);
+            metricRegistry.register(MetricRegistry.name(LiveDataUpdater.class, "liveData", "number"),
+                    (Gauge<Integer>) dueTramRepo::upToDateEntries);
+            metricRegistry.register(MetricRegistry.name(LiveDataUpdater.class, "liveData", "messages"),
+                    (Gauge<Integer>) dueTramRepo::countEntriesWithMessages);
 
             // refresh live data job
             int initialDelay = 10;
             ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
                 try {
-                    liveDataRepository.refreshRespository();
+                    dueTramRepo.refreshRespository();
                 } catch (Exception exeception) {
                     logger.error("Unable to refresh live data", exeception);
                 }
@@ -151,7 +151,7 @@ public class App extends Application<AppConfiguration>  {
 
             // archive live data in S3
             UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
-            liveDataRepository.observeUpdates(observer);
+            dueTramRepo.observeUpdates(observer);
 
             environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
         }
