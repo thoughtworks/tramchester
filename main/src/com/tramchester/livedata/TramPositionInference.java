@@ -13,6 +13,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,14 +54,14 @@ public class TramPositionInference {
             return new TramPosition(start, neighbour, Collections.emptySet(), cost);
         }
 
-        Set<DueTram> dueTrams = getDueTrams(start, neighbour, date, time, cost);
+        Set<DueTram> dueTrams = getDueTrams(start, neighbour, date.getDate(), time, cost);
 
         logger.info(format("Found %s trams between %s and %s", dueTrams.size(), start, neighbour));
 
         return new TramPosition(start, neighbour, dueTrams, cost);
     }
 
-    private Set<DueTram> getDueTrams(Station start, Station neighbour, TramServiceDate date, TramTime time, int cost) {
+    private Set<DueTram> getDueTrams(Station start, Station neighbour, LocalDate date, TramTime time, int cost) {
         if (! (TransportMode.isTram(start) && TransportMode.isTram(neighbour)) ) {
             logger.info(format("Not both tram stations %s and %s", start, neighbour));
             return Collections.emptySet();
@@ -71,7 +72,7 @@ public class TramPositionInference {
         Set<PlatformDueTrams> platformDueTrams = new HashSet<>();
         routesBetween.forEach(route -> {
             List<Platform> platforms = neighbour.getPlatformsForRoute(route);
-            platforms.forEach(platform -> liveDataSource.dueTramsFor(platform.getId(), date, time).ifPresent(platformDueTrams::add));
+            platforms.forEach(platform -> liveDataSource.allTrams(platform.getId(), date, time).ifPresent(platformDueTrams::add));
         });
 
         if (platformDueTrams.isEmpty()) {

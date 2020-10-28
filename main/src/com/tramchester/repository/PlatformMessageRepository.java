@@ -11,7 +11,6 @@ import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -20,6 +19,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
 
     private final Cache<IdFor<Platform>, PlatformMessage> messageCache;
     private final ProvidesNow providesNow;
-    private LocalDateTime lastRefresh;
+    private LocalDate lastRefresh;
 
     public PlatformMessageRepository(ProvidesNow providesNow) {
         this.providesNow = providesNow;
@@ -56,7 +56,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
         logger.info("Updating cache");
         consumeDepartInfo(departureInfos);
         messageCache.cleanUp();
-        lastRefresh = providesNow.getDateTime();
+        lastRefresh = providesNow.getDate();
         int entries = countEntriesWithMessages();
         logger.info("Cache now has " + entries + " entries");
         return entries;
@@ -80,11 +80,16 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
     private boolean updateCacheFor(StationDepartureInfo departureInfo, IdSet<Platform> platformsSeenForUpdate) {
         IdFor<Platform> platformId = departureInfo.getStationPlatform();
         if (platformsSeenForUpdate.contains(platformId)) {
-            PlatformMessage current = messageCache.getIfPresent(platformId);
-            String currentMessage = current.getMessage();
-            if (!departureInfo.getMessage().equals(currentMessage)) {
-                logger.warn("Mutiple messages for " +platformId+ " displayId: " + departureInfo.getDisplayId() +
-                        "Received: " + departureInfo.getMessage() + " was " + currentMessage);
+            if (!departureInfo.getMessage().isEmpty()) {
+                PlatformMessage current = messageCache.getIfPresent(platformId);
+                String currentMessage = current.getMessage();
+                if (!departureInfo.getMessage().equals(currentMessage)) {
+                    logger.warn("Mutiple messages for " + platformId + " displayId: " + departureInfo.getDisplayId() +
+                            " Received: '" + departureInfo.getMessage() + "' was '" + currentMessage + "' displayId: "
+                            + current.getDisplayId());
+                }
+            } else {
+                logger.info("Multiple (but empty) message for " + platformId + " displayId: " + departureInfo.getDisplayId());
             }
             return false;
         }
@@ -100,7 +105,9 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
     }
 
     @Override
-    public List<PlatformMessage> messagesFor(Station station, TramServiceDate when, TramTime queryTime) {
+    public List<PlatformMessage> messagesFor(Station station, LocalDate when, TramTime queryTime) {
+        // TODO this uses the timetable station/platform association, but seems live data includes extra platforms
+        // not provided in stops.txt feed
         logger.info("Get messages for " + HasId.asId(station));
         List<PlatformMessage> results = new ArrayList<>();
         station.getPlatforms().forEach(platform -> messagesFor(platform.getId(), when, queryTime).ifPresent(results::add));
@@ -111,12 +118,12 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
     }
 
     @Override
-    public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, TramServiceDate queryDate, TramTime queryTime) {
+    public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Optional.empty();
         }
-        if (!queryDate.getDate().equals(lastRefresh.toLocalDate())) {
+        if (!queryDate.equals(lastRefresh)) {
             logger.warn("No data for date, not querying for departure info " + queryDate);
             return Optional.empty();
         }
@@ -146,6 +153,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
         return (int) messageCache.estimatedSize();
     }
 
+    @Deprecated
     @NotNull
     public Stream<PlatformMessage> getEntriesWithMessages() {
         return messageCache.asMap().values().stream();

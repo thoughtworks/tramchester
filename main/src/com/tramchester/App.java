@@ -7,7 +7,7 @@ import com.tramchester.cloud.*;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
-import com.tramchester.repository.LiveDataUpdater;
+import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;

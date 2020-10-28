@@ -7,6 +7,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.*;

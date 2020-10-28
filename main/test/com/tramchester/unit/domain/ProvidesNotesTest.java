@@ -120,7 +120,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate serviceDate = new TramServiceDate(date);
 
         PlatformMessage info = createPlatformMessage(lastUpdate, of(Pomona), "<no message>");
-        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -144,7 +144,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
 
         PlatformMessage info = createPlatformMessage(lastUpdate, of(Pomona), "a message");
-        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
                 andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -167,12 +167,13 @@ class ProvidesNotesTest extends EasyMockSupport {
     void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
         VehicleStage stageA = createStageWithBoardingPlatform("platformId");
 
-        TramServiceDate queryDate = new TramServiceDate(lastUpdate.toLocalDate().plusDays(2));
+        LocalDate localDate = lastUpdate.toLocalDate().plusDays(2);
+        TramServiceDate queryDate = new TramServiceDate(localDate);
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
 
         PlatformMessage info = createPlatformMessage(lastUpdate, of(Pomona), "a message");
 
-        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), queryDate, queryTime))
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), localDate, queryTime))
                 .andReturn(Optional.of(info));
 
         Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
@@ -208,10 +209,10 @@ class ProvidesNotesTest extends EasyMockSupport {
         PlatformMessage infoC = createPlatformMessage(lastUpdate, TramStations.of(Cornbrook), "Some long message");
         PlatformMessage infoE = createPlatformMessage(lastUpdate, TramStations.of(MediaCityUK), "Some long message");
 
-        EasyMock.expect(messageSource.messagesFor(stageE.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoE));
-        EasyMock.expect(messageSource.messagesFor(stageB.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoB));
-        EasyMock.expect(messageSource.messagesFor(stageC.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoC));
-        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), serviceDate, queryTime)).andReturn(Optional.of(infoA));
+        EasyMock.expect(messageSource.messagesFor(stageE.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).andReturn(Optional.of(infoE));
+        EasyMock.expect(messageSource.messagesFor(stageB.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).andReturn(Optional.of(infoB));
+        EasyMock.expect(messageSource.messagesFor(stageC.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).andReturn(Optional.of(infoC));
+        EasyMock.expect(messageSource.messagesFor(stageA.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).andReturn(Optional.of(infoA));
 
         List<TransportStage<?,?>> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
@@ -244,13 +245,15 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         List<Station> stations = Arrays.asList(of(Pomona), of(VeloPark), of(Cornbrook));
 
-        TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016, 10, 25));
+        LocalDate localDate = LocalDate.of(2016, 10, 25);
+        TramServiceDate queryDate = new TramServiceDate(localDate);
+
         TramTime queryTime = TramTime.of(lastUpdate);
-        EasyMock.expect(messageSource.messagesFor(of(Pomona), queryDate, queryTime)).
+        EasyMock.expect(messageSource.messagesFor(of(Pomona), localDate, queryTime)).
                 andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, of(Pomona), "second message")));
-        EasyMock.expect(messageSource.messagesFor(of(VeloPark), queryDate, queryTime)).
+        EasyMock.expect(messageSource.messagesFor(of(VeloPark), localDate, queryTime)).
                 andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, of(VeloPark), "first message")));
-        EasyMock.expect(messageSource.messagesFor(of(Cornbrook), queryDate, queryTime)).
+        EasyMock.expect(messageSource.messagesFor(of(Cornbrook), localDate, queryTime)).
                 andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, of(Cornbrook), "second message")));
 
         replayAll();
@@ -267,7 +270,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, Station station, String message) {
         Platform platform = new Platform(station.forDTO() + "1", station.getName() + " platform 1");
         station.addPlatform(platform);
-        return new PlatformMessage(platform.getId(), message, lastUpdate, station);
+        return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
     }
 
     private VehicleStage createStageWithBoardingPlatform(String platformId) {

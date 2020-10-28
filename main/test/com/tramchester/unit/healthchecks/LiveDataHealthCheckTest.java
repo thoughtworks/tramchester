@@ -4,7 +4,7 @@ import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.repository.LiveDataUpdater;
+import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;

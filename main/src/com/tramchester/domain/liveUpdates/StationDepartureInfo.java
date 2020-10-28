@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-public class StationDepartureInfo implements HasPlatformMessage {
+public class StationDepartureInfo  {
 
     private static final String NO_MESSAGE = "<no message>";
 
@@ -29,12 +28,12 @@ public class StationDepartureInfo implements HasPlatformMessage {
     private final Direction direction;
 
     // station code here is the actocode
-    public StationDepartureInfo(String displayId, String lineName, Direction direction, String stationPlatform,
+    public StationDepartureInfo(String displayId, String lineName, Direction direction, IdFor<Platform> stationPlatform,
                                 Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.lineName = lineName;
         this.direction = direction;
-        this.stationPlatform = IdFor.createId(stationPlatform);
+        this.stationPlatform = stationPlatform;
         this.station = station;
         if (invalidMessage(message)) {
             this.message= "";
@@ -73,10 +72,6 @@ public class StationDepartureInfo implements HasPlatformMessage {
         return dueTrams;
     }
 
-    public List<DueTram> getDueTramsWithinWindow(int minutes) {
-        return dueTrams.stream().filter(dueTram -> dueTram.getWait()<=minutes).collect(Collectors.toList());
-    }
-
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }
@@ -85,15 +80,10 @@ public class StationDepartureInfo implements HasPlatformMessage {
         dueTrams.add(dueTram);
     }
 
-    public boolean hasDueTram(DueTram dueTram) {
-        return dueTrams.contains(dueTram);
-    }
-
     public String getDisplayId() {
         return displayId;
     }
 
-    @Override
     public Station getStation() {
         return station;
     }

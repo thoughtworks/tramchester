@@ -5,6 +5,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -84,8 +85,9 @@ public class LiveDataParser {
 
         LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
+        IdFor<Platform> platformId = IdFor.createId(atcoCode);
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, direction,
-                atcoCode, maybeStation.get(), message, updateTime);
+                platformId, maybeStation.get(), message, updateTime);
         parseDueTrams(jsonObject, departureInfo);
 
         logger.debug("Parsed live data to " + departureInfo);

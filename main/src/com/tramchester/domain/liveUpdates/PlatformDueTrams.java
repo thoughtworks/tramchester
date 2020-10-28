@@ -2,7 +2,6 @@ package com.tramchester.domain.liveUpdates;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.places.Station;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,18 +11,17 @@ public class PlatformDueTrams {
     private final IdFor<Platform> stationPlatform;
     private final List<DueTram> dueTrams;
     private final LocalDateTime lastUpdate;
-    private final IdFor<Station> stationId;
+    //private final IdFor<Station> stationId;
 
-    public PlatformDueTrams(IdFor<Platform> stationPlatform, List<DueTram> dueTrams, LocalDateTime lastUpdate, IdFor<Station> stationId) {
+    public PlatformDueTrams(IdFor<Platform> stationPlatform, List<DueTram> dueTrams, LocalDateTime lastUpdate) {
         this.stationPlatform = stationPlatform;
         this.dueTrams = dueTrams;
         this.lastUpdate = lastUpdate;
-        this.stationId = stationId;
+        //this.stationId = stationId;
     }
 
     public PlatformDueTrams(StationDepartureInfo departureInfo) {
-        this(departureInfo.getStationPlatform(), departureInfo.getDueTrams(), departureInfo.getLastUpdate(),
-                departureInfo.getStation().getId());
+        this(departureInfo.getStationPlatform(), departureInfo.getDueTrams(), departureInfo.getLastUpdate());
     }
 
     public boolean hasDueTram(DueTram dueTram) {

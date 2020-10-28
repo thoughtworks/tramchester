@@ -84,7 +84,7 @@ public class DeparturesResource implements APIResource  {
         // trams
         SortedSet<DepartureDTO> departs = new TreeSet<>();
         nearbyStations.forEach(station -> {
-            List<DueTram> dueTrams = dueTramsSource.dueTramsFor(station, queryDate, queryTime);
+            List<DueTram> dueTrams = dueTramsSource.dueTramsFor(station, queryDate.getDate(), queryTime);
             departs.addAll(departuresMapper.mapToDTO(station, dueTrams));
         });
 
@@ -133,7 +133,7 @@ public class DeparturesResource implements APIResource  {
         logger.info("Found station " + HasId.asId(station) + " Find departures at " + queryDate + " " +queryTime);
 
         //trams
-        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, queryDate, queryTime);
+        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, queryDate.getDate(), queryTime);
         if (dueTramList.isEmpty()) {
             logger.warn("Departures list empty for " + HasId.asId(station) + " at " + queryDate + " " +queryTime);
         }

@@ -13,6 +13,7 @@ import com.tramchester.repository.PlatformMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -39,18 +40,18 @@ public class ProvidesNotes {
     public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
         List<Note> notes = new LinkedList<>();
         notes.addAll(createNotesForADate(queryDate));
-        notes.addAll(liveNotesForJourney(journey, queryDate));
+        notes.addAll(liveNotesForJourney(journey, queryDate.getDate()));
         return notes;
     }
 
     public List<Note> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time) {
         List<Note> notes = new LinkedList<>();
         notes.addAll(createNotesForADate(queryDate));
-        notes.addAll(createLiveNotesForStations(stations, queryDate, time));
+        notes.addAll(createLiveNotesForStations(stations, queryDate.getDate(), time));
         return notes;
     }
 
-    private List<Note> createLiveNotesForStations(List<Station> stations, TramServiceDate date, TramTime time) {
+    private List<Note> createLiveNotesForStations(List<Station> stations, LocalDate date, TramTime time) {
         List<Note> notes = new ArrayList<>();
 
         stations.forEach(station -> platformMessageSource.messagesFor(station, date, time).forEach(info ->
@@ -70,19 +71,19 @@ public class ProvidesNotes {
         return notes;
     }
 
-    private <T extends CallsAtPlatforms> List<Note> liveNotesForJourney(T journey, TramServiceDate queryDate) {
+    private <T extends CallsAtPlatforms> List<Note> liveNotesForJourney(T journey, LocalDate queryDate) {
         // Map: Note -> Location
         List<Note> notes = new ArrayList<>();
 
         // find all the platforms involved in a journey, so board, depart and changes
         // add messages for those platforms
-        journey.getCallingPlatformIds().forEach(platform -> addRelevantNote(notes, platform, queryDate,
+        journey.getCallingPlatformIds().forEach(platform -> addLiveNotesForPlatform(notes, platform, queryDate,
                 journey.getQueryTime()));
 
         return notes;
     }
 
-    private void addRelevantNote(List<Note> notes, IdFor<Platform> platformId, TramServiceDate queryDate, TramTime queryTime) {
+    private void addLiveNotesForPlatform(List<Note> notes, IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
         Optional<PlatformMessage> maybe = platformMessageSource.messagesFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
             logger.warn("No departure info found for " + platformId + " at " + queryDate +  " " + queryTime);
@@ -90,7 +91,7 @@ public class ProvidesNotes {
         }
         PlatformMessage info = maybe.get();
         LocalDateTime lastUpdate = info.getLastUpdate();
-        if (!lastUpdate.toLocalDate().isEqual(queryDate.getDate())) {
+        if (!lastUpdate.toLocalDate().isEqual(queryDate)) {
             // message is not for journey time, perhaps journey is a future date or live data is stale
             logger.info("No messages available for " + queryDate + " last up date was " + lastUpdate);
             return;

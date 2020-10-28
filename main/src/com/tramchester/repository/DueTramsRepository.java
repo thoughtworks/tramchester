@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Platform;
@@ -11,7 +12,6 @@ import com.tramchester.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.DeparturesMapper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -20,6 +20,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -31,6 +32,7 @@ import static java.lang.String.format;
 public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(DueTramsRepository.class);
 
+    // TODO Correct limit here?
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
@@ -57,6 +59,7 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
         int consumed = consumeDepartInfo(departureInfos);
         dueTramsCache.cleanUp();
         lastRefresh = providesNow.getDateTime();
+        logger.info("Update cache. Up to date entries size: " + this.upToDateEntries());
         return consumed;
     }
 
@@ -90,27 +93,38 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
     }
 
     @Override
-    public List<DueTram> dueTramsFor(Station station, TramServiceDate when, TramTime queryTime) {
-        Set<PlatformDueTrams> platformDueTrams = station.getPlatforms().stream().
-                map(platform -> dueTramsFor(platform.getId(), when, queryTime)).
+    public List<DueTram> dueTramsFor(Station station, LocalDate date, TramTime queryTime) {
+        Set<PlatformDueTrams> allTrams = station.getPlatforms().stream().
+                map(platform -> allTrams(platform.getId(), date, queryTime)).
                 filter(Optional::isPresent).
                 map(Optional::get).
                 collect(Collectors.toSet());
 
-        return platformDueTrams.stream().
+        if (allTrams.isEmpty()) {
+            logger.info("No trams found for " + HasId.asId(station) + " at " + date + " " + queryTime);
+            return Collections.emptyList();
+        }
+
+        List<DueTram> dueTrams = allTrams.stream().
                 map(PlatformDueTrams::getDueTrams).
                 flatMap(Collection::stream).
                 filter(dueTram -> DeparturesMapper.DUE.equals(dueTram.getStatus())).
                 collect(Collectors.toList());
+
+        if (dueTrams.isEmpty()) {
+            logger.info("No DUE trams found for " + HasId.asId(station) + " at " + date + " " + queryTime);
+        }
+
+        return dueTrams;
     }
 
     @Override
-    public Optional<PlatformDueTrams> dueTramsFor(IdFor<Platform> platform, TramServiceDate queryDate, TramTime queryTime) {
+    public Optional<PlatformDueTrams> allTrams(IdFor<Platform> platform, LocalDate queryDate, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Optional.empty();
         }
-        if (!queryDate.getDate().equals(lastRefresh.toLocalDate())) {
+        if (!queryDate.equals(lastRefresh.toLocalDate())) {
             logger.warn("No data for date, not querying for departure info " + queryDate);
             return Optional.empty();
         }
@@ -123,7 +137,7 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
 
         LocalDateTime infoLastUpdate = departureInfo.getLastUpdate();
         if (!withinTime(queryTime, infoLastUpdate.toLocalTime())) {
-            logger.info("last update of departure info (" + infoLastUpdate +") not within query time " + queryTime);
+            logger.info("Last update of departure info (" + infoLastUpdate +") not within query time " + queryTime);
             return Optional.empty();
         }
         return Optional.of(departureInfo);

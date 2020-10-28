@@ -1,5 +1,6 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.places.Station;
@@ -13,7 +14,7 @@ import com.tramchester.livedata.LiveDataFetcher;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.DueTramsRepository;
-import com.tramchester.repository.LiveDataUpdater;
+import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
@@ -40,7 +41,6 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     private ProvidesNow providesNow;
     private LocalDateTime lastUpdate;
     private DueTramsRepository dueTramsRepository;
-    private PlatformMessageRepository platformMessageRepository;
 
     // TODO Split apart these tests into LiveDataUpdater, DueTramsRepository, and PlatformMessageRepository
 
@@ -49,93 +49,11 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         fetcher = createMock(LiveDataHTTPFetcher.class);
         mapper = createMock(LiveDataParser.class);
         providesNow = createMock(ProvidesNow.class);
-        platformMessageRepository = new PlatformMessageRepository(providesNow);
+        PlatformMessageRepository platformMessageRepository = new PlatformMessageRepository(providesNow);
         dueTramsRepository = new DueTramsRepository(providesNow);
         repository = new LiveDataUpdater(platformMessageRepository, dueTramsRepository, fetcher, mapper, providesNow);
 
         lastUpdate = TestEnv.LocalNow();
-    }
-
-    @Test
-    void shouldGetDepartureInformationForSingleStation() throws TransformException {
-        List<StationDepartureInfo> info = new LinkedList<>();
-
-       addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId",
-                "some message", TramStations.of(Altrincham));
-
-        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
-        EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
-
-        EasyMock.expect(fetcher.fetch()).andReturn("someData");
-        EasyMock.expect(mapper.parse("someData")).andReturn(info);
-
-        Station station = TestStation.forTest("stationId", "area", "stopName",
-                new LatLong(1,1), TransportMode.Tram);
-        Platform platform = new Platform("platformId", "platformName");
-        station.addPlatform(platform);
-
-        replayAll();
-        repository.refreshRespository();
-        TramTime queryTime = TramTime.of(lastUpdate);
-        List<DueTram> dueTrams = dueTramsRepository.dueTramsFor(station, TramServiceDate.of(lastUpdate), queryTime);
-        verifyAll();
-
-        assertEquals(1, dueTrams.size());
-    }
-
-    @Test
-    void shouldGetDueTramsWithinTimeWindows() throws TransformException {
-        List<StationDepartureInfo> info = new LinkedList<>();
-
-        addStationInfoWithDueTram(info, lastUpdate, "displayId", "platformId", "some message",
-                TramStations.of(Altrincham));
-
-        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
-        EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
-
-        EasyMock.expect(fetcher.fetch()).andReturn("someData");
-        EasyMock.expect(mapper.parse("someData")).andReturn(info);
-
-        Station station = TestStation.forTest("stationId", "area", "stopName", new LatLong(1,1), TransportMode.Tram);
-        Platform platform = new Platform("platformId", "platformName");
-        station.addPlatform(platform);
-
-        replayAll();
-        repository.refreshRespository();
-        List<DueTram> dueTramsNow = dueTramsRepository.dueTramsFor(station, new TramServiceDate(lastUpdate.toLocalDate()), TramTime.of(lastUpdate));
-        List<DueTram> dueTramsEarlier = dueTramsRepository.dueTramsFor(station, new TramServiceDate(lastUpdate.toLocalDate()), TramTime.of(lastUpdate.minusMinutes(5)));
-        List<DueTram> dueTramsLater = dueTramsRepository.dueTramsFor(station, new TramServiceDate(lastUpdate.toLocalDate()), TramTime.of(lastUpdate.plusMinutes(5)));
-        verifyAll();
-
-        assertEquals(1, dueTramsNow.size());
-        assertEquals(1, dueTramsEarlier.size());
-        assertEquals(1, dueTramsLater.size());
-    }
-
-    @Test
-    void shouldUpdateMessagesWhenNoDueTrams() {
-        List<StationDepartureInfo> infos = new LinkedList<>();
-
-        StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", "lineName",
-                StationDepartureInfo.Direction.Incoming, "platformIdA", TramStations.of(Altrincham),
-                "some message", lastUpdate);
-        infos.add(departureInfo);
-
-        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
-        EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
-        EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
-
-        EasyMock.expect(fetcher.fetch()).andReturn("someData");
-        EasyMock.expect(mapper.parse("someData")).andReturn(infos);
-
-        replayAll();
-        repository.refreshRespository();
-        verifyAll();
-
-        assertEquals(1, repository.upToDateEntries());
-        assertEquals(1, repository.countEntriesWithMessages());
     }
 
     @Test
@@ -167,8 +85,10 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
     void shouldUpdateMessageCountWhenRefreshingDataOK() {
         List<StationDepartureInfo> info = new LinkedList<>();
 
-        addStationInfoWithDueTram(info, lastUpdate, "yyy", "platformIdA", "some message", TramStations.of(Altrincham));
-        addStationInfoWithDueTram(info, lastUpdate, "303", "platformIdB", "<no message>", TramStations.of(Altrincham));
+        addStationInfoWithDueTram(info, lastUpdate, "yyy", "platformIdA", "some message",
+                TramStations.of(Altrincham));
+        addStationInfoWithDueTram(info, lastUpdate, "303", "platformIdB", "<no message>",
+                TramStations.of(Altrincham));
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
@@ -181,8 +101,6 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(2,repository.upToDateEntries());
-        assertEquals(1,repository.countEntriesWithMessages());
-
     }
 
     @Test
@@ -217,10 +135,9 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(1, repository.upToDateEntries());
-        assertEquals(1, repository.countEntriesWithMessages());
         assertEquals(2, repository.missingDataCount());
 
-        List<DueTram> dueTrams = dueTramsRepository.dueTramsFor(altrincham, TramServiceDate.of(current), TramTime.of(current));
+        List<DueTram> dueTrams = dueTramsRepository.dueTramsFor(altrincham, current.toLocalDate(), TramTime.of(current));
         assertEquals(0, dueTrams.size());
     }
 
@@ -228,7 +145,7 @@ public class LiveDataRepositoryTest extends EasyMockSupport {
                                                                  String displayId, String platformId, String message,
                                                                  Station location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName",
-                StationDepartureInfo.Direction.Incoming, platformId, location, message, lastUpdate);
+                StationDepartureInfo.Direction.Incoming, IdFor.createId(platformId), location, message, lastUpdate);
         info.add(departureInfo);
         DueTram dueTram = new DueTram(TramStations.of(Bury), "Due", 42, "Single", lastUpdate.toLocalTime());
         departureInfo.addDueTram(dueTram);

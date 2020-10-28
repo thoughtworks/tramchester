@@ -1,5 +1,6 @@
 package com.tramchester.domain.liveUpdates;
 
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
@@ -11,17 +12,20 @@ public class PlatformMessage implements HasPlatformMessage {
     private final IdFor<Platform> stationPlatform;
     private final String message;
     private final LocalDateTime lastUpdate;
-    private final Station station; // TODO Just use ID?
+    private final Station station;
+    private final String displayId;
 
-    public PlatformMessage(IdFor<Platform> stationPlatform, String message, LocalDateTime lastUpdate, Station station) {
+    public PlatformMessage(IdFor<Platform> stationPlatform, String message, LocalDateTime lastUpdate, Station station, String displayId) {
         this.stationPlatform = stationPlatform;
         this.message = message;
         this.lastUpdate = lastUpdate;
         this.station = station;
+        this.displayId = displayId;
     }
 
     public PlatformMessage(StationDepartureInfo departureInfo) {
-        this(departureInfo.getStationPlatform(), departureInfo.getMessage(), departureInfo.getLastUpdate(), departureInfo.getStation());
+        this(departureInfo.getStationPlatform(), departureInfo.getMessage(), departureInfo.getLastUpdate(),
+                departureInfo.getStation(), departureInfo.getDisplayId());
     }
 
     @NotNull
@@ -46,7 +50,12 @@ public class PlatformMessage implements HasPlatformMessage {
                 "stationPlatform=" + stationPlatform +
                 ", message='" + message + '\'' +
                 ", lastUpdate=" + lastUpdate +
-                ", station=" + station +
+                ", station=" + HasId.asId(station) +
+                ", displayId='" + displayId + '\'' +
                 '}';
+    }
+
+    public String getDisplayId() {
+        return displayId;
     }
 }

@@ -3,7 +3,7 @@ package com.tramchester.healthchecks;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.LiveDataUpdater;
+import com.tramchester.livedata.LiveDataUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

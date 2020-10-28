@@ -1,13 +1,10 @@
-package com.tramchester.integration.repository;
+package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.integration.IntegrationTramTestConfig;
-import com.tramchester.livedata.LiveDataHTTPFetcher;
-import com.tramchester.mappers.LiveDataParser;
-import com.tramchester.repository.LiveDataUpdater;
+import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,11 +36,8 @@ class LiveDataUpdaterTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        LiveDataParser parser = dependencies.get(LiveDataParser.class);
-        LiveDataHTTPFetcher fetcher = dependencies.get(LiveDataHTTPFetcher.class);
         messageRepo = dependencies.get(PlatformMessageRepository.class);
         liveDataUpdater = dependencies.get(LiveDataUpdater.class);
-        //liveDataUpdater = new LiveDataUpdater(platformMessageRepository, dueTramsRepository, fetcher, parser, new ProvidesLocalNow());
         liveDataUpdater.refreshRespository();
     }
 
