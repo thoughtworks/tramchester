@@ -86,7 +86,7 @@ public class ProvidesNotes {
     private void addLiveNotesForPlatform(List<Note> notes, IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
         Optional<PlatformMessage> maybe = platformMessageSource.messagesFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
-            logger.warn("No departure info found for " + platformId + " at " + queryDate +  " " + queryTime);
+            logger.warn("No messages found for " + platformId + " at " + queryDate +  " " + queryTime);
             return;
         }
         PlatformMessage info = maybe.get();

@@ -51,13 +51,15 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
 
         if (offset > config.getMaxNumberStationsWithoutMessages()) {
             if (!lateNight) {
-                String message = format("Not enough messages present, %s out of %s stations", stationsWithMessages, entries);
+                String message = format("Not enough messages present, %s entries, %s out of %s stations",
+                        entries, stationsWithMessages, numberStations);
                 logger.warn(message);
                 return Result.unhealthy(message);
             }
         }
 
-        String msg = format("Live data messages healthy with %s entries for %s stations ", entries, stationsWithMessages);
+        String msg = format("Live data messages healthy with %s entries for %s out of %s stations ",
+                entries, stationsWithMessages, numberStations);
         logger.info(msg);
         return Result.healthy(msg);
     }
