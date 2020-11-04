@@ -26,6 +26,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -179,13 +180,33 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
         }
 
         TramTime queryTime = TramTime.of(queryDateTime);
-        return dueTramsCache.asMap().values().stream().
-                filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
+        return getEntryStream(queryTime).
                 map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }
 
     // for metrics
     public Integer getNumStationsWithDataNow() {
         return getNumStationsWithData(providesNow.getDateTime());
+    }
+
+    // for metrics
+    public Integer getNumStationsWithTramsNow() {
+        LocalDateTime dateTime = providesNow.getDateTime();
+        return getNumStationsWithTrams(dateTime);
+    }
+
+    public int getNumStationsWithTrams(LocalDateTime dateTime) {
+        if (!dateTime.toLocalDate().equals(lastRefresh.toLocalDate())) {
+            return 0;
+        }
+
+        TramTime queryTime = TramTime.of(dateTime);
+        return getEntryStream(queryTime).filter(entry -> !entry.getDueTrams().isEmpty())
+                .map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
+    }
+
+    private Stream<PlatformDueTrams> getEntryStream(TramTime queryTime) {
+        return dueTramsCache.asMap().values().stream().
+                filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime()));
     }
 }

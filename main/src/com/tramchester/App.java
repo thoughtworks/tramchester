@@ -187,6 +187,8 @@ public class App extends Application<AppConfiguration>  {
                 (Gauge<Integer>) dueTramsRepository::upToDateEntries);
         metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithData"),
                 (Gauge<Integer>) dueTramsRepository::getNumStationsWithDataNow);
+        metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithTrams"),
+                (Gauge<Integer>) dueTramsRepository::getNumStationsWithTramsNow);
 
         PlatformMessageRepository messageRepository = dependencies.get(PlatformMessageRepository.class);
         metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "messages"),
