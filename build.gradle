@@ -62,7 +62,7 @@ dependencies {
             'software.amazon.awscdk:autoscaling:1.59.0',
             'software.amazon.awscdk:cdk-cx-api:1.59.0',
 
-            'com.smoketurner:dropwizard-swagger:2.0.0-1'
+            'com.smoketurner:dropwizard-swagger:2.0.12-1'
 
     // javaee jax-rs implementation clashes with dropwizard
     implementation('org.geotools:gt-main:22.2')  { exclude group:'javax', module:'javaee-api'}
