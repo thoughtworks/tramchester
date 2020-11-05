@@ -10,7 +10,6 @@ import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
-import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
@@ -20,8 +19,6 @@ import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.federecio.dropwizard.swagger.SwaggerBundle;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,15 +77,16 @@ public class App extends Application<AppConfiguration>  {
         // TODO Use configurable assest bundle only for dev env?
         bootstrap.addBundle(new ConfiguredAssetsBundle("/app", "/app", "index.html", "app"));
 
-        // api/swagger.json and api/swagger
-        bootstrap.addBundle(new SwaggerBundle<>() {
-            @Override
-            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
-                SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
-                bundleConfiguration.setVersion(VersionRepository.getVersion().getBuildNumber());
-                return bundleConfiguration;
-            }
-        });
+        // TODO Dependency clash needs to be resolved
+//        // api/swagger.json and api/swagger
+//        bootstrap.addBundle(new SwaggerBundle<>() {
+//            @Override
+//            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
+//                SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
+//                bundleConfiguration.setVersion(VersionRepository.getVersion().getBuildNumber());
+//                return bundleConfiguration;
+//            }
+//        });
 
         // https://www.tramchester.com/api/swagger
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));

@@ -93,7 +93,7 @@ class LiveDataMessagesHealthCheckTest extends EasyMockSupport {
         verifyAll();
 
         assertFalse(result.isHealthy());
-        assertEquals("Not enough messages present, 10 out of 42 stations", result.getMessage());
+        assertEquals("Not enough messages present, 42 entries, 10 out of 123 stations", result.getMessage());
     }
 
     @Test

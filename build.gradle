@@ -24,7 +24,7 @@ def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains(
 version = 1.0
 
 project.ext {
-    dropwizardVersion = '2.0.10'
+    dropwizardVersion = '2.0.15'
 }
 
 repositories {
@@ -47,13 +47,13 @@ dependencies {
             'org.apache.commons:commons-csv:1.8',
             'org.apache.httpcomponents:httpclient:4.5.11',
             'org.apache.commons:commons-collections4:4.4',
-            // aws sdk
-            'com.amazonaws:aws-java-sdk-cloudwatch:1.11.723', // TODO update to v2.x
-            //'software.amazon.awssdk:cloudwatch:2.15.19',
-            'software.amazon.awssdk:s3:2.15.19',
-            'software.amazon.awssdk:cloudformation:2.15.19',
+            // TODO next one is outdated?
             'io.dropwizard-bundles:dropwizard-configurable-assets-bundle:1.3.5',
             'com.github.ben-manes.caffeine:caffeine:2.8.1',
+            // aws sdk
+            'software.amazon.awssdk:cloudwatch:2.15.19',
+            'software.amazon.awssdk:s3:2.15.19',
+            'software.amazon.awssdk:cloudformation:2.15.19',
             // aws cdk
             'software.amazon.awscdk:core:1.59.0',
             'software.amazon.awscdk:s3:1.59.0',
@@ -63,11 +63,12 @@ dependencies {
             'software.amazon.awscdk:cdk-cx-api:1.59.0',
 
             'com.smoketurner:dropwizard-swagger:2.0.0-1'
+
     // javaee jax-rs implementation clashes with dropwizard
     implementation('org.geotools:gt-main:22.2')  { exclude group:'javax', module:'javaee-api'}
     implementation('org.geotools:gt-epsg-hsql:22.2')  { exclude group:'javax', module:'javaee-api'}
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0',
             'org.assertj:assertj-core:3.16.1',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.2',
@@ -75,12 +76,12 @@ dependencies {
             'io.appium:java-client:7.2.0',
             'org.hamcrest:hamcrest:2.2'
 
-    dependencies {
-        // JAX-B dependencies for JDK 9+
-        implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
-        implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
-        implementation "com.google.guava:guava:28.2-jre"
-    }
+//    dependencies {
+//        // JAX-B dependencies for JDK 9+
+//        implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
+//        implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+//        implementation "com.google.guava:guava:28.2-jre"
+//    }
 }
 
 sourceSets {

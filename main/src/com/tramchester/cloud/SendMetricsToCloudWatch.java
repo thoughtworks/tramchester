@@ -1,101 +1,83 @@
 package com.tramchester.cloud;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.MetricDatum;
-import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
-import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
+import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.model.Dimension;
+import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
+import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static java.lang.String.format;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class SendMetricsToCloudWatch {
     private static final Logger logger = LoggerFactory.getLogger(SendMetricsToCloudWatch.class);
-    private final Dimension countersDimenion;
-    private final Dimension resourcesDimension;
+    private final List<Dimension> countersDimenion;
+    private final List<Dimension> resourcesDimension;
+
     // lower limit set by AWS, request will thrown exception if between zero and this number
     public static final double LOWER_LIMIT = 8.515920e-109;
+    private final ProvidesNow providesNow;
 
-    private AmazonCloudWatch client;
+    private CloudWatchClient client;
 
-    public SendMetricsToCloudWatch() {
-        countersDimenion = new Dimension().withName("tramchester").withValue("counters");
-        resourcesDimension = new Dimension().withName("tramchester").withValue("api");
+    // TODO Pass in provides local now
+
+    public SendMetricsToCloudWatch(ProvidesNow providesNow) {
+        this.providesNow = providesNow;
+        countersDimenion = Collections.singletonList(Dimension.builder().name("tramchester").value("counters").build());
+        resourcesDimension = Collections.singletonList(Dimension.builder().name("tramchester").value("api").build());
 
         // see http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html
         // For local dev best to set AWS_REGION env var
         try {
-            client = AmazonCloudWatchClientBuilder.defaultClient();
+            client = CloudWatchClient.create();
         }
-        catch (com.amazonaws.SdkClientException exception) {
+        catch (AwsServiceException exception) {
             logger.warn("Unable to init cloud watch client, no metrics will be sent", exception);
         }
     }
 
-    private List<MetricDatum> createTimerDatum(Date timestamp, String name, Timer timer) {
+    private List<MetricDatum> createTimerDatums(Instant timestamp, String name, Timer timer) {
         List<MetricDatum> result = new ArrayList<>();
 
-        result.add(new MetricDatum()
-                .withMetricName(name)
-                .withTimestamp(timestamp)
-                .withValue(zeroFilter(timer.getCount()))
-                .withUnit(StandardUnit.Count)
-                .withDimensions(resourcesDimension));
-        result.add(new MetricDatum()
-                .withMetricName(name+"_15minsRate")
-                .withTimestamp(timestamp)
-                .withValue(zeroFilter(timer.getFifteenMinuteRate()))
-                .withDimensions(resourcesDimension)
-                .withUnit(StandardUnit.Count));
-        result.add(new MetricDatum()
-                .withMetricName(name+"_1minsRate")
-                .withTimestamp(timestamp)
-                .withValue(zeroFilter(timer.getOneMinuteRate()))
-                .withDimensions(resourcesDimension)
-                .withUnit(StandardUnit.Count));
-        result.add(new MetricDatum()
-                .withMetricName(name+"_mean")
-                .withTimestamp(timestamp)
-                .withValue(zeroFilter(timer.getMeanRate()))
-                .withDimensions(resourcesDimension)
-                .withUnit(StandardUnit.Count));
+        result.add(createMetricDatum(name, timestamp, timer.getCount(), resourcesDimension));
+        result.add(createMetricDatum(name+"_15minsRate", timestamp, timer.getFifteenMinuteRate(), resourcesDimension));
+        result.add(createMetricDatum(name+"_1minsRate", timestamp, timer.getOneMinuteRate(), resourcesDimension));
+        result.add(createMetricDatum(name+"_mean", timestamp, timer.getMeanRate(), resourcesDimension));
+
         return result;
     }
 
-    private <T extends Number> MetricDatum createGaugeDatum(Date timestamp, String name, Gauge<T> gauge) {
-        return new MetricDatum()
-                .withMetricName(name)
-                .withTimestamp(timestamp)
-                .withValue(zeroFilter(gauge.getValue()))
-                .withUnit(StandardUnit.Count)
-                .withDimensions(countersDimenion);
+    private <T extends Number> MetricDatum createMetricDatum(String name, Instant timestamp, T metric, List<Dimension> dimension) {
+        return MetricDatum.builder()
+                .metricName(name)
+                .timestamp(timestamp)
+                .value(zeroFilter(metric))
+                .unit(StandardUnit.COUNT)
+                .dimensions(dimension)
+                .build();
     }
 
-    private List<MetricDatum> createMeterDatum(Date timestamp, String name, Meter meter) {
+    private <T extends Number> MetricDatum createGaugeDatum(Instant timestamp, String name, Gauge<T> gauge) {
+        return createMetricDatum(name, timestamp, gauge.getValue(), countersDimenion);
+    }
+
+    private List<MetricDatum> createMeterDatum(Instant timestamp, String name, Meter meter) {
         List<MetricDatum> result = new ArrayList<>();
 
-        result.add(new MetricDatum()
-                .withMetricName(name)
-                .withTimestamp(timestamp)
-                .withValue(zeroFilter(meter.getCount()))
-                .withUnit(StandardUnit.Count)
-                .withDimensions(countersDimenion));
-
-        result.add(new MetricDatum()
-                .withMetricName(name+"_1minsRate")
-                .withTimestamp(timestamp)
-                .withValue(zeroFilter(meter.getOneMinuteRate()))
-                .withUnit(StandardUnit.Count)
-                .withDimensions(countersDimenion));
+        result.add(createMetricDatum(name, timestamp, meter.getCount(), countersDimenion));
+        result.add(createMetricDatum(name+"_1minsRate", timestamp, meter.getOneMinuteRate(), countersDimenion));
 
         return result;
     }
@@ -114,10 +96,13 @@ public class SendMetricsToCloudWatch {
             logger.warn("No cloud watch client available, will not send metrics");
             return;
         }
-        Date timestamp = Date.from(Instant.now());
+
+        // must be resolution of seconds
+        // https://github.com/aws/aws-sdk-java-v2/issues/1820
+        Instant timestamp = providesNow.getDateTime().toInstant(ZoneOffset.UTC).truncatedTo(SECONDS);
 
         List<MetricDatum> metricDatum = new LinkedList<>();
-        timers.forEach((name,timer) -> metricDatum.addAll(createTimerDatum(timestamp, name, timer)));
+        timers.forEach((name,timer) -> metricDatum.addAll(createTimerDatums(timestamp, name, timer)));
         intGauges.forEach((name,gauge)-> metricDatum.add(createGaugeDatum(timestamp, name, gauge)));
         metersToSend.forEach((name, meter) -> metricDatum.addAll(createMeterDatum(timestamp, name, meter)));
 
@@ -127,12 +112,12 @@ public class SendMetricsToCloudWatch {
 
         while (!batch.isEmpty()) {
             try {
-                PutMetricDataRequest request = new PutMetricDataRequest()
-                        .withNamespace(nameSpace)
-                        .withMetricData(batch);
+                PutMetricDataRequest request = PutMetricDataRequest.builder()
+                        .namespace(nameSpace)
+                        .metricData(batch).build();
                 client.putMetricData(request);
             }
-            catch (AmazonServiceException exception) {
+            catch (AwsServiceException exception) {
                 logger.error(format("Unable to log metrics to cloudwatch with namespace %s and batch %s",
                         nameSpace, batch), exception);
             }

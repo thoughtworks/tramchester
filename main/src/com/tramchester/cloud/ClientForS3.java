@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -26,7 +27,7 @@ public class ClientForS3 {
         try {
             s3Client = S3Client.create();
         }
-        catch (com.amazonaws.SdkClientException exception) {
+        catch (AwsServiceException exception) {
             logger.warn("Unable to init S3 client, no live data will be archived.");
         }
     }
