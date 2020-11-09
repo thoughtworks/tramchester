@@ -31,9 +31,10 @@ public class LiveDataParser {
 
     private static final String DIRECTION_BOTH = "Incoming/Outgoing";
     private static final String TERMINATES_HERE = "Terminates Here";
+    private static final String NOT_IN_SERVICE = "Not in Service";
     private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
     private final StationRepository stationRepository;
-    private static final List<String> NotADestination = Arrays.asList("See Tram Front", "Not in Service");
+    private static final List<String> NotADestination = Arrays.asList("See Tram Front", NOT_IN_SERVICE);
 
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
@@ -126,28 +127,33 @@ public class LiveDataParser {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
             final int index = i;
             String destinationName = getNumberedField(jsonObject, "Dest", index);
-            if (!destinationName.isEmpty()) {
+            if (!destinationName.isEmpty() && !NotADestination.contains(destinationName)) {
 
-                Optional<Station> maybeStation;
+                Optional<Station> maybeDestStation;
                 if (TERMINATES_HERE.equals(destinationName)) {
                     // replace "terminates here" with the station where this message is displayed
-                    maybeStation = Optional.of(departureInfo.getStation());
+                    maybeDestStation = Optional.of(departureInfo.getStation());
                 } else {
                     // try to look up destination station based on the destination text....
-                    maybeStation = getTramDestination(destinationName);
+                    maybeDestStation = getTramDestination(destinationName);
                 }
 
-                maybeStation.ifPresent(station -> {
-                    String status = getNumberedField(jsonObject, "Status", index);
-                    String waitString = getNumberedField(jsonObject, "Wait", index);
-                    int wait = Integer.parseInt(waitString);
-                    String carriages = getNumberedField(jsonObject, "Carriages", index);
-                    LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
+                maybeDestStation.ifPresentOrElse(station -> {
+                            String status = getNumberedField(jsonObject, "Status", index);
+                            String waitString = getNumberedField(jsonObject, "Wait", index);
+                            int wait = Integer.parseInt(waitString);
+                            String carriages = getNumberedField(jsonObject, "Carriages", index);
+                            LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
 
-                    DueTram dueTram = new DueTram(station, status, wait, carriages, lastUpdate);
-                    departureInfo.addDueTram(dueTram);
-                });
+                            DueTram dueTram = new DueTram(station, status, wait, carriages, lastUpdate);
+                            departureInfo.addDueTram(dueTram);
+                        },
+
+                        () -> logger.warn("Unable to match due tram destination '" + destinationName + "' index: " + index +" json '"+jsonObject+"'"));
+            } else {
+                logger.info("Skipping destination '" + destinationName + "' for " + departureInfo);
             }
+
         }
     }
 
@@ -161,25 +167,34 @@ public class LiveDataParser {
     }
 
     private Optional<Station> getTramDestination(String name) {
-        String destinationName = mapLiveAPIToTimetableDataNames(name);
-        if (destinationName.isEmpty())
+        if (name.isEmpty())
         {
             logger.warn("Got empty name");
             return Optional.empty();
         }
-        if (NotADestination.contains(destinationName)) {
-            logger.debug(format("Not mapping destination name: '%s'", destinationName));
+        if (NotADestination.contains(name)) {
+            logger.info(format("Not a destination: '%s'", name));
             return Optional.empty();
         }
 
+        String destinationName = mapLiveAPIToTimetableDataNames(name);
         return stationRepository.getTramStationByName(destinationName);
     }
 
     private String mapLiveAPIToTimetableDataNames(String destinationName) {
-        int viaIndex = destinationName.toLowerCase().indexOf(" via");
+        destinationName = destinationName.replace("Via", "via");
+
+        // Ashton is not the name of the station....
+        if ("Ashton via MCUK".equals(destinationName)) {
+            return "Ashton-under-Lyne";
+        }
+
+        // assume station name is valid.....
+        int viaIndex = destinationName.indexOf(" via");
         if (viaIndex > 0) {
             destinationName = destinationName.substring(0, viaIndex);
         }
+
         if ("Firswood".equals(destinationName)) {
             return "Firswood Station";
         }
@@ -195,6 +210,7 @@ public class LiveDataParser {
         if ("St Werburgh’s Road".equals(destinationName)) {
             return "St Werburgh's Road";
         }
+
         return destinationName;
     }
 

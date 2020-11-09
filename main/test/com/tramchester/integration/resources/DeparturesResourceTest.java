@@ -189,7 +189,7 @@ class DeparturesResourceTest {
         assertEquals(200, response.getStatus());
 
         departureList = response.readEntity(DepartureListDTO.class);
-        assertFalse(departureList.getNotes().isEmpty(), "no notes");
+        assertFalse(departureList.getNotes().isEmpty(), "no notes for " + station);
 
     }
 
