@@ -1,4 +1,10 @@
 
+var moment = require('moment');
+
+function dueTimeFormatter(value, key, row) {
+    var departTime = moment(value);
+    return departTime.format("HH:mm");
+}
 
 export default { 
     props: ['livedataresponse'],
@@ -7,7 +13,7 @@ export default {
             currentPage: 1,
             departureFields: [
                 {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
-                {key:'when', label:'Time', tdClass:'departureDueTime', sortable:true},
+                {key:'dueTime', label:'Time', tdClass:'departureDueTime', formatter: dueTimeFormatter, sortable:true},
                 {key:'carriages', label:'', tdClass:'departureCarriages'},
                 {key:'status', label:'Status', tdClass:'departureStatus'},
                 {key:'destination', label:'Towards', tdClass:'departureTowards',  sortable:true}

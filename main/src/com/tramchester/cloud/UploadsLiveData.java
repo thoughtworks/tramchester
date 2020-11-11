@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.LiveDataObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class UploadsLiveData implements LiveDataObserver {
     public UploadsLiveData(ClientForS3 s3) {
         this.s3 = s3;
         objectMapper = new ObjectMapper();
+
         String maybeEnv = System.getenv("PLACE");
 
         if (maybeEnv==null) {
@@ -82,4 +84,5 @@ public class UploadsLiveData implements LiveDataObserver {
         }
         return latest;
     }
+
 }

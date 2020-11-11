@@ -1,13 +1,18 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.TramTime;
+import com.fasterxml.jackson.datatype.joda.deser.LocalDateTimeDeserializer;
 import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
-import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
+import com.tramchester.domain.places.Station;
+import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
+import com.tramchester.mappers.serialisation.LocalTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.LocalTimeJsonSerializer;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 public class DepartureDTO implements Comparable<DepartureDTO> {
@@ -18,12 +23,12 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
 
     private String carriages;
     private String status;
-    private TramTime when;
+    private LocalDateTime when;
     private int wait;
 
-    public DepartureDTO(Station from, DueTram dueTram) {
+    public DepartureDTO(Station from, DueTram dueTram, LocalDate queryDate) {
         this.from = from.getName();
-        this.when = dueTram.getWhen();
+        this.when = dueTram.getWhen().toDate(queryDate);
         this.carriages = dueTram.getCarriages();
         this.status = dueTram.getStatus();
         this.destination = dueTram.getDestination().getName();
@@ -35,10 +40,18 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         // for deserialisation
     }
 
-    @JsonSerialize(using = TramTimeJsonSerializer.class)
-    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
-    public TramTime getWhen() {
+    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    public LocalDateTime getDueTime() {
         return when;
+    }
+
+    @JsonProperty("when")
+    @JsonSerialize(using = LocalTimeJsonSerializer.class)
+    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
+    public LocalTime getWhenForLiveUpload() {
+        // for keeping upload of live data consistent
+        return when.toLocalTime();
     }
 
     public String getFrom() {
@@ -98,4 +111,5 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     public int getWait() {
         return wait;
     }
+
 }

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -146,13 +147,13 @@ class DeparturesResourceTest {
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
         SortedSet<DepartureDTO> departures = departureList.getDepartures();
-        assertFalse(departures.isEmpty());
+        assertFalse(departures.isEmpty(), "no departures");
 
         DepartureDTO departureDTO = departures.first();
-        TramTime when = departureDTO.getWhen();
+        LocalDateTime when = departureDTO.getDueTime();
 
         TramTime nowWithin5mins = TramTime.of(TestEnv.LocalNow().toLocalTime().minusMinutes(5));
-        assertTrue(when.asLocalTime().isAfter(nowWithin5mins.asLocalTime()) );
+        assertTrue(when.toLocalTime().isAfter(nowWithin5mins.asLocalTime()) );
 
         String nextDepart = departureDTO.getFrom();
         assertTrue(nearby.contains(nextDepart), nextDepart);

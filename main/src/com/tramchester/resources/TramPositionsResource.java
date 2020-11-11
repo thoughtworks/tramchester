@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -50,14 +51,15 @@ public class TramPositionsResource implements APIResource {
     public Response get(@QueryParam("unfiltered") @DefaultValue("false") String unfilteredRaw) {
         boolean unfilteredFlag = unfilteredRaw.equals("true");
 
-        List<TramPosition> results = positionInference.inferWholeNetwork(TramServiceDate.of(providesNow.getDate()),
+        LocalDate localDate = providesNow.getDate();
+        List<TramPosition> results = positionInference.inferWholeNetwork(TramServiceDate.of(localDate),
                 providesNow.getNow());
         List<TramPositionDTO> dtoList = results.stream().
                 filter(pos -> unfilteredFlag || (!pos.getTrams().isEmpty())).
                 map(pos -> new TramPositionDTO(
                         new StationRefWithPosition(pos.getFirst()),
                         new StationRefWithPosition(pos.getSecond()),
-                        depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams()),
+                        depatureMapper.mapToDTO(pos.getSecond(), pos.getTrams(), localDate),
                         pos.getCost())).
                 collect(Collectors.toList());
 

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +49,8 @@ public class DeparturesResource implements APIResource  {
     private final TramchesterConfig config;
 
     public DeparturesResource(StationLocations stationLocations, DueTramsSource dueTramsSource,
-                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository, ProvidesNow providesNow, TramchesterConfig config) {
+                              DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository,
+                              ProvidesNow providesNow, TramchesterConfig config) {
         this.stationLocations = stationLocations;
         this.dueTramsSource = dueTramsSource;
         this.departuresMapper = departuresMapper;
@@ -69,7 +71,8 @@ public class DeparturesResource implements APIResource  {
         List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong,
                 config.getNumOfNearestStopsToOffer(), config.getNearestStopRangeKM());
 
-        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
+        LocalDate localDate = providesNow.getDate();
+        TramServiceDate queryDate = new TramServiceDate(localDate);
 
         Optional<TramTime> optionalTramTime = Optional.empty();
         if (!queryTimeRaw.isEmpty()) {
@@ -84,8 +87,8 @@ public class DeparturesResource implements APIResource  {
         // trams
         SortedSet<DepartureDTO> departs = new TreeSet<>();
         nearbyStations.forEach(station -> {
-            List<DueTram> dueTrams = dueTramsSource.dueTramsFor(station, queryDate.getDate(), queryTime);
-            departs.addAll(departuresMapper.mapToDTO(station, dueTrams));
+            List<DueTram> dueTrams = dueTramsSource.dueTramsFor(station, localDate, queryTime);
+            departs.addAll(departuresMapper.mapToDTO(station, dueTrams, localDate));
         });
 
         // notes
@@ -117,7 +120,8 @@ public class DeparturesResource implements APIResource  {
             includeNotes = !notesParam.equals("0");
         }
 
-        TramServiceDate queryDate = new TramServiceDate(providesNow.getDate());
+        LocalDate localDate = providesNow.getDate();
+        TramServiceDate queryDate = new TramServiceDate(localDate);
 
         Optional<TramTime> optionalTramTime = Optional.empty();
         if (!queryTimeRaw.isEmpty()) {
@@ -133,11 +137,11 @@ public class DeparturesResource implements APIResource  {
         logger.info("Found station " + HasId.asId(station) + " Find departures at " + queryDate + " " +queryTime);
 
         //trams
-        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, queryDate.getDate(), queryTime);
+        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, localDate, queryTime);
         if (dueTramList.isEmpty()) {
             logger.warn("Departures list empty for " + HasId.asId(station) + " at " + queryDate + " " +queryTime);
         }
-        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList));
+        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList, localDate));
 
         //notes
         List<Note> notes = Collections.emptyList();

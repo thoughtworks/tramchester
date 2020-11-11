@@ -305,7 +305,7 @@ public class  TramTime implements Comparable<TramTime> {
         return result;
     }
 
-    // to date, respecting day offsetttt
+    // to date, respecting day offset
     public LocalDateTime toDate(LocalDate startDate) {
         LocalDateTime base = LocalDateTime.of(startDate, asLocalTime());
         return base.plusDays(offsetDays);

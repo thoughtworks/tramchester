@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +41,7 @@ public class StationDepartureInfoDTO  {
         this(info.getLineName(),
                 info.getStationPlatform().forDTO(),
                 info.getMessage(),
-                mapDueTrams(info.getStation(), info.getDueTrams()),
+                mapDueTrams(info.getStation(), info.getDueTrams(), info.getLastUpdate().toLocalDate()),
                 info.getLastUpdate(),
                 info.getDisplayId(),
                 info.getStation().getName());
@@ -51,8 +52,8 @@ public class StationDepartureInfoDTO  {
         // deserialisation
     }
 
-    private static List<DepartureDTO> mapDueTrams(Station location, List<DueTram> dueTrams) {
-        return dueTrams.stream().map(dueTram -> new DepartureDTO(location, dueTram)).collect(Collectors.toList());
+    private static List<DepartureDTO> mapDueTrams(Station location, List<DueTram> dueTrams, LocalDate queryDate) {
+        return dueTrams.stream().map(dueTram -> new DepartureDTO(location, dueTram, queryDate)).collect(Collectors.toList());
     }
 
     public String getLineName() {
