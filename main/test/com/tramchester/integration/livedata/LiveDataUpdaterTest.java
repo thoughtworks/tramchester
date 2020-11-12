@@ -45,5 +45,4 @@ class LiveDataUpdaterTest {
 
         assertTrue(numStationsWithMessages>1);
     }
-
 }

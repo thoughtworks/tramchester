@@ -36,7 +36,7 @@ class DeparturesResourceTest {
             TramStations.ExchangeSquare.getName(),
             "Shudehill");
 
-    private final TramStations stationWithNotes = TramStations.Victoria;
+    private final TramStations stationWithNotes = TramStations.Cornbrook;
 
     @Test
     @LiveDataTestCategory

@@ -22,10 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -181,9 +178,11 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
         }
 
         TramTime queryTime = TramTime.of(queryDateTime);
-        return messageCache.asMap().values().stream().
+        Set<Station> haveMessages = messageCache.asMap().values().stream().
                 filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
-                map(PlatformMessage::getStation).collect(Collectors.toSet()).size();
+                map(PlatformMessage::getStation).collect(Collectors.toSet());
+        logger.debug("Stations with messages " + haveMessages);
+        return haveMessages.size();
     }
 
     // for metrics
