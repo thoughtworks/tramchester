@@ -1,6 +1,4 @@
 
-var moment = require('moment');
-
 function rowExpandedFormatter(value, key, row) {
     if (row._showDetails!=null && row._showDetails) {
         return "&#8897;";
@@ -70,25 +68,25 @@ function lineFormatter(value, key, row) {
 }
 
 function dateTimeFormatter(value, key, row) {
-    var queryDate = moment(row.journey.queryDate);
-    var journeyDate = moment(value);
+    var queryDate = new Date(row.journey.queryDate);
+    var journeyDate = new Date(value);
     return formatDate(queryDate, journeyDate)
 }
 
 function stageDateTimeFormatter(value, key, row) {
-    var queryDate = moment(row.queryDate);
-    var journeyDate = moment(value);
+    var queryDate = new Date(row.queryDate);
+    var journeyDate = new Date(value);
     return formatDate(queryDate, journeyDate)
 }
 
-function formatDate(queryDate, journeyDateTime) {
-    var diff = journeyDateTime.dayOfYear() - queryDate.dayOfYear();
-    if (diff<0) {
-        // end of year
-        diff = 366 + diff;
-    }
+function daysSinceEpoch(date) {
+    const dayInMillis = Math.floor(24 * 60 * 60 * 1000);
+    return Math.floor(date.getTime() / dayInMillis);
+}
 
-    var time = journeyDateTime.format("HH:mm");
+function formatDate(queryDate, journeyDateTime) {
+    var diff = daysSinceEpoch(journeyDateTime) - daysSinceEpoch(queryDate);
+    var time = toHourAndMins(journeyDateTime); 
     if (diff>0) {
         return time + ' +' + diff + 'd';
     }
@@ -114,11 +112,11 @@ function earliestDepartTime(journeys) {
 
     var earliestDepart = null;
     journeys.forEach(item => {
-        var currnet = moment(item.journey.firstDepartureTime);
+        var currnet = new Date(item.journey.firstDepartureTime);
         if (earliestDepart==null) {
             earliestDepart = currnet;
         }
-        if (currnet.isBefore(earliestDepart)) {
+        if (currnet < earliestDepart) {
             earliestDepart = currnet;
         }
     })
@@ -129,15 +127,20 @@ function lastDepartTime(journeys) {
 
     var lastDepart = null;
     journeys.forEach(item => {
-        var currnet = moment(item.journey.firstDepartureTime);
+        var currnet = new Date(item.journey.firstDepartureTime);
         if (lastDepart==null) {
             lastDepart = currnet;
         }
-        if (currnet.isAfter(lastDepart)) {
+        if (currnet > lastDepart) {
             lastDepart = currnet;
         }
     })
     return lastDepart;
+}
+
+
+function toHourAndMins(date) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 export default { 
@@ -196,14 +199,14 @@ export default {
         },
         earlier() {
             const current = earliestDepartTime(this.journeysresponse); 
-            var newTime = current.subtract(24, 'minutes');
-            const newDepartTime = newTime.format("HH:mm");
+            var newTime = new Date(current.getTime() - 24*60*1000); 
+            const newDepartTime = toHourAndMins(newTime); 
             this.$emit('earlier-tram', newDepartTime);
         },
         later() {
             const current = lastDepartTime(this.journeysresponse); 
-            var newTime = current.add(1, 'minutes');
-            const newDepartTime = newTime.format("HH:mm");
+            var newTime = new Date(current.getTime() + 60*1000); 
+            const newDepartTime = toHourAndMins(newTime); 
             this.$emit('later-tram', newDepartTime);
         }
     },

@@ -1,7 +1,6 @@
 
 const axios = require('axios');
 
-var moment = require('moment');
 var Vue = require('vue');
 Vue.use(require('bootstrap-vue'));
 

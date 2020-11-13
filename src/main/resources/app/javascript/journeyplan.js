@@ -1,5 +1,4 @@
 
-var moment = require('moment');
 const axios = require('axios');
 var Vue = require('vue');
 Vue.use(require('vue-cookies'));
@@ -16,14 +15,17 @@ import LiveDepartures from './components/LiveDepatures'
 import LocationSelection from './components/LocationSelection';
 import Closures from './components/Closures'
 
-const dateFormat = "YYYY-MM-DD";
+function getNow() {
+    return new Date();
+}
 
 function getCurrentTime() {
-    return moment().local().format("HH:mm");
+    return getNow().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 function getCurrentDate() {
-    return moment().format(dateFormat)
+    const now = new Date().toISOString();
+    return now.substr(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
 }
 
 function livedataUrlFromLocation() {
@@ -39,10 +41,6 @@ function livedataUrl() {
     }
 }
 
-// function tramsEnabled(scope) {
-//     return scope.modes.includes('Tram');
-// }
-
 function busEnabled(scope) {
     return scope.modes.includes('Bus');
 }
@@ -56,14 +54,16 @@ function displayLiveData(app) {
             return; 
         }
     }
-    var queryDate = moment(app.date, dateFormat);
-            var today = moment();
-            // check live data for today only 
-            if (today.month()==queryDate.month()
-                && today.year()==queryDate.year()
-                && today.date()==queryDate.date()) {
-                queryLiveData(livedataUrl());
-            }
+    var queryDate = new Date(app.date); 
+    var today = getNow();
+    // check live data for today only 
+    if (today.getMonth()==queryDate.getMonth()
+        && today.getYear()==queryDate.getYear()
+        && today.getDate()==queryDate.getDate()) {
+        queryLiveData(livedataUrl());
+    } else {
+        app.liveDepartureResponse = null;
+    }
 
 }
 
@@ -79,7 +79,6 @@ function queryLiveData(url) {
                 reportError(error);
             });
 }
-
 
 function getFeedinfo(app) {
     axios.get('/api/datainfo')

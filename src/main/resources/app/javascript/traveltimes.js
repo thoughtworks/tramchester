@@ -1,7 +1,6 @@
 
 const axios = require('axios');
 
-var moment = require('moment');
 var Vue = require('vue');
 Vue.use(require('bootstrap-vue'));
 var oboe = require('oboe');
@@ -20,10 +19,9 @@ require("leaflet/dist/images/marker-shadow.png");
 import Footer from './components/Footer';
 import Routes from './components/Routes';
 
-const dateFormat = "YYYY-MM-DD";
-
 function getCurrentDate() {
-    return moment().format(dateFormat)
+    const now = new Date().toISOString();
+    return now.substr(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
 }
 
 function boxClicked(event) {

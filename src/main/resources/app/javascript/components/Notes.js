@@ -1,20 +1,4 @@
 
-function consolidateNotes(journeys) {
-    var notes = [];
-    var notesText = [];
-    journeys.forEach(item => {
-        var journey = item.journey;
-        var journeyNotes = journey.notes;
-        journeyNotes.forEach(journeyNote => {
-            var text = journeyNote.text;
-            if (!notesText.includes(text)) {
-                notes.push(journeyNote);
-                notesText.push(text);
-            }
-        })
-    });
-    return notes;
-}
 
 function countItems(text, list) {
     var count = 0;

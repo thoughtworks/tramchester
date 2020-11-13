@@ -1,9 +1,7 @@
 
-var moment = require('moment');
-
 function dueTimeFormatter(value, key, row) {
-    var departTime = moment(value);
-    return departTime.format("HH:mm");
+    var departTime = new Date(value);
+    return departTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 export default { 
