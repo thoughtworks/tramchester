@@ -47,7 +47,7 @@ var mapApp = new Vue({
     mounted () {
         this.map = L.map('leafletMap');
 
-        axios.get('/api/feedinfo')
+        axios.get('/api/datainfo')
             .then(function (response) {
                 mapApp.networkError = false;
                 mapApp.feedinfo = response.data;

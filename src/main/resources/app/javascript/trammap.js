@@ -25,15 +25,6 @@ var width = 300;
 var height = 300;
 var margin = 60;
 
-// function textFor(trams) {
-//     var text = "";
-//     for (var i = 0; i < trams.length; i++) {
-//         if (i>0) text = text + "\n";
-//         text = text + trams[i].destination;
-//     }
-//     return text;
-// }
-
 function addStations() {
     mapApp.routes.forEach(route => {
         var stationIcon = L.divIcon({className: 'station-icon '+ Routes.classForRoute(route), iconSize:[12,12]});
@@ -154,7 +145,7 @@ var mapApp = new Vue({
     mounted () {
         this.map = L.map('leafletMap');
 
-        axios.get('/api/feedinfo')
+        axios.get('/api/datainfo')
             .then(function (response) {
                 mapApp.networkError = false;
                 mapApp.feedinfo = response.data;
