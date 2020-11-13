@@ -357,12 +357,10 @@ jar {
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
-//    inputs.file("src/main/resources/app/index.html")
-//    inputs.dir("src/main/resources/app/javascript")
-//    inputs.dir("src/main/resources/app/css")
     inputs.file("package.json")
     inputs.file("package-lock.json")
     inputs.file("webpack.config.js")
+    // TODO move dist output directory
     inputs.files(fileTree("src/main/resources/app").exclude("src/main/resources/app/dist"))
 
     outputs.file("src/main/resources/app/dist/main.js")
