@@ -20,7 +20,7 @@ function getNow() {
 }
 
 function getCurrentTime() {
-    return getNow().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return getNow().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function getCurrentDate() {
