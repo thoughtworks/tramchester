@@ -26,11 +26,13 @@ public class PostcodeBoundingBoxs implements Startable, Disposable {
     public final static String HINTS_FILES = "postcode_hints.csv";
     private final Map<Path, BoundingBox> postcodeBounds;
     private final Path hintsFilePath;
+    private final boolean enabled;
     private boolean playback;
 
     public PostcodeBoundingBoxs(TramchesterConfig config) {
         postcodeBounds = new HashMap<>();
         Path directory = config.getPostcodeDataPath();
+        enabled = config.getLoadPostcodes();
         hintsFilePath = directory.resolve(HINTS_FILES).toAbsolutePath();
     }
 
@@ -41,6 +43,11 @@ public class PostcodeBoundingBoxs implements Startable, Disposable {
 
     @Override
     public void start() {
+        if (!enabled) {
+            logger.info("Postcode load disabled in config");
+            return;
+        }
+
         playback = Files.exists(hintsFilePath);
 
         if (playback) {
@@ -52,6 +59,11 @@ public class PostcodeBoundingBoxs implements Startable, Disposable {
 
     @Override
     public void stop() {
+        if (!enabled) {
+            logger.info("Postcode load disabled in config");
+            return;
+        }
+
         if (!playback) {
             recordBoundsForPostcodes();
         } else {

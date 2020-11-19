@@ -65,7 +65,7 @@ public class TramJourneyToDTOMapper {
     }
 
     private TravelAction decideWalkingAction(TransportStage<?,?> rawStage) {
-        WalkingStage walkingStage = (WalkingStage) rawStage;
+        WalkingStage<?,?> walkingStage = (WalkingStage<?,?>) rawStage;
         return walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo;
     }
 
