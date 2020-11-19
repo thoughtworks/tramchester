@@ -4,6 +4,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.*;
+import com.tramchester.cloud.data.UploadsLiveData;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;

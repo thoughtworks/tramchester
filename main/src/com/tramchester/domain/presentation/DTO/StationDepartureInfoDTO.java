@@ -26,8 +26,8 @@ public class StationDepartureInfoDTO  {
     ///
     /// NOTE: used for archiving of received live data into json on S3
     ///
-    private StationDepartureInfoDTO(String lineName, String stationPlatform, String message, List<DepartureDTO> dueTrams,
-                                    LocalDateTime lastUpdate, String displayId, String location) {
+    public StationDepartureInfoDTO(String lineName, String stationPlatform, String message, List<DepartureDTO> dueTrams,
+                                   LocalDateTime lastUpdate, String displayId, String location) {
         this.lineName = lineName;
         this.stationPlatform = stationPlatform;
         this.message = message;

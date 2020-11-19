@@ -1,17 +1,14 @@
-package com.tramchester.cloud;
+package com.tramchester.cloud.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
-import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.LiveDataObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,13 +18,15 @@ import static java.lang.String.format;
 public class UploadsLiveData implements LiveDataObserver {
     private static final Logger logger = LoggerFactory.getLogger(UploadsLiveData.class);
 
-    private final ObjectMapper objectMapper;
+    private final StationDepartureMapper mapper;
     private final ClientForS3 s3;
+    private final S3Keys s3Keys;
     private final String environment;
 
-    public UploadsLiveData(ClientForS3 s3) {
+    public UploadsLiveData(ClientForS3 s3, StationDepartureMapper mapper, S3Keys s3Keys) {
         this.s3 = s3;
-        objectMapper = new ObjectMapper();
+        this.mapper = mapper;
+        this.s3Keys = s3Keys;
 
         String maybeEnv = System.getenv("PLACE");
 
@@ -51,18 +50,16 @@ public class UploadsLiveData implements LiveDataObserver {
 
         try {
 
-            String date = timeStamp.toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE);
-            String time = timeStamp.toLocalTime().format(DateTimeFormatter.ISO_TIME);
-            String key = format("%s/%s/%s", environment.toLowerCase(), date,time);
+            String prefix = s3Keys.createPrefix(timeStamp.toLocalDate());
+            String key = s3Keys.create(timeStamp, environment);
 
             // already uploaded by another instance
-            if (s3.keyExists(date, key)) {
+            if (s3.keyExists(prefix, key)) {
                 return true;
             }
 
             logger.info("Upload live data to S3");
-            String json = objectMapper.writeValueAsString(dtoToUpload);
-            logger.debug("JSON to update is " + json);
+            String json = mapper.map(dtoToUpload);
 
             return s3.upload(key, json);
 

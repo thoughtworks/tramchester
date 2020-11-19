@@ -127,8 +127,12 @@ public class LiveDataParser {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
             final int index = i;
             String destinationName = getNumberedField(jsonObject, "Dest", index);
-            if (!destinationName.isEmpty() && !NotADestination.contains(destinationName)) {
-
+            if (destinationName.isEmpty()) {
+                // likely not present in json
+                logger.debug("Skipping destination '" + destinationName + "' for " + jsonObject.toString() + " and index " + i);
+            } else if (NotADestination.contains(destinationName)) {
+                logger.info("Skipping destination '" + destinationName + "' for " + jsonObject.toJson() + " and index " + i);
+            } else {
                 Optional<Station> maybeDestStation;
                 if (TERMINATES_HERE.equals(destinationName)) {
                     // replace "terminates here" with the station where this message is displayed
@@ -150,10 +154,7 @@ public class LiveDataParser {
                         },
 
                         () -> logger.warn("Unable to match due tram destination '" + destinationName + "' index: " + index +" json '"+jsonObject+"'"));
-            } else {
-                logger.info("Skipping destination '" + destinationName + "' for " + departureInfo);
             }
-
         }
     }
 
