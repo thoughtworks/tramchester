@@ -156,7 +156,10 @@ public class ClientForS3 {
             return Collections.emptyList();
         }
 
-        return summary.contents();
+        List<S3Object> contents = summary.contents();
+        logger.info("Got " + contents.size() + " keys for prefix " + prefix);
+
+        return contents;
     }
 
     public boolean isStarted() {

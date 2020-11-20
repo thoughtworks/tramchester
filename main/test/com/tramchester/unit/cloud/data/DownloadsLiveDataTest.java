@@ -49,7 +49,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         Duration duration = Duration.of(1, HOURS);
 
         String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String expectedKey = s3Keys.create(start, "Test");
+        String expectedKey = s3Keys.create(start);
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
         EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson");
         EasyMock.expect(stationDepartureMapper.parse("someJson")).andReturn(Collections.singletonList(departsDTO));
@@ -73,9 +73,9 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         Duration duration = Duration.of(1, HOURS);
 
         String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String keyA = s3Keys.create(start.plusMinutes(5), "Test");
-        String keyB = s3Keys.create(start.plusMinutes(10), "Test");
-        String keyC = s3Keys.create(start.plusMinutes(65), "Test");
+        String keyA = s3Keys.create(start.plusMinutes(5));
+        String keyB = s3Keys.create(start.plusMinutes(10));
+        String keyC = s3Keys.create(start.plusMinutes(65));
 
         Set<String> keys = new HashSet<>();
         keys.add(keyA);
@@ -111,8 +111,8 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         String expectedPrefixB = s3Keys.createPrefix(start.toLocalDate().plusDays(1));
         String expectedPrefixC = s3Keys.createPrefix(start.toLocalDate().plusDays(2));
 
-        String keyA = s3Keys.create(start, "Test");
-        String keyC = s3Keys.create(start.plusDays(2), "Test");
+        String keyA = s3Keys.create(start);
+        String keyC = s3Keys.create(start.plusDays(2));
 
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixA)).andReturn(Collections.singleton(keyA));
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixB)).andReturn(Collections.emptySet());
@@ -138,7 +138,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         Duration duration = Duration.of(1, HOURS);
 
         String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String expectedKey = s3Keys.create(start.plusMinutes(65), "Test");
+        String expectedKey = s3Keys.create(start.plusMinutes(65));
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
 
         replayAll();
@@ -154,7 +154,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         Duration duration = Duration.of(1, HOURS);
 
         String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String expectedKey = s3Keys.create(start, "Test");
+        String expectedKey = s3Keys.create(start);
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
         EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson");
         List<StationDepartureInfoDTO> theList = new ArrayList<>();

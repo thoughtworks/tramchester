@@ -1,6 +1,8 @@
 package com.tramchester.cloud.data;
 
-import java.text.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -10,23 +12,36 @@ import java.time.format.DateTimeParseException;
 import static java.lang.String.format;
 
 public class S3Keys {
+    private static final Logger logger = LoggerFactory.getLogger(S3Keys.class);
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
+    private final String environment;
 
-    public String create(LocalDateTime timeStamp, String environment) {
+    public S3Keys() {
+        String maybeEnv = System.getenv("PLACE");
+
+        if (maybeEnv==null) {
+            logger.warn("PLACE is not set");
+            environment = "test";
+        } else {
+            environment = maybeEnv.toLowerCase();
+        }
+    }
+
+    public String create(LocalDateTime timeStamp) {
         // TODO this ought to be UTC, not local
 
         String date = timeStamp.toLocalDate().format(dateFormatter);
         String time = timeStamp.toLocalTime().format(timeFormatter);
 
-        return format("%s/%s/%s", environment.toLowerCase(), date, time);
+        return format("%s/%s/%s", environment, date, time);
     }
 
     public String createPrefix(LocalDate timeStamp) {
         // TODO this ought to be UTC, not local
 
-        return timeStamp.format(dateFormatter);
+        return format("%s/%s", environment, timeStamp.format(dateFormatter));
     }
 
     public LocalDateTime parse(String key) throws S3KeyException {
@@ -50,7 +65,6 @@ public class S3Keys {
         public S3KeyException(String message) {
             super(message);
         }
-
         public S3KeyException(String message, Exception exception) {
             super(message, exception);
         }

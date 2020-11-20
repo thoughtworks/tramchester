@@ -21,21 +21,11 @@ public class UploadsLiveData implements LiveDataObserver {
     private final StationDepartureMapper mapper;
     private final ClientForS3 s3;
     private final S3Keys s3Keys;
-    private final String environment;
 
     public UploadsLiveData(ClientForS3 s3, StationDepartureMapper mapper, S3Keys s3Keys) {
         this.s3 = s3;
         this.mapper = mapper;
         this.s3Keys = s3Keys;
-
-        String maybeEnv = System.getenv("PLACE");
-
-        if (maybeEnv==null) {
-            logger.warn("PLACE is not set");
-            environment = "test";
-        } else {
-            environment = maybeEnv;
-        }
     }
 
     public boolean seenUpdate(Collection<StationDepartureInfo> stationDepartureInfos) {
@@ -51,7 +41,7 @@ public class UploadsLiveData implements LiveDataObserver {
         try {
 
             String prefix = s3Keys.createPrefix(timeStamp.toLocalDate());
-            String key = s3Keys.create(timeStamp, environment);
+            String key = s3Keys.create(timeStamp);
 
             // already uploaded by another instance
             if (s3.keyExists(prefix, key)) {

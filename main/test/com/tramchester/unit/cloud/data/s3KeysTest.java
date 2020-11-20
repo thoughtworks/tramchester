@@ -17,14 +17,14 @@ class s3KeysTest {
         LocalDate date = LocalDate.of(2020,11,29);
         String result = s3Keys.createPrefix(date);
 
-        assertEquals("20201129", result);
+        assertEquals("test/20201129", result);
     }
 
     @Test
     void shouldCreatedExpectedKey() {
 
         LocalDateTime date = LocalDateTime.of(2020,11,29, 15,42,55);
-        String result = s3Keys.create(date, "TEST");
+        String result = s3Keys.create(date);
 
         assertEquals("test/20201129/15:42:55", result);
     }
