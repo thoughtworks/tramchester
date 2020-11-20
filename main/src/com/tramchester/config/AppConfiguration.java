@@ -89,24 +89,8 @@ public class AppConfiguration extends TramchesterConfig {
     private Integer dataExpiryThreadhold;
 
     @NotNull
-    @JsonProperty("liveDataUrl")
-    private String liveDataUrl;
-
-    @NotNull
-    @JsonProperty("liveDataSubscriptionKey")
-    private String liveDataSubscriptionKey;
-
-    @NotNull
-    @JsonProperty("liveDataS3Bucket")
-    private String liveDataS3Bucket;
-
-    @NotNull
     @JsonProperty("removeRouteNameSuffix")
     private Boolean removeRouteNameSuffix;
-
-    @NotNull
-    @JsonProperty("liveDataRefreshPeriodSeconds")
-    private Long liveDataRefreshPeriodSeconds;
 
     @NotNull
     @JsonProperty("maxJourneyDuration")
@@ -131,14 +115,6 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("distanceToNeighboursKM")
     private Double distanceToNeighboursKM;
 
-    @NotNull
-    @JsonProperty("maxNumberStationsWithoutMessages")
-    private Integer maxNumberStationsWithoutMessages;
-
-    @NotNull
-    @JsonProperty("maxNumberStationsWithoutData")
-    private Integer maxNumberStationsWithoutData;
-
     @Valid
     @JsonProperty("dataSources")
     private List<DataSourceConfig> dataSourceConfig;
@@ -146,6 +122,10 @@ public class AppConfiguration extends TramchesterConfig {
     @NotNull
     @JsonProperty("stationClosures")
     private List<StationClosure> stationClosures;
+
+    @NotNull
+    @JsonProperty("liveData")
+    private LiveDataAppConfig liveDataConfig;
 
     @NotNull
     @JsonProperty("bounds")
@@ -202,14 +182,6 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public String getLiveDataUrl() {
-        return liveDataUrl;
-    }
-
-    @Override
-    public String getLiveDataSubscriptionKey() { return liveDataSubscriptionKey; }
-
-    @Override
     public String getSecureHost() {
         return secureHost;
     }
@@ -248,17 +220,9 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public String getLiveDataS3Bucket() {
-        return liveDataS3Bucket.toLowerCase();
-    }
-
-    @Override
     public boolean getRemoveRouteNameSuffix() {
         return removeRouteNameSuffix;
     }
-
-    @Override
-    public long getLiveDataRefreshPeriodSeconds() { return liveDataRefreshPeriodSeconds; }
 
     @Override
     public boolean getChangeAtInterchangeOnly() {
@@ -268,16 +232,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;
-    }
-
-    @Override
-    public int getMaxNumberStationsWithoutMessages() {
-        return maxNumberStationsWithoutMessages;
-    }
-
-    @Override
-    public int getMaxNumberStationsWithoutData() {
-        return maxNumberStationsWithoutData;
     }
 
     @Override
@@ -315,6 +269,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public List<StationClosure> getStationClosures() {
         return stationClosures;
+    }
+
+    @Override
+    public LiveDataConfig getLiveDataConfig() {
+        return liveDataConfig;
     }
 
     @Valid

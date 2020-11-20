@@ -1,5 +1,6 @@
 package com.tramchester.cloud.data;
 
+import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +19,8 @@ public class S3Keys {
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
     private final String environment;
 
-    public S3Keys() {
-        String maybeEnv = System.getenv("PLACE");
-
-        if (maybeEnv==null) {
-            logger.warn("PLACE is not set");
-            environment = "test";
-        } else {
-            environment = maybeEnv.toLowerCase();
-        }
+    public S3Keys(TramchesterConfig config) {
+        environment = config.getLiveDataConfig().getS3Prefix();
     }
 
     public String create(LocalDateTime timeStamp) {

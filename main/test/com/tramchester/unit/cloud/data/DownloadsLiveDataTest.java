@@ -6,6 +6,7 @@ import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
 import org.easymock.EasyMock;
@@ -33,7 +34,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         clientForS3 = createStrictMock(ClientForS3.class);
         stationDepartureMapper = createStrictMock(StationDepartureMapper.class);
-        s3Keys = new S3Keys();
+        s3Keys = new S3Keys(TestEnv.GET());
         downloader = new DownloadsLiveData(clientForS3, stationDepartureMapper, s3Keys);
 
         StationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:32"), "displayId",

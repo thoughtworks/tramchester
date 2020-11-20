@@ -1,7 +1,10 @@
 package com.tramchester.unit.cloud.data;
 
 import com.tramchester.cloud.data.S3Keys;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -10,7 +13,13 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class s3KeysTest {
-    S3Keys s3Keys = new S3Keys();
+    private  S3Keys s3Keys;
+
+    @BeforeEach
+    void beforeEachTest() {
+        TramchesterConfig config = TestEnv.GET();
+        s3Keys = new S3Keys(config);
+    }
 
     @Test
     void shouldCreateExpectedPrefix() {

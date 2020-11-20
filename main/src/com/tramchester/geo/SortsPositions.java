@@ -5,11 +5,15 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class SortsPositions {
+    private static final Logger logger = LoggerFactory.getLogger(SortsPositions.class);
+
     private final StationRepository repository;
 
     public SortsPositions(StationRepository repository) {
@@ -66,6 +70,10 @@ public class SortsPositions {
     public LatLong midPointFrom(Set<Station> destinationStation) {
         Set<LatLong> dests = destinationStation.stream().map(Station::getLatLong).collect(Collectors.toSet());
         int size = dests.size();
+
+        if (dests.isEmpty()) {
+            logger.warn("No destinations");
+        }
 
         return dests.stream().
                 reduce((A, B) -> new LatLong(A.getLat()+B.getLat(), A.getLon()+B.getLon())).

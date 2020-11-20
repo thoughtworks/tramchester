@@ -1,5 +1,6 @@
 package com.tramchester.livedata;
 
+import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import org.apache.http.HttpEntity;
@@ -23,10 +24,10 @@ import static java.lang.String.format;
 public class LiveDataHTTPFetcher implements LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHTTPFetcher.class);
 
-    private final TramchesterConfig config;
+    private final LiveDataConfig config;
 
     public LiveDataHTTPFetcher(TramchesterConfig config) {
-        this.config = config;
+        this.config = config.getLiveDataConfig();
     }
 
     @Override
@@ -34,8 +35,8 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30 * 1000).build();
         HttpClient httpclient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
 
-        String configLiveDataUrl = config.getLiveDataUrl();
-        String liveDataSubscriptionKey = config.getLiveDataSubscriptionKey();
+        String configLiveDataUrl = config.getDataUrl();
+        String liveDataSubscriptionKey = config.getDataSubscriptionKey();
         if (liveDataSubscriptionKey==null) {
             liveDataSubscriptionKey="";
         }

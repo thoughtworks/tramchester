@@ -5,9 +5,11 @@ import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.cloud.data.UploadsLiveData;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.mappers.DeparturesMapper;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
 import org.easymock.EasyMock;
@@ -27,22 +29,26 @@ class UploadsLiveDataTest extends EasyMockSupport {
     private ClientForS3 clientForS3;
     private UploadsLiveData uploadsLiveData;
     private List<StationDepartureInfo> liveData;
-    private String environment;
+    private final String environment = "test";
     private StationDepartureMapper mapper;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        environment = System.getenv("PLACE");
-        environment = environment==null ? "test" : environment.toLowerCase();
         LocalDateTime lastUpdateTime = LocalDateTime.parse("2018-11-15T15:06:32");
 
         clientForS3 = createStrictMock(ClientForS3.class);
         mapper = createStrictMock(StationDepartureMapper.class);
-        S3Keys s3Keys = new S3Keys();
+
+        // todo mock this?
+        TramchesterConfig config = TestEnv.GET();
+        S3Keys s3Keys = new S3Keys(config);
+
         uploadsLiveData = new UploadsLiveData(clientForS3, mapper, s3Keys);
+
         liveData = new LinkedList<>();
         liveData.add(LiveDataUpdaterTest.createDepartureInfoWithDueTram(lastUpdateTime, "displayId",
                 "platforId", "messageTxt", TramStations.of(TramStations.NavigationRoad)));
+
     }
 
     @Test

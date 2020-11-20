@@ -26,11 +26,15 @@ bounds:
   minNorthings: 373264
   maxEasting: 414492
   maxNorthings: 437779
+liveData:
+  dataUrl: https://api.tfgm.com/odata/Metrolinks
+  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
+  s3Bucket: tramchesterlivedata
+  s3Prefix: ${PLACE:- "test"}
+  refreshPeriodSeconds: 20
+  maxNumberStationsWithoutMessages: 10
+  maxNumberStationsWithoutData: 5
 instanceDataUrl: http://169.254.169.254
-liveDataUrl: https://api.tfgm.com/odata/Metrolinks
-liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
-liveDataS3Bucket: tramchesterlivedata
-liveDataRefreshPeriodSeconds: 20
 loadPostcodes: false
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
@@ -47,8 +51,6 @@ numOfNearestStopsForWalking:  3
 walkingMPH: 3
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
-maxNumberStationsWithoutMessages: 10
-maxNumberStationsWithoutData: 5
 changeAtInterchangeOnly: true
 createNeighbours: false
 distanceToNeighboursKM: 0.4

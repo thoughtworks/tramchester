@@ -2,20 +2,41 @@ package com.tramchester.unit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.LiveDataConfig;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validator;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConfigMismatchTest {
+
+    @Test
+    void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {
+        @NotNull YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
+        Path configDir = Paths.get("config").toAbsolutePath();
+        Set<Path> configFiles = Files.list(configDir).
+                filter(Files::isRegularFile).
+                filter(path -> path.getFileName().toString().toLowerCase().endsWith(".yml")).
+                collect(Collectors.toSet());
+
+        for (Path config : configFiles) {
+            factory.build(config.toFile());
+        }
+
+    }
+
 
     @Test
     void shouldHaveKeyParametersSameForTramIntegrationTests() throws IOException, ConfigurationException {
@@ -57,20 +78,28 @@ class ConfigMismatchTest {
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM());
         assertEquals(expected.getLoadPostcodes(), testConfig.getLoadPostcodes());
         assertEquals(expected.getTransportModes(), testConfig.getTransportModes());
-        assertEquals(expected.getMaxNumberStationsWithoutMessages(), testConfig.getMaxNumberStationsWithoutMessages());
-        assertEquals(expected.getMaxNumberStationsWithoutData(), testConfig.getMaxNumberStationsWithoutData());
+
+        LiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
+        LiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
+        assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
+        assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
     }
 
     private AppConfiguration loadConfigFromFile(String configFilename) throws IOException, ConfigurationException {
         Path mainConfig = Paths.get("config", configFilename).toAbsolutePath();
 
+        YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
+
+        return factory.build(mainConfig.toFile());
+    }
+
+    @NotNull
+    private YamlConfigurationFactory<AppConfiguration> getValidatingFactory() {
         Class<AppConfiguration> klass = AppConfiguration.class;
         Validator validator = null;
         ObjectMapper objectMapper = Jackson.newObjectMapper();
         String properyPrefix = "dw";
-        YamlConfigurationFactory<AppConfiguration> factory = new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
-
-        return factory.build(mainConfig.toFile());
+        return new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
     }
 
 }

@@ -32,7 +32,7 @@ public class ClientForS3 {
     private S3Client s3Client;
 
     public ClientForS3(TramchesterConfig config) {
-        this.bucket = config.getLiveDataS3Bucket();
+        this.bucket = config.getLiveDataConfig().getS3Bucket();
         try {
             s3Client = S3Client.create();
         }

@@ -68,29 +68,11 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
     // number of days before data expiry to start warning
     public abstract int getDataExpiryThreadhold();
 
-    // URL for live tram data
-    public abstract String getLiveDataUrl();
-
-    // access key for live data URL issued by TFGM
-    public abstract String getLiveDataSubscriptionKey();
-
-    // name of AWS S3 bucket where live data is archived
-    public abstract String getLiveDataS3Bucket();
-
     // remove the (Purple Line) part of the route name?
     public abstract boolean getRemoveRouteNameSuffix();
 
-    // how often to refresh the live data from tfgm
-    public abstract long getLiveDataRefreshPeriodSeconds();
-
     // only allow changing vehicles at interchanges
     public abstract boolean getChangeAtInterchangeOnly();
-
-    // limit on stations missing messages before triggering healthcheck
-    public abstract int getMaxNumberStationsWithoutMessages();
-
-    // limit on stations missing data before triggering healthcheck
-    public abstract int getMaxNumberStationsWithoutData();
 
     // load postcodes?
     public abstract boolean getLoadPostcodes();
@@ -112,6 +94,9 @@ public abstract class TramchesterConfig extends Configuration implements AssetsB
 
     // a list of currently close stations
     public abstract List<StationClosure> getStationClosures();
+
+    // live transport data config
+    public abstract LiveDataConfig getLiveDataConfig();
 
     // bounding box for stations to include
     public abstract BoundingBox getBounds();

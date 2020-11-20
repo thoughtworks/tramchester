@@ -6,6 +6,7 @@ import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.*;
 import com.tramchester.cloud.data.UploadsLiveData;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.LiveDataConfig;
 import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.LiveDataUpdater;
@@ -134,7 +135,7 @@ public class App extends Application<AppConfiguration>  {
 
         // only enable live data if tram's enabled
         if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
-            initLiveDataMetricAndHealthcheck(configuration, environment, executor, metricRegistry);
+            initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 
         CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
@@ -163,7 +164,7 @@ public class App extends Application<AppConfiguration>  {
         logger.warn("Now running");
     }
 
-    private void initLiveDataMetricAndHealthcheck(AppConfiguration configuration, Environment environment, ScheduledExecutorService executor, MetricRegistry metricRegistry) {
+    private void initLiveDataMetricAndHealthcheck(LiveDataConfig configuration, Environment environment, ScheduledExecutorService executor, MetricRegistry metricRegistry) {
         // initial load of live data
         LiveDataUpdater updatesData = dependencies.get(LiveDataUpdater.class);
         updatesData.refreshRespository();
@@ -176,7 +177,7 @@ public class App extends Application<AppConfiguration>  {
             } catch (Exception exeception) {
                 logger.error("Unable to refresh live data", exeception);
             }
-        }, initialDelay, configuration.getLiveDataRefreshPeriodSeconds(), TimeUnit.SECONDS);
+        }, initialDelay, configuration.getRefreshPeriodSeconds(), TimeUnit.SECONDS);
         environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
 
         // archive live data in S3

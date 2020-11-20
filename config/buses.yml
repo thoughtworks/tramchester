@@ -31,11 +31,15 @@ bounds:
   minNorthings: 015490
   maxEasting: 619307
   maxNorthings: 1108843
+liveData:
+  dataUrl: https://api.tfgm.com/odata/Metrolinks
+  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
+  s3Bucket: tramchesterlivedata
+  s3Prefix: ${PLACE:- "test"}
+  refreshPeriodSeconds: 20
+  maxNumberStationsWithoutMessages: 10
+  maxNumberStationsWithoutData: 5
 instanceDataUrl: http://169.254.169.254
-liveDataUrl: https://api.tfgm.com/odata/Metrolinks
-liveDataSubscriptionKey: ${TFGMAPIKEY:- ""}
-liveDataS3Bucket: tramchesterlivedata
-liveDataRefreshPeriodSeconds: 20
 loadPostcodes: true
 createNeighbours: false
 distanceToNeighboursKM: 0.25
@@ -54,8 +58,6 @@ numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
-maxNumberStationsWithoutMessages: 10
-maxNumberStationsWithoutData: 5
 changeAtInterchangeOnly: false
 
 swagger:

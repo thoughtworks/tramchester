@@ -59,7 +59,7 @@ class LiveDataHTTPFetcherTest {
 
     @Test
     void shouldHaveTFGMKeyInConfig() {
-        assertNotNull(configuration.getLiveDataSubscriptionKey(), "missing tfgm live data key");
+        assertNotNull(configuration.getLiveDataConfig().getDataSubscriptionKey(), "missing tfgm live data key");
     }
 
     @Test

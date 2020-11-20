@@ -1,5 +1,6 @@
 package com.tramchester.healthchecks;
 
+import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.DueTramsRepository;
@@ -17,14 +18,14 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private final DueTramsRepository repository;
     private final ProvidesNow providesNow;
     private final StationRepository stationRepository;
-    private final TramchesterConfig config;
+    private final LiveDataConfig config;
 
 
     public LiveDataHealthCheck(DueTramsRepository repository, ProvidesNow providesNow, StationRepository stationRepository, TramchesterConfig config) {
         this.repository = repository;
         this.providesNow = providesNow;
         this.stationRepository = stationRepository;
-        this.config = config;
+        this.config = config.getLiveDataConfig();
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.LiveDataAppConfig;
+import com.tramchester.config.LiveDataConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.server.DefaultServerFactory;
@@ -101,35 +103,9 @@ public abstract class TestConfig extends AppConfiguration {
     public int getDataExpiryThreadhold() { return 3; }
 
     @Override
-    public String getLiveDataUrl() {
-        return "https://api.tfgm.com/odata/Metrolinks";
-    }
-
-    @Override
-    public String getLiveDataSubscriptionKey() {
-        return System.getenv("TFGMAPIKEY");
-    }
-
-    @Override
-    public String getLiveDataS3Bucket() { return "tramchestertestlivedatabucket"; }
-
-    @Override
-    public long getLiveDataRefreshPeriodSeconds() { return 20L; }
-
-    @Override
     public boolean getRemoveRouteNameSuffix() {
         // issue with truncation of source data, until this is fixed this needs to remain true
         return true;
-    }
-
-    @Override
-    public int getMaxNumberStationsWithoutMessages() {
-        return 10;
-    }
-
-    @Override
-    public int getMaxNumberStationsWithoutData() {
-        return 5;
     }
 
     @Override
@@ -169,5 +145,10 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public @Valid BoundingBox getBounds() {
         return TestEnv.getTFGMBusBounds();
+    }
+
+    @Override
+    public LiveDataConfig getLiveDataConfig() {
+        return new TestLiveDataConfig();
     }
 }
