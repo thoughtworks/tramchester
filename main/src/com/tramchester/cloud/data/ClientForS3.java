@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -65,37 +66,46 @@ public class ClientForS3 {
         return true;
     }
 
-    public String download(String key) {
-        logger.info("Download from bucket " + bucket + " with key " +key);
+    public byte[] download(String key) {
         GetObjectRequest request = GetObjectRequest.builder().bucket(bucket).key(key).build();
         ResponseInputStream<GetObjectResponse> inputStream = s3Client.getObject(request);
 
         GetObjectResponse response = inputStream.response();
-        logger.info("Content type: " + response.contentType());
-        Long contentLength = response.contentLength();
-        logger.info("Content length: " + contentLength);
+        int contentLength = Math.toIntExact(response.contentLength());
 
-        byte[] bytes = new byte[Math.toIntExact(contentLength)];
+        logger.info(format("Key: %s Content type: %s Length %s ", key, response.contentType(), contentLength));
 
+        byte[] bytes = new byte[contentLength];
+        int offset = 0;
+        int read = 0;
         try {
-            inputStream.read(bytes);
-
-            String remote = getETagClean(response);
-            String localMd5 = DigestUtils.md5Hex(bytes);
-            if (!localMd5.equals(remote)) {
-                logger.error(format("MD5 mismatch downloading from bucket %s key %s expected '%s' got '%s'",
-                        bucket, key, localMd5, remote));
-            } else {
-                logger.info(format("MD5 match for %s key %s md5: '%s'", bucket, key, localMd5));
-            }
-
+            do {
+                read = inputStream.read(bytes, offset, contentLength-offset);
+                if (logger.isDebugEnabled() && read!=contentLength) {
+                    logger.debug(format("Read %s of %s bytes", read, contentLength));
+                }
+                offset = offset + read;
+            } while (read>0);
             inputStream.close();
+
+            checkMD5(key, response, bytes);
 
         } catch (IOException exception) {
             logger.error("Exception downloading from bucket " + bucket + " with key " +key, exception);
         }
 
-        return new String(bytes);
+        return bytes;
+    }
+
+    private void checkMD5(String key, GetObjectResponse response, byte[] bytes) {
+        String remote = getETagClean(response);
+        String localMd5 = DigestUtils.md5Hex(bytes);
+        if (!localMd5.equals(remote)) {
+            logger.error(format("MD5 mismatch downloading from bucket %s key %s local '%s' remote '%s'",
+                    bucket, key, localMd5, remote));
+        } else {
+            logger.debug(format("MD5 match for %s key %s md5: '%s'", bucket, key, localMd5));
+        }
     }
 
     @NotNull
@@ -139,10 +149,17 @@ public class ClientForS3 {
             return Collections.emptyList();
         }
 
-        ListObjectsResponse summary;
+        List<S3Object> results = new ArrayList<>();
+        ListObjectsV2Response response;
+        ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucket).prefix(prefix);
         try {
-            ListObjectsRequest listObsRequest = ListObjectsRequest.builder().bucket(bucket).prefix(prefix).build();
-            summary = s3Client.listObjects(listObsRequest);
+            do {
+                ListObjectsV2Request listObsRequest = builder.build();
+                response = s3Client.listObjectsV2(listObsRequest);
+                results.addAll(response.contents());
+                String continueToken = response.nextContinuationToken();
+                builder.continuationToken(continueToken);
+            } while (response.isTruncated());
         }
         catch (S3Exception exception) {
             logger.warn(format("Cannot get objects for prefix '%s' exists in bucket '%s' reason '%s'",
@@ -150,16 +167,9 @@ public class ClientForS3 {
             return Collections.emptyList();
         }
 
-        if (summary==null) {
-            logger.warn(format("Null answer getting objects for prefix '%s' exists in bucket '%s'",
-                    prefix, bucket));
-            return Collections.emptyList();
-        }
+        logger.info("Got " + results.size() + " keys for prefix " + prefix);
 
-        List<S3Object> contents = summary.contents();
-        logger.info("Got " + contents.size() + " keys for prefix " + prefix);
-
-        return contents;
+        return results;
     }
 
     public boolean isStarted() {

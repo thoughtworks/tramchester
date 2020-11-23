@@ -6,6 +6,7 @@ import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -79,15 +80,29 @@ public class DownloadsLiveData {
         List<StationDepartureInfoDTO> results = new ArrayList<>();
         Set<LocalDateTime> updatesSeen = new HashSet<>();
 
+        // TODO BATCH Download?
         for (String key: keys) {
-            String text = s3Client.download(key);
+            byte[] bytes = s3Client.download(key);
+            String text = new String(bytes, StandardCharsets.US_ASCII);
             List<StationDepartureInfoDTO> received = mapper.parse(text);
-            logger.info("Read " + received.size() + "records for key: " + key);
+            if (received.isEmpty()) {
+                logger.warn("Not records mapped for key " + key);
+            } else {
+                logger.debug("Read " + received.size() + " records for key: " + key);
+            }
 
             Set<StationDepartureInfoDTO> unique = received.stream().filter(item -> !updatesSeen.contains(item.getLastUpdate())).collect(Collectors.toSet());
             updatesSeen.addAll(unique.stream().map(StationDepartureInfoDTO::getLastUpdate).collect(Collectors.toSet()));
             results.addAll(unique);
+
+            // TODO should no longer happen as using unique set of keys?
+            int dups = received.size()-unique.size();
+            if (dups>0) {
+                logger.info("Removed " + dups + " duplicates for key " + key);
+            }
         }
+
+        logger.info(format("Received %s records for %s keys", results.size(), keys.size()));
 
         return results;
     }

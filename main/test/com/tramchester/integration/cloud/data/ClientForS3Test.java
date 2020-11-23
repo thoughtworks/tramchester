@@ -11,11 +11,11 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,6 +28,7 @@ class ClientForS3Test {
 
     private static S3Client s3;
     private static S3Waiter s3Waiter;
+    private static S3TestSupport s3TestSupport;
 
     private ClientForS3 clientForS3;
 
@@ -36,23 +37,14 @@ class ClientForS3Test {
         s3 = S3Client.builder().build();
         s3Waiter = S3Waiter.create();
 
-        ListBucketsResponse buckets = s3.listBuckets();
-        boolean present = buckets.buckets().stream().anyMatch(bucket -> bucket.name().equals(TEST_BUCKET_NAME));
-
-        if (present) {
-            cleanBucket();
-        } else {
-            CreateBucketRequest createRequest = CreateBucketRequest.builder().bucket(TEST_BUCKET_NAME).build();
-            s3.createBucket(createRequest);
-        }
-
-        HeadBucketRequest bucketExists = HeadBucketRequest.builder().bucket(TEST_BUCKET_NAME).build();
-        s3Waiter.waitUntilBucketExists(bucketExists);
+        s3TestSupport = new S3TestSupport(s3, s3Waiter, TEST_BUCKET_NAME);
+        s3TestSupport.createOrCleanBucket();
     }
+
 
     @AfterAll
     static void afterAllDone() {
-        deleteBucket();
+        s3TestSupport.deleteBucket();
         s3Waiter.close();
         s3.close();
     }
@@ -60,12 +52,12 @@ class ClientForS3Test {
     @BeforeEach
     void beforeEachTestRuns() {
         clientForS3 = new ClientForS3(TestEnv.GET());
-        cleanBucket();
+        s3TestSupport.cleanBucket();
     }
 
     @AfterEach
     void afterEachTestRuns() {
-        cleanBucket();
+        s3TestSupport.cleanBucket();
     }
 
     @Test
@@ -129,60 +121,9 @@ class ClientForS3Test {
         s3.putObject(request, RequestBody.fromString(payload));
         s3Waiter.waitUntilObjectExists(existsCheckRequest);
 
-        String result = clientForS3.download(key);
+        byte[] received = clientForS3.download(key);
+        String result = new String(received, StandardCharsets.US_ASCII);
         assertEquals(payload, result);
     }
-
-    static void cleanBucket() {
-        ListObjectsRequest listRequest;
-        listRequest = ListObjectsRequest.builder().bucket(TEST_BUCKET_NAME).build();
-        ListObjectsResponse listObjsResponse = s3.listObjects(listRequest);
-        List<S3Object> items = listObjsResponse.contents();
-
-        if (!items.isEmpty()) {
-            Set<ObjectIdentifier> toDelete = items.stream().map(item -> ObjectIdentifier.builder().key(item.key()).build()).collect(Collectors.toSet());
-            Delete build = Delete.builder().objects(toDelete).quiet(false).build();
-            DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder().bucket(TEST_BUCKET_NAME).delete(build).build();
-            s3.deleteObjects(deleteObjectsRequest);
-
-            items.forEach(item -> {
-                s3Waiter.waitUntilObjectNotExists(HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(item.key()).build());
-            });
-        }
-    }
-
-    private static void deleteBucket() {
-        // due to eventual consistency and unrealability of tests this has become a bit belt and braces :-(
-
-        ListBucketsResponse listBucketsResponse = s3.listBuckets();
-        Set<String> buckets = listBucketsResponse.buckets().stream().map(Bucket::name).collect(Collectors.toSet());
-        if (buckets.contains(TEST_BUCKET_NAME)) {
-
-            try {
-                DeleteBucketRequest deleteRequest = DeleteBucketRequest.builder().bucket(TEST_BUCKET_NAME).build();
-                s3.deleteBucket(deleteRequest);
-            }
-            catch (S3Exception deletefailed) {
-                if (deletefailed.statusCode()==404) {
-                    return;
-                    // fine, no need to delete
-                } else {
-                    throw deletefailed;
-                }
-            }
-
-            try {
-                s3.headBucket(HeadBucketRequest.builder().bucket(TEST_BUCKET_NAME).build());
-            }
-            catch (S3Exception possibilyAlreadyGone) {
-                if (possibilyAlreadyGone.statusCode()==404) {
-                    return;
-                }
-            }
-
-            s3Waiter.waitUntilBucketNotExists(HeadBucketRequest.builder().bucket(TEST_BUCKET_NAME).build());
-        }
-    }
-
 
 }

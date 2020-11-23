@@ -52,7 +52,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
         String expectedKey = s3Keys.create(start);
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
-        EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson");
+        EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson".getBytes());
         EasyMock.expect(stationDepartureMapper.parse("someJson")).andReturn(Collections.singletonList(departsDTO));
 
         replayAll();
@@ -84,9 +84,9 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         keys.add(keyC);
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(keys);
 
-        EasyMock.expect(clientForS3.download(keyA)).andReturn("someJsonA");
+        EasyMock.expect(clientForS3.download(keyA)).andReturn("someJsonA".getBytes());
         EasyMock.expect(stationDepartureMapper.parse("someJsonA")).andReturn(Collections.singletonList(departsDTO));
-        EasyMock.expect(clientForS3.download(keyB)).andReturn("someJsonB");
+        EasyMock.expect(clientForS3.download(keyB)).andReturn("someJsonB".getBytes());
         EasyMock.expect(stationDepartureMapper.parse("someJsonB")).andReturn(Collections.singletonList(otherDTO));
 
         replayAll();
@@ -119,9 +119,9 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixB)).andReturn(Collections.emptySet());
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixC)).andReturn(Collections.singleton(keyC));
 
-        EasyMock.expect(clientForS3.download(keyA)).andReturn("someJsonA");
+        EasyMock.expect(clientForS3.download(keyA)).andReturn("someJsonA".getBytes());
         EasyMock.expect(stationDepartureMapper.parse("someJsonA")).andReturn(Collections.singletonList(departsDTO));
-        EasyMock.expect(clientForS3.download(keyC)).andReturn("someJsonB");
+        EasyMock.expect(clientForS3.download(keyC)).andReturn("someJsonB".getBytes());
         EasyMock.expect(stationDepartureMapper.parse("someJsonB")).andReturn(Collections.singletonList(otherDTO));
 
         replayAll();
@@ -157,7 +157,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
         String expectedKey = s3Keys.create(start);
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
-        EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson");
+        EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson".getBytes());
         List<StationDepartureInfoDTO> theList = new ArrayList<>();
         theList.add(departsDTO);
         theList.add(departsDTO);
