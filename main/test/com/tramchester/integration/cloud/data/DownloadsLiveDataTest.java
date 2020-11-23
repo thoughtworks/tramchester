@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,8 +49,10 @@ class DownloadsLiveDataTest {
 
     @Test
     void shouldDownloadHistoricalDataMin() {
+        LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);
         Duration duration = Duration.of(1, ChronoUnit.MINUTES);
-        List<StationDepartureInfoDTO> results = downloader.downloadFor(LocalDateTime.of(2020, 2, 27, 0, 1), duration);
+
+        List<StationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
 
         assertFalse(results.isEmpty());
         int assumedLen = NUM_OF_DISPLAYS * 6;
@@ -58,9 +61,10 @@ class DownloadsLiveDataTest {
 
     @Test
     void shouldDownloadHistoricalDataMinutes() {
-
+        LocalDateTime start = LocalDateTime.of(2020, 2, 27, 10, 0);
         Duration duration = Duration.of(59, ChronoUnit.MINUTES).plusSeconds(59);
-        List<StationDepartureInfoDTO> results = downloader.downloadFor(LocalDateTime.of(2020, 2, 27, 10, 0), duration);
+
+        List<StationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         assertFalse(results.isEmpty());
 
         int expectedRecords = NUM_OF_DISPLAYS * 325; // from S3 console prefix search
@@ -79,8 +83,10 @@ class DownloadsLiveDataTest {
         Set<String> keys = clientForS3.getKeysFor(PREFIX);
         assertEquals(NUM_KEYS_FOR_PREFIX, keys.size());
 
+        LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);
         Duration duration = Duration.of(1, ChronoUnit.DAYS);
-        List<StationDepartureInfoDTO> results = downloader.downloadFor(LocalDateTime.of(2020, 2, 27, 0, 1), duration);
+
+        List<StationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
 
         assertFalse(results.isEmpty());
         assertEquals(NUM_OF_DISPLAYS * keys.size(), results.size());

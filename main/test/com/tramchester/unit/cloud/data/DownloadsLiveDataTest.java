@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -30,6 +33,8 @@ class DownloadsLiveDataTest extends EasyMockSupport {
     private StationDepartureMapper stationDepartureMapper;
     private StationDepartureInfoDTO departsDTO;
 
+    Capture<ClientForS3.ResponseMapper<StationDepartureInfoDTO>> responseMapperCapture;
+
     @BeforeEach
     void beforeEachTestRuns() {
         clientForS3 = createStrictMock(ClientForS3.class);
@@ -41,6 +46,8 @@ class DownloadsLiveDataTest extends EasyMockSupport {
                 "platforId", "messageTxt", TramStations.of(TramStations.NavigationRoad));
         departsDTO = new StationDepartureInfoDTO(stationDepartureInfo);
 
+        responseMapperCapture = Capture.newInstance();
+
     }
 
     @Test
@@ -51,12 +58,12 @@ class DownloadsLiveDataTest extends EasyMockSupport {
 
         String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
         String expectedKey = s3Keys.create(start);
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
-        EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson".getBytes());
-        EasyMock.expect(stationDepartureMapper.parse("someJson")).andReturn(Collections.singletonList(departsDTO));
+        Set<String> keys = Collections.singleton(expectedKey);
+        EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(keys);
+        EasyMock.expect(clientForS3.download(EasyMock.eq(keys), EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration);
+        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertEquals(1, results.size());
@@ -84,13 +91,13 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         keys.add(keyC);
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(keys);
 
-        EasyMock.expect(clientForS3.download(keyA)).andReturn("someJsonA".getBytes());
-        EasyMock.expect(stationDepartureMapper.parse("someJsonA")).andReturn(Collections.singletonList(departsDTO));
-        EasyMock.expect(clientForS3.download(keyB)).andReturn("someJsonB".getBytes());
-        EasyMock.expect(stationDepartureMapper.parse("someJsonB")).andReturn(Collections.singletonList(otherDTO));
+        Set<String> matching = new HashSet<>();
+        matching.add(keyA);
+        matching.add(keyB);
+        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration);
+        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertEquals(2, results.size());
@@ -119,13 +126,13 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixB)).andReturn(Collections.emptySet());
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixC)).andReturn(Collections.singleton(keyC));
 
-        EasyMock.expect(clientForS3.download(keyA)).andReturn("someJsonA".getBytes());
-        EasyMock.expect(stationDepartureMapper.parse("someJsonA")).andReturn(Collections.singletonList(departsDTO));
-        EasyMock.expect(clientForS3.download(keyC)).andReturn("someJsonB".getBytes());
-        EasyMock.expect(stationDepartureMapper.parse("someJsonB")).andReturn(Collections.singletonList(otherDTO));
+        Set<String> matching = new HashSet<>();
+        matching.add(keyA);
+        matching.add(keyC);
+        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration);
+        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertEquals(2, results.size());
@@ -143,32 +150,10 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
 
         replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration);
+        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
         verifyAll();
 
         assertTrue(results.isEmpty());
-    }
-
-    @Test
-    void shouldFilterOutDuplicates() {
-        LocalDateTime start = LocalDateTime.of(2020,11,29, 15,42);
-        Duration duration = Duration.of(1, HOURS);
-
-        String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String expectedKey = s3Keys.create(start);
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
-        EasyMock.expect(clientForS3.download(expectedKey)).andReturn("someJson".getBytes());
-        List<StationDepartureInfoDTO> theList = new ArrayList<>();
-        theList.add(departsDTO);
-        theList.add(departsDTO);
-        EasyMock.expect(stationDepartureMapper.parse("someJson")).andReturn(theList);
-
-        replayAll();
-        List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration);
-        verifyAll();
-
-        assertEquals(1, results.size());
-        assertEquals(departsDTO, results.get(0));
     }
 
 }

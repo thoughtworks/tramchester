@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -108,7 +110,7 @@ class ClientForS3Test {
     }
 
     @Test
-    void shouldDownloadFromBucket() throws NoSuchAlgorithmException {
+    void shouldDownloadFromBucketNew() throws NoSuchAlgorithmException {
         String payload = "contents";
         String key = KEY + "B";
         HeadObjectRequest existsCheckRequest = HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build();
@@ -121,9 +123,11 @@ class ClientForS3Test {
         s3.putObject(request, RequestBody.fromString(payload));
         s3Waiter.waitUntilObjectExists(existsCheckRequest);
 
-        byte[] received = clientForS3.download(key);
-        String result = new String(received, StandardCharsets.US_ASCII);
-        assertEquals(payload, result);
+        ClientForS3.ResponseMapper<String> transformer = incoming -> Collections.singletonList(new String(incoming, StandardCharsets.US_ASCII));
+
+        List<String> results = clientForS3.download(Collections.singleton(key), transformer).collect(Collectors.toList());
+        assertEquals(1, results.size());
+        assertEquals(payload, results.get(0));
     }
 
 }

@@ -1,7 +1,5 @@
 package com.tramchester.cloud.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -31,7 +27,7 @@ public class DownloadsLiveData {
         this.s3Keys = s3Keys;
     }
 
-    public List<StationDepartureInfoDTO> downloadFor(LocalDateTime start, Duration duration) {
+    public Stream<StationDepartureInfoDTO> downloadFor(LocalDateTime start, Duration duration) {
         logger.info("Download departure info for " + start + " and duration " + duration);
         LocalDate end = start.plus(duration).toLocalDate();
         LocalDate current = start.toLocalDate();
@@ -40,17 +36,21 @@ public class DownloadsLiveData {
         while (current.isBefore(end) || current.equals(end)) {
             String prefix = s3Keys.createPrefix(current);
             Set<String> keys = s3Client.getKeysFor(prefix);
-            inscopeKeys.addAll(filtered(start, duration, keys));
+            inscopeKeys.addAll(filteredKeys(start, duration, keys));
             current = current.plusDays(1);
         }
 
-        logger.info(format("Found %s keys for %s and %s", inscopeKeys.size(), start, duration));
+        if (inscopeKeys.isEmpty()) {
+            logger.warn(format("Found zero keys for %s and %s", start, duration));
+            return Stream.empty();
+        }
 
+        logger.info(format("Found %s keys for %s and %s", inscopeKeys.size(), start, duration));
         return downloadFor(inscopeKeys);
 
     }
 
-    private Set<String> filtered(LocalDateTime start, Duration duration, Set<String> keys) {
+    private Set<String> filteredKeys(LocalDateTime start, Duration duration, Set<String> keys) {
         Set<String> results = new HashSet<>();
         LocalDateTime end = start.plus(duration);
 
@@ -76,34 +76,12 @@ public class DownloadsLiveData {
         return (query.isAfter(start) && query.isBefore(end));
     }
 
-    private List<StationDepartureInfoDTO> downloadFor(Set<String> keys) {
-        List<StationDepartureInfoDTO> results = new ArrayList<>();
-        Set<LocalDateTime> updatesSeen = new HashSet<>();
+    private Stream<StationDepartureInfoDTO> downloadFor(Set<String> keys) {
 
-        // TODO BATCH Download?
-        for (String key: keys) {
-            byte[] bytes = s3Client.download(key);
+        return s3Client.download(keys, bytes -> {
             String text = new String(bytes, StandardCharsets.US_ASCII);
-            List<StationDepartureInfoDTO> received = mapper.parse(text);
-            if (received.isEmpty()) {
-                logger.warn("Not records mapped for key " + key);
-            } else {
-                logger.debug("Read " + received.size() + " records for key: " + key);
-            }
+            return mapper.parse(text);
+        });
 
-            Set<StationDepartureInfoDTO> unique = received.stream().filter(item -> !updatesSeen.contains(item.getLastUpdate())).collect(Collectors.toSet());
-            updatesSeen.addAll(unique.stream().map(StationDepartureInfoDTO::getLastUpdate).collect(Collectors.toSet()));
-            results.addAll(unique);
-
-            // TODO should no longer happen as using unique set of keys?
-            int dups = received.size()-unique.size();
-            if (dups>0) {
-                logger.info("Removed " + dups + " duplicates for key " + key);
-            }
-        }
-
-        logger.info(format("Received %s records for %s keys", results.size(), keys.size()));
-
-        return results;
     }
 }

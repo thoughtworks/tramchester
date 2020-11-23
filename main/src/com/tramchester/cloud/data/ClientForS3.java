@@ -9,17 +9,17 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -66,34 +66,42 @@ public class ClientForS3 {
         return true;
     }
 
-    public byte[] download(String key) {
-        GetObjectRequest request = GetObjectRequest.builder().bucket(bucket).key(key).build();
-        ResponseInputStream<GetObjectResponse> inputStream = s3Client.getObject(request);
+    public <T> Stream<T> download(Set<String> keys, ResponseMapper<T> responseMapper) {
+        logger.info("Downloading data for " + keys.size() + " keys");
+        return keys.stream().map(key -> download(key, responseMapper)).flatMap(Collection::stream);
+    }
 
-        GetObjectResponse response = inputStream.response();
+    private <T> List<T> download(String key, ResponseMapper<T> responseMapper) {
+        GetObjectRequest request = GetObjectRequest.builder().bucket(bucket).key(key).build();
+
+        ResponseTransformer<GetObjectResponse, List<T>> transformer =
+                (response, inputStream) -> responseMapper.map(readBytes(key, response, inputStream));
+
+        return s3Client.getObject(request, transformer);
+    }
+
+    public byte[] readBytes(String key, GetObjectResponse response, FilterInputStream inputStream) {
         int contentLength = Math.toIntExact(response.contentLength());
 
         logger.info(format("Key: %s Content type: %s Length %s ", key, response.contentType(), contentLength));
-
         byte[] bytes = new byte[contentLength];
         int offset = 0;
         int read = 0;
         try {
             do {
                 read = inputStream.read(bytes, offset, contentLength-offset);
-                if (logger.isDebugEnabled() && read!=contentLength) {
-                    logger.debug(format("Read %s of %s bytes", read, contentLength));
-                }
                 offset = offset + read;
+                if (logger.isDebugEnabled()) {
+                    logger.debug(format("Key %s Read %s of %s bytes", key, read, contentLength));
+                }
             } while (read>0);
             inputStream.close();
 
             checkMD5(key, response, bytes);
 
         } catch (IOException exception) {
-            logger.error("Exception downloading from bucket " + bucket + " with key " +key, exception);
+            logger.error("Exception downloading from bucket " + bucket + " with key " + key, exception);
         }
-
         return bytes;
     }
 
@@ -103,7 +111,7 @@ public class ClientForS3 {
         if (!localMd5.equals(remote)) {
             logger.error(format("MD5 mismatch downloading from bucket %s key %s local '%s' remote '%s'",
                     bucket, key, localMd5, remote));
-        } else {
+        } else if (logger.isDebugEnabled()) {
             logger.debug(format("MD5 match for %s key %s md5: '%s'", bucket, key, localMd5));
         }
     }
@@ -174,6 +182,12 @@ public class ClientForS3 {
 
     public boolean isStarted() {
         return s3Client!=null;
+    }
+
+
+
+    public interface ResponseMapper<T> {
+        List<T> map(byte[] bytes);
     }
 
 }
