@@ -100,6 +100,10 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
         }
     }
 
+    public boolean hasPlatform(IdFor<Platform> platformId) {
+        return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

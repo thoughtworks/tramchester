@@ -46,8 +46,7 @@ public class LiveDataParser {
     public List<StationDepartureInfo> parse(String rawJson) {
         List<StationDepartureInfo> result = new LinkedList<>();
 
-        //JsonParser jsonParser = new JSONParser();
-        JsonObject parsed = Jsoner.deserialize(rawJson, new JsonObject()); //(JsonObject)jsonParser.parse(rawJson);
+        JsonObject parsed = Jsoner.deserialize(rawJson, new JsonObject());
         if (parsed.containsKey("value")) {
             JsonArray infoList = (JsonArray ) parsed.get("value");
 
@@ -76,19 +75,31 @@ public class LiveDataParser {
 
         StationDepartureInfo.Direction direction = getDirection(rawDirection);
         if (direction==Unknown) {
-            logger.warn("Unable to map direction code name "+ rawDirection + " for JSON " +jsonObject.toString());
+            logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection + " for JSON " +jsonObject.toString());
         }
+
         Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
         if (maybeStation.isEmpty()) {
-            logger.warn("Unable to map atco code name "+ atcoCode + " for JSON " +jsonObject.toString());
+            logger.warn("Display '" + displayId + "' Unable to map atco code to station '"+ atcoCode + "' for JSON " +jsonObject.toString());
             return Optional.empty();
         }
+        Station station = maybeStation.get();
 
         LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
+
         IdFor<Platform> platformId = IdFor.createId(atcoCode);
+        if (!station.hasPlatform(platformId)) {
+            // info not warn as currently a permanent issue with the data
+            logger.info(format("Display '%s' Platform '%s' not in timeable for station %s and Json %s",
+                    displayId, atcoCode, station.getId(), jsonObject.toString()));
+            // Seems to be legit, at very least some single platform stations (i.e. navigation road) appear to have
+            // two platforms in the live data feed...
+            //return Optional.empty();
+        }
+
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, direction,
-                platformId, maybeStation.get(), message, updateTime);
+                platformId, station, message, updateTime);
         parseDueTrams(jsonObject, departureInfo);
 
         logger.debug("Parsed live data to " + departureInfo);
@@ -131,7 +142,7 @@ public class LiveDataParser {
                 // likely not present in json
                 logger.debug("Skipping destination '" + destinationName + "' for " + jsonObject.toString() + " and index " + i);
             } else if (NotADestination.contains(destinationName)) {
-                logger.info("Skipping destination '" + destinationName + "' for " + jsonObject.toJson() + " and index " + i);
+                logger.info("Display '" + departureInfo.getDisplayId() + "' Skipping destination '" + destinationName + "' for " + jsonObject.toJson() + " and index " + i);
             } else {
                 Optional<Station> maybeDestStation;
                 if (TERMINATES_HERE.equals(destinationName)) {
@@ -153,7 +164,7 @@ public class LiveDataParser {
                             departureInfo.addDueTram(dueTram);
                         },
 
-                        () -> logger.warn("Unable to match due tram destination '" + destinationName + "' index: " + index +" json '"+jsonObject+"'"));
+                        () -> logger.warn("Display id '" + departureInfo.getDisplayId() + "' Unable to match due tram destination '" + destinationName + "' index: " + index +" json '"+jsonObject+"'"));
             }
         }
     }

@@ -2,8 +2,10 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TramStations;
@@ -39,18 +41,26 @@ class LiveDataParserTest extends EasyMockSupport {
         StationRepository stationRepository = createStrictMock(StationRepository.class);
         parser = new LiveDataParser(stationRepository);
 
-        EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(TramStations.of(MediaCityUK));
-        EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(TramStations.of(ManAirport));
+        Station mediaCity = of(MediaCityUK);
+        mediaCity.addPlatform(new Platform("9400ZZMAMCU2", "Media City Platform 2"));
+
+        Station airport = of(ManAirport);
+        airport.addPlatform(new Platform("9400ZZMAAIR1", "Manchester Airport Platform 2"));
+
+        EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
+        EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(airport);
 
         EasyMock.expect(stationRepository.getTramStationByName("Piccadilly")).andStubReturn(Optional.of(TramStations.of(Piccadilly)));
+
         EasyMock.expect(stationRepository.hasStationId(MediaCityUK.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getTramStationByName("MediaCityUK")).andStubReturn(Optional.of(TramStations.of(MediaCityUK)));
+        EasyMock.expect(stationRepository.getTramStationByName("MediaCityUK")).andStubReturn(Optional.of(mediaCity));
 
         EasyMock.expect(stationRepository.hasStationId(ManAirport.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getTramStationByName("Manchester Airport")).andStubReturn(Optional.of(of(ManAirport)));
+        EasyMock.expect(stationRepository.getTramStationByName("Manchester Airport")).andStubReturn(Optional.of(airport));
 
         EasyMock.expect(stationRepository.getTramStationByName("")).andStubReturn(Optional.empty());
         EasyMock.expect(stationRepository.getTramStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(of(Deansgate)));
+
         EasyMock.expect(stationRepository.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
 
         EasyMock.expect(stationRepository.getTramStationByName("Ashton-under-Lyne")).andStubReturn(Optional.of(of(Ashton)));
@@ -132,6 +142,28 @@ class LiveDataParserTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldNOTFilterOutPlatformsNotInTimetabledData() {
+
+        // Turns out due trams are appearing, and for some single platform stations (i.e. nav road) the live data
+        // does include 2 platforms.....
+
+        String NoSuchMediaCityPlatform = "{\n" +
+                "  \"@odata.context\":\"https://opendataclientapi.azurewebsites.net/odata/$metadata#Metrolinks\",\"value\":[\n" +
+                "    {\n" +
+                "      \"Id\":1,\"Line\":\"Eccles\",\"TLAREF\":\"MEC\",\"PIDREF\":\"MEC-TPID03\",\"StationLocation\":\"MediaCityUK\",\"AtcoCode\":\"9400ZZMAMCU5\",\"Direction\":\"Incoming\",\"Dest0\":\"Piccadilly\",\"Carriages0\":\"Single\",\"Status0\":\"Due\",\"Wait0\":\"1\",\"Dest1\":\"Piccadilly\",\"Carriages1\":\"Single\",\"Status1\":\"Due\",\"Wait1\":\"12\",\"Dest2\":\"Piccadilly\",\"Carriages2\":\"Single\",\"Status2\":\"Due\",\"Wait2\":\"21\",\"Dest3\":\"\",\"Carriages3\":\"\",\"Status3\":\"\",\"MessageBoard\":\"Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and services are expected to be busier than usual. Please plan your journey ahead with additional time for travel.\",\"Wait3\":\"\",\"LastUpdated\":\"2017-11-29T11:45:00Z\"\n" +
+                "    },{\n" +
+                "      \"Id\":234,\"Line\":\"Airport\",\"TLAREF\":\"AIR\",\"PIDREF\":\"AIR-TPID01\",\"StationLocation\":\"Manchester Airport\",\"AtcoCode\":\"9400ZZMAAIR1\",\"Direction\":\"Incoming\",\"Dest0\":\"Deansgate Castlefield\",\"Carriages0\":\"Single\",\"Status0\":\"Due\",\"Wait0\":\"5\",\"Dest1\":\"Deansgate Castlefield\",\"Carriages1\":\"Single\",\"Status1\":\"Due\",\"Wait1\":\"17\",\"Dest2\":\"See Tram Front\",\"Carriages2\":\"Single\",\"Status2\":\"Due\",\"Wait2\":\"29\",\"Dest3\":\"\",\"Carriages3\":\"\",\"Status3\":\"\",\"MessageBoard\":\"Due to a signalling issue at Deansgate Airport Services will be running Airport to Cornbrook.Metrolink apologises for any inconvenience.\",\"Wait3\":\"\",\"LastUpdated\":\"2017-06-29T13:55:00Z\"\n" +
+                "    }" +
+                "]\n }\n";
+
+        replayAll();
+        List<StationDepartureInfo> info = parser.parse(NoSuchMediaCityPlatform);
+        verifyAll();
+
+        Assertions.assertEquals(2, info.size());
+    }
+
+    @Test
     void shouldExcludeSeeTramFrontDestination()  {
         replayAll();
         List<StationDepartureInfo> info = parser.parse(exampleData);
@@ -200,6 +232,5 @@ class LiveDataParserTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> parser.parse(exampleData));
         verifyAll();
-
     }
 }
