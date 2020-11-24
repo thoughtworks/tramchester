@@ -1,22 +1,28 @@
 package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Set;
 
-class LiveDataUpdaterTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class LiveDataUpdaterTest {
     private static Dependencies dependencies;
 
     private PlatformMessageRepository messageRepo;
+
+    public static final TramStations StationWithNotes = TramStations.VeloPark;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -44,5 +50,12 @@ class LiveDataUpdaterTest {
         int numStationsWithMessages = messageRepo.numberStationsWithMessages(TestEnv.LocalNow());
 
         assertTrue(numStationsWithMessages>1);
+    }
+
+    @Test
+    void shouldHaveMessagesForTestStation() {
+        Set<Station> stations = messageRepo.getStationsWithMessages(TestEnv.LocalNow());
+
+        assertTrue(stations.contains(TramStations.of(StationWithNotes)), stations.toString());
     }
 }

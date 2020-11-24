@@ -150,12 +150,6 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
         return (int) messageCache.estimatedSize();
     }
 
-    @Deprecated
-    @NotNull
-    public Stream<PlatformMessage> getEntriesWithMessages() {
-        return messageCache.asMap().values().stream();
-    }
-
     private Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId) {
         @Nullable PlatformMessage ifPresent = messageCache.getIfPresent(platformId);
 
@@ -177,10 +171,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
             return 0;
         }
 
-        TramTime queryTime = TramTime.of(queryDateTime);
-        Set<Station> haveMessages = messageCache.asMap().values().stream().
-                filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
-                map(PlatformMessage::getStation).collect(Collectors.toSet());
+        Set<Station> haveMessages = getStationsWithMessages(queryDateTime);
         logger.debug("Stations with messages " + haveMessages);
         return haveMessages.size();
     }
@@ -189,4 +180,13 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
     public Integer numberStationsWithMessagesNow() {
         return numberStationsWithMessages(providesNow.getDateTime());
     }
+
+    @NotNull
+    public Set<Station> getStationsWithMessages(LocalDateTime queryDateTime) {
+        TramTime queryTime = TramTime.of(queryDateTime);
+        return messageCache.asMap().values().stream().
+                filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
+                map(PlatformMessage::getStation).collect(Collectors.toSet());
+    }
+
 }

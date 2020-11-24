@@ -11,6 +11,7 @@ import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
+import com.tramchester.integration.livedata.LiveDataUpdaterTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,7 @@ class DeparturesResourceTest {
             TramStations.ExchangeSquare.getName(),
             "Shudehill");
 
-    private final TramStations stationWithNotes = TramStations.StPetersSquare;
+    private final TramStations stationWithNotes = LiveDataUpdaterTest.StationWithNotes;
 
     @Test
     @LiveDataTestCategory

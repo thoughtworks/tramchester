@@ -37,8 +37,6 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
     private DueTramsRepository dueTramsRepository;
     private PlatformMessageRepository platformMessageRepository;
 
-    // TODO Split apart these tests into LiveDataUpdater, DueTramsRepository, and PlatformMessageRepository
-
     @BeforeEach
     void beforeEachTestRuns() {
         fetcher = createMock(LiveDataHTTPFetcher.class);
