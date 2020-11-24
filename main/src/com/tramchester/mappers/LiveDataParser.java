@@ -6,6 +6,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -67,7 +68,7 @@ public class LiveDataParser {
         logger.debug(format("Parsing JSON '%s'", jsonObject));
 
         BigDecimal displayId = (BigDecimal) jsonObject.get("Id");
-        String lineName = (String) jsonObject.get("Line");
+        String rawLine = (String) jsonObject.get("Line");
         String atcoCode = (String) jsonObject.get("AtcoCode");
         String message = (String) jsonObject.get("MessageBoard");
         String dateString = (String) jsonObject.get("LastUpdated");
@@ -76,6 +77,11 @@ public class LiveDataParser {
         StationDepartureInfo.Direction direction = getDirection(rawDirection);
         if (direction==Unknown) {
             logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection + " for JSON " +jsonObject.toString());
+        }
+
+        Lines line = getLine(rawLine);
+        if (line== Lines.UknownLine) {
+            logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine + " for JSON " +jsonObject.toString());
         }
 
         Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
@@ -98,7 +104,7 @@ public class LiveDataParser {
             //return Optional.empty();
         }
 
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), lineName, direction,
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId.toString(), line, direction,
                 platformId, station, message, updateTime);
         parseDueTrams(jsonObject, departureInfo);
 
@@ -106,15 +112,32 @@ public class LiveDataParser {
         return Optional.of(departureInfo);
     }
 
-    private StationDepartureInfo.Direction getDirection(String rawDirection) {
-        if (DIRECTION_BOTH.equals(rawDirection)) {
+    private Lines getLine(String text) {
+        Lines[] valid = Lines.values();
+        for (Lines line : valid) {
+            if (line.getName().equals(text)) {
+                return line;
+            }
+        }
+
+//        try {
+//            return Lines.valueOf(text);
+//        }
+//        catch(IllegalArgumentException unknownLineName) {
+//            logger.warn("Unable to line name parse " + text);
+//        }
+        return Lines.UknownLine;
+    }
+
+    private StationDepartureInfo.Direction getDirection(String text) {
+        if (DIRECTION_BOTH.equals(text)) {
             return Both;
         }
         try {
-            return StationDepartureInfo.Direction.valueOf(rawDirection);
+            return StationDepartureInfo.Direction.valueOf(text);
         }
         catch (IllegalArgumentException unexpectedValueInTheApi) {
-            logger.warn("Unable to parse " + rawDirection);
+            logger.warn("Unable to parse direction " + text);
         }
         return Unknown;
     }

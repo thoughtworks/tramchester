@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.LiveDataParser;
@@ -111,7 +112,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         StationDepartureInfo departureInfoA = info.get(0);
         Assertions.assertEquals("1", departureInfoA.getDisplayId());
-        Assertions.assertEquals("Eccles", departureInfoA.getLineName());
+        Assertions.assertEquals(Lines.Eccles, departureInfoA.getLine());
         Assertions.assertEquals(IdFor.createId("9400ZZMAMCU2"), departureInfoA.getStationPlatform());
         Assertions.assertEquals(MediaCityUK.getId(), departureInfoA.getStation().getId());
         Assertions.assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
@@ -135,7 +136,7 @@ class LiveDataParserTest extends EasyMockSupport {
         StationDepartureInfo departureInfoB = info.get(1);
         Assertions.assertEquals("234", departureInfoB.getDisplayId());
 
-        Assertions.assertEquals("Airport", departureInfoB.getLineName());
+        Assertions.assertEquals(Lines.Airport, departureInfoB.getLine());
         ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 6, 29, 13, 55), TramchesterConfig.TimeZone);
         Assertions.assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
         Assertions.assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoB.getDirection());

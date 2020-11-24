@@ -18,7 +18,7 @@ public class StationDepartureInfo  {
         Incoming, Outgoing, Both, Unknown
     }
 
-    private final String lineName;
+    private final Lines line;
     private final IdFor<Platform> stationPlatform;
     private final String message;
     private final List<DueTram> dueTrams;
@@ -28,10 +28,10 @@ public class StationDepartureInfo  {
     private final Direction direction;
 
     // station code here is the actocode
-    public StationDepartureInfo(String displayId, String lineName, Direction direction, IdFor<Platform> stationPlatform,
+    public StationDepartureInfo(String displayId, Lines line, Direction direction, IdFor<Platform> stationPlatform,
                                 Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
-        this.lineName = lineName;
+        this.line = line;
         this.direction = direction;
         this.stationPlatform = stationPlatform;
         this.station = station;
@@ -52,8 +52,8 @@ public class StationDepartureInfo  {
         return message.startsWith("^F0Next");
     }
 
-    public String getLineName() {
-        return lineName;
+    public Lines getLine() {
+        return line;
     }
 
     public Direction getDirection() {
@@ -93,7 +93,7 @@ public class StationDepartureInfo  {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StationDepartureInfo that = (StationDepartureInfo) o;
-        return lineName.equals(that.lineName) &&
+        return line.equals(that.line) &&
                 stationPlatform.equals(that.stationPlatform) &&
                 message.equals(that.message) &&
                 dueTrams.equals(that.dueTrams) &&
@@ -105,13 +105,13 @@ public class StationDepartureInfo  {
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineName, stationPlatform, message, dueTrams, lastUpdate, displayId, station, direction);
+        return Objects.hash(line, stationPlatform, message, dueTrams, lastUpdate, displayId, station, direction);
     }
 
     @Override
     public String toString() {
         return "StationDepartureInfo{" +
-                "lineName='" + lineName + '\'' +
+                "line='" + line + '\'' +
                 ", stationPlatform='" + stationPlatform + '\'' +
                 ", location='" + HasId.asId(station) + '\'' +
                 ", message='" + message + '\'' +

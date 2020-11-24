@@ -1,6 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -25,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.tramchester.testSupport.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class LiveDataUpdaterTest extends EasyMockSupport {
 
@@ -105,7 +105,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
     public static StationDepartureInfo createDepartureInfoWithDueTram(LocalDateTime lastUpdate,
                                                                       String displayId, String platformId, String message,
                                                                       Station location) {
-        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, "lineName",
+        StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
                 StationDepartureInfo.Direction.Incoming, IdFor.createId(platformId), location, message, lastUpdate);
         DueTram dueTram = new DueTram(TramStations.of(Bury), "Due", 42, "Single", lastUpdate.toLocalTime());
         departureInfo.addDueTram(dueTram);

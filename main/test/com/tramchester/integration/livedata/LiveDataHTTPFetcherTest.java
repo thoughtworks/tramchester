@@ -5,6 +5,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -16,10 +17,7 @@ import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -85,7 +83,7 @@ class LiveDataHTTPFetcherTest {
 
         // this assert will fail if run at certain times of day....
         // assertTrue(aDisplay.getDueTrams().size()>0);
-        assertTrue(display.getLineName().length()>0);
+        assertNotEquals(Lines.UknownLine, display.getLine());
         LocalDateTime when = display.getLastUpdate();
         Assertions.assertEquals(TestEnv.LocalNow().getDayOfMonth(),when.getDayOfMonth());
     }
@@ -116,7 +114,7 @@ class LiveDataHTTPFetcherTest {
         String rawJSON = fetcher.fetch();
 
         //JSONParser jsonParser = new JSONParser();
-        JsonObject parsed = Jsoner.deserialize(rawJSON, new JsonObject());   //(JSONObject)jsonParser.parse(rawJSON);
+        JsonObject parsed = Jsoner.deserialize(rawJSON, new JsonObject());
         assertTrue(parsed.containsKey("value"));
         JsonArray infoList = (JsonArray) parsed.get("value");
 
@@ -131,7 +129,20 @@ class LiveDataHTTPFetcherTest {
             }
         }
         assertFalse(destinations.isEmpty());
+    }
 
+    @Test
+    @LiveDataTestCategory
+    void shouldMapAllLinesCorrectly() {
+        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+
+        Set<Lines> uniqueLines = departureInfos.stream().map(StationDepartureInfo::getLine).collect(Collectors.toSet());
+
+        assertFalse(uniqueLines.contains(Lines.UknownLine));
+
+        assertEquals(8, uniqueLines.size());
 
     }
+
+
 }
