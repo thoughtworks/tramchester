@@ -22,7 +22,7 @@ public class LiveDataUpdaterTest {
 
     private PlatformMessageRepository messageRepo;
 
-    public static final TramStations StationWithNotes = TramStations.VeloPark;
+    public static final TramStations StationWithNotes = TramStations.StPetersSquare;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
