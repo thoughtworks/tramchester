@@ -88,7 +88,7 @@ class TransportDataFromFilesTest {
         Route result = transportData.getRouteById(RoutesForTesting.ASH_TO_ECCLES.getId());
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
-        assertEquals("MET:   3:I:",result.getId().forDTO());
+        assertEquals("MET:3:I:",result.getId().forDTO());
         assertTrue(TransportMode.isTram(result));
 
         Set<String> headsigns = result.getHeadsigns();
@@ -326,7 +326,6 @@ class TransportDataFromFilesTest {
     @Test
     void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
         Set<Trip> origTrips = getTripsFor(transportData.getTrips(), TramStations.VeloPark);
-        //List<String> ashtonXRoutes = Collections.singletonList(RoutesForTesting.ASH_TO_ECCLES.getId());
 
         LocalDate aMonday = TestEnv.nextMonday();
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());

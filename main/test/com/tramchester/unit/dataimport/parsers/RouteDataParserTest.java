@@ -45,7 +45,7 @@ class RouteDataParserTest {
 
         RouteData result = routeDataParser.parseEntry(ParserBuilder.getRecordFor(problemBusRoute));
 
-        assertThat(result.getId()).isEqualTo(IdFor.createId("JSC: 588:C:"));
+        assertThat(result.getId()).isEqualTo(IdFor.createId("JSC:588:C:"));
         assertThat(result.getShortName().trim()).isEqualTo("588");
         assertThat(result.getLongName()).isEqualTo("Leigh - Lowton, Scott Road");
         assertThat(result.getAgencyId()).isEqualTo(IdFor.createId("JSC"));

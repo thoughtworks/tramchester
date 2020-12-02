@@ -3,6 +3,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.liveUpdates.Direction;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -118,7 +119,7 @@ class LiveDataParserTest extends EasyMockSupport {
         Assertions.assertEquals("Today Manchester City welcome Southampton at the Etihad Stadium KO is at 20:00 and " +
                 "services are expected to be busier than usual. Please plan your journey " +
                 "ahead with additional time for travel.", departureInfoA.getMessage());
-        Assertions.assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoA.getDirection());
+        Assertions.assertEquals(Direction.Incoming, departureInfoA.getDirection());
 
         List<DueTram> dueTrams = departureInfoA.getDueTrams();
         Assertions.assertEquals(3, dueTrams.size());
@@ -139,7 +140,7 @@ class LiveDataParserTest extends EasyMockSupport {
         Assertions.assertEquals(Lines.Airport, departureInfoB.getLine());
         ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 6, 29, 13, 55), TramchesterConfig.TimeZone);
         Assertions.assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
-        Assertions.assertEquals(StationDepartureInfo.Direction.Incoming, departureInfoB.getDirection());
+        Assertions.assertEquals(Direction.Incoming, departureInfoB.getDirection());
     }
 
     @Test
@@ -198,8 +199,8 @@ class LiveDataParserTest extends EasyMockSupport {
         List<StationDepartureInfo> info = parser.parse(bothDirections);
         verifyAll();
         Assertions.assertEquals(2, info.size());
-        Assertions.assertEquals(StationDepartureInfo.Direction.Both, info.get(0).getDirection());
-        Assertions.assertEquals(StationDepartureInfo.Direction.Both, info.get(1).getDirection());
+        Assertions.assertEquals(Direction.Both, info.get(0).getDirection());
+        Assertions.assertEquals(Direction.Both, info.get(1).getDirection());
 
     }
 

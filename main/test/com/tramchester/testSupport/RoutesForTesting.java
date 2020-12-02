@@ -43,7 +43,7 @@ public class RoutesForTesting {
 
     @NotNull
     private static Route createTramRoute(String shortName, String direction, String longName) {
-        String idText = format("MET:   %s:%s:", shortName, direction);
+        String idText = format("MET:%s:%s:", shortName, direction);
         return new Route(IdFor.createId(idText), shortName, longName,
                 TestEnv.MetAgency(), TransportMode.Tram);
     }

@@ -2,10 +2,7 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.liveUpdates.Lines;
-import com.tramchester.domain.liveUpdates.PlatformDueTrams;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.liveUpdates.*;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -72,7 +69,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         Platform platfromForThirdStation = new Platform("b2", "Intu platform 2");
         secondStation.addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
-                StationDepartureInfo.Direction.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
+                Direction.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
         infos.add(thirdStationInfo);
 
         EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
@@ -220,7 +217,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                                                                  String displayId, IdFor<Platform> platformId, String message,
                                                                  Station location, DueTram dueTram) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Eccles,
-                StationDepartureInfo.Direction.Incoming, platformId, location, message, lastUpdate);
+                Direction.Incoming, platformId, location, message, lastUpdate);
         info.add(departureInfo);
         departureInfo.addDueTram(dueTram);
         return departureInfo;

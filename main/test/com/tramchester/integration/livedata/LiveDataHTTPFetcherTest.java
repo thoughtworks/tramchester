@@ -4,6 +4,7 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.Dependencies;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -83,7 +84,7 @@ class LiveDataHTTPFetcherTest {
 
         // this assert will fail if run at certain times of day....
         // assertTrue(aDisplay.getDueTrams().size()>0);
-        assertNotEquals(Lines.UknownLine, display.getLine());
+        assertNotEquals(Lines.UnknownLine, display.getLine());
         LocalDateTime when = display.getLastUpdate();
         Assertions.assertEquals(TestEnv.LocalNow().getDayOfMonth(),when.getDayOfMonth());
     }
@@ -138,10 +139,28 @@ class LiveDataHTTPFetcherTest {
 
         Set<Lines> uniqueLines = departureInfos.stream().map(StationDepartureInfo::getLine).collect(Collectors.toSet());
 
-        assertFalse(uniqueLines.contains(Lines.UknownLine));
+        assertFalse(uniqueLines.contains(Lines.UnknownLine));
 
         assertEquals(8, uniqueLines.size());
+    }
 
+    @Test
+    @LiveDataTestCategory
+    void shouldSpikeDisplayDirectionsForRoutes() {
+        List<StationDepartureInfo> departureInfos = parser.parse(payload);
+
+        Set<Station> stations = transportData.getStations();
+
+        stations.forEach(station -> {
+            Set<Lines> lines = getLineAndDirectionFor(departureInfos, station);
+            System.out.println(station.getName() + " " + lines.toString());
+        });
+
+    }
+
+    private Set<Lines> getLineAndDirectionFor(List<StationDepartureInfo> departureInfos, Station station) {
+        return departureInfos.stream().filter(departureInfo -> departureInfo.getStation().equals(station)).
+                map(StationDepartureInfo::getLine).collect(Collectors.toSet());
     }
 
 

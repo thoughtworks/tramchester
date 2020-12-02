@@ -14,10 +14,6 @@ public class StationDepartureInfo  {
 
     private static final String NO_MESSAGE = "<no message>";
 
-    public enum Direction {
-        Incoming, Outgoing, Both, Unknown
-    }
-
     private final Lines line;
     private final IdFor<Platform> stationPlatform;
     private final String message;

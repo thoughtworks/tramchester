@@ -133,6 +133,7 @@ public class Dependencies {
         picoContainer.addComponent(LiveDataParser.class);
         picoContainer.addComponent(PlatformMessageRepository.class);
         picoContainer.addComponent(DueTramsRepository.class);
+        picoContainer.addComponent(RouteToLineMapper.class);
         picoContainer.addComponent(LiveDataUpdater.class);
         picoContainer.addComponent(ClientForS3.class);
         picoContainer.addComponent(S3Keys.class);

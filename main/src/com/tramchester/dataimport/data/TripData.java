@@ -12,10 +12,14 @@ public class TripData {
     private final String tripHeadsign;
 
     public TripData(String routeId, String serviceId, String tripId, String tripHeadsign) {
-        this.routeId = IdFor.createId(routeId);
+        this.routeId = IdFor.createId(removeSpaces(routeId));
         this.serviceId = IdFor.createId(serviceId);
         this.tripId = IdFor.createId(tripId);
         this.tripHeadsign = tripHeadsign.intern();
+    }
+
+    private String removeSpaces(String text) {
+        return text.replaceAll(" ","");
     }
 
     public IdFor<Route> getRouteId() {

@@ -16,11 +16,16 @@ public class RouteData {
     private final GTFSTransportationType routeType;
 
     public RouteData(String id, String agencyid, String shortName, String longName, GTFSTransportationType routeType) {
-        this.id = IdFor.createId(id.intern());
+        String cleanId = removeSpaces(id);
+        this.id = IdFor.createId(cleanId.intern());
         this.shortName = shortName;
         this.longName = longName;
         this.agencyid = IdFor.createId(agencyid);
         this.routeType = routeType;
+    }
+
+    private String removeSpaces(String text) {
+        return text.replaceAll(" ", "");
     }
 
     public IdFor<Route> getId() {

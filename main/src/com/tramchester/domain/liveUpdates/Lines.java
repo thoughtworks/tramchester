@@ -10,7 +10,7 @@ public enum Lines {
     OldhamAndRochdale("Oldham & Rochdale"),
     SouthManchester("South Manchester"),
     TraffordPark("Trafford Park"),
-    UknownLine("Uknown");
+    UnknownLine("Unknown");
 
     private final String name;
 

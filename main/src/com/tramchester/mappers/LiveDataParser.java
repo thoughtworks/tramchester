@@ -6,6 +6,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.liveUpdates.Direction;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
@@ -22,8 +23,8 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.tramchester.domain.liveUpdates.StationDepartureInfo.Direction.Both;
-import static com.tramchester.domain.liveUpdates.StationDepartureInfo.Direction.Unknown;
+import static com.tramchester.domain.liveUpdates.Direction.Both;
+import static com.tramchester.domain.liveUpdates.Direction.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
@@ -74,13 +75,13 @@ public class LiveDataParser {
         String dateString = (String) jsonObject.get("LastUpdated");
         String rawDirection = (String)jsonObject.get("Direction");
 
-        StationDepartureInfo.Direction direction = getDirection(rawDirection);
+        Direction direction = getDirection(rawDirection);
         if (direction==Unknown) {
             logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection + " for JSON " +jsonObject.toString());
         }
 
         Lines line = getLine(rawLine);
-        if (line== Lines.UknownLine) {
+        if (line== Lines.UnknownLine) {
             logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine + " for JSON " +jsonObject.toString());
         }
 
@@ -119,22 +120,15 @@ public class LiveDataParser {
                 return line;
             }
         }
-
-//        try {
-//            return Lines.valueOf(text);
-//        }
-//        catch(IllegalArgumentException unknownLineName) {
-//            logger.warn("Unable to line name parse " + text);
-//        }
-        return Lines.UknownLine;
+        return Lines.UnknownLine;
     }
 
-    private StationDepartureInfo.Direction getDirection(String text) {
+    private Direction getDirection(String text) {
         if (DIRECTION_BOTH.equals(text)) {
             return Both;
         }
         try {
-            return StationDepartureInfo.Direction.valueOf(text);
+            return Direction.valueOf(text);
         }
         catch (IllegalArgumentException unexpectedValueInTheApi) {
             logger.warn("Unable to parse direction " + text);

@@ -1,6 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.liveUpdates.Direction;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
@@ -106,7 +107,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
                                                                       String displayId, String platformId, String message,
                                                                       Station location) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Airport,
-                StationDepartureInfo.Direction.Incoming, IdFor.createId(platformId), location, message, lastUpdate);
+                Direction.Incoming, IdFor.createId(platformId), location, message, lastUpdate);
         DueTram dueTram = new DueTram(TramStations.of(Bury), "Due", 42, "Single", lastUpdate.toLocalTime());
         departureInfo.addDueTram(dueTram);
         return departureInfo;
