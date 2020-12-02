@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.testSupport.RoutesForTesting;
@@ -21,7 +21,7 @@ class RouteDTOTest {
         stations.add(new StationRefWithPosition(TramStations.of(TramStations.Intu)));
         RouteDTO routeDTO = new RouteDTO(RoutesForTesting.INTU_TO_CORN, stations);
 
-        assertEquals("MET:   7:I:", routeDTO.getId());
+        assertEquals("MET:7:I:", routeDTO.getId());
         assertEquals("intu Trafford Centre - Cornbrook", routeDTO.getRouteName());
         assertEquals("7", routeDTO.getShortName());
         assertEquals(TransportMode.Tram, routeDTO.getTransportMode());

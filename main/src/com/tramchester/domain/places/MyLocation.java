@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.List;

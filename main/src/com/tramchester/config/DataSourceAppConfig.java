@@ -2,7 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;

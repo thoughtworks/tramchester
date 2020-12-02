@@ -3,9 +3,8 @@ package com.tramchester.domain;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-
-import java.util.Optional;
 
 public class ConnectingStage implements TransportStage<Station, Station>  {
     private final Station start;

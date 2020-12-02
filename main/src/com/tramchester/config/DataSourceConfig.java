@@ -1,7 +1,7 @@
 package com.tramchester.config;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.nio.file.Path;
 import java.util.Set;

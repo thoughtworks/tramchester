@@ -2,7 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
 import com.tramchester.domain.presentation.TramPositionDTO;

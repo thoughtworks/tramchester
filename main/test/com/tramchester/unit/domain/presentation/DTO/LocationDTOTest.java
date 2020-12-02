@@ -2,7 +2,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;

@@ -1,7 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.PreviousSuccessfulVisits;

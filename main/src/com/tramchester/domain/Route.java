@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.HashSet;

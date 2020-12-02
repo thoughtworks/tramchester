@@ -1,5 +1,7 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.reference.TransportMode;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 

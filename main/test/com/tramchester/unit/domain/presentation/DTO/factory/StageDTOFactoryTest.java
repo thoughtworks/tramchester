@@ -7,11 +7,11 @@ import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

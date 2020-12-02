@@ -3,7 +3,7 @@ package com.tramchester.dataimport;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

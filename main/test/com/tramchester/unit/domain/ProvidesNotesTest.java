@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.PlatformMessageSource;

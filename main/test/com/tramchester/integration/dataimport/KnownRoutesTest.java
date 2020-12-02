@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.KnownRoutes;
+import com.tramchester.domain.reference.KnownRoutes;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import org.junit.jupiter.api.AfterAll;

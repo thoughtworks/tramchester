@@ -1,10 +1,10 @@
 package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdMap;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import org.picocontainer.Disposable;

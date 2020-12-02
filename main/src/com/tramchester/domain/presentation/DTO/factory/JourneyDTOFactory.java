@@ -1,6 +1,6 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;

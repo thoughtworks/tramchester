@@ -2,10 +2,9 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

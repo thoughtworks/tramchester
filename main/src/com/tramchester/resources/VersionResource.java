@@ -1,6 +1,6 @@
 package com.tramchester.resources;
 
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.repository.VersionRepository;

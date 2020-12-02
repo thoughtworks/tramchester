@@ -1,14 +1,10 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.domain.TransportMode;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.TramStopCall;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

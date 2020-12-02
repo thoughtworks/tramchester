@@ -1,6 +1,6 @@
 package com.tramchester.config;
 
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;

@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.*;

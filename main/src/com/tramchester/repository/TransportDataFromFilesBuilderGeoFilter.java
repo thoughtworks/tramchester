@@ -7,6 +7,8 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;

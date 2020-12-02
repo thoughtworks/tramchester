@@ -1,7 +1,7 @@
 package com.tramchester.mappers;
 
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.WalkingStage;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;

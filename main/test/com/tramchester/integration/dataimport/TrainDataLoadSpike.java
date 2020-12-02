@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
 import org.junit.jupiter.api.AfterAll;
@@ -10,8 +10,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

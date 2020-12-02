@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.dataimport.Unzipper;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;

@@ -2,9 +2,8 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-
-import java.util.Optional;
 
 public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Location<?>> implements TransportStage<FROM, DEST> {
     private final FROM start;

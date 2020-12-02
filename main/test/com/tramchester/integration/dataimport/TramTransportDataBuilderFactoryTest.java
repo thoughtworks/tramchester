@@ -7,6 +7,7 @@ import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;

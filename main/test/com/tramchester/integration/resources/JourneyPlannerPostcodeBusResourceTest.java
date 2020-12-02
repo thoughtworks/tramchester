@@ -1,7 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;

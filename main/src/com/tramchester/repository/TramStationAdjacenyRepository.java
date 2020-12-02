@@ -1,6 +1,6 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;

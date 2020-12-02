@@ -1,4 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.reference;
+
+import com.tramchester.domain.EnumParser;
 
 import java.util.*;
 

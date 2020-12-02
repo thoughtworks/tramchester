@@ -1,7 +1,7 @@
 package com.tramchester.integration;
 
 import com.tramchester.config.DataSourceConfig;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.util.*;
 

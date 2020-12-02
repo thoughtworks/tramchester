@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.GTFSTransportationType;
 import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 

@@ -1,6 +1,6 @@
 package com.tramchester.dataimport.data;
 
-import com.tramchester.domain.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.input.Trip;

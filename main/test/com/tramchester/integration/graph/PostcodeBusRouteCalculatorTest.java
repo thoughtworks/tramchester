@@ -3,7 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;

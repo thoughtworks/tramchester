@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
-import static com.tramchester.domain.TransportMode.Bus;
-import static com.tramchester.domain.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TransportDataContainerTest {

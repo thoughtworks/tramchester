@@ -1,4 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.reference;
+
+import com.tramchester.domain.HasTransportMode;
 
 import java.util.HashSet;
 import java.util.Set;

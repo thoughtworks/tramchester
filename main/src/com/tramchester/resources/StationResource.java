@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.DataSourceRepository;

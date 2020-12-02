@@ -1,7 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;

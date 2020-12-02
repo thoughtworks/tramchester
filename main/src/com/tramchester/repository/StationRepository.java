@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 

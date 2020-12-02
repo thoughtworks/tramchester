@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;

@@ -4,7 +4,7 @@ import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;

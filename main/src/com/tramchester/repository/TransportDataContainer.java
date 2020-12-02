@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import org.picocontainer.Disposable;

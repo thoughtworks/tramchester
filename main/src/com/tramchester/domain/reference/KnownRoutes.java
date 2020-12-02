@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.reference;
 
 public enum KnownRoutes {
     AltrinchamPiccadilly("MET:2:I:"),

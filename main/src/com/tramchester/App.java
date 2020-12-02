@@ -7,7 +7,7 @@ import com.tramchester.cloud.*;
 import com.tramchester.cloud.data.UploadsLiveData;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.LiveDataConfig;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.DueTramsRepository;

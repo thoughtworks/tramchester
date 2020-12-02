@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 
 public class RouteRefDTO {
 

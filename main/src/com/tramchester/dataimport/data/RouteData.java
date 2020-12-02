@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.data;
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 

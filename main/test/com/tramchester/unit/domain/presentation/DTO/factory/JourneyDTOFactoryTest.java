@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
 import com.tramchester.domain.places.Station;

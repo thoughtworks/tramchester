@@ -2,7 +2,7 @@ package com.tramchester.dataimport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

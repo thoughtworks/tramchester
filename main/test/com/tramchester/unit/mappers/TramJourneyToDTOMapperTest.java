@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;

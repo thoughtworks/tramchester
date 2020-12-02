@@ -2,9 +2,9 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.DataSourceRepository;

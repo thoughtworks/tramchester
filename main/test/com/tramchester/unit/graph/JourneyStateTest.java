@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;

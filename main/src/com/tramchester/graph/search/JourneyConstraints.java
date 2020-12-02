@@ -3,6 +3,8 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;

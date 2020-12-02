@@ -2,7 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;

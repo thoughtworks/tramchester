@@ -3,7 +3,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;

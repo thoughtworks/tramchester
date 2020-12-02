@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;

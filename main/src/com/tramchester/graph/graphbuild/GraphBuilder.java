@@ -1,7 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.*;
 import org.neo4j.graphdb.*;
 import org.picocontainer.Startable;

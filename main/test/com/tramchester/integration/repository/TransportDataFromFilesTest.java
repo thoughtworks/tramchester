@@ -10,6 +10,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;

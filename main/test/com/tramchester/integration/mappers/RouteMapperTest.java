@@ -2,7 +2,7 @@ package com.tramchester.integration.mappers;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.integration.IntegrationTramTestConfig;

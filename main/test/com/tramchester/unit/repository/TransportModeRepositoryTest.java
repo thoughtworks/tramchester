@@ -2,8 +2,8 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GTFSTransportationType;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.testSupport.TestConfig;

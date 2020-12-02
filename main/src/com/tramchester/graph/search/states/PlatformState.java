@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;

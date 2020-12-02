@@ -1,6 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
 public class RouteStation implements HasId<RouteStation>, HasTransportMode, GraphProperty {

@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
-import com.tramchester.domain.GTFSTransportationType;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

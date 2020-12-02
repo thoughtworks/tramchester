@@ -6,6 +6,8 @@ import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;

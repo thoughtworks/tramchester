@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.TransportMode;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collection;
 import java.util.Set;
