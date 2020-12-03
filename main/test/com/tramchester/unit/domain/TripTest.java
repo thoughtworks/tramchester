@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
@@ -43,7 +44,8 @@ class TripTest {
 
         Trip tripA = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
         assertTrue(TransportMode.isTram(tripA));
-        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", new Agency("BUS", "agencyName"), TransportMode.Bus);
+        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName", new Agency("BUS", "agencyName"),
+                TransportMode.Bus, RouteDirection.Circular);
         Trip tripB = new Trip("tripId", "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));
     }

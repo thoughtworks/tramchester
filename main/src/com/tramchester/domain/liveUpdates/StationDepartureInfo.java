@@ -21,10 +21,10 @@ public class StationDepartureInfo  {
     private final LocalDateTime lastUpdate;
     private final String displayId;
     private final Station station;
-    private final Direction direction;
+    private final LineDirection direction;
 
     // station code here is the actocode
-    public StationDepartureInfo(String displayId, Lines line, Direction direction, IdFor<Platform> stationPlatform,
+    public StationDepartureInfo(String displayId, Lines line, LineDirection direction, IdFor<Platform> stationPlatform,
                                 Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.line = line;
@@ -52,7 +52,7 @@ public class StationDepartureInfo  {
         return line;
     }
 
-    public Direction getDirection() {
+    public LineDirection getDirection() {
         return direction;
     }
 

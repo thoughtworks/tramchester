@@ -1,6 +1,8 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.Dependencies;
+import com.tramchester.domain.IdFor;
+import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.KnownRoutes;
 import com.tramchester.integration.IntegrationTramTestConfig;
@@ -40,11 +42,11 @@ class KnownRoutesTest {
 
         assertEquals(routes.size(), loadedRoutes.size());
 
-        Set<String> knownRouteIds = routes.stream().map(KnownRoutes::getId).collect(Collectors.toSet());
+        IdSet<Route> knownRouteIds = routes.stream().map(KnownRoutes::getId).collect(IdSet.idCollector());
 
         for (Route loaded: loadedRoutes) {
-            String id = loaded.getId().forDTO();
-            assertTrue(knownRouteIds.contains(id), id);
+            IdFor<Route> id = loaded.getId();
+            assertTrue(knownRouteIds.contains(id), id.toString());
         }
 
         Set<String> knownRouteNames = routes.stream().map(Enum::name).collect(Collectors.toSet());

@@ -9,7 +9,9 @@ import com.tramchester.dataimport.parsers.CalendarDatesDataMapper;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.KnownRoutes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
@@ -96,6 +98,40 @@ class TransportDataFromFilesTest {
         assertEquals(2, headsigns.size(), "expected headsigns");
         assertTrue(headsigns.contains("Eccles"));
         assertTrue(headsigns.contains("Trafford Bar"));
+    }
+
+    @Test
+    void shouldHaveRouteStationsThatOccurDueToDepot() {
+        Set<RouteStation> routeStations = transportData.getRouteStations();
+
+        Set<RouteStation> traffordBar = routeStations.stream().
+                filter(routeStation -> routeStation.getStationId().equals(TramStations.TraffordBar.getId())).collect(Collectors.toSet());
+
+        IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
+
+        // 2*3 expected, but includes eccles as well
+        assertEquals(8, traffordBarRoutes.size());
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.AltrinchamPiccadilly.getId()));
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.PiccadillyAltrincham.getId()));
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.EDidsburyManchesterRochdale.getId()));
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.RochdaleManchesterEDidsbury.getId()));
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.VictoriaManchesterAirport.getId()));
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.ManchesterAirportVictoria.getId()));
+
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.EcclesManchesterAshtonunderLyne.getId()));
+        assertTrue(traffordBarRoutes.contains(KnownRoutes.AshtonunderLyneManchesterEccles.getId()));
+    }
+
+    @Test
+    void shouldHaveExpectedRoutesNonDepot() {
+        Set<RouteStation> all = transportData.getRouteStations();
+
+        Set<RouteStation> routeStationSet = all.stream().
+                filter(routeStation -> routeStation.getStationId().equals(TramStations.OldTrafford.getId())).collect(Collectors.toSet());
+
+        Set<Route> callingRoutes = routeStationSet.stream().map(RouteStation::getRoute).collect(Collectors.toSet());
+
+        assertEquals(2, callingRoutes.size());
     }
 
     @Test

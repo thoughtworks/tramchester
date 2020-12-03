@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
@@ -15,18 +16,20 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     private final TransportMode transportMode;
     private final Set<Service> services;
     private final Set<String> headsigns;
+    private final RouteDirection routeDirection;
 
-    public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode) {
-        this(IdFor.createId(id), shortName, name, agency, transportMode);
+    public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode,  RouteDirection routeDirection) {
+        this(IdFor.createId(id), shortName, name, agency, transportMode, routeDirection);
     }
 
-    public Route(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
+    public Route(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode, RouteDirection routeDirection) {
         this.id = id;
         this.shortName = shortName.intern();
         this.name = name.intern();
 
         this.agency = agency;
         this.transportMode = transportMode;
+        this.routeDirection = routeDirection;
         services = new HashSet<>();
         headsigns = new HashSet<>();
     }
@@ -97,5 +100,9 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.ROUTE_ID;
+    }
+
+    public RouteDirection getRouteDirection() {
+        return routeDirection;
     }
 }

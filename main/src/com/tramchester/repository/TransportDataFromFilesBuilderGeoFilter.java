@@ -301,7 +301,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
                 count.getAndIncrement();
                 Agency agency = missingAgency ? createMissingAgency(allAgencies, agencyId) : allAgencies.get(agencyId);
                 Route route = new Route(routeId, routeData.getShortName().trim(), routeName, agency,
-                        TransportMode.fromGTFS(routeType));
+                        TransportMode.fromGTFS(routeType), routeData.getRouteDirection());
                 agency.addRoute(route);
                 buildable.addAgency(agency);
                 buildable.addRoute(route);

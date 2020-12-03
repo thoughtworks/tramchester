@@ -4,6 +4,7 @@ package com.tramchester.domain;
 import com.google.common.collect.Sets;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -26,6 +27,10 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         IdSet<T> result = new IdSet<>();
         result.add(id);
         return result;
+    }
+
+    public static <T extends GraphProperty> IdSet<T> emptySet() {
+        return new IdSet<>(Collections.emptySet());
     }
 
     private IdSet<T> addAll(IdSet<T> other) {
@@ -133,5 +138,20 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
     @Override
     public String toString() {
         return "IdSet{" + theSet + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IdSet<?> idSet = (IdSet<?>) o;
+
+        return theSet.equals(idSet.theSet);
+    }
+
+    @Override
+    public int hashCode() {
+        return theSet.hashCode();
     }
 }

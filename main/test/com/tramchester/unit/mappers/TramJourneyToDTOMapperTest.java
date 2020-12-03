@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.*;
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
@@ -74,7 +75,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private Route createRoute(String name) {
-        return new Route("routeId", "shortName", name, TestEnv.MetAgency(), TransportMode.Tram);
+        return new Route("routeId", "shortName", name, TestEnv.MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
     }
 
     @Test

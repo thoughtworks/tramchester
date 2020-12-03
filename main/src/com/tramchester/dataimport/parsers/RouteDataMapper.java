@@ -2,6 +2,7 @@ package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.RouteDirection;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,12 +66,26 @@ public class RouteDataMapper extends CSVEntryMapper<RouteData> {
                 transportationType = GTFSTransportationType.tram;
             }
 
-            return new RouteData(id, agency, shortName, longName, transportationType);
+            return new RouteData(id, agency, shortName, longName, transportationType, mapDirection(id));
         } catch (ParseException parseException) {
             String msg = "Unable to parse " + data.toString();
             logger.error(msg);
             throw new RuntimeException(msg, parseException);
         }
+    }
+
+    private RouteDirection mapDirection(String shortName) {
+        if (shortName.endsWith(RouteDirection.Inbound.getSuffix())) {
+            return RouteDirection.Inbound;
+        }
+        if (shortName.endsWith(RouteDirection.Outbound.getSuffix())) {
+            return RouteDirection.Outbound;
+        }
+        if (shortName.endsWith(RouteDirection.Circular.getSuffix())) {
+            return RouteDirection.Circular;
+        }
+        logger.warn("Unable to map short name to a direction, short name was " + shortName);
+        return RouteDirection.Unknown;
     }
 
     @Override

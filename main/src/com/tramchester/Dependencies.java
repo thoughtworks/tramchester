@@ -165,6 +165,7 @@ public class Dependencies {
         picoContainer.addComponent(InterchangeRepository.class);
         picoContainer.addComponent(GraphDatabase.class);
         picoContainer.addComponent(RouteCallingStations.class);
+        picoContainer.addComponent(TramCentralZoneDirectionRespository.class);
         if (configuration.getCreateNeighbours()) {
             picoContainer.addComponent(CreateNeighbours.class);
         }

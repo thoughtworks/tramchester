@@ -2,11 +2,11 @@ package com.tramchester.domain.liveUpdates;
 
 public class LineAndDirection {
     private final Lines line;
-    private final Direction direction;
+    private final LineDirection direction;
 
-    public final static LineAndDirection Unknown = new LineAndDirection(Lines.UnknownLine, Direction.Unknown);
+    public final static LineAndDirection Unknown = new LineAndDirection(Lines.UnknownLine, LineDirection.Unknown);
 
-    public LineAndDirection(Lines line, Direction direction) {
+    public LineAndDirection(Lines line, LineDirection direction) {
         this.line = line;
         this.direction = direction;
     }
@@ -35,5 +35,13 @@ public class LineAndDirection {
                 "line=" + line +
                 ", direction=" + direction +
                 '}';
+    }
+
+    public LineDirection getDirection() {
+        return direction;
+    }
+
+    public Lines getLine() {
+        return line;
     }
 }

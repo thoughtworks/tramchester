@@ -44,6 +44,7 @@ public enum TramStations implements TestStations {
     MarketStreet("9400ZZMAMKT", "Manchester City Centre", "Market Street", pos(53.48192, -2.23883)),
     MediaCityUK("9400ZZMAMCU", "MediaCityUK", "MediaCityUK", pos(53.47214, -2.29733)),
     StWerburghsRoad("9400ZZMASTW", "Chorlton", "St Werburgh's Road", pos(53.4387, -2.26547)),
+    Chorlton("9400ZZMACHO","Chorlton", "Chorlton", pos(53.44262, -2.27335) ),
     Shudehill("9400ZZMASHU","Manchester City Centre", "Shudehill", pos(53.48524, -2.23918)),
     Monsall("9400ZZMAMON", "Monsall", "Monsall", pos(53.50111, -2.21061)),
     ExchangeQuay("9400ZZMAEXC", "Salford Quays", "Exchange Quay", pos(53.46769, -2.28242)),
@@ -54,6 +55,7 @@ public enum TramStations implements TestStations {
     RochdaleRail("9400ZZMARRS", "Rochdale", "Rochdale Railway Station", pos(53.61102, -2.15449)),
     OldTrafford("9400ZZMAOLD", "Old Trafford", "Old Trafford", pos(53.45634, -2.28496)),
     Wharfside("9400ZZMAWFS", "Old Trafford", "Wharfside", pos(53.46625, -2.28748)),
+    PeelHall("9400ZZMAPLL","Peel Hall", "Peel Hall", pos(53.37373, -2.25038)),
     Intu("9400ZZMATRC", "The Trafford Centre", "intu Trafford Centre", pos(53.46782, -2.34751));
 
     public static int NumberOf = 99;

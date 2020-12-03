@@ -38,10 +38,6 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
                     matrix.put(pair, leg.getCost());
                 }
             });
-//            for (int i = 0; i < stops.size() - 1; i++) {
-//                StopCall currentStop = stops.get(i);
-//                StopCall nextStop = stops.get(i + 1);
-//            }
         });
         logger.info("Finished building adjacency matrix");
     }
@@ -56,10 +52,9 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
         matrix.clear();
     }
 
-//    private Pair<Station,Station> formId(Station first, Station second) {
-//        return Pair.of(first,second);
-//    }
-
+    //
+    // Distance between two adjacent stations, or -1 if not next to each other
+    //
     public int getAdjacent(Station firstStation, Station secondStation) {
         Pair<Station, Station> id = Pair.of(firstStation, secondStation);
         if (matrix.containsKey(id)) {

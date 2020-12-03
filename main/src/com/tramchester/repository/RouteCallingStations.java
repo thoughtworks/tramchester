@@ -64,6 +64,6 @@ public class RouteCallingStations implements Startable, Disposable {
 
     @Override
     public void stop() {
-
+        // noop
     }
 }

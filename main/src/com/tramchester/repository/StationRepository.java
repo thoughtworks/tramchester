@@ -20,6 +20,8 @@ public interface StationRepository {
     // live data association
     Optional<Station> getTramStationByName(String name);
 
+    // use with care, reports route stations due to rare circumstances such as return to deport
+    // use RouteCallingStations instead if you want stations for a normally defined route
     Set<RouteStation> getRouteStations();
 
     RouteStation getRouteStationById(IdFor<RouteStation> routeStationId);

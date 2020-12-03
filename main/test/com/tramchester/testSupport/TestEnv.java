@@ -9,6 +9,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
@@ -132,7 +133,7 @@ public class TestEnv {
     }
 
     public static Route getTestRoute(IdFor<Route> routeId) {
-        return new Route(routeId, "routeCode", "routeName", MetAgency(), TransportMode.Tram);
+        return new Route(routeId, "routeCode", "routeName", MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
     }
 
     public static Agency MetAgency() {

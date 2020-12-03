@@ -2,7 +2,7 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.liveUpdates.Direction;
+import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -52,10 +52,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
         StationDepartureInfo departureInfoA = new StationDepartureInfo("yyy", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
         StationDepartureInfo departureInfoB = new StationDepartureInfo("yyy", Lines.Eccles,
-                Direction.Incoming, IdFor.createId("someOther"), TramStations.of(Altrincham),
+                LineDirection.Incoming, IdFor.createId("someOther"), TramStations.of(Altrincham),
                 "some different message", lastUpdate);
         infos.add(departureInfoA);
         infos.add(departureInfoB);
@@ -96,7 +96,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "<no message>", lastUpdate);
         infos.add(departureInfo);
 
@@ -114,7 +114,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "", lastUpdate);
         infos.add(departureInfo);
 
@@ -139,7 +139,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "some msg", lastUpdate);
         infos.add(departureInfo);
 
@@ -160,7 +160,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "some msg", lastUpdate.minusMinutes(30));
         infos.add(departureInfo);
 
@@ -181,10 +181,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
         StationDepartureInfo departureInfoA = new StationDepartureInfo("123", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
         StationDepartureInfo departureInfoB = new StationDepartureInfo("456", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "some other message", lastUpdate);
         infos.add(departureInfoA);
         infos.add(departureInfoB);
@@ -208,10 +208,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
         StationDepartureInfo departureInfoA = new StationDepartureInfo("123", Lines.Eccles,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
         StationDepartureInfo departureInfoB = new StationDepartureInfo("456", Lines.Airport,
-                Direction.Incoming, platform.getId(), station,
+                LineDirection.Incoming, platform.getId(), station,
                 "", lastUpdate);
         infos.add(departureInfoA);
         infos.add(departureInfoB);

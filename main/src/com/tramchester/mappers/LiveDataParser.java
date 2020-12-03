@@ -6,7 +6,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.liveUpdates.Direction;
+import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.liveUpdates.DueTram;
@@ -23,8 +23,8 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.tramchester.domain.liveUpdates.Direction.Both;
-import static com.tramchester.domain.liveUpdates.Direction.Unknown;
+import static com.tramchester.domain.liveUpdates.LineDirection.Both;
+import static com.tramchester.domain.liveUpdates.LineDirection.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
@@ -75,7 +75,7 @@ public class LiveDataParser {
         String dateString = (String) jsonObject.get("LastUpdated");
         String rawDirection = (String)jsonObject.get("Direction");
 
-        Direction direction = getDirection(rawDirection);
+        LineDirection direction = getDirection(rawDirection);
         if (direction==Unknown) {
             logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection + " for JSON " +jsonObject.toString());
         }
@@ -123,12 +123,12 @@ public class LiveDataParser {
         return Lines.UnknownLine;
     }
 
-    private Direction getDirection(String text) {
+    private LineDirection getDirection(String text) {
         if (DIRECTION_BOTH.equals(text)) {
             return Both;
         }
         try {
-            return Direction.valueOf(text);
+            return LineDirection.valueOf(text);
         }
         catch (IllegalArgumentException unexpectedValueInTheApi) {
             logger.warn("Unable to parse direction " + text);

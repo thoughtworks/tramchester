@@ -17,15 +17,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ValidateTramTestStations {
 
-        private static Dependencies dependencies;
+    private static Dependencies dependencies;
 
-        private StationRepository transportData;
+    private StationRepository transportData;
 
-        @BeforeAll
-        static void onceBeforeAnyTestsRun() {
-            dependencies = new Dependencies();
-            dependencies.initialise(new IntegrationTramTestConfig());
-        }
+    @BeforeAll
+    static void onceBeforeAnyTestsRun() {
+        dependencies = new Dependencies();
+        dependencies.initialise(new IntegrationTramTestConfig());
+    }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
@@ -48,7 +48,7 @@ class ValidateTramTestStations {
 
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
-            assertEquals(realStation.getArea(), testStation.getArea(),"area wrong for " + testStationName);
+            assertEquals(realStation.getArea(), testStation.getArea(), "area wrong for " + testStationName);
             assertEquals(realStation.getTransportMode(), testStation.getTransportMode(), "mode wrong for " + testStationName);
             assertEquals(realStation.getLatLong(), testStation.getLatLong(), "latlong wrong for " + testStationName);
 

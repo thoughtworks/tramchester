@@ -3,6 +3,7 @@ package com.tramchester.unit.dataimport.parsers;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.parsers.RouteDataMapper;
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.reference.RouteDirection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +37,7 @@ class RouteDataParserTest {
         assertThat(result.getShortName()).isEqualTo("MET4");
         assertThat(result.getLongName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
         assertThat(result.getAgencyId()).isEqualTo(IdFor.createId("MET"));
+        assertThat(result.getRouteDirection()).isEqualTo(RouteDirection.Outbound);
     }
 
     @Test
@@ -49,6 +51,8 @@ class RouteDataParserTest {
         assertThat(result.getShortName().trim()).isEqualTo("588");
         assertThat(result.getLongName()).isEqualTo("Leigh - Lowton, Scott Road");
         assertThat(result.getAgencyId()).isEqualTo(IdFor.createId("JSC"));
+        assertThat(result.getRouteDirection()).isEqualTo(RouteDirection.Circular);
+
     }
 
 }

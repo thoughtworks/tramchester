@@ -69,7 +69,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         Platform platfromForThirdStation = new Platform("b2", "Intu platform 2");
         secondStation.addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
-                Direction.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
+                LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
         infos.add(thirdStationInfo);
 
         EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
@@ -217,7 +217,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                                                                  String displayId, IdFor<Platform> platformId, String message,
                                                                  Station location, DueTram dueTram) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Eccles,
-                Direction.Incoming, platformId, location, message, lastUpdate);
+                LineDirection.Incoming, platformId, location, message, lastUpdate);
         info.add(departureInfo);
         departureInfo.addDueTram(dueTram);
         return departureInfo;

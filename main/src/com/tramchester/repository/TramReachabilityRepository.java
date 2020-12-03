@@ -70,14 +70,21 @@ public class TramReachabilityRepository implements Disposable {
 
     public boolean stationReachable(RouteStation routeStation, Station destinationStation) {
         if (TransportMode.isTram(routeStation) && TransportMode.isTram(destinationStation)) {
-            int index = tramStationIndexing.indexOf(destinationStation.getId());
-            if (index<0) {
-                throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStation,
-                        routeStation));
-            }
-            return matrix.get(routeStation.getId())[index];
+            IdFor<Station> destinationStationId = destinationStation.getId();
+            IdFor<RouteStation> routeStationId = routeStation.getId();
+
+            return tramStationReachable(destinationStationId, routeStationId);
         }
         throw new RuntimeException("Call for trams only");
+    }
+
+    public boolean tramStationReachable(IdFor<Station> destinationStationId, IdFor<RouteStation> routeStationId) {
+        int index = tramStationIndexing.indexOf(destinationStationId);
+        if (index<0) {
+            throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStationId,
+                    routeStationId));
+        }
+        return matrix.get(routeStationId)[index];
     }
 
 }
