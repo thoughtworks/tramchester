@@ -6,11 +6,9 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.GTFSPickupDropoffType;
-import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.reference.RouteDirection;
-import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.reference.*;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.BoundingBox;
@@ -201,5 +199,9 @@ public class TestEnv {
 
     public static String postcodeForWythenshaweHosp() {
        return "M239LT";
+    }
+
+    public static IdFor<RouteStation> formId(TramStations tramStations, KnownRoute knownRoute) {
+        return RouteStation.formId(tramStations.getId(), knownRoute.getId());
     }
 }

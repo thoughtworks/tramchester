@@ -8,6 +8,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -25,6 +26,9 @@ import org.neo4j.graphdb.Transaction;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.KnownRoute.AltrinchamPiccadilly;
+import static com.tramchester.domain.reference.KnownRoute.AshtonunderLyneManchesterEccles;
+import static com.tramchester.testSupport.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TramStations.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 
@@ -70,7 +74,7 @@ class TramGraphBuilderTest {
         List<Relationship> outbounds = getOutboundRouteStationRelationships(txn,
                 stationRepository.getRouteStation(mediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
         outbounds.addAll(getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(mediaCityUK, RoutesForTesting.ASH_TO_ECCLES )));
+                stationRepository.getRouteStation(mediaCityUK, RoutesForTesting.ASH_TO_ECCLES)));
 
         Set<IdFor<Service>> graphSvcIds = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -90,17 +94,16 @@ class TramGraphBuilderTest {
         return graphQuery.getRouteStationRelationships(txn, routeStationId, Direction.OUTGOING);
     }
 
-
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
         List<Relationship> outbounds = getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(of(Cornbrook), RoutesForTesting.ALTY_TO_PICC));
+                stationRepository.getRouteStation(of(Cornbrook), createTramRoute(AltrinchamPiccadilly)));
 
         Assertions.assertTrue(outbounds.size()>1, "have at least one outbound");
 
         outbounds = getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(of(Cornbrook), RoutesForTesting.ASH_TO_ECCLES));
+                stationRepository.getRouteStation(of(Cornbrook), createTramRoute(AshtonunderLyneManchesterEccles)));
 
         Assertions.assertTrue(outbounds.size()>1);
 

@@ -94,7 +94,13 @@ public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
     }
 
     public static IdFor<RouteStation> createId(Station station, Route route) {
+        // TODO remove replaceAll as route id now clear on initial import
         String idAsString = station.getId().theId + route.getId().theId.replaceAll(" ", "");
+        return createId(idAsString);
+    }
+
+    public static IdFor<RouteStation> createId(IdFor<Station> station, IdFor<Route> route) {
+        String idAsString = station.theId + route.theId;
         return createId(idAsString);
     }
 

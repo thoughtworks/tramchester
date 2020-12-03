@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -12,6 +13,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.*;
+import org.checkerframework.checker.units.qual.K;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -22,8 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
-import static com.tramchester.testSupport.TramStations.MediaCityUK;
+import static com.tramchester.testSupport.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -36,26 +39,26 @@ class RouteCalculatorSubGraphMediaCityTest {
     private final LocalDate when = TestEnv.testDay();
 
     private static final List<TramStations> stations = Arrays.asList(
-            TramStations.ExchangeSquare,
-            TramStations.StPetersSquare,
-            TramStations.Deansgate,
-            TramStations.Cornbrook,
-            TramStations.Pomona,
-            TramStations.ExchangeQuay,
-            TramStations.SalfordQuay,
-            TramStations.Anchorage,
-            TramStations.HarbourCity,
+            ExchangeSquare,
+            StPetersSquare,
+            Deansgate,
+            Cornbrook,
+            Pomona,
+            ExchangeQuay,
+            SalfordQuay,
+            Anchorage,
+            HarbourCity,
             MediaCityUK,
-            TramStations.TraffordBar);
+            TraffordBar);
     private Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(RoutesForTesting.ASH_TO_ECCLES);
-        graphFilter.addRoute(RoutesForTesting.ROCH_TO_DIDS);
-        graphFilter.addRoute(RoutesForTesting.ECCLES_TO_ASH);
-        graphFilter.addRoute(RoutesForTesting.DIDS_TO_ROCH);
+        graphFilter.addRoute(AshtonunderLyneManchesterEccles.getId());
+        graphFilter.addRoute(RochdaleManchesterEDidsbury.getId());
+        graphFilter.addRoute(EcclesManchesterAshtonunderLyne.getId());
+        graphFilter.addRoute(EDidsburyManchesterRochdale.getId());
         stations.forEach(TramStations::getId);
 
         dependencies = new Dependencies(graphFilter);
@@ -85,8 +88,8 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void shouldHaveMediaCityToExchangeSquare() {
         validateAtLeastOneJourney(MediaCityUK, TramStations.Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
-        validateAtLeastOneJourney(MediaCityUK, TramStations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
-        validateAtLeastOneJourney(MediaCityUK, TramStations.ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
+        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSunday());
     }
 
     @DataExpiryCategory
@@ -115,12 +118,12 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void reproduceMediaCityIssue() {
-        validateAtLeastOneJourney(TramStations.ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
+        validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
     }
 
     @Test
     void reproduceMediaCityIssueSaturdays() {
-        validateAtLeastOneJourney(TramStations.ExchangeSquare, MediaCityUK, TramTime.of(9,0), TestEnv.nextSaturday());
+        validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(9,0), TestEnv.nextSaturday());
     }
 
     @Test

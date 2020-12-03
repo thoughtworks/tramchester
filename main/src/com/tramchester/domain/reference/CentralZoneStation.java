@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.liveUpdates.Lines.*;
 
-public enum CentralZoneStations {
+public enum CentralZoneStation {
     Cornbrook("9400ZZMACRN", Eccles),
     StPetersSquare("9400ZZMASTP", Eccles),
     PiccadillyGardens("9400ZZMAPGD", Bury),
@@ -31,7 +31,7 @@ public enum CentralZoneStations {
     private final IdFor<Station> stationId;
     private final Lines line;
 
-    CentralZoneStations(String stationId, Lines line) {
+    CentralZoneStation(String stationId, Lines line) {
         this.stationId = createId(stationId);
         this.line = line;
     }
@@ -49,11 +49,11 @@ public enum CentralZoneStations {
     }
 
     public static IdSet<Station> ids;
-    public static final Map<IdFor<Station>, CentralZoneStations> map;
+    public static final Map<IdFor<Station>, CentralZoneStation> map;
 
     static {
-        ids = Arrays.stream(CentralZoneStations.values()).map(CentralZoneStations::getId).collect(IdSet.idCollector());
-        map = Arrays.stream(CentralZoneStations.values()).map(element -> Pair.of(element.getId(),element)).
+        ids = Arrays.stream(CentralZoneStation.values()).map(CentralZoneStation::getId).collect(IdSet.idCollector());
+        map = Arrays.stream(CentralZoneStation.values()).map(element -> Pair.of(element.getId(),element)).
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 

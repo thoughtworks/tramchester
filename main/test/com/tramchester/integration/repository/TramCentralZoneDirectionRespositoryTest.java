@@ -2,11 +2,10 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdSet;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.CentralZoneStations;
+import com.tramchester.domain.reference.CentralZoneStation;
+import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.RouteRepository;
@@ -18,14 +17,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.repository.TramCentralZoneDirectionRespository.Place.*;
-import static com.tramchester.testSupport.RoutesForTesting.*;
+import static com.tramchester.testSupport.TestEnv.formId;
 import static com.tramchester.testSupport.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -59,57 +58,57 @@ class TramCentralZoneDirectionRespositoryTest {
 
     @Test
     void shouldHaveAwayEcclesRoute() {
-        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(SalfordQuay, ASH_TO_ECCLES));
+        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(SalfordQuay, AshtonunderLyneManchesterEccles));
         assertEquals(away, result);
     }
 
     @Test
     void shouldHaveTowardsEcclesRoute() {
-        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(SalfordQuay, ECCLES_TO_ASH));
+        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(SalfordQuay, EcclesManchesterAshtonunderLyne));
         assertEquals(towards, result);
     }
 
     @Test
     void shouldHaveWithinEcclesRoute() {
-        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(Pomona, ECCLES_TO_ASH));
+        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(Pomona, EcclesManchesterAshtonunderLyne));
         assertEquals(within, result);
     }
 
     @Test
     void shouldHaveAwayAirport() {
-        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(ManAirport, VIC_TO_AIR));
+        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(ManAirport, VictoriaManchesterAirport));
         assertEquals(away, result);
     }
 
     @Test
     void shouldHaveTowardsAirport() {
-        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(ManAirport, AIR_TO_VIC));
+        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(ManAirport, ManchesterAirportVictoria));
         assertEquals(towards, result);
     }
 
     @Test
     void shouldHaveWithinAirportRoute() {
-        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(StWerburghsRoad, VIC_TO_AIR));
+        TramCentralZoneDirectionRespository.Place result = repository.getStationPlacement(getRouteStation(StWerburghsRoad, VictoriaManchesterAirport));
         assertEquals(within, result);
     }
 
     @Test
     void shouldHaveChorltonWithin() {
-        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, ROCH_TO_DIDS)));
-        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, AIR_TO_VIC)));
-        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, DIDS_TO_ROCH)));
-        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, VIC_TO_AIR)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, RochdaleManchesterEDidsbury)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, ManchesterAirportVictoria)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, EDidsburyManchesterRochdale)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(Chorlton, VictoriaManchesterAirport)));
     }
 
     @Test
     void shouldHaveTaffordBarWithinForExpectedRoutes() {
-        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, ALTY_TO_PICC)));
-        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, DIDS_TO_ROCH)));
-        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, AIR_TO_VIC)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, AltrinchamPiccadilly)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, EDidsburyManchesterRochdale)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, ManchesterAirportVictoria)));
 
-        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, PICC_TO_ALTY)));
-        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, ROCH_TO_DIDS)));
-        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, VIC_TO_AIR)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, PiccadillyAltrincham)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, RochdaleManchesterEDidsbury)));
+        assertEquals(within, repository.getStationPlacement(getRouteStation(TraffordBar, VictoriaManchesterAirport)));
     }
 
     @Test
@@ -118,7 +117,7 @@ class TramCentralZoneDirectionRespositoryTest {
 
         routeRepository.getRoutes().forEach(route -> {
             List<Station> centralStationsForRoute = routeCallingStations.getStationsFor(route).stream().
-                    filter(CentralZoneStations::contains).
+                    filter(CentralZoneStation::contains).
                     collect(Collectors.toList());
 
             assertFalse(centralStationsForRoute.isEmpty());
@@ -130,7 +129,7 @@ class TramCentralZoneDirectionRespositoryTest {
             });
         });
 
-        assertEquals(CentralZoneStations.values().length, found.size());
+        assertEquals(CentralZoneStation.values().length, found.size());
     }
 
     @Test
@@ -160,8 +159,8 @@ class TramCentralZoneDirectionRespositoryTest {
 
     }
 
-    private RouteStation getRouteStation(TramStations station, Route route) {
-        IdFor<RouteStation> routeStationId = RouteStation.formId(of(station), route);
+    private RouteStation getRouteStation(TramStations station, KnownRoute route) {
+        IdFor<RouteStation> routeStationId = formId(station, route);
         return stationRepository.getRouteStationById(routeStationId);
     }
 

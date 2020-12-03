@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.reference.KnownRoutes;
+import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import org.junit.jupiter.api.AfterAll;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class KnownRoutesTest {
+class KnownRouteTest {
     private static Dependencies dependencies;
 
     @BeforeAll
@@ -38,11 +38,11 @@ class KnownRoutesTest {
         RouteRepository routeRepository = dependencies.get(RouteRepository.class);
 
         Set<Route> loadedRoutes = routeRepository.getRoutes();
-        List<KnownRoutes> routes = Arrays.asList(KnownRoutes.values());
+        List<KnownRoute> routes = Arrays.asList(KnownRoute.values());
 
         assertEquals(routes.size(), loadedRoutes.size());
 
-        IdSet<Route> knownRouteIds = routes.stream().map(KnownRoutes::getId).collect(IdSet.idCollector());
+        IdSet<Route> knownRouteIds = routes.stream().map(KnownRoute::getId).collect(IdSet.idCollector());
 
         for (Route loaded: loadedRoutes) {
             IdFor<Route> id = loaded.getId();

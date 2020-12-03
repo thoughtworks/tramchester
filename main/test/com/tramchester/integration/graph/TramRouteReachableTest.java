@@ -15,6 +15,7 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 
 import static com.tramchester.testSupport.RoutesForTesting.*;
+import static com.tramchester.testSupport.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteReachableTest {
@@ -43,36 +44,36 @@ class TramRouteReachableTest {
 
     @Test
     void shouldHaveCorrectReachabilityOrInterchanges() {
-        assertTrue(reachable(ALTY_TO_PICC, TramStations.NavigationRoad, TramStations.ManAirport));
-        assertFalse(reachable(PICC_TO_ALTY, TramStations.NavigationRoad, TramStations.ManAirport));
+        assertTrue(reachable(ALTY_TO_PICC, NavigationRoad, ManAirport));
+        assertFalse(reachable(PICC_TO_ALTY, NavigationRoad, ManAirport));
 
-        assertTrue(reachable(AIR_TO_VIC, TramStations.ManAirport, TramStations.StWerburghsRoad));
-        assertFalse(reachable(VIC_TO_AIR, TramStations.ManAirport, TramStations.StWerburghsRoad));
+        assertTrue(reachable(AIR_TO_VIC, ManAirport, StWerburghsRoad));
+        assertFalse(reachable(VIC_TO_AIR, ManAirport, StWerburghsRoad));
     }
 
     @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachable(ROCH_TO_DIDS, TramStations.RochdaleRail, TramStations.Monsall));
-        assertTrue(reachable(DIDS_TO_ROCH, TramStations.Monsall, TramStations.RochdaleRail));
+        assertTrue(reachable(ROCH_TO_DIDS, RochdaleRail, Monsall));
+        assertTrue(reachable(DIDS_TO_ROCH, Monsall, RochdaleRail));
     }
 
     @Test
     void shouldHaveAdjacentRoutesCorrectly() {
 
         // TODO Lockdown 2->1 for next two tests, only one route to alty now
-        assertEquals(1, getRoutes(TramStations.NavigationRoad, TramStations.Altrincham).size());
-        assertEquals(1, getRoutes(TramStations.Altrincham, TramStations.NavigationRoad).size());
+        assertEquals(1, getRoutes(NavigationRoad, Altrincham).size());
+        assertEquals(1, getRoutes(Altrincham, NavigationRoad).size());
 
         // 5 not the 7 on the map, only 6 routes modelled in timetable data, 1 of which does not go between these 2
         // TODO Lockdown 5->4
-        assertEquals(4, getRoutes(TramStations.Deansgate, TramStations.StPetersSquare).size());
+        assertEquals(4, getRoutes(Deansgate, StPetersSquare).size());
 
-        assertEquals(2, getRoutes(TramStations.StPetersSquare, TramStations.PiccadillyGardens).size());
+        assertEquals(2, getRoutes(StPetersSquare, PiccadillyGardens).size());
 
         // TODO Lockdown 2->1
-        assertEquals(1, getRoutes(TramStations.StPetersSquare, TramStations.MarketStreet).size());
+        assertEquals(1, getRoutes(StPetersSquare, MarketStreet).size());
 
-        assertEquals(0, getRoutes(TramStations.Altrincham, TramStations.Cornbrook).size());
+        assertEquals(0, getRoutes(Altrincham, Cornbrook).size());
     }
 
     private List<Route> getRoutes(TramStations start, TramStations neighbour) {
@@ -84,10 +85,10 @@ class TramRouteReachableTest {
     }
 
     private boolean reachable(Route route, TramStations routeStation, TramStations dest) {
-        return reachable.getRouteReachableWithInterchange(getRouteStation(route, getReal(routeStation)), getReal(dest));
+        return reachable.getRouteReachableWithInterchange(createRouteStation(route, getReal(routeStation)), getReal(dest));
     }
 
-    private RouteStation getRouteStation(Route route, Station station) {
+    private RouteStation createRouteStation(Route route, Station station) {
         return new RouteStation(station, route);
     }
 }

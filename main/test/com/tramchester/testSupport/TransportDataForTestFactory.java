@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
+import static com.tramchester.domain.reference.KnownRoute.EDidsburyManchesterRochdale;
+import static com.tramchester.domain.reference.KnownRoute.RochdaleManchesterEDidsbury;
 import static java.lang.String.format;
 
 public class TransportDataForTestFactory {
@@ -38,8 +40,8 @@ public class TransportDataForTestFactory {
 
     private static void populateTestData(TransportDataContainer container) {
         Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
-        Route routeB = RoutesForTesting.ROCH_TO_DIDS;
-        Route routeC = RoutesForTesting.DIDS_TO_ROCH;
+        Route routeB = RoutesForTesting.createTramRoute(RochdaleManchesterEDidsbury);
+        Route routeC = RoutesForTesting.createTramRoute(EDidsburyManchesterRochdale);
 
         Agency agency = new Agency("MET", "agencyName");
         agency.addRoute(routeA);

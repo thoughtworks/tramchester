@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.Dependencies;
-import com.tramchester.domain.reference.CentralZoneStations;
+import com.tramchester.domain.reference.CentralZoneStation;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import org.junit.jupiter.api.AfterAll;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class CentralZoneStationsTest {
+class CentralZoneStationTest {
     private static Dependencies dependencies;
 
     @BeforeAll
@@ -30,11 +30,11 @@ class CentralZoneStationsTest {
 
     @Test
     void shouldHaveCorrespondanceWithLoadedStations() {
-        List<CentralZoneStations> centralZoneStations = Arrays.asList(CentralZoneStations.values());
+        List<CentralZoneStation> centralZoneStations = Arrays.asList(CentralZoneStation.values());
 
         StationRepository stationRepository = dependencies.get(StationRepository.class);
 
-        List<CentralZoneStations> presentInLoaded = centralZoneStations.stream().
+        List<CentralZoneStation> presentInLoaded = centralZoneStations.stream().
                 filter(centralStation -> stationRepository.hasStationId(centralStation.getId())).
                 collect(Collectors.toList());
 

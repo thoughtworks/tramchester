@@ -18,9 +18,9 @@ public class ActiveGraphFilter implements GraphFilter {
         stations = new IdSet<>();
     }
 
-    public void addRoute(Route route) {
-        routeCodes.add(route.getId());
-    }
+//    public void addRoute(IdFor<Route> routeId) {
+//        routeCodes.add(routeId);
+//    }
 
     public void addRoute(IdFor<Route> id) {
         routeCodes.add(id);

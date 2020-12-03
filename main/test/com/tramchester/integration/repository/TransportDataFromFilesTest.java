@@ -11,7 +11,6 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.KnownRoutes;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
@@ -28,7 +27,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
+import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
+import static com.tramchester.testSupport.TramStations.Cornbrook;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -88,7 +90,7 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Route result = transportData.getRouteById(RoutesForTesting.ASH_TO_ECCLES.getId());
+        Route result = transportData.getRouteById(AshtonunderLyneManchesterEccles.getId());
         assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertEquals("MET:3:I:",result.getId().forDTO());
@@ -105,21 +107,21 @@ class TransportDataFromFilesTest {
         Set<RouteStation> routeStations = transportData.getRouteStations();
 
         Set<RouteStation> traffordBar = routeStations.stream().
-                filter(routeStation -> routeStation.getStationId().equals(TramStations.TraffordBar.getId())).collect(Collectors.toSet());
+                filter(routeStation -> routeStation.getStationId().equals(TraffordBar.getId())).collect(Collectors.toSet());
 
         IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
         // 2*3 expected, but includes eccles as well
         assertEquals(8, traffordBarRoutes.size());
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.AltrinchamPiccadilly.getId()));
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.PiccadillyAltrincham.getId()));
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.EDidsburyManchesterRochdale.getId()));
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.RochdaleManchesterEDidsbury.getId()));
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.VictoriaManchesterAirport.getId()));
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.ManchesterAirportVictoria.getId()));
+        assertTrue(traffordBarRoutes.contains(AltrinchamPiccadilly.getId()));
+        assertTrue(traffordBarRoutes.contains(PiccadillyAltrincham.getId()));
+        assertTrue(traffordBarRoutes.contains(EDidsburyManchesterRochdale.getId()));
+        assertTrue(traffordBarRoutes.contains(RochdaleManchesterEDidsbury.getId()));
+        assertTrue(traffordBarRoutes.contains(VictoriaManchesterAirport.getId()));
+        assertTrue(traffordBarRoutes.contains(ManchesterAirportVictoria.getId()));
 
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.EcclesManchesterAshtonunderLyne.getId()));
-        assertTrue(traffordBarRoutes.contains(KnownRoutes.AshtonunderLyneManchesterEccles.getId()));
+        assertTrue(traffordBarRoutes.contains(EcclesManchesterAshtonunderLyne.getId()));
+        assertTrue(traffordBarRoutes.contains(AshtonunderLyneManchesterEccles.getId()));
     }
 
     @Test
@@ -167,7 +169,7 @@ class TransportDataFromFilesTest {
         IdSet<Service> sundayServiceIds = sundayServices.stream().collect(IdSet.collector());
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
-                filter(trip -> trip.getStops().callsAt(TramStations.Cornbrook)).collect(Collectors.toSet());
+                filter(trip -> trip.getStops().callsAt(Cornbrook)).collect(Collectors.toSet());
 
         Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.
                 contains(trip.getService().getId())).collect(Collectors.toSet());
@@ -333,10 +335,10 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
-        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), TramStations.Cornbrook);
+        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
         IdSet<Service> toMediaCity = allTrips.stream().
-                filter(trip -> trip.getStops().callsAt(TramStations.Cornbrook)).
+                filter(trip -> trip.getStops().callsAt(Cornbrook)).
                 filter(trip -> trip.getStops().callsAt(TramStations.MediaCityUK)).
                 filter(trip -> trip.getRoute().getId().equals(RoutesForTesting.ASH_TO_ECCLES.getId())).
                 map(trip -> trip.getService().getId()).collect(IdSet.idCollector());

@@ -4,7 +4,7 @@ import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.CentralZoneStations;
+import com.tramchester.domain.reference.CentralZoneStation;
 import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -79,10 +79,10 @@ public class TramCentralZoneDirectionRespository implements Startable, Disposabl
             int leftCityZone = -1;
             for (int i = 0; i < callingAt.size(); i++) {
                 Station current = callingAt.get(i);
-                if (enteredCityZone==-1 && CentralZoneStations.contains(current)) {
+                if (enteredCityZone==-1 && CentralZoneStation.contains(current)) {
                     enteredCityZone = i;
                 }
-                if (leftCityZone==-1 && enteredCityZone>=0 && !CentralZoneStations.contains(current)) {
+                if (leftCityZone==-1 && enteredCityZone>=0 && !CentralZoneStation.contains(current)) {
                     leftCityZone = i-1;
                 }
             }

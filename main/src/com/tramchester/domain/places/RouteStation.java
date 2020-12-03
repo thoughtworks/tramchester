@@ -17,7 +17,7 @@ public class RouteStation implements HasId<RouteStation>, HasTransportMode, Grap
         id = IdFor.createId(station, route);
     }
 
-    public static IdFor<RouteStation> formId(Station station, Route route) {
+    public static IdFor<RouteStation> formId(IdFor<Station> station, IdFor<Route> route) {
         return IdFor.createId(station, route);
     }
 

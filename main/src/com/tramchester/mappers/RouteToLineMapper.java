@@ -5,8 +5,8 @@ import com.tramchester.domain.liveUpdates.LineAndDirection;
 import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.reference.KnownRoutes;
-import com.tramchester.domain.reference.CentralZoneStations;
+import com.tramchester.domain.reference.KnownRoute;
+import com.tramchester.domain.reference.CentralZoneStation;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.repository.TramCentralZoneDirectionRespository;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class RouteToLineMapper {
 
     public LineAndDirection map(RouteStation routeStation) {
         Route route = routeStation.getRoute();
-        if (!KnownRoutes.ids.contains(route.getId())) {
+        if (!KnownRoute.ids.contains(route.getId())) {
             logger.error("Unknown route " + route.getId());
             return LineAndDirection.Unknown;
         }
@@ -36,11 +36,11 @@ public class RouteToLineMapper {
 //            return mapLineDirection(Lines.Eccles, route);
 //        }
 
-        if (CentralZoneStations.contains(routeStation.getStation())) {
+        if (CentralZoneStation.contains(routeStation.getStation())) {
             return mapDirect(routeStation);
         }
 
-        KnownRoutes knownRoute = KnownRoutes.map.get(route.getId());
+        KnownRoute knownRoute = KnownRoute.map.get(route.getId());
         switch (knownRoute) {
             case RochdaleManchesterEDidsbury:
                 return mapCrossesCentralZone(routeStation, Lines.OldhamAndRochdale, Lines.SouthManchester);
@@ -95,7 +95,7 @@ public class RouteToLineMapper {
 
 
     private LineAndDirection mapDirect(RouteStation routeStation) {
-        CentralZoneStations multilineStation = CentralZoneStations.map.get(routeStation.getStationId());
+        CentralZoneStation multilineStation = CentralZoneStation.map.get(routeStation.getStationId());
         Route route = routeStation.getRoute();
         return mapLineDirection(multilineStation.getLine(), route);
     }

@@ -8,13 +8,11 @@ import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.CentralZoneStations;
+import com.tramchester.domain.reference.CentralZoneStation;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.mappers.RouteToLineMapper;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +22,10 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TramStations.of;
+import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.testSupport.TestEnv.formId;
+import static com.tramchester.testSupport.TramStations.PeelHall;
+import static com.tramchester.testSupport.TramStations.SalfordQuay;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -53,7 +54,7 @@ class RouteToLineMapperTest {
 
     @Test
     void shouldMapEcclesLineStation() {
-        IdFor<RouteStation> routeStationId = RouteStation.formId(of(TramStations.SalfordQuay), RoutesForTesting.ASH_TO_ECCLES);
+        IdFor<RouteStation> routeStationId = formId(SalfordQuay, AshtonunderLyneManchesterEccles);
         RouteStation routeStation = repository.getRouteStationById(routeStationId);
         LineAndDirection result = mapper.map(routeStation);
 
@@ -63,14 +64,14 @@ class RouteToLineMapperTest {
 
     @Test
     void shouldMapAirportLineStation() {
-        IdFor<RouteStation> routeStationIdA = RouteStation.formId(of(TramStations.PeelHall), RoutesForTesting.VIC_TO_AIR);
+        IdFor<RouteStation> routeStationIdA = formId(PeelHall, VictoriaManchesterAirport);
         RouteStation routeStationA = repository.getRouteStationById(routeStationIdA);
         LineAndDirection resultA = mapper.map(routeStationA);
 
         assertEquals(Lines.Airport, resultA.getLine());
         assertEquals(LineDirection.Outgoing, resultA.getDirection());
 
-        IdFor<RouteStation> routeStationIdB = RouteStation.formId(of(TramStations.PeelHall), RoutesForTesting.AIR_TO_VIC);
+        IdFor<RouteStation> routeStationIdB = formId(PeelHall, ManchesterAirportVictoria);
         RouteStation routeStationB = repository.getRouteStationById(routeStationIdB);
         LineAndDirection resultB = mapper.map(routeStationB);
 
@@ -80,8 +81,8 @@ class RouteToLineMapperTest {
 
     @Test
     void shouldMapCentralStationsAsExpected() {
-        IdSet<Station> centralStationIds = Arrays.stream(CentralZoneStations.values()).
-                map(CentralZoneStations::getId).collect(IdSet.idCollector());
+        IdSet<Station> centralStationIds = Arrays.stream(CentralZoneStation.values()).
+                map(CentralZoneStation::getId).collect(IdSet.idCollector());
 
         Set<RouteStation> centralRouteStations = repository.getRouteStations().stream().
                 filter(routeStation -> centralStationIds.contains(routeStation.getStationId())).
@@ -89,7 +90,7 @@ class RouteToLineMapperTest {
 
         centralRouteStations.forEach(routeStation -> {
             LineAndDirection result = mapper.map(routeStation);
-            assertEquals(CentralZoneStations.map.get(routeStation.getStationId()).getLine(), result.getLine());
+            assertEquals(CentralZoneStation.map.get(routeStation.getStationId()).getLine(), result.getLine());
         });
     }
 
