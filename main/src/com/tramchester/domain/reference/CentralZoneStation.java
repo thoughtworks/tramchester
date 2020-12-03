@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.liveUpdates.Lines.*;
 
 public enum CentralZoneStation {
+    // Station Id -> Live Data Line
     Cornbrook("9400ZZMACRN", Eccles),
     StPetersSquare("9400ZZMASTP", Eccles),
     PiccadillyGardens("9400ZZMAPGD", Bury),

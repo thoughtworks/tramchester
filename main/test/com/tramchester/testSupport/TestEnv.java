@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestEnv {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
@@ -44,14 +45,12 @@ public class TestEnv {
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
     public static final LatLong nearStockportBus = new LatLong(53.408735,-2.1656593);
-    public static final LatLong manAirportLocation = new LatLong(53.36535,-2.27247);
     public static final LatLong nearGreenwich = new LatLong(51.477928, -0.001545);
 
     public static final GridPosition nearAltrinchamGrid;
     public static final GridPosition nearPiccGardensGrid;
     public static final GridPosition nearShudehillGrid;
     public static final GridPosition nearStockportBusGrid;
-    public static final GridPosition manAirportLocationGrid;
     public static final GridPosition nearGreenwichGrid;
 
     public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
@@ -59,7 +58,8 @@ public class TestEnv {
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     private static final Agency MET = new Agency("MET", "agencyName");
-    public final static HashSet<GTFSTransportationType> tramAndBus = new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));;
+    public final static HashSet<GTFSTransportationType> tramAndBus =
+            new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     public static AppConfiguration GET() {
         return new TestConfig() {
@@ -84,7 +84,6 @@ public class TestEnv {
         nearPiccGardensGrid = guardedToGrid(nearPiccGardens);
         nearShudehillGrid = guardedToGrid(nearShudehill);
         nearStockportBusGrid = guardedToGrid(nearStockportBus);
-        manAirportLocationGrid = guardedToGrid(manAirportLocation);
         nearGreenwichGrid = guardedToGrid(nearGreenwich);
     }
 
@@ -203,5 +202,9 @@ public class TestEnv {
 
     public static IdFor<RouteStation> formId(TramStations tramStations, KnownRoute knownRoute) {
         return RouteStation.formId(tramStations.getId(), knownRoute.getId());
+    }
+
+    public static <T extends GraphProperty> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {
+        assertEquals(itemA.getId(), itemB.getId());
     }
 }

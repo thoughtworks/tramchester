@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.testSupport.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TramStations.Cornbrook;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
@@ -72,12 +73,6 @@ class TransportDataFromFilesTest {
     void shouldGetFeedInfo() {
         FeedInfo result = transportData.getFeedInfos().get("tfgm");
         assertEquals("http://www.tfgm.com", result.getPublisherUrl());
-    }
-
-    @Test
-    void shouldHaveCorrectLocationForAirportInTestEnvironment() {
-        Station actualStation = transportData.getStationById(TramStations.ManAirport.getId());
-        assertEquals(TestEnv.manAirportLocation, actualStation.getLatLong());
     }
 
     @Test
@@ -340,7 +335,7 @@ class TransportDataFromFilesTest {
         IdSet<Service> toMediaCity = allTrips.stream().
                 filter(trip -> trip.getStops().callsAt(Cornbrook)).
                 filter(trip -> trip.getStops().callsAt(TramStations.MediaCityUK)).
-                filter(trip -> trip.getRoute().getId().equals(RoutesForTesting.ASH_TO_ECCLES.getId())).
+                filter(trip -> trip.getRoute().getId().equals(AshtonunderLyneManchesterEccles.getId())).
                 map(trip -> trip.getService().getId()).collect(IdSet.idCollector());
 
         Set<Service> services = toMediaCity.stream().
@@ -372,7 +367,7 @@ class TransportDataFromFilesTest {
         // TODO Due to exception dates makes no sense to use getDays
         IdSet<Service> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.operatesOn(aMonday))
-                .filter(svc -> svc.getRoutes().contains(RoutesForTesting.ASH_TO_ECCLES))
+                .filter(svc -> svc.getRoutes().contains(createTramRoute(AshtonunderLyneManchesterEccles)))
                 .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID

@@ -5,16 +5,21 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TramStations;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.tramchester.testSupport.RoutesForTesting.*;
+import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.testSupport.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,17 +49,17 @@ class TramRouteReachableTest {
 
     @Test
     void shouldHaveCorrectReachabilityOrInterchanges() {
-        assertTrue(reachable(ALTY_TO_PICC, NavigationRoad, ManAirport));
-        assertFalse(reachable(PICC_TO_ALTY, NavigationRoad, ManAirport));
+        assertTrue(reachable(AltrinchamPiccadilly, NavigationRoad, ManAirport));
+        assertFalse(reachable(PiccadillyAltrincham, NavigationRoad, ManAirport));
 
-        assertTrue(reachable(AIR_TO_VIC, ManAirport, StWerburghsRoad));
-        assertFalse(reachable(VIC_TO_AIR, ManAirport, StWerburghsRoad));
+        assertTrue(reachable(ManchesterAirportVictoria, ManAirport, StWerburghsRoad));
+        assertFalse(reachable(VictoriaManchesterAirport, ManAirport, StWerburghsRoad));
     }
 
     @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachable(ROCH_TO_DIDS, RochdaleRail, Monsall));
-        assertTrue(reachable(DIDS_TO_ROCH, Monsall, RochdaleRail));
+        assertTrue(reachable(RochdaleManchesterEDidsbury, RochdaleRail, Monsall));
+        assertTrue(reachable(EDidsburyManchesterRochdale, Monsall, RochdaleRail));
     }
 
     @Test
@@ -84,7 +89,8 @@ class TramRouteReachableTest {
         return TestStation.real(stationRepository, stations);
     }
 
-    private boolean reachable(Route route, TramStations routeStation, TramStations dest) {
+    private boolean reachable(KnownRoute knownRoute, TramStations routeStation, TramStations dest) {
+        Route route = RoutesForTesting.createTramRoute(knownRoute);
         return reachable.getRouteReachableWithInterchange(createRouteStation(route, getReal(routeStation)), getReal(dest));
     }
 

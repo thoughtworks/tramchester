@@ -5,6 +5,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.HasGridPosition;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -21,8 +22,8 @@ class BoundingBoxTest {
     void shouldHaveContained() {
         BoundingBox box = TestEnv.getTFGMBusBounds();
 
-        List<LatLong> withinBox = Arrays.asList(TestEnv.nearPiccGardens, TestEnv.nearShudehill, TestEnv.manAirportLocation,
-            TestEnv.nearAltrincham, TestEnv.nearStockportBus);
+        List<LatLong> withinBox = Arrays.asList(TestEnv.nearPiccGardens, TestEnv.nearShudehill,
+                TramStations.ManAirport.getLatLong(), TestEnv.nearAltrincham, TestEnv.nearStockportBus);
 
         withinBox.forEach(latLong -> {
             @NotNull HasGridPosition grid = getGridPosition(latLong);

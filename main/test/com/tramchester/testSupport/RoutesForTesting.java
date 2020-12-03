@@ -21,25 +21,6 @@ public class RoutesForTesting {
     @Deprecated
     public static final Route BURY_TO_ALTY = createTramRoute("1", RouteDirection.Outbound, "Bury to Alty");
 
-    public static final Route ALTY_TO_PICC = createTramRoute(AltrinchamPiccadilly);
-    public static final Route PICC_TO_ALTY = createTramRoute(PiccadillyAltrincham);
-
-    public static final Route ASH_TO_ECCLES = createTramRoute(AshtonunderLyneManchesterEccles);
-    public static final Route ECCLES_TO_ASH = createTramRoute(EcclesManchesterAshtonunderLyne);
-
-    // TODO Lockdown this route might be temp?
-    public static final Route BURY_TO_PICC = createTramRoute(PiccadillyBury);
-    public static final Route PICC_TO_BURY = createTramRoute(BuryPiccadilly);
-
-    public static final Route ROCH_TO_DIDS = createTramRoute(RochdaleManchesterEDidsbury);
-    public static final Route DIDS_TO_ROCH = createTramRoute(EDidsburyManchesterRochdale);
-
-    public static final Route VIC_TO_AIR = createTramRoute(VictoriaManchesterAirport);
-    public static final Route AIR_TO_VIC = createTramRoute(ManchesterAirportVictoria);
-
-    public static final Route CORN_TO_INTU = createTramRoute(CornbrookintuTraffordCentre);
-    public static final Route INTU_TO_CORN = createTramRoute(intuTraffordCentreCornbrook);
-
     // BUS
     public static final Route ALTY_TO_STOCKPORT = new Route(IdFor.createId("GMS: 11A:I:"), "11A", "Alty to Stockport",
         new Agency("GMS", "agencyName"), TransportMode.Bus, RouteDirection.Inbound);

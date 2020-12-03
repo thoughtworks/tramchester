@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.tramchester.domain.reference.KnownRoute.ManchesterAirportVictoria;
+
 class RouteMapperTest {
     private static Dependencies dependencies;
 
@@ -38,7 +40,7 @@ class RouteMapperTest {
         RoutesMapper mapper = dependencies.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
-        Route route = RoutesForTesting.AIR_TO_VIC;
+        Route route = RoutesForTesting.createTramRoute(ManchesterAirportVictoria);
         RouteDTO query = new RouteDTO(route, new LinkedList<>());
 
         int index = dtos.indexOf(query);
@@ -46,7 +48,7 @@ class RouteMapperTest {
         List<StationRefWithPosition> stations = dtos.get(index).getStations();
         StationRefWithPosition stationRefWithPosition = stations.get(0);
         Assertions.assertEquals(TramStations.ManAirport.forDTO(), stationRefWithPosition.getId());
-        Assertions.assertEquals(TestEnv.manAirportLocation, stationRefWithPosition.getLatLong());
+        Assertions.assertEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong());
         Assertions.assertEquals(TransportMode.Tram, stationRefWithPosition.getTransportMode());
         Assertions.assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
     }

@@ -15,6 +15,7 @@ import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TramStations;
 import com.tramchester.testSupport.TransportDataForTestFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +37,7 @@ class JourneyStateTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() throws TransformException {
-        LatLong latLongHint = TestEnv.manAirportLocation;
+        LatLong latLongHint = TramStations.ManAirport.getLatLong();
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(42L);
 

@@ -26,8 +26,7 @@ import org.neo4j.graphdb.Transaction;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownRoute.AltrinchamPiccadilly;
-import static com.tramchester.domain.reference.KnownRoute.AshtonunderLyneManchesterEccles;
+import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.testSupport.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TramStations.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
@@ -72,9 +71,9 @@ class TramGraphBuilderTest {
         Station mediaCityUK = TramStations.of(MediaCityUK);
 
         List<Relationship> outbounds = getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(mediaCityUK, RoutesForTesting.ECCLES_TO_ASH));
+                stationRepository.getRouteStation(mediaCityUK, createTramRoute(EcclesManchesterAshtonunderLyne)));
         outbounds.addAll(getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(mediaCityUK, RoutesForTesting.ASH_TO_ECCLES)));
+                stationRepository.getRouteStation(mediaCityUK, createTramRoute(AshtonunderLyneManchesterEccles))));
 
         Set<IdFor<Service>> graphSvcIds = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -111,15 +110,14 @@ class TramGraphBuilderTest {
 
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
+        checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonunderLyne);
+        checkInboundConsistency(MediaCityUK, AshtonunderLyneManchesterEccles);
 
-        checkInboundConsistency(of(MediaCityUK), RoutesForTesting.ECCLES_TO_ASH);
-        checkInboundConsistency(of(MediaCityUK), RoutesForTesting.ASH_TO_ECCLES);
+        checkInboundConsistency(HarbourCity, EcclesManchesterAshtonunderLyne);
+        checkInboundConsistency(HarbourCity, AshtonunderLyneManchesterEccles);
 
-        checkInboundConsistency(of(HarbourCity), RoutesForTesting.ECCLES_TO_ASH);
-        checkInboundConsistency(of(HarbourCity), RoutesForTesting.ASH_TO_ECCLES);
-
-        checkInboundConsistency(of(Broadway), RoutesForTesting.ECCLES_TO_ASH);
-        checkInboundConsistency(of(Broadway), RoutesForTesting.ASH_TO_ECCLES);
+        checkInboundConsistency(Broadway, EcclesManchesterAshtonunderLyne);
+        checkInboundConsistency(Broadway, AshtonunderLyneManchesterEccles);
     }
 
     @Test
@@ -132,15 +130,15 @@ class TramGraphBuilderTest {
 //        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.BURY_TO_ALTY);
 //        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.ALTY_TO_BURY);
 
-        checkOutboundConsistency(of(StPetersSquare), RoutesForTesting.ASH_TO_ECCLES);
-        checkOutboundConsistency(of(StPetersSquare), RoutesForTesting.ECCLES_TO_ASH);
+        checkOutboundConsistency(StPetersSquare, AshtonunderLyneManchesterEccles);
+        checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonunderLyne);
 
-        checkOutboundConsistency(of(MediaCityUK), RoutesForTesting.ASH_TO_ECCLES);
-        checkOutboundConsistency(of(MediaCityUK), RoutesForTesting.ECCLES_TO_ASH);
+        checkOutboundConsistency(MediaCityUK, AshtonunderLyneManchesterEccles);
+        checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonunderLyne);
 
         // consistent heading away from Media City ONLY, see below
-        checkOutboundConsistency(of(HarbourCity), RoutesForTesting.ECCLES_TO_ASH);
-        checkOutboundConsistency(of(Broadway), RoutesForTesting.ASH_TO_ECCLES);
+        checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonunderLyne);
+        checkOutboundConsistency(Broadway, AshtonunderLyneManchesterEccles);
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
@@ -149,7 +147,10 @@ class TramGraphBuilderTest {
         // graphAndFileConsistencyCheckOutbounds(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
     }
 
-    private void checkOutboundConsistency(Station station, Route route) {
+    private void checkOutboundConsistency(TramStations tramStation, KnownRoute knownRoute) {
+        Station station = of(tramStation);
+        Route route = createTramRoute(knownRoute);
+
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
         List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(txn, routeStation);
@@ -178,7 +179,10 @@ class TramGraphBuilderTest {
         Assertions.assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
     }
 
-    private void checkInboundConsistency(Station station, Route route) {
+    private void checkInboundConsistency(TramStations tramStation, KnownRoute knownRoute) {
+        Route route = RoutesForTesting.createTramRoute(knownRoute);
+        Station station = of(tramStation);
+
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
         List<Relationship> inbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
 
@@ -191,7 +195,7 @@ class TramGraphBuilderTest {
         Assertions.assertEquals(1, boardingCount);
 
         SortedSet<IdFor<Service>> graphInboundSvcIds = graphTramsIntoStation.stream().
-                map(GraphProps::getServiceId).distinct().collect(Collectors.toCollection(TreeSet::new));
+                map(GraphProps::getServiceId).collect(Collectors.toCollection(TreeSet::new));
 
         Set<Trip> callingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRoutes().contains(route)).
@@ -202,7 +206,7 @@ class TramGraphBuilderTest {
                 collect(Collectors.toSet());
 
         SortedSet<IdFor<Service>> svcIdsFromCallingTrips = callingTrips.stream().
-                map(trip -> trip.getService().getId()).distinct().collect(Collectors.toCollection(TreeSet::new));
+                map(trip -> trip.getService().getId()).collect(Collectors.toCollection(TreeSet::new));
 
         Assertions.assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
 

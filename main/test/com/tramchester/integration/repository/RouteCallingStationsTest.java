@@ -3,18 +3,21 @@ package com.tramchester.integration.repository;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.RoutesForTesting;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.testSupport.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.TestEnv.assertIdEquals;
 import static com.tramchester.testSupport.TramStations.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteCallingStationsTest {
 
@@ -37,38 +40,38 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldHaveVictoriaToAirportCorrectStopsCityZone() {
-        List<Station> stations = repo.getStationsFor(RoutesForTesting.VIC_TO_AIR);
-        Assertions.assertEquals(Victoria.getId(), stations.get(0).getId());
-        Assertions.assertEquals(Shudehill.getId(), stations.get(1).getId());
-        Assertions.assertEquals(MarketStreet.getId(), stations.get(2).getId());
-        Assertions.assertEquals(StWerburghsRoad.getId(), stations.get(9).getId());
+        List<Station> stations = getStationsFor(VictoriaManchesterAirport);
+        assertIdEquals(Victoria, stations.get(0));
+        assertIdEquals(Shudehill, stations.get(1));
+        assertIdEquals(MarketStreet, stations.get(2));
+        assertIdEquals(StWerburghsRoad, stations.get(9));
     }
 
     @Test
     void shouldGetCorrectStationsForARouteAltToPicc() {
-        List<Station> stations = repo.getStationsFor(RoutesForTesting.ALTY_TO_PICC);
-        Assertions.assertEquals(Altrincham.getId(), stations.get(0).getId());
-        Assertions.assertEquals(NavigationRoad.getId(), stations.get(1).getId());
-        Assertions.assertEquals(Cornbrook.getId(), stations.get(9).getId());
-        Assertions.assertEquals(Piccadilly.getId(), stations.get(13).getId());
+        List<Station> stations = getStationsFor(AltrinchamPiccadilly);
+        assertIdEquals(Altrincham, stations.get(0));
+        assertIdEquals(NavigationRoad, stations.get(1));
+        assertIdEquals(Cornbrook, stations.get(9));
+        assertIdEquals(Piccadilly, stations.get(13));
     }
 
     @Test
     void shouldGetCorrectStationsForARouteEcclesToAsh() {
-        List<Station> stations = repo.getStationsFor(RoutesForTesting.ECCLES_TO_ASH);
-        Assertions.assertEquals(Eccles.getId(), stations.get(0).getId());
-        Assertions.assertEquals(MediaCityUK.getId(), stations.get(5).getId());
-        Assertions.assertEquals(Deansgate.getId(), stations.get(12).getId());
-        Assertions.assertEquals(Ashton.getId(), stations.get(27).getId());
+        List<Station> stations = getStationsFor(EcclesManchesterAshtonunderLyne);
+        assertIdEquals(Eccles, stations.get(0));
+        assertIdEquals(MediaCityUK, stations.get(5));
+        assertIdEquals(Deansgate, stations.get(12));
+        assertIdEquals(Ashton, stations.get(27));
     }
 
     @Test
     void shouldGetCorrectStationsForARouteAshToEccles() {
-        List<Station> stations = repo.getStationsFor(RoutesForTesting.ASH_TO_ECCLES);
-        Assertions.assertEquals(Ashton.getId(), stations.get(0).getId());
-        Assertions.assertEquals(Eccles.getId(), stations.get(27).getId());
-        Assertions.assertEquals(MediaCityUK.getId(), stations.get(22).getId());
-        Assertions.assertEquals(Piccadilly.getId(), stations.get(12).getId());
+        List<Station> stations = getStationsFor(AshtonunderLyneManchesterEccles);
+        assertIdEquals(Ashton, stations.get(0));
+        assertIdEquals(Eccles, stations.get(27));
+        assertIdEquals(MediaCityUK, stations.get(22));
+        assertIdEquals(Piccadilly, stations.get(12));
     }
 
     @Test
@@ -78,30 +81,34 @@ class RouteCallingStationsTest {
             List<Station> stations = repo.getStationsFor(route);
             foundEndOfLines.add(stations.get(0).getId());
         });
-        Assertions.assertEquals(11, foundEndOfLines.size());
+        assertEquals(11, foundEndOfLines.size());
     }
 
     @Test
     void shouldGetCorrectNumberOfStationsForRoutes() {
-        Assertions.assertEquals(14, repo.getStationsFor(RoutesForTesting.ALTY_TO_PICC).size());
-        Assertions.assertEquals(14, repo.getStationsFor(RoutesForTesting.PICC_TO_ALTY).size());
+        assertEquals(14, getStationsFor(AltrinchamPiccadilly).size());
+        assertEquals(14, getStationsFor(PiccadillyAltrincham).size());
 
         // not 27, some journeys skip mediacity UK
-        Assertions.assertEquals(28, repo.getStationsFor(RoutesForTesting.ASH_TO_ECCLES).size());
-        Assertions.assertEquals(28, repo.getStationsFor(RoutesForTesting.ECCLES_TO_ASH).size());
+        assertEquals(28, getStationsFor(AshtonunderLyneManchesterEccles).size());
+        assertEquals(28, getStationsFor(EcclesManchesterAshtonunderLyne).size());
 
-        Assertions.assertEquals(33, repo.getStationsFor(RoutesForTesting.DIDS_TO_ROCH).size());
-        Assertions.assertEquals(33, repo.getStationsFor(RoutesForTesting.ROCH_TO_DIDS).size());
+        assertEquals(33, getStationsFor(EDidsburyManchesterRochdale).size());
+        assertEquals(33, getStationsFor(RochdaleManchesterEDidsbury).size());
 
-        Assertions.assertEquals(25, repo.getStationsFor(RoutesForTesting.AIR_TO_VIC).size());
-        Assertions.assertEquals(25, repo.getStationsFor(RoutesForTesting.VIC_TO_AIR).size());
+        assertEquals(25, getStationsFor(ManchesterAirportVictoria).size());
+        assertEquals(25, getStationsFor(VictoriaManchesterAirport).size());
 
-        Assertions.assertEquals(8, repo.getStationsFor(RoutesForTesting.INTU_TO_CORN).size());
-        Assertions.assertEquals(8, repo.getStationsFor(RoutesForTesting.CORN_TO_INTU).size());
+        assertEquals(8, getStationsFor(intuTraffordCentreCornbrook).size());
+        assertEquals(8, getStationsFor(CornbrookintuTraffordCentre).size());
 
-        Assertions.assertEquals(15, repo.getStationsFor(RoutesForTesting.BURY_TO_PICC).size());
-        Assertions.assertEquals(15, repo.getStationsFor(RoutesForTesting.PICC_TO_BURY).size());
+        assertEquals(15, getStationsFor(PiccadillyBury).size());
+        assertEquals(15, getStationsFor(BuryPiccadilly).size());
 
+    }
+
+    private List<Station> getStationsFor(KnownRoute knownRoute) {
+        return repo.getStationsFor(createTramRoute(knownRoute));
     }
 
 }

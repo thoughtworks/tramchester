@@ -69,7 +69,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
         config = TestEnv.GET();
 
-        latLongHint = TestEnv.manAirportLocation;
+        latLongHint = TramStations.ManAirport.getLatLong();
         destinationNodeId = 88L;
 
         JourneyRequest journeyRequest = new JourneyRequest(
