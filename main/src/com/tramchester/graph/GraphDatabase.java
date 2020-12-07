@@ -23,13 +23,13 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.logging.Level;
-import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,14 +62,14 @@ public class GraphDatabase implements Startable {
 
         String graphName = configuration.getGraphName();
         logger.info("Create or load graph " + graphName);
-        File graphFile = new File(graphName);
-        boolean existingFile = graphFile.exists();
+        Path graphFile = Path.of(graphName).toAbsolutePath();
+        boolean existingFile = Files.exists(graphFile);
 
         cleanDB = !existingFile;
         if (existingFile) {
-            logger.info("Graph db file is present at " + graphFile.getAbsolutePath());
+            logger.info("Graph db file is present at " + graphFile);
         } else {
-            logger.info("No db file found at " + graphFile.getAbsolutePath());
+            logger.info("No db file found at " + graphFile);
         }
 
         databaseService = createGraphDatabaseService(graphFile, configuration.getNeo4jPagecacheMemory());
@@ -87,17 +87,16 @@ public class GraphDatabase implements Startable {
                 }
             }
             try {
-                FileUtils.deleteDirectory(graphFile);
+                FileUtils.deleteDirectory(graphFile.toFile());
             } catch (IOException e) {
                 String message = "Cannot delete out of date graph DB";
                 logger.error(message,e);
                 throw new RuntimeException(message,e);
             }
-            graphFile = new File(graphName);
             databaseService = createGraphDatabaseService(graphFile, configuration.getNeo4jPagecacheMemory());
         }
 
-        logger.info("graph db started " + graphFile.getAbsolutePath());
+        logger.info("graph db started " + graphFile.toString());
     }
 
     public boolean isCleanDB() {
@@ -178,7 +177,7 @@ public class GraphDatabase implements Startable {
         return nodes;
     }
 
-    private GraphDatabaseService createGraphDatabaseService(File graphFile, String neo4jPagecacheMemory) {
+    private GraphDatabaseService createGraphDatabaseService(Path graphFile, String neo4jPagecacheMemory) {
 
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
                 setConfig(GraphDatabaseSettings.track_query_allocation, false).
@@ -187,8 +186,8 @@ public class GraphDatabase implements Startable {
                 // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
 
                 setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory). // todo into config file
-                setConfig(ExternalSettings.initialHeapSize, "100m").
-                setConfig(ExternalSettings.maxHeapSize, "200m").
+                setConfig(ExternalSettings.initial_heap_size, "100m").
+                setConfig(ExternalSettings.max_heap_size, "200m").
                 setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
 
                 // txn logs, no need to save beyond current ones
@@ -199,7 +198,8 @@ public class GraphDatabase implements Startable {
                 setConfig(HttpsConnector.enabled, false).
                 setConfig(BoltConnector.enabled, false).
 
-                setUserLogProvider(new Slf4jLogProvider()).
+                // TODO no 4.2 version available?
+                //setUserLogProvider(new Slf4jLogProvider()).
                 build();
 
         // for community edition must be DEFAULT_DATABASE_NAME
@@ -208,7 +208,7 @@ public class GraphDatabase implements Startable {
         int retries = 10;
         while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
             logger.error("DB Service is not available, name: " + DEFAULT_DATABASE_NAME +
-                    " Path: " + graphFile.toPath().toAbsolutePath() + " check " + retries);
+                    " Path: " + graphFile.toAbsolutePath() + " check " + retries);
             retries--;
         }
         return graphDatabaseService;
