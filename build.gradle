@@ -55,7 +55,7 @@ dependencies {
             'software.amazon.awssdk:s3:2.15.19',
             'software.amazon.awssdk:cloudformation:2.15.19',
             // aws cdk
-            'software.amazon.awscdk:core:1.59.0',
+            'software.amazon.awscdk:core:1.77.0',
             'software.amazon.awscdk:s3:1.59.0',
             'software.amazon.awscdk:ec2:1.59.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.59.0',
