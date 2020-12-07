@@ -60,7 +60,7 @@ dependencies {
             'software.amazon.awscdk:ec2:1.59.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.59.0',
             'software.amazon.awscdk:autoscaling:1.59.0',
-            'software.amazon.awscdk:cdk-cx-api:1.59.0',
+            'software.amazon.awscdk:cdk-cx-api:1.77.0',
 
             'com.smoketurner:dropwizard-swagger:2.0.12-1'
 
