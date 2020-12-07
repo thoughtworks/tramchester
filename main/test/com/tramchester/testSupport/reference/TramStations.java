@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
@@ -8,6 +8,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 

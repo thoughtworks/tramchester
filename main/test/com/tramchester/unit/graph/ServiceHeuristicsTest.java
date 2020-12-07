@@ -18,7 +18,7 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +32,8 @@ import java.util.Set;
 
 import static com.tramchester.graph.GraphPropertyKey.HOUR;
 import static com.tramchester.graph.GraphPropertyKey.SERVICE_ID;
-import static com.tramchester.testSupport.TramStations.Bury;
-import static com.tramchester.testSupport.TramStations.Shudehill;
+import static com.tramchester.testSupport.reference.TramStations.Bury;
+import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceHeuristicsTest extends EasyMockSupport {

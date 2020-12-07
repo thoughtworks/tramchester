@@ -18,6 +18,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -29,9 +30,9 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.KnownRoute.*;
-import static com.tramchester.testSupport.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
-import static com.tramchester.testSupport.TramStations.Cornbrook;
+import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -16,7 +16,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 

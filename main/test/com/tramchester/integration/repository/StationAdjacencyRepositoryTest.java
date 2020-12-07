@@ -6,7 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 

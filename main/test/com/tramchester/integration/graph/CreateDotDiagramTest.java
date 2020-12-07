@@ -6,7 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 
 class CreateDotDiagramTest {

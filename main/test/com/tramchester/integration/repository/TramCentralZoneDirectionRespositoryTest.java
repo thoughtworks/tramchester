@@ -11,7 +11,7 @@ import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramCentralZoneDirectionRespository;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.repository.TramCentralZoneDirectionRespository.Place.*;
 import static com.tramchester.testSupport.TestEnv.formId;
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

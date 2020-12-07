@@ -21,6 +21,8 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Direction;

@@ -6,13 +6,13 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TramReachabilityRepository;
-import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import static com.tramchester.domain.reference.KnownRoute.*;
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 class TramReachabilityRepositoryTest {
     private TramReachabilityRepository repository;

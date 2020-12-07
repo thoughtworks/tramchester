@@ -13,7 +13,7 @@ import com.tramchester.livedata.TramPositionInference;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.LiveDataTestCategory;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

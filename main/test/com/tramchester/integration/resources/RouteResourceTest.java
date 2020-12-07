@@ -8,7 +8,7 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.KnownRoute.AshtonunderLyneManchesterEccles;
 import static com.tramchester.domain.reference.KnownRoute.ManchesterAirportVictoria;
-import static com.tramchester.testSupport.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)

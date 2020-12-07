@@ -19,10 +19,10 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
-import com.tramchester.testSupport.BusStations;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
-import com.tramchester.testSupport.TransportDataForTestFactory;
+import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.reference.TransportDataForTestFactory;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,9 +35,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.tramchester.testSupport.BusStations.AltrinchamInterchange;
-import static com.tramchester.testSupport.TramStations.*;
-import static com.tramchester.testSupport.TransportDataForTestFactory.TestTransportData.TRIP_A_ID;
+import static com.tramchester.testSupport.reference.BusStations.AltrinchamInterchange;
+import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TransportDataForTestFactory.TestTransportData.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramJourneyToDTOMapperTest extends EasyMockSupport {

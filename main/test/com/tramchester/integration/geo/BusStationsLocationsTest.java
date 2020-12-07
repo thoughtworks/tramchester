@@ -4,8 +4,8 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
-import com.tramchester.testSupport.Postcodes;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 

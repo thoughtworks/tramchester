@@ -7,7 +7,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

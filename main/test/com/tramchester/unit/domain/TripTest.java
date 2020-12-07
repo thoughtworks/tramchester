@@ -9,7 +9,7 @@ import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;

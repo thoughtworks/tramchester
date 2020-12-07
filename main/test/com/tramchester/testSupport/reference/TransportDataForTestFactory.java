@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.testSupport.reference;
 
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
@@ -12,6 +12,10 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataContainer;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

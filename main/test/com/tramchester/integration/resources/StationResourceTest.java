@@ -15,7 +15,7 @@ import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;

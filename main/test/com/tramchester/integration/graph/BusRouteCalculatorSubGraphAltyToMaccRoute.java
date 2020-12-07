@@ -16,7 +16,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.BusStations;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;

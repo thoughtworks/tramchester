@@ -8,6 +8,8 @@ import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

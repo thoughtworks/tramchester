@@ -12,7 +12,7 @@ import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

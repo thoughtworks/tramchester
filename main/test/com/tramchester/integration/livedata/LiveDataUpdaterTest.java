@@ -7,7 +7,7 @@ import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

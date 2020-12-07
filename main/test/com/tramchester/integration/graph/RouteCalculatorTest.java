@@ -14,6 +14,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")

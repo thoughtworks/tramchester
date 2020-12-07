@@ -8,7 +8,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

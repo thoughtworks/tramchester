@@ -11,7 +11,7 @@ import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.BusStations.*;
+import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")

@@ -10,7 +10,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;

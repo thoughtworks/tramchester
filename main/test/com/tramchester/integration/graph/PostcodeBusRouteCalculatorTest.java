@@ -14,6 +14,8 @@ import com.tramchester.integration.testSupport.BusWithPostcodesEnabled;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.Postcodes;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -25,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.BusStations.*;
+import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

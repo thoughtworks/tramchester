@@ -11,7 +11,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.TransportDataForTestFactory;
+import com.tramchester.testSupport.reference.TransportDataForTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;

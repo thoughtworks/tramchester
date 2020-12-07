@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

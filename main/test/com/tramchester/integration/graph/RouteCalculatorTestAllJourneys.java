@@ -12,7 +12,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;

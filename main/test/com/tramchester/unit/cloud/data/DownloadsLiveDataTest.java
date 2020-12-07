@@ -7,7 +7,7 @@ import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
 import org.easymock.Capture;
 import org.easymock.EasyMock;

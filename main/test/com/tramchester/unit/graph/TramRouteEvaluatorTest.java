@@ -19,7 +19,7 @@ import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
-import static com.tramchester.testSupport.TramStations.Shudehill;
+import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {

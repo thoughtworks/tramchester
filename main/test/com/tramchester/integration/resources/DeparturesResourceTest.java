@@ -10,7 +10,7 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.integration.livedata.LiveDataUpdaterTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;

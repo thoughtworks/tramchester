@@ -10,7 +10,7 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -22,7 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 class LiveDataParserTest extends EasyMockSupport {
 

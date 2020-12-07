@@ -2,12 +2,10 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,8 +14,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-import static com.tramchester.testSupport.TramStations.Bury;
-import static com.tramchester.testSupport.TramStations.PiccadillyGardens;
+import static com.tramchester.testSupport.reference.TramStations.Bury;
+import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DeparturesMapperTest extends EasyMockSupport {

@@ -12,6 +12,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -24,7 +25,7 @@ import java.util.Set;
 
 import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

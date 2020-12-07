@@ -5,7 +5,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.HasGridPosition;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;

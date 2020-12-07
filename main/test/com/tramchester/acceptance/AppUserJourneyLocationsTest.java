@@ -8,7 +8,7 @@ import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;

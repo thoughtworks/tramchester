@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 

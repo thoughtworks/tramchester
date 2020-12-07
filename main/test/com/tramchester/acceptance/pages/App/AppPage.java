@@ -4,7 +4,7 @@ import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;

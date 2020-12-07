@@ -21,7 +21,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TransportDataForTestFactory;
+import com.tramchester.testSupport.reference.TransportDataForTestFactory;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TransportDataForTestFactory.TestTransportData.*;
+import static com.tramchester.testSupport.reference.TransportDataForTestFactory.TestTransportData.*;
 
 class GraphWithSimpleRouteTest {
 

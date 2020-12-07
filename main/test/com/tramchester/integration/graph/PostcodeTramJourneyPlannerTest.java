@@ -14,6 +14,8 @@ import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

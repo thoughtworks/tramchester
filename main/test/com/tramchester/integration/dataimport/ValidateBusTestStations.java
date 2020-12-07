@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.BusStations;
+import com.tramchester.testSupport.reference.BusStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

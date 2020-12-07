@@ -3,7 +3,6 @@ package com.tramchester.unit.domain;
 import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

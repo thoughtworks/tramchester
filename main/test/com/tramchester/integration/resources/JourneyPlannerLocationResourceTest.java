@@ -12,7 +12,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TramStations.Deansgate;
-import static com.tramchester.testSupport.TramStations.NavigationRoad;
+import static com.tramchester.testSupport.reference.TramStations.Deansgate;
+import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)

@@ -10,7 +10,7 @@ import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;

@@ -4,7 +4,7 @@ import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.tramchester.testSupport.TramStations.StPetersSquare;
+import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 
 class DepartureDTOTest {
 

@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;

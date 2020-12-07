@@ -4,7 +4,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TramStationAdjacenyRepository;
-import com.tramchester.testSupport.TransportDataForTestFactory;
+import com.tramchester.testSupport.reference.TransportDataForTestFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

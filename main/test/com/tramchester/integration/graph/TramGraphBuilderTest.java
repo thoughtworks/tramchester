@@ -16,8 +16,8 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.RoutesForTesting;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
@@ -27,8 +27,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.KnownRoute.*;
-import static com.tramchester.testSupport.RoutesForTesting.createTramRoute;
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 
 class TramGraphBuilderTest {

@@ -14,7 +14,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.PlatformMessageSource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.domain.presentation.Note.NoteType.Live;
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.hamcrest.CoreMatchers.hasItem;

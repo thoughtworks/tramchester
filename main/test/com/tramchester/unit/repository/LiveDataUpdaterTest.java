@@ -15,7 +15,7 @@ import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class LiveDataUpdaterTest extends EasyMockSupport {
 

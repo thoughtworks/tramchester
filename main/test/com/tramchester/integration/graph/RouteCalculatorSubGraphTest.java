@@ -12,7 +12,7 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TramStations.Cornbrook;
+import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

@@ -35,7 +35,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.BusStations.*;
+import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")

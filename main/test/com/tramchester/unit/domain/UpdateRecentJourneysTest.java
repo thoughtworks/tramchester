@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

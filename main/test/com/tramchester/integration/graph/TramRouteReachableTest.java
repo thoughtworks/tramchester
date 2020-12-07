@@ -9,9 +9,9 @@ import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.RoutesForTesting;
+import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.tramchester.domain.reference.KnownRoute.*;
-import static com.tramchester.testSupport.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteReachableTest {

@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.KnownRoute.*;
 import static com.tramchester.testSupport.TestEnv.formId;
-import static com.tramchester.testSupport.TramStations.PeelHall;
-import static com.tramchester.testSupport.TramStations.SalfordQuay;
+import static com.tramchester.testSupport.reference.TramStations.PeelHall;
+import static com.tramchester.testSupport.reference.TramStations.SalfordQuay;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 

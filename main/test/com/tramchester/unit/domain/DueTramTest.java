@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.TramStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
