@@ -42,7 +42,7 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldGetDueTramsForStation() {
-
+        // split out messages to own test as need to be able to disable those seperately
         Response response = IntegrationClient.getApiResponse(
                 appExtension, String.format("departures/station/%s", stationWithNotes.forDTO()));
         assertEquals(200, response.getStatus());
@@ -51,6 +51,16 @@ class DeparturesResourceTest {
         SortedSet<DepartureDTO> departures = departureList.getDepartures();
         assertFalse(departures.isEmpty(), "no departures found for " + stationWithNotes.getName());
         departures.forEach(depart -> assertEquals(stationWithNotes.getName(), depart.getFrom()));
+    }
+
+    @Test
+    @LiveDataMessagesCategory
+    void shouldMessagesForStation() {
+        Response response = IntegrationClient.getApiResponse(
+                appExtension, String.format("departures/station/%s", stationWithNotes.forDTO()));
+        assertEquals(200, response.getStatus());
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+
         assertFalse(departureList.getNotes().isEmpty(), "no notes found for " + stationWithNotes.getName()); // off by deafult
     }
 
@@ -97,7 +107,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataTestCategory
     void shouldGetNearbyDeparturesQuerytimeNow() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
@@ -107,7 +117,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataTestCategory
     void shouldGetNearbyDeparturesQuerytimeFuture() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
@@ -117,7 +127,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataTestCategory
     void shouldGetNearbyDeparturesQuerytimePast() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
@@ -137,7 +147,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataTestCategory
     void shouldNotGetNearbyIfOutsideOfThreshold() {
         double lat = 53.4804263d;
         double lon = -2.2392436d;
@@ -161,15 +171,6 @@ class DeparturesResourceTest {
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
 
-//        List<Note> notes = departureList.getNotes();
-//        assertFalse(notes.isEmpty(), "no notes");
-//        // ignore closure message which is always present, also if today is weekend exclude that
-//        int ignore = 1;
-//        DayOfWeek dayOfWeek = TestEnv.LocalNow().toLocalDate().getDayOfWeek();
-//        if (dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY)) {
-//            ignore++;
-//        }
-//        assertTrue((notes.size())-ignore>0);
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,7 @@ public class LiveDataUpdaterTest {
     }
 
     @Test
+    @LiveDataMessagesCategory
     void findAtleastOneStationWithNotes() {
         assertNotEquals(messageRepo.numberOfEntries(), 0);
 
@@ -53,6 +55,7 @@ public class LiveDataUpdaterTest {
     }
 
     @Test
+    @LiveDataMessagesCategory
     void shouldHaveMessagesForTestStation() {
         Set<Station> stations = messageRepo.getStationsWithMessages(TestEnv.LocalNow());
 

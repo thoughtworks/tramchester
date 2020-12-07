@@ -41,7 +41,7 @@ postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
 maxWait: 25
 maxNumberResults: 5
-maxJourneyDuration:  124
+maxJourneyDuration:  122
 numberQueries: 3
 queryInterval: 12
 nearestStopRangeKM: 1.6

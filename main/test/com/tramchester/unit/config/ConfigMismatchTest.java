@@ -37,7 +37,6 @@ class ConfigMismatchTest {
 
     }
 
-
     @Test
     void shouldHaveKeyParametersSameForTramIntegrationTests() throws IOException, ConfigurationException {
 
