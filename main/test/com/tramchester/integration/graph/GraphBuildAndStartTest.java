@@ -17,6 +17,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -25,7 +26,7 @@ import java.io.IOException;
 class GraphBuildAndStartTest {
 
     // spin up graph, primarily here to diagnose out of memory issues, isolate just the graph build
-
+    @Disabled("for diagnostics only")
     @Test
     void shouldBuildGraphAndStart() throws IOException {
         TramchesterConfig config =new SubgraphConfig();
