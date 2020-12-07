@@ -1,7 +1,7 @@
 package com.tramchester.integration.cloud;
 
 import com.tramchester.cloud.FetchInstanceMetadata;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

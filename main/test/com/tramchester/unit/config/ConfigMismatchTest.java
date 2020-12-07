@@ -3,7 +3,7 @@ package com.tramchester.unit.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.LiveDataConfig;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;

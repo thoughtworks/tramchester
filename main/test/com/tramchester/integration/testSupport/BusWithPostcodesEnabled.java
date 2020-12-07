@@ -1,6 +1,4 @@
-package com.tramchester.testSupport;
-
-import com.tramchester.integration.IntegrationBusTestConfig;
+package com.tramchester.integration.testSupport;
 
 public class BusWithPostcodesEnabled extends IntegrationBusTestConfig {
 

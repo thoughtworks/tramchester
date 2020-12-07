@@ -9,7 +9,7 @@ import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.CentralZoneStation;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.mappers.RouteToLineMapper;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;

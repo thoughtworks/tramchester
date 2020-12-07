@@ -4,11 +4,9 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import org.junit.jupiter.api.*;
-
-import java.io.IOException;
 
 class TramInterchangeRepositoryTest {
     private static Dependencies dependencies;

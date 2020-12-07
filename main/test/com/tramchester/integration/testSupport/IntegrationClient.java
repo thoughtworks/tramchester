@@ -1,4 +1,4 @@
-package com.tramchester.integration;
+package com.tramchester.integration.testSupport;
 
 import org.glassfish.jersey.client.ClientProperties;
 

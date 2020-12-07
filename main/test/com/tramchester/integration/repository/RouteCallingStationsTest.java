@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.KnownRoute;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
 import org.junit.jupiter.api.AfterAll;

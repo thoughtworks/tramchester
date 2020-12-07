@@ -6,7 +6,7 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
-import com.tramchester.integration.TFGMTestDataSourceConfig;
+import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;

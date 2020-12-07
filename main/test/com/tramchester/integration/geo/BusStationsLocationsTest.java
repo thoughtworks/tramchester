@@ -3,7 +3,7 @@ package com.tramchester.integration.geo;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.testSupport.Postcodes;
 import com.tramchester.testSupport.TramStations;
 import org.junit.jupiter.api.*;

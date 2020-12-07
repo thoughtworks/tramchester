@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.BusTest;
@@ -12,8 +12,6 @@ import com.tramchester.testSupport.TestStation;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
-
-import java.io.IOException;
 
 import static com.tramchester.testSupport.BusStations.*;
 

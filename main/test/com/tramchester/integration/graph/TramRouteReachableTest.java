@@ -7,7 +7,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.graph.RouteReachable;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.TestStation;

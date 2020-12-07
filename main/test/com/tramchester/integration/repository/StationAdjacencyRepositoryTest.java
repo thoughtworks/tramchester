@@ -3,7 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TramStations;

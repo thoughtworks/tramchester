@@ -1,6 +1,4 @@
-package com.tramchester.testSupport;
-
-import com.tramchester.integration.IntegrationTramTestConfig;
+package com.tramchester.integration.testSupport;
 
 public class TramWithPostcodesEnabled extends IntegrationTramTestConfig {
 

@@ -1,4 +1,4 @@
-package com.tramchester.integration;
+package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.geo.BoundingBox;

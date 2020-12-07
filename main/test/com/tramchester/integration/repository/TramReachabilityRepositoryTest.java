@@ -4,7 +4,7 @@ import com.tramchester.Dependencies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.KnownRoute;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.testSupport.RoutesForTesting;
 import com.tramchester.testSupport.TramStations;

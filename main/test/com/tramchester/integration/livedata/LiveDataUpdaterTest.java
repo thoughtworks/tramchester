@@ -2,13 +2,12 @@ package com.tramchester.integration.livedata;
 
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.LiveDataMessagesCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramStations;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

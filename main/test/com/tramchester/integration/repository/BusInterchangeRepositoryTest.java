@@ -6,7 +6,7 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.BusStations;
 import com.tramchester.testSupport.BusTest;

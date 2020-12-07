@@ -14,7 +14,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramReachabilityRepository;
 import com.tramchester.testSupport.TestEnv;

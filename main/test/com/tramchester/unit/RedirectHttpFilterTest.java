@@ -2,7 +2,7 @@ package com.tramchester.unit;
 
 
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
-import com.tramchester.integration.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;

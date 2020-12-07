@@ -12,7 +12,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.integration.TFGMTestDataSourceConfig;
+import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
 import com.tramchester.testSupport.TestConfig;

@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

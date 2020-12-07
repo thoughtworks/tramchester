@@ -6,7 +6,7 @@ import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.dataimport.Unzipper;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.integration.TFGMTestDataSourceConfig;
+import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.assertj.core.util.Files;
