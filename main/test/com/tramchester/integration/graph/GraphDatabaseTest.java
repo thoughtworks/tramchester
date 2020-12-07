@@ -34,7 +34,8 @@ class GraphDatabaseTest {
     private static final String SRC_2_NAME = "src2";
     private static final String VERSION_1_VALID = "version1";
     private static final String VERSION_2_VALID = "version21";
-    private static final int SHUTDOWN_TIMEOUT_MILLI = 500;
+    private static final int SHUTDOWN_TIMEOUT_MILLI = 200;
+    private static final int START_TIMEOUT_MILLI = 100;
 
     private TramchesterConfig config;
     private DataSourceRepository repository;
@@ -88,27 +89,31 @@ class GraphDatabaseTest {
     @AfterEach
     void afterEachTestRuns() throws IOException {
         if (graphDatabase!=null) {
-            if (graphDatabase.isAvailable(1000)) {
+            if (isAvailable(200)) {
                 graphDatabase.stop();
             }
-            while (graphDatabase.isAvailable(100)) {
+            while (isAvailable(START_TIMEOUT_MILLI)) {
                 // wait for stop, immediate deletion does not work
             }
         }
         FileUtils.deleteDirectory(dbFile.toFile());
     }
 
+    private boolean isAvailable(int timeoutMilli) {
+        return graphDatabase.isAvailable(timeoutMilli);
+    }
+
     @Test
     void shouldCreateIfNoDBFile() {
         createWithSingleNameAndVersion();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertTrue(graphDatabase.isCleanDB());
     }
 
     @Test
     void shouldCreateIfVersionNodeMissingFromDB() {
         createWithSingleNameAndVersion();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
 
         try(Transaction tx = graphDatabase.beginTx()) {
             graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
@@ -117,10 +122,10 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
+        assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(1000));
         assertTrue(graphDatabase.isCleanDB());
         // query node gone, fresh DB
         assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
@@ -131,7 +136,7 @@ class GraphDatabaseTest {
     void shouldLoadExistingIfVersionPresentWithCorrectVersionInDB() {
         createWithSingleNameAndVersion();
 
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
             node.setProperty(SRC_1_NAME, VERSION_1_VALID);
@@ -142,10 +147,10 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
+        assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertFalse(graphDatabase.isCleanDB());
         // query node still present
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
@@ -155,7 +160,7 @@ class GraphDatabaseTest {
     void shouldLoadExistingIfVersionPresentWithMultipleCorrectVersionsInDB() {
         createWithTwoNamesAndVersions();
 
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
             node.setProperty(SRC_1_NAME, VERSION_1_VALID);
@@ -167,10 +172,10 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
+        assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertFalse(graphDatabase.isCleanDB());
         // query node still present
         AtomicInteger count = countNodeType(GraphBuilder.Labels.QUERY_NODE);
@@ -181,7 +186,7 @@ class GraphDatabaseTest {
     void shoulRecreateIfExtraVersionPresentInDB() {
         createWithTwoNamesAndVersions();
 
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
             node.setProperty(SRC_1_NAME, VERSION_1_VALID);
@@ -194,10 +199,10 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
+        assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertTrue(graphDatabase.isCleanDB());
         assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
     }
@@ -205,7 +210,7 @@ class GraphDatabaseTest {
     @Test
     void shouldRecreateIfVersionPresentWithMismatchVersionInDB() {
         createWithSingleNameAndVersion();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
 
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
@@ -217,10 +222,10 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
+        assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertTrue(graphDatabase.isCleanDB());
         // query node gone, fresh DB
         assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
@@ -229,7 +234,7 @@ class GraphDatabaseTest {
     @Test
     void shouldRecreateIfVersionsPresentWithOneMismatchVersionInDB() {
         createWithTwoNamesAndVersions();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(1000));
 
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
@@ -242,10 +247,10 @@ class GraphDatabaseTest {
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
 
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
+        assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(1000));
         assertTrue(graphDatabase.isCleanDB());
         // query node gone, fresh DB
         assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
@@ -263,7 +268,7 @@ class GraphDatabaseTest {
 
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
 
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
@@ -274,10 +279,10 @@ class GraphDatabaseTest {
         }
         assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
         graphDatabase.stop();
-        assertFalse(graphDatabase.isAvailable(SHUTDOWN_TIMEOUT_MILLI));
+        assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
-        assertTrue(graphDatabase.isAvailable(1000));
+        assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertTrue(graphDatabase.isCleanDB());
         assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
     }

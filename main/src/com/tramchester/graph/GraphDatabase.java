@@ -42,6 +42,8 @@ import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAM
 
 public class GraphDatabase implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
+    private static final int SHUTDOWN_TIMEOUT = 200;
+    private static final int STARTUP_TIMEOUT = 200;
 
     private final TramchesterConfig configuration;
     private final DataSourceRepository transportData;
@@ -76,8 +78,8 @@ public class GraphDatabase implements Startable {
             cleanDB = true;
             logger.warn("Graph is out of date, rebuild needed");
             managementService.shutdown();
-            int count = 10;
-            while (databaseService.isAvailable(1000)) {
+            int count = 5000 / SHUTDOWN_TIMEOUT; // wait 5 seconds
+            while (databaseService.isAvailable(SHUTDOWN_TIMEOUT)) {
                 logger.info("Waiting for graph shutdown");
                 count--;
                 if (count==0) {
@@ -203,9 +205,11 @@ public class GraphDatabase implements Startable {
         // for community edition must be DEFAULT_DATABASE_NAME
         GraphDatabaseService graphDatabaseService = managementService.database(DEFAULT_DATABASE_NAME);
 
-        if (!graphDatabaseService.isAvailable(1000)) {
+        int retries = 10;
+        while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
             logger.error("DB Service is not available, name: " + DEFAULT_DATABASE_NAME +
-                    " Path: " + graphFile.toPath().toAbsolutePath());
+                    " Path: " + graphFile.toPath().toAbsolutePath() + " check " + retries);
+            retries--;
         }
         return graphDatabaseService;
     }
@@ -216,7 +220,7 @@ public class GraphDatabase implements Startable {
             if (databaseService ==null) {
                 logger.error("Unable to obtain GraphDatabaseService for shutdown");
             } else {
-                if (databaseService.isAvailable(1000)) {
+                if (databaseService.isAvailable(SHUTDOWN_TIMEOUT)) {
                     logger.info("Shutting down graphDB");
                     managementService.shutdown();
                     logger.info("graphDB is shutdown");
