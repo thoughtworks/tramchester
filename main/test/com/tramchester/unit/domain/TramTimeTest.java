@@ -62,9 +62,9 @@ class TramTimeTest {
 
     @Test
     void shouldParseNextDayPlus24() {
-        checkCorrectTimePresent(TramTime.parse("0:35+24"), 0, 35, true);
-        checkCorrectTimePresent(TramTime.parse("1:47+24"), 1, 47, true);
-        checkCorrectTimePresent(TramTime.parse("2:42+24"), 2, 42, true);
+        checkCorrectTimePresent(TramTime.parse("00:35+24"), 0, 35, true);
+        checkCorrectTimePresent(TramTime.parse("01:47+24"), 1, 47, true);
+        checkCorrectTimePresent(TramTime.parse("02:42+24"), 2, 42, true);
     }
 
     @Test

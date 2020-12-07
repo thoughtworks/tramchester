@@ -76,6 +76,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 logger.info("Adding agency " + agency.getId());
                 Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
                 buildGraphForRoutes(graphDatabase, graphFilter, routes);
+                logger.info("Finished agency " + agency.getId());
             }
 
             try(Transaction tx = graphDatabase.beginTx()) {

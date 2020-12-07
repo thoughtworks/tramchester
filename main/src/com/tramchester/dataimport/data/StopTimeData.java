@@ -14,13 +14,13 @@ public class StopTimeData {
     private final int stopSequence;
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropOffType;
-    private final IdFor<Platform> platformId;
+    private final String platformId;
 
     public StopTimeData(String tripId, ServiceTime arrivalTime, ServiceTime departureTime, String stopId,
                         int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
         this.tripId = IdFor.createId(tripId);
+        this.platformId = stopId;
         this.stopId = stopId;
-        this.platformId = IdFor.createId(stopId);
 
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
@@ -71,6 +71,6 @@ public class StopTimeData {
     }
 
     public IdFor<Platform> getPlatformId() {
-        return platformId;
+        return IdFor.createId(platformId);
     }
 }

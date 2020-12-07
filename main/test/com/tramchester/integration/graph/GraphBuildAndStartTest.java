@@ -40,7 +40,6 @@ class GraphBuildAndStartTest {
         ProvidesNow providesNow = new ProvidesLocalNow();
 
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
-//        CoordinateTransforms coordinateTransforms = new CoordinateTransforms();
         StationLocations stationLocations = new StationLocations();
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
         TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config, fetchFileModTime),

@@ -191,7 +191,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         Node endsAfterMidnight = createMock(Node.class);
         EasyMock.expect(endsAfterMidnight.getId()).andReturn(43L);
         EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(5,23));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(0,1, true));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(TramTime.nextDay(0,1)));
 
         replayAll();
         assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, path),

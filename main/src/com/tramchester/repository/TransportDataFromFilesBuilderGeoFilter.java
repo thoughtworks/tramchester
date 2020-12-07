@@ -228,8 +228,9 @@ public class TransportDataFromFilesBuilderGeoFilter {
                 station.getPlatforms().forEach(buildable::addPlatform);
             }
         }
-        RouteStation routeStation = new RouteStation(station, route);
-        if (!buildable.hasRouteStationId(routeStation.getId())) {
+
+        if (!buildable.hasRouteStationId(RouteStation.formId(stationId, route.getId()))) {
+            RouteStation routeStation = new RouteStation(station, route);
             buildable.addRouteStation(routeStation);
         }
     }
@@ -261,7 +262,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
                 }
             }
         });
-        logger.info("Loaded " + count.get());
+        logger.info("Loaded " + count.get() + " trips");
         return new TripAndServices(services, trips);
     }
 
@@ -347,7 +348,7 @@ public class TransportDataFromFilesBuilderGeoFilter {
             }
 
         });
-        logger.info("Loaded " + allStations.size() + " stations");
+        logger.info("Pre Loaded " + allStations.size() + " stations");
         return allStations;
     }
 

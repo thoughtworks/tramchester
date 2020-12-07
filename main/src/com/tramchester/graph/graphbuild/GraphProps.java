@@ -69,8 +69,8 @@ public class GraphProps {
 
     static void setTimeProp(Entity entity, ServiceTime time) {
         entity.setProperty(TIME.getText(), time.asLocalTime());
-        if (time.getFollowingDay()) {
-            entity.setProperty(DAY_OFFSET.getText(), time.getFollowingDay());
+        if (time.isNextDay()) {
+            entity.setProperty(DAY_OFFSET.getText(), time.isNextDay());
         }
     }
 

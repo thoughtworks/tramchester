@@ -1,22 +1,10 @@
 package com.tramchester.domain.time;
 
 import java.time.LocalTime;
-import java.util.Optional;
 
 public class ServiceTime {
 
-    private static final ServiceTime[][][] serviceTimes = new ServiceTime[2][24][60];
-
-    static {
-        for(int day=0; day < 2; day++) {
-            for (int hour = 0; hour < 24; hour++) {
-                for (int minute = 0; minute < 60; minute++) {
-                    serviceTimes[day][hour][minute] =
-                            new ServiceTime(day==1? TramTime.nextDay(hour,minute) : TramTime.of(hour,minute));
-                }
-            }
-        }
-    }
+    // TODO Still needed? Just use TramTime?
 
     private final TramTime tramTime;
 
@@ -25,28 +13,15 @@ public class ServiceTime {
     }
 
     public static ServiceTime of(int hours, int minutes) {
-        return serviceTimes[0][hours][minutes];
+        return new ServiceTime(TramTime.of(hours, minutes));
     }
 
-    public static ServiceTime of(int hours, int minutes, boolean followingDay) {
-        return serviceTimes[followingDay?1:0][hours][minutes];
-    }
-
-    private static ServiceTime of(TramTime time) {
-        return of(time.getHourOfDay(), time.getMinuteOfHour(), time.isNextDay());
+    public static ServiceTime of(TramTime time) {
+        return new ServiceTime(time);
     }
 
     public static ServiceTime of(LocalTime time) {
-        return serviceTimes[0][time.getHour()][time.getMinute()];
-    }
-
-    public static Optional<ServiceTime> parseTime(String text) {
-        Optional<TramTime> maybe = TramTime.parse(text);
-        if (maybe.isEmpty()) {
-            return Optional.empty();
-        }
-        TramTime time = maybe.get();
-        return Optional.of(ServiceTime.of(time));
+        return new ServiceTime(TramTime.of(time));
     }
 
     public static int diffenceAsMinutes(ServiceTime departureTime, ServiceTime arrivalTime) {
@@ -81,7 +56,7 @@ public class ServiceTime {
         return of(tramTime.plusMinutes(amount));
     }
 
-    public boolean getFollowingDay() {
+    public boolean isNextDay() {
         return tramTime.isNextDay();
     }
 

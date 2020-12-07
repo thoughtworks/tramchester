@@ -4,6 +4,7 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.parsers.StopTimeDataMapper;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,8 +55,8 @@ class StopTimeDataParserTest {
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(ServiceTime.of(0,0, true));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(ServiceTime.of(0,0, true));
+        assertThat(stopTimeData.getArrivalTime()).isEqualTo(ServiceTime.of(TramTime.nextDay(0,0)));
+        assertThat(stopTimeData.getDepartureTime()).isEqualTo(ServiceTime.of(TramTime.nextDay(0,0)));
     }
 
     @Test
@@ -64,8 +65,8 @@ class StopTimeDataParserTest {
 
         StopTimeData stopTimeData = stopTimeDataParser.parseEntry(ParserBuilder.getRecordFor(stop));
 
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(ServiceTime.of(1,5, true));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(ServiceTime.of(1,7, true));
+        assertThat(stopTimeData.getArrivalTime()).isEqualTo(ServiceTime.of(TramTime.nextDay(1,5)));
+        assertThat(stopTimeData.getDepartureTime()).isEqualTo(ServiceTime.of(TramTime.nextDay(1,7)));
 
     }
 

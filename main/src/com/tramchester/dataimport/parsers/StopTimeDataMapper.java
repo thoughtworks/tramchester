@@ -3,6 +3,7 @@ package com.tramchester.dataimport.parsers;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,12 +55,12 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
             ServiceTime departureTime = parseTimeField(data.get(indexOfDepart));
 
             String stopId = data.get(indexOfStopId);
-            int stopSequence = Integer.parseInt(data.get(indexOfStopSeq));
+            int stopSequence = Integer.parseUnsignedInt(data.get(indexOfStopSeq), 10);
 
             GTFSPickupDropoffType pickupType = GTFSPickupDropoffType.parser.parse(data.get(indexOfPickup));
             GTFSPickupDropoffType dropOffType = GTFSPickupDropoffType.parser.parse(data.get(indexOfDropOff));
 
-            // seems normal for the train data, has all stations even ones don't stop at
+            // seems normal for the train data, has all stations even ones the trains don't stop at
 //            if (pickupType!=Regular && dropOffType!=Regular) {
 //                logger.info("No drop-off or pickup for trip " + tripId + " and stop " + stopId);
 //            }
@@ -77,16 +78,16 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
     }
 
     private ServiceTime parseTimeField(String theText) throws ParseException {
-        Optional<ServiceTime> time = Optional.empty();
+        Optional<TramTime> time = Optional.empty();
         if (theText.contains(":")) {
-            time = ServiceTime.parseTime(theText);
+            time = TramTime.parse(theText);
         }
         if (time.isEmpty()) {
             String msg = format("Failed to parse time '%s' ", theText);
             logger.error(msg);
             throw new ParseException(msg, 0);
         }
-        return time.get();
+        return ServiceTime.of(time.get());
     }
 
     @Override
