@@ -88,7 +88,6 @@ class RouteCalulatorTestKeyRoutes {
         assertFalse(failed.isPresent());
     }
 
-
     @Test
     void shouldFindEndOfLinesToInterchanges() {
         Set<TramStations.Pair> combinations = createJourneyPairs(TramStations.EndOfTheLine, TramStations.Interchanges);

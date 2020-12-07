@@ -78,7 +78,7 @@ public class TramReachabilityRepository implements Disposable {
         throw new RuntimeException("Call for trams only");
     }
 
-    public boolean tramStationReachable(IdFor<Station> destinationStationId, IdFor<RouteStation> routeStationId) {
+    private boolean tramStationReachable(IdFor<Station> destinationStationId, IdFor<RouteStation> routeStationId) {
         int index = tramStationIndexing.indexOf(destinationStationId);
         if (index<0) {
             throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStationId,

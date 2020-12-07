@@ -148,11 +148,12 @@ public class TransportDataFromFilesBuilderGeoFilter {
 
         AtomicInteger count = new AtomicInteger();
         stopTimes.filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).forEach((stopTimeData) -> {
-            Trip trip = trips.get(stopTimeData.getTripId());
             String stopId = stopTimeData.getStopId();
             IdFor<Station> stationId = Station.formId(stopId);
 
             if (stations.hasId(stationId)) {
+                Trip trip = trips.get(stopTimeData.getTripId());
+
                 Station station = stations.get(stationId);
                 Route route = trip.getRoute();
 
