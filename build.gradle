@@ -66,7 +66,7 @@ dependencies {
 
     // javaee jax-rs implementation clashes with dropwizard
     implementation('org.geotools:gt-main:22.2')  { exclude group:'javax', module:'javaee-api'}
-    implementation('org.geotools:gt-epsg-hsql:22.2')  { exclude group:'javax', module:'javaee-api'}
+    implementation('org.geotools:gt-epsg-hsql:24.1')  { exclude group:'javax', module:'javaee-api'}
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0',
             'org.assertj:assertj-core:3.16.1',
