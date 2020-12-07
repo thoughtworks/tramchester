@@ -1,9 +1,6 @@
 package com.tramchester.integration;
 
 import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.message.internal.HttpDateFormat;
-import org.joda.time.DateTime;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
@@ -13,7 +10,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.text.spi.DateFormatProvider;
 import java.util.Date;
 
 
