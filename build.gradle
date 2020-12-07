@@ -52,7 +52,6 @@ dependencies {
             'software.amazon.awscdk:elasticloadbalancingv2:1.77.0',
             'software.amazon.awscdk:autoscaling:1.77.0',
             'software.amazon.awscdk:cdk-cx-api:1.77.0',
-
             'com.smoketurner:dropwizard-swagger:2.0.12-1'
 
     implementation('org.geotools:gt-main:24.1')
@@ -63,7 +62,7 @@ dependencies {
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.2',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
-            'io.appium:java-client:7.2.0',
+            'io.appium:java-client:7.4.1',
             'org.hamcrest:hamcrest:2.2'
 
 }
