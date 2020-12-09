@@ -41,7 +41,7 @@ dependencies {
             'io.dropwizard-bundles:dropwizard-configurable-assets-bundle:1.3.5',
             'com.github.ben-manes.caffeine:caffeine:2.8.1',
             // aws sdk
-            'software.amazon.awssdk:cloudwatch:2.15.40',
+            'software.amazon.awssdk:cloudwatch:2.15.42',
             'software.amazon.awssdk:s3:2.15.40',
             'software.amazon.awssdk:cloudformation:2.15.40',
             // aws cdk
