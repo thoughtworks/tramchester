@@ -12,7 +12,8 @@ public class ComponentsBuilder {
         return this;
     }
 
-    public PicoContainerDependencies create(TramchesterConfig config) {
+    public ComponentContainer create(TramchesterConfig config) {
+        //return new GuiceContainerDependencies(graphFilter, config);
         return new PicoContainerDependencies(graphFilter, config);
     }
 }
