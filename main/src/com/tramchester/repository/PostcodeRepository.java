@@ -13,12 +13,14 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Singleton
 public class PostcodeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeRepository.class);
 

@@ -20,6 +20,8 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +31,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Singleton
 public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
@@ -46,6 +49,7 @@ public class RouteCalculator implements TramRouteCalculator {
     private final SortsPositions sortsPosition;
     private final MapPathToLocations mapPathToLocations;
 
+    @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
                            CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,

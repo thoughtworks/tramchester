@@ -19,6 +19,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Singleton
 public class PlatformMessageRepository implements PlatformMessageSource, Disposable, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(PlatformMessageRepository.class);
 

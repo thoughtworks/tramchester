@@ -3,6 +3,7 @@ package com.tramchester.domain.time;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 public class CreateQueryTimes {
     private final TramchesterConfig config;
 
+    @Inject
     public CreateQueryTimes(TramchesterConfig config) {
         this.config = config;
     }

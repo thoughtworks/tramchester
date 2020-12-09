@@ -11,11 +11,14 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+@Singleton
 public class TramReachabilityRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
@@ -25,6 +28,7 @@ public class TramReachabilityRepository implements Disposable, Startable {
     private final List<IdFor<Station>> tramStationIndexing; // a list as we need ordering and IndexOf
     private final Map<IdFor<RouteStation>, boolean[]> matrix; // stationId -> boolean[]
 
+    @Inject
     public TramReachabilityRepository(RouteReachable routeReachable, TransportData transportData) {
         this.routeReachable = routeReachable;
         this.transportData = transportData;

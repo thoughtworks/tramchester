@@ -10,11 +10,13 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@Singleton
 public class TramStationAdjacenyRepository implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 

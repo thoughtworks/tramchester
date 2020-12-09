@@ -2,9 +2,12 @@ package com.tramchester;
 
 import com.google.inject.*;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.graph.NodeIdLabelMap;
+import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataProvider;
+import com.tramchester.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +35,7 @@ public class GuiceContainerDependencies extends ComponentContainer {
 
         @Override
         protected void configure() {
+            parent.registerLinkedComponents();
             parent.registerTransportDataProvider();
             parent.registerComponents(config, filter);
         }
@@ -73,6 +77,15 @@ public class GuiceContainerDependencies extends ComponentContainer {
     private void registerTransportDataProvider() {
         Provider<TransportData> provider = () -> transportData;
         module.bindProvider(TransportData.class, provider);
+    }
+
+    private void registerLinkedComponents() {
+        module.bindClass(DataSourceRepository.class, TransportData.class);
+        module.bindClass(NodeContentsRepository.class, CachedNodeOperations.class);
+        module.bindClass(NodeTypeRepository.class, NodeIdLabelMap.class);
+        module.bindClass(PlatformRepository.class, TransportData.class);
+        module.bindClass(StationRepository.class, TransportData.class);
+
     }
 
 

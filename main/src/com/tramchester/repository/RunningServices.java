@@ -9,9 +9,11 @@ import com.tramchester.domain.time.TramServiceDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 
+@Singleton
 public class RunningServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningServices.class);
 

@@ -11,16 +11,20 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+@Singleton
 public class GraphQuery {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
     private final GraphDatabase graphDatabase;
 
+    @Inject
     public GraphQuery(GraphDatabase graphDatabase) {
         this.graphDatabase = graphDatabase;
     }

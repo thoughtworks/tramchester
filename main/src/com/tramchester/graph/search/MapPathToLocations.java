@@ -12,13 +12,17 @@ import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 public class MapPathToLocations {
     private final StationRepository stationRepository;
     private final ObjectMapper mapper;
 
+    @Inject
     public MapPathToLocations(StationRepository stationRepository) {
         this.stationRepository = stationRepository;
         mapper = new ObjectMapper();

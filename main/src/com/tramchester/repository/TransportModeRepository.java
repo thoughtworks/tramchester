@@ -4,10 +4,12 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 
+import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Singleton
 public class TransportModeRepository {
     private final TramchesterConfig config;
 

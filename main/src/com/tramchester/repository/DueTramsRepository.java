@@ -20,6 +20,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,6 +31,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Singleton
 public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(DueTramsRepository.class);
 

@@ -15,6 +15,7 @@ import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Singleton
 public class TransportDataFromFiles implements TransportDataProvider {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 

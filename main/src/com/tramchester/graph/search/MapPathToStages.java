@@ -20,6 +20,8 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import java.util.Optional;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
+@Singleton
 public class MapPathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 
@@ -34,6 +37,7 @@ public class MapPathToStages {
     private final MyLocationFactory myLocationFactory;
     private final PlatformRepository platformRepository;
 
+    @Inject
     public MapPathToStages(TransportData transportData,
                            MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
         this.transportData = transportData;

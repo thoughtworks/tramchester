@@ -12,11 +12,14 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Set;
 
 import static java.lang.String.format;
 
+@Singleton
 public class InterchangeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
@@ -26,6 +29,7 @@ public class InterchangeRepository implements Disposable, Startable {
     private IdMap<Station> busInterchanges;
     private IdMap<Station> trainInterchanges;
 
+    @Inject
     public InterchangeRepository(TransportData dataSource, TramchesterConfig config) {
         this.dataSource = dataSource;
         // both of these empty for trams

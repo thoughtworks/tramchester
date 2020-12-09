@@ -8,6 +8,7 @@ import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ public class SortsPositions {
 
     private final StationRepository repository;
 
+    @Inject
     public SortsPositions(StationRepository repository) {
         this.repository = repository;
     }

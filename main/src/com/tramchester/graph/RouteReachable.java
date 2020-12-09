@@ -13,6 +13,8 @@ import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,7 @@ import java.util.Set;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
 
+@Singleton
 public class RouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(RouteReachable.class);
 
@@ -29,6 +32,7 @@ public class RouteReachable {
     private final boolean warnForMissing;
     private final GraphQuery graphQuery;
 
+    @Inject
     public RouteReachable(GraphDatabase graphDatabaseService,
                           InterchangeRepository interchangeRepository, StationRepository stationRepository, GraphFilter filter,
                           GraphQuery graphQuery) {

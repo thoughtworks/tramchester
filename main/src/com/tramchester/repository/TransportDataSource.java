@@ -5,8 +5,10 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.DataSourceInfo;
 
+import javax.inject.Singleton;
 import java.util.stream.Stream;
 
+@Singleton
 public class TransportDataSource {
     final Stream<StopData> stops;
     final Stream<RouteData> routes;
