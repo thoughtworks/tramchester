@@ -26,9 +26,9 @@ class BusRouteCostCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        componentContainer = new ComponentsBuilder().create();
         TramchesterConfig config = new IntegrationBusTestConfig();
-        componentContainer.initialise(config);
+        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer.initialise();
     }
 
     @AfterAll

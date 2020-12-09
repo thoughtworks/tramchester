@@ -38,9 +38,10 @@ class FastestRoutesForBoxesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         IntegrationTramTestConfig config = new IntegrationTramTestConfig();
-        componentContainer.initialise(config);
+
+        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer.initialise();
     }
 
     @AfterAll

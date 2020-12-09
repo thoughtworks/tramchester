@@ -5,9 +5,9 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
 import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,8 +19,8 @@ class PostcodeRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
-        componentContainer.initialise(new TramWithPostcodesEnabled());
+        componentContainer = new ComponentsBuilder().create(new TramWithPostcodesEnabled());
+        componentContainer.initialise();
     }
 
     @AfterAll

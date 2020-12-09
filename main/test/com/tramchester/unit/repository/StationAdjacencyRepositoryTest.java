@@ -4,7 +4,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TramStationAdjacenyRepository;
-import com.tramchester.testSupport.reference.TransportDataForTestFactory;
+import com.tramchester.testSupport.reference.TransportDataForTestProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 class StationAdjacencyRepositoryTest {
 
     private TramStationAdjacenyRepository repository;
-    private TransportDataForTestFactory.TestTransportData transportDataSource;
+    private TransportDataForTestProvider.TestTransportData transportDataSource;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
-        transportDataSource = new TransportDataForTestFactory(stationLocations, providesNow).get();
+        transportDataSource = new TransportDataForTestProvider(stationLocations, providesNow).getTestData();
         repository = new TramStationAdjacenyRepository(transportDataSource);
         repository.start();
     }

@@ -37,9 +37,9 @@ class RouteCalculatorSubGraphMonsallTest {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(KnownRoute.EDidsburyManchesterRochdale.getId());
 
-        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create();
         config = new SubgraphConfig();
-        componentContainer.initialise(config);
+        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create(config);
+        componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
     }

@@ -37,9 +37,10 @@ class LiveDataHTTPFetcherTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         configuration = new IntegrationTramTestConfig();
-        componentContainer.initialise(configuration);
+        componentContainer = new ComponentsBuilder().create(configuration);
+        componentContainer.initialise();
+
         // don't want to fetch every time
         fetcher = componentContainer.get(LiveDataHTTPFetcher.class);
         payload = fetcher.fetch();

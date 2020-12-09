@@ -43,10 +43,10 @@ public class App extends Application<AppConfiguration>  {
 
     private static final String SERVICE_NAME = "tramchester";
 
-    private final ComponentContainer container;
+    private ComponentContainer container;
 
     public App() {
-        this.container = new ComponentsBuilder().create();
+
     }
 
     @Override
@@ -101,9 +101,10 @@ public class App extends Application<AppConfiguration>  {
     @Override
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
+        this.container = new ComponentsBuilder().create(configuration);
 
         try {
-            container.initialise(configuration);
+            container.initialise();
         }
         catch (Exception exception) {
             logger.error("Uncaught exception during init ", exception);

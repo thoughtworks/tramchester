@@ -43,9 +43,10 @@ class BusRouteCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         testConfig = new IntegrationBusTestConfig();
-        componentContainer.initialise(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer.initialise();
+
         database = componentContainer.get(GraphDatabase.class);
     }
 

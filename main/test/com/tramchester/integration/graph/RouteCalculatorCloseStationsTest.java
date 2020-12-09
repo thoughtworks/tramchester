@@ -42,9 +42,9 @@ class RouteCalculatorCloseStationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         TramchesterConfig config = new ClosedStationsTramTestConfig();
-        componentContainer.initialise(config);
+        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }
 

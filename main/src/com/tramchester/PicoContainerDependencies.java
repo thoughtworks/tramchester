@@ -44,13 +44,9 @@ public class PicoContainerDependencies implements ComponentContainer {
 
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
 
-//    public Dependencies() {
-//        this(new IncludeAllFilter());
-//    }
-
-    public PicoContainerDependencies(GraphFilter graphFilter) {
+    public PicoContainerDependencies(GraphFilter graphFilter, TramchesterConfig configuration) {
+        picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(GraphFilter.class, graphFilter);
-
         picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(StationLocations.class);
         picoContainer.addComponent(PostcodeBoundingBoxs.class);
@@ -63,35 +59,29 @@ public class PicoContainerDependencies implements ComponentContainer {
 
     // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
     @Override
-    public void initialise(TramchesterConfig configuration) {
+    public void initialise() {
         // caching is on by default
-        picoContainer.addComponent(TramchesterConfig.class, configuration);
-
         picoContainer.addComponent(TransportDataReaderFactory.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
-        picoContainer.addComponent(TransportDataBuilderFactory.class);
+        picoContainer.addComponent(TransportDataProviderFactory.class);
 
         FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
         Unzipper unzipper = get(Unzipper.class);
         fetcher.fetchData(unzipper);
 
-        TransportDataBuilderFactory builderFactory = get(TransportDataBuilderFactory.class);
-        TransportDataFromFilesBuilderGeoFilter builder = builderFactory.create();
-        builder.load();
+        TransportDataProviderFactory providerFactory = get(TransportDataProviderFactory.class);
+        TransportDataFromFiles provider = providerFactory.create();
+        provider.load();
 
-        initialise(configuration, builder.getData());
+        initialise(provider);
     }
 
     // init dependencies but possibly with alternative source of transport data
     @Override
-    public void initialise(TramchesterConfig configuration, TransportData transportData) {
+    public void initialise(TransportDataProvider transportDataProvider) {
         logger.info("Creating dependencies");
 
-        // caching is on by default
-        if (picoContainer.getComponent(TramchesterConfig.class)==null) {
-            picoContainer.addComponent(TramchesterConfig.class, configuration);
-        }
-        picoContainer.addComponent(TransportData.class, transportData);
+        picoContainer.addComponent(TransportData.class, transportDataProvider.getData());
 
         picoContainer.addComponent(PostcodeRepository.class);
         picoContainer.addComponent(VersionRepository.class);
@@ -167,9 +157,7 @@ public class PicoContainerDependencies implements ComponentContainer {
         picoContainer.addComponent(GraphDatabase.class);
         picoContainer.addComponent(RouteCallingStations.class);
         picoContainer.addComponent(TramCentralZoneDirectionRespository.class);
-        if (configuration.getCreateNeighbours()) {
-            picoContainer.addComponent(CreateNeighbours.class);
-        }
+        picoContainer.addComponent(CreateNeighbours.class);
 
         if (logger.isDebugEnabled()) {
             logger.warn("Debug logging is enabled, server performance will be impacted");

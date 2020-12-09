@@ -11,11 +11,11 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
+import com.tramchester.repository.TransportDataProvider;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.reference.RoutesForTesting;
-import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,18 +27,23 @@ import static com.tramchester.domain.reference.KnownRoute.EDidsburyManchesterRoc
 import static com.tramchester.domain.reference.KnownRoute.RochdaleManchesterEDidsbury;
 import static java.lang.String.format;
 
-public class TransportDataForTestFactory {
+public class TransportDataForTestProvider implements TransportDataProvider {
     private final StationLocations stationLocations;
     private final ProvidesNow providesNow;
 
-    public TransportDataForTestFactory(StationLocations stationLocations, ProvidesNow providesNow) {
+    public TransportDataForTestProvider(StationLocations stationLocations, ProvidesNow providesNow) {
         this.stationLocations = stationLocations;
         this.providesNow = providesNow;
     }
 
-    public TestTransportData get() {
+    public TransportData getData() {
+        return getTestData();
+    }
+
+    public TestTransportData getTestData() {
         TestTransportData container = new TestTransportData(stationLocations, providesNow);
         populateTestData(container);
+
         return container;
     }
 

@@ -14,7 +14,7 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
+import com.tramchester.repository.TransportDataFromFiles;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -43,9 +43,9 @@ class GraphBuildAndStartTest {
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
         StationLocations stationLocations = new StationLocations();
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
-        TransportDataBuilderFactory fileFactory = new TransportDataBuilderFactory(new TransportDataReaderFactory(config, fetchFileModTime),
+        TransportDataProviderFactory fileFactory = new TransportDataProviderFactory(new TransportDataReaderFactory(config, fetchFileModTime),
                 providesNow, stationLocations, config);
-        TransportDataFromFilesBuilderGeoFilter builder = fileFactory.create();
+        TransportDataFromFiles builder = fileFactory.create();
 
         builder.load();
         TransportData transportData = builder.getData();

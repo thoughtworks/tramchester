@@ -53,9 +53,9 @@ class PostcodeTramJourneyPlannerTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         testConfig = new TramWithPostcodesEnabled();
-        componentContainer.initialise(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }
 

@@ -50,9 +50,9 @@ class RouteCalculatorSubGraphTest {
 
         stations.forEach(station->graphFilter.addStation(station.getId()));
 
-        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create();
         config = new SubgraphConfig();
-        componentContainer.initialise(config);
+        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create(config);
+        componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
     }

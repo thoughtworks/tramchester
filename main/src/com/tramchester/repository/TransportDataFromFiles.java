@@ -22,8 +22,8 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public class TransportDataFromFilesBuilderGeoFilter {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFilesBuilderGeoFilter.class);
+public class TransportDataFromFiles implements TransportDataProvider {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
     private final List<TransportDataSource> transportDataStreams;
     private final StationLocations stationLocations;
@@ -32,8 +32,8 @@ public class TransportDataFromFilesBuilderGeoFilter {
 
     private TransportDataContainer toBuild;
 
-    public TransportDataFromFilesBuilderGeoFilter(List<TransportDataSource> transportDataStreams, StationLocations stationLocations,
-                                                  TramchesterConfig config, ProvidesNow providesNow) {
+    public TransportDataFromFiles(List<TransportDataSource> transportDataStreams, StationLocations stationLocations,
+                                  TramchesterConfig config, ProvidesNow providesNow) {
         this.transportDataStreams = transportDataStreams;
         this.stationLocations = stationLocations;
         this.config = config;

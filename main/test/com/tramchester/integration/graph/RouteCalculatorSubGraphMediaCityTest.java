@@ -61,9 +61,9 @@ class RouteCalculatorSubGraphMediaCityTest {
         graphFilter.addRoute(EDidsburyManchesterRochdale.getId());
         stations.forEach(TramStations::getId);
 
-        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create();
         config = new SubgraphConfig();
-        componentContainer.initialise(config);
+        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create(config);
+        componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
     }

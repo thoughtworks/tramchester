@@ -11,7 +11,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.reference.TransportDataForTestFactory;
+import com.tramchester.testSupport.reference.TransportDataForTestProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SortsPositionsTest {
 
-    private TransportDataForTestFactory.TestTransportData dataForTest;
+    private TransportDataForTestProvider.TestTransportData dataForTest;
     private Station nearPiccGardens;
     private Station nearShudehill;
     private Station nearAltrincham;
@@ -34,7 +34,7 @@ class SortsPositionsTest {
         StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
 
-        dataForTest = new TransportDataForTestFactory(stationLocations, providesNow).get();
+        dataForTest = new TransportDataForTestProvider(stationLocations, providesNow).getTestData();
 
         nearPiccGardens = dataForTest.getSecond(); // near PiccGardens
         nearShudehill = dataForTest.getInterchange();   // near Shudehill

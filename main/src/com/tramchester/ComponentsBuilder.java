@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.IncludeAllFilter;
 
@@ -11,7 +12,7 @@ public class ComponentsBuilder {
         return this;
     }
 
-    public PicoContainerDependencies create() {
-        return new PicoContainerDependencies(graphFilter);
+    public PicoContainerDependencies create(TramchesterConfig config) {
+        return new PicoContainerDependencies(graphFilter, config);
     }
 }

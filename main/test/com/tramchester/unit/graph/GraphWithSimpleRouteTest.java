@@ -19,10 +19,11 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TransportDataForTestFactory;
+import com.tramchester.testSupport.reference.TransportDataForTestProvider;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -35,13 +36,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TransportDataForTestFactory.TestTransportData.*;
+import static com.tramchester.testSupport.reference.TransportDataForTestProvider.TestTransportData.*;
 
 class GraphWithSimpleRouteTest {
 
     private static final String TMP_DB = "tmp.db";
 
-    private static TransportDataForTestFactory.TestTransportData transportData;
+    private static TransportDataForTestProvider.TestTransportData transportData;
     private static RouteCalculator calculator;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
@@ -54,17 +55,18 @@ class GraphWithSimpleRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        componentContainer = new ComponentsBuilder().create();
+        config = new SimpleGraphConfig();
+
+        componentContainer = new ComponentsBuilder().create(config);
 
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 
-        TransportDataForTestFactory factory = new TransportDataForTestFactory(stationLocations, componentContainer.get(ProvidesNow.class));
-        transportData = factory.get();
+        TransportDataForTestProvider provider = new TransportDataForTestProvider(stationLocations, componentContainer.get(ProvidesNow.class));
 
-        config = new SimpleGraphConfig();
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
-        componentContainer.initialise(config, transportData);
+        componentContainer.initialise(provider);
+        transportData = (TransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
 
         database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);

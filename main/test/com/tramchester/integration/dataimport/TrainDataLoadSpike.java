@@ -24,8 +24,8 @@ class TrainDataLoadSpike {
     static void beforeClass() {
         TramchesterConfig testConfig = new IntegrationTrainTestConfig();
 
-        componentContainer = new ComponentsBuilder().create();
-        componentContainer.initialise(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer.initialise();
     }
 
     @AfterAll

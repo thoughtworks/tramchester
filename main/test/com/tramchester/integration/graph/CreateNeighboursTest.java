@@ -67,9 +67,10 @@ class CreateNeighboursTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         testConfig = new NeighboursTestConfig();
-        componentContainer.initialise(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer.initialise();
+
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
         graphQuery = componentContainer.get(GraphQuery.class);

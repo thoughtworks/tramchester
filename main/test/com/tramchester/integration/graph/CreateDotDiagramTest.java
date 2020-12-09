@@ -26,9 +26,9 @@ class CreateDotDiagramTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
-        IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
-        componentContainer.initialise(configuration);
+        IntegrationTramTestConfig config = new IntegrationTramTestConfig();
+        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer.initialise();
     }
 
     @BeforeEach

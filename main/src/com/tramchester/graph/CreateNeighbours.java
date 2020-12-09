@@ -46,6 +46,11 @@ public class CreateNeighbours implements Startable {
 
     @Override
     public void start() {
+        if (!config.getCreateNeighbours()) {
+            logger.warn("Create neighbours is disabled in configuration");
+            return;
+        }
+
         logger.info("Start");
         try(Transaction txn = database.beginTx()) {
             buildWithNoCommit(txn);

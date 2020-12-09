@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.TransportDataBuilderFactory;
+import com.tramchester.dataimport.TransportDataProviderFactory;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
@@ -14,7 +14,7 @@ import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestConfig;
 import org.junit.jupiter.api.Test;
 
@@ -46,10 +46,10 @@ class TramTransportDataBuilderFactoryTest {
         ProvidesNow providesNow = new ProvidesLocalNow();
         StationLocations stationLocations = new StationLocations();
 
-        TransportDataBuilderFactory transportDataImporter = new TransportDataBuilderFactory(factory, providesNow,
+        TransportDataProviderFactory transportDataImporter = new TransportDataProviderFactory(factory, providesNow,
                 stationLocations, testConfig);
 
-        TransportDataFromFilesBuilderGeoFilter builder = transportDataImporter.create();
+        TransportDataFromFiles builder = transportDataImporter.create();
         builder.load();
         TransportData transportData = builder.getData();
 

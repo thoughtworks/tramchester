@@ -21,9 +21,9 @@ class SummaryOfRoutesAndServicesTest {
     private TransportData transportData;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws Exception {
-        componentContainer = new ComponentsBuilder().create();
-        componentContainer.initialise(new IntegrationTramTestConfig());
+    static void onceBeforeAnyTestsRun() {
+        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig());
+        componentContainer.initialise();
     }
 
     @AfterAll

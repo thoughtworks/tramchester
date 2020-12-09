@@ -35,10 +35,9 @@ class TramPositionInferenceTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        componentContainer.initialise(testConfig);
-
+        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer.initialise();
     }
 
     @BeforeEach

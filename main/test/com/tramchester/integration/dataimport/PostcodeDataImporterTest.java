@@ -31,9 +31,10 @@ class PostcodeDataImporterTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         testConfig = new IntegrationTramTestConfig(); /// <= means tram stations only
-        componentContainer.initialise(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer.initialise();
+
         importer = componentContainer.get(PostcodeDataImporter.class);
         stationLocations = componentContainer.get(StationLocations.class);
     }

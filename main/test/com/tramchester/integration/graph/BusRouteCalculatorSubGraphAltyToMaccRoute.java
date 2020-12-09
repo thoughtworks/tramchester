@@ -49,9 +49,9 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(ROUTE_ID);
 
-        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create();
         TramchesterConfig config = new Config("altyMacRoute");
-        componentContainer.initialise(config);
+        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create(config);
+        componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
     }

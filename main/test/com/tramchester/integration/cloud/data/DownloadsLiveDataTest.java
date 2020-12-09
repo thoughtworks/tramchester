@@ -31,9 +31,9 @@ class DownloadsLiveDataTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
         TramchesterConfig configuration = new RealBucketConfig(new RealLiveConfig("tramchesterlivedata","uat"));
-        componentContainer.initialise(configuration);
+        componentContainer = new ComponentsBuilder().create(configuration);
+        componentContainer.initialise();
     }
 
     @AfterAll

@@ -46,8 +46,8 @@ class TransportDataFromFilesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
-        componentContainer.initialise(new IntegrationTramTestConfig());
+        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig());
+        componentContainer.initialise();
     }
 
     @AfterAll

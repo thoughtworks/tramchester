@@ -26,8 +26,8 @@ class ValidateBusTestStations {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create();
-        componentContainer.initialise(new IntegrationBusTestConfig());
+        componentContainer = new ComponentsBuilder().create(new IntegrationBusTestConfig());
+        componentContainer.initialise();
     }
 
     @AfterAll

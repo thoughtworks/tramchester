@@ -7,21 +7,21 @@ import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.repository.TransportDataFromFilesBuilderGeoFilter;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.TransportDataSource;
 
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TransportDataBuilderFactory {
+public class TransportDataProviderFactory {
 
     private final List<TransportDataReader> transportDataReaders;
     private final ProvidesNow providesNow;
     private final StationLocations stationLocations;
     private final TramchesterConfig config;
 
-    public TransportDataBuilderFactory(TransportDataLoader providesLoader, ProvidesNow providesNow,
-                                       StationLocations stationLocations, TramchesterConfig config) {
+    public TransportDataProviderFactory(TransportDataLoader providesLoader, ProvidesNow providesNow,
+                                        StationLocations stationLocations, TramchesterConfig config) {
         this.transportDataReaders = providesLoader.getReaders();
         this.providesNow = providesNow;
         this.stationLocations = stationLocations;
@@ -29,7 +29,7 @@ public class TransportDataBuilderFactory {
     }
 
     // feedinfo is not mandatory in the standard
-    public TransportDataFromFilesBuilderGeoFilter create() {
+    public TransportDataFromFiles create() {
         // streams, so no data read yet
 
         Set<String> includeAll = Collections.emptySet();
@@ -57,7 +57,7 @@ public class TransportDataBuilderFactory {
             dataStreams.add(transportDataSource);
         });
 
-        return new TransportDataFromFilesBuilderGeoFilter(dataStreams, stationLocations, config, providesNow);
+        return new TransportDataFromFiles(dataStreams, stationLocations, config, providesNow);
     }
 }
 
