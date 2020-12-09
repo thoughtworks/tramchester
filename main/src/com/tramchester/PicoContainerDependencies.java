@@ -17,7 +17,6 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.*;
 import com.tramchester.healthchecks.*;
@@ -40,8 +39,8 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class Dependencies implements ComponentContainer {
-    private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
+public class PicoContainerDependencies implements ComponentContainer {
+    private static final Logger logger = LoggerFactory.getLogger(PicoContainerDependencies.class);
 
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
 
@@ -49,7 +48,7 @@ public class Dependencies implements ComponentContainer {
 //        this(new IncludeAllFilter());
 //    }
 
-    public Dependencies(GraphFilter graphFilter) {
+    public PicoContainerDependencies(GraphFilter graphFilter) {
         picoContainer.addComponent(GraphFilter.class, graphFilter);
 
         picoContainer.addComponent(ProvidesLocalNow.class);

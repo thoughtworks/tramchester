@@ -11,7 +11,7 @@ public class ComponentsBuilder {
         return this;
     }
 
-    public Dependencies create() {
-        return new Dependencies(graphFilter);
+    public PicoContainerDependencies create() {
+        return new PicoContainerDependencies(graphFilter);
     }
 }
