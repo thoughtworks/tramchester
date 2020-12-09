@@ -1,7 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -39,7 +39,7 @@ class TramCentralZoneDirectionRespositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         componentContainer.initialise(testConfig);
     }

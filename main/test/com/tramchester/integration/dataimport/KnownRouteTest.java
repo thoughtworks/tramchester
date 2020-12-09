@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
@@ -25,7 +25,7 @@ class KnownRouteTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
     }
 

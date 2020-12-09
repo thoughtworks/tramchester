@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
@@ -46,7 +46,7 @@ class TransportDataFromFilesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
     }
 

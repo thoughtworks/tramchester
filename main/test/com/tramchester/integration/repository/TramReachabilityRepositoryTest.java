@@ -1,7 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.KnownRoute;
@@ -21,7 +21,7 @@ class TramReachabilityRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
     }
 

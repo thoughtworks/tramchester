@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -24,7 +24,7 @@ class ValidateTramTestStations {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
     }
 

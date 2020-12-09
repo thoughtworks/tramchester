@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
@@ -46,7 +46,7 @@ class RouteCalulcatorForBoundingBoxTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         testConfig = new IntegrationTramTestConfig();
         componentContainer.initialise(testConfig);
         database = componentContainer.get(GraphDatabase.class);

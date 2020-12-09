@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
@@ -49,7 +49,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(ROUTE_ID);
 
-        componentContainer = new Dependencies(graphFilter);
+        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create();
         TramchesterConfig config = new Config("altyMacRoute");
         componentContainer.initialise(config);
 

@@ -1,7 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -54,7 +54,7 @@ class GraphWithSimpleRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
 
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 

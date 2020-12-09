@@ -45,9 +45,9 @@ public class Dependencies implements ComponentContainer {
 
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
 
-    public Dependencies() {
-        this(new IncludeAllFilter());
-    }
+//    public Dependencies() {
+//        this(new IncludeAllFilter());
+//    }
 
     public Dependencies(GraphFilter graphFilter) {
         picoContainer.addComponent(GraphFilter.class, graphFilter);

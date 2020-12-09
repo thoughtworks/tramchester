@@ -1,7 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.KnownRoute;
@@ -28,7 +28,7 @@ class RouteCallingStationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
         repo = componentContainer.get(RouteCallingStations.class);
         transportData = componentContainer.get(TransportData.class);

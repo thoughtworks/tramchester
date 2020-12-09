@@ -4,7 +4,7 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
@@ -37,7 +37,7 @@ class LiveDataHTTPFetcherTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         configuration = new IntegrationTramTestConfig();
         componentContainer.initialise(configuration);
         // don't want to fetch every time

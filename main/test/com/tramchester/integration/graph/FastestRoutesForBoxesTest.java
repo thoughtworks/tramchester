@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -38,7 +38,7 @@ class FastestRoutesForBoxesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         IntegrationTramTestConfig config = new IntegrationTramTestConfig();
         componentContainer.initialise(config);
     }

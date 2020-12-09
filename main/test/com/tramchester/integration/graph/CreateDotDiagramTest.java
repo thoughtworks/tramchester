@@ -2,7 +2,7 @@ package com.tramchester.integration.graph;
 
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
@@ -26,7 +26,7 @@ class CreateDotDiagramTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
         componentContainer.initialise(configuration);
     }

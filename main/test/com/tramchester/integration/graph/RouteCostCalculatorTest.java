@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
@@ -21,7 +21,7 @@ class RouteCostCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         TramchesterConfig config = new IntegrationTramTestConfig();
         componentContainer.initialise(config);
     }

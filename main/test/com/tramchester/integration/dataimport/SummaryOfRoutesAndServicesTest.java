@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
@@ -22,7 +22,7 @@ class SummaryOfRoutesAndServicesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
     }
 

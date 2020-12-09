@@ -46,7 +46,7 @@ public class App extends Application<AppConfiguration>  {
     private final ComponentContainer container;
 
     public App() {
-        this.container = new Dependencies();
+        this.container = new ComponentsBuilder().create();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
@@ -24,7 +24,7 @@ class TrainDataLoadSpike {
     static void beforeClass() {
         TramchesterConfig testConfig = new IntegrationTrainTestConfig();
 
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(testConfig);
     }
 

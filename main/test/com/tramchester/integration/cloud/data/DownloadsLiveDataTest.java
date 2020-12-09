@@ -1,7 +1,7 @@
 package com.tramchester.integration.cloud.data;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.cloud.data.DownloadsLiveData;
 import com.tramchester.config.LiveDataConfig;
@@ -31,7 +31,7 @@ class DownloadsLiveDataTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         TramchesterConfig configuration = new RealBucketConfig(new RealLiveConfig("tramchesterlivedata","uat"));
         componentContainer.initialise(configuration);
     }

@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
@@ -32,7 +32,7 @@ class TramRouteReachableTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         TramchesterConfig config = new IntegrationTramTestConfig();
         componentContainer.initialise(config);
     }

@@ -1,7 +1,7 @@
 package com.tramchester.integration.geo;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
@@ -24,7 +24,7 @@ class BusStationsLocationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         testConfig = new IntegrationBusTestConfig();
         componentContainer.initialise(testConfig);
     }

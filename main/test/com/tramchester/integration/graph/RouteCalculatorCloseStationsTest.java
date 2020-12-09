@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
@@ -42,7 +42,7 @@ class RouteCalculatorCloseStationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         TramchesterConfig config = new ClosedStationsTramTestConfig();
         componentContainer.initialise(config);
         database = componentContainer.get(GraphDatabase.class);

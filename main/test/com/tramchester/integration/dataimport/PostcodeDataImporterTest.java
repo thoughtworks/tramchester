@@ -1,7 +1,7 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.domain.places.Station;
@@ -31,7 +31,7 @@ class PostcodeDataImporterTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         testConfig = new IntegrationTramTestConfig(); /// <= means tram stations only
         componentContainer.initialise(testConfig);
         importer = componentContainer.get(PostcodeDataImporter.class);

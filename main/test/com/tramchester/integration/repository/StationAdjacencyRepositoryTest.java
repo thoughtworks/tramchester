@@ -1,7 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
@@ -23,7 +23,7 @@ class StationAdjacencyRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
     }
 

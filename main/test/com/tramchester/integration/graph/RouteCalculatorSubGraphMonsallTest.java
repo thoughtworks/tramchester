@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.domain.time.TramServiceDate;
@@ -37,7 +37,7 @@ class RouteCalculatorSubGraphMonsallTest {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(KnownRoute.EDidsburyManchesterRochdale.getId());
 
-        componentContainer = new Dependencies(graphFilter);
+        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create();
         config = new SubgraphConfig();
         componentContainer.initialise(config);
 

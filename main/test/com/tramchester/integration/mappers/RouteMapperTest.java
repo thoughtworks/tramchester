@@ -1,7 +1,7 @@
 package com.tramchester.integration.mappers;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
@@ -25,7 +25,7 @@ class RouteMapperTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         componentContainer.initialise(testConfig);
     }

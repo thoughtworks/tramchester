@@ -1,7 +1,7 @@
 package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.reference.TransportMode;
@@ -48,7 +48,7 @@ class PostcodeBusRouteCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         testConfig = new BusWithPostcodesEnabled();
         componentContainer.initialise(testConfig);
         database = componentContainer.get(GraphDatabase.class);

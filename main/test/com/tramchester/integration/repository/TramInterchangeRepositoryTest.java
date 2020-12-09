@@ -1,7 +1,7 @@
 package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.Dependencies;
+import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
@@ -15,7 +15,7 @@ class TramInterchangeRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new Dependencies();
+        componentContainer = new ComponentsBuilder().create();
         componentContainer.initialise(new IntegrationTramTestConfig());
     }
 
