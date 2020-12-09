@@ -56,14 +56,14 @@ class GraphWithSimpleRouteTest {
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
         config = new SimpleGraphConfig();
-
         componentContainer = new ComponentsBuilder().create(config);
+
+        FileUtils.deleteDirectory(config.getDBPath().toFile());
 
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 
-        TransportDataForTestProvider provider = new TransportDataForTestProvider(stationLocations, componentContainer.get(ProvidesNow.class));
-
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
+        TransportDataForTestProvider provider = new TransportDataForTestProvider(stationLocations, providesNow);
 
         componentContainer.initialise(provider);
         transportData = (TransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);

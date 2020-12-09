@@ -7,6 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.mappers.RoutesMapper;
 import org.picocontainer.Disposable;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class TramReachabilityRepository implements Disposable {
+public class TramReachabilityRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
     private final RouteReachable routeReachable;
@@ -37,7 +38,17 @@ public class TramReachabilityRepository implements Disposable {
         tramStationIndexing.clear();
     }
 
-    public void buildRepository() {
+    @Override
+    public void start() {
+        buildRepository();
+    }
+
+    @Override
+    public void stop() {
+        // no-op
+    }
+
+    private void buildRepository() {
         logger.info("Build repository");
 
         Set<RouteStation> routeStations = transportData.getRouteStations().stream().
@@ -86,5 +97,6 @@ public class TramReachabilityRepository implements Disposable {
         }
         return matrix.get(routeStationId)[index];
     }
+
 
 }

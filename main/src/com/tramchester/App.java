@@ -3,7 +3,10 @@ package com.tramchester;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.HealthCheckServlet;
-import com.tramchester.cloud.*;
+import com.tramchester.cloud.CloudWatchReporter;
+import com.tramchester.cloud.ConfigFromInstanceUserData;
+import com.tramchester.cloud.SendMetricsToCloudWatch;
+import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.cloud.data.UploadsLiveData;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.LiveDataConfig;
@@ -101,6 +104,7 @@ public class App extends Application<AppConfiguration>  {
     @Override
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
+
         this.container = new ComponentsBuilder().create(configuration);
 
         try {

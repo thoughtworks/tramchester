@@ -2,7 +2,10 @@ package com.tramchester;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import com.tramchester.cloud.*;
+import com.tramchester.cloud.ConfigFromInstanceUserData;
+import com.tramchester.cloud.FetchInstanceMetadata;
+import com.tramchester.cloud.SendMetricsToCloudWatch;
+import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.cloud.data.*;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
@@ -30,10 +33,13 @@ import com.tramchester.router.ProcessPlanRequest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.Caching;
+import org.picocontainer.injectors.FactoryInjector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +51,96 @@ public class PicoContainerDependencies implements ComponentContainer {
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
 
     public PicoContainerDependencies(GraphFilter graphFilter, TramchesterConfig configuration) {
+        logger.info("Creating dependencies");
+
         picoContainer.addComponent(TramchesterConfig.class, configuration);
         picoContainer.addComponent(GraphFilter.class, graphFilter);
+        picoContainer.addComponent(DefaultDataLoadStrategy.class);
+
+        registerComponents();
+    }
+
+    @Override
+    public void initialise() {
+        DefaultDataLoadStrategy defaultDataStrategy = picoContainer.getComponent(DefaultDataLoadStrategy.class);
+        initialise(defaultDataStrategy.getProvider());
+    }
+
+    @Override
+    public void initialise(TransportDataProvider transportDataProvider) {
+        logger.info("initialise");
+
+        picoContainer.addAdapter(new FactoryInjector<TransportData>() {
+            @Override
+            public TransportData getComponentInstance(PicoContainer container, Type into) {
+                return transportDataProvider.getData();
+            }
+        });
+
+        if (logger.isDebugEnabled()) {
+            logger.warn("Debug logging is enabled, server performance will be impacted");
+        }
+        
+        logger.info("Start components");
+        picoContainer.start();
+    }
+
+    @Override
+    public <T> T get(Class<T> klass) {
+
+        T component = picoContainer.getComponent(klass);
+        if (component==null) {
+            logger.warn("Missing dependency " + klass);
+        }
+        return component;
+    }
+
+    @Override
+    public List<APIResource> getResources() {
+        return picoContainer.getComponents(APIResource.class);
+    }
+
+    @Override
+    public void close() {
+        logger.info("Dependencies close");
+
+        logger.info("Begin cache stats");
+        List<ReportsCacheStats> components = getReportCacheStats();
+        components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
+        logger.info("End cache stats");
+
+        logger.info("Components stop");
+        picoContainer.stop();
+        logger.info("Components dispose");
+        picoContainer.dispose();
+
+        logger.info("Dependencies closed");
+        System.gc(); // for tests which accumulate/free a lot of memory
+    }
+
+    private List<ReportsCacheStats> getReportCacheStats() {
+        return picoContainer.getComponents(ReportsCacheStats.class);
+    }
+
+    private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {
+        stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
+    }
+
+    @Override
+    public List<TramchesterHealthCheck> getHealthChecks() {
+        List<TramchesterHealthCheck> healthChecks = new ArrayList<>(picoContainer.getComponents(TramchesterHealthCheck.class));
+        List<HealthCheckFactory> healthCheckFactorys = picoContainer.getComponents(HealthCheckFactory.class);
+        healthCheckFactorys.forEach(healthCheckFactory -> healthChecks.addAll(healthCheckFactory.getHealthChecks()));
+
+        return healthChecks;
+    }
+
+    @Override
+    public List<ReportsCacheStats> getHasCacheStat() {
+        return picoContainer.getComponents(ReportsCacheStats.class);
+    }
+
+    private void registerComponents() {
         picoContainer.addComponent(ProvidesLocalNow.class);
         picoContainer.addComponent(StationLocations.class);
         picoContainer.addComponent(PostcodeBoundingBoxs.class);
@@ -54,35 +148,8 @@ public class PicoContainerDependencies implements ComponentContainer {
         picoContainer.addComponent(Unzipper.class);
         picoContainer.addComponent(URLDownloadAndModTime.class);
         picoContainer.addComponent(FetchFileModTime.class);
-
-    }
-
-    // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
-    @Override
-    public void initialise() {
-        // caching is on by default
         picoContainer.addComponent(TransportDataReaderFactory.class);
         picoContainer.addComponent(FetchDataFromUrl.class);
-        picoContainer.addComponent(TransportDataProviderFactory.class);
-
-        FetchDataFromUrl fetcher = get(FetchDataFromUrl.class);
-        Unzipper unzipper = get(Unzipper.class);
-        fetcher.fetchData(unzipper);
-
-        TransportDataProviderFactory providerFactory = get(TransportDataProviderFactory.class);
-        TransportDataFromFiles provider = providerFactory.create();
-        provider.load();
-
-        initialise(provider);
-    }
-
-    // init dependencies but possibly with alternative source of transport data
-    @Override
-    public void initialise(TransportDataProvider transportDataProvider) {
-        logger.info("Creating dependencies");
-
-        picoContainer.addComponent(TransportData.class, transportDataProvider.getData());
-
         picoContainer.addComponent(PostcodeRepository.class);
         picoContainer.addComponent(VersionRepository.class);
         picoContainer.addComponent(StationResource.class);
@@ -158,69 +225,7 @@ public class PicoContainerDependencies implements ComponentContainer {
         picoContainer.addComponent(RouteCallingStations.class);
         picoContainer.addComponent(TramCentralZoneDirectionRespository.class);
         picoContainer.addComponent(CreateNeighbours.class);
-
-        if (logger.isDebugEnabled()) {
-            logger.warn("Debug logging is enabled, server performance will be impacted");
-        }
-        logger.info("Start components");
-        picoContainer.start();
-
-        TramReachabilityRepository tramReachabilityRepository = get(TramReachabilityRepository.class);
-        tramReachabilityRepository.buildRepository();
+        picoContainer.addComponent(TransportDataProviderFactory.class);
     }
 
-    @Override
-    public <T> T get(Class<T> klass) {
-
-        T component = picoContainer.getComponent(klass);
-        if (component==null) {
-            logger.warn("Missing dependency " + klass);
-        }
-        return component;
-    }
-
-    @Override
-    public List<APIResource> getResources() {
-        return picoContainer.getComponents(APIResource.class);
-    }
-
-    @Override
-    public void close() {
-        logger.info("Dependencies close");
-
-        logger.info("Begin cache stats");
-        List<ReportsCacheStats> components = getReportCacheStats();
-        components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
-        logger.info("End cache stats");
-
-        logger.info("Components stop");
-        picoContainer.stop();
-        logger.info("Components dispose");
-        picoContainer.dispose();
-
-        logger.info("Dependencies closed");
-        System.gc(); // for tests which accumulate/free a lot of memory
-    }
-
-    private List<ReportsCacheStats> getReportCacheStats() {
-        return picoContainer.getComponents(ReportsCacheStats.class);
-    }
-
-    private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {
-        stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
-    }
-
-    @Override
-    public List<TramchesterHealthCheck> getHealthChecks() {
-        List<TramchesterHealthCheck> healthChecks = new ArrayList<>(picoContainer.getComponents(TramchesterHealthCheck.class));
-        List<HealthCheckFactory> healthCheckFactorys = picoContainer.getComponents(HealthCheckFactory.class);
-        healthCheckFactorys.forEach(healthCheckFactory -> healthChecks.addAll(healthCheckFactory.getHealthChecks()));
-
-        return healthChecks;
-    }
-
-    @Override
-    public List<ReportsCacheStats> getHasCacheStat() {
-        return picoContainer.getComponents(ReportsCacheStats.class);
-    }
 }
