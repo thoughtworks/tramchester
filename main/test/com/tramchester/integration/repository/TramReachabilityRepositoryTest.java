@@ -1,5 +1,6 @@
 package com.tramchester.integration.repository;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
@@ -16,22 +17,22 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 
 class TramReachabilityRepositoryTest {
     private TramReachabilityRepository repository;
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        repository = dependencies.get(TramReachabilityRepository.class);
+        repository = componentContainer.get(TramReachabilityRepository.class);
     }
 
     @Test

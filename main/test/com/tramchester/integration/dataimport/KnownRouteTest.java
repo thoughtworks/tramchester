@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -20,22 +21,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class KnownRouteTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @Test
     void shouldHaveCorrespondanceWithLoadedRoutes() {
-        RouteRepository routeRepository = dependencies.get(RouteRepository.class);
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
         Set<Route> loadedRoutes = routeRepository.getRoutes();
         List<KnownRoute> routes = Arrays.asList(KnownRoute.values());

@@ -1,5 +1,6 @@
 package com.tramchester.integration.repository;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
@@ -15,26 +16,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 class StationAdjacencyRepositoryTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private TramStationAdjacenyRepository repository;
     private TransportData transportDataSource;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        transportDataSource = dependencies.get(TransportData.class);
-        repository = dependencies.get(TramStationAdjacenyRepository.class);
+        transportDataSource = componentContainer.get(TransportData.class);
+        repository = componentContainer.get(TramStationAdjacenyRepository.class);
     }
 
     @Test

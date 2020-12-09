@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.reference.KnownRoute;
@@ -23,7 +24,7 @@ import java.util.Set;
 import static java.lang.String.format;
 
 class RouteCalculatorSubGraphMonsallTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
 
@@ -36,23 +37,23 @@ class RouteCalculatorSubGraphMonsallTest {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(KnownRoute.EDidsburyManchesterRochdale.getId());
 
-        dependencies = new Dependencies(graphFilter);
+        componentContainer = new Dependencies(graphFilter);
         config = new SubgraphConfig();
-        dependencies.initialise(config);
+        componentContainer.initialise(config);
 
-        database = dependencies.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationRepository stationRepository = dependencies.get(StationRepository.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
-        calculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class), stationRepository, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
     }
 

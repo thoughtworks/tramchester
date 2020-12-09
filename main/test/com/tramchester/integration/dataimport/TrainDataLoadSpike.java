@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
@@ -16,25 +17,25 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainDataLoadSpike {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private TransportData data;
 
     @BeforeAll
     static void beforeClass() {
         TramchesterConfig testConfig = new IntegrationTrainTestConfig();
 
-        dependencies = new Dependencies();
-        dependencies.initialise(testConfig);
+        componentContainer = new Dependencies();
+        componentContainer.initialise(testConfig);
     }
 
     @AfterAll
     static void afterClass() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        data = dependencies.get(TransportData.class);
+        data = componentContainer.get(TransportData.class);
     }
 
     @Test

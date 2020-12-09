@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -59,35 +60,35 @@ class CreateNeighboursTest {
         }
     }
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
     private static GraphQuery graphQuery;
     private static Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new NeighboursTestConfig();
-        dependencies.initialise(testConfig);
-        GraphDatabase database = dependencies.get(GraphDatabase.class);
+        componentContainer.initialise(testConfig);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        graphQuery = dependencies.get(GraphQuery.class);
-        stationRepository = dependencies.get(StationRepository.class);
-        StationLocationsRepository stationLocations = dependencies.get(StationLocationsRepository.class);
+        graphQuery = componentContainer.get(GraphQuery.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        StationLocationsRepository stationLocations = componentContainer.get(StationLocationsRepository.class);
 
         txn = database.beginTx();
 
         CreateNeighbours createNeighbours = new CreateNeighbours(database, new IncludeAllFilter(), graphQuery, stationRepository, stationLocations, testConfig);
         createNeighbours.buildWithNoCommit(txn);
 
-        routeCalculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class),
+        routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class),
                 stationRepository, txn);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
         txn.rollback();
-        dependencies.close();
+        componentContainer.close();
     }
 
     @Test

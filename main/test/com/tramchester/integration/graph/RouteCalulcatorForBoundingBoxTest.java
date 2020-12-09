@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
@@ -33,7 +34,7 @@ class RouteCalulcatorForBoundingBoxTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static IntegrationTramTestConfig testConfig;
 
@@ -45,23 +46,23 @@ class RouteCalulcatorForBoundingBoxTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabase.class);
+        componentContainer.initialise(testConfig);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        calculator = dependencies.get(RouteCalculator.class);
-        stationLocations = dependencies.get(StationLocations.class);
-        stationRepository = dependencies.get(StationRepository.class);
+        calculator = componentContainer.get(RouteCalculator.class);
+        stationLocations = componentContainer.get(StationLocations.class);
+        stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @AfterEach

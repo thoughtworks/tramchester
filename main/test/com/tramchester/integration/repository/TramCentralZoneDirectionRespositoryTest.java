@@ -1,5 +1,6 @@
 package com.tramchester.integration.repository;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.RouteStation;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class TramCentralZoneDirectionRespositoryTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private TramCentralZoneDirectionRespository repository;
     private StationRepository stationRepository;
     private RouteCallingStations routeCallingStations;
@@ -38,22 +39,22 @@ class TramCentralZoneDirectionRespositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
+        componentContainer.initialise(testConfig);
     }
 
     @AfterAll
     static void onceAfterAllTestsHaveRun() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeAnyTestsRun() {
-        repository = dependencies.get(TramCentralZoneDirectionRespository.class);
-        stationRepository = dependencies.get(StationRepository.class);
-        routeCallingStations = dependencies.get(RouteCallingStations.class);
-        routeRepository = dependencies.get(RouteRepository.class);
+        repository = componentContainer.get(TramCentralZoneDirectionRespository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        routeCallingStations = componentContainer.get(RouteCallingStations.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
     }
 
     @Test

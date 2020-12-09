@@ -1,5 +1,6 @@
 package com.tramchester.integration.repository;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
@@ -21,21 +22,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteCallingStationsTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static RouteCallingStations repo;
     private static TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
-        repo = dependencies.get(RouteCallingStations.class);
-        transportData = dependencies.get(TransportData.class);
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationTramTestConfig());
+        repo = componentContainer.get(RouteCallingStations.class);
+        transportData = componentContainer.get(TransportData.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
@@ -17,7 +18,7 @@ import static com.tramchester.testSupport.reference.BusStations.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCostCalculatorTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private Transaction txn;
     private RouteCostCalculator routeCost;
@@ -25,21 +26,21 @@ class BusRouteCostCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         TramchesterConfig config = new IntegrationBusTestConfig();
-        dependencies.initialise(config);
+        componentContainer.initialise(config);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        routeCost = dependencies.get(RouteCostCalculator.class);
-        stationRepository = dependencies.get(StationRepository.class);
-        GraphDatabase database = dependencies.get(GraphDatabase.class);
+        routeCost = componentContainer.get(RouteCostCalculator.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
     }
 

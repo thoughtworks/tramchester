@@ -1,5 +1,6 @@
 package com.tramchester.integration.repository;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -24,23 +25,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusInterchangeRepositoryTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private InterchangeRepository repository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationBusTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationBusTestConfig());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        repository = dependencies.get(InterchangeRepository.class);
+        repository = componentContainer.get(InterchangeRepository.class);
     }
 
     @Test

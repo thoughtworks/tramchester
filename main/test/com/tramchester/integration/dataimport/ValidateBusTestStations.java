@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
@@ -19,24 +20,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class ValidateBusTestStations {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private StationRepository transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationBusTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationBusTestConfig());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(StationRepository.class);
+        transportData = componentContainer.get(StationRepository.class);
     }
 
     @Test

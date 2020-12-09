@@ -1,5 +1,6 @@
 package com.tramchester.integration.mappers;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
@@ -20,23 +21,23 @@ import java.util.List;
 import static com.tramchester.domain.reference.KnownRoute.ManchesterAirportVictoria;
 
 class RouteMapperTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
+        componentContainer.initialise(testConfig);
     }
 
     @AfterAll
     static void onceAfterAllTestsHaveRun() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @Test
     void shouldGetRouteStationsInCorrectOrder() {
-        RoutesMapper mapper = dependencies.get(RoutesMapper.class);
+        RoutesMapper mapper = componentContainer.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
         Route route = RoutesForTesting.createTramRoute(ManchesterAirportVictoria);

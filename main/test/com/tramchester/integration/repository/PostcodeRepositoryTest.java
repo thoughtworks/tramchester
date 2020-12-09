@@ -1,5 +1,6 @@
 package com.tramchester.integration.repository;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -13,23 +14,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class PostcodeRepositoryTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private PostcodeRepository repository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new TramWithPostcodesEnabled());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new TramWithPostcodesEnabled());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        repository = dependencies.get(PostcodeRepository.class);
+        repository = componentContainer.get(PostcodeRepository.class);
     }
 
     @Test

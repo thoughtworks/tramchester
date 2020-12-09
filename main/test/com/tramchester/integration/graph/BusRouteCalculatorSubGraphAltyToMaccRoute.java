@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
@@ -35,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static final IdFor<Route> ROUTE_ID = IdFor.createId("DGC:  88:O:");
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
     private RouteCalculatorTestFacade calculator;
@@ -48,24 +49,24 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(ROUTE_ID);
 
-        dependencies = new Dependencies(graphFilter);
+        componentContainer = new Dependencies(graphFilter);
         TramchesterConfig config = new Config("altyMacRoute");
-        dependencies.initialise(config);
+        componentContainer.initialise(config);
 
-        database = dependencies.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        TransportData transportData = dependencies.get(TransportData.class);
-        RouteCallingStations routeCallingStations = dependencies.get(RouteCallingStations.class);
+        TransportData transportData = componentContainer.get(TransportData.class);
+        RouteCallingStations routeCallingStations = componentContainer.get(RouteCallingStations.class);
         txn = database.beginTx();
-        calculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class), transportData, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), transportData, txn);
 
         when = new TramServiceDate(TestEnv.testDay());
         Route route = transportData.getRouteById(ROUTE_ID);

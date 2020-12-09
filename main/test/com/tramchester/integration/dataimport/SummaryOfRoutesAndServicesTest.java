@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
@@ -15,24 +16,24 @@ import static java.lang.String.format;
 
 class SummaryOfRoutesAndServicesTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws Exception {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(TransportData.class);
+        transportData = componentContainer.get(TransportData.class);
     }
 
     @Test

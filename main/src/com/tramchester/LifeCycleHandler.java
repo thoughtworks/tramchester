@@ -10,10 +10,10 @@ import java.util.concurrent.ScheduledExecutorService;
 public class LifeCycleHandler implements LifeCycle.Listener {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
-    private final Dependencies dependencies;
+    private final ComponentContainer dependencies;
     private final ScheduledExecutorService executor;
 
-    public LifeCycleHandler(Dependencies dependencies, ScheduledExecutorService executor) {
+    public LifeCycleHandler(ComponentContainer dependencies, ScheduledExecutorService executor) {
         this.dependencies = dependencies;
         this.executor = executor;
     }

@@ -3,6 +3,7 @@ package com.tramchester.integration.livedata;
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.Lines;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LiveDataHTTPFetcherTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static LiveDataHTTPFetcher fetcher;
     private static String payload;
     private static IntegrationTramTestConfig configuration;
@@ -36,23 +37,23 @@ class LiveDataHTTPFetcherTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         configuration = new IntegrationTramTestConfig();
-        dependencies.initialise(configuration);
+        componentContainer.initialise(configuration);
         // don't want to fetch every time
-        fetcher = dependencies.get(LiveDataHTTPFetcher.class);
+        fetcher = componentContainer.get(LiveDataHTTPFetcher.class);
         payload = fetcher.fetch();
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(TransportData.class);
-        parser = dependencies.get(LiveDataParser.class);
+        transportData = componentContainer.get(TransportData.class);
+        parser = componentContainer.get(LiveDataParser.class);
     }
 
     @Test

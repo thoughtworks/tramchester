@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
@@ -13,28 +14,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteCostCalculatorTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private GraphDatabase database;
     private RouteCostCalculator routeCostCalc;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         TramchesterConfig config = new IntegrationTramTestConfig();
-        dependencies.initialise(config);
+        componentContainer.initialise(config);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
 
-        routeCostCalc = dependencies.get(RouteCostCalculator.class);
-        database = dependencies.get(GraphDatabase.class);
+        routeCostCalc = componentContainer.get(RouteCostCalculator.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @Test

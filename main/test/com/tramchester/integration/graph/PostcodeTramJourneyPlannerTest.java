@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.reference.TransportMode;
@@ -38,7 +39,7 @@ class PostcodeTramJourneyPlannerTest {
 
     private static final int TXN_TIMEOUT = 5*60;
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
     private static final LocalDate when = TestEnv.testDay();
@@ -52,23 +53,23 @@ class PostcodeTramJourneyPlannerTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new TramWithPostcodesEnabled();
-        dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabase.class);
+        componentContainer.initialise(testConfig);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        StationRepository stationRepository = dependencies.get(StationRepository.class);
-        planner =  new LocationJourneyPlannerTestFacade(dependencies.get(LocationJourneyPlanner.class), stationRepository, txn);
-        repository = dependencies.get(PostcodeRepository.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        planner =  new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
+        repository = componentContainer.get(PostcodeRepository.class);
         centralLocation = repository.getPostcode(Postcodes.NearPiccadillyGardens.getId());
     }
 

@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
@@ -24,27 +25,27 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteReachableTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private RouteReachable reachable;
     private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         TramchesterConfig config = new IntegrationTramTestConfig();
-        dependencies.initialise(config);
+        componentContainer.initialise(config);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationRepository = dependencies.get(StationRepository.class);
-        reachable = dependencies.get(RouteReachable.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        reachable = componentContainer.get(RouteReachable.class);
     }
 
     @Test

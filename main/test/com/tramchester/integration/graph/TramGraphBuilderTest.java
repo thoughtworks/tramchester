@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
@@ -32,7 +33,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 
 class TramGraphBuilderTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private TransportData transportData;
     private Transaction txn;
@@ -41,17 +42,17 @@ class TramGraphBuilderTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
+        componentContainer.initialise(testConfig);
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        graphQuery = dependencies.get(GraphQuery.class);
-        transportData = dependencies.get(TransportData.class);
-        stationRepository = dependencies.get(StationRepository.class);
-        GraphDatabase service = dependencies.get(GraphDatabase.class);
+        graphQuery = componentContainer.get(GraphQuery.class);
+        transportData = componentContainer.get(TransportData.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        GraphDatabase service = componentContainer.get(GraphDatabase.class);
         txn = service.beginTx();
     }
 
@@ -62,7 +63,7 @@ class TramGraphBuilderTest {
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @Test

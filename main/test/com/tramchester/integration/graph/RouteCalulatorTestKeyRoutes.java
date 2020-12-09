@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalulatorTestKeyRoutes {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
     private static GraphDatabase database;
 
@@ -39,21 +40,21 @@ class RouteCalulatorTestKeyRoutes {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabase.class);
+        componentContainer.initialise(testConfig);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationRepository = dependencies.get(StationRepository.class);
-        calculator = dependencies.get(RouteCalculator.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        calculator = componentContainer.get(RouteCalculator.class);
     }
 
     @Test

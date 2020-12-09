@@ -1,5 +1,6 @@
 package com.tramchester.integration.livedata;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
@@ -18,7 +19,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LiveDataUpdaterTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private PlatformMessageRepository messageRepo;
 
@@ -26,20 +27,20 @@ public class LiveDataUpdaterTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationTramTestConfig());
         // don't want to fetch every time
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        messageRepo = dependencies.get(PlatformMessageRepository.class);
-        LiveDataUpdater liveDataUpdater = dependencies.get(LiveDataUpdater.class);
+        messageRepo = componentContainer.get(PlatformMessageRepository.class);
+        LiveDataUpdater liveDataUpdater = componentContainer.get(LiveDataUpdater.class);
         liveDataUpdater.refreshRespository();
     }
 

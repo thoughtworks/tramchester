@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class PostcodeDataImporterTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static PostcodeDataImporter importer;
     private static StationLocations stationLocations;
     private static IntegrationTramTestConfig testConfig;
@@ -30,16 +31,16 @@ class PostcodeDataImporterTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new IntegrationTramTestConfig(); /// <= means tram stations only
-        dependencies.initialise(testConfig);
-        importer = dependencies.get(PostcodeDataImporter.class);
-        stationLocations = dependencies.get(StationLocations.class);
+        componentContainer.initialise(testConfig);
+        importer = componentContainer.get(PostcodeDataImporter.class);
+        stationLocations = componentContainer.get(StationLocations.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach

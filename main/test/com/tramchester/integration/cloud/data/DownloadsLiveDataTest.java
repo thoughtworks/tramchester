@@ -1,5 +1,6 @@
 package com.tramchester.integration.cloud.data;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.cloud.data.DownloadsLiveData;
@@ -24,26 +25,26 @@ class DownloadsLiveDataTest {
     private static final String PREFIX = "uat/20200227/";
     private static final int NUM_KEYS_FOR_PREFIX = 7844; // from s3 console, historical so should not change
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private DownloadsLiveData downloader;
     private ClientForS3 clientForS3;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         TramchesterConfig configuration = new RealBucketConfig(new RealLiveConfig("tramchesterlivedata","uat"));
-        dependencies.initialise(configuration);
+        componentContainer.initialise(configuration);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTest() {
-        downloader = dependencies.get(DownloadsLiveData.class);
-        clientForS3 = dependencies.get(ClientForS3.class);
+        downloader = componentContainer.get(DownloadsLiveData.class);
+        clientForS3 = componentContainer.get(ClientForS3.class);
     }
 
     @Test

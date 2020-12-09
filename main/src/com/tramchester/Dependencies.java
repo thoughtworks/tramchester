@@ -40,7 +40,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public class Dependencies {
+public class Dependencies implements ComponentContainer {
     private static final Logger logger = LoggerFactory.getLogger(Dependencies.class);
 
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
@@ -63,6 +63,7 @@ public class Dependencies {
     }
 
     // load data from files, see below for version that can be used for testing injecting alternative TransportDataSource
+    @Override
     public void initialise(TramchesterConfig configuration) {
         // caching is on by default
         picoContainer.addComponent(TramchesterConfig.class, configuration);
@@ -83,6 +84,7 @@ public class Dependencies {
     }
 
     // init dependencies but possibly with alternative source of transport data
+    @Override
     public void initialise(TramchesterConfig configuration, TransportData transportData) {
         logger.info("Creating dependencies");
 
@@ -180,6 +182,7 @@ public class Dependencies {
         tramReachabilityRepository.buildRepository();
     }
 
+    @Override
     public <T> T get(Class<T> klass) {
 
         T component = picoContainer.getComponent(klass);
@@ -189,10 +192,12 @@ public class Dependencies {
         return component;
     }
 
+    @Override
     public List<APIResource> getResources() {
         return picoContainer.getComponents(APIResource.class);
     }
 
+    @Override
     public void close() {
         logger.info("Dependencies close");
 
@@ -218,6 +223,7 @@ public class Dependencies {
         stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
     }
 
+    @Override
     public List<TramchesterHealthCheck> getHealthChecks() {
         List<TramchesterHealthCheck> healthChecks = new ArrayList<>(picoContainer.getComponents(TramchesterHealthCheck.class));
         List<HealthCheckFactory> healthCheckFactorys = picoContainer.getComponents(HealthCheckFactory.class);
@@ -226,6 +232,7 @@ public class Dependencies {
         return healthChecks;
     }
 
+    @Override
     public List<ReportsCacheStats> getHasCacheStat() {
         return picoContainer.getComponents(ReportsCacheStats.class);
     }

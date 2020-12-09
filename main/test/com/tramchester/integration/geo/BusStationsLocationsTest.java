@@ -1,5 +1,6 @@
 package com.tramchester.integration.geo;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationLocations;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusStationsLocationsTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
 
     private StationLocations stationLocations;
@@ -23,20 +24,20 @@ class BusStationsLocationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new IntegrationBusTestConfig();
-        dependencies.initialise(testConfig);
+        componentContainer.initialise(testConfig);
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationLocations = dependencies.get(StationLocations.class);
+        stationLocations = componentContainer.get(StationLocations.class);
         nearestStopRangeKM = testConfig.getNearestStopForWalkingRangeKM();
     }
 
     @AfterAll
     static void afterEachTestRuns() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     //

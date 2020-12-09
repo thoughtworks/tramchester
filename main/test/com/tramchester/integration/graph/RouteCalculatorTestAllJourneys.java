@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
@@ -30,7 +31,7 @@ import static java.lang.String.format;
 
 class RouteCalculatorTestAllJourneys {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
     private static final boolean circleCi = TestEnv.isCircleci();
@@ -41,27 +42,27 @@ class RouteCalculatorTestAllJourneys {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabase.class);
+        componentContainer.initialise(testConfig);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        calculator = dependencies.get(RouteCalculator.class);
+        calculator = componentContainer.get(RouteCalculator.class);
     }
 
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
         Assumptions.assumeFalse(circleCi);
 
-        TransportData data = dependencies.get(TransportData.class);
+        TransportData data = componentContainer.get(TransportData.class);
 
         Set<Station> allStations = data.getStations();
 

@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.reference.TransportMode;
@@ -34,7 +35,7 @@ public class RouteCalculatorTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static IntegrationTramTestConfig config;
     private final int maxChanges = 3;
@@ -46,22 +47,22 @@ public class RouteCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         config = new IntegrationTramTestConfig();
-        dependencies.initialise(config);
-        database = dependencies.get(GraphDatabase.class);
+        componentContainer.initialise(config);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        StationRepository stationRepository = dependencies.get(StationRepository.class);
-        calculator = new RouteCalculatorTestFacade(dependencies.get(RouteCalculator.class), stationRepository, txn);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
         maxJourneyDuration = config.getMaxJourneyDuration();
     }
 

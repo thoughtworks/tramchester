@@ -1,6 +1,7 @@
 package com.tramchester.integration.graph;
 
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.places.Station;
@@ -20,24 +21,24 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 
 class CreateDotDiagramTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private GraphDatabase database;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         IntegrationTramTestConfig configuration = new IntegrationTramTestConfig();
-        dependencies.initialise(configuration);
+        componentContainer.initialise(configuration);
     }
 
     @BeforeEach
     void beforeEachOfTheTestsRun() {
-        database = dependencies.get(GraphDatabase.class);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @Test

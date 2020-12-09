@@ -1,5 +1,6 @@
 package com.tramchester.integration.mappers;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -30,26 +31,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class RouteToLineMapperTest {
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private StationRepository repository;
     private RouteToLineMapper mapper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
+        componentContainer.initialise(testConfig);
     }
 
     @AfterAll
     static void onceAfterAllTestsHaveRun() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeAnyTestsRun() {
-        repository = dependencies.get(TransportData.class);
-        mapper = dependencies.get(RouteToLineMapper.class);
+        repository = componentContainer.get(TransportData.class);
+        mapper = componentContainer.get(RouteToLineMapper.class);
     }
 
     @Test

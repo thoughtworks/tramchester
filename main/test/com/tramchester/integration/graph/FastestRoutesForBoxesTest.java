@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.places.Station;
@@ -32,30 +33,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FastestRoutesForBoxesTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private FastestRoutesForBoxes calculator;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         IntegrationTramTestConfig config = new IntegrationTramTestConfig();
-        dependencies.initialise(config);
+        componentContainer.initialise(config);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        calculator = dependencies.get(FastestRoutesForBoxes.class);
+        calculator = componentContainer.get(FastestRoutesForBoxes.class);
     }
 
     @Test
     void checkGroupStationsAsExpectedForRealData() {
-        StationLocations stationLocations = dependencies.get(StationLocations.class);
-        StationRepository stationsRepo = dependencies.get(StationRepository.class);
+        StationLocations stationLocations = componentContainer.get(StationLocations.class);
+        StationRepository stationsRepo = componentContainer.get(StationRepository.class);
 
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(2000).collect(Collectors.toList());
         List<BoundingBoxWithStations> emptyGroup = grouped.stream().filter(group -> !group.hasStations()).collect(Collectors.toList());

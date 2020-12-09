@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.DataSourceConfig;
@@ -42,7 +43,7 @@ class GraphWithSimpleRouteTest {
 
     private static TransportDataForTestFactory.TestTransportData transportData;
     private static RouteCalculator calculator;
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static LocationJourneyPlannerTestFacade locationJourneyPlanner;
     private static SimpleGraphConfig config;
@@ -53,25 +54,25 @@ class GraphWithSimpleRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
 
-        StationLocations stationLocations = dependencies.get(StationLocations.class);
+        StationLocations stationLocations = componentContainer.get(StationLocations.class);
 
-        TransportDataForTestFactory factory = new TransportDataForTestFactory(stationLocations, dependencies.get(ProvidesNow.class));
+        TransportDataForTestFactory factory = new TransportDataForTestFactory(stationLocations, componentContainer.get(ProvidesNow.class));
         transportData = factory.get();
 
         config = new SimpleGraphConfig();
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
-        dependencies.initialise(config, transportData);
+        componentContainer.initialise(config, transportData);
 
-        database = dependencies.get(GraphDatabase.class);
-        calculator = dependencies.get(RouteCalculator.class);
+        database = componentContainer.get(GraphDatabase.class);
+        calculator = componentContainer.get(RouteCalculator.class);
     }
 
     @AfterAll
     static void onceAfterAllTestsRun() throws IOException {
-        dependencies.close();
+        componentContainer.close();
         FileUtils.deleteDirectory(config.getDBPath().toFile());
     }
 
@@ -81,8 +82,8 @@ class GraphWithSimpleRouteTest {
 
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
-        StationRepository stationRepo = dependencies.get(StationRepository.class);
-        locationJourneyPlanner = new LocationJourneyPlannerTestFacade(dependencies.get(LocationJourneyPlanner.class), stationRepo, txn);
+        StationRepository stationRepo = componentContainer.get(StationRepository.class);
+        locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepo, txn);
     }
 
     @NotNull

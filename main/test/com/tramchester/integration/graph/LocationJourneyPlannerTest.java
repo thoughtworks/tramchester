@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.places.Location;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class LocationJourneyPlannerTest {
     private static final int TXN_TIMEOUT = 5*60;
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static IntegrationTramTestConfig testConfig;
 
@@ -41,22 +42,22 @@ class LocationJourneyPlannerTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
-        database = dependencies.get(GraphDatabase.class);
+        componentContainer.initialise(testConfig);
+        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        StationRepository stationRepository = dependencies.get(StationRepository.class);
-        planner = new LocationJourneyPlannerTestFacade(dependencies.get(LocationJourneyPlanner.class), stationRepository, txn);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
     }
 
     @AfterEach

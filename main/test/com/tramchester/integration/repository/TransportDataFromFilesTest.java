@@ -1,6 +1,7 @@
 package com.tramchester.integration.repository;
 
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
@@ -38,25 +39,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TransportDataFromFilesTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private TransportData transportData;
     private Collection<Service> allServices;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
-        dependencies.initialise(new IntegrationTramTestConfig());
+        componentContainer = new Dependencies();
+        componentContainer.initialise(new IntegrationTramTestConfig());
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = dependencies.get(TransportData.class);
+        transportData = componentContainer.get(TransportData.class);
         allServices = transportData.getServices();
     }
 
@@ -311,7 +312,7 @@ class TransportDataFromFilesTest {
     void shouldLoadExceptionalDates() {
         Set<String> servicesToLoad = allServices.stream().map(Service::getId).map(IdFor::forDTO).collect(Collectors.toSet());
 
-        TransportDataReaderFactory dataReaderFactory = dependencies.get(TransportDataReaderFactory.class);
+        TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
         TransportDataReader transportDataReader = transportDataReaders.get(0);
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(servicesToLoad));

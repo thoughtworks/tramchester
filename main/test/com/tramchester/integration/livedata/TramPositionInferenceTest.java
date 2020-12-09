@@ -1,5 +1,6 @@
 package com.tramchester.integration.livedata;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.Dependencies;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TramPositionInferenceTest {
 
-    private static Dependencies dependencies;
+    private static ComponentContainer componentContainer;
 
     private TramPositionInference positionInference;
     private StationRepository stationRepository;
@@ -34,9 +35,9 @@ class TramPositionInferenceTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        dependencies = new Dependencies();
+        componentContainer = new Dependencies();
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        dependencies.initialise(testConfig);
+        componentContainer.initialise(testConfig);
 
     }
 
@@ -44,21 +45,21 @@ class TramPositionInferenceTest {
     void onceBeforeEachTestRuns() {
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
 
-        LiveDataUpdater liveDataSource = dependencies.get(LiveDataUpdater.class);
+        LiveDataUpdater liveDataSource = componentContainer.get(LiveDataUpdater.class);
         liveDataSource.refreshRespository();
-        RouteReachable routeReachable = dependencies.get(RouteReachable.class);
-        TramStationAdjacenyRepository adjacenyMatrix = dependencies.get(TramStationAdjacenyRepository.class);
-        DueTramsSource dueTramsRepo = dependencies.get(DueTramsRepository.class);
+        RouteReachable routeReachable = componentContainer.get(RouteReachable.class);
+        TramStationAdjacenyRepository adjacenyMatrix = componentContainer.get(TramStationAdjacenyRepository.class);
+        DueTramsSource dueTramsRepo = componentContainer.get(DueTramsRepository.class);
 
         positionInference = new TramPositionInference(dueTramsRepo, adjacenyMatrix, routeReachable);
-        stationRepository = dependencies.get(StationRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         date = TramServiceDate.of(providesLocalNow.getDate());
         time = providesLocalNow.getNow();
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        dependencies.close();
+        componentContainer.close();
     }
 
     // TODO rework this test to account for new 12 minutes frequency which is causing frequent intermittent failures

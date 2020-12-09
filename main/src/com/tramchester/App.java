@@ -43,10 +43,10 @@ public class App extends Application<AppConfiguration>  {
 
     private static final String SERVICE_NAME = "tramchester";
 
-    private final Dependencies dependencies;
+    private final ComponentContainer container;
 
     public App() {
-        this.dependencies = new Dependencies();
+        this.container = new Dependencies();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class App extends Application<AppConfiguration>  {
         logger.info("App run");
 
         try {
-            dependencies.initialise(configuration);
+            container.initialise(configuration);
         }
         catch (Exception exception) {
             logger.error("Uncaught exception during init ", exception);
@@ -113,7 +113,7 @@ public class App extends Application<AppConfiguration>  {
         ScheduledExecutorServiceBuilder executorServiceBuilder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
         ScheduledExecutorService executor = executorServiceBuilder.build();
 
-        environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(dependencies, executor));
+        environment.lifecycle().addLifeCycleListener(new LifeCycleHandler(container, executor));
 
         MutableServletContextHandler applicationContext = environment.getApplicationContext();
 
@@ -127,7 +127,7 @@ public class App extends Application<AppConfiguration>  {
         filtersForStaticContent(environment);
 
         // api end points registration
-        dependencies.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
+        container.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
 
@@ -138,16 +138,16 @@ public class App extends Application<AppConfiguration>  {
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 
-        CacheMetricSet cacheMetrics = new CacheMetricSet(dependencies.getHasCacheStat(), metricRegistry);
+        CacheMetricSet cacheMetrics = new CacheMetricSet(container.getHasCacheStat(), metricRegistry);
         cacheMetrics.prepare();
 
         // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
-                dependencies.get(ConfigFromInstanceUserData.class), dependencies.get(SendMetricsToCloudWatch.class));
+                container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
         // health check registration
-        dependencies.getHealthChecks().forEach(healthCheck ->
+        container.getHealthChecks().forEach(healthCheck ->
                 environment.healthChecks().register(healthCheck.getName(), healthCheck));
 
         // serve health checks (additionally) on separate URL as we don't want to expose whole of Admin pages
@@ -158,15 +158,16 @@ public class App extends Application<AppConfiguration>  {
 
         // ready to serve traffic
         logger.info("Prepare to signal cloud formation if running in cloud");
-        SignalToCloudformationReady signaller = dependencies.get(SignalToCloudformationReady.class);
+        SignalToCloudformationReady signaller = container.get(SignalToCloudformationReady.class);
         signaller.send();
 
         logger.warn("Now running");
     }
 
-    private void initLiveDataMetricAndHealthcheck(LiveDataConfig configuration, Environment environment, ScheduledExecutorService executor, MetricRegistry metricRegistry) {
+    private void initLiveDataMetricAndHealthcheck(LiveDataConfig configuration, Environment environment,
+                                                  ScheduledExecutorService executor, MetricRegistry metricRegistry) {
         // initial load of live data
-        LiveDataUpdater updatesData = dependencies.get(LiveDataUpdater.class);
+        LiveDataUpdater updatesData = container.get(LiveDataUpdater.class);
         updatesData.refreshRespository();
 
         // refresh live data job
@@ -181,11 +182,11 @@ public class App extends Application<AppConfiguration>  {
         environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
 
         // archive live data in S3
-        UploadsLiveData observer = dependencies.get(UploadsLiveData.class);
+        UploadsLiveData observer = container.get(UploadsLiveData.class);
         updatesData.observeUpdates(observer);
 
         // custom metrics for live data and messages
-        DueTramsRepository dueTramsRepository = dependencies.get(DueTramsRepository.class);
+        DueTramsRepository dueTramsRepository = container.get(DueTramsRepository.class);
         metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "number"),
                 (Gauge<Integer>) dueTramsRepository::upToDateEntries);
         metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithData"),
@@ -193,7 +194,7 @@ public class App extends Application<AppConfiguration>  {
         metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithTrams"),
                 (Gauge<Integer>) dueTramsRepository::getNumStationsWithTramsNow);
 
-        PlatformMessageRepository messageRepository = dependencies.get(PlatformMessageRepository.class);
+        PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);
         metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "messages"),
                 (Gauge<Integer>) messageRepository::numberOfEntries);
         metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "stationsWithMessages"),
@@ -213,8 +214,8 @@ public class App extends Application<AppConfiguration>  {
                 addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST),true, pattern);
     }
 
-    public Dependencies getDependencies() {
-        return dependencies;
+    public ComponentContainer getDependencies() {
+        return container;
     }
 
 
