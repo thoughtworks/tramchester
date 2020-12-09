@@ -21,7 +21,7 @@
     "aws-cdk": "^1.77.0",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.3",
-    "bootstrap-vue": "^2.19.0",
+    "bootstrap-vue": "^2.20.1",
     "leaflet": "^1.7.1",
     "leaflet-arrowheads": "^1.2.2",
     "oboe": "^2.1.5",
