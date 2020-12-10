@@ -8,12 +8,14 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Singleton
 public class StationLocations implements StationLocationsRepository, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
 

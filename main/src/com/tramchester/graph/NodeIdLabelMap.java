@@ -7,12 +7,14 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 
+@Singleton
 public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);
 

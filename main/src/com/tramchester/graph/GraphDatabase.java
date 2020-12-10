@@ -23,11 +23,15 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.logging.Level;
+import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +45,8 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
-public class GraphDatabase implements Startable {
+@Singleton
+public class GraphDatabase implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
     private static final int SHUTDOWN_TIMEOUT = 200;
     private static final int STARTUP_TIMEOUT = 200;
@@ -58,6 +63,7 @@ public class GraphDatabase implements Startable {
         this.transportData = transportData;
     }
 
+    @PostConstruct
     @Override
     public void start() {
         logger.info("start");
@@ -181,6 +187,7 @@ public class GraphDatabase implements Startable {
 
     private GraphDatabaseService createGraphDatabaseService(Path graphFile, String neo4jPagecacheMemory) {
 
+        logger.info("Create graph database service");
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
                 setConfig(GraphDatabaseSettings.track_query_allocation, false).
                 setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
@@ -213,9 +220,16 @@ public class GraphDatabase implements Startable {
                     " Path: " + graphFile.toAbsolutePath() + " check " + retries);
             retries--;
         }
+        logger.info("Service is available");
         return graphDatabaseService;
     }
 
+    @Override
+    public void dispose() {
+        // no op
+    }
+
+    @PreDestroy
     @Override
     public void stop() {
         try {
@@ -301,5 +315,6 @@ public class GraphDatabase implements Startable {
     public EvaluationContext createContext(Transaction txn) {
         return new BasicEvaluationContext(txn, databaseService);
     }
+
 
 }

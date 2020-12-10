@@ -20,7 +20,7 @@ import java.util.List;
 @Singleton
 public class GraphQuery {
 
-    private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
+    //private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
 
     private final GraphDatabase graphDatabase;
 

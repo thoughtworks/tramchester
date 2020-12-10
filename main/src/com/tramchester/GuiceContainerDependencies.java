@@ -1,18 +1,27 @@
 package com.tramchester;
 
 import com.google.inject.*;
+import com.google.inject.matcher.Matcher;
+import com.netflix.governator.guice.BootstrapBinder;
+import com.netflix.governator.guice.BootstrapModule;
+import com.netflix.governator.guice.LifecycleInjector;
+import com.netflix.governator.lifecycle.LifecycleListener;
+import com.netflix.governator.lifecycle.LifecycleManager;
+import com.netflix.governator.lifecycle.LifecycleState;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.repository.*;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.repository.TransportData;
+import com.tramchester.repository.TransportDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class GuiceContainerDependencies extends ComponentContainer {
@@ -21,6 +30,7 @@ public class GuiceContainerDependencies extends ComponentContainer {
     private final GuiceFacade module;
     private final Injector injector;
     private TransportData transportData;
+    private LifecycleManager manager;
 
     public static class GuiceFacade extends AbstractModule {
         private final GuiceContainerDependencies parent;
@@ -55,7 +65,10 @@ public class GuiceContainerDependencies extends ComponentContainer {
 
     public GuiceContainerDependencies(GraphFilter config, TramchesterConfig filter) {
         module = new GuiceFacade(this, config, filter);
-        injector = Guice.createInjector(module);
+
+        BootstrapModule bootstrapModule = binder -> binder.bindLifecycleListener().to(LifecycleListen.class);
+
+        injector = LifecycleInjector.builder().withBootstrapModule(bootstrapModule).withModules(module).build().createInjector();
     }
 
     @Override
@@ -69,9 +82,21 @@ public class GuiceContainerDependencies extends ComponentContainer {
         }
 
         logger.info("Start components");
+        manager = injector.getInstance(LifecycleManager.class);
+        try {
+            manager.start();
+        } catch (Exception e) {
+            logger.error("Failed to start", e);
+        }
 
-        // TODO
-        //picoContainer.start();
+        get(StagedTransportGraphBuilder.class);
+
+        logger.info("Done");
+    }
+
+    @Override
+    protected void stop() {
+        manager.close();
     }
 
     private void registerTransportDataProvider() {
@@ -80,14 +105,10 @@ public class GuiceContainerDependencies extends ComponentContainer {
     }
 
     private void registerLinkedComponents() {
-        module.bindClass(DataSourceRepository.class, TransportData.class);
+        // keep these visible, so easy to change to non-cahced version when needed
         module.bindClass(NodeContentsRepository.class, CachedNodeOperations.class);
         module.bindClass(NodeTypeRepository.class, NodeIdLabelMap.class);
-        module.bindClass(PlatformRepository.class, TransportData.class);
-        module.bindClass(StationRepository.class, TransportData.class);
-
     }
-
 
     @Override
     public <T> T get(Class<T> klass) {
@@ -97,12 +118,16 @@ public class GuiceContainerDependencies extends ComponentContainer {
     @Override
     protected <T> List<T> getAll(Class<T> klass) {
         Map<Key<?>, Binding<?>> all = injector.getAllBindings();
-        List<T> matched = all.entrySet().stream().
+        Set<TypeLiteral<?>> found = all.entrySet().stream().
                 filter(entry -> klass.isAssignableFrom(entry.getValue().getProvider().get().getClass())).
-                map(entry -> entry.getKey().getClass()).
-                map(key -> (T) get(key)).
+                map(entry -> entry.getKey().getTypeLiteral()).
+                collect(Collectors.toSet());
+        //noinspection unchecked
+        return found.stream().
+                map(literal -> get(literal.getRawType())).
+                filter(instance -> klass.isAssignableFrom(instance.getClass())).
+                map(instance -> (T)instance).
                 collect(Collectors.toList());
-        return matched;
     }
 
     @Override
@@ -121,8 +146,31 @@ public class GuiceContainerDependencies extends ComponentContainer {
         module.bindClass(face, concrete);
     }
 
-    @Override
-    protected void stop() {
-        // TODO
+    // for debug
+    private static class LifecycleListen implements LifecycleListener {
+
+        public LifecycleListen() {
+
+        }
+
+        @Override
+        public <T> void objectInjected(TypeLiteral<T> type, T obj) {
+            logger.info("Injected " + type.getRawType().getCanonicalName());
+        }
+
+        @Override
+        public <T> void objectInjected(TypeLiteral<T> type, T obj, long duration, TimeUnit units) {
+            logger.info("Injected " + type.getRawType().getCanonicalName());
+        }
+
+        @Override
+        public void stateChanged(Object obj, LifecycleState newState) {
+
+        }
+
+        @Override
+        public <T> void objectInjecting(TypeLiteral<T> type) {
+
+        }
     }
 }

@@ -87,7 +87,9 @@ public class RouteCalculator implements TramRouteCalculator {
     private Node getStationNodeSafe(Transaction txn, Station station) {
         Node stationNode = graphQuery.getStationNode(txn, station);
         if (stationNode==null) {
-            throw new RuntimeException("Unable to find station node based on " + station);
+            String msg = "Unable to find station graph node based on " + station;
+            logger.warn(msg);
+            throw new RuntimeException(msg);
         }
         return stationNode;
     }

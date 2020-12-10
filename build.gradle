@@ -30,8 +30,11 @@ repositories {
 
 dependencies {
     implementation('io.dropwizard:dropwizard-core:' + dropwizardVersion)
+
+    implementation('com.netflix.governator:governator:1.17.10') { exclude group:'org.slf4j', module:'slf4j-api'}
     implementation 'org.picocontainer:picocontainer:2.15',
             'com.google.inject:guice:4.2.3',
+            'com.netflix.governator:governator:1.17.10',
             'org.neo4j:neo4j:4.2.1',
             'com.github.cliftonlabs:json-simple:3.1.1',
             'commons-io:commons-io:2.8.0',

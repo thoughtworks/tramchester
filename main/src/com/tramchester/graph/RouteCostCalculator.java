@@ -7,13 +7,18 @@ import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import static com.tramchester.graph.GraphPropertyKey.COST;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
+@Singleton
 public class RouteCostCalculator {
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;
 
+    @Inject
     public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService) {
         this.graphQuery = graphQuery;
         this.graphDatabaseService = graphDatabaseService;

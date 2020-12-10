@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.google.inject.ImplementedBy;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
@@ -9,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import java.util.Optional;
 import java.util.Set;
 
+@ImplementedBy(TransportData.class)
 public interface StationRepository {
     Set<Station> getStations();
     Set<Station> getStationsForMode(TransportMode mode);

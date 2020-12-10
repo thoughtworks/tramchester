@@ -48,8 +48,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     public void load() {
-        toBuild = new TransportDataContainer(providesNow);
         logger.info("Loading transport data from files");
+        toBuild = new TransportDataContainer(providesNow);
         transportDataStreams.forEach(transportDataStream -> load(transportDataStream, toBuild));
         logger.info("Finished loading transport data");
     }

@@ -2,10 +2,12 @@ package com.tramchester.domain.time;
 
 import com.tramchester.config.TramchesterConfig;
 
+import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
+@Singleton
 public class ProvidesLocalNow implements ProvidesNow {
 
     private LocalDateTime getLocalNow() {

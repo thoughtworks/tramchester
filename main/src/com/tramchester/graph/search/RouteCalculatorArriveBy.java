@@ -10,11 +10,14 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Singleton
 public class RouteCalculatorArriveBy implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorArriveBy.class);
 
@@ -22,6 +25,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     private final RouteCalculator routeCalculator;
     private final TramchesterConfig config;
 
+    @Inject
     public RouteCalculatorArriveBy(RouteCostCalculator costCalculator, RouteCalculator routeCalculator, TramchesterConfig config) {
         this.costCalculator = costCalculator;
         this.routeCalculator = routeCalculator;

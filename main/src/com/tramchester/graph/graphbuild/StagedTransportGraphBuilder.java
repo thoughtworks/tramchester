@@ -19,9 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,7 +37,8 @@ import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class StagedTransportGraphBuilder extends GraphBuilder {
+@Singleton
+public class StagedTransportGraphBuilder extends GraphBuilder implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(StagedTransportGraphBuilder.class);
 
     ///
@@ -46,12 +52,18 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final TransportData transportData;
     private final InterchangeRepository interchangeRepository;
 
+    @Inject
     public StagedTransportGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
                                        GraphQuery graphQuery, NodeTypeRepository nodeIdLabelMap, TransportData transportData,
                                        InterchangeRepository interchangeRepository) {
         super(graphDatabase, graphQuery, graphFilter, config, nodeIdLabelMap);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
+    }
+
+    @PostConstruct
+    public void run() {
+        super.start();
     }
 
     @Override

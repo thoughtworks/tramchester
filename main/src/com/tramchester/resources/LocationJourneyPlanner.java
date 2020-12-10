@@ -17,6 +17,8 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,6 +26,7 @@ import java.util.stream.Stream;
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
 import static java.lang.String.format;
 
+@Singleton
 public class LocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
 
@@ -36,6 +39,7 @@ public class LocationJourneyPlanner {
     private final GraphDatabase graphDatabase;
     private final NodeTypeRepository nodeTypeRepository;
 
+    @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
                                   GraphQuery graphQuery, GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository) {
