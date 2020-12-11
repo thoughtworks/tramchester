@@ -9,13 +9,11 @@ import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.LiveDataObserver;
 import com.tramchester.repository.PlatformMessageRepository;
 import org.jetbrains.annotations.NotNull;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +23,7 @@ import java.util.List;
 import static java.lang.String.format;
 
 @LazySingleton
-public class LiveDataUpdater implements Disposable {
+public class LiveDataUpdater {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataUpdater.class);
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
@@ -51,7 +49,6 @@ public class LiveDataUpdater implements Disposable {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         observers.clear();
     }

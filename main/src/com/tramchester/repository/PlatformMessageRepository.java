@@ -16,23 +16,20 @@ import com.tramchester.domain.time.TramTime;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @LazySingleton
-public class PlatformMessageRepository implements PlatformMessageSource, Disposable, ReportsCacheStats {
+public class PlatformMessageRepository implements PlatformMessageSource, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(PlatformMessageRepository.class);
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
@@ -50,7 +47,6 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         messageCache.invalidateAll();
     }

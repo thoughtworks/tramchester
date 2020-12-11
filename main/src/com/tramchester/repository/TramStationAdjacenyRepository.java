@@ -1,27 +1,24 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import org.apache.commons.lang3.tuple.Pair;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 @LazySingleton
-public class TramStationAdjacenyRepository implements Startable, Disposable {
+public class TramStationAdjacenyRepository  {
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 
     private final Map<Pair<Station,Station>, Integer> matrix;
@@ -34,7 +31,6 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
     }
 
     @PostConstruct
-    @Override
     public void start() {
         logger.info("Build adjacency matrix");
         Collection<Trip> trips = transportDataSource.getTrips();
@@ -50,13 +46,7 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
         logger.info("Finished building adjacency matrix");
     }
 
-    @Override
-    public void stop() {
-
-    }
-
     @PreDestroy
-    @Override
     public void dispose() {
         matrix.clear();
     }

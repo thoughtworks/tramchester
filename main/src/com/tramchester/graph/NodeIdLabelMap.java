@@ -4,12 +4,10 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -17,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 
 @LazySingleton
-public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
+public class NodeIdLabelMap implements NodeTypeRepository {
     private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);
 
     // map from the NodeId to the Label
@@ -58,7 +56,6 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         logger.info("dispose");
         queryNodes.clear();

@@ -24,8 +24,6 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.logging.Level;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +44,7 @@ import static java.lang.String.format;
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
 @LazySingleton
-public class GraphDatabase implements Startable, Disposable {
+public class GraphDatabase {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
     private static final int SHUTDOWN_TIMEOUT = 200;
     private static final int STARTUP_TIMEOUT = 200;
@@ -64,7 +62,6 @@ public class GraphDatabase implements Startable, Disposable {
     }
 
     @PostConstruct
-    @Override
     public void start() {
         logger.info("start");
 
@@ -108,7 +105,6 @@ public class GraphDatabase implements Startable, Disposable {
     }
 
     @PreDestroy
-    @Override
     public void stop() {
         logger.info("Attempt stop");
         try {
@@ -245,11 +241,6 @@ public class GraphDatabase implements Startable, Disposable {
         }
         logger.info("Service is available");
         return graphDatabaseService;
-    }
-
-    @Override
-    public void dispose() {
-        // no op
     }
 
     public Transaction beginTx() {

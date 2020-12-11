@@ -14,7 +14,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @LazySingleton
-public class CachedNodeOperations implements ReportsCacheStats, Disposable, NodeContentsRepository {
+public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepository {
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
     private final Cache<Long, Integer> relationshipCostCache;
@@ -46,7 +45,6 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         logger.info("dispose");
         relationshipCostCache.invalidateAll();

@@ -17,7 +17,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.DeparturesMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCacheStats {
+public class DueTramsRepository implements DueTramsSource, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(DueTramsRepository.class);
 
     // TODO Correct limit here?
@@ -56,7 +55,6 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         dueTramsCache.invalidateAll();
     }

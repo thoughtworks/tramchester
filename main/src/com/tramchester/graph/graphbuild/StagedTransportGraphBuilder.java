@@ -20,14 +20,11 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,7 +36,7 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
-public class StagedTransportGraphBuilder extends GraphBuilder implements Startable {
+public class StagedTransportGraphBuilder extends GraphBuilder {
     private static final Logger logger = LoggerFactory.getLogger(StagedTransportGraphBuilder.class);
 
     ///

@@ -12,7 +12,6 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.*;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @LazySingleton
-public class CreateNeighbours implements Startable {
+public class CreateNeighbours {
     private static final Logger logger = LoggerFactory.getLogger(CreateNeighbours.class);
 
     private final GraphDatabase database;
@@ -50,7 +49,6 @@ public class CreateNeighbours implements Startable {
     }
 
     @PostConstruct
-    @Override
     public void start() {
         if (!config.getCreateNeighbours()) {
             logger.warn("Create neighbours is disabled in configuration");
@@ -134,9 +132,4 @@ public class CreateNeighbours implements Startable {
         }
     }
 
-
-    @Override
-    public void stop() {
-        // no-op
-    }
 }

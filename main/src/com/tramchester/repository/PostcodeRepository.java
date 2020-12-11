@@ -9,15 +9,12 @@ import com.tramchester.domain.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.CoordinateTransforms;
 import org.opengis.referencing.operation.TransformException;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +22,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class PostcodeRepository implements Disposable, Startable {
+public class PostcodeRepository {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeRepository.class);
 
     private final PostcodeDataImporter importer;
@@ -46,7 +43,6 @@ public class PostcodeRepository implements Disposable, Startable {
     }
 
     @PostConstruct
-    @Override
     public void start() {
         if (!config.getLoadPostcodes()) {
             logger.warn("Not loading postcodes");
@@ -72,14 +68,8 @@ public class PostcodeRepository implements Disposable, Startable {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         postcodes.clear();
-    }
-
-    @Override
-    public void stop() {
-        // no op
     }
 
     public boolean hasPostcode(IdFor<PostcodeLocation> postcode) {

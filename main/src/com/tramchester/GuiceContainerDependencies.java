@@ -40,9 +40,7 @@ public class GuiceContainerDependencies extends ComponentContainer {
 
     private GuiceContainerDependencies(GraphFilter filter, TramchesterConfig config, AbstractModule providerModule) {
         module = new Module(this, filter, config);
-        BootstrapModule bootstrapModule = binder -> binder.bindLifecycleListener().to(LifecycleListen.class);
         injector = LifecycleInjector.builder().
-                withBootstrapModule(bootstrapModule).
                 withModules(providerModule, module).
                 build().createInjector();
     }
@@ -151,31 +149,4 @@ public class GuiceContainerDependencies extends ComponentContainer {
         }
     }
 
-    // for debug
-    private static class LifecycleListen implements LifecycleListener {
-
-        public LifecycleListen() {
-
-        }
-
-        @Override
-        public <T> void objectInjected(TypeLiteral<T> type, T obj) {
-            logger.debug("Injected " + type.getRawType().getCanonicalName());
-        }
-
-        @Override
-        public <T> void objectInjected(TypeLiteral<T> type, T obj, long duration, TimeUnit units) {
-            logger.debug("Injected " + type.getRawType().getCanonicalName());
-        }
-
-        @Override
-        public void stateChanged(Object obj, LifecycleState newState) {
-
-        }
-
-        @Override
-        public <T> void objectInjecting(TypeLiteral<T> type) {
-
-        }
-    }
 }

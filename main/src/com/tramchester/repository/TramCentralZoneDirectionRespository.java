@@ -6,15 +6,12 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.CentralZoneStation;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +21,7 @@ import static com.tramchester.domain.HasId.asId;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TramCentralZoneDirectionRespository implements Startable, Disposable {
+public class TramCentralZoneDirectionRespository {
     private static final Logger logger = LoggerFactory.getLogger(TramCentralZoneDirectionRespository.class);
 
     private final Map<IdFor<Route>, Integer> entered;
@@ -71,14 +68,12 @@ public class TramCentralZoneDirectionRespository implements Startable, Disposabl
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         entered.clear();
         left.clear();
     }
 
     @PostConstruct
-    @Override
     public void start() {
         logger.info("create central zone entry/exit indexs");
         Set<Route> allRoutes = routeRepository.getRoutes();
@@ -113,11 +108,6 @@ public class TramCentralZoneDirectionRespository implements Startable, Disposabl
 
         });
         logger.info("Ready");
-    }
-
-    @Override
-    public void stop() {
-
     }
 
 }

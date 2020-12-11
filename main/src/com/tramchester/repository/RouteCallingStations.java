@@ -8,8 +8,6 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class RouteCallingStations implements Startable, Disposable {
+public class RouteCallingStations {
     private static final Logger logger = LoggerFactory.getLogger(RouteCallingStations.class);
 
     private final TransportData transportData;
@@ -37,13 +35,11 @@ public class RouteCallingStations implements Startable, Disposable {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         stations.clear();
     }
 
     @PostConstruct
-    @Override
     public void start() {
         logger.info("start");
         Collection<Route> routes = transportData.getRoutes();
@@ -70,10 +66,5 @@ public class RouteCallingStations implements Startable, Disposable {
             logger.warn("Did not find longest trip for route " + route);
             stations.put(route, Collections.emptyList());
         }
-    }
-
-    @Override
-    public void stop() {
-        // noop
     }
 }

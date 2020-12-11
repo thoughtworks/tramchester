@@ -2,28 +2,25 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdMap;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
+import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Set;
 
 import static java.lang.String.format;
 
 @LazySingleton
-public class InterchangeRepository implements Disposable, Startable {
+public class InterchangeRepository  {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
     private final TransportData dataSource;
@@ -42,14 +39,12 @@ public class InterchangeRepository implements Disposable, Startable {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         trainInterchanges.clear();
         busInterchanges.clear();
     }
 
     @PostConstruct
-    @Override
     public void start() {
         if (modes.contains(GTFSTransportationType.bus)) {
             busInterchanges = createBusInterchangeList();
@@ -66,11 +61,6 @@ public class InterchangeRepository implements Disposable, Startable {
             filter(TransportMode::isTrain).
             filter(station -> station.getAgencies().size()>=2).
             collect(IdMap.collector());
-    }
-
-    @Override
-    public void stop() {
-        // no op
     }
 
     private IdMap<Station> createBusInterchangeList() {

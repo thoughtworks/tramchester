@@ -6,8 +6,6 @@ import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.dataimport.parsers.PostcodeHintsDataMapper;
 import com.tramchester.geo.BoundingBox;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +23,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class PostcodeBoundingBoxs implements Startable, Disposable {
+public class PostcodeBoundingBoxs {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeBoundingBoxs.class);
 
     public final static String HINTS_FILES = "postcode_hints.csv";
@@ -43,13 +41,12 @@ public class PostcodeBoundingBoxs implements Startable, Disposable {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
+        stop();
         postcodeBounds.clear();
     }
 
     @PostConstruct
-    @Override
     public void start() {
         if (!enabled) {
             logger.info("Postcode load disabled in config");
@@ -65,7 +62,6 @@ public class PostcodeBoundingBoxs implements Startable, Disposable {
         }
     }
 
-    @Override
     public void stop() {
         if (!enabled) {
             logger.info("Postcode load disabled in config");
@@ -79,7 +75,7 @@ public class PostcodeBoundingBoxs implements Startable, Disposable {
         }
     }
 
-    public void loadDataFromFile() {
+    private void loadDataFromFile() {
         logger.info("File "+hintsFilePath+" existed, in playback mode");
         PostcodeHintsDataMapper mapper = new PostcodeHintsDataMapper();
 

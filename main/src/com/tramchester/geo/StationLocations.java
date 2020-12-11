@@ -7,7 +7,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class StationLocations implements StationLocationsRepository, Disposable {
+public class StationLocations implements StationLocationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
     private final StationRepository stationRepository;
 
@@ -50,7 +49,6 @@ public class StationLocations implements StationLocationsRepository, Disposable 
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         logger.info("Clear positions");
         positions.clear();

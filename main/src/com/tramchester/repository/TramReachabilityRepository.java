@@ -2,27 +2,24 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.IdFor;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.mappers.RoutesMapper;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 @LazySingleton
-public class TramReachabilityRepository implements Disposable, Startable {
+public class TramReachabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
     private final RouteReachable routeReachable;
@@ -40,21 +37,14 @@ public class TramReachabilityRepository implements Disposable, Startable {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         matrix.clear();
         tramStationIndexing.clear();
     }
 
     @PostConstruct
-    @Override
     public void start() {
         buildRepository();
-    }
-
-    @Override
-    public void stop() {
-        // no-op
     }
 
     private void buildRepository() {

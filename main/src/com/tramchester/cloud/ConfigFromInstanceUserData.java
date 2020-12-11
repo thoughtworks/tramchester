@@ -1,8 +1,6 @@
 package com.tramchester.cloud;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import org.picocontainer.Disposable;
-import org.picocontainer.Startable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -11,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @LazySingleton
-public class ConfigFromInstanceUserData implements Startable, Disposable {
+public class ConfigFromInstanceUserData  {
 
     private static final String PREFIX = "#";
     private static final String EQUALS = "=";
@@ -24,18 +22,11 @@ public class ConfigFromInstanceUserData implements Startable, Disposable {
     }
 
     @PostConstruct
-    @Override
     public void start() {
         populateMap();
     }
 
-    @Override
-    public void stop() {
-        // noop
-    }
-
     @PreDestroy
-    @Override
     public void dispose() {
         tokenToValue.clear();
     }

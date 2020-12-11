@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
-import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ import java.util.*;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TransportDataContainer implements TransportData, Disposable {
+public class TransportDataContainer implements TransportData {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataContainer.class);
 
     private final ProvidesNow providesNow;
@@ -43,7 +42,6 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     @PreDestroy
-    @Override
     public void dispose() {
         logger.info("Dispose");
         trips.forEach(Trip::dispose);

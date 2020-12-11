@@ -4,13 +4,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.*;
 import org.neo4j.graphdb.*;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
-public abstract class GraphBuilder implements Startable {
+public abstract class GraphBuilder  {
     private static final Logger logger = LoggerFactory.getLogger(GraphBuilder.class);
 
     protected static final int INTERCHANGE_DEPART_COST = 1;
@@ -75,8 +74,6 @@ public abstract class GraphBuilder implements Startable {
         numberRelationships = 0;
     }
 
-
-    @Override
     public void start() {
         logger.info("start");
         if (graphDatabase.isCleanDB()) {
@@ -96,11 +93,6 @@ public abstract class GraphBuilder implements Startable {
     protected abstract void buildGraph(GraphDatabase graphDatabase);
 
     protected abstract void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase);
-
-    @Override
-    public void stop() {
-        // no op
-    }
 
     protected Node createGraphNode(Transaction tx, Labels label) {
         numberNodes++;
