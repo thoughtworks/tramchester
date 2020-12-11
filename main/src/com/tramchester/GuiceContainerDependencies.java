@@ -1,11 +1,8 @@
 package com.tramchester;
 
 import com.google.inject.*;
-import com.netflix.governator.guice.BootstrapModule;
 import com.netflix.governator.guice.LifecycleInjector;
-import com.netflix.governator.lifecycle.LifecycleListener;
 import com.netflix.governator.lifecycle.LifecycleManager;
-import com.netflix.governator.lifecycle.LifecycleState;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DefaultDataLoadStrategy;
 import com.tramchester.graph.CachedNodeOperations;
@@ -13,14 +10,12 @@ import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.TransportDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class GuiceContainerDependencies extends ComponentContainer {
@@ -67,9 +62,6 @@ public class GuiceContainerDependencies extends ComponentContainer {
         } else {
             logger.error("Lifecycle manager not started");
         }
-
-        // TODO find way to inject, tokenise, etc
-        get(StagedTransportGraphBuilder.class);
 
         logger.info("Done");
     }

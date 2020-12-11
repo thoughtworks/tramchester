@@ -50,11 +50,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final TransportData transportData;
     private final InterchangeRepository interchangeRepository;
 
+    public Ready getReady() {
+        return new Ready();
+    }
+
     @Inject
     public StagedTransportGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
-                                       GraphQuery graphQuery, NodeTypeRepository nodeIdLabelMap, TransportData transportData,
+                                       NodeTypeRepository nodeIdLabelMap, TransportData transportData,
                                        InterchangeRepository interchangeRepository) {
-        super(graphDatabase, graphQuery, graphFilter, config, nodeIdLabelMap);
+        super(graphDatabase, graphFilter, config, nodeIdLabelMap);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
     }
@@ -212,21 +216,29 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     }
 
+    private Node getPlatformNode(Transaction txn, Platform platform) {
+        return graphDatabase.findNode(txn, Labels.PLATFORM, platform.getProp().getText(), platform.getId().getGraphId());
+    }
+
+    private Node getStationNode(Transaction txn, Station station) {
+        return graphDatabase.findNode(txn, Labels.forMode(station.getTransportMode()),
+                station.getProp().getText(), station.getId().getGraphId());
+    }
+
     private void createStationAndPlatforms(Transaction txn, Route route, Station station, RouteBuilderCache routeBuilderCache) {
 
         RouteStation routeStation = transportData.getRouteStation(station, route);
         createRouteStationNode(txn, routeStation, routeBuilderCache);
 
-        if (graphQuery.hasNodeForStation(txn, station)) {
-            Node stationNode = graphQuery.getStationNode(txn, station);
-
+        Node stationNode = getStationNode(txn, station);
+        if (stationNode!=null) {
             routeBuilderCache.putStation(station, stationNode);
             for (Platform platform : station.getPlatforms()) {
-                Node platformNode = graphQuery.getPlatformNode(txn, platform);
+                Node platformNode = getPlatformNode(txn, platform);
                 routeBuilderCache.putPlatform(platform.getId(), platformNode);
             }
         } else {
-            Node stationNode = createStationNode(txn, station);
+            stationNode = createStationNode(txn, station);
             routeBuilderCache.putStation(station, stationNode);
             for (Platform platform : station.getPlatforms()) {
                 Node platformNode = createPlatformNode(txn, platform);

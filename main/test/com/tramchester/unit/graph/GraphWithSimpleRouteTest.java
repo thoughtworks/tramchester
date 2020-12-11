@@ -57,8 +57,6 @@ class GraphWithSimpleRouteTest {
 
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
-        //TransportDataForTestProvider testDataProvider = new TransportDataForTestProvider(new ProvidesLocalNow());
-        //componentContainer = new ComponentsBuilder().overrideProvider(testDataProvider).create(config);
         componentContainer = new ComponentsBuilder<TransportDataForTestProvider>().
                 overrideProvider(TransportDataForTestProvider.class).
                 create(config);

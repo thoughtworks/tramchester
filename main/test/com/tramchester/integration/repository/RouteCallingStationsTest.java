@@ -28,7 +28,7 @@ class RouteCallingStationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig());
+        componentContainer = new ComponentsBuilder<>().create(new IntegrationTramTestConfig());
         componentContainer.initialise();
         repo = componentContainer.get(RouteCallingStations.class);
         transportData = componentContainer.get(TransportData.class);

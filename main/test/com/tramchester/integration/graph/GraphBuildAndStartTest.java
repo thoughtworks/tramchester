@@ -4,7 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.NodeIdLabelMap;
@@ -54,10 +53,12 @@ class GraphBuildAndStartTest {
 
         IncludeAllFilter graphFilter = new IncludeAllFilter();
         GraphDatabase graphDatabase = new GraphDatabase(config, transportData);
-        GraphQuery graphQuery = new GraphQuery(graphDatabase);
 
-        GraphBuilder graphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, graphFilter,
-                graphQuery, nodeIdLabelMap, transportData, interchangeRepository);
+        StagedTransportGraphBuilder graphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, graphFilter,
+                nodeIdLabelMap, transportData, interchangeRepository);
+
+        GraphBuilder.Ready ready = graphBuilder.getReady();
+        GraphQuery graphQuery = new GraphQuery(graphDatabase, ready);
 
         interchangeRepository.start();
         graphDatabase.start();

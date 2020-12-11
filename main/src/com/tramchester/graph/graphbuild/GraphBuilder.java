@@ -22,6 +22,12 @@ public abstract class GraphBuilder  {
     protected static final int ENTER_INTER_PLATFORM_COST = 0;
     protected static final int LEAVE_INTER_PLATFORM_COST = 0;
 
+    public static class Ready {
+        protected Ready() {
+            // prevent guice creating this, want to create dependency on the Guilder
+        }
+    }
+
     public enum Labels implements Label
     {
         ROUTE_STATION,
@@ -56,17 +62,15 @@ public abstract class GraphBuilder  {
 
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
-    private final GraphDatabase graphDatabase;
+    protected final GraphDatabase graphDatabase;
     private final NodeTypeRepository nodeIdLabelMap;
-    protected final GraphQuery graphQuery;
 
     private int numberNodes;
     private int numberRelationships;
 
-    protected GraphBuilder(GraphDatabase graphDatabase, GraphQuery graphQuery, GraphFilter graphFilter, TramchesterConfig config,
+    protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, TramchesterConfig config,
                            NodeTypeRepository nodeIdLabelMap) {
         this.graphDatabase = graphDatabase;
-        this.graphQuery = graphQuery;
         this.config = config;
         this.graphFilter = graphFilter;
         this.nodeIdLabelMap = nodeIdLabelMap;

@@ -7,6 +7,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -25,12 +26,8 @@ public class GraphQuery {
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public GraphQuery(GraphDatabase graphDatabase) {
+    public GraphQuery(GraphDatabase graphDatabase, GraphBuilder.Ready ready) {
         this.graphDatabase = graphDatabase;
-    }
-
-    public Node getPlatformNode(Transaction txn, HasId<Platform> id) {
-        return findNode(txn, GraphBuilder.Labels.PLATFORM, id);
     }
 
     public Node getRouteStationNode(Transaction txn, HasId<RouteStation> id) {
@@ -39,10 +36,6 @@ public class GraphQuery {
 
     public Node getStationNode(Transaction txn, Station station) {
         return findNode(txn, GraphBuilder.Labels.forMode(station.getTransportMode()), station);
-    }
-
-    public boolean hasNodeForStation(Transaction txn, Station station) {
-        return getStationNode(txn, station)!=null;
     }
 
     private <C extends GraphProperty>  Node findNode(Transaction txn, GraphBuilder.Labels label, HasId<C> hasId) {

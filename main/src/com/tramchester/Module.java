@@ -5,7 +5,9 @@ import com.google.inject.Provides;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataProvider;
 
@@ -30,6 +32,11 @@ public class Module extends AbstractModule {
     @Provides
     TransportData providesTransportdata(TransportDataProvider provider) {
         return provider.getData();
+    }
+
+    @Provides
+    GraphBuilder.Ready providesReadyToken(StagedTransportGraphBuilder graphBuilder) {
+        return graphBuilder.getReady();
     }
 
     public <I, T extends I> void bindClass(Class<I> face, Class<T> klass) {
