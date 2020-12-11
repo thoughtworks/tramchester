@@ -20,6 +20,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
 
     private LocalDateTime lastRefresh;
 
+    @Inject
     public DueTramsRepository(ProvidesNow providesNow) {
         this.providesNow = providesNow;
 

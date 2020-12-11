@@ -17,6 +17,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -39,6 +40,7 @@ public class JourneysForGridResource implements APIResource {
     private final FastestRoutesForBoxes search;
     private final TramJourneyToDTOMapper mapper;
 
+    @Inject
     public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, TramJourneyToDTOMapper mapper) {
         this.repository = repository;
         this.search = search;

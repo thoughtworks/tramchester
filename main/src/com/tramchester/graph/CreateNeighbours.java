@@ -15,6 +15,9 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+@Singleton
 public class CreateNeighbours implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(CreateNeighbours.class);
 
@@ -33,6 +37,7 @@ public class CreateNeighbours implements Startable {
     private final double rangeInKM;
     private final GraphFilter filter;
 
+    @Inject
     public CreateNeighbours(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery, StationRepository repository,
                             StationLocationsRepository stationLocations, TramchesterConfig config) {
         this.database = database;
@@ -44,6 +49,7 @@ public class CreateNeighbours implements Startable {
         this.rangeInKM = config.getDistanceToNeighboursKM();
     }
 
+    @PostConstruct
     @Override
     public void start() {
         if (!config.getCreateNeighbours()) {

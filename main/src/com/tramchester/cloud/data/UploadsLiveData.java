@@ -7,6 +7,8 @@ import com.tramchester.repository.LiveDataObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+@Singleton
 public class UploadsLiveData implements LiveDataObserver {
     private static final Logger logger = LoggerFactory.getLogger(UploadsLiveData.class);
 
@@ -22,6 +25,7 @@ public class UploadsLiveData implements LiveDataObserver {
     private final ClientForS3 s3;
     private final S3Keys s3Keys;
 
+    @Inject
     public UploadsLiveData(ClientForS3 s3, StationDepartureMapper mapper, S3Keys s3Keys) {
         this.s3 = s3;
         this.mapper = mapper;
@@ -30,7 +34,7 @@ public class UploadsLiveData implements LiveDataObserver {
 
     public boolean seenUpdate(Collection<StationDepartureInfo> stationDepartureInfos) {
         if (!s3.isStarted()) {
-            logger.warn("S3 client not started, not live data will be archived");
+            logger.warn("S3 client not started, no live data will be archived");
             return false;
         }
 

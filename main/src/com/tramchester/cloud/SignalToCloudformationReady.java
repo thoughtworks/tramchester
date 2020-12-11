@@ -10,6 +10,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
@@ -18,6 +19,7 @@ public class SignalToCloudformationReady {
     private static final Logger logger = LoggerFactory.getLogger(SignalToCloudformationReady.class);
     private final String url;
 
+    @Inject
     public SignalToCloudformationReady(ConfigFromInstanceUserData providesConfig) {
         url = providesConfig.get("WAITURL");
         if (url!=null) {

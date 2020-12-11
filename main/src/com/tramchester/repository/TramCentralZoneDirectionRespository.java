@@ -10,6 +10,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +37,7 @@ public class TramCentralZoneDirectionRespository implements Startable, Disposabl
         within
     }
 
+    @Inject
     public TramCentralZoneDirectionRespository(RouteRepository routeRepository, RouteCallingStations routeCallingStations) {
         this.routeRepository = routeRepository;
         this.routeCallingStations = routeCallingStations;
@@ -71,6 +74,7 @@ public class TramCentralZoneDirectionRespository implements Startable, Disposabl
         left.clear();
     }
 
+    @PostConstruct
     @Override
     public void start() {
         logger.info("create central zone entry/exit indexs");

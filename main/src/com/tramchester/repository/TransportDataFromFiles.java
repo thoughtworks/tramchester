@@ -11,10 +11,11 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationAddedCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.Set;
@@ -28,30 +29,41 @@ public class TransportDataFromFiles implements TransportDataProvider {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
     private final List<TransportDataSource> transportDataStreams;
-    private final StationLocations stationLocations;
     private final TramchesterConfig config;
-    private final ProvidesNow providesNow;
+    private boolean loaded = false;
 
-    private TransportDataContainer toBuild;
+    private final TransportDataContainer dataContainer;
+    private StationAddedCallback stationAddedCallback;
 
-    public TransportDataFromFiles(List<TransportDataSource> transportDataStreams, StationLocations stationLocations,
+    @Inject
+    public TransportDataFromFiles(List<TransportDataSource> transportDataStreams,
                                   TramchesterConfig config, ProvidesNow providesNow) {
         this.transportDataStreams = transportDataStreams;
-        this.stationLocations = stationLocations;
         this.config = config;
-        this.providesNow = providesNow;
-        toBuild = null;
+        dataContainer = new TransportDataContainer(providesNow);
+    }
+
+    @Override
+    public void register(StationAddedCallback callback) {
+        this.stationAddedCallback = callback;
     }
 
     public TransportData getData() {
-        return toBuild;
+        if (!loaded) {
+            load();
+        }
+        return dataContainer;
     }
 
-    public void load() {
+    private void load() {
+        if (loaded) {
+            logger.warn("Data already loaded");
+            return;
+        }
         logger.info("Loading transport data from files");
-        toBuild = new TransportDataContainer(providesNow);
-        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, toBuild));
+        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, dataContainer));
         logger.info("Finished loading transport data");
+        loaded = true;
     }
 
     private void load(TransportDataSource dataSource, TransportDataContainer buildable) {
@@ -96,8 +108,10 @@ public class TransportDataFromFiles implements TransportDataProvider {
                         sourceName, svc.getId()))
         );
         dataSource.closeAll();
+
+        loaded = true;
         logger.info("Finishing Loading data for " + sourceName);
-        logger.info("Bounds for loaded stations " + stationLocations.getBounds());
+        //logger.info("Bounds for loaded stations " + stationLocations.getBounds());
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
@@ -220,7 +234,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private void addStation(TransportDataContainer buildable, Route route, Station station) {
-        stationLocations.addStation(station);
+        if (stationAddedCallback!=null) {
+            stationAddedCallback.stationAdded(station);
+        }
         station.addRoute(route);
 
         IdFor<Station> stationId = station.getId();
@@ -364,6 +380,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     private Platform formPlatform(StopData stop) {
         return new Platform(stop.getId(), stop.getName());
     }
+
 
     private static class TripAndServices  {
         private final IdMap<Service> services;

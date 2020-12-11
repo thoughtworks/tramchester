@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -48,6 +49,7 @@ public class DeparturesResource implements APIResource  {
     private final ProvidesNow providesNow;
     private final TramchesterConfig config;
 
+    @Inject
     public DeparturesResource(StationLocations stationLocations, DueTramsSource dueTramsSource,
                               DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository,
                               ProvidesNow providesNow, TramchesterConfig config) {

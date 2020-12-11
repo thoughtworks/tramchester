@@ -7,6 +7,8 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -20,12 +22,14 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
+@Singleton
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
     private final URLDownloadAndModTime downloader;
     private final List<DataSourceConfig> configs;
 
+    @Inject
     public FetchDataFromUrl(URLDownloadAndModTime downloader, TramchesterConfig config) {
         this(downloader, config.getDataSourceConfig());
     }

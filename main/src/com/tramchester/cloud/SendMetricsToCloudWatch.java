@@ -13,6 +13,8 @@ import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -20,6 +22,7 @@ import java.util.*;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+@Singleton
 public class SendMetricsToCloudWatch {
     private static final Logger logger = LoggerFactory.getLogger(SendMetricsToCloudWatch.class);
     private final List<Dimension> countersDimenion;
@@ -33,6 +36,7 @@ public class SendMetricsToCloudWatch {
 
     // TODO Pass in provides local now
 
+    @Inject
     public SendMetricsToCloudWatch(ProvidesNow providesNow) {
         this.providesNow = providesNow;
         countersDimenion = Collections.singletonList(Dimension.builder().name("tramchester").value("counters").build());

@@ -41,13 +41,14 @@ class GraphBuildAndStartTest {
         ProvidesNow providesNow = new ProvidesLocalNow();
 
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
-        StationLocations stationLocations = new StationLocations();
+
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
-        TransportDataProviderFactory fileFactory = new TransportDataProviderFactory(new TransportDataReaderFactory(config, fetchFileModTime),
-                providesNow, stationLocations, config);
+        TransportDataFromFilesBuilder fileFactory = new TransportDataFromFilesBuilder(new TransportDataReaderFactory(config, fetchFileModTime),
+                providesNow, config);
         TransportDataFromFiles builder = fileFactory.create();
 
-        builder.load();
+        StationLocations stationLocations = new StationLocations(builder);
+        //builder.load();
         TransportData transportData = builder.getData();
         InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
 

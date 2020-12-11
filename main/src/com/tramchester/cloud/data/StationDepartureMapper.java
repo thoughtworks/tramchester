@@ -8,16 +8,20 @@ import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 
 import static java.lang.String.format;
 
+@Singleton
 public class StationDepartureMapper {
     private static final Logger logger = LoggerFactory.getLogger(StationDepartureMapper.class);
 
     private final ObjectMapper mapper;
 
+    @Inject
     public StationDepartureMapper() {
         mapper = new ObjectMapper();
     }

@@ -1,40 +1,29 @@
 package com.tramchester;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.DataLoadStrategy;
 import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataProvider;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.Caching;
-import org.picocontainer.injectors.FactoryInjector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PicoContainerDependencies extends ComponentContainer {
     private static final Logger logger = LoggerFactory.getLogger(PicoContainerDependencies.class);
 
     private final MutablePicoContainer picoContainer = new DefaultPicoContainer(new Caching());
 
-    public PicoContainerDependencies(GraphFilter graphFilter, TramchesterConfig configuration) {
-        logger.info("construct");
-        registerComponents(configuration, graphFilter);
+    public <T extends DataLoadStrategy> PicoContainerDependencies(GraphFilter graphFilter, TramchesterConfig config, Class<T> override) {
+
     }
 
     @Override
-    public void initialise(TransportDataProvider transportDataProvider) {
+    public void initContainer() {
         logger.info("initialise");
-
-        picoContainer.addAdapter(new FactoryInjector<TransportData>() {
-            @Override
-            public TransportData getComponentInstance(PicoContainer container, Type into) {
-                return transportDataProvider.getData();
-            }
-        });
 
         if (logger.isDebugEnabled()) {
             logger.warn("Debug logging is enabled, server performance will be impacted");
@@ -54,21 +43,21 @@ public class PicoContainerDependencies extends ComponentContainer {
         return component;
     }
 
-    public <T> List<T> getAll(Class<T> klass) {
-        return picoContainer.getComponents(klass);
+    public <C> Set<C> getAll(Class<C> klass) {
+        return new HashSet<>(picoContainer.getComponents(klass));
     }
 
-    public  <T> void addComponent(Class<T> instance) {
+    public  <C> void addComponent(Class<C> instance) {
         picoContainer.addComponent(instance);
     }
 
     @Override
-    protected <T> void addComponent(Class<T> klass, T instance) {
+    protected <C> void addComponent(Class<C> klass, C instance) {
         picoContainer.addComponent(klass, instance);
     }
 
     @Override
-    protected <I,T extends I> void addComponent(Class<I> face, Class<T> concrete) {
+    protected <I,C extends I> void addComponent(Class<I> face, Class<C> concrete) {
         picoContainer.addComponent(face, concrete);
     }
 

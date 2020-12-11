@@ -107,6 +107,29 @@ public class GraphDatabase implements Startable, Disposable {
         logger.info("graph db started " + graphFile.toString());
     }
 
+    @PreDestroy
+    @Override
+    public void stop() {
+        logger.info("Attempt stop");
+        try {
+            if (databaseService ==null) {
+                logger.error("Unable to obtain GraphDatabaseService for shutdown");
+            } else {
+                if (databaseService.isAvailable(SHUTDOWN_TIMEOUT)) {
+                    logger.info("Shutting down graphDB");
+                    managementService.shutdown();
+                    logger.info("graphDB is shutdown");
+                } else {
+                    logger.warn("Graph reported unavailable, attempt shutdown anyway");
+                    managementService.shutdown();
+                }
+            }
+        } catch (Exception exceptionInClose) {
+            logger.error("Exception during close down", exceptionInClose);
+        }
+        logger.info("Stopped");
+    }
+
     public boolean isCleanDB() {
         return cleanDB;
     }
@@ -227,27 +250,6 @@ public class GraphDatabase implements Startable, Disposable {
     @Override
     public void dispose() {
         // no op
-    }
-
-    @PreDestroy
-    @Override
-    public void stop() {
-        try {
-            if (databaseService ==null) {
-                logger.error("Unable to obtain GraphDatabaseService for shutdown");
-            } else {
-                if (databaseService.isAvailable(SHUTDOWN_TIMEOUT)) {
-                    logger.info("Shutting down graphDB");
-                    managementService.shutdown();
-                    logger.info("graphDB is shutdown");
-                } else {
-                    logger.warn("Graph reported unavailable, attempt shutdown anyway");
-                    managementService.shutdown();
-                }
-            }
-        } catch (Exception exceptionInClose) {
-            logger.error("Exception during close down", exceptionInClose);
-        }
     }
 
     public Transaction beginTx() {

@@ -6,16 +6,20 @@ import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Singleton
 public class UpdateRecentJourneys {
     private static final Logger logger = LoggerFactory.getLogger(UpdateRecentJourneys.class);
 
     private final int limit;
 
+    @Inject
     public UpdateRecentJourneys(TramchesterConfig config) {
         this.limit = config.getRecentStopsToShow();
         if (limit<=0) {

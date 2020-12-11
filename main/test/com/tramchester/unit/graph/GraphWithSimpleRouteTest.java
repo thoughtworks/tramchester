@@ -4,11 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.dataimport.DataLoadStrategy;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -20,6 +22,7 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
+import com.tramchester.repository.TransportDataProvider;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
@@ -29,6 +32,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -56,18 +61,17 @@ class GraphWithSimpleRouteTest {
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
         config = new SimpleGraphConfig();
-        componentContainer = new ComponentsBuilder().create(config);
 
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
-        StationLocations stationLocations = componentContainer.get(StationLocations.class);
+        //TransportDataForTestProvider testDataProvider = new TransportDataForTestProvider(new ProvidesLocalNow());
+        //componentContainer = new ComponentsBuilder().overrideProvider(testDataProvider).create(config);
+        componentContainer = new ComponentsBuilder<TransportDataForTestProvider>().
+                overrideProvider(TransportDataForTestProvider.class).
+                create(config);
+        componentContainer.initContainer();
 
-        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
-        TransportDataForTestProvider provider = new TransportDataForTestProvider(stationLocations, providesNow);
-
-        componentContainer.initialise(provider);
         transportData = (TransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
-
         database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
     }

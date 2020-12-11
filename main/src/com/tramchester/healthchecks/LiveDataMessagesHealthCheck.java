@@ -8,10 +8,13 @@ import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
+@Singleton
 public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataMessagesHealthCheck.class);
 
@@ -20,6 +23,7 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     private final LiveDataConfig config;
     private final StationRepository stationRepository;
 
+    @Inject
     public LiveDataMessagesHealthCheck(TramchesterConfig config, PlatformMessageRepository repository,
                                        ProvidesNow currentTimeProvider, StationRepository stationRepository) {
         this.config = config.getLiveDataConfig();

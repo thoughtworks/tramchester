@@ -1,23 +1,30 @@
 package com.tramchester.geo;
 
+import com.google.inject.ImplementedBy;
+import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.repository.TransportDataProvider;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Singleton;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Singleton
-public class StationLocations implements StationLocationsRepository, Disposable {
+@LazySingleton
+public class StationLocations implements StationLocationsRepository, Disposable, StationAddedCallback {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
+    private final ProvidesStationAddedCallback register;
 
     private long minEastings;
     private long maxEasting;
@@ -26,7 +33,15 @@ public class StationLocations implements StationLocationsRepository, Disposable 
 
     private final HashMap<Station, HasGridPosition> positions;
 
-    public StationLocations() {
+    @ImplementedBy(TransportDataProvider.class)
+    public interface ProvidesStationAddedCallback {
+        void register(StationAddedCallback callback);
+    }
+
+    @Inject
+    public StationLocations(ProvidesStationAddedCallback register) {
+        this.register = register;
+        logger.info("Created station locations");
         positions = new HashMap<>();
 
         // bounding box for all stations
@@ -34,15 +49,24 @@ public class StationLocations implements StationLocationsRepository, Disposable 
         maxEasting = Long.MIN_VALUE;
         minNorthings = Long.MAX_VALUE;
         maxNorthings = Long.MIN_VALUE;
+
     }
 
+    @PostConstruct
+    public void registerForCallback() {
+        register.register(this);
+    }
 
+    @PreDestroy
     @Override
     public void dispose() {
+        logger.info("Clear positions");
         positions.clear();
     }
 
-    public void addStation(Station station) {
+    @Override
+    public void stationAdded(Station station) {
+        logger.info("Adding station " + HasId.asId(station));
         if (!positions.containsKey(station)) {
             LatLong position = station.getLatLong();
             if (!position.isValid()) {
@@ -144,6 +168,9 @@ public class StationLocations implements StationLocationsRepository, Disposable 
     @NotNull
     private Stream<Map.Entry<Station, HasGridPosition>> getNearbyStreamSquare(@NotNull HasGridPosition otherPosition,
                                                                               long rangeInMeters) {
+        if (positions.isEmpty()) {
+            logger.warn("No positions present");
+        }
         return positions.entrySet().stream().
                 // crude filter initially
                         filter(entry -> GridPositions.withinDistEasting(otherPosition, entry.getValue(), rangeInMeters)).

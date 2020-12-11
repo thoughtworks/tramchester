@@ -20,11 +20,14 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.places.MyLocation.MY_LOCATION_PLACEHOLDER_ID;
 import static java.lang.String.format;
 
+@Singleton
 public class ProcessPlanRequest {
     private static final Logger logger = LoggerFactory.getLogger(ProcessPlanRequest.class);
 
@@ -36,6 +39,7 @@ public class ProcessPlanRequest {
     private final PostcodeRepository postcodeRepository;
     private final TramJourneyToDTOMapper tramJourneyToDTOMapper;
 
+    @Inject
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
                               RouteCalculatorArriveBy routeCalculatorArriveBy, TransportData transportData,
                               PostcodeRepository postcodeRepository, TramJourneyToDTOMapper tramJourneyToDTOMapper) {

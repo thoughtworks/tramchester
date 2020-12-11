@@ -4,6 +4,10 @@ import com.tramchester.graph.GraphDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class GraphHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(GraphHealthCheck.class);
     private static final String unavailable = "Graph DB unavailable";
@@ -11,6 +15,7 @@ public class GraphHealthCheck extends TramchesterHealthCheck {
     private static final long TIMEOUT_MILLIS = 5;
     private final GraphDatabase service;
 
+    @Inject
     public GraphHealthCheck(GraphDatabase service) {
         this.service = service;
     }

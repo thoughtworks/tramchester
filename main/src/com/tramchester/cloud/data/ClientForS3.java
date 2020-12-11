@@ -13,6 +13,8 @@ import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -23,6 +25,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Singleton
 public class ClientForS3 {
 
     // TODO Switch to specific string encoding to/from bytes instead of the default
@@ -32,6 +35,7 @@ public class ClientForS3 {
 
     private S3Client s3Client;
 
+    @Inject
     public ClientForS3(TramchesterConfig config) {
         this.bucket = config.getLiveDataConfig().getS3Bucket();
         try {

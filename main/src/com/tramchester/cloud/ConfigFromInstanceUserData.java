@@ -1,21 +1,44 @@
 package com.tramchester.cloud;
 
+import org.picocontainer.Disposable;
+import org.picocontainer.Startable;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConfigFromInstanceUserData {
+@Singleton
+public class ConfigFromInstanceUserData implements Startable, Disposable {
 
     private static final String PREFIX = "#";
     private static final String EQUALS = "=";
     private final FetchMetadata provider;
     private Map<String,String> tokenToValue;
 
+    @Inject
     public ConfigFromInstanceUserData(FetchMetadata provider) {
         this.provider = provider;
     }
 
-    public String get(String token) {
+    @PostConstruct
+    @Override
+    public void start() {
         populateMap();
+    }
+
+    @Override
+    public void stop() {
+        // noop
+    }
+
+    @Override
+    public void dispose() {
+        tokenToValue.clear();
+    }
+
+    public String get(String token) {
         return tokenToValue.get(token);
     }
 

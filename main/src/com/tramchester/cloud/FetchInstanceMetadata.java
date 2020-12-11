@@ -11,6 +11,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -18,6 +20,7 @@ import java.net.URL;
 
 import static java.lang.String.format;
 
+@Singleton
 public class FetchInstanceMetadata implements FetchMetadata {
     private static final Logger logger = LoggerFactory.getLogger(FetchInstanceMetadata.class);
 
@@ -25,6 +28,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
 
     private final URL instanceDataURL;
 
+    @Inject
     public FetchInstanceMetadata(TramchesterConfig tramchesterConfig) throws MalformedURLException {
         this.instanceDataURL = new URL(tramchesterConfig.getInstanceDataUrl());
     }
@@ -52,7 +56,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
             HttpResponse result = httpClient.execute(httpGet);
             HttpEntity entity = result.getEntity();
             entity.writeTo(stream);
-            return new String(stream.toByteArray());
+            return stream.toString();
         }
         catch (ConnectTimeoutException timeout) {
             logger.info("Timed out getting meta data, not running in cloud");

@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,6 +29,7 @@ public class DataVersionResource implements APIResource {
     private final TramchesterConfig config;
     private final ProvidesFeedInfo providesFeedInfo;
 
+    @Inject
     public DataVersionResource(TramchesterConfig config, ProvidesFeedInfo providesFeedInfo) {
         this.config = config;
         this.providesFeedInfo = providesFeedInfo;

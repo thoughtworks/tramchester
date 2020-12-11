@@ -8,12 +8,15 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 public class TransportDataReaderFactory implements TransportDataLoader {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataReaderFactory.class);
 
@@ -21,12 +24,14 @@ public class TransportDataReaderFactory implements TransportDataLoader {
     private final List<TransportDataReader> dataReaders;
     private final FetchFileModTime fetchFileModTime;
 
+    @Inject
     public TransportDataReaderFactory(TramchesterConfig config, FetchFileModTime fetchFileModTime) {
         this.fetchFileModTime = fetchFileModTime;
         dataReaders = new ArrayList<>();
         this.config = config;
     }
 
+    // TODO Move populate into a Start Method
     public List<TransportDataReader> getReaders() {
         if (dataReaders.isEmpty()) {
             config.getDataSourceConfig().forEach(config -> {

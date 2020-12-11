@@ -12,8 +12,12 @@ import com.tramchester.repository.TramCentralZoneDirectionRespository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import static java.lang.String.format;
 
+@Singleton
 public class RouteToLineMapper {
     private static final Logger logger = LoggerFactory.getLogger(RouteToLineMapper.class);
 
@@ -21,6 +25,7 @@ public class RouteToLineMapper {
 
     //private final String ExchangeSquareId = "9400ZZMAEXS";
 
+    @Inject
     public RouteToLineMapper(TramCentralZoneDirectionRespository tramCentralZoneDirectionRespository) {
         this.tramCentralZoneDirectionRespository = tramCentralZoneDirectionRespository;
     }

@@ -8,6 +8,7 @@ import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,6 +26,7 @@ public class VersionResource implements APIResource {
 
     private final TransportModeRepository repository;
 
+    @Inject
     public VersionResource(TransportModeRepository repository) {
         this.repository = repository;
     }

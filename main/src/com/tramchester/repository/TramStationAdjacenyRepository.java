@@ -10,6 +10,9 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,11 +26,13 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
     private final Map<Pair<Station,Station>, Integer> matrix;
     private final TransportData transportDataSource;
 
+    @Inject
     public TramStationAdjacenyRepository(TransportData transportDataSource) {
         this.transportDataSource = transportDataSource;
         matrix = new HashMap<>();
     }
 
+    @PostConstruct
     @Override
     public void start() {
         logger.info("Build adjacency matrix");
@@ -49,6 +54,7 @@ public class TramStationAdjacenyRepository implements Startable, Disposable {
 
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         matrix.clear();

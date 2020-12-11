@@ -1,5 +1,6 @@
 package com.tramchester.testSupport.reference;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.TramStopCall;
@@ -10,13 +11,14 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationAddedCallback;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.TransportDataProvider;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -27,13 +29,21 @@ import static com.tramchester.domain.reference.KnownRoute.EDidsburyManchesterRoc
 import static com.tramchester.domain.reference.KnownRoute.RochdaleManchesterEDidsbury;
 import static java.lang.String.format;
 
+@LazySingleton
 public class TransportDataForTestProvider implements TransportDataProvider {
-    private final StationLocations stationLocations;
-    private final ProvidesNow providesNow;
+    private final TestTransportData container;
+    private StationAddedCallback callback;
+    private boolean populated;
 
-    public TransportDataForTestProvider(StationLocations stationLocations, ProvidesNow providesNow) {
-        this.stationLocations = stationLocations;
-        this.providesNow = providesNow;
+    @Inject
+    public TransportDataForTestProvider(ProvidesNow providesNow) {
+        container = new TestTransportData(providesNow);
+        populated = false;
+    }
+
+    @Override
+    public void register(StationAddedCallback callback) {
+        this.callback = callback;
     }
 
     public TransportData getData() {
@@ -41,13 +51,14 @@ public class TransportDataForTestProvider implements TransportDataProvider {
     }
 
     public TestTransportData getTestData() {
-        TestTransportData container = new TestTransportData(stationLocations, providesNow);
-        populateTestData(container);
-
+        if (!populated) {
+            populateTestData(container);
+            populated = true;
+        }
         return container;
     }
 
-    private static void populateTestData(TransportDataContainer container) {
+    private void populateTestData(TransportDataContainer container) {
         Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
         Route routeB = RoutesForTesting.createTramRoute(RochdaleManchesterEDidsbury);
         Route routeC = RoutesForTesting.createTramRoute(EDidsburyManchesterRochdale);
@@ -86,28 +97,28 @@ public class TransportDataForTestProvider implements TransportDataProvider {
         //LatLong latLong = new LatLong(latitude, longitude);
         Station first = new TestStation(TestTransportData.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Tram);
-        container.addStation(first);
+        addAStation(container, first);
         addRouteStation(container, first, routeA);
         TramStopCall stopA = createStop(container, tripA, first, ServiceTime.of(8, 0), ServiceTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
         Station second = new TestStation(TestTransportData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid, TransportMode.Tram);
-        container.addStation(second);
+        addAStation(container, second);
         addRouteStation(container, second, routeA);
         TramStopCall stopB = createStop(container, tripA, second, ServiceTime.of(8, 11), ServiceTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
         Station interchangeStation = new TestStation(TestTransportData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
                 TestEnv.nearShudehillGrid, TransportMode.Tram);
-        container.addStation(interchangeStation);
+        addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
         TramStopCall stopC = createStop(container, tripA, interchangeStation, ServiceTime.of(8, 20), ServiceTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
         Station last = new TestStation(TestTransportData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
-        container.addStation(last);
+        addAStation(container, last);
         addRouteStation(container, last, routeA);
         TramStopCall stopD = createStop(container, tripA, last, ServiceTime.of(8, 40), ServiceTime.of(8, 40), 4);
         tripA.addStop(stopD);
@@ -117,11 +128,11 @@ public class TransportDataForTestProvider implements TransportDataProvider {
 
         Station stationFour = new TestStation(TestTransportData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
-        container.addStation(stationFour);
+        addAStation(container, stationFour);
 
         Station stationFive = new TestStation(TestTransportData.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus,
                 TestEnv.nearStockportBusGrid,  TransportMode.Tram);
-        container.addStation(stationFive);
+        addAStation(container, stationFive);
 
         //
         Trip tripC = new Trip("tripCId", "headSignC", serviceC, routeC);
@@ -149,6 +160,11 @@ public class TransportDataForTestProvider implements TransportDataProvider {
         container.addService(serviceC);
         container.updateTimesForServices();
 
+    }
+
+    private void addAStation(TransportDataContainer container, Station station) {
+        container.addStation(station);
+        callback.stationAdded(station);
     }
 
     private static void addRouteStation(TransportDataContainer container, Station station, Route route) {
@@ -180,6 +196,7 @@ public class TransportDataForTestProvider implements TransportDataProvider {
         return new TramStopCall(platform, station, stopTimeData);
     }
 
+
     public static class TestTransportData extends TransportDataContainer {
 
         private static final String serviceAId = "serviceAId";
@@ -194,17 +211,13 @@ public class TransportDataForTestProvider implements TransportDataProvider {
         private static final String STATION_FOUR = METROLINK_PREFIX + "_ST_FOUR";
         private static final String STATION_FIVE = METROLINK_PREFIX + "_ST_FIVE";
 
-        private final StationLocations stationLocations;
-
-        public TestTransportData(StationLocations stationLocations, ProvidesNow providesNow) {
+        public TestTransportData(ProvidesNow providesNow) {
             super(providesNow);
-            this.stationLocations = stationLocations;
         }
 
         @Override
         public void addStation(Station station) {
             super.addStation(station);
-            stationLocations.addStation(station);
         }
 
         public Station getFirst() {

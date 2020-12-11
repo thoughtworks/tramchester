@@ -19,6 +19,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,6 +40,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
     private final ProvidesNow providesNow;
     private LocalDate lastRefresh;
 
+    @Inject
     public PlatformMessageRepository(ProvidesNow providesNow) {
         this.providesNow = providesNow;
         messageCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).

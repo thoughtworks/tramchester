@@ -6,10 +6,14 @@ import com.tramchester.dataimport.URLDownloadAndModTime;
 import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Singleton
 public class NewDataAvailableHealthCheckFactory implements Startable, Disposable, HealthCheckFactory {
 
     private final TramchesterConfig config;
@@ -17,6 +21,7 @@ public class NewDataAvailableHealthCheckFactory implements Startable, Disposable
     private final FetchFileModTime fileModTime;
     private final List<TramchesterHealthCheck> healthCheckList;
 
+    @Inject
     public NewDataAvailableHealthCheckFactory(TramchesterConfig config, URLDownloadAndModTime urlDownloader, FetchFileModTime fileModTime) {
         this.config = config;
         this.urlDownloader = urlDownloader;
@@ -33,6 +38,7 @@ public class NewDataAvailableHealthCheckFactory implements Startable, Disposable
         healthCheckList.clear();
     }
 
+    @PostConstruct
     @Override
     public void start() {
         config.getDataSourceConfig().forEach(config -> healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime)));

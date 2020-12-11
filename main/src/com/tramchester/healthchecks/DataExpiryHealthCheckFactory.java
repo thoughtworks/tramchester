@@ -6,16 +6,21 @@ import com.tramchester.repository.TransportData;
 import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Singleton
 public class DataExpiryHealthCheckFactory implements HealthCheckFactory, Startable, Disposable {
     private final List<TramchesterHealthCheck> healthChecks;
     private final TransportData transportData;
     private final ProvidesLocalNow providesLocalNow;
     private final TramchesterConfig config;
 
+    @Inject
     public DataExpiryHealthCheckFactory(TransportData transportData, ProvidesLocalNow providesLocalNow, TramchesterConfig config) {
         this.transportData = transportData;
         this.providesLocalNow = providesLocalNow;
@@ -33,6 +38,7 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory, Startab
         healthChecks.clear();
     }
 
+    @PostConstruct
     @Override
     public void start() {
         transportData.getFeedInfos().forEach((name, feedInfo) -> {

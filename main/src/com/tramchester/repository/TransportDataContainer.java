@@ -11,6 +11,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -41,8 +42,10 @@ public class TransportDataContainer implements TransportData, Disposable {
         this.providesNow = providesNow;
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
+        logger.info("Dispose");
         trips.forEach(Trip::dispose);
         trips.clear();
         stationsById.clear();
@@ -175,7 +178,9 @@ public class TransportDataContainer implements TransportData, Disposable {
             logger.error("Cannot find latest mod time for transport mode " + mode);
             return providesNow.getDateTime();
         } else {
-            return result.get();
+            LocalDateTime localDateTime = result.get();
+            logger.info("Newest mode time for " + mode.name() + " is " + localDateTime);
+            return localDateTime;
         }
     }
 
@@ -274,6 +279,7 @@ public class TransportDataContainer implements TransportData, Disposable {
     }
 
     public void addFeedInfo(String name, FeedInfo feedInfo) {
+        logger.info("Added " + feedInfo.toString());
         feedInfoMap.put(name, feedInfo);
     }
 

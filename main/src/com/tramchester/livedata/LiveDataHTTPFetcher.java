@@ -15,17 +15,21 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static java.lang.String.format;
 
+@Singleton
 public class LiveDataHTTPFetcher implements LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHTTPFetcher.class);
 
     private final LiveDataConfig config;
 
+    @Inject
     public LiveDataHTTPFetcher(TramchesterConfig config) {
         this.config = config.getLiveDataConfig();
     }

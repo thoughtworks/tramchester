@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -43,11 +44,11 @@ public abstract class ComponentContainer {
     private static final Logger logger = LoggerFactory.getLogger(ComponentContainer.class);
 
     // init dependencies but possibly with alternative source of transport data
-    public abstract void initialise(TransportDataProvider transportDataProvider);
+    public abstract void initContainer();
 
     public abstract <T> T get(Class<T> klass);
 
-    protected abstract <T> List<T> getAll(Class<T> klass);
+    protected abstract <T> Set<T> getAll(Class<T> klass);
 
     protected abstract <T> void addComponent(Class<T> klass);
 
@@ -58,21 +59,23 @@ public abstract class ComponentContainer {
     protected abstract void stop();
 
     public void initialise() {
-        DefaultDataLoadStrategy defaultDataStrategy = get(DefaultDataLoadStrategy.class);
-        initialise(defaultDataStrategy.getProvider());
+        logger.info("Init");
+        initContainer();
     }
 
-    public List<ReportsCacheStats> getHasCacheStat() {
+    public Set<ReportsCacheStats> getCacheStatReporters() {
         return getAll(ReportsCacheStats.class);
     }
 
-    public List<APIResource> getResources() {
-        return getAll(APIResource.class);
+    public Set<APIResource> getResources() {
+        Set<APIResource> results = getAll(APIResource.class);
+        logger.info("Got " + results.size() + " API Resources");
+        return results;
     }
 
-    public List<TramchesterHealthCheck> getHealthChecks() {
-        List<TramchesterHealthCheck> healthChecks = getAll(TramchesterHealthCheck.class);
-        List<HealthCheckFactory> healthCheckFactorys = getAll(HealthCheckFactory.class);
+    public Set<TramchesterHealthCheck> getHealthChecks() {
+        Set<TramchesterHealthCheck> healthChecks = getAll(TramchesterHealthCheck.class);
+        Set<HealthCheckFactory> healthCheckFactorys = getAll(HealthCheckFactory.class);
         healthCheckFactorys.forEach(healthCheckFactory -> healthChecks.addAll(healthCheckFactory.getHealthChecks()));
 
         return healthChecks;
@@ -82,17 +85,18 @@ public abstract class ComponentContainer {
         logger.info("Dependencies close");
 
         logger.info("Begin cache stats");
-        List<ReportsCacheStats> components = getReportCacheStats();
+        Set<ReportsCacheStats> components = getReportCacheStats();
         components.forEach(component -> reportCacheStats(component.getClass().getSimpleName(), component.stats()));
         logger.info("End cache stats");
 
+        logger.info("Stop components");
         stop();
 
         logger.info("Dependencies closed");
         System.gc(); // for tests which accumulate/free a lot of memory
     }
 
-    private List<ReportsCacheStats> getReportCacheStats() {
+    private Set<ReportsCacheStats> getReportCacheStats() {
         return getAll(ReportsCacheStats.class);
     }
 
@@ -100,15 +104,30 @@ public abstract class ComponentContainer {
         stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
     }
 
-    protected void registerComponents(TramchesterConfig configuration, GraphFilter graphFilter) {
-        logger.info("Register components");
+    protected void registerResources() {
+        addComponent(StationResource.class);
+        addComponent(PostcodeResource.class);
+        addComponent(DeparturesResource.class);
+        addComponent(VersionResource.class);
+        addComponent(JourneysForGridResource.class);
+        addComponent(JourneyPlannerResource.class);
+        addComponent(TramPositionsResource.class);
+        addComponent(RouteResource.class);
+        addComponent(DataVersionResource.class);
+    }
 
-        addComponent(ObjectMapper.class, new ObjectMapper());
+    protected void registerConfiguration(TramchesterConfig configuration, GraphFilter graphFilter) {
+        addComponent(ProvidesNow.class, ProvidesLocalNow.class);
         addComponent(TramchesterConfig.class, configuration);
         addComponent(GraphFilter.class, graphFilter);
         addComponent(DefaultDataLoadStrategy.class);
+    }
 
-        addComponent(ProvidesNow.class, ProvidesLocalNow.class);
+    protected void registerComponents() {
+        logger.info("Register components");
+
+        addComponent(ObjectMapper.class, new ObjectMapper());
+
         addComponent(StationLocations.class);
         addComponent(PostcodeBoundingBoxs.class);
         addComponent(PostcodeDataImporter.class);
@@ -119,20 +138,11 @@ public abstract class ComponentContainer {
         addComponent(FetchDataFromUrl.class);
         addComponent(PostcodeRepository.class);
         addComponent(VersionRepository.class);
-        addComponent(StationResource.class);
-        addComponent(PostcodeResource.class);
-        addComponent(DeparturesResource.class);
         addComponent(DeparturesMapper.class);
-        addComponent(VersionResource.class);
         addComponent(TransportModeRepository.class);
-
-        // WIP
-        addComponent(JourneysForGridResource.class);
-
         addComponent(CreateQueryTimes.class);
-        addComponent(JourneyPlannerResource.class);
-        addComponent(TramPositionsResource.class);
-        addComponent(ServiceHeuristics.class);
+
+        //addComponent(ServiceHeuristics.class);
 
         addComponent(RouteCalculator.class);
         addComponent(FastestRoutesForBoxes.class);
@@ -151,9 +161,7 @@ public abstract class ComponentContainer {
         addComponent(MapPathToLocations.class);
         addComponent(LocationJourneyPlanner.class);
         addComponent(SendMetricsToCloudWatch.class);
-        addComponent(DataVersionResource.class);
         addComponent(RoutesMapper.class);
-        addComponent(RouteResource.class);
         addComponent(LiveDataHTTPFetcher.class);
         addComponent(LiveDataParser.class);
         addComponent(PlatformMessageRepository.class);
@@ -191,7 +199,7 @@ public abstract class ComponentContainer {
         addComponent(RouteCallingStations.class);
         addComponent(TramCentralZoneDirectionRespository.class);
         addComponent(CreateNeighbours.class);
-        addComponent(TransportDataProviderFactory.class);
+        addComponent(TransportDataFromFilesBuilder.class);
     }
 
 }

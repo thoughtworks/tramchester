@@ -14,12 +14,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+@Singleton
 public class TramPositionInference {
     private static final Logger logger = LoggerFactory.getLogger(TramPositionInference.class);
 
@@ -29,6 +32,7 @@ public class TramPositionInference {
     private final TramStationAdjacenyRepository adjacenyRepository;
     private final RouteReachable routeReachable;
 
+    @Inject
     public TramPositionInference(DueTramsSource liveDataSource, TramStationAdjacenyRepository adjacenyRepository, RouteReachable routeReachable) {
         this.liveDataSource = liveDataSource;
         this.adjacenyRepository = adjacenyRepository;

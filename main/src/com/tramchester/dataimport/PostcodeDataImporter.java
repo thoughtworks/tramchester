@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.dataimport.parsers.PostcodeDataMapper;
@@ -8,6 +9,7 @@ import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@LazySingleton
 public class PostcodeDataImporter {
     // NOTE:
     // Filters load postcodes with the bounds given by current set of StationLocations
@@ -38,6 +41,7 @@ public class PostcodeDataImporter {
     private final FetchFileModTime fetchFileModTime;
     private BoundingBox requiredBounds;
 
+    @Inject
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper,
                                 PostcodeBoundingBoxs postcodeBounds, FetchFileModTime fetchFileModTime) {
         this.directory = config.getPostcodeDataPath();

@@ -16,9 +16,8 @@ class StationAdjacencyRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
-        transportDataSource = new TransportDataForTestProvider(stationLocations, providesNow).getTestData();
+        transportDataSource = new TransportDataForTestProvider(providesNow).getTestData();
         repository = new TramStationAdjacenyRepository(transportDataSource);
         repository.start();
     }

@@ -15,6 +15,8 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 public class ServiceHeuristics {
 
     private static final Logger logger;

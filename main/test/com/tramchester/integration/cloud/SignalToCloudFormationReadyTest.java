@@ -16,6 +16,7 @@ class SignalToCloudFormationReadyTest {
         stubbedServer.run();
 
         ConfigFromInstanceUserData providesConfig = new ConfigFromInstanceUserData(() -> "# WAITURL=http://localhost:8080/callbackURL");
+        providesConfig.start();
         SignalToCloudformationReady signaller = new SignalToCloudformationReady(providesConfig);
 
         signaller.send();
@@ -34,6 +35,7 @@ class SignalToCloudFormationReadyTest {
         stubbedServer.run();
 
         ConfigFromInstanceUserData providesConfig = new ConfigFromInstanceUserData(() -> "# NOTHERE=http://localhost:8080/callbackURL");
+        providesConfig.start();
         SignalToCloudformationReady signaller = new SignalToCloudformationReady(providesConfig);
 
         signaller.send();
@@ -49,6 +51,7 @@ class SignalToCloudFormationReadyTest {
         stubbedServer.run();
 
         ConfigFromInstanceUserData providesConfig = new ConfigFromInstanceUserData(() -> "");
+        providesConfig.start();
         SignalToCloudformationReady signaller = new SignalToCloudformationReady(providesConfig);
 
         signaller.send();

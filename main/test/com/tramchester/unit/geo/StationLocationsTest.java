@@ -19,10 +19,26 @@ import static org.junit.jupiter.api.Assertions.*;
 class StationLocationsTest {
 
     private StationLocations stationLocations;
+    private AddsStations addsStations;
+
+    private static class AddsStations implements StationLocations.ProvidesStationAddedCallback {
+
+        private StationAddedCallback callback;
+
+        @Override
+        public void register(StationAddedCallback callback) {
+            this.callback = callback;
+        }
+
+        public void addStation(Station station) {
+            callback.stationAdded(station);
+        }
+    }
 
     @BeforeEach
     void onceBeforeEachTest() {
-        stationLocations = new StationLocations();
+        addsStations = new AddsStations();
+        stationLocations = new StationLocations(addsStations);
     }
 
     @Test
@@ -48,8 +64,8 @@ class StationLocationsTest {
     void shouldGetLatLongForStation() throws TransformException {
         Station stationA = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationB = createTestStation("id789", "nameC", TestEnv.nearShudehill);
-        stationLocations.addStation(stationA);
-        stationLocations.addStation(stationB);
+        addsStations.addStation(stationA);
+        addsStations.addStation(stationB);
 
         LatLong resultA = stationLocations.getStationPosition(stationA);
         assertEquals(TestEnv.nearPiccGardens.getLat(), resultA.getLat(), 0.00001);
@@ -75,10 +91,10 @@ class StationLocationsTest {
         LatLong closePlace = new LatLong(place.getLat()+0.008, place.getLon()+0.008);
         Station stationD = createTestStation("idABC", "name", closePlace);
 
-        stationLocations.addStation(stationA);
-        stationLocations.addStation(stationB);
-        stationLocations.addStation(stationC);
-        stationLocations.addStation(stationD);
+        addsStations.addStation(stationA);
+        addsStations.addStation(stationB);
+        addsStations.addStation(stationC);
+        addsStations.addStation(stationD);
 
         HasGridPosition gridA = stationLocations.getStationGridPosition(stationA);
         HasGridPosition gridB = stationLocations.getStationGridPosition(stationD);
@@ -103,9 +119,9 @@ class StationLocationsTest {
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
-        stationLocations.addStation(stationA);
-        stationLocations.addStation(stationB);
-        stationLocations.addStation(stationC);
+        addsStations.addStation(stationA);
+        addsStations.addStation(stationB);
+        addsStations.addStation(stationC);
 
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 3, 20);
         assertEquals(3, results.size());
@@ -120,9 +136,9 @@ class StationLocationsTest {
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
-        stationLocations.addStation(stationA);
-        stationLocations.addStation(stationB);
-        stationLocations.addStation(stationC);
+        addsStations.addStation(stationA);
+        addsStations.addStation(stationB);
+        addsStations.addStation(stationC);
 
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 1, 20);
         assertEquals(1, results.size());
@@ -132,7 +148,7 @@ class StationLocationsTest {
     @Test
     void shouldFindNearbyStationRespectingRange() throws TransformException {
         Station testStation = createTestStation("id123", "name", TestEnv.nearAltrincham);
-        stationLocations.addStation(testStation);
+        addsStations.addStation(testStation);
 
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 1);
         assertEquals(0, results.size());
@@ -148,9 +164,9 @@ class StationLocationsTest {
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
-        stationLocations.addStation(testStationA);
-        stationLocations.addStation(testStationB);
-        stationLocations.addStation(testStationC);
+        addsStations.addStation(testStationA);
+        addsStations.addStation(testStationB);
+        addsStations.addStation(testStationC);
 
         HasGridPosition posA = stationLocations.getStationGridPosition(testStationA);
         HasGridPosition posB = stationLocations.getStationGridPosition(testStationB);
@@ -172,9 +188,9 @@ class StationLocationsTest {
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
-        stationLocations.addStation(testStationA);
-        stationLocations.addStation(testStationB);
-        stationLocations.addStation(testStationC);
+        addsStations.addStation(testStationA);
+        addsStations.addStation(testStationB);
+        addsStations.addStation(testStationC);
 
         List<BoundingBoxWithStations> boxedStations = stationLocations.getGroupedStations(1000).collect(Collectors.toList());
 

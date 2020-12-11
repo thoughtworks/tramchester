@@ -1,5 +1,6 @@
 package com.tramchester.graph.graphbuild;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
@@ -37,7 +38,7 @@ import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-@Singleton
+@LazySingleton
 public class StagedTransportGraphBuilder extends GraphBuilder implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(StagedTransportGraphBuilder.class);
 
@@ -73,7 +74,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder implements Startab
 
     @Override
     protected void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase) {
-        logger.info("Building graph from " + transportData.getDataSourceInfo());
+        logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
         long start = System.currentTimeMillis();
 

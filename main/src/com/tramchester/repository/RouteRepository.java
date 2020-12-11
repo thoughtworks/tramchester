@@ -1,10 +1,12 @@
 package com.tramchester.repository;
 
+import com.google.inject.ImplementedBy;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 
 import java.util.Set;
 
+@ImplementedBy(TransportData.class)
 public interface RouteRepository {
     Set<Route> getRoutes();
     Route getRouteById(IdFor<Route> routeId);

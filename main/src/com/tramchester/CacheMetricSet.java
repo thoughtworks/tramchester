@@ -6,16 +6,17 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 public class CacheMetricSet {
 
-    private final List<ReportsCacheStats> haveCacheStats;
+    private final Collection<ReportsCacheStats> haveCacheStats;
     private final MetricRegistry registry;
 
-    public CacheMetricSet(List<ReportsCacheStats> haveCacheStats, MetricRegistry registry) {
+    public CacheMetricSet(Collection<ReportsCacheStats> haveCacheStats, MetricRegistry registry) {
         this.haveCacheStats = haveCacheStats;
         this.registry = registry;
     }

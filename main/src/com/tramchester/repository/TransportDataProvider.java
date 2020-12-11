@@ -1,5 +1,7 @@
 package com.tramchester.repository;
 
-public interface TransportDataProvider {
+import com.tramchester.geo.StationLocations;
+
+public interface TransportDataProvider extends StationLocations.ProvidesStationAddedCallback {
     TransportData getData();
 }

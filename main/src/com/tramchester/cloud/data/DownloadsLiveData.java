@@ -4,6 +4,8 @@ import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -14,6 +16,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@Singleton
 public class DownloadsLiveData {
     private static final Logger logger = LoggerFactory.getLogger(DownloadsLiveData.class);
 
@@ -21,6 +24,7 @@ public class DownloadsLiveData {
     private final S3Keys s3Keys;
     private final StationDepartureMapper mapper;
 
+    @Inject
     public DownloadsLiveData(ClientForS3 s3Client, StationDepartureMapper mapper, S3Keys s3Keys) {
         this.s3Client = s3Client;
         this.mapper = mapper;

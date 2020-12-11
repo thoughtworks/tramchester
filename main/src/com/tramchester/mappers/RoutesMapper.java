@@ -9,16 +9,20 @@ import com.tramchester.repository.TransportData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Singleton
 public class RoutesMapper {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
     private final TransportData transportData;
     private final RouteCallingStations routeCallingStations;
 
+    @Inject
     public RoutesMapper(TransportData transportData, RouteCallingStations routeCallingStations) {
         this.transportData = transportData;
         this.routeCallingStations = routeCallingStations;

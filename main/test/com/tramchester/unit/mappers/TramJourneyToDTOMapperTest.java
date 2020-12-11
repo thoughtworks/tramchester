@@ -55,9 +55,9 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        StationLocations stationLocations = new StationLocations();
+        //StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
-        transportData = new TransportDataForTestProvider(stationLocations, providesNow).getTestData();
+        transportData = new TransportDataForTestProvider(providesNow).getTestData();
     }
 
     @BeforeEach

@@ -12,6 +12,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +25,7 @@ public class RouteCallingStations implements Startable, Disposable {
     private final TransportData transportData;
     private final Map<Route, List<Station>> stations;
 
+    @Inject
     public RouteCallingStations(TransportData transportData) {
         this.transportData = transportData;
         stations = new HashMap<>();
@@ -37,13 +40,16 @@ public class RouteCallingStations implements Startable, Disposable {
         stations.clear();
     }
 
+    @PostConstruct
     @Override
     public void start() {
+        logger.info("start");
         Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route -> populateFromServices(route, route.getServices()));
     }
 
     private void populateFromServices(Route route, Set<Service> services) {
+        logger.info("Populate calling stations for " + HasId.asId(route));
         Set<Trip> trips = services.stream().map(service -> service.getTripsFor(route)).flatMap(Collection::stream).collect(Collectors.toSet());
 
         // ASSUME: longest trips correspond to full end to end journeys on the whole route

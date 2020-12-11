@@ -21,6 +21,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
@@ -42,6 +43,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     private final GraphDatabase graphDatabaseService;
     private final TramchesterConfig config;
 
+    @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   ObjectMapper objectMapper, GraphDatabase graphDatabaseService,
                                   ProvidesNow providesNow, ProcessPlanRequest processPlanRequest, TramchesterConfig config) {

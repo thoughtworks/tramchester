@@ -70,7 +70,6 @@ public class RouteCalculator implements TramRouteCalculator {
         this.mapPathToLocations = mapPathToLocations;
     }
 
-
     @Override
     public Stream<Journey> calculateRoute(Transaction txn, Station startStation, Station destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",

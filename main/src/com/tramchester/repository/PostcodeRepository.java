@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
@@ -13,6 +14,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -20,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Singleton
+@LazySingleton
 public class PostcodeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeRepository.class);
 
@@ -30,6 +33,7 @@ public class PostcodeRepository implements Disposable, Startable {
     private final IdMap<PostcodeLocation> postcodes; // Id -> PostcodeLocation
     private LocalDateTime lastModifiedTime;
 
+    @Inject
     public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config) {
         this.importer = importer;
         this.config = config;
@@ -40,6 +44,7 @@ public class PostcodeRepository implements Disposable, Startable {
         return postcodes.get(postcodeId);
     }
 
+    @PostConstruct
     @Override
     public void start() {
         if (!config.getLoadPostcodes()) {

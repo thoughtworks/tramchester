@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,12 +14,13 @@ import java.time.format.DateTimeParseException;
 import static java.lang.String.format;
 
 public class S3Keys {
-    private static final Logger logger = LoggerFactory.getLogger(S3Keys.class);
+    //private static final Logger logger = LoggerFactory.getLogger(S3Keys.class);
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
     private final String environment;
 
+    @Inject
     public S3Keys(TramchesterConfig config) {
         environment = config.getLiveDataConfig().getS3Prefix();
     }

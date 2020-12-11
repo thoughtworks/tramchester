@@ -13,6 +13,8 @@ import com.tramchester.repository.PlatformMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.Optional;
 
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
+@Singleton
 public class ProvidesNotes {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesNotes.class);
 
@@ -33,6 +36,7 @@ public class ProvidesNotes {
 
     private final PlatformMessageSource platformMessageSource;
 
+    @Inject
     public ProvidesNotes(PlatformMessageSource platformMessageSource) {
         this.platformMessageSource = platformMessageSource;
     }

@@ -2,13 +2,12 @@ package com.tramchester.unit.geo;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TransportDataForTestProvider;
@@ -16,7 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,10 +33,10 @@ class SortsPositionsTest {
 
     @BeforeEach
     void beforeEachTestRuns() throws TransformException {
-        StationLocations stationLocations = new StationLocations();
+        //StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
 
-        dataForTest = new TransportDataForTestProvider(stationLocations, providesNow).getTestData();
+        dataForTest = new TransportDataForTestProvider(providesNow).getTestData();
 
         nearPiccGardens = dataForTest.getSecond(); // near PiccGardens
         nearShudehill = dataForTest.getInterchange();   // near Shudehill

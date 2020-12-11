@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
@@ -13,6 +14,7 @@ import com.tramchester.mappers.TramJourneyToDTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -24,6 +26,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@LazySingleton
 public class FastestRoutesForBoxes {
     private static final Logger logger = LoggerFactory.getLogger(FastestRoutesForBoxes.class);
 
@@ -31,6 +34,7 @@ public class FastestRoutesForBoxes {
     private final RouteCalculator calculator;
     private final TramJourneyToDTOMapper dtoMapper;
 
+    @Inject
     public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator, TramJourneyToDTOMapper dtoMapper) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;

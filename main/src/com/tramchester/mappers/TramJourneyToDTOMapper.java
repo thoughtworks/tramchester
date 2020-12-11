@@ -14,16 +14,20 @@ import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Singleton
 public class TramJourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyToDTOMapper.class);
     private final JourneyDTOFactory journeyFactory;
     private final StageDTOFactory stageFactory;
     private final ProvidesNotes providesNotes;
 
+    @Inject
     public TramJourneyToDTOMapper(JourneyDTOFactory journeyFactory, StageDTOFactory stageFactory, ProvidesNotes providesNotes) {
         this.journeyFactory = journeyFactory;
         this.stageFactory = stageFactory;

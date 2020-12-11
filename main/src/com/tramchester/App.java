@@ -15,6 +15,7 @@ import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -105,14 +106,15 @@ public class App extends Application<AppConfiguration>  {
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
 
-        this.container = new ComponentsBuilder().create(configuration);
+        this.container = new ComponentsBuilder<TransportDataFromFiles>().create(configuration);
 
         try {
             container.initialise();
         }
         catch (Exception exception) {
             logger.error("Uncaught exception during init ", exception);
-            System.exit(-1);
+            throw new RuntimeException("uncaught excpetion during init", exception);
+            //System.exit(-1);
         }
 
         ScheduledExecutorServiceBuilder executorServiceBuilder = environment.lifecycle().scheduledExecutorService("tramchester-%d");
@@ -143,7 +145,7 @@ public class App extends Application<AppConfiguration>  {
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 
-        CacheMetricSet cacheMetrics = new CacheMetricSet(container.getHasCacheStat(), metricRegistry);
+        CacheMetricSet cacheMetrics = new CacheMetricSet(container.getCacheStatReporters(), metricRegistry);
         cacheMetrics.prepare();
 
         // report specific metrics to AWS cloudwatch

@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.time.LocalDateTime;
@@ -43,6 +44,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final StationLocations stationLocations;
     private final TramchesterConfig config;
 
+    @Inject
     public StationResource(StationRepository stationRepository,
                            UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            ProvidesNow providesNow,

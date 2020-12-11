@@ -15,6 +15,8 @@ import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Instant;
@@ -28,6 +30,7 @@ import static com.tramchester.domain.liveUpdates.LineDirection.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
+@Singleton
 public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
 
@@ -41,6 +44,7 @@ public class LiveDataParser {
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
 
+    @Inject
     public LiveDataParser(StationRepository stationRepository) {
         this.stationRepository = stationRepository;
     }

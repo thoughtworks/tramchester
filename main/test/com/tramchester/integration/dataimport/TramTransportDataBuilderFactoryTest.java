@@ -2,16 +2,16 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.TransportDataProviderFactory;
+import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,7 @@ class TramTransportDataBuilderFactoryTest {
 
     @Test
     void shouldLoadTransportData() {
+        List<Station> added = new ArrayList<>();
 
         TestConfig testConfig = new TestConfig() {
             @Override
@@ -44,14 +46,16 @@ class TramTransportDataBuilderFactoryTest {
         TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig, fetchFileModTime);
 
         ProvidesNow providesNow = new ProvidesLocalNow();
-        StationLocations stationLocations = new StationLocations();
 
-        TransportDataProviderFactory transportDataImporter = new TransportDataProviderFactory(factory, providesNow,
-                stationLocations, testConfig);
+        TransportDataFromFilesBuilder transportDataImporter = new TransportDataFromFilesBuilder(factory, providesNow,
+                testConfig);
 
         TransportDataFromFiles builder = transportDataImporter.create();
-        builder.load();
+        builder.register(added::add);
+        //builder.load();
         TransportData transportData = builder.getData();
+
+        assertThat(added).hasSize(40);
 
         assertThat(transportData.getRoutes()).hasSize(2);
 

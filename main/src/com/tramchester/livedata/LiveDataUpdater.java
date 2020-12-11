@@ -12,6 +12,8 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +22,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
+@Singleton
 public class LiveDataUpdater implements Disposable {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataUpdater.class);
 
@@ -33,6 +36,7 @@ public class LiveDataUpdater implements Disposable {
     private final LiveDataParser parser;
     private final ProvidesNow providesNow;
 
+    @Inject
     public LiveDataUpdater(PlatformMessageRepository platformMessageRepository, DueTramsRepository dueTramsRepository,
                            LiveDataFetcher fetcher, LiveDataParser parser, ProvidesNow providesNow) {
         this.platformMessageRepository = platformMessageRepository;

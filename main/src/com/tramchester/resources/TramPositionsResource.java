@@ -15,6 +15,7 @@ import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,6 +34,7 @@ public class TramPositionsResource implements APIResource {
     private final ProvidesNow providesNow;
     private final TramchesterConfig config;
 
+    @Inject
     public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper,
                                  ProvidesNow providesNow, TramchesterConfig config) {
         this.positionInference = positionInference;
