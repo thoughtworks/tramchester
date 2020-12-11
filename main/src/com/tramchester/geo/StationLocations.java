@@ -1,11 +1,10 @@
 package com.tramchester.geo;
 
-import com.google.inject.ImplementedBy;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.repository.TransportDataProvider;
+import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 import org.picocontainer.Disposable;
@@ -22,9 +21,9 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class StationLocations implements StationLocationsRepository, Disposable, StationAddedCallback {
+public class StationLocations implements StationLocationsRepository, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
-    private final ProvidesStationAddedCallback register;
+    private final StationRepository stationRepository;
 
     private long minEastings;
     private long maxEasting;
@@ -33,15 +32,9 @@ public class StationLocations implements StationLocationsRepository, Disposable,
 
     private final HashMap<Station, HasGridPosition> positions;
 
-    @ImplementedBy(TransportDataProvider.class)
-    public interface ProvidesStationAddedCallback {
-        void register(StationAddedCallback callback);
-    }
-
     @Inject
-    public StationLocations(ProvidesStationAddedCallback register) {
-        this.register = register;
-        logger.info("Created station locations");
+    public StationLocations(StationRepository stationRepository) {
+        this.stationRepository = stationRepository;
         positions = new HashMap<>();
 
         // bounding box for all stations
@@ -49,12 +42,11 @@ public class StationLocations implements StationLocationsRepository, Disposable,
         maxEasting = Long.MIN_VALUE;
         minNorthings = Long.MAX_VALUE;
         maxNorthings = Long.MIN_VALUE;
-
     }
 
     @PostConstruct
-    public void registerForCallback() {
-        register.register(this);
+    public void start() {
+        stationRepository.getStations().forEach(this::addStation);
     }
 
     @PreDestroy
@@ -64,8 +56,7 @@ public class StationLocations implements StationLocationsRepository, Disposable,
         positions.clear();
     }
 
-    @Override
-    public void stationAdded(Station station) {
+    private void addStation(Station station) {
         logger.info("Adding station " + HasId.asId(station));
         if (!positions.containsKey(station)) {
             LatLong position = station.getLatLong();

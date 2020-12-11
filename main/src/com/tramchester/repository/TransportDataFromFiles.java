@@ -11,7 +11,6 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.StationAddedCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
     private boolean loaded = false;
 
     private final TransportDataContainer dataContainer;
-    private StationAddedCallback stationAddedCallback;
 
     @Inject
     public TransportDataFromFiles(List<TransportDataSource> transportDataStreams,
@@ -41,11 +39,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
         this.transportDataStreams = transportDataStreams;
         this.config = config;
         dataContainer = new TransportDataContainer(providesNow);
-    }
-
-    @Override
-    public void register(StationAddedCallback callback) {
-        this.stationAddedCallback = callback;
     }
 
     public TransportData getData() {
@@ -234,9 +227,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private void addStation(TransportDataContainer buildable, Route route, Station station) {
-        if (stationAddedCallback!=null) {
-            stationAddedCallback.stationAdded(station);
-        }
         station.addRoute(route);
 
         IdFor<Station> stationId = station.getId();

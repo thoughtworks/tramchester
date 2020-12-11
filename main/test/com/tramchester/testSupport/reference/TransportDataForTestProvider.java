@@ -11,7 +11,6 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.geo.StationAddedCallback;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.TransportDataProvider;
@@ -32,18 +31,12 @@ import static java.lang.String.format;
 @LazySingleton
 public class TransportDataForTestProvider implements TransportDataProvider {
     private final TestTransportData container;
-    private StationAddedCallback callback;
     private boolean populated;
 
     @Inject
     public TransportDataForTestProvider(ProvidesNow providesNow) {
         container = new TestTransportData(providesNow);
         populated = false;
-    }
-
-    @Override
-    public void register(StationAddedCallback callback) {
-        this.callback = callback;
     }
 
     public TransportData getData() {
@@ -164,7 +157,6 @@ public class TransportDataForTestProvider implements TransportDataProvider {
 
     private void addAStation(TransportDataContainer container, Station station) {
         container.addStation(station);
-        callback.stationAdded(station);
     }
 
     private static void addRouteStation(TransportDataContainer container, Station station, Route route) {

@@ -4,8 +4,11 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.*;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,29 +19,20 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StationLocationsTest {
+class StationLocationsTest extends EasyMockSupport {
 
     private StationLocations stationLocations;
-    private AddsStations addsStations;
-
-    private static class AddsStations implements StationLocations.ProvidesStationAddedCallback {
-
-        private StationAddedCallback callback;
-
-        @Override
-        public void register(StationAddedCallback callback) {
-            this.callback = callback;
-        }
-
-        public void addStation(Station station) {
-            callback.stationAdded(station);
-        }
-    }
+    private StationRepository stationRepository;
 
     @BeforeEach
     void onceBeforeEachTest() {
-        addsStations = new AddsStations();
-        stationLocations = new StationLocations(addsStations);
+        stationRepository = createMock(StationRepository.class);
+        stationLocations = new StationLocations(stationRepository);
+    }
+
+    private void setStationExceptations(Station... stations) {
+        Set<Station> toReturn = new HashSet<>(Arrays.asList(stations));
+        EasyMock.expect(stationRepository.getStations()).andReturn(toReturn);
     }
 
     @Test
@@ -64,14 +58,17 @@ class StationLocationsTest {
     void shouldGetLatLongForStation() throws TransformException {
         Station stationA = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationB = createTestStation("id789", "nameC", TestEnv.nearShudehill);
-        addsStations.addStation(stationA);
-        addsStations.addStation(stationB);
+        setStationExceptations(stationA, stationB);
 
+        replayAll();
+        stationLocations.start();
         LatLong resultA = stationLocations.getStationPosition(stationA);
+        LatLong resultB = stationLocations.getStationPosition(stationB);
+        verifyAll();
+
         assertEquals(TestEnv.nearPiccGardens.getLat(), resultA.getLat(), 0.00001);
         assertEquals(TestEnv.nearPiccGardens.getLon(), resultA.getLon(), 0.00001);
 
-        LatLong resultB = stationLocations.getStationPosition(stationB);
         assertEquals(TestEnv.nearShudehill.getLat(), resultB.getLat(), 0.00001);
         assertEquals(TestEnv.nearShudehill.getLon(), resultB.getLon(), 0.00001);
 
@@ -91,13 +88,13 @@ class StationLocationsTest {
         LatLong closePlace = new LatLong(place.getLat()+0.008, place.getLon()+0.008);
         Station stationD = createTestStation("idABC", "name", closePlace);
 
-        addsStations.addStation(stationA);
-        addsStations.addStation(stationB);
-        addsStations.addStation(stationC);
-        addsStations.addStation(stationD);
+        setStationExceptations(stationA, stationB, stationC, stationD);
 
+        replayAll();
+        stationLocations.start();
         HasGridPosition gridA = stationLocations.getStationGridPosition(stationA);
         HasGridPosition gridB = stationLocations.getStationGridPosition(stationD);
+        verifyAll();
 
         int rangeInKM = 1;
 
@@ -119,15 +116,18 @@ class StationLocationsTest {
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
-        addsStations.addStation(stationA);
-        addsStations.addStation(stationB);
-        addsStations.addStation(stationC);
+        setStationExceptations(stationA, stationB, stationC);
 
+        replayAll();
+        stationLocations.start();
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 3, 20);
+        verifyAll();
+
         assertEquals(3, results.size());
         assertEquals(stationA, results.get(0));
         assertEquals(stationB, results.get(1));
         assertEquals(stationC, results.get(2));
+
     }
 
     @Test
@@ -136,11 +136,13 @@ class StationLocationsTest {
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
-        addsStations.addStation(stationA);
-        addsStations.addStation(stationB);
-        addsStations.addStation(stationC);
+        setStationExceptations(stationA, stationB, stationC);
 
+        replayAll();
+        stationLocations.start();
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 1, 20);
+        verifyAll();
+
         assertEquals(1, results.size());
         assertEquals(stationA, results.get(0));
     }
@@ -148,9 +150,13 @@ class StationLocationsTest {
     @Test
     void shouldFindNearbyStationRespectingRange() throws TransformException {
         Station testStation = createTestStation("id123", "name", TestEnv.nearAltrincham);
-        addsStations.addStation(testStation);
+        setStationExceptations(testStation);
 
+        replayAll();
+        stationLocations.start();
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 1);
+        verifyAll();
+
         assertEquals(0, results.size());
 
         List<Station> further = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 20);
@@ -164,14 +170,15 @@ class StationLocationsTest {
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
-        addsStations.addStation(testStationA);
-        addsStations.addStation(testStationB);
-        addsStations.addStation(testStationC);
+        setStationExceptations(testStationA, testStationB, testStationC);
 
+        replayAll();
+        stationLocations.start();
         HasGridPosition posA = stationLocations.getStationGridPosition(testStationA);
         HasGridPosition posB = stationLocations.getStationGridPosition(testStationB);
 
         BoundingBox bounds = stationLocations.getBounds();
+        verifyAll();
 
         // bottom left
         assertEquals(posA.getEastings(), bounds.getMinEastings());
@@ -188,11 +195,12 @@ class StationLocationsTest {
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
-        addsStations.addStation(testStationA);
-        addsStations.addStation(testStationB);
-        addsStations.addStation(testStationC);
+        setStationExceptations(testStationA, testStationB, testStationC);
 
+        replayAll();
+        stationLocations.start();
         List<BoundingBoxWithStations> boxedStations = stationLocations.getGroupedStations(1000).collect(Collectors.toList());
+        verifyAll();
 
         assertEquals(2, boxedStations.size());
 
