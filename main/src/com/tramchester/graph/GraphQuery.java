@@ -1,6 +1,9 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.*;
+import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.HasId;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -8,16 +11,13 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-@Singleton
+@LazySingleton
 public class GraphQuery {
 
     //private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);

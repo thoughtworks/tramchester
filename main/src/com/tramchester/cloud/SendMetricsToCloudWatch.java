@@ -3,6 +3,7 @@ package com.tramchester.cloud;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -22,7 +22,7 @@ import java.util.*;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-@Singleton
+@LazySingleton
 public class SendMetricsToCloudWatch {
     private static final Logger logger = LoggerFactory.getLogger(SendMetricsToCloudWatch.class);
     private final List<Dimension> countersDimenion;

@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -8,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -22,7 +22,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 

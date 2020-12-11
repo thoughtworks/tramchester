@@ -1,5 +1,6 @@
 package com.tramchester.livedata;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -16,14 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class LiveDataHTTPFetcher implements LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHTTPFetcher.class);
 

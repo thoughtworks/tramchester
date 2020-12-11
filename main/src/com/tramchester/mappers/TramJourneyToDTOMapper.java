@@ -1,26 +1,29 @@
 package com.tramchester.mappers;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.WalkingStage;
-import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.ProvidesNotes;
+import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Singleton
+@LazySingleton
 public class TramJourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(TramJourneyToDTOMapper.class);
     private final JourneyDTOFactory journeyFactory;

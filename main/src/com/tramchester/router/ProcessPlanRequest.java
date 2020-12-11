@@ -1,5 +1,6 @@
 package com.tramchester.router;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
@@ -21,13 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.places.MyLocation.MY_LOCATION_PLACEHOLDER_ID;
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class ProcessPlanRequest {
     private static final Logger logger = LoggerFactory.getLogger(ProcessPlanRequest.class);
 

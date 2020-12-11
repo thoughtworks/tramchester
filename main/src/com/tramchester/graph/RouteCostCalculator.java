@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.Station;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
@@ -8,12 +9,11 @@ import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 
-@Singleton
+@LazySingleton
 public class RouteCostCalculator {
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;

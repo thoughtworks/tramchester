@@ -1,5 +1,6 @@
 package com.tramchester.cloud;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -20,7 +20,7 @@ import java.net.URL;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class FetchInstanceMetadata implements FetchMetadata {
     private static final Logger logger = LoggerFactory.getLogger(FetchInstanceMetadata.class);
 

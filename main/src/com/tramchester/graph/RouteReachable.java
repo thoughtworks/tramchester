@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +22,7 @@ import java.util.Set;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
 
-@Singleton
+@LazySingleton
 public class RouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(RouteReachable.class);
 

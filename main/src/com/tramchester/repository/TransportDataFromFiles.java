@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class TransportDataFromFiles implements TransportDataProvider {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 

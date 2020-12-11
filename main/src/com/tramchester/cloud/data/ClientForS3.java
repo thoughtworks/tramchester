@@ -1,5 +1,6 @@
 package com.tramchester.cloud.data;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -7,14 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
-import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -25,7 +24,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class ClientForS3 {
 
     // TODO Switch to specific string encoding to/from bytes instead of the default

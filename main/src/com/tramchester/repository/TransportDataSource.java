@@ -1,14 +1,14 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.*;
-import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.FeedInfo;
 
-import javax.inject.Singleton;
 import java.util.stream.Stream;
 
-@Singleton
+@LazySingleton
 public class TransportDataSource {
     final Stream<StopData> stops;
     final Stream<RouteData> routes;

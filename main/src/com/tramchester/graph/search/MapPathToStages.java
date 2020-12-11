@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
@@ -21,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +29,7 @@ import java.util.Optional;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class MapPathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 

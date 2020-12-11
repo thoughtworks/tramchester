@@ -1,6 +1,7 @@
 package com.tramchester.cloud.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.repository.LiveDataObserver;
@@ -8,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class UploadsLiveData implements LiveDataObserver {
     private static final Logger logger = LoggerFactory.getLogger(UploadsLiveData.class);
 

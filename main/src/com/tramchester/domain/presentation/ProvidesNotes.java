@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.CallsAtPlatforms;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
-@Singleton
+@LazySingleton
 public class ProvidesNotes {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesNotes.class);
 

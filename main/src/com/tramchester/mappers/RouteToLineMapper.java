@@ -1,23 +1,23 @@
 package com.tramchester.mappers;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.liveUpdates.LineAndDirection;
 import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.domain.reference.CentralZoneStation;
+import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.repository.TramCentralZoneDirectionRespository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class RouteToLineMapper {
     private static final Logger logger = LoggerFactory.getLogger(RouteToLineMapper.class);
 

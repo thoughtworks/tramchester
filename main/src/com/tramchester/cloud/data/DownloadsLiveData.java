@@ -1,11 +1,11 @@
 package com.tramchester.cloud.data;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class DownloadsLiveData {
     private static final Logger logger = LoggerFactory.getLogger(DownloadsLiveData.class);
 

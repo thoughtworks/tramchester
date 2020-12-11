@@ -1,5 +1,6 @@
 package com.tramchester.geo;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
@@ -9,11 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Singleton
+@LazySingleton
 public class SortsPositions {
     private static final Logger logger = LoggerFactory.getLogger(SortsPositions.class);
 

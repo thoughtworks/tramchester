@@ -1,16 +1,16 @@
 package com.tramchester.cloud;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 
-@Singleton
+@LazySingleton
 public class ConfigFromInstanceUserData implements Startable, Disposable {
 
     private static final String PREFIX = "#";

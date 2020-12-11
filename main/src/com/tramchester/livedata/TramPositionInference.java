@@ -1,6 +1,8 @@
 package com.tramchester.livedata;
 
-import com.tramchester.domain.*;
+import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.domain.places.Station;
@@ -15,14 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class TramPositionInference {
     private static final Logger logger = LoggerFactory.getLogger(TramPositionInference.class);
 

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
@@ -13,11 +14,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
-@Singleton
+@LazySingleton
 public class MapPathToLocations {
     private final StationRepository stationRepository;
     private final ObjectMapper mapper;

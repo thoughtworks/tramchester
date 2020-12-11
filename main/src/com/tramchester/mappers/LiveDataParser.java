@@ -3,20 +3,20 @@ package com.tramchester.mappers;
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Instant;
@@ -30,7 +30,7 @@ import static com.tramchester.domain.liveUpdates.LineDirection.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
-@Singleton
+@LazySingleton
 public class LiveDataParser {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataParser.class);
 

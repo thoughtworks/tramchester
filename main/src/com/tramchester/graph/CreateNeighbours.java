@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class CreateNeighbours implements Startable {
     private static final Logger logger = LoggerFactory.getLogger(CreateNeighbours.class);
 

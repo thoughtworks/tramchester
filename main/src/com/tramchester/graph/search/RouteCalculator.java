@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
@@ -21,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class RouteCalculator implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
 
