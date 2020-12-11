@@ -48,7 +48,7 @@ public class RouteCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer = new ComponentsBuilder<>().create(config);
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }

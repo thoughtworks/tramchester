@@ -135,6 +135,7 @@ public class App extends Application<AppConfiguration>  {
 
         // api end points registration
         container.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
+
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
 
@@ -154,8 +155,9 @@ public class App extends Application<AppConfiguration>  {
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
         // health check registration
-        container.getHealthChecks().forEach(healthCheck ->
-                environment.healthChecks().register(healthCheck.getName(), healthCheck));
+//        container.getHealthChecks().forEach(healthCheck ->
+//                environment.healthChecks().register(healthCheck.getName(), healthCheck));
+        container.registerHealthchecksInto(environment.healthChecks());
 
         // serve health checks (additionally) on separate URL as we don't want to expose whole of Admin pages
         environment.servlets().addServlet(
@@ -192,6 +194,7 @@ public class App extends Application<AppConfiguration>  {
         UploadsLiveData observer = container.get(UploadsLiveData.class);
         updatesData.observeUpdates(observer);
 
+        // TODO
         // custom metrics for live data and messages
         DueTramsRepository dueTramsRepository = container.get(DueTramsRepository.class);
         metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "number"),
@@ -201,6 +204,7 @@ public class App extends Application<AppConfiguration>  {
         metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithTrams"),
                 (Gauge<Integer>) dueTramsRepository::getNumStationsWithTramsNow);
 
+        // TODO
         PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);
         metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "messages"),
                 (Gauge<Integer>) messageRepository::numberOfEntries);

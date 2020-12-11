@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataProvider;
@@ -23,15 +24,9 @@ public class Module extends AbstractModule {
     protected void configure() {
         parent.registerConfiguration(config, filter);
         parent.registerLinkedComponents();
-        // needed to trigger possibe graph build
-        //parent.addComponent(StagedTransportGraphBuilder.class);
-
-        // todo make this optional to improve test performance?
-        parent.registerResources();
     }
 
     @SuppressWarnings("unused")
-    //@LazySingleton
     @Provides
     TransportData providesTransportdata(TransportDataProvider provider) {
         return provider.getData();
@@ -43,10 +38,6 @@ public class Module extends AbstractModule {
 
     public <T> void bindInstance(Class<T> klass, T instance) {
         bind(klass).toInstance(instance);
-    }
-
-    public <T> void bindSingleEager(Class<T> klass) {
-        bind(klass);
     }
 
 }

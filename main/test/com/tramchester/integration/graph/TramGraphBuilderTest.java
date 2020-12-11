@@ -43,7 +43,7 @@ class TramGraphBuilderTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder<>().create(testConfig);
         componentContainer.initialise();
     }
 

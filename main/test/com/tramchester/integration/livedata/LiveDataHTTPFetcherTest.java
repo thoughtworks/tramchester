@@ -13,6 +13,7 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportData;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -38,7 +39,7 @@ class LiveDataHTTPFetcherTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         configuration = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(configuration);
+        componentContainer = new ComponentsBuilder<TransportDataFromFiles>().create(configuration);
         componentContainer.initialise();
 
         // don't want to fetch every time

@@ -1,14 +1,17 @@
 package com.tramchester.healthchecks;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+@LazySingleton
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
@@ -16,6 +19,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private final URLDownloadAndModTime urlDownloader;
     private final FetchFileModTime fetchFileModTime;
 
+    @Inject
     public NewDataAvailableHealthCheck(DataSourceConfig config, URLDownloadAndModTime urlDownloader, FetchFileModTime fetchFileModTime) {
         this.config = config;
         this.urlDownloader = urlDownloader;

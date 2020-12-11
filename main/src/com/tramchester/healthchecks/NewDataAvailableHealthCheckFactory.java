@@ -1,5 +1,6 @@
 package com.tramchester.healthchecks;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
@@ -7,13 +8,14 @@ import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Singleton
+@LazySingleton
 public class NewDataAvailableHealthCheckFactory implements Startable, Disposable, HealthCheckFactory {
 
     private final TramchesterConfig config;
@@ -33,6 +35,7 @@ public class NewDataAvailableHealthCheckFactory implements Startable, Disposable
         return healthCheckList;
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         healthCheckList.clear();
@@ -41,7 +44,8 @@ public class NewDataAvailableHealthCheckFactory implements Startable, Disposable
     @PostConstruct
     @Override
     public void start() {
-        config.getDataSourceConfig().forEach(config -> healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime)));
+        config.getDataSourceConfig().forEach(config ->
+                healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime)));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.tramchester.domain.time;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 
 import javax.inject.Singleton;
@@ -7,7 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
-@Singleton
+@LazySingleton
 public class ProvidesLocalNow implements ProvidesNow {
 
     private LocalDateTime getLocalNow() {

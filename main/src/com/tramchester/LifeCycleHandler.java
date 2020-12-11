@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 
 public class LifeCycleHandler implements LifeCycle.Listener {
-    private static final Logger logger = LoggerFactory.getLogger(PicoContainerDependencies.class);
+    private static final Logger logger = LoggerFactory.getLogger(LifeCycleHandler.class);
 
     private final ComponentContainer dependencies;
     private final ScheduledExecutorService executor;

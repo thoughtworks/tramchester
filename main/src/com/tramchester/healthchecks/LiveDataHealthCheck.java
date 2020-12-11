@@ -1,5 +1,6 @@
 package com.tramchester.healthchecks;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHealthCheck.class);
 
@@ -24,7 +25,8 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
     private final LiveDataConfig config;
 
     @Inject
-    public LiveDataHealthCheck(DueTramsRepository repository, ProvidesNow providesNow, StationRepository stationRepository, TramchesterConfig config) {
+    public LiveDataHealthCheck(DueTramsRepository repository, ProvidesNow providesNow, StationRepository stationRepository,
+                               TramchesterConfig config) {
         this.repository = repository;
         this.providesNow = providesNow;
         this.stationRepository = stationRepository;

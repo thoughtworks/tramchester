@@ -1,5 +1,6 @@
 package com.tramchester.healthchecks;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.repository.TransportData;
@@ -7,13 +8,14 @@ import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Singleton
+@LazySingleton
 public class DataExpiryHealthCheckFactory implements HealthCheckFactory, Startable, Disposable {
     private final List<TramchesterHealthCheck> healthChecks;
     private final TransportData transportData;
@@ -33,6 +35,7 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory, Startab
         return healthChecks;
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         healthChecks.clear();

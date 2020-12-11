@@ -57,7 +57,7 @@ public class StationLocations implements StationLocationsRepository, Disposable 
     }
 
     private void addStation(Station station) {
-        logger.info("Adding station " + HasId.asId(station));
+        logger.debug("Adding station " + HasId.asId(station));
         if (!positions.containsKey(station)) {
             LatLong position = station.getLatLong();
             if (!position.isValid()) {

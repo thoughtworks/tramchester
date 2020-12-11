@@ -1,5 +1,6 @@
 package com.tramchester.healthchecks;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataMessagesHealthCheck.class);
 

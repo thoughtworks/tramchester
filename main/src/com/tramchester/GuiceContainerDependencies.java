@@ -8,7 +8,6 @@ import com.netflix.governator.lifecycle.LifecycleManager;
 import com.netflix.governator.lifecycle.LifecycleState;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DefaultDataLoadStrategy;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
@@ -29,10 +28,6 @@ public class GuiceContainerDependencies extends ComponentContainer {
 
     private final Module module;
     private final Injector injector;
-
-//    public GuiceContainerDependencies(GraphFilter graphFilter, TramchesterConfig config, TransportDataProvider override) {
-//        this(graphFilter, config, new OverrideProviderModule(override));
-//    }
 
     public <T extends TransportDataProvider> GuiceContainerDependencies(GraphFilter graphFilter, TramchesterConfig config,
                                                                         Class<T> overrideType) {
@@ -75,7 +70,7 @@ public class GuiceContainerDependencies extends ComponentContainer {
             logger.error("Lifecycle manager not started");
         }
 
-        get(StationLocations.class);
+        // TODO find way to inject, tokenise, etc
         get(StagedTransportGraphBuilder.class);
 
         logger.info("Done");
@@ -126,12 +121,6 @@ public class GuiceContainerDependencies extends ComponentContainer {
     }
 
     @Override
-    protected <C> void addComponent(Class<C> klass) {
-        // TODO remove callers
-         //module.bindSingle(klass);
-    }
-
-    @Override
     protected <C> void addComponent(Class<C> klass, C instance) {
         module.bindInstance(klass, instance);
     }
@@ -161,20 +150,6 @@ public class GuiceContainerDependencies extends ComponentContainer {
             bind(TransportDataProvider.class).to(type); //.in(Scopes.SINGLETON);
         }
     }
-
-//    public static class OverrideProviderModule extends AbstractModule {
-//        private final TransportDataProvider provider;
-//
-//        public OverrideProviderModule(TransportDataProvider override) {
-//            provider = override;
-//        }
-//
-//        @Provides
-//        @Singleton
-//        public TransportDataProvider getDataProvider() {
-//            return provider;
-//        }
-//    }
 
     // for debug
     private static class LifecycleListen implements LifecycleListener {
