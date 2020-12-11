@@ -41,7 +41,7 @@ class RouteCalulatorTestKeyRoutes {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder<>().create(testConfig);
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }

@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -7,6 +8,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 
-@Singleton
+@LazySingleton
 public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
     private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);
 
@@ -55,6 +57,7 @@ public class NodeIdLabelMap implements Disposable, NodeTypeRepository {
         logger.info("Finished populating map");
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         logger.info("dispose");

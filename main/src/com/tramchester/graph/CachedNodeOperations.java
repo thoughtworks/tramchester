@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
@@ -17,12 +18,12 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Singleton;
+import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Singleton
+@LazySingleton
 public class CachedNodeOperations implements ReportsCacheStats, Disposable, NodeContentsRepository {
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
@@ -44,6 +45,7 @@ public class CachedNodeOperations implements ReportsCacheStats, Disposable, Node
         times = createCache(40000);
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         logger.info("dispose");

@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -13,12 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Singleton
+@LazySingleton
 public class RouteCallingStations implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(RouteCallingStations.class);
 
@@ -35,6 +36,7 @@ public class RouteCallingStations implements Startable, Disposable {
         return stations.get(route);
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         stations.clear();

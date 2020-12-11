@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -21,7 +23,7 @@ import java.util.Set;
 import static com.tramchester.domain.HasId.asId;
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class TramCentralZoneDirectionRespository implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TramCentralZoneDirectionRespository.class);
 
@@ -68,6 +70,7 @@ public class TramCentralZoneDirectionRespository implements Startable, Disposabl
         return Place.within;
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         entered.clear();

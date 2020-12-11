@@ -1,5 +1,6 @@
 package com.tramchester.mappers;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
@@ -10,12 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Singleton
+@LazySingleton
 public class RoutesMapper {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 
@@ -33,7 +33,11 @@ public class RoutesMapper {
         Collection<Route> routes = transportData.getRoutes();
         routes.forEach(route-> results.add(createDTOFor(route)));
 
-        logger.info(String.format("Found %s routes", results.size()));
+        if (routes.isEmpty()) {
+            logger.error("Found no routes");
+        } else {
+            logger.info(String.format("Found %s routes", results.size()));
+        }
         return results;
     }
 

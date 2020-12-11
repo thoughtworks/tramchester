@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
-@Singleton
+@LazySingleton
 public class GraphDatabase implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
     private static final int SHUTDOWN_TIMEOUT = 200;

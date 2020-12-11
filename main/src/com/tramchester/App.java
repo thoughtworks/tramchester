@@ -77,7 +77,7 @@ public class App extends Application<AppConfiguration>  {
 
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
-        logger.info("initialize");
+        logger.info("init bootstrap");
         bootstrap.setConfigurationSourceProvider(
                 new SubstitutingSourceProvider(
                         bootstrap.getConfigurationSourceProvider(),
@@ -99,14 +99,14 @@ public class App extends Application<AppConfiguration>  {
 
         // https://www.tramchester.com/api/swagger
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
-        logger.info("initialize finished");
+        logger.info("init bootstrap finished");
     }
 
     @Override
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
 
-        this.container = new ComponentsBuilder<TransportDataFromFiles>().create(configuration);
+        this.container = new ComponentsBuilder<>().create(configuration);
 
         try {
             container.initialise();

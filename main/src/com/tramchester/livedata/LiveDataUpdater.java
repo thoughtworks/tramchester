@@ -1,5 +1,6 @@
 package com.tramchester.livedata;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -12,6 +13,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.LocalDate;
@@ -22,7 +24,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class LiveDataUpdater implements Disposable {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataUpdater.class);
 
@@ -48,6 +50,7 @@ public class LiveDataUpdater implements Disposable {
         observers = new LinkedList<>();
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         observers.clear();
@@ -75,7 +78,7 @@ public class LiveDataUpdater implements Disposable {
     }
 
     @NotNull
-    public List<StationDepartureInfo> filterForFreshness(List<StationDepartureInfo> receivedInfos) {
+    private List<StationDepartureInfo> filterForFreshness(List<StationDepartureInfo> receivedInfos) {
         TramTime now = providesNow.getNow();
         LocalDate date = providesNow.getDate();
         int stale = 0;

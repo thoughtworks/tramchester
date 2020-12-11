@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.input.StopCalls;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-@Singleton
+@LazySingleton
 public class TramStationAdjacenyRepository implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 

@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.IdFor;
@@ -12,6 +13,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
@@ -19,7 +22,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class InterchangeRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
 
@@ -38,12 +41,14 @@ public class InterchangeRepository implements Disposable, Startable {
         modes = config.getTransportModes();
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         trainInterchanges.clear();
         busInterchanges.clear();
     }
 
+    @PostConstruct
     @Override
     public void start() {
         if (modes.contains(GTFSTransportationType.bus)) {

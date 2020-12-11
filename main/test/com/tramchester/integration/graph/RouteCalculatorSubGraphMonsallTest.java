@@ -15,9 +15,11 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -33,20 +35,23 @@ class RouteCalculatorSubGraphMonsallTest {
     private Transaction txn;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
+    static void onceBeforeAnyTestsRun() throws IOException {
+        config = new SubgraphConfig();
+        FileUtils.deleteDirectory(config.getDBPath().toFile());
+
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(KnownRoute.EDidsburyManchesterRochdale.getId());
 
-        config = new SubgraphConfig();
-        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create(config);
+        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config);
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
+    static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
+        FileUtils.deleteDirectory(config.getDBPath().toFile());
     }
 
     @BeforeEach

@@ -7,7 +7,7 @@ import com.tramchester.repository.TransportDataProvider;
 
 public class ComponentsBuilder<C extends TransportDataProvider> {
     private GraphFilter graphFilter = new IncludeAllFilter();
-    private Class<C> overrideType;
+    private Class<C> overrideTransportData;
 
     public ComponentsBuilder<C> setGraphFilter(GraphFilter graphFilter) {
         this.graphFilter = graphFilter;
@@ -15,15 +15,15 @@ public class ComponentsBuilder<C extends TransportDataProvider> {
     }
 
     public ComponentContainer create(TramchesterConfig config) {
-        if (overrideType==null) {
+        if (overrideTransportData ==null) {
             return new GuiceContainerDependencies(graphFilter, config);
         } else {
-            return new GuiceContainerDependencies(graphFilter, config, overrideType);
+            return new GuiceContainerDependencies(graphFilter, config, overrideTransportData);
         }
     }
 
     public ComponentsBuilder<C> overrideProvider(Class<C> providerClass) {
-        this.overrideType = providerClass;
+        this.overrideTransportData = providerClass;
         return this;
     }
 }

@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class TramReachabilityRepository implements Disposable, Startable {
     private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
 

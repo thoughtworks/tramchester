@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -20,8 +21,8 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -32,7 +33,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(DueTramsRepository.class);
 
@@ -54,6 +55,7 @@ public class DueTramsRepository implements DueTramsSource, Disposable, ReportsCa
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         dueTramsCache.invalidateAll();

@@ -4,6 +4,7 @@ import org.picocontainer.Disposable;
 import org.picocontainer.Startable;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ public class ConfigFromInstanceUserData implements Startable, Disposable {
         // noop
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         tokenToValue.clear();

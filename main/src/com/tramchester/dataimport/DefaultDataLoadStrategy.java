@@ -11,7 +11,7 @@ import javax.inject.Inject;
 public class DefaultDataLoadStrategy implements DataLoadStrategy {
     private static final Logger logger = LoggerFactory.getLogger(DefaultDataLoadStrategy.class);
 
-    private static TransportDataProvider provider=null;
+    private TransportDataProvider provider=null;
 
     private final TransportDataFromFilesBuilder builder;
     private final FetchDataFromUrl fetcher;
@@ -32,6 +32,8 @@ public class DefaultDataLoadStrategy implements DataLoadStrategy {
 
             logger.info("Create TransportData provider");
             provider = builder.create();
+        } else {
+            logger.info("Provider cached");
         }
 
         return provider;

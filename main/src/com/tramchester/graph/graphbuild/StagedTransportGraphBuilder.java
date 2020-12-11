@@ -67,6 +67,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder implements Startab
         super.start();
     }
 
+    @Deprecated
     @Override
     protected void buildGraph(GraphDatabase graphDatabase) {
         buildGraphwithFilter(new IncludeAllFilter(), graphDatabase);

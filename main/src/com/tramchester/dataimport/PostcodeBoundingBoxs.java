@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
@@ -11,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-@Singleton
+@LazySingleton
 public class PostcodeBoundingBoxs implements Startable, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeBoundingBoxs.class);
 
@@ -41,6 +42,7 @@ public class PostcodeBoundingBoxs implements Startable, Disposable {
         hintsFilePath = directory.resolve(HINTS_FILES).toAbsolutePath();
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         postcodeBounds.clear();

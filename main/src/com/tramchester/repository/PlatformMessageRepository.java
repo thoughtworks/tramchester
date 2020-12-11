@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -19,6 +20,7 @@ import org.picocontainer.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.LocalDate;
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Singleton
+@LazySingleton
 public class PlatformMessageRepository implements PlatformMessageSource, Disposable, ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(PlatformMessageRepository.class);
 
@@ -47,6 +49,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Disposa
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
     }
 
+    @PreDestroy
     @Override
     public void dispose() {
         messageCache.invalidateAll();

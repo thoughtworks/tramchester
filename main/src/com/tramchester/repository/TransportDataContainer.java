@@ -1,5 +1,6 @@
 package com.tramchester.repository;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -12,13 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.lang.String.format;
 
-@Singleton
+@LazySingleton
 public class TransportDataContainer implements TransportData, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataContainer.class);
 
