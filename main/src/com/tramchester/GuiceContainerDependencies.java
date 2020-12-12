@@ -1,6 +1,9 @@
 package com.tramchester;
 
-import com.google.inject.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.netflix.governator.guice.LifecycleInjector;
 import com.netflix.governator.lifecycle.LifecycleManager;
 import com.tramchester.config.TramchesterConfig;
@@ -13,8 +16,6 @@ import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.repository.TransportDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 public class GuiceContainerDependencies extends ComponentContainer {
     private static final Logger logger = LoggerFactory.getLogger(GuiceContainerDependencies.class);
@@ -86,28 +87,6 @@ public class GuiceContainerDependencies extends ComponentContainer {
     @Override
     public <C> C get(Class<C> klass) {
         return injector.getInstance(klass);
-    }
-
-//    // TODO Use annotations instead? Easier to search for
-//    @Override
-//    protected <C> Set<C> getAll(Class<C> klass) {
-//        Map<Key<?>, Binding<?>> all = injector.getAllBindings();
-//        Set<TypeLiteral<?>> found = all.entrySet().stream().
-//                filter(entry -> klass.isAssignableFrom(classForEntry(entry))).
-//                map(entry -> entry.getKey().getTypeLiteral()).
-//                collect(Collectors.toSet());
-//
-//        // note: needs to be a set, there are duplciated instances where multiple interfaces have same ImplementedBy
-//        //noinspection unchecked
-//        return found.stream().
-//                map(literal -> get(literal.getRawType())).
-//                filter(instance -> klass.isAssignableFrom(instance.getClass())).
-//                map(instance -> (C) instance).
-//                collect(Collectors.toSet());
-//    }
-
-    private Class<?> classForEntry(Map.Entry<Key<?>, Binding<?>> entry) {
-        return entry.getValue().getProvider().get().getClass();
     }
 
     @Override

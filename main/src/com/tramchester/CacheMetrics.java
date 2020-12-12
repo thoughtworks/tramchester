@@ -46,6 +46,7 @@ public class CacheMetrics {
     }
 
     public void register(ReportsCacheStats reportsCacheStats) {
+        logger.info("Registered "  + reportsCacheStats.toString());
         register(registry, reportsCacheStats);
         registered.add(reportsCacheStats);
     }

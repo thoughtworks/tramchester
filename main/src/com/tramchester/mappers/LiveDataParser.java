@@ -219,7 +219,7 @@ public class LiveDataParser {
 
         // Ashton is not the name of the station....
         if ("Ashton via MCUK".equals(destinationName)) {
-            return "Ashton-under-Lyne";
+            return "Ashton-Under-Lyne";
         }
 
         // assume station name is valid.....
@@ -232,6 +232,9 @@ public class LiveDataParser {
             return "Firswood Station";
         }
         if ("Deansgate - Castlefield".equals(destinationName)) {
+            return "Deansgate-Castlefield";
+        }
+        if ("Deansgate Castlefield".equals(destinationName)) {
             return "Deansgate-Castlefield";
         }
         if ("Besses O’ Th’ Barn".equals(destinationName)) {

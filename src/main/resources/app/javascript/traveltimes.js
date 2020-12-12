@@ -131,7 +131,8 @@ var mapApp = new Vue({
                 mapApp.routes = response.data;
                 mapApp.draw();
                 // 9400ZZMASTP 9400ZZMAAIR 1800MABS001 MAN
-                queryForGrid(2000, "9400ZZMASTP", "8:15", getCurrentDate(), "3", "360");
+                // make sure to use HH:MM format with leading zero
+                queryForGrid(2000, "9400ZZMASTP", "08:15", getCurrentDate(), "3", "360");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);

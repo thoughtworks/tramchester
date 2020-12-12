@@ -37,10 +37,11 @@ class LiveDataParserTest extends EasyMockSupport {
 
 
     private LiveDataParser parser;
+    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationRepository stationRepository = createStrictMock(StationRepository.class);
+        stationRepository = createStrictMock(StationRepository.class);
         parser = new LiveDataParser(stationRepository);
 
         Station mediaCity = of(MediaCityUK);
@@ -51,21 +52,22 @@ class LiveDataParserTest extends EasyMockSupport {
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);
         EasyMock.expect(stationRepository.getStationById(ManAirport.getId())).andStubReturn(airport);
-
-        EasyMock.expect(stationRepository.getTramStationByName("Piccadilly")).andStubReturn(Optional.of(TramStations.of(Piccadilly)));
-
         EasyMock.expect(stationRepository.hasStationId(MediaCityUK.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getTramStationByName("MediaCityUK")).andStubReturn(Optional.of(mediaCity));
-
         EasyMock.expect(stationRepository.hasStationId(ManAirport.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getTramStationByName("Manchester Airport")).andStubReturn(Optional.of(airport));
 
-        EasyMock.expect(stationRepository.getTramStationByName("")).andStubReturn(Optional.empty());
-        EasyMock.expect(stationRepository.getTramStationByName("Deansgate Castlefield")).andStubReturn(Optional.of(of(Deansgate)));
+        expectationByName(Piccadilly);
+        expectationByName(MediaCityUK);
+        expectationByName(ManAirport);
+        expectationByName(Deansgate);
+        expectationByName(Ashton);
 
         EasyMock.expect(stationRepository.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
+        EasyMock.expect(stationRepository.getTramStationByName("")).andStubReturn(Optional.empty());
 
-        EasyMock.expect(stationRepository.getTramStationByName("Ashton-under-Lyne")).andStubReturn(Optional.of(of(Ashton)));
+    }
+
+    private void expectationByName(TramStations station) {
+        EasyMock.expect(stationRepository.getTramStationByName(station.getName())).andStubReturn(Optional.of(of(station)));
     }
 
     @Test
