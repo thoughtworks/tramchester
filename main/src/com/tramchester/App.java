@@ -147,9 +147,6 @@ public class App extends Application<AppConfiguration>  {
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 
-//        CacheMetrics cacheMetrics = new CacheMetrics(container.getCacheStatReporters(), metricRegistry);
-//        cacheMetrics.prepare();
-
         // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                 container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));

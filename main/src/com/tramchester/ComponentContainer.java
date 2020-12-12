@@ -25,8 +25,6 @@ public abstract class ComponentContainer {
 
     public abstract <T> T get(Class<T> klass);
 
-    protected abstract <T> Set<T> getAll(Class<T> klass);
-
     protected abstract <T> void addComponent(Class<T> klass, T instance);
 
     protected abstract <I,T extends I> void addComponent(Class<I> face, Class<T> concrete);
