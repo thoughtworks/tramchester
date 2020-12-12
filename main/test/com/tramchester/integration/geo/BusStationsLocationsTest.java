@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.Postcodes;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
@@ -25,7 +26,7 @@ class BusStationsLocationsTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationBusTestConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

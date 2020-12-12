@@ -32,7 +32,7 @@ class PostcodeDataImporterTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationTramTestConfig(); /// <= means tram stations only
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         importer = componentContainer.get(PostcodeDataImporter.class);

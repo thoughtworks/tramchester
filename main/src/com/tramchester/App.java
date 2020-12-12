@@ -15,7 +15,6 @@ import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
-import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -106,7 +105,10 @@ public class App extends Application<AppConfiguration>  {
     public void run(AppConfiguration configuration, Environment environment) {
         logger.info("App run");
 
-        this.container = new ComponentsBuilder<>().create(configuration);
+        MetricRegistry metricRegistry = environment.metrics();
+        CacheMetrics.RegistersMetrics registersMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
+
+        this.container = new ComponentsBuilder<>().create(configuration, registersMetrics);
 
         try {
             container.initialise();
@@ -139,24 +141,20 @@ public class App extends Application<AppConfiguration>  {
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
 
-        MetricRegistry metricRegistry = environment.metrics();
 
         // only enable live data if tram's enabled
         if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 
-        CacheMetricSet cacheMetrics = new CacheMetricSet(container.getCacheStatReporters(), metricRegistry);
-        cacheMetrics.prepare();
+//        CacheMetrics cacheMetrics = new CacheMetrics(container.getCacheStatReporters(), metricRegistry);
+//        cacheMetrics.prepare();
 
         // report specific metrics to AWS cloudwatch
         final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                 container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
         cloudWatchReporter.start(1, TimeUnit.MINUTES);
 
-        // health check registration
-//        container.getHealthChecks().forEach(healthCheck ->
-//                environment.healthChecks().register(healthCheck.getName(), healthCheck));
         container.registerHealthchecksInto(environment.healthChecks());
 
         // serve health checks (additionally) on separate URL as we don't want to expose whole of Admin pages

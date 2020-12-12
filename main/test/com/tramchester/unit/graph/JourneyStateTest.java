@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.CacheMetrics;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -48,7 +49,7 @@ class JourneyStateTest {
         StationRepository repository = new TransportDataForTestProvider(providesNow).getData();
         SortsPositions sortsPositions = new SortsPositions(repository);
 
-        traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(),
+        traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics())),
                 destinationNodeIds, destinations, latLongHint, TestEnv.GET());
         queryTime = TramTime.of(9, 15);
     }

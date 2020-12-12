@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.CacheMetrics;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.reference.TransportMode;
@@ -65,7 +66,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         previousSuccessfulVisit = createMock(PreviousSuccessfulVisits.class);
-        nodeOperations = new CachedNodeOperations();
+        nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()));
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
         config = TestEnv.GET();
 

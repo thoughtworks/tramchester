@@ -14,11 +14,11 @@ public class ComponentsBuilder<C extends TransportDataProvider> {
         return this;
     }
 
-    public ComponentContainer create(TramchesterConfig config) {
+    public ComponentContainer create(TramchesterConfig config, CacheMetrics.RegistersMetrics registerMetrics) {
         if (overrideTransportData ==null) {
-            return new GuiceContainerDependencies(graphFilter, config);
+            return new GuiceContainerDependencies(graphFilter, config, registerMetrics);
         } else {
-            return new GuiceContainerDependencies(graphFilter, config, overrideTransportData);
+            return new GuiceContainerDependencies(graphFilter, config, overrideTransportData, registerMetrics);
         }
     }
 
@@ -26,4 +26,5 @@ public class ComponentsBuilder<C extends TransportDataProvider> {
         this.overrideTransportData = providerClass;
         return this;
     }
+
 }

@@ -50,7 +50,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         graphFilter.addRoute(ROUTE_ID);
 
         TramchesterConfig config = new Config("altyMacRoute");
-        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create(config);
+        componentContainer = new ComponentsBuilder().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);

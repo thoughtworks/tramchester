@@ -53,7 +53,7 @@ class RouteCalculatorSubGraphTest {
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
         stations.forEach(station->graphFilter.addStation(station.getId()));
 
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config);
+        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);

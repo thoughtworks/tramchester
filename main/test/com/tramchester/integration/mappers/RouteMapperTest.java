@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -26,7 +27,7 @@ class RouteMapperTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

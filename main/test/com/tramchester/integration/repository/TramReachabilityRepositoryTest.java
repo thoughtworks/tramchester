@@ -7,6 +7,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TramReachabilityRepository;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,7 @@ class TramReachabilityRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig());
+        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

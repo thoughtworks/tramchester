@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.CacheMetrics;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +36,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<Long, Integer> hourNodeCache;
     private final Cache<Long, TramTime> times;
 
-    public CachedNodeOperations() {
+    @Inject
+    public CachedNodeOperations(CacheMetrics cacheMetrics) {
         // size tuned from stats
         relationshipCostCache = createCache(85000);
         svcIdCache = createCache(3000);
@@ -42,6 +45,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         tripsRelationshipCache = createCache(32500);
         tripIdRelationshipCache = createCache(32500);
         times = createCache(40000);
+
+        cacheMetrics.register(this);
     }
 
     @PreDestroy

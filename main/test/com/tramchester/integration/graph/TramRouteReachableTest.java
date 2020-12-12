@@ -10,6 +10,7 @@ import com.tramchester.domain.reference.KnownRoute;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
@@ -33,7 +34,7 @@ class TramRouteReachableTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
         TramchesterConfig config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

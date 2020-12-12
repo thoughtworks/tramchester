@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.CacheMetrics;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -47,11 +48,13 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats {
     private LocalDateTime lastRefresh;
 
     @Inject
-    public DueTramsRepository(ProvidesNow providesNow) {
+    public DueTramsRepository(ProvidesNow providesNow, CacheMetrics registory) {
         this.providesNow = providesNow;
 
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
+
+        registory.register(this);
     }
 
     @PreDestroy

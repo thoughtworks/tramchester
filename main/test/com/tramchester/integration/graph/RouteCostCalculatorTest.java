@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -22,7 +23,7 @@ class RouteCostCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
         TramchesterConfig config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

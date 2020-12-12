@@ -8,6 +8,7 @@ import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestLiveDataConfig;
 import org.junit.jupiter.api.*;
 
@@ -32,7 +33,7 @@ class DownloadsLiveDataTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         TramchesterConfig configuration = new RealBucketConfig(new RealLiveConfig("tramchesterlivedata","uat"));
-        componentContainer = new ComponentsBuilder().create(configuration);
+        componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

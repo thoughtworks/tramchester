@@ -49,7 +49,7 @@ class PostcodeBusRouteCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new BusWithPostcodesEnabled();
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }

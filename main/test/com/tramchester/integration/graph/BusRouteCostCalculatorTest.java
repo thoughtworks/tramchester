@@ -7,6 +7,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.TestStation;
@@ -27,7 +28,7 @@ class BusRouteCostCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
         TramchesterConfig config = new IntegrationBusTestConfig();
-        componentContainer = new ComponentsBuilder().create(config);
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

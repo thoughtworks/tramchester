@@ -1,5 +1,6 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.CacheMetrics;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.LineDirection;
@@ -12,12 +13,15 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import org.checkerframework.checker.units.qual.C;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +41,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         providesNow = createMock(ProvidesNow.class);
-        repository = new PlatformMessageRepository(providesNow);
+        repository = new PlatformMessageRepository(providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()));
 
-        lastUpdate = TestEnv.LocalNow();
+        LocalDate today = TestEnv.LocalNow().toLocalDate();
+        lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(TramStations.Shudehill);
         platform = new Platform("someId1", "Shudehill platform 1");

@@ -7,6 +7,7 @@ import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
 class TramInterchangeRepositoryTest {
@@ -15,7 +16,7 @@ class TramInterchangeRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig());
+        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

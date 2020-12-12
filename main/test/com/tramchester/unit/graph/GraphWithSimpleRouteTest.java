@@ -59,7 +59,7 @@ class GraphWithSimpleRouteTest {
 
         componentContainer = new ComponentsBuilder<TransportDataForTestProvider>().
                 overrideProvider(TransportDataForTestProvider.class).
-                create(config);
+                create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initContainer();
 
         transportData = (TransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);

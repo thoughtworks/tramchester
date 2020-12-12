@@ -44,7 +44,7 @@ class BusRouteCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationBusTestConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);

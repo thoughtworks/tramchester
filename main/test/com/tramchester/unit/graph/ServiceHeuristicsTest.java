@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.CacheMetrics;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
@@ -61,7 +62,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         serviceIdA = IdFor.createId("serviceIdA");
         serviceIdB = IdFor.createId("serviceIdB");
 
-        nodeOperations = new CachedNodeOperations();
+        nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()));
         path = createMock(HowIGotHere.class);
         tramReachabilityRepository = createMock(TramReachabilityRepository.class);
         stationRepository = createMock(StationRepository.class);

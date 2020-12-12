@@ -1,5 +1,7 @@
 package com.tramchester.testSupport;
 
+import com.codahale.metrics.Gauge;
+import com.tramchester.CacheMetrics;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
@@ -207,5 +209,14 @@ public class TestEnv {
 
     public static <T extends GraphProperty> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {
         assertEquals(itemA.getId(), itemB.getId());
+    }
+
+    public static CacheMetrics.RegistersMetrics NoopRegisterMetrics() {
+        return new CacheMetrics.RegistersMetrics() {
+            @Override
+            public <T> void register(String metricName, Gauge<T> Gauge) {
+                // noop
+            }
+        };
     }
 }

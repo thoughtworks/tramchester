@@ -5,6 +5,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ class CreatesCodeDependencyGraphTest {
     @BeforeAll
     static void beforeAnyTestRun() {
         TramchesterConfig config = new IntegrationTramTestConfig();
-        container = new ComponentsBuilder<>().create(config);
+        container = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
     }
 
     @Test

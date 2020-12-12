@@ -15,16 +15,19 @@ public class Module extends AbstractModule {
     private final GuiceContainerDependencies parent;
     private final GraphFilter filter;
     private final TramchesterConfig config;
+    private final CacheMetrics.RegistersMetrics registersMetrics;
 
-    public Module(GuiceContainerDependencies parent, GraphFilter filter, TramchesterConfig config) {
+    public Module(GuiceContainerDependencies parent, GraphFilter filter, TramchesterConfig config,
+                  CacheMetrics.RegistersMetrics registersMetrics) {
         this.parent = parent;
         this.filter = filter;
         this.config = config;
+        this.registersMetrics = registersMetrics;
     }
 
     @Override
     protected void configure() {
-        parent.registerConfiguration(config, filter);
+        parent.registerConfiguration(config, filter, registersMetrics);
         parent.registerLinkedComponents();
     }
 

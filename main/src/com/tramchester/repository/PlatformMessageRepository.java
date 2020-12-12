@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.CacheMetrics;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -40,10 +41,11 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     private LocalDate lastRefresh;
 
     @Inject
-    public PlatformMessageRepository(ProvidesNow providesNow) {
+    public PlatformMessageRepository(ProvidesNow providesNow, CacheMetrics cacheMetrics) {
         this.providesNow = providesNow;
         messageCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
+        cacheMetrics.register(this);
     }
 
     @PreDestroy

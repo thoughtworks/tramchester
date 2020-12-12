@@ -68,7 +68,7 @@ class CreateNeighboursTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new NeighboursTestConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig);
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
