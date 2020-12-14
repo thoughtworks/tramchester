@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Api
 @Path("/datainfo")
 @Produces(MediaType.APPLICATION_JSON)
-public class DataVersionResource implements APIResource {
+public class DataVersionResource {
     private static final Logger logger = LoggerFactory.getLogger(DataVersionResource.class);
 
     private final TramchesterConfig config;

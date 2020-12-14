@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Api
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
-public class VersionResource implements APIResource {
+public class VersionResource {
 
     private final TransportModeRepository repository;
 

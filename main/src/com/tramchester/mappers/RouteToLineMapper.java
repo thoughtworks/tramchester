@@ -37,9 +37,6 @@ public class RouteToLineMapper {
             return LineAndDirection.Unknown;
         }
 
-//        if (ExchangeSquareId.equals(routeStation.getStation().getId().forDTO())) {
-//            return mapLineDirection(Lines.Eccles, route);
-//        }
 
         if (CentralZoneStation.contains(routeStation.getStation())) {
             return mapDirect(routeStation);

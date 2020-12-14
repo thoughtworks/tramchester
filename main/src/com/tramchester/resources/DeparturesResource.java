@@ -38,7 +38,7 @@ import static java.lang.String.format;
 @Api
 @Path("/departures")
 @Produces(MediaType.APPLICATION_JSON)
-public class DeparturesResource implements APIResource  {
+public class DeparturesResource  {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final StationLocations stationLocations;

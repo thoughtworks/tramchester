@@ -36,7 +36,7 @@ import static java.lang.String.format;
 @Api
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationResource extends UsesRecentCookie implements APIResource {
+public class StationResource extends UsesRecentCookie {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
 
     private final StationRepository stationRepository;

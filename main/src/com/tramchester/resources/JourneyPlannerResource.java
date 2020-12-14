@@ -36,7 +36,7 @@ import static java.lang.String.format;
 @Api
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
-public class JourneyPlannerResource extends UsesRecentCookie implements APIResource {
+public class JourneyPlannerResource extends UsesRecentCookie {
     private static final Logger logger = LoggerFactory.getLogger(JourneyPlannerResource.class);
 
     private final ProcessPlanRequest processPlanRequest;
