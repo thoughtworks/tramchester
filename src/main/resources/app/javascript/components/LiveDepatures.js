@@ -1,7 +1,6 @@
 
 function dueTimeFormatter(value, key, row) {
-    var departTime = new Date(value);
-    return departTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    return value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 export default { 
@@ -11,7 +10,7 @@ export default {
             currentPage: 1,
             departureFields: [
                 {key:'from', label:'From', tdClass:'departureDueFrom', sortable:true},
-                {key:'dueTime', label:'Time', tdClass:'departureDueTime', formatter: dueTimeFormatter, sortable:true},
+                {key:'dueTimeAsDate', label:'Time', tdClass:'departureDueTime', formatter: dueTimeFormatter, sortable:true},
                 {key:'carriages', label:'', tdClass:'departureCarriages'},
                 {key:'status', label:'Status', tdClass:'departureStatus'},
                 {key:'destination', label:'Towards', tdClass:'departureTowards',  sortable:true}
@@ -35,14 +34,18 @@ export default {
     template: `
     <div id="departuesView">
         <b-table id="departures"
+            sort-by='dueTimeAsDate'
+            sort-icon-left
             v-if="localDueTrams.length>0"
-            :current-page="currentPage" sort-icon-left
+            :current-page="currentPage" 
             :items="localDueTrams" small responsive="sm"
             :fields="departureFields" per-page="4"
             tbody-tr-class='departuresSummary' caption-top>
+
             <template v-slot:table-caption>
                 <div class="liveDepartures">Current Live Departures</div>
             </template>
+            
         </b-table>
         <b-pagination v-if="localDueTrams.length>0 && localDueTrams.length>4"
             v-model="currentPage"

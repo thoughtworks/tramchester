@@ -68,9 +68,8 @@ function lineFormatter(value, key, row) {
 }
 
 function dateTimeFormatter(value, key, row) {
-    var queryDate = new Date(row.journey.queryDate);
-    var journeyDate = new Date(value);
-    return formatDate(queryDate, journeyDate)
+    var queryDate = row.journey.queryDateAsDate;
+    return formatDate(queryDate, value)
 }
 
 function stageDateTimeFormatter(value, key, row) {
@@ -85,8 +84,9 @@ function daysSinceEpoch(date) {
 }
 
 function formatDate(queryDate, journeyDateTime) {
-    var diff = daysSinceEpoch(journeyDateTime) - daysSinceEpoch(queryDate);
     var time = toHourAndMins(journeyDateTime); 
+    // next day?
+    var diff = daysSinceEpoch(journeyDateTime) - daysSinceEpoch(queryDate);
     if (diff>0) {
         return time + ' +' + diff + 'd';
     }
@@ -112,7 +112,7 @@ function earliestDepartTime(journeys) {
 
     var earliestDepart = null;
     journeys.forEach(item => {
-        var currnet = new Date(item.journey.firstDepartureTime);
+        var currnet = item.journey.firstDepartureTimeAsDate;
         if (earliestDepart==null) {
             earliestDepart = currnet;
         }
@@ -127,7 +127,7 @@ function lastDepartTime(journeys) {
 
     var lastDepart = null;
     journeys.forEach(item => {
-        var currnet = new Date(item.journey.firstDepartureTime);
+        var currnet = item.journey.firstDepartureTimeAsDate;
         if (lastDepart==null) {
             lastDepart = currnet;
         }
@@ -148,10 +148,10 @@ export default {
         return {
             journeyFields: [
                 {key:'_showDetails',label:'', formatter: rowExpandedFormatter},
-                {key:'journey.firstDepartureTime',label:'Depart', sortable:true, tdClass:'departTime', 
+                {key:'journey.firstDepartureTimeAsDate',label:'Depart', sortable:true, tdClass:'departTime', 
                     formatter: dateTimeFormatter },
                 {key:'journey.begin',label:'From', sortable:true, tdClass:'station', formatter: fromFormatter},
-                {key:'journey.expectedArrivalTime',label:'Arrive', sortable:true, tdClass:'arriveTime'
+                {key:'journey.expectedArrivalTimeAsDate',label:'Arrive', sortable:true, tdClass:'arriveTime'
                     , formatter: dateTimeFormatter},
                 {key:'journey.changeStations', label:'Change', tdClass:'changes', formatter: changesFormatter}
                 ],
@@ -217,7 +217,7 @@ export default {
                 sort-icon-left
                 :items="journeys" small responsive="sm"
                 :fields="journeyFields"
-                sort-by='journey.expectedArrivalTime'
+                sort-by='journey.expectedArrivalTimeAsDate'
                 select-mode='single' caption-top
                     @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
             <template v-slot:table-caption>

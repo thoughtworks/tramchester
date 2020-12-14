@@ -70,7 +70,7 @@ function displayLiveData(app) {
 function queryLiveData(url) {
  axios.get( url, { timeout: 11000 }).
             then(function (response) {
-                app.liveDepartureResponse = response.data;
+                app.liveDepartureResponse = addParsedDatesToLive(response.data);
                 app.networkError = false;
                 app.liveInProgress = false;
             }).
@@ -176,6 +176,25 @@ async function getRecentAndNearest(app) {
     }
 }
 
+
+// json parses dates to string
+function addParsedDatesToJourney(journeysArray) {
+    journeysArray.forEach(item => {
+        item.journey.queryDateAsDate = new Date(item.journey.queryDate);
+        item.journey.firstDepartureTimeAsDate = new Date(item.journey.firstDepartureTime);
+        item.journey.expectedArrivalTimeAsDate = new Date(item.journey.expectedArrivalTime);
+    })
+    return journeysArray;
+}
+
+// json parses dates to string
+function addParsedDatesToLive(liveData) {
+    liveData.departures.forEach(item => {
+        item.dueTimeAsDate = new Date(item.dueTime);
+    })
+    return liveData;
+}
+
  function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
     var urlParams = {
         start: startStop, end: endStop, departureTime: time, departureDate: date, 
@@ -189,7 +208,7 @@ async function getRecentAndNearest(app) {
     axios.get('/api/journey/', { params: urlParams, timeout: 60000 }).
         then(function (response) {
             app.networkError = false;
-            app.journeys = response.data.journeys;
+            app.journeys = addParsedDatesToJourney(response.data.journeys);
             getRecentAndNearest(app);
             app.searchInProgress = false;
             app.ready = true;
