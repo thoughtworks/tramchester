@@ -48,11 +48,11 @@ dependencies {
     implementation('software.amazon.awssdk:s3:2.15.45')
     implementation('software.amazon.awssdk:cloudformation:2.15.45')
     // aws cdk
-    implementation 'software.amazon.awscdk:core:1.77.0',
-            'software.amazon.awscdk:s3:1.77.0',
-            'software.amazon.awscdk:ec2:1.77.0',
-            'software.amazon.awscdk:elasticloadbalancingv2:1.77.0',
-            'software.amazon.awscdk:autoscaling:1.77.0',
+    implementation 'software.amazon.awscdk:core:1.78.0',
+            'software.amazon.awscdk:s3:1.78.0',
+            'software.amazon.awscdk:ec2:1.78.0',
+            'software.amazon.awscdk:elasticloadbalancingv2:1.78.0',
+            'software.amazon.awscdk:autoscaling:1.78.0',
             'software.amazon.awscdk:cdk-cx-api:1.78.0'
 
     implementation('org.geotools:gt-main:24.1')
@@ -202,12 +202,6 @@ task all(type:JavaExec, dependsOn: 'webpack') {
     args 'server', 'config/all.yml'
 }
 
-task dev(type:JavaExec, dependsOn: 'webpack') {
-    main = mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    args 'server', 'config/dev.yml'
-}
-
 task busTest(type: Test) {
     useJUnitPlatform {
         includeTags 'BusTest'
@@ -234,6 +228,17 @@ task integration(type: Test, dependsOn: compileJava) {
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
+task apiTests(type: Test, dependsOn: compileJava) {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "com.tramchester.integration.resources.*"
     }
     testLogging {
         exceptionFormat "full" // default is "short"

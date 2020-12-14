@@ -38,7 +38,7 @@ import static java.lang.String.format;
 @Api
 @Path("/departures")
 @Produces(MediaType.APPLICATION_JSON)
-public class DeparturesResource  {
+public class DeparturesResource extends TransportResource {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final StationLocations stationLocations;
@@ -46,19 +46,18 @@ public class DeparturesResource  {
     private final DeparturesMapper departuresMapper;
     private final ProvidesNotes providesNotes;
     private final StationRepository stationRepository;
-    private final ProvidesNow providesNow;
     private final TramchesterConfig config;
 
     @Inject
     public DeparturesResource(StationLocations stationLocations, DueTramsSource dueTramsSource,
                               DeparturesMapper departuresMapper, ProvidesNotes providesNotes, StationRepository stationRepository,
                               ProvidesNow providesNow, TramchesterConfig config) {
+        super(providesNow);
         this.stationLocations = stationLocations;
         this.dueTramsSource = dueTramsSource;
         this.departuresMapper = departuresMapper;
         this.providesNotes = providesNotes;
         this.stationRepository = stationRepository;
-        this.providesNow = providesNow;
         this.config = config;
     }
 
@@ -76,15 +75,7 @@ public class DeparturesResource  {
         LocalDate localDate = providesNow.getDate();
         TramServiceDate queryDate = new TramServiceDate(localDate);
 
-        Optional<TramTime> optionalTramTime = Optional.empty();
-        if (!queryTimeRaw.isEmpty()) {
-            optionalTramTime = TramTime.parse(queryTimeRaw);
-            if (optionalTramTime.isEmpty()) {
-                logger.warn("Unable to parse time " + queryTimeRaw);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
-        TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
+        TramTime queryTime = parseOptionalTimeOrNow(queryTimeRaw);
 
         // trams
         SortedSet<DepartureDTO> departs = new TreeSet<>();
@@ -103,7 +94,8 @@ public class DeparturesResource  {
     @Timed
     @Path("/station/{station}")
     @ApiOperation(value= "All departures from given station ID, notes included by default. " +
-            "Control presence of notes using query param ?notes=1 or 0",
+            "Control presence of notes using query param ?notes=1 or 0 (default 0). Uses latest data " +
+            "unless queryTime is provided",
             response = DepartureListDTO.class)
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response getDepartureForStation(@PathParam("station") String stationIdText,
@@ -122,39 +114,30 @@ public class DeparturesResource  {
             includeNotes = !notesParam.equals("0");
         }
 
-        LocalDate localDate = providesNow.getDate();
-        TramServiceDate queryDate = new TramServiceDate(localDate);
-
-        Optional<TramTime> optionalTramTime = Optional.empty();
-        if (!queryTimeRaw.isEmpty()) {
-            optionalTramTime = TramTime.parse(queryTimeRaw);
-            if (optionalTramTime.isEmpty()) {
-                logger.warn("Unable to parse time " + queryTimeRaw);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-        }
-        TramTime queryTime = optionalTramTime.orElseGet(providesNow::getNow);
+        LocalDate currentDate = providesNow.getDate();
+        TramTime queryTime = parseOptionalTimeOrNow(queryTimeRaw);
 
         Station station = stationRepository.getStationById(stationId);
-        logger.info("Found station " + HasId.asId(station) + " Find departures at " + queryDate + " " +queryTime);
+        logger.info("Found station " + HasId.asId(station) + " Find departures at " + currentDate + " " +queryTime);
 
         //trams
-        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, localDate, queryTime);
+        List<DueTram> dueTramList = dueTramsSource.dueTramsFor(station, currentDate, queryTime);
         if (dueTramList.isEmpty()) {
-            logger.warn("Departures list empty for " + HasId.asId(station) + " at " + queryDate + " " +queryTime);
+            logger.warn("Departures list empty for " + HasId.asId(station) + " at " + currentDate + " " +queryTime);
         }
-        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList, localDate));
+        SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList, currentDate));
 
         //notes
         List<Note> notes = Collections.emptyList();
         if (includeNotes) {
-            notes = providesNotes.createNotesForStations(Collections.singletonList(station), queryDate, queryTime);
+            notes = providesNotes.createNotesForStations(Collections.singletonList(station),
+                    new TramServiceDate(currentDate), queryTime);
             if (notes.isEmpty()) {
-                logger.warn("Notes empty for " + HasId.asId(station) + " at " + queryDate + " " +queryTime);
+                logger.warn("Notes empty for " + HasId.asId(station) + " at " + currentDate + " " +queryTime);
             }
         }
 
         return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
-
     }
+
 }

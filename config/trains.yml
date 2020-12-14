@@ -14,7 +14,7 @@ server:
     minimumEntitySize: 160B
 
 secureHost: tramchester.com
-
+staticAssetCacheTimeSeconds: 300
 graphName: trains.db
 neo4jPagecacheMemory: 1000m
 dataSources:

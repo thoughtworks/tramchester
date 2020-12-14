@@ -45,7 +45,7 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
         String header = httpServletRequest.getHeader(X_FORWARDED_PROTO); // https is terminated by the ELB
         try {
             if (header != null) {
-                if ("http".equals(header.toLowerCase())) {
+                if ("http".equalsIgnoreCase(header)) {
                     logger.info("found http in " +X_FORWARDED_PROTO+ " need to redirect to https");
                     String location = mapUrl(httpServletRequest.getRequestURL().toString());
                     ((HttpServletResponse) response).sendRedirect(location);

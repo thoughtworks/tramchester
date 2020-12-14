@@ -14,7 +14,7 @@ server:
     minimumEntitySize: 160B
 
 secureHost: tramchester.com
-
+staticAssetCacheTimeSeconds: 300
 graphName: all.db
 neo4jPagecacheMemory: 1500m
 stationClosures: []

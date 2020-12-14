@@ -24,6 +24,7 @@ class ConfigMismatchTest {
 
     @Test
     void shouldBeAbleToLoadAllConfigWithoutExceptions() throws IOException, ConfigurationException {
+        // Note: this does not catch all the same validation cases as app start up
         @NotNull YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
         Path configDir = Paths.get("config").toAbsolutePath();
         Set<Path> configFiles = Files.list(configDir).
@@ -53,16 +54,17 @@ class ConfigMismatchTest {
     void shouldHaveKeyParametersSameForAcceptanceTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
-        AppConfiguration testConfig = loadConfigFromFile("localAcceptance.yml");
+        AppConfiguration accTestConfig = loadConfigFromFile("localAcceptance.yml");
 
-        validateCoreParameters(appConfig, testConfig);
+        validateCoreParameters(appConfig, accTestConfig);
 
-        assertEquals(appConfig.getQueryInterval(), testConfig.getQueryInterval());
-        assertEquals(appConfig.getNumberQueries(), testConfig.getNumberQueries());
+        assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval());
+        assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries());
 
     }
 
     private void validateCoreParameters(AppConfiguration expected, AppConfiguration testConfig) {
+        assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds());
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration());
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait());
         assertEquals(expected.getChangeAtInterchangeOnly(), testConfig.getChangeAtInterchangeOnly());

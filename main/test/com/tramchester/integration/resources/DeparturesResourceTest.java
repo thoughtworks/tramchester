@@ -138,6 +138,15 @@ class DeparturesResourceTest {
         assertTrue(departures.isEmpty());
     }
 
+    @Test
+    void shouldGetServerErrorForInvalidTime() {
+        double lat = 53.4804263d;
+        double lon = -2.2392436d;
+        String time = "28:64";
+        Response response = IntegrationClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time));
+        assertEquals(500, response.getStatus());
+    }
+
     private SortedSet<DepartureDTO> getDeparturesForLatlongTime(double lat, double lon, LocalTime queryTime) {
         String time = queryTime.format(TestEnv.timeFormatter);
         Response response = IntegrationClient.getApiResponse(appExtension, String.format("departures/%s/%s?querytime=%s", lat, lon, time));

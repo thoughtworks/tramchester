@@ -28,6 +28,11 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean getChangeAtInterchangeOnly() { return true; }
 
     @Override
+    public Integer getStaticAssetCacheTimeSeconds() {
+        return 5*60;
+    }
+
+    @Override
     public List<StationClosure> getStationClosures() {
         return Collections.emptyList();
     }

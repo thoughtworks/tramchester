@@ -83,7 +83,6 @@ public class App extends Application<AppConfiguration>  {
 
         bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
 
-        // TODO Dependency clash needs to be resolved
         // api/swagger.json and api/swagger
         bootstrap.addBundle(new SwaggerBundle<>() {
             @Override
@@ -94,7 +93,7 @@ public class App extends Application<AppConfiguration>  {
             }
         });
 
-        // https://www.tramchester.com/api/swagger
+        // find me at https://www.tramchester.com/api/swagger
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
         logger.info("init bootstrap finished");
     }
@@ -131,7 +130,7 @@ public class App extends Application<AppConfiguration>  {
         // Redirect / -> /app
         RedirectToAppFilter redirectToAppFilter = new RedirectToAppFilter();
         applicationContext.addFilter(new FilterHolder(redirectToAppFilter), "/", EnumSet.of(DispatcherType.REQUEST));
-        filtersForStaticContent(environment);
+        filtersForStaticContent(environment, configuration.getStaticAssetCacheTimeSeconds());
 
         // api end points registration
         container.getResources().forEach(apiResource -> environment.jersey().register(apiResource));
@@ -205,11 +204,10 @@ public class App extends Application<AppConfiguration>  {
 
     }
 
-    private void filtersForStaticContent(Environment environment) {
-        int lifeTime = 5 * 60; // 5 minutes
-        StaticAssetFilter filter = new StaticAssetFilter(lifeTime);
-        setFilterFor(environment, filter, "dist", "/app/dist/*");
-        setFilterFor(environment, filter, "html", "/app/index.html");
+    private void filtersForStaticContent(Environment environment, Integer staticAssetCacheTimeSecond) {
+        StaticAssetFilter filter = new StaticAssetFilter(staticAssetCacheTimeSecond);
+        setFilterFor(environment, filter, "dist", "/app/*");
+        //setFilterFor(environment, filter, "html", "/app/index.html");
     }
 
     private void setFilterFor(Environment environment, StaticAssetFilter filter, String name, String pattern) {

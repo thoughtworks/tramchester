@@ -27,6 +27,10 @@ public class AppConfiguration extends TramchesterConfig {
     private String graphName;
 
     @NotNull
+    @JsonProperty("staticAssetCacheTimeSeconds")
+    private Integer staticAssetCacheTimeSeconds;
+
+    @NotNull
     @JsonProperty("neo4jPagecacheMemory")
     private String neo4jPagecacheMemory;
 
@@ -208,6 +212,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public double getWalkingMPH() {
         return walkingMPH;
+    }
+
+    @Override
+    public Integer getStaticAssetCacheTimeSeconds() {
+        return staticAssetCacheTimeSeconds;
     }
 
     @Override

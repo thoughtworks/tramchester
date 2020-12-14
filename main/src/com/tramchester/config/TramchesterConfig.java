@@ -16,6 +16,8 @@ public abstract class TramchesterConfig extends Configuration {
 
     public static final ZoneId TimeZone = ZoneId.of("Europe/London");
 
+    public abstract Integer getStaticAssetCacheTimeSeconds();
+
     // name of the graph DB to use
     public abstract String getGraphName();
 
@@ -105,4 +107,5 @@ public abstract class TramchesterConfig extends Configuration {
         getDataSourceConfig().forEach(sourceConfig -> result.addAll(sourceConfig.getTransportModes()));
         return result;
     }
+
 }
