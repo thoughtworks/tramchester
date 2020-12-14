@@ -28,6 +28,7 @@ repositories {
     }
 }
 
+// useful reminder ./gradlew -q dependencyInsight --dependency X.Y:Z
 dependencies {
     implementation('io.dropwizard:dropwizard-core:' + dropwizardVersion)
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
