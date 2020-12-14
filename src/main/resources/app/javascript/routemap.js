@@ -6,6 +6,8 @@ Vue.use(require('bootstrap-vue'));
 
 var L = require('leaflet');
 
+require('file-loader?name=[name].[ext]!../routes.html');
+
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'leaflet/dist/leaflet.css'

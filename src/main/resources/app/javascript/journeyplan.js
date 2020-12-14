@@ -4,6 +4,8 @@ var Vue = require('vue');
 Vue.use(require('vue-cookies'));
 Vue.use(require('bootstrap-vue'));
 
+require('file-loader?name=[name].[ext]!../index.html');
+
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './../css/tramchester.css'

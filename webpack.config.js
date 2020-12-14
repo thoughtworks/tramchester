@@ -10,9 +10,9 @@ module.exports = {
     routemap: './src/main/resources/app/javascript/routemap.js'
   },
   output: {
-    path: path.resolve(__dirname, 'src/main/resources/app/dist/'),
+    path: path.resolve(__dirname, 'build/resources/main/app'),
     filename: '[name].js',
-    publicPath: '/app/dist'
+    publicPath: '/app'
   },
   resolve: {
     alias: {

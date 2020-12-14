@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
-import io.dropwizard.bundles.assets.AssetsConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
@@ -166,15 +165,15 @@ public class AppConfiguration extends TramchesterConfig {
         return swaggerBundleConfiguration;
     }
 
-    @Valid
-    @NotNull
-    @JsonProperty
-    private final AssetsConfiguration assets = AssetsConfiguration.builder().build();
-
-    @Override
-    public AssetsConfiguration getAssetsConfiguration() {
-        return assets;
-    }
+//    @Valid
+//    @NotNull
+//    @JsonProperty
+//    private final AssetsConfiguration assets = AssetsConfiguration.builder().build();
+//
+//    @Override
+//    public AssetsConfiguration getAssetsConfiguration() {
+//        return assets;
+//    }
 
     @Override
     public int getDataExpiryThreadhold() {

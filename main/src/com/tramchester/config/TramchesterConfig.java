@@ -4,7 +4,6 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
-import io.dropwizard.bundles.assets.AssetsBundleConfiguration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
@@ -13,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class TramchesterConfig extends Configuration implements AssetsBundleConfiguration {
+public abstract class TramchesterConfig extends Configuration {
 
     public static final ZoneId TimeZone = ZoneId.of("Europe/London");
 

@@ -18,7 +18,6 @@ import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.bundles.assets.ConfiguredAssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.jetty.MutableServletContextHandler;
@@ -82,8 +81,7 @@ public class App extends Application<AppConfiguration>  {
                         bootstrap.getConfigurationSourceProvider(),
                         new EnvironmentVariableSubstitutor(false)));
 
-        // TODO Use configurable assest bundle only for dev env?
-        bootstrap.addBundle(new ConfiguredAssetsBundle("/app", "/app", "index.html", "app"));
+        bootstrap.addBundle(new AssetsBundle("/app", "/app", "index.html", "app"));
 
         // TODO Dependency clash needs to be resolved
         // api/swagger.json and api/swagger
@@ -140,7 +138,6 @@ public class App extends Application<AppConfiguration>  {
 
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
-
 
         // only enable live data if tram's enabled
         if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {

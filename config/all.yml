@@ -90,10 +90,3 @@ logging:
       archivedLogFilenamePattern: logs/tramchester_all-%d.log
       archivedFileCount: 5
       timeZone: UTC
-
-# TODO only for dev environments
-assets:
-  overrides:
-    # Override requests to /app/${1} to instead look in
-    # ${working directory}/src/main/app/${1}
-    /app: src/main/resources/app/
