@@ -67,7 +67,7 @@ public class ClientForS3 {
             return false;
         }
         catch (AwsServiceException awsServiceException) {
-            logger.error("AWS exception during upload ", awsServiceException);
+            logger.error(format("AWS exception during upload for upload to bucket '%s' key '%s'", bucket, key), awsServiceException);
             return false;
         }
         return true;

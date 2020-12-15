@@ -39,7 +39,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public String getInstanceDataUrl() {
-        return "http://localhost:8080";
+        return "";
     }
 
     @Override

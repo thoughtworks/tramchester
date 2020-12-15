@@ -24,21 +24,28 @@ import static java.lang.String.format;
 public class FetchInstanceMetadata implements FetchMetadata {
     private static final Logger logger = LoggerFactory.getLogger(FetchInstanceMetadata.class);
 
+    private static final int TIMEOUT = 4000;
     private static final java.lang.String USER_DATA_PATH = "/latest/user-data";
-
-    private final URL instanceDataURL;
+    private final TramchesterConfig config;
 
     @Inject
-    public FetchInstanceMetadata(TramchesterConfig tramchesterConfig) throws MalformedURLException {
-        this.instanceDataURL = new URL(tramchesterConfig.getInstanceDataUrl());
+    public FetchInstanceMetadata(TramchesterConfig tramchesterConfig) {
+        this.config = tramchesterConfig;
     }
 
     public String getUserData() {
+        String urlFromConfig = config.getInstanceDataUrl();
+        if (urlFromConfig.isEmpty()) {
+            logger.warn("No url for instance meta data, returning empty");
+            return "";
+        }
+
         try {
-            URL url = new URL(instanceDataURL, USER_DATA_PATH);
+            URL baseUrl = new URL(urlFromConfig);
+            URL url = new URL(baseUrl, USER_DATA_PATH);
             return getDataFrom(url);
         } catch (MalformedURLException e) {
-            logger.warn(format("Unable to fetch instance metadata from %s and %s", instanceDataURL, USER_DATA_PATH),e);
+            logger.warn(format("Unable to fetch instance metadata from %s and %s", urlFromConfig, USER_DATA_PATH),e);
             return "";
         }
     }
@@ -48,8 +55,8 @@ public class FetchInstanceMetadata implements FetchMetadata {
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url.toString());
         RequestConfig config = RequestConfig.custom()
-                .setSocketTimeout(5000)
-                .setConnectTimeout(5000).build();
+                .setSocketTimeout(TIMEOUT)
+                .setConnectTimeout(TIMEOUT).build();
         httpGet.setConfig(config);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
