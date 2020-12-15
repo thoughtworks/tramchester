@@ -27,7 +27,7 @@ class RouteMapperTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

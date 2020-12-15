@@ -59,11 +59,15 @@ public class ClientForS3 {
             String localMd5 = Base64.encodeBase64String(messageDigest.digest(bytes));
 
             logger.debug("Uploading with MD5: " + localMd5);
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key).contentMD5(localMd5).build(); ;
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key).contentMD5(localMd5).build();
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
         }
-        catch (S3Exception | NoSuchAlgorithmException exception) {
-            logger.warn(format("Unable to upload to bucket '%s' key '%s'", bucket, key), exception);
+        catch (NoSuchAlgorithmException exception) {
+            logger.warn(format("NoSuchAlgorithmException for upload to bucket '%s' key '%s'", bucket, key), exception);
+            return false;
+        }
+        catch (AwsServiceException awsServiceException) {
+            logger.error("AWS exception during upload ", awsServiceException);
             return false;
         }
         return true;
@@ -83,7 +87,7 @@ public class ClientForS3 {
         return s3Client.getObject(request, transformer);
     }
 
-    public byte[] readBytes(String key, GetObjectResponse response, FilterInputStream inputStream) {
+    private byte[] readBytes(String key, GetObjectResponse response, FilterInputStream inputStream) {
         int contentLength = Math.toIntExact(response.contentLength());
 
         logger.info(format("Key: %s Content type: %s Length %s ", key, response.contentType(), contentLength));
@@ -120,7 +124,7 @@ public class ClientForS3 {
     }
 
     @NotNull
-    public String getETagClean(GetObjectResponse response) {
+    private String getETagClean(GetObjectResponse response) {
         String remote = response.eTag();
         if (remote.startsWith("\"")) {
             remote = remote.replaceFirst("\"","");
@@ -154,7 +158,7 @@ public class ClientForS3 {
         return items.stream().map(S3Object::key).collect(Collectors.toSet());
     }
 
-    public List<S3Object> getSummaryForPrefix(String prefix) {
+    private List<S3Object> getSummaryForPrefix(String prefix) {
         if (!bucketExists(bucket)) {
             logger.error(format("Bucket %s does not exist", bucket));
             return Collections.emptyList();
