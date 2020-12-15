@@ -9,11 +9,18 @@ public class Agency implements HasId<Agency>, GraphProperty {
     private final IdFor<Agency> agencyId;
     private final String agencyName;
 
+    public static final Agency Walking;
+
+    static {
+        Walking = new Agency("Walking", "Walking");
+    }
+
     public Agency(String agencyId, String agencyName) {
         this.agencyId =  IdFor.createId(agencyId);
         this.agencyName = agencyName;
         routes = new HashSet<>();
     }
+
 
     public void addRoute(Route route) {
         routes.add(route);

@@ -62,14 +62,11 @@ public class StationResource extends UsesRecentCookie {
     @ApiOperation(value = "Get station by id", response = LocationDTO.class)
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response get(@PathParam("id") String text) {
-        logger.info("Get station " + text);
+        logger.info("Get station by id: " + text);
         IdFor<Station> id = IdFor.createId(text);
-        if (stationRepository.hasStationId(id)) {
-            return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();
-        }
-        else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        guardForStationNotExisting(stationRepository, id);
+
+        return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();
     }
 
     @GET
@@ -160,7 +157,7 @@ public class StationResource extends UsesRecentCookie {
     }
 
     @NotNull
-    public List<StationRefDTO> toStationRefDTOList(Collection<Station> stations) {
+    private List<StationRefDTO> toStationRefDTOList(Collection<Station> stations) {
         return stations.stream().
                 map(StationRefDTO::new).
                 // sort server side is here as an optimisation for front end sorting time

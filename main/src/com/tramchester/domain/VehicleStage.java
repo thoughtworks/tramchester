@@ -57,13 +57,8 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return trip.getHeadsign();
     }
 
-    public String getRouteName() {
-        return route.getName();
-    }
-
-    @Override
-    public String getRouteShortName() {
-        return route.getShortName();
+    public Route getRoute() {
+        return route;
     }
 
     @Override

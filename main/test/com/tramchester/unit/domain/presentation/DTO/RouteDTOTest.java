@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.domain.reference.KnownRoute.intuTraffordCentreCornbrook;
+import static com.tramchester.domain.reference.KnownTramRoute.intuTraffordCentreCornbrook;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.reference.TramStations.Intu;
 import static org.junit.jupiter.api.Assertions.assertEquals;

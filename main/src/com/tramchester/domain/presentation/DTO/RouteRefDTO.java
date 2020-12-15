@@ -1,9 +1,12 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
 
+@JsonIgnoreProperties(value = "tram", allowGetters = true)
 public class RouteRefDTO {
 
     private String id;
@@ -40,6 +43,7 @@ public class RouteRefDTO {
     }
 
     // use TransportMode
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public Boolean isTram() {
         return transportMode.equals(TransportMode.Tram);

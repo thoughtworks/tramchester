@@ -6,7 +6,7 @@ import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.CentralZoneStation;
-import com.tramchester.domain.reference.KnownRoute;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.RouteRepository;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.repository.TramCentralZoneDirectionRespository.Place.*;
 import static com.tramchester.testSupport.TestEnv.formId;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -162,7 +162,7 @@ class TramCentralZoneDirectionRespositoryTest {
 
     }
 
-    private RouteStation getRouteStation(TramStations station, KnownRoute route) {
+    private RouteStation getRouteStation(TramStations station, KnownTramRoute route) {
         IdFor<RouteStation> routeStationId = formId(station, route);
         return stationRepository.getRouteStationById(routeStationId);
     }

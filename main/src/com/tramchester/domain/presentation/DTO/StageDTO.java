@@ -31,14 +31,12 @@ public class StageDTO {
     private int passedStops;
     private String action;
 
-    // TODO Into RouteRefDTO
-    private String routeName;
-    private String routeShortName;
+    private RouteRefDTO route;
 
     public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
                     LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
-                    String routeName, TravelAction action, String routeShortName, LocalDate queryDate) {
+                    RouteRefDTO route, TravelAction action, LocalDate queryDate) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
@@ -50,16 +48,15 @@ public class StageDTO {
         this.headSign = headSign;
         this.mode = mode;
         this.passedStops = passedStops;
-        this.routeName = routeName;
+        this.route = route;
         this.action = action.toString();
-        this.routeShortName = routeShortName;
         this.queryDate = queryDate;
     }
 
     public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
                     PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
-                    String routeName, TravelAction action, String routeShortName, LocalDate queryDate) {
+                    RouteRefDTO route, TravelAction action, LocalDate queryDate) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
@@ -71,9 +68,8 @@ public class StageDTO {
         this.headSign = headSign;
         this.mode = mode;
         this.passedStops = passedStops;
-        this.routeName = routeName;
+        this.route = route;
         this.action = action.toString();
-        this.routeShortName = routeShortName;
         this.queryDate = queryDate;
     }
 
@@ -136,8 +132,8 @@ public class StageDTO {
         return passedStops;
     }
 
-    public String getRouteName() {
-        return routeName;
+    public RouteRefDTO getRoute() {
+        return route;
     }
 
     public String getAction() {
@@ -160,13 +156,8 @@ public class StageDTO {
                 ", mode=" + mode +
                 ", passedStops=" + passedStops +
                 ", action='" + action + '\'' +
-                ", routeName='" + routeName + '\'' +
-                ", routeShortName='" + routeShortName + '\'' +
+                ", route='" + route + '\'' +
                 '}';
-    }
-
-    public String getRouteShortName() {
-        return routeShortName;
     }
 
 }

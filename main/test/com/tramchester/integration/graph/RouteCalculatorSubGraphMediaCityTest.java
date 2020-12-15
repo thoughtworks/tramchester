@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;

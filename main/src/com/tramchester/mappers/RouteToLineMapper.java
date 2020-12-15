@@ -7,7 +7,7 @@ import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.CentralZoneStation;
-import com.tramchester.domain.reference.KnownRoute;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.repository.TramCentralZoneDirectionRespository;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ public class RouteToLineMapper {
 
     public LineAndDirection map(RouteStation routeStation) {
         Route route = routeStation.getRoute();
-        if (!KnownRoute.ids.contains(route.getId())) {
+        if (!KnownTramRoute.ids.contains(route.getId())) {
             logger.error("Unknown route " + route.getId());
             return LineAndDirection.Unknown;
         }
@@ -42,7 +42,7 @@ public class RouteToLineMapper {
             return mapDirect(routeStation);
         }
 
-        KnownRoute knownRoute = KnownRoute.map.get(route.getId());
+        KnownTramRoute knownRoute = KnownTramRoute.map.get(route.getId());
         switch (knownRoute) {
             case RochdaleManchesterEDidsbury:
                 return mapCrossesCentralZone(routeStation, Lines.OldhamAndRochdale, Lines.SouthManchester);

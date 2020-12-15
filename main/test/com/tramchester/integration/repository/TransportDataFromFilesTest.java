@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
-import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;

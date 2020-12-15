@@ -9,7 +9,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.KnownRoute;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -28,7 +28,7 @@ import org.neo4j.graphdb.Transaction;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
@@ -149,7 +149,7 @@ class TramGraphBuilderTest {
         // graphAndFileConsistencyCheckOutbounds(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
     }
 
-    private void checkOutboundConsistency(TramStations tramStation, KnownRoute knownRoute) {
+    private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Station station = of(tramStation);
         Route route = createTramRoute(knownRoute);
 
@@ -181,7 +181,7 @@ class TramGraphBuilderTest {
         Assertions.assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
     }
 
-    private void checkInboundConsistency(TramStations tramStation, KnownRoute knownRoute) {
+    private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Route route = RoutesForTesting.createTramRoute(knownRoute);
         Station station = of(tramStation);
 

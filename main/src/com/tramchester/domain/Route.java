@@ -18,6 +18,12 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     private final Set<String> headsigns;
     private final RouteDirection routeDirection;
 
+    public static final Route Walking;
+    static {
+            Walking = new Route(IdFor.createId("Walk"), "Walk", "Walk", Agency.Walking,
+                    TransportMode.Walk, RouteDirection.Unknown);
+    }
+
     public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode,  RouteDirection routeDirection) {
         this(IdFor.createId(id), shortName, name, agency, transportMode, routeDirection);
     }

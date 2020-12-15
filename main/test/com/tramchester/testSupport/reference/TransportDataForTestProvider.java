@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
-import static com.tramchester.domain.reference.KnownRoute.EDidsburyManchesterRochdale;
-import static com.tramchester.domain.reference.KnownRoute.RochdaleManchesterEDidsbury;
+import static com.tramchester.domain.reference.KnownTramRoute.EDidsburyManchesterRochdale;
+import static com.tramchester.domain.reference.KnownTramRoute.RochdaleManchesterEDidsbury;
 import static java.lang.String.format;
 
 @LazySingleton

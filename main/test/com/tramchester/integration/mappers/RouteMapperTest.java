@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.tramchester.domain.reference.KnownRoute.ManchesterAirportVictoria;
+import static com.tramchester.domain.reference.KnownTramRoute.ManchesterAirportVictoria;
 
 class RouteMapperTest {
     private static ComponentContainer componentContainer;

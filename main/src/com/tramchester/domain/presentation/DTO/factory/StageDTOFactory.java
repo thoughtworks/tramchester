@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.TransportStage;
@@ -22,6 +23,7 @@ public class StageDTOFactory {
         StationRefWithPosition actionStation = new StationRefWithPosition(source.getActionStation());
         LocalDateTime firstDepartureTime = source.getFirstDepartureTime().toDate(queryDate);
         LocalDateTime expectedArrivalTime = source.getExpectedArrivalTime().toDate(queryDate);
+        RouteRefDTO routeRefDTO = new RouteRefDTO(source.getRoute());
 
         if (source.hasBoardingPlatform()) {
             PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());
@@ -33,7 +35,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName(), queryDate);
+                    source.getPassedStops(), routeRefDTO, travelAction, queryDate);
         } else {
             return new StageDTO(firstStation,
                     lastStation,
@@ -41,7 +43,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), source.getRouteName(), travelAction, source.getRouteShortName(), queryDate);
+                    source.getPassedStops(), routeRefDTO, travelAction, queryDate);
         }
 
     }

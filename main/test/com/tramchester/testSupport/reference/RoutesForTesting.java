@@ -4,13 +4,11 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.reference.KnownRoute;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
-import org.jetbrains.annotations.NotNull;
 
-import static com.tramchester.domain.reference.KnownRoute.*;
 import static java.lang.String.format;
 
 public class RoutesForTesting {
@@ -28,7 +26,7 @@ public class RoutesForTesting {
     public static final Route ALTY_TO_STOCKPORT_WBT = new Route(IdFor.createId("WBT:5A:I:"), "5A", "Alty to Stockport",
             new Agency("WBT", "Warrington's Own Buses"), TransportMode.Bus, RouteDirection.Inbound);
 
-    public static Route createTramRoute(KnownRoute knownRoute) {
+    public static Route createTramRoute(KnownTramRoute knownRoute) {
         return new Route(knownRoute.getId(), knownRoute.number(), knownRoute.name(), TestEnv.MetAgency(),
                 TransportMode.Tram, knownRoute.direction());
     }

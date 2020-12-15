@@ -59,11 +59,11 @@ function stopsFormatter(value, key, row) {
     return value;
 }
 
-function lineFormatter(value, key, row) {
-    if (value==='Bus') {
-        return row.routeShortName;
+function routeFormatter(mode, key, row) {
+    if (mode==='Bus') {
+        return row.route.shortName;
     } else {
-        return row.routeName;
+        return row.route.routeName;
     }
 }
 
@@ -100,12 +100,12 @@ function actionFormatter(value, key, row) {
     return value + ' ' + row.actionStation.transportMode;
 }
 
-function lineClass(value, key, item) {
+function lineClass(value, key, row) {
     const prefix = 'RouteClass'
-    if (item.mode=='Tram') {
-        return prefix + item.routeShortName;
+    if (row.mode=='Tram') {
+        return prefix + row.route.shortName;
     }
-    return prefix + item.mode;
+    return prefix + row.mode;
 }
 
 function earliestDepartTime(journeys) {
@@ -160,7 +160,7 @@ export default {
                 {key:'actionStation.name', label:'Station', tdClass:'actionStation', formatter: stationFormatter},
                 {key:'platform.platformNumber', label:'Platform', tdClass:'platform'},
                 {key:'headSign', label:'Headsign', tdClass: stageHeadsignClass },
-                {key:'mode', label:'Line', formatter: lineFormatter, tdClass: lineClass },
+                {key:'mode', label:'Line', formatter: routeFormatter, tdClass: lineClass },
                 {key:'passedStops', label:'Stops', tdClass:'passedStops', formatter: stopsFormatter}]
             }
       },

@@ -34,13 +34,8 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     public abstract boolean getTowardsMyLocation();
 
     @Override
-    public String getRouteName() {
-        return "Walk";
-    }
-
-    @Override
-    public String getRouteShortName() {
-        return "Walk";
+    public Route getRoute() {
+        return Route.Walking;
     }
 
     @Override

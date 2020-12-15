@@ -17,7 +17,7 @@ import java.net.URI;
 
 import static java.lang.String.format;
 
-public class UsesRecentCookie {
+public class UsesRecentCookie extends TransportResource {
     private static final Logger logger = LoggerFactory.getLogger(UsesRecentCookie.class);
 
     public static final String TRAMCHESTER_RECENT = "tramchesterRecent";
@@ -25,11 +25,10 @@ public class UsesRecentCookie {
 
     private final UpdateRecentJourneys updateRecentJourneys;
     protected final ObjectMapper mapper;
-    private final ProvidesNow providesNow;
 
     public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ProvidesNow providesNow, ObjectMapper mapper) {
+        super(providesNow);
         this.updateRecentJourneys = updateRecentJourneys;
-        this.providesNow = providesNow;
         this.mapper = mapper;
     }
 

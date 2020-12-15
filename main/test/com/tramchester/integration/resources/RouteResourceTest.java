@@ -19,8 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownRoute.AshtonunderLyneManchesterEccles;
-import static com.tramchester.domain.reference.KnownRoute.ManchesterAirportVictoria;
+import static com.tramchester.domain.reference.KnownTramRoute.AshtonunderLyneManchesterEccles;
+import static com.tramchester.domain.reference.KnownTramRoute.ManchesterAirportVictoria;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static org.junit.jupiter.api.Assertions.*;
 

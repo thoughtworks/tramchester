@@ -104,10 +104,7 @@ public class DeparturesResource extends TransportResource {
 
         IdFor<Station> stationId = IdFor.createId(stationIdText);
         logger.info(format("Get departs for station %s at '%s' with notes enabled:'%s'", stationId, queryTimeRaw, notesParam));
-        if (!stationRepository.hasStationId(stationId)) {
-            logger.warn("Unable to find station " + stationId);
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        guardForStationNotExisting(stationRepository, stationId);
 
         boolean includeNotes = true;
         if (!notesParam.isEmpty()) {
@@ -125,6 +122,7 @@ public class DeparturesResource extends TransportResource {
         if (dueTramList.isEmpty()) {
             logger.warn("Departures list empty for " + HasId.asId(station) + " at " + currentDate + " " +queryTime);
         }
+        // not strictly needed, but saves some cycles in the front-end
         SortedSet<DepartureDTO> dueTrams = new TreeSet<>(departuresMapper.mapToDTO(station, dueTramList, currentDate));
 
         //notes
@@ -139,5 +137,7 @@ public class DeparturesResource extends TransportResource {
 
         return Response.ok(new DepartureListDTO(dueTrams, notes)).build();
     }
+
+
 
 }

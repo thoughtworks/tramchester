@@ -14,7 +14,7 @@ import static com.tramchester.domain.reference.RouteDirection.Outbound;
 import static java.lang.String.format;
 
 // Note: these are validated against tfgm data as part of Integration tests
-public enum KnownRoute {
+public enum KnownTramRoute {
     AltrinchamPiccadilly(2, Inbound),
     PiccadillyAltrincham(2, Outbound),
     AshtonunderLyneManchesterEccles(3, Inbound),
@@ -32,7 +32,7 @@ public enum KnownRoute {
     private final Integer number;
     private final RouteDirection direction;
 
-    KnownRoute(int number, RouteDirection direction) {
+    KnownTramRoute(int number, RouteDirection direction) {
         this.id = createId(format("MET:%s%s", number, direction.getSuffix()));
         this.number = number;
         this.direction = direction;
@@ -43,11 +43,11 @@ public enum KnownRoute {
     }
 
     public static IdSet<Route> ids;
-    public static final Map<IdFor<Route>, KnownRoute> map;
+    public static final Map<IdFor<Route>, KnownTramRoute> map;
 
     static {
-        ids = Arrays.stream(KnownRoute.values()).map(KnownRoute::getId).collect(IdSet.idCollector());
-        map = Arrays.stream(KnownRoute.values()).map(element -> Pair.of(element.getId(),element)).
+        ids = Arrays.stream(KnownTramRoute.values()).map(KnownTramRoute::getId).collect(IdSet.idCollector());
+        map = Arrays.stream(KnownTramRoute.values()).map(element -> Pair.of(element.getId(),element)).
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 

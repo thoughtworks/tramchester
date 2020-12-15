@@ -71,14 +71,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChanges));
 
-        Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
-        if (maybeDepartureTime.isEmpty()) {
-            logger.error("Could not parse departure time '" + departureTimeRaw +"'");
-            return Response.serverError().build();
-        }
-        TramTime queryTime = maybeDepartureTime.get();
-
-        boolean secure = forwardedHeader != null && forwardedHeader.toLowerCase().equals("https");
+        TramTime queryTime = super.parseTime(departureTimeRaw);
+        boolean secure = isHttps(forwardedHeader);
         URI baseUri = uriInfo.getBaseUri();
 
         try(Transaction tx = graphDatabaseService.beginTx() ) {
@@ -123,14 +117,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChanges));
 
-        Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
-        if (maybeDepartureTime.isEmpty()) {
-            logger.error("Could not parse departure time '" + departureTimeRaw +"'");
-            return Response.serverError().build();
-        }
-        TramTime queryTime = maybeDepartureTime.get();
+        TramTime queryTime = parseTime(departureTimeRaw);
 
-        boolean secure = forwardedHeader != null && forwardedHeader.toLowerCase().equals("https");
+        boolean secure = isHttps(forwardedHeader);
         URI baseUri = uriInfo.getBaseUri();
 
         Transaction tx = graphDatabaseService.beginTx();

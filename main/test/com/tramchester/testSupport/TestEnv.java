@@ -203,7 +203,7 @@ public class TestEnv {
        return "M239LT";
     }
 
-    public static IdFor<RouteStation> formId(TramStations tramStations, KnownRoute knownRoute) {
+    public static IdFor<RouteStation> formId(TramStations tramStations, KnownTramRoute knownRoute) {
         return RouteStation.formId(tramStations.getId(), knownRoute.getId());
     }
 

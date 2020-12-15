@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.KnownRoute;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TestEnv.assertIdEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -109,7 +109,7 @@ class RouteCallingStationsTest {
 
     }
 
-    private List<Station> getStationsFor(KnownRoute knownRoute) {
+    private List<Station> getStationsFor(KnownTramRoute knownRoute) {
         return repo.getStationsFor(createTramRoute(knownRoute));
     }
 

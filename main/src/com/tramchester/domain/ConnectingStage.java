@@ -25,13 +25,8 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     }
 
     @Override
-    public String getRouteName() {
-        return "Walk";
-    }
-
-    @Override
-    public String getRouteShortName() {
-        return "Walk";
+    public Route getRoute() {
+        return Route.Walking;
     }
 
     @Override

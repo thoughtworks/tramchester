@@ -7,8 +7,7 @@ import com.tramchester.domain.time.TramTime;
 
 public interface TransportStage<FROM extends Location<?>, DEST extends Location<?>> {
     String getHeadSign();
-    String getRouteName();
-    String getRouteShortName();
+    Route getRoute();
 
     Location<?> getActionStation(); // place where action happens, i.e. Board At X or Walk To X
     FROM getFirstStation();

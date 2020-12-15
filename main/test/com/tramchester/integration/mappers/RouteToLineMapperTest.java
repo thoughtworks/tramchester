@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.formId;
 import static com.tramchester.testSupport.reference.TramStations.PeelHall;
 import static com.tramchester.testSupport.reference.TramStations.SalfordQuay;

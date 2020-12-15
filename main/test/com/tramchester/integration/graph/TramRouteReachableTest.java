@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.KnownRoute;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.tramchester.domain.reference.KnownRoute.*;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,7 +91,7 @@ class TramRouteReachableTest {
         return TestStation.real(stationRepository, stations);
     }
 
-    private boolean reachable(KnownRoute knownRoute, TramStations routeStation, TramStations dest) {
+    private boolean reachable(KnownTramRoute knownRoute, TramStations routeStation, TramStations dest) {
         Route route = RoutesForTesting.createTramRoute(knownRoute);
         return reachable.getRouteReachableWithInterchange(createRouteStation(route, getReal(routeStation)), getReal(dest));
     }
