@@ -159,15 +159,16 @@ public class ClientForS3 {
     }
 
     private List<S3Object> getSummaryForPrefix(String prefix) {
-        if (!bucketExists(bucket)) {
-            logger.error(format("Bucket %s does not exist", bucket));
-            return Collections.emptyList();
-        }
-
         List<S3Object> results = new ArrayList<>();
         ListObjectsV2Response response;
         ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucket).prefix(prefix);
         try {
+            // in the try block , exists can throw S3Exception
+            if (!bucketExists(bucket)) {
+                logger.error(format("Bucket %s does not exist", bucket));
+                return Collections.emptyList();
+            }
+
             do {
                 ListObjectsV2Request listObsRequest = builder.build();
                 response = s3Client.listObjectsV2(listObsRequest);
