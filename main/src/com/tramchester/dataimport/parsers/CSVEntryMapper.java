@@ -11,6 +11,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
+@Deprecated
 public abstract class CSVEntryMapper<T> {
     private static final Logger logger = LoggerFactory.getLogger(CSVEntryMapper.class);
 

@@ -42,8 +42,8 @@ public class TransportDataReader {
         return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper).load();
     }
 
-    public Stream<StopTimeData> getStopTimes(StopTimeDataMapper stopTimeDataMapper) {
-        return factory.getLoaderFor(InputFiles.stop_times, stopTimeDataMapper).load();
+    public Stream<StopTimeData> getStopTimes() {
+        return factory.getLoaderFor(InputFiles.stop_times, StopTimeData.class).load();
     }
 
     public Stream<TripData> getTrips(TripDataMapper tripDataMapper) {

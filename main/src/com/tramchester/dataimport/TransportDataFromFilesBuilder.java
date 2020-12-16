@@ -49,7 +49,7 @@ public class TransportDataFromFilesBuilder {
             Stream<StopData> stopData = transportDataReader.getStops(new StopDataMapper(includeAll));
             Stream<RouteData> routeData = transportDataReader.getRoutes(new RouteDataMapper(includeAll, false));
             Stream<TripData> tripData = transportDataReader.getTrips(new TripDataMapper(includeAll));
-            Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes(new StopTimeDataMapper(includeAll));
+            Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
             Stream<CalendarData> calendarData = transportDataReader.getCalendar(new CalendarDataMapper(includeAll));
             Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
             Stream<AgencyData> agencyData = transportDataReader.getAgencies(new AgencyDataMapper(includeAll));

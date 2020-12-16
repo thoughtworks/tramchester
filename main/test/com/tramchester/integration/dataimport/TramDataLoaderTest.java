@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.DataLoaderApacheCSV;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
@@ -63,8 +64,7 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadStopTimeData() {
-        DataLoaderApacheCSV<StopTimeData> dataLoader = new DataLoaderApacheCSV<>(Path.of("data/test/stop_times.txt"),
-                new StopTimeDataMapper(Collections.emptySet()));
+        DataLoader<StopTimeData> dataLoader = new DataLoader<>(Path.of("data/test/stop_times.txt"), StopTimeData.class);
         List<StopTimeData> stopTimeData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(40);
