@@ -13,6 +13,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.*;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -166,12 +167,12 @@ public class TestEnv {
     }
 
     public static TramStopCall createTramStopCall(IdFor<Trip> tripId, String stopId, TramStations station, int seq,
-                                                  ServiceTime arrive, ServiceTime depart) {
+                                                  TramTime arrive, TramTime depart) {
         return createTramStopCall(tripId.forDTO(), stopId, station, seq, arrive, depart);
     }
 
-    public static TramStopCall createTramStopCall(String tripId, String stopId, TramStations station, int seq, ServiceTime arrive,
-                                                  ServiceTime depart) {
+    public static TramStopCall createTramStopCall(String tripId, String stopId, TramStations station, int seq, TramTime arrive,
+                                                  TramTime depart) {
         Platform platform = createPlatform(stopId);
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
         StopTimeData stopTimeData = new StopTimeData(tripId, arrive, depart, stopId, seq, pickupDropoff, pickupDropoff);

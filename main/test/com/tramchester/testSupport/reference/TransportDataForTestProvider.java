@@ -11,6 +11,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.TransportDataProvider;
@@ -178,7 +179,7 @@ public class TransportDataForTestProvider implements TransportDataProvider {
         container.addTrip(trip);
     }
 
-    private static TramStopCall createStop(TransportDataContainer container, Trip trip, Station station, ServiceTime arrivalTime, ServiceTime departureTime, int sequenceNum) {
+    private static TramStopCall createStop(TransportDataContainer container, Trip trip, Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         String platformId = station.getId() + "1";
         Platform platform = new Platform(platformId, format("%s platform 1", station.getName()));
         container.addPlatform(platform);

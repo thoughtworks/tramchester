@@ -51,8 +51,8 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
         try {
             String tripId = getTripId(data);
 
-            ServiceTime arrivalTime = parseTimeField(data.get(indexOfArrival));
-            ServiceTime departureTime = parseTimeField(data.get(indexOfDepart));
+            TramTime arrivalTime = parseTimeField(data.get(indexOfArrival));
+            TramTime departureTime = parseTimeField(data.get(indexOfDepart));
 
             String stopId = data.get(indexOfStopId);
             int stopSequence = Integer.parseUnsignedInt(data.get(indexOfStopSeq), 10);
@@ -77,7 +77,7 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
         return data.get(indexOfId);
     }
 
-    private ServiceTime parseTimeField(String theText) throws ParseException {
+    private TramTime parseTimeField(String theText) throws ParseException {
         Optional<TramTime> time = Optional.empty();
         if (theText.contains(":")) {
             time = TramTime.parse(theText);
@@ -87,7 +87,7 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
             logger.error(msg);
             throw new ParseException(msg, 0);
         }
-        return ServiceTime.of(time.get());
+        return time.get();
     }
 
     @Override

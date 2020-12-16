@@ -1,22 +1,32 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 
 public class StopTimeData {
-    private final String tripId;
-    private final ServiceTime arrivalTime ;
-    private final ServiceTime departureTime;
-    private final String stopId;
-    private final int stopSequence;
-    private final GTFSPickupDropoffType pickupType;
-    private final GTFSPickupDropoffType dropOffType;
-    private final String platformId;
 
-    public StopTimeData(String tripId, ServiceTime arrivalTime, ServiceTime departureTime, String stopId,
+    @JsonProperty("trip_id")
+    private String tripId;
+    @JsonProperty("arrival_time")
+    private TramTime arrivalTime ;
+    @JsonProperty("departure_time")
+    private TramTime departureTime;
+
+    @JsonProperty("stop_id")
+    private String stopId;
+    @JsonProperty("stop_sequence")
+    private int stopSequence;
+    private GTFSPickupDropoffType pickupType;
+    private GTFSPickupDropoffType dropOffType;
+    private String platformId;
+
+    public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                         int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
         this.tripId = tripId;
         this.platformId = stopId;
@@ -27,6 +37,11 @@ public class StopTimeData {
         this.stopSequence = stopSequence;
         this.pickupType = pickupType;
         this.dropOffType = dropOffType;
+    }
+
+    // for CSV parse via jackson
+    public StopTimeData() {
+
     }
 
     @Override
@@ -46,11 +61,11 @@ public class StopTimeData {
         return IdFor.createId(tripId);
     }
 
-    public ServiceTime getArrivalTime() {
+    public TramTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public ServiceTime getDepartureTime() {
+    public TramTime getDepartureTime() {
         return departureTime;
     }
 

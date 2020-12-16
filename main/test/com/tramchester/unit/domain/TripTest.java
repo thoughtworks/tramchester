@@ -8,6 +8,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +62,7 @@ class TripTest {
         trip.addStop(secondStop);
         trip.addStop(thirdStop);
 
-        assertEquals(ServiceTime.of(10, 1), trip.earliestDepartTime());
+        assertEquals(TramTime.of(10, 1), trip.earliestDepartTime());
 
         // sequence respected
         List<Integer> seqNums = new LinkedList<>();
@@ -84,7 +85,7 @@ class TripTest {
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        assertEquals(ServiceTime.of(6,30), trip.earliestDepartTime());
+        assertEquals(TramTime.of(6,30), trip.earliestDepartTime());
     }
 
     @Test
@@ -96,7 +97,7 @@ class TripTest {
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
 
-        assertEquals(ServiceTime.of(6,31), trip.earliestDepartTime());
+        assertEquals(TramTime.of(6,31), trip.earliestDepartTime());
     }
 
     @Test
@@ -104,7 +105,7 @@ class TripTest {
         trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId3", TramStations.Deansgate, (byte) 3, ServiceTime.of(10,25), ServiceTime.of(10,26)));
         trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId4", TramStations.Deansgate, (byte) 4, ServiceTime.of(0,1), ServiceTime.of(0,1)));
 
-        assertEquals(ServiceTime.of(0,1), trip.latestDepartTime());
+        assertEquals(TramTime.of(0,1), trip.latestDepartTime());
 
     }
 

@@ -10,8 +10,10 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.ServiceTime;
-import com.tramchester.graph.*;
+import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import org.apache.commons.lang3.tuple.Pair;
@@ -157,7 +159,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
                 // time nodes and relationships for trips
                 for (Trip trip : serviceTrips) {
-                    Map<Pair<Station, ServiceTime>, Node> timeNodes = createMinuteNodes(tx, filter, service, trip, routeBuilderCache);
+                    Map<Pair<Station, TramTime>, Node> timeNodes = createMinuteNodes(tx, filter, service, trip, routeBuilderCache);
                     createBoardingAndDeparts(tx, filter, route, trip, routeBuilderCache);
                     createTripRelationships(tx, filter, route, service, trip, routeBuilderCache, timeNodes);
                     timeNodes.clear();
@@ -359,7 +361,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createTripRelationships(Transaction tx, GraphFilter filter, Route route, Service service, Trip trip,
                                          RouteBuilderCache routeBuilderCache,
-                                         Map<Pair<Station, ServiceTime>, Node> timeNodes) {
+                                         Map<Pair<Station, TramTime>, Node> timeNodes) {
         StopCalls stops = trip.getStops();
 
         stops.getLegs().forEach(leg -> {
@@ -419,7 +421,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void updateTripRelationship(Transaction tx, Route route, Service service, Trip trip, StopCall beginStop, StopCall endStop,
-                                        RouteBuilderCache routeBuilderCache, Map<Pair<Station, ServiceTime>, Node> timeNodes) {
+                                        RouteBuilderCache routeBuilderCache, Map<Pair<Station, TramTime>, Node> timeNodes) {
         Station startStation = beginStop.getStation();
 
         IdFor<Trip> tripId = trip.getId();
@@ -433,7 +435,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     }
                 });
 
-        ServiceTime departureTime = beginStop.getDepartureTime();
+        TramTime departureTime = beginStop.getDepartureTime();
 
         TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.from(route.getTransportMode());
 
@@ -444,22 +446,22 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
         setProperty(goesToRelationship, trip);
 
-        int cost = ServiceTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime);
+        int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime);
         setCostProp(goesToRelationship, cost);
         setProperty(goesToRelationship, service);
         setProperty(goesToRelationship, route);
     }
 
-    private Map<Pair<Station, ServiceTime>, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,
+    private Map<Pair<Station, TramTime>, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,
                                                                     Trip trip, RouteBuilderCache routeBuilderCache) {
 
-        Map<Pair<Station, ServiceTime>, Node> timeNodes = new HashMap<>();
+        Map<Pair<Station, TramTime>, Node> timeNodes = new HashMap<>();
 
         StopCalls stops = trip.getStops();
         stops.getLegs().forEach(leg -> {
             if (includeBothStops(filter, leg)) {
                 Station start = leg.getFirstStation();
-                ServiceTime departureTime = leg.getDepartureTime();
+                TramTime departureTime = leg.getDepartureTime();
                 Node timeNode = createMinuteNode(tx, service, trip, start, departureTime, routeBuilderCache);
                 timeNodes.put(Pair.of(start, departureTime), timeNode);
             }
@@ -468,7 +470,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNodes;
     }
 
-    private Node createMinuteNode(Transaction tx, Service service, Trip trip, Station start, ServiceTime departureTime,
+    private Node createMinuteNode(Transaction tx, Service service, Trip trip, Station start, TramTime departureTime,
                                   RouteBuilderCache stationCache) {
         //LocalTime time = departureTime.asLocalTime();
 

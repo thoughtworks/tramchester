@@ -3,6 +3,8 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.dataimport.TransportDataFromFilesBuilder;
+import com.tramchester.dataimport.TransportDataLoader;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
@@ -18,6 +20,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
@@ -349,7 +352,7 @@ class TransportDataFromFilesTest {
                 filter(service -> service.operatesOn(nextTuesday)).
                 collect(Collectors.toSet());
 
-        ServiceTime time = ServiceTime.of(12, 0);
+        TramTime time = TramTime.of(12, 0);
 
         Set<Service> onTime = onDay.stream().
                 filter(svc -> svc.latestDepartTime().isAfter(time) && svc.earliestDepartTime().isBefore(time)).
@@ -389,13 +392,32 @@ class TransportDataFromFilesTest {
 
         // finally check there are trams stopping within 15 mins of 8AM on Monday
         stoppingAtVelopark.removeIf(stop -> {
-            ServiceTime arrivalTime = stop.getArrivalTime();
+            TramTime arrivalTime = stop.getArrivalTime();
             return arrivalTime.asLocalTime().isAfter(LocalTime.of(7,59)) &&
                     arrivalTime.asLocalTime().isBefore(LocalTime.of(8,16));
         });
 
         assertTrue(stoppingAtVelopark.size()>=1); // at least 1
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
+    }
+
+    @Disabled("Performance tests")
+    @Test
+    void voidShouldLoadData() {
+        TransportDataFromFilesBuilder builder = componentContainer.get(TransportDataFromFilesBuilder.class);
+
+        int count = 10;
+        long total = 0;
+        for (int i = 0; i < count; i++) {
+            long begin = System.currentTimeMillis();
+            TransportDataFromFiles fromFiles = builder.create();
+            fromFiles.getData();
+            long finish = System.currentTimeMillis();
+
+            total = total + (finish - begin);
+        }
+
+        System.out.println(String.format("Total: %s ms Average: %s ms", total, total/count));
     }
 
     private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {

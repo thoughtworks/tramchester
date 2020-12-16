@@ -7,6 +7,7 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,21 +19,21 @@ public class RunningServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningServices.class);
 
     private final IdSet<Service> serviceIds;
-    private final Map<IdFor<Service>, ServiceTime> latestTimeMap;
-    private final Map<IdFor<Service>, ServiceTime> earliestTimeMap;
+    private final Map<IdFor<Service>, TramTime> latestTimeMap;
+    private final Map<IdFor<Service>, TramTime> earliestTimeMap;
 
     public RunningServices(TramServiceDate date, TransportData transportData, TramchesterConfig config) {
         serviceIds = new IdSet<>();
         latestTimeMap = new HashMap<>();
         earliestTimeMap = new HashMap<>();
 
-        ServiceTime earliest = ServiceTime.of(0,0).plusMinutes(config.getMaxWait());
+        TramTime earliest = ServiceTime.of(0,0).plusMinutes(config.getMaxWait());
 
         transportData.getServicesOnDate(date).forEach(svc -> {
             IdFor<Service> serviceId = svc.getId();
             serviceIds.add(serviceId);
             latestTimeMap.put(serviceId, svc.latestDepartTime());
-            ServiceTime earliestDepartTime = svc.earliestDepartTime();
+            TramTime earliestDepartTime = svc.earliestDepartTime();
             if (earliestDepartTime.isBefore(earliest)) {
                 earliestDepartTime = earliest;
             }
@@ -51,11 +52,11 @@ public class RunningServices {
         return serviceIds.contains(serviceId);
     }
 
-    public ServiceTime getServiceLatest(IdFor<Service> svcId) {
+    public TramTime getServiceLatest(IdFor<Service> svcId) {
         return latestTimeMap.get(svcId);
     }
 
-    public ServiceTime getServiceEarliest(IdFor<Service> svcId) {
+    public TramTime getServiceEarliest(IdFor<Service> svcId) {
         return earliestTimeMap.get(svcId);
     }
 

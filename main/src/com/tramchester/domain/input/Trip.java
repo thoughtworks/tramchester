@@ -3,6 +3,7 @@ package com.tramchester.domain.input;
 import com.tramchester.domain.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
 public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
@@ -12,8 +13,8 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
     private final Service service;
     private final Route route;
     private final StopCalls stops;
-    private ServiceTime earliestDepart = null;
-    private ServiceTime latestDepart = null;
+    private TramTime earliestDepart = null;
+    private TramTime latestDepart = null;
     private int lastIndex;
     private int firstIndex;
 
@@ -62,7 +63,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
         // use stop index as avoids issues with crossing day boundaries
         int stopIndex = stop.getGetSequenceNumber();
-        ServiceTime departureTime = stop.getDepartureTime();
+        TramTime departureTime = stop.getDepartureTime();
 
         if (stopIndex < firstIndex) {
             firstIndex = stopIndex;
@@ -101,14 +102,14 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         return route;
     }
 
-    public ServiceTime earliestDepartTime() {
+    public TramTime earliestDepartTime() {
         if (earliestDepart==null) {
             throw new RuntimeException("earliestDepart not set for tripid " + tripId);
         }
         return earliestDepart;
     }
 
-    public ServiceTime latestDepartTime() {
+    public TramTime latestDepartTime() {
         if (latestDepart==null) {
             throw new RuntimeException("earliestDepart not set for tripid" + tripId);
         }

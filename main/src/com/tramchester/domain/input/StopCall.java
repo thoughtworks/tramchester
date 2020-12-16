@@ -5,11 +5,12 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 
 public abstract class StopCall {
     protected final Station station;
-    private final ServiceTime arrivalTime;
-    private final ServiceTime departureTime;
+    private final TramTime arrivalTime;
+    private final TramTime departureTime;
     private final int sequenceNumber;
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;
@@ -23,11 +24,11 @@ public abstract class StopCall {
         this.dropoffType = stopTimeData.getDropOffType();
     }
 
-    public ServiceTime getArrivalTime() {
+    public TramTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public ServiceTime getDepartureTime() {
+    public TramTime getDepartureTime() {
         return departureTime;
     }
 

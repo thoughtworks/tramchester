@@ -2,10 +2,9 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.states.HowIGotHere;
@@ -14,8 +13,6 @@ import com.tramchester.repository.TramReachabilityRepository;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 public class ServiceHeuristics {
 
@@ -64,10 +61,10 @@ public class ServiceHeuristics {
 
         // prepared to wait up to max wait for start of a service...
         // TODO Push DOWN
-        ServiceTime serviceStart = journeyConstraints.getServiceEarliest(serviceId).minusMinutes(journeyConstraints.getMaxWait());
+        TramTime serviceStart = journeyConstraints.getServiceEarliest(serviceId).minusMinutes(journeyConstraints.getMaxWait());
 
         // BUT if arrive after service finished there is nothing to be done...
-        ServiceTime serviceEnd = journeyConstraints.getServiceLatest(serviceId);
+        TramTime serviceEnd = journeyConstraints.getServiceLatest(serviceId);
 
         if (!currentClock.between(serviceStart, serviceEnd)) {
             return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, howIGotHere));

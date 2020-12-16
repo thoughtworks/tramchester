@@ -3,6 +3,7 @@ package com.tramchester.domain.input;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +122,7 @@ public class StopCalls { //implements Iterable<StopCall> {
             return second.station;
         }
 
-        public ServiceTime getDepartureTime() {
+        public TramTime getDepartureTime() {
             return first.getDepartureTime();
         }
 

@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
 import org.slf4j.Logger;
@@ -79,11 +80,11 @@ public class JourneyConstraints {
         return runningServices.isRunning(serviceId);
     }
 
-    public ServiceTime getServiceEarliest(IdFor<Service> serviceId) {
+    public TramTime getServiceEarliest(IdFor<Service> serviceId) {
         return runningServices.getServiceEarliest(serviceId);
     }
 
-    public ServiceTime getServiceLatest(IdFor<Service> serviceId) {
+    public TramTime getServiceLatest(IdFor<Service> serviceId) {
         return runningServices.getServiceLatest(serviceId);
     }
 

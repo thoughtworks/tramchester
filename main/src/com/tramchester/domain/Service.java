@@ -5,6 +5,7 @@ import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.io.PrintStream;
@@ -28,8 +29,8 @@ public class Service implements HasId<Service>, GraphProperty {
     private final Set<LocalDate> additional;
     private final Set<LocalDate> removed;
 
-    private ServiceTime earliestDepart;
-    private ServiceTime latestDepart;
+    private TramTime earliestDepart;
+    private TramTime latestDepart;
 
     public Service(String serviceId, Route route) {
         this(IdFor.createId(serviceId), route);
@@ -71,14 +72,14 @@ public class Service implements HasId<Service>, GraphProperty {
     }
 
     private void updateEarliestAndLatest(Trip trip) {
-        ServiceTime tripEarliest = trip.earliestDepartTime();
+        TramTime tripEarliest = trip.earliestDepartTime();
         if (earliestDepart==null) {
             earliestDepart = tripEarliest;
         } else if (tripEarliest.isBefore(earliestDepart)) {
             earliestDepart = tripEarliest;
         }
 
-        ServiceTime tripLatest = trip.latestDepartTime();
+        TramTime tripLatest = trip.latestDepartTime();
         if (latestDepart==null) {
             latestDepart = tripLatest;
         } else if (tripLatest.isAfter(latestDepart)) {
@@ -184,11 +185,11 @@ public class Service implements HasId<Service>, GraphProperty {
         return false;
     }
 
-    public ServiceTime earliestDepartTime() {
+    public TramTime earliestDepartTime() {
         return earliestDepart;
     }
 
-    public ServiceTime latestDepartTime() {
+    public TramTime latestDepartTime() {
         return latestDepart;
     }
 

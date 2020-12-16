@@ -1,6 +1,11 @@
 package com.tramchester.dataimport;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.parsers.CSVEntryMapper;
+import com.tramchester.dataimport.parsers.StopTimeDataMapper;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -36,8 +41,16 @@ public class DataLoader<T> {
             }
             return Stream.empty();
         }
+        if (!hasHeader) {
+            throw new RuntimeException("Mapping without header no longer supported");
+        }
 
         try {
+            // WIP
+//            if (StopTimeDataMapper.class.isAssignableFrom(mapper.getClass())) {
+//                return loadFilteredJackson(); // experimental mapper using jackson
+//            }
+
             Reader in = new FileReader(fileName.toAbsolutePath().toString());
             BufferedReader bufferedReader = new BufferedReader(in);
             CSVParser parser = createParser(bufferedReader);
@@ -67,6 +80,19 @@ public class DataLoader<T> {
             logger.error("Unable to parse file " + fileName.toAbsolutePath(), e);
             return Stream.empty();
         }
+    }
+
+    private Stream<T> loadFilteredJackson() throws IOException {
+        CsvMapper mapper = new CsvMapper();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        // TODO buffered reader or not? Performance test....
+        Reader in = new FileReader(fileName.toAbsolutePath().toString());
+        BufferedReader bufferedReader = new BufferedReader(in);
+        MappingIterator<T> reader = mapper.readerFor(StopTimeData.class).with(schema).readValues(bufferedReader);
+
+        Iterable<T> iterable = () -> reader;
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 
     public static CSVParser createParser(Reader in) throws IOException {
