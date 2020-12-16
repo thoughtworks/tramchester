@@ -102,7 +102,7 @@ public class LiveDataParser {
         IdFor<Platform> platformId = IdFor.createId(atcoCode);
         if (!station.hasPlatform(platformId)) {
             // info not warn as currently a permanent issue with the data
-            logger.info(format("Display '%s' Platform '%s' not in timeable for station %s and Json %s",
+            logger.info(format("Display '%s' Platform '%s' not in timetable data for station %s and Json %s",
                     displayId, atcoCode, station.getId(), jsonObject.toString()));
             // Seems to be legit, at very least some single platform stations (i.e. navigation road) appear to have
             // two platforms in the live data feed...

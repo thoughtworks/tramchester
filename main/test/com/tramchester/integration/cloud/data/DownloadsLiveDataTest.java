@@ -33,7 +33,7 @@ class DownloadsLiveDataTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         TramchesterConfig configuration = new RealBucketConfig(new RealLiveConfig("tramchesterlivedata","uat"));
-        componentContainer = new ComponentsBuilder().create(configuration, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

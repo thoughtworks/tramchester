@@ -17,13 +17,15 @@ public class RegistersHealthchecks {
                                  NewDataAvailableHealthCheckFactory newDataAvailableHealthCheckFactory,
                                  GraphHealthCheck graphHealthCheck,
                                  LiveDataHealthCheck liveDataHealthCheck,
-                                 LiveDataMessagesHealthCheck liveDataMessagesHealthCheck) {
+                                 LiveDataMessagesHealthCheck liveDataMessagesHealthCheck,
+                                 LiveDataS3UploadHealthCheck liveDataS3UploadHealthCheck) {
         this.healthChecks = new HashSet<>();
         healthChecks.addAll(dataExpiryHealthCheckFactory.getHealthChecks());
         healthChecks.addAll(newDataAvailableHealthCheckFactory.getHealthChecks());
         healthChecks.add(graphHealthCheck);
         healthChecks.add(liveDataHealthCheck);
         healthChecks.add(liveDataMessagesHealthCheck);
+        healthChecks.add(liveDataS3UploadHealthCheck);
     }
 
     public void registerAllInto(HealthCheckRegistry registry) {

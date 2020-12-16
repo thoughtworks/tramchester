@@ -179,7 +179,7 @@ public class ClientForS3 {
         }
         catch (S3Exception exception) {
             logger.warn(format("Cannot get objects for prefix '%s' exists in bucket '%s' reason '%s'",
-                    prefix, bucket, exception.getMessage()));
+                    prefix, bucket, exception.getMessage()), exception);
             return Collections.emptyList();
         }
 
@@ -191,8 +191,6 @@ public class ClientForS3 {
     public boolean isStarted() {
         return s3Client!=null;
     }
-
-
 
     public interface ResponseMapper<T> {
         List<T> map(byte[] bytes);
