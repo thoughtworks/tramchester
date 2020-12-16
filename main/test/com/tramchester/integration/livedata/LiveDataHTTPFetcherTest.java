@@ -157,7 +157,12 @@ class LiveDataHTTPFetcherTest {
             Set<Lines> lines = getLineAndDirectionFor(departureInfos, station);
             System.out.println(station.getName() + " " + lines.toString());
         });
+    }
 
+    @Test
+    void shouldHaveRealStationNamesForMappings() {
+        List<LiveDataParser.LiveDataNamesMapping> mappings = Arrays.asList(LiveDataParser.LiveDataNamesMapping.values());
+        mappings.forEach(mapping -> assertTrue(transportData.getTramStationByName(mapping.getToo()).isPresent(), mapping.name()));
     }
 
     private Set<Lines> getLineAndDirectionFor(List<StationDepartureInfo> departureInfos, Station station) {

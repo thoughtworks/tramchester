@@ -146,7 +146,7 @@ public class ClientForS3 {
 
         try {
             GetBucketLocationRequest request = GetBucketLocationRequest.builder().bucket(bucket).build();
-            GetBucketLocationResponse response = s3Client.getBucketLocation(request);
+            s3Client.getBucketLocation(request);
         }
         catch (AwsServiceException exception) {
             if (exception.awsErrorDetails().errorCode().equals("NoSuchBucket")) {

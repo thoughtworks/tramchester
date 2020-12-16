@@ -16,7 +16,7 @@ public class EnumParser<T> {
         if (textMap.containsKey(theText)) {
             return textMap.get(theText);
         }
-        throw new ParseException("Unexpected transport type %s from " + theText, 0);
+        throw new ParseException("Unexpected token: " + theText, 0);
     }
 
 }

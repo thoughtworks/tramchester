@@ -7,7 +7,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.ServiceTime;
 
 public class StopTimeData {
-    private final IdFor<Trip> tripId;
+    private final String tripId;
     private final ServiceTime arrivalTime ;
     private final ServiceTime departureTime;
     private final String stopId;
@@ -18,7 +18,7 @@ public class StopTimeData {
 
     public StopTimeData(String tripId, ServiceTime arrivalTime, ServiceTime departureTime, String stopId,
                         int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
-        this.tripId = IdFor.createId(tripId);
+        this.tripId = tripId;
         this.platformId = stopId;
         this.stopId = stopId;
 
@@ -43,7 +43,7 @@ public class StopTimeData {
     }
 
     public IdFor<Trip> getTripId() {
-        return tripId;
+        return IdFor.createId(tripId);
     }
 
     public ServiceTime getArrivalTime() {

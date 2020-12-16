@@ -40,12 +40,39 @@ public class LiveDataParser {
     private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
     private final StationRepository stationRepository;
     private static final List<String> NotADestination = Arrays.asList("See Tram Front", NOT_IN_SERVICE);
+    private final Map<String, String> mapping;
 
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
 
+    public enum LiveDataNamesMapping {
+        Firswood("Firswood", "Firswood Station"),
+        Ashton("Ashton","Ashton-Under-Lyne"),
+        DeansgateAliasA("Deansgate - Castlefield","Deansgate-Castlefield"),
+        DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
+        BessesOThBarns("Besses O’ Th’ Barn","Besses o'th'barn"),
+        NewtonHeathAndMoston("Newton Heath and Moston","Newton Heath & Moston"),
+        StWerburgsRoad("St Werburgh’s Road","St Werburgh's Road"),
+        Rochdale("Rochdale Stn", "Rochdale Railway Station");
+
+        private final String from;
+        private final String too;
+
+        LiveDataNamesMapping(String from, String too) {
+            this.from = from;
+            this.too = too;
+        }
+
+        public String getToo() {
+            return too;
+        }
+    }
+
     @Inject
     public LiveDataParser(StationRepository stationRepository) {
+        mapping = new HashMap<>();
+        List<LiveDataNamesMapping> refereceData = Arrays.asList(LiveDataNamesMapping.values());
+        refereceData.forEach(item -> mapping.put(item.from, item.too));
         this.stationRepository = stationRepository;
     }
 
@@ -217,34 +244,14 @@ public class LiveDataParser {
     private String mapLiveAPIToTimetableDataNames(String destinationName) {
         destinationName = destinationName.replace("Via", "via");
 
-        // Ashton is not the name of the station....
-        if ("Ashton via MCUK".equals(destinationName)) {
-            return "Ashton-Under-Lyne";
-        }
-
         // assume station name is valid.....
         int viaIndex = destinationName.indexOf(" via");
         if (viaIndex > 0) {
             destinationName = destinationName.substring(0, viaIndex);
         }
 
-        if ("Firswood".equals(destinationName)) {
-            return "Firswood Station";
-        }
-        if ("Deansgate - Castlefield".equals(destinationName)) {
-            return "Deansgate-Castlefield";
-        }
-        if ("Deansgate Castlefield".equals(destinationName)) {
-            return "Deansgate-Castlefield";
-        }
-        if ("Besses O’ Th’ Barn".equals(destinationName)) {
-            return "Besses o'th'barn";
-        }
-        if ("Newton Heath and Moston".equals(destinationName)) {
-            return "Newton Heath & Moston";
-        }
-        if ("St Werburgh’s Road".equals(destinationName)) {
-            return "St Werburgh's Road";
+        if (mapping.containsKey(destinationName)) {
+            return mapping.get(destinationName);
         }
 
         return destinationName;

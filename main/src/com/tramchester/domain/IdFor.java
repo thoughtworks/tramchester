@@ -31,7 +31,8 @@ public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
 
         IdFor<?> idFor = (IdFor<?>) o;
 
-        return theId.equals(idFor.theId);
+        // interned strings, so == is ok here
+        return theId == idFor.theId;
     }
 
     @Override
