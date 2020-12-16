@@ -399,7 +399,7 @@ class TransportDataFromFilesTest {
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
     }
 
-    //@Disabled("Performance tests")
+    @Disabled("Performance tests")
     @Test
     void voidShouldLoadData() {
         TransportDataFromFilesBuilder builder = componentContainer.get(TransportDataFromFilesBuilder.class);

@@ -1,33 +1,36 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 
 public class StopTimeData {
 
     @JsonProperty("trip_id")
     private String tripId;
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     @JsonProperty("arrival_time")
     private TramTime arrivalTime ;
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     @JsonProperty("departure_time")
     private TramTime departureTime;
-
     @JsonProperty("stop_id")
     private String stopId;
     @JsonProperty("stop_sequence")
     private int stopSequence;
+    @JsonProperty("pickup_type")
     private GTFSPickupDropoffType pickupType;
+    @JsonProperty("drop_off_type")
     private GTFSPickupDropoffType dropOffType;
-    private String platformId;
 
     public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                         int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
         this.tripId = tripId;
-        this.platformId = stopId;
         this.stopId = stopId;
 
         this.arrivalTime = arrivalTime;
@@ -84,6 +87,6 @@ public class StopTimeData {
     }
 
     public IdFor<Platform> getPlatformId() {
-        return IdFor.createId(platformId);
+        return IdFor.createId(stopId);
     }
 }

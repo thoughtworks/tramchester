@@ -30,6 +30,7 @@ public class StopTimeDataMapper extends CSVEntryMapper<StopTimeData> {
         trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type
     }
 
+    @Deprecated
     public StopTimeDataMapper(Set<String> tripIds) {
         this.tripIds = tripIds;
         includeAll = (tripIds.size()==0);

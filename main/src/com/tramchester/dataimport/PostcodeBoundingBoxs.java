@@ -79,9 +79,9 @@ public class PostcodeBoundingBoxs {
         logger.info("File "+hintsFilePath+" existed, in playback mode");
         PostcodeHintsDataMapper mapper = new PostcodeHintsDataMapper();
 
-        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFilePath, mapper);
+        DataLoaderApacheCSV<PostcodeHintData> loader = new DataLoaderApacheCSV<>(hintsFilePath, mapper);
 
-        Stream<PostcodeHintData> data = loader.loadFiltered(true);
+        Stream<PostcodeHintData> data = loader.load();
 
         data.forEach(item -> postcodeBounds.put(Path.of(item.getFile()),
                 new BoundingBox(item.getMinEasting(), item.getMinNorthing(), item.getMaxEasting(), item.getMaxNorthing())));

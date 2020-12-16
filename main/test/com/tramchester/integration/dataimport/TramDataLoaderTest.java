@@ -1,6 +1,6 @@
 package com.tramchester.integration.dataimport;
 
-import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.DataLoaderApacheCSV;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -23,8 +23,8 @@ class TramDataLoaderTest {
     @Test
     void shouldLoadRouteData() {
         HashSet<String> agencies = new HashSet<>(Collections.singletonList("MET"));
-        DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), new RouteDataMapper(agencies, true));
-        List<RouteData> routeData = dataLoader.loadFiltered(true).collect(Collectors.toList());
+        DataLoaderApacheCSV<RouteData> dataLoader = new DataLoaderApacheCSV<>(Path.of("data/test/routes.txt"), new RouteDataMapper(agencies, true));
+        List<RouteData> routeData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);
         RouteData theRoute = routeData.get(0);
@@ -36,8 +36,8 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadCalendarData() {
-        DataLoader<CalendarData> dataLoader = new DataLoader<>(Path.of("data/test/calendar.txt"), new CalendarDataMapper(Collections.emptySet()));
-        List<CalendarData> calendarData = dataLoader.loadFiltered(true).collect(Collectors.toList());
+        DataLoaderApacheCSV<CalendarData> dataLoader = new DataLoaderApacheCSV<>(Path.of("data/test/calendar.txt"), new CalendarDataMapper(Collections.emptySet()));
+        List<CalendarData> calendarData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(3);
         assertThat(calendarData.get(0).getServiceId()).isEqualTo(IdFor.createId("Serv000001"));
@@ -48,9 +48,9 @@ class TramDataLoaderTest {
     @Test
     void shouldLoadStopData() {
         StopDataMapper stopDataMapper = new StopDataMapper(Collections.emptySet());
-        DataLoader<StopData> dataLoader = new DataLoader<>(Path.of("data/test/stops.txt"), stopDataMapper);
+        DataLoaderApacheCSV<StopData> dataLoader = new DataLoaderApacheCSV<>(Path.of("data/test/stops.txt"), stopDataMapper);
 
-        List<StopData> stopData = dataLoader.loadFiltered(true).collect(Collectors.toList());
+        List<StopData> stopData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(stopData).hasSize(178);
         StopData theStop = stopData.get(0);
@@ -63,9 +63,9 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadStopTimeData() {
-        DataLoader<StopTimeData> dataLoader = new DataLoader<>(Path.of("data/test/stop_times.txt"),
+        DataLoaderApacheCSV<StopTimeData> dataLoader = new DataLoaderApacheCSV<>(Path.of("data/test/stop_times.txt"),
                 new StopTimeDataMapper(Collections.emptySet()));
-        List<StopTimeData> stopTimeData = dataLoader.loadFiltered(true).collect(Collectors.toList());
+        List<StopTimeData> stopTimeData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(40);
         StopTimeData stopTime = stopTimeData.get(0);
@@ -80,8 +80,8 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadTripData() {
-        DataLoader<TripData> dataLoader = new DataLoader<>(Path.of("data/test/trips.txt"), new TripDataMapper(Collections.emptySet()));
-        List<TripData> tripData = dataLoader.loadFiltered(true).collect(Collectors.toList());
+        DataLoaderApacheCSV<TripData> dataLoader = new DataLoaderApacheCSV<>(Path.of("data/test/trips.txt"), new TripDataMapper(Collections.emptySet()));
+        List<TripData> tripData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(tripData).hasSize(6);
         TripData theTrip = tripData.get(0);

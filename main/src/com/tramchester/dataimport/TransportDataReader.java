@@ -35,35 +35,35 @@ public class TransportDataReader {
     }
 
     public Stream<CalendarData> getCalendar(CalendarDataMapper calendarDataMapper) {
-        return factory.getLoaderFor(InputFiles.calendar, calendarDataMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.calendar, calendarDataMapper).load();
     }
 
     public Stream<CalendarDateData> getCalendarDates(CalendarDatesDataMapper calendarDatesMapper) {
-        return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper).load();
     }
 
     public Stream<StopTimeData> getStopTimes(StopTimeDataMapper stopTimeDataMapper) {
-        return factory.getLoaderFor(InputFiles.stop_times, stopTimeDataMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.stop_times, stopTimeDataMapper).load();
     }
 
     public Stream<TripData> getTrips(TripDataMapper tripDataMapper) {
-        return factory.getLoaderFor(InputFiles.trips, tripDataMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.trips, tripDataMapper).load();
     }
 
     public Stream<StopData> getStops(StopDataMapper stopDataMapper) {
-        return factory.getLoaderFor(InputFiles.stops, stopDataMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.stops, stopDataMapper).load();
     }
 
     public Stream<RouteData> getRoutes(RouteDataMapper routeDataMapper) {
-        return factory.getLoaderFor(InputFiles.routes, routeDataMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.routes, routeDataMapper).load();
     }
 
     public Stream<FeedInfo> getFeedInfo(FeedInfoDataMapper feedInfoDataMapper) {
-        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper).load();
     }
 
     public Stream<AgencyData> getAgencies(AgencyDataMapper agencyDataMapper) {
-        return factory.getLoaderFor(InputFiles.agency, agencyDataMapper, true).loadFiltered(true);
+        return factory.getLoaderFor(InputFiles.agency, agencyDataMapper).load();
     }
 
 }

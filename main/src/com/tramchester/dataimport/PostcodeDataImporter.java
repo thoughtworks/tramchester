@@ -122,7 +122,7 @@ public class PostcodeDataImporter {
     private Stream<PostcodeData> loadDataFromFile(PostcodeDataMapper mapper, Path file) {
         logger.info("Load postcode data from " + file.toAbsolutePath());
 
-        DataLoader<PostcodeData> loader = new DataLoader<>(file, mapper);
+        DataLoaderApacheCSV<PostcodeData> loader = new DataLoaderApacheCSV<>(file, mapper);
 
         if (postcodeBounds.hasData()) {
             BoundingBox fileBounds = postcodeBounds.getBoundsFor(file);
@@ -130,7 +130,7 @@ public class PostcodeDataImporter {
                 logger.info("Skipping " + file + " as contains no positions overlapping with current bounds");
                 return Stream.empty();
             } else {
-                Stream<PostcodeData> postcodeDataStream = loader.loadFiltered(true);
+                Stream<PostcodeData> postcodeDataStream = loader.load();
 
                 return postcodeDataStream.
                         filter(postcode -> requiredBounds.within(margin, postcode)).
@@ -138,7 +138,7 @@ public class PostcodeDataImporter {
             }
         }
 
-        Stream<PostcodeData> postcodeDataStream = loader.loadFiltered(true);
+        Stream<PostcodeData> postcodeDataStream = loader.load();
         return postcodeDataStream.filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
                 filter(postcode -> requiredBounds.within(margin, postcode)).
                 filter(postcode -> stationLocations.hasAnyNearby(postcode, range));
