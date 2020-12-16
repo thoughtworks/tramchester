@@ -1,7 +1,12 @@
 package com.tramchester.integration.cloud.data;
 
 import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestLiveDataConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.*;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -19,8 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClientForS3Test {
 
@@ -42,7 +46,6 @@ class ClientForS3Test {
         s3TestSupport = new S3TestSupport(s3, s3Waiter, TEST_BUCKET_NAME);
         s3TestSupport.createOrCleanBucket();
     }
-
 
     @AfterAll
     static void afterAllDone() {
@@ -91,6 +94,13 @@ class ClientForS3Test {
     }
 
     @Test
+    void shouldReturnFalseIfNonExistentBucket() {
+        ClientForS3 anotherClient = new ClientForS3(new NoSuchBucketExistsConfig());
+        boolean uploaded = anotherClient.upload(KEY, "someText");
+        assertFalse(uploaded);
+    }
+
+    @Test
     void checkForObjectExisting() {
         HeadObjectRequest existsCheckRequest = HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(KEY).build();
 
@@ -106,7 +116,7 @@ class ClientForS3Test {
         s3.deleteObject(deleteRequest);
         s3Waiter.waitUntilObjectNotExists(existsCheckRequest);
 
-        Assertions.assertFalse(clientForS3.keyExists(PREFIX, KEY), "deleted");
+        assertFalse(clientForS3.keyExists(PREFIX, KEY), "deleted");
     }
 
     @Test
@@ -130,4 +140,23 @@ class ClientForS3Test {
         assertEquals(payload, results.get(0));
     }
 
+    private static class NoSuchBucketExistsConfig extends TestConfig {
+
+        @Override
+        public LiveDataConfig getLiveDataConfig() {
+            return new LiveDataConfigNoSuchBuket();
+        }
+
+        @Override
+        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            return Collections.emptyList();
+        }
+
+        private static class LiveDataConfigNoSuchBuket extends TestLiveDataConfig {
+            @Override
+            public String getS3Bucket() {
+                return "NoSuckBucketShouldExist";
+            }
+        }
+    }
 }

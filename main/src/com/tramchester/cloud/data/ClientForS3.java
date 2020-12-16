@@ -46,14 +46,18 @@ public class ClientForS3 {
     }
 
     public boolean upload(String key, String json) {
-        logger.debug(format("Uploading to bucket '%s' key '%s' contents '%s'", bucket, key, json));
+        if (logger.isDebugEnabled()) {
+            logger.debug(format("Uploading to bucket '%s' key '%s' contents '%s'", bucket, key, json));
+        } else {
+            logger.info(format("Uploading to bucket '%s' key '%s'", bucket, key));
+        }
+
+        if (!bucketExists(bucket)) {
+            logger.error(format("Bucket %s does not exist", bucket));
+            return false;
+        }
 
         try {
-            if (!bucketExists(bucket)) {
-                logger.warn(format("Bucket %s does not exist", bucket));
-                return false;
-            }
-
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             byte[] bytes = json.getBytes();
             String localMd5 = Base64.encodeBase64String(messageDigest.digest(bytes));
@@ -135,10 +139,24 @@ public class ClientForS3 {
         return remote;
     }
 
+    // NOTE: listing all buckets requires permissions beyond just the one bucket,
+    // so here do an op on the bucket and catch exception instead
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean bucketExists(String bucket) {
-        ListBucketsResponse listBucketsResponse = s3Client.listBuckets();
-        Set<String> buckets = listBucketsResponse.buckets().stream().map(Bucket::name).collect(Collectors.toSet());
-        return buckets.contains(bucket);
+
+        try {
+            GetBucketLocationRequest request = GetBucketLocationRequest.builder().bucket(bucket).build();
+            GetBucketLocationResponse response = s3Client.getBucketLocation(request);
+        }
+        catch (AwsServiceException exception) {
+            if (exception.awsErrorDetails().errorCode().equals("NoSuchBucket")) {
+                logger.info("Bucket " + bucket + " not found");
+            } else {
+                logger.error("Could not check for existence of bucket " + bucket, exception);
+            }
+            return false;
+        }
+        return true;
     }
 
     public boolean keyExists(String prefix, String key) {
@@ -149,7 +167,6 @@ public class ClientForS3 {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -159,16 +176,15 @@ public class ClientForS3 {
     }
 
     private List<S3Object> getSummaryForPrefix(String prefix) {
+        if (!bucketExists(bucket)) {
+            logger.error(format("Bucket %s does not exist so cannot get summary", bucket));
+            return Collections.emptyList();
+        }
+
         List<S3Object> results = new ArrayList<>();
         ListObjectsV2Response response;
         ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucket).prefix(prefix);
         try {
-            // in the try block , exists can throw S3Exception
-            if (!bucketExists(bucket)) {
-                logger.error(format("Bucket %s does not exist", bucket));
-                return Collections.emptyList();
-            }
-
             do {
                 ListObjectsV2Request listObsRequest = builder.build();
                 response = s3Client.listObjectsV2(listObsRequest);
