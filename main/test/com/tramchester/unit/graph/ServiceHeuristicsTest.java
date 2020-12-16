@@ -7,7 +7,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
@@ -53,7 +52,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private IdFor<Service> serviceIdB;
     private JourneyConstraints journeyConstraints;
     private int maxJourneyDuration;
-    private int numChanges = 3;
+    private final int numChanges = 3;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -155,8 +154,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         //runningServices.add("serviceIdA");
-        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(8,0));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(8,30));
+        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(TramTime.of(8, 0));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(TramTime.of(8, 30));
 
         // no longer running at query time
         Node tooEarlyNode = createMock(Node.class);
@@ -167,32 +166,32 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         Node tooLateNode = createMock(Node.class);
         EasyMock.expect(tooLateNode.getId()).andReturn(43L);
         EasyMock.expect(tooLateNode.getProperty(SERVICE_ID.getText())).andReturn(serviceIdA.getGraphId());  // CACHED
-        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(elaspsedTime.plusMinutes(MAX_WAIT+1)));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(elaspsedTime.plusMinutes(MAX_WAIT+30)));
+        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(TramTime.of(elaspsedTime.plusMinutes(MAX_WAIT+1)));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(TramTime.of(elaspsedTime.plusMinutes(MAX_WAIT+30)));
 
         // starts before query, but still running within max wait
         Node overlapStartsBefore = createMock(Node.class);
         EasyMock.expect(overlapStartsBefore.getId()).andReturn(43L);
-        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(8,50));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(9,20));
+        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(TramTime.of(8, 50));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(TramTime.of(9, 20));
 
         // starts after query within max wait, finishes after max wait
         Node overlapStartsAfter = createMock(Node.class);
         EasyMock.expect(overlapStartsAfter.getId()).andReturn(43L);
-        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(9,20));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(9,45));
+        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(TramTime.of(9, 20));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(TramTime.of(9, 45));
 
         // starts before query, finishes after max wait
         Node overlapStartsBeforeFinishesAfter = createMock(Node.class);
         EasyMock.expect(overlapStartsBeforeFinishesAfter.getId()).andReturn(43L);
-        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(8,45));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(9,20));
+        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(TramTime.of(8, 45));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(TramTime.of(9, 20));
 
         // end is after midnight case
         Node endsAfterMidnight = createMock(Node.class);
         EasyMock.expect(endsAfterMidnight.getId()).andReturn(43L);
-        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(ServiceTime.of(5,23));
-        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(ServiceTime.of(TramTime.nextDay(0,1)));
+        EasyMock.expect(journeyConstraints.getServiceEarliest(serviceIdA)).andReturn(TramTime.of(5, 23));
+        EasyMock.expect(journeyConstraints.getServiceLatest(serviceIdA)).andReturn(TramTime.nextDay(0,1));
 
         replayAll();
         assertEquals(ServiceReason.DoesNotOperateOnTime(elaspsedTramTime, path),

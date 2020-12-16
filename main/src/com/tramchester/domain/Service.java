@@ -3,7 +3,6 @@ package com.tramchester.domain;
 
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;

@@ -5,7 +5,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ public class RunningServices {
         latestTimeMap = new HashMap<>();
         earliestTimeMap = new HashMap<>();
 
-        TramTime earliest = ServiceTime.of(0,0).plusMinutes(config.getMaxWait());
+        TramTime earliest = TramTime.of(0, 0).plusMinutes(config.getMaxWait());
 
         transportData.getServicesOnDate(date).forEach(svc -> {
             IdFor<Service> serviceId = svc.getId();

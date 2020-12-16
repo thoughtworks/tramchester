@@ -5,7 +5,7 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.IdFor;
-import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -74,8 +74,8 @@ class TramDataLoaderTest {
         assertThat(stopTime.getDropOffType()).isEqualTo(GTFSPickupDropoffType.None);
         assertThat(stopTime.getPickupType()).isEqualTo(GTFSPickupDropoffType.Regular);
         assertThat(stopTime.getStopSequence()).isEqualTo(1);
-        assertThat(stopTime.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
-        assertThat(stopTime.getDepartureTime()).isEqualTo(ServiceTime.of(6,41));
+        assertThat(stopTime.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
+        assertThat(stopTime.getDepartureTime()).isEqualTo(TramTime.of(6, 41));
     }
 
     @Test

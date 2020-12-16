@@ -10,7 +10,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -70,7 +70,7 @@ class TramTransportDataBuilderFactoryTest {
 
         StopCall stop = trip.getStops().getStopBySequenceNumber(1);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
-        assertThat(stop.getArrivalTime()).isEqualTo(ServiceTime.of(6,41));
+        assertThat(stop.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
 
         Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();

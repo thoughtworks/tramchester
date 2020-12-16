@@ -3,7 +3,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.TramStopCall;
-import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +36,9 @@ class TramStopCallsTest {
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
 
-        stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 3, ServiceTime.of(10, 10), ServiceTime.of(10, 11));
-        stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, ServiceTime.of(10, 3), ServiceTime.of(10, 4));
-        stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
+        stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 3, TramTime.of(10, 10), TramTime.of(10, 11));
+        stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, TramTime.of(10, 3), TramTime.of(10, 4));
+        stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 1, TramTime.of(10, 0), TramTime.of(10, 1));
 
 
         stops = new StopCalls();

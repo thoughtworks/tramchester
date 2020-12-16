@@ -2,7 +2,6 @@ package com.tramchester.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;

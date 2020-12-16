@@ -2,7 +2,6 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 

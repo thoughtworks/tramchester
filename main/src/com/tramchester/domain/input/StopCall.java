@@ -4,7 +4,6 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 
 public abstract class StopCall {

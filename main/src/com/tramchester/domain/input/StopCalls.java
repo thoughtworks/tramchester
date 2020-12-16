@@ -2,7 +2,6 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +126,7 @@ public class StopCalls { //implements Iterable<StopCall> {
         }
 
         public int getCost() {
-            return ServiceTime.diffenceAsMinutes(first.getDepartureTime(), second.getArrivalTime());
+            return TramTime.diffenceAsMinutes(first.getDepartureTime(), second.getArrivalTime());
         }
     }
 }

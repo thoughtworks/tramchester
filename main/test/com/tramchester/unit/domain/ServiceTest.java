@@ -5,7 +5,7 @@ import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.ServiceTime;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Assertions;
@@ -77,11 +77,11 @@ class ServiceTest {
         Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
         IdFor<Trip> tripId = trip.getId();
         TramStations deansgate = TramStations.Deansgate;
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", deansgate,3, ServiceTime.of(9,5), ServiceTime.of(9,6)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId2", deansgate, 2, ServiceTime.of(8,15), ServiceTime.of(8,16)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId3", deansgate, 4, ServiceTime.of(10,25), ServiceTime.of(10,26)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId4", deansgate,  5, ServiceTime.of(0,1), ServiceTime.of(0,1)));
-        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId5", deansgate, 1, ServiceTime.of(6,30), ServiceTime.of(6,30)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", deansgate,3, TramTime.of(9, 5), TramTime.of(9, 6)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId2", deansgate, 2, TramTime.of(8, 15), TramTime.of(8, 16)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId3", deansgate, 4, TramTime.of(10, 25), TramTime.of(10, 26)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId4", deansgate,  5, TramTime.of(0, 1), TramTime.of(0, 1)));
+        trip.addStop(TestEnv.createTramStopCall(tripId, "stopId5", deansgate, 1, TramTime.of(6, 30), TramTime.of(6, 30)));
 
         service.addTrip(trip);
 
@@ -92,8 +92,8 @@ class ServiceTest {
 
         service.updateTimings();
 
-        Assertions.assertEquals(ServiceTime.of(6,30), service.earliestDepartTime());
-        Assertions.assertEquals(ServiceTime.of(0,1), service.latestDepartTime());
+        Assertions.assertEquals(TramTime.of(6, 30), service.earliestDepartTime());
+        Assertions.assertEquals(TramTime.of(0, 1), service.latestDepartTime());
     }
 
     @Test

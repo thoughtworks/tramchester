@@ -7,7 +7,6 @@ import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.TramStopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.ServiceTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -54,9 +53,9 @@ class TripTest {
     @Test
     void shouldModelCircularTripsCorrectly() {
 
-        TramStopCall firstStop = TestEnv.createTramStopCall(trip.getId(), "statA1", stationA, (byte) 1, ServiceTime.of(10, 0), ServiceTime.of(10, 1));
-        TramStopCall secondStop = TestEnv.createTramStopCall(trip.getId(), "statB1", stationB, (byte) 2, ServiceTime.of(10, 5), ServiceTime.of(10, 6));
-        TramStopCall thirdStop = TestEnv.createTramStopCall(trip.getId(), "statA1", stationA, (byte) 3, ServiceTime.of(10, 10), ServiceTime.of(10, 10));
+        TramStopCall firstStop = TestEnv.createTramStopCall(trip.getId(), "statA1", stationA, (byte) 1, TramTime.of(10, 0), TramTime.of(10, 1));
+        TramStopCall secondStop = TestEnv.createTramStopCall(trip.getId(), "statB1", stationB, (byte) 2, TramTime.of(10, 5), TramTime.of(10, 6));
+        TramStopCall thirdStop = TestEnv.createTramStopCall(trip.getId(), "statA1", stationA, (byte) 3, TramTime.of(10, 10), TramTime.of(10, 10));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -75,10 +74,10 @@ class TripTest {
     @Test
     void shouldFindEarliestDepartCorrectlyCrossingMidnight() {
 
-        TramStopCall firstStop = TestEnv.createTramStopCall(trip.getId(), "stop1", stationA, (byte) 2, ServiceTime.of(23, 45), ServiceTime.of(23, 46));
-        TramStopCall secondStop = TestEnv.createTramStopCall(trip.getId(), "stop2", stationB, (byte) 3, ServiceTime.of(23, 59), ServiceTime.of(0, 1));
-        TramStopCall thirdStop = TestEnv.createTramStopCall(trip.getId(), "stop3", stationC, (byte) 4, ServiceTime.of(0,10), ServiceTime.of(0, 11));
-        TramStopCall fourthStop = TestEnv.createTramStopCall(trip.getId(), "stop4", stationC, (byte) 1, ServiceTime.of(6,30), ServiceTime.of(6, 30));
+        TramStopCall firstStop = TestEnv.createTramStopCall(trip.getId(), "stop1", stationA, (byte) 2, TramTime.of(23, 45), TramTime.of(23, 46));
+        TramStopCall secondStop = TestEnv.createTramStopCall(trip.getId(), "stop2", stationB, (byte) 3, TramTime.of(23, 59), TramTime.of(0, 1));
+        TramStopCall thirdStop = TestEnv.createTramStopCall(trip.getId(), "stop3", stationC, (byte) 4, TramTime.of(0, 10), TramTime.of(0, 11));
+        TramStopCall fourthStop = TestEnv.createTramStopCall(trip.getId(), "stop4", stationC, (byte) 1, TramTime.of(6, 30), TramTime.of(6, 30));
 
         trip.addStop(firstStop);
         trip.addStop(secondStop);
@@ -91,8 +90,8 @@ class TripTest {
     @Test
     void shouldFindEarliestDepartCorrectly() {
 
-        TramStopCall thirdStop = TestEnv.createTramStopCall(trip.getId(), "stop3", stationC, (byte) 3, ServiceTime.of(0,10), ServiceTime.of(0, 11));
-        TramStopCall fourthStop = TestEnv.createTramStopCall(trip.getId(), "stop4", stationC, (byte) 1, ServiceTime.of(6,30), ServiceTime.of(6, 31));
+        TramStopCall thirdStop = TestEnv.createTramStopCall(trip.getId(), "stop3", stationC, (byte) 3, TramTime.of(0, 10), TramTime.of(0, 11));
+        TramStopCall fourthStop = TestEnv.createTramStopCall(trip.getId(), "stop4", stationC, (byte) 1, TramTime.of(6, 30), TramTime.of(6, 31));
 
         trip.addStop(thirdStop);
         trip.addStop(fourthStop);
@@ -102,8 +101,8 @@ class TripTest {
 
     @Test
     void shouldFindLatestDepartCorrectly() {
-        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId3", TramStations.Deansgate, (byte) 3, ServiceTime.of(10,25), ServiceTime.of(10,26)));
-        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId4", TramStations.Deansgate, (byte) 4, ServiceTime.of(0,1), ServiceTime.of(0,1)));
+        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId3", TramStations.Deansgate, (byte) 3, TramTime.of(10, 25), TramTime.of(10, 26)));
+        trip.addStop(TestEnv.createTramStopCall(trip.getId(), "stopId4", TramStations.Deansgate, (byte) 4, TramTime.of(0, 1), TramTime.of(0, 1)));
 
         assertEquals(TramTime.of(0,1), trip.latestDepartTime());
 
