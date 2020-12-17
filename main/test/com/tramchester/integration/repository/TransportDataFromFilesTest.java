@@ -405,12 +405,13 @@ class TransportDataFromFilesTest {
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
     }
 
-    //@Disabled("Performance tests")
+    @Disabled("Performance tests")
     @Test
     void voidShouldLoadData() {
         TransportDataFromFilesBuilder builder = componentContainer.get(TransportDataFromFilesBuilder.class);
 
         int count = 10;
+        //int count = 1;
         long total = 0;
         for (int i = 0; i < count; i++) {
             long begin = System.currentTimeMillis();

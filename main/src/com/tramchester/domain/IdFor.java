@@ -13,7 +13,7 @@ public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
     private final String theId;
 
     private IdFor(String theId) {
-        this.theId = theId.intern();
+        this.theId = theId;
     }
 
     public static <C extends HasId<C> & GraphProperty> IdFor<C> createId(String id) {
@@ -32,7 +32,7 @@ public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
         IdFor<?> idFor = (IdFor<?>) o;
 
         // interned strings, so == is ok here
-        return theId == idFor.theId;
+        return theId.equals(idFor.theId);
     }
 
     @Override
