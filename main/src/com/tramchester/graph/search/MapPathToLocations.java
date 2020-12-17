@@ -23,9 +23,9 @@ public class MapPathToLocations {
     private final ObjectMapper mapper;
 
     @Inject
-    public MapPathToLocations(StationRepository stationRepository) {
+    public MapPathToLocations(StationRepository stationRepository, ObjectMapper mapper) {
         this.stationRepository = stationRepository;
-        mapper = new ObjectMapper();
+        this.mapper = mapper;
     }
 
     public List<Location<?>> mapToLocations(Path path) {

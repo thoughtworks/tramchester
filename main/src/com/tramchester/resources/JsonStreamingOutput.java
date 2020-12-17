@@ -20,15 +20,14 @@ class JsonStreamingOutput<T> implements StreamingOutput {
 
     private final JsonFactory jsonFactory ;
 
-    JsonStreamingOutput(Transaction txn, Stream<T> theStream) {
+    JsonStreamingOutput(Transaction txn, Stream<T> theStream, ObjectMapper mapper) {
         this.txn = txn;
         this.theStream = theStream;
-        ObjectMapper objectMapper = new ObjectMapper();
-        jsonFactory = objectMapper.getFactory();
+        jsonFactory = mapper.getFactory();
     }
 
-    JsonStreamingOutput(Stream<T> theStream) {
-        this(null, theStream);
+    JsonStreamingOutput(Stream<T> theStream, ObjectMapper mapper) {
+        this(null, theStream, mapper);
     }
 
     @Override

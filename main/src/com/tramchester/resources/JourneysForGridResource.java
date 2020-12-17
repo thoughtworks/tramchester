@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
@@ -38,13 +39,16 @@ public class JourneysForGridResource {
 
     private final StationRepository repository;
     private final FastestRoutesForBoxes search;
-    private final TramJourneyToDTOMapper mapper;
+    private final TramJourneyToDTOMapper dtoMapper;
+    private final ObjectMapper objectMapper;
 
     @Inject
-    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, TramJourneyToDTOMapper mapper) {
+    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, TramJourneyToDTOMapper dtoMapper,
+                                   ObjectMapper objectMapper) {
         this.repository = repository;
         this.search = search;
-        this.mapper = mapper;
+        this.dtoMapper = dtoMapper;
+        this.objectMapper = objectMapper;
     }
 
     // TOOD Cache lifetime could potentially be quite long here, but makes testing harder.....
@@ -85,7 +89,7 @@ public class JourneysForGridResource {
                 findForGrid(destination, gridSize, journeyRequest, numberToFind).
                 map(box -> transformToDTO(box, tramServiceDate));
         logger.info("Creating stream");
-        JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results);
+        JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results, objectMapper);
 
         logger.info("returning stream");
         Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
@@ -95,7 +99,7 @@ public class JourneysForGridResource {
 
     private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramServiceDate serviceDate) {
         try {
-            return BoxWithCostDTO.createFrom(mapper, serviceDate, box);
+            return BoxWithCostDTO.createFrom(dtoMapper, serviceDate, box);
         } catch (TransformException exception) {
             throw new RuntimeException("Unable to convert coordinates ", exception);
         }

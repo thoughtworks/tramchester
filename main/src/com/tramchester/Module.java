@@ -1,12 +1,11 @@
 package com.tramchester;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -18,7 +17,13 @@ public class Module extends AbstractModule {
     private final GraphFilter filter;
     private final TramchesterConfig config;
     private final CacheMetrics.RegistersMetrics registersMetrics;
-    private final CsvMapper mapper;
+    private static final CsvMapper csvMapper;
+    private static final ObjectMapper objectMapper;
+
+    static {
+        csvMapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
+        objectMapper = new ObjectMapper();
+    }
 
     public Module(GuiceContainerDependencies parent, GraphFilter filter, TramchesterConfig config,
                   CacheMetrics.RegistersMetrics registersMetrics) {
@@ -26,7 +31,7 @@ public class Module extends AbstractModule {
         this.filter = filter;
         this.config = config;
         this.registersMetrics = registersMetrics;
-        mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
+
     }
 
     @Override
@@ -47,8 +52,13 @@ public class Module extends AbstractModule {
     }
 
     @Provides
-    CsvMapper providesMapper() {
-        return mapper;
+    CsvMapper providesCsvMapper() {
+        return csvMapper;
+    }
+
+    @Provides
+    ObjectMapper providesObjectMapper() {
+        return objectMapper;
     }
 
     public <I, T extends I> void bindClass(Class<I> face, Class<T> klass) {

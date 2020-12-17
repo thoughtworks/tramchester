@@ -22,8 +22,8 @@ public class StationDepartureMapper {
     private final ObjectMapper mapper;
 
     @Inject
-    public StationDepartureMapper() {
-        mapper = new ObjectMapper();
+    public StationDepartureMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
     }
 
     public String map(List<StationDepartureInfoDTO> departures) throws JsonProcessingException {

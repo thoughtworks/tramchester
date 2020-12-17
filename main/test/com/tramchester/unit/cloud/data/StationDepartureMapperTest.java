@@ -1,6 +1,7 @@
 package com.tramchester.unit.cloud.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
@@ -26,7 +27,8 @@ class StationDepartureMapperTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        mapper = new StationDepartureMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
+        mapper = new StationDepartureMapper(objectMapper);
         departures = new ArrayList<>();
         LocalDateTime lastUpdate = LocalDateTime.of(2018,11,15,15,6,32);
         int wait = 42;

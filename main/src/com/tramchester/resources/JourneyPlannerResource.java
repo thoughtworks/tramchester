@@ -26,7 +26,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -129,7 +128,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                     queryTime, config.getMaxJourneyDuration());
             Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
 
-            JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream);
+            JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
 
             Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
             responseBuilder.cookie(createRecentCookie(cookie, startId, endId, secure, baseUri));

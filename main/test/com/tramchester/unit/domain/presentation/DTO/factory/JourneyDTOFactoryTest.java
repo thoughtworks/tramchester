@@ -21,7 +21,9 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMockSupport;
+import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
@@ -38,8 +40,10 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JourneyDTOFactoryTest extends EasyMockSupport {
-    private final Station stationA = TestStation.forTest("stationA", "area", "nameA", new LatLong(-2, -1), TransportMode.Tram);
-    private final Station stationB = TestStation.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
+    private static Station stationA;
+    private static Station stationB;
+    private static ObjectMapper objectMapper;
+
     private JourneyDTOFactory factory;
     private MyLocationFactory myLocationFactory;
     private final LocalDate when = TestEnv.testDay();
@@ -48,12 +52,16 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     private List<Note> notes;
     private final List<StationRefWithPosition> path = new ArrayList<>();
 
-    JourneyDTOFactoryTest() throws TransformException {
+    @BeforeAll
+    static void beforeAll() throws TransformException {
+        objectMapper = new ObjectMapper();
+        stationA = TestStation.forTest("stationA", "area", "nameA", new LatLong(-2, -1), TransportMode.Tram);
+        stationB = TestStation.forTest("stationB", "area", "nameB", new LatLong(-3, 1), TransportMode.Tram);
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        myLocationFactory = new MyLocationFactory(new ObjectMapper());
+        myLocationFactory = new MyLocationFactory(objectMapper);
         factory = new JourneyDTOFactory();
         notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", TramStations.of(TramStations.Bury)));
     }
