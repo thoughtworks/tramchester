@@ -44,7 +44,7 @@ dependencies {
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:cloudwatch:2.15.45')
+    implementation('software.amazon.awssdk:cloudwatch:2.15.48')
     implementation('software.amazon.awssdk:s3:2.15.45')
     implementation('software.amazon.awssdk:cloudformation:2.15.45')
     // aws cdk
