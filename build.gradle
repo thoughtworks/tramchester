@@ -37,7 +37,6 @@ dependencies {
     implementation('org.neo4j:neo4j:4.2.1') { exclude group:'org.slf4j', module:'slf4j-nop' }
     implementation 'com.github.cliftonlabs:json-simple:3.1.1',
             'commons-io:commons-io:2.8.0',
-            'org.apache.commons:commons-csv:1.8',
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
             'com.github.ben-manes.caffeine:caffeine:2.8.1'
