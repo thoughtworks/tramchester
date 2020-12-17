@@ -11,23 +11,22 @@ import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 
 public class StopTimeData {
 
+    // trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type
+
     @JsonProperty("trip_id")
     private String tripId;
-
     @JsonProperty("arrival_time")
     private String arrivalTime ;
-
     @JsonProperty("departure_time")
     private String departureTime;
-
     @JsonProperty("stop_id")
     private String stopId;
     @JsonProperty("stop_sequence")
     private int stopSequence;
     @JsonProperty("pickup_type")
-    private GTFSPickupDropoffType pickupType;
+    private String pickupType;
     @JsonProperty("drop_off_type")
-    private GTFSPickupDropoffType dropOffType;
+    private String dropOffType;
 
     // supports testing only, TODO remove
     public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
@@ -38,8 +37,8 @@ public class StopTimeData {
         this.arrivalTime = arrivalTime.toPattern()+":00";
         this.departureTime = departureTime.toPattern()+":00";
         this.stopSequence = stopSequence;
-        this.pickupType = pickupType;
-        this.dropOffType = dropOffType;
+        this.pickupType = pickupType.getText();
+        this.dropOffType = dropOffType.getText();
     }
 
     // for CSV parse via jackson
@@ -81,11 +80,11 @@ public class StopTimeData {
     }
 
     public GTFSPickupDropoffType getPickupType() {
-        return pickupType;
+        return GTFSPickupDropoffType.fromString(pickupType);
     }
 
     public GTFSPickupDropoffType getDropOffType() {
-        return dropOffType;
+        return GTFSPickupDropoffType.fromString(dropOffType);
     }
 
     public IdFor<Platform> getPlatformId() {

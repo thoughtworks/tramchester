@@ -32,10 +32,12 @@ public class PostcodeBoundingBoxs {
     private final Map<Path, BoundingBox> postcodeBounds;
     private final Path hintsFilePath;
     private final boolean enabled;
+    private final CsvMapper mapper;
     private boolean playback;
 
     @Inject
-    public PostcodeBoundingBoxs(TramchesterConfig config) {
+    public PostcodeBoundingBoxs(TramchesterConfig config, CsvMapper mapper) {
+        this.mapper = mapper;
         postcodeBounds = new HashMap<>();
         Path directory = config.getPostcodeDataPath();
         enabled = config.getLoadPostcodes();
@@ -80,7 +82,7 @@ public class PostcodeBoundingBoxs {
     private void loadDataFromFile() {
         logger.info("File "+hintsFilePath+" existed, in playback mode");
 
-        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFilePath, PostcodeHintData.class);
+        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFilePath, PostcodeHintData.class, mapper);
 
         Stream<PostcodeHintData> data = loader.load();
 

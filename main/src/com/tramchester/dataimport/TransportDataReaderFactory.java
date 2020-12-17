@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -23,10 +24,12 @@ public class TransportDataReaderFactory implements TransportDataLoader {
     private final TramchesterConfig config;
     private final List<TransportDataReader> dataReaders;
     private final FetchFileModTime fetchFileModTime;
+    private final CsvMapper mapper;
 
     @Inject
-    public TransportDataReaderFactory(TramchesterConfig config, FetchFileModTime fetchFileModTime) {
+    public TransportDataReaderFactory(TramchesterConfig config, FetchFileModTime fetchFileModTime, CsvMapper mapper) {
         this.fetchFileModTime = fetchFileModTime;
+        this.mapper = mapper;
         dataReaders = new ArrayList<>();
         this.config = config;
     }
@@ -39,7 +42,7 @@ public class TransportDataReaderFactory implements TransportDataLoader {
                 Path path = config.getDataPath().resolve(config.getUnzipPath());
                 DataSourceInfo dataSourceInfo = getNameAndVersion(config);
 
-                DataLoaderFactory factory = new DataLoaderFactory(path, ".txt");
+                DataLoaderFactory factory = new DataLoaderFactory(path, ".txt", mapper);
                 TransportDataReader transportLoader = new TransportDataReader(dataSourceInfo, factory, config);
                 dataReaders.add(transportLoader);
             });

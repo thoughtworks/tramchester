@@ -1,18 +1,22 @@
 package com.tramchester.dataimport;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+
 import java.nio.file.Path;
 
 public class DataLoaderFactory {
     private final Path path;
     private final String extension;
+    private final CsvMapper mapper;
 
-    public DataLoaderFactory(Path path, String extension) {
+    public DataLoaderFactory(Path path, String extension, CsvMapper mapper) {
         this.path = path;
         this.extension = extension;
+        this.mapper = mapper;
     }
 
     public <T> DataLoader<T> getLoaderFor(TransportDataReader.InputFiles inputfileType, Class<T> targetType) {
-        return new DataLoader<>(formPath(inputfileType), targetType);
+        return new DataLoader<>(formPath(inputfileType), targetType, mapper);
     }
 
     private Path formPath(TransportDataReader.InputFiles theType) {

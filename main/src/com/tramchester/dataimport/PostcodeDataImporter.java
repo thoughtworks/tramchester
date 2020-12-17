@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
@@ -38,14 +39,17 @@ public class PostcodeDataImporter {
     private final Double range;
     private final PostcodeBoundingBoxs postcodeBounds;
     private final FetchFileModTime fetchFileModTime;
+    private final CsvMapper mapper;
     private BoundingBox requiredBounds;
 
     @Inject
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper,
-                                PostcodeBoundingBoxs postcodeBounds, FetchFileModTime fetchFileModTime) {
+                                PostcodeBoundingBoxs postcodeBounds, FetchFileModTime fetchFileModTime,
+                                CsvMapper mapper) {
         this.directory = config.getPostcodeDataPath();
         range = config.getNearestStopForWalkingRangeKM();
         this.fetchFileModTime = fetchFileModTime;
+        this.mapper = mapper;
         // meters
         margin = Math.round(range * 1000D);
         this.config = config;
@@ -119,7 +123,7 @@ public class PostcodeDataImporter {
     private Stream<PostcodeData> loadDataFromFile(Path file) {
         logger.info("Load postcode data from " + file.toAbsolutePath());
 
-        DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER);
+        DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
 
         if (postcodeBounds.hasData()) {
             BoundingBox fileBounds = postcodeBounds.getBoundsFor(file);

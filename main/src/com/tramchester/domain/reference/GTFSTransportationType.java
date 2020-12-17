@@ -1,8 +1,7 @@
 package com.tramchester.domain.reference;
 
-import com.tramchester.domain.EnumParser;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum GTFSTransportationType {
 
@@ -17,7 +16,6 @@ public enum GTFSTransportationType {
     trolleyBus("11"),
     monorail("12");
 
-    public final static EnumParser<GTFSTransportationType> parser;
     private static final Map<String, GTFSTransportationType> textMap;
 
     static {
@@ -26,7 +24,6 @@ public enum GTFSTransportationType {
         for (GTFSTransportationType value : valid) {
             textMap.put(value.getText(), value);
         }
-        parser = new EnumParser<>(textMap);
     }
 
     private final String text;

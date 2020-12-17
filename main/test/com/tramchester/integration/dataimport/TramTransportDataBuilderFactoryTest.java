@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.TransportDataFromFilesBuilder;
@@ -40,7 +41,10 @@ class TramTransportDataBuilderFactoryTest {
         };
 
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
-        TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig, fetchFileModTime);
+
+        CsvMapper mapper = CsvMapper.builder().build();
+
+        TransportDataReaderFactory factory = new TransportDataReaderFactory(testConfig, fetchFileModTime, mapper);
 
         ProvidesNow providesNow = new ProvidesLocalNow();
 

@@ -1,5 +1,7 @@
 package com.tramchester;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.netflix.governator.guice.lazy.LazySingleton;
@@ -16,6 +18,7 @@ public class Module extends AbstractModule {
     private final GraphFilter filter;
     private final TramchesterConfig config;
     private final CacheMetrics.RegistersMetrics registersMetrics;
+    private final CsvMapper mapper;
 
     public Module(GuiceContainerDependencies parent, GraphFilter filter, TramchesterConfig config,
                   CacheMetrics.RegistersMetrics registersMetrics) {
@@ -23,6 +26,7 @@ public class Module extends AbstractModule {
         this.filter = filter;
         this.config = config;
         this.registersMetrics = registersMetrics;
+        mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
     @Override
@@ -40,6 +44,11 @@ public class Module extends AbstractModule {
     @Provides
     GraphBuilder.Ready providesReadyToken(StagedTransportGraphBuilder graphBuilder) {
         return graphBuilder.getReady();
+    }
+
+    @Provides
+    CsvMapper providesMapper() {
+        return mapper;
     }
 
     public <I, T extends I> void bindClass(Class<I> face, Class<T> klass) {

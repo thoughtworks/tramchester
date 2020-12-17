@@ -1,5 +1,6 @@
 package com.tramchester.integration.graph;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -41,8 +42,10 @@ class GraphBuildAndStartTest {
 
         NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
 
+        CsvMapper mapper = CsvMapper.builder().build();
+
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
-        TransportDataFromFilesBuilder fileFactory = new TransportDataFromFilesBuilder(new TransportDataReaderFactory(config, fetchFileModTime),
+        TransportDataFromFilesBuilder fileFactory = new TransportDataFromFilesBuilder(new TransportDataReaderFactory(config, fetchFileModTime, mapper),
                 providesNow, config);
         TransportDataFromFiles builder = fileFactory.create();
 

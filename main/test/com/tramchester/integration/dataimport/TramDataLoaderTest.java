@@ -1,10 +1,12 @@
 package com.tramchester.integration.dataimport;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -14,12 +16,18 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TramDataLoaderTest {
+    private CsvMapper mapper;
+
+    @BeforeEach
+    void beforeEach() {
+        mapper = CsvMapper.builder().build();
+    }
 
     // the test data files currently manually maintained, copy over from data/tram as needed
 
     @Test
     void shouldLoadRouteData() {
-        DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), RouteData.class);
+        DataLoader<RouteData> dataLoader = new DataLoader<>(Path.of("data/test/routes.txt"), RouteData.class, mapper);
         List<RouteData> routeData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(routeData).hasSize(2);
@@ -32,7 +40,8 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadCalendarData() {
-        DataLoader<CalendarData> dataLoader = new DataLoader<>(Path.of("data/test/calendar.txt"), CalendarData.class);
+        DataLoader<CalendarData> dataLoader = new DataLoader<>(Path.of("data/test/calendar.txt"),
+                CalendarData.class, mapper);
         List<CalendarData> calendarData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(3);
@@ -43,7 +52,8 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadStopData() {
-        DataLoader<StopData> dataLoader = new DataLoader<>(Path.of("data/test/stops.txt"), StopData.class);
+        DataLoader<StopData> dataLoader = new DataLoader<>(Path.of("data/test/stops.txt"),
+                StopData.class, mapper);
 
         List<StopData> stopData = dataLoader.load().collect(Collectors.toList());
 
@@ -58,7 +68,8 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadStopTimeData() {
-        DataLoader<StopTimeData> dataLoader = new DataLoader<>(Path.of("data/test/stop_times.txt"), StopTimeData.class);
+        DataLoader<StopTimeData> dataLoader = new DataLoader<>(Path.of("data/test/stop_times.txt"),
+                StopTimeData.class, mapper);
         List<StopTimeData> stopTimeData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(stopTimeData).hasSize(40);
@@ -74,7 +85,8 @@ class TramDataLoaderTest {
 
     @Test
     void shouldLoadTripData() {
-        DataLoader<TripData> dataLoader = new DataLoader<>(Path.of("data/test/trips.txt"), TripData.class);
+        DataLoader<TripData> dataLoader = new DataLoader<>(Path.of("data/test/trips.txt"),
+                TripData.class, mapper);
         List<TripData> tripData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(tripData).hasSize(6);

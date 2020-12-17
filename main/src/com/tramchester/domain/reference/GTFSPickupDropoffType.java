@@ -1,7 +1,5 @@
 package com.tramchester.domain.reference;
 
-import com.tramchester.domain.EnumParser;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +10,6 @@ public enum GTFSPickupDropoffType {
     Driver("3");
 
     private static final Map<String, GTFSPickupDropoffType> textMap;
-    public final static EnumParser<GTFSPickupDropoffType> parser;
 
     static {
         textMap = new HashMap<>();
@@ -21,7 +18,6 @@ public enum GTFSPickupDropoffType {
         for (GTFSPickupDropoffType value : valid) {
             textMap.put(value.getText(), value);
         }
-        parser =  new EnumParser<>(textMap);
     }
 
     private final String text;
@@ -30,7 +26,11 @@ public enum GTFSPickupDropoffType {
         this.text = text;
     }
 
-    private String getText() {
+    public static GTFSPickupDropoffType fromString(String pickupType) {
+        return textMap.get(pickupType);
+    }
+
+    public String getText() {
         return text;
     }
 

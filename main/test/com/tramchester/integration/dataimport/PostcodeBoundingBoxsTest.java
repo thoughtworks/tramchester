@@ -1,5 +1,6 @@
 package com.tramchester.integration.dataimport;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.PostcodeBoundingBoxs;
@@ -25,12 +26,15 @@ class PostcodeBoundingBoxsTest {
     private final  Path testFolder = Path.of("data", "test", "postcodeTest");
     private Path hintsFile;
     private PostcodeBoundingBoxs postcodeBoundingBoxs;
+    private CsvMapper mapper;
 
     @BeforeEach
     void beforeEachTest() throws IOException {
+        mapper = CsvMapper.builder().build();
+
         TramchesterConfig config = new TramWithPostcodesEnabledTestData();
         hintsFile = config.getPostcodeDataPath().resolve("postcode_hints.csv");
-        postcodeBoundingBoxs = new PostcodeBoundingBoxs(config);
+        postcodeBoundingBoxs = new PostcodeBoundingBoxs(config, mapper);
 
         if (!Files.exists(testFolder)) {
             Files.createDirectory(testFolder);
@@ -73,7 +77,7 @@ class PostcodeBoundingBoxsTest {
 
         // check file on disc is as expected
         assertTrue(Files.exists(hintsFile));
-        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFile, PostcodeHintData.class);
+        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFile, PostcodeHintData.class, mapper);
         List<PostcodeHintData> loadedFromFile = loader.load().collect(Collectors.toList());
         assertEquals(1, loadedFromFile.size());
         PostcodeHintData hintData = loadedFromFile.get(0);
