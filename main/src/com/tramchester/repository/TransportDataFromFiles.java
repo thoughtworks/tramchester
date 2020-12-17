@@ -8,10 +8,14 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +145,12 @@ public class TransportDataFromFiles implements TransportDataProvider {
             Service service = buildable.getService(serviceId);
             if (service != null) {
                 missingCalendarDates.remove(serviceId);
-                service.addExceptionDate(date.getDate(), date.getExceptionType());
+                int exceptionType = date.getExceptionType();
+                if (exceptionType==CalendarDateData.ADDED || exceptionType==CalendarDateData.REMOVED) {
+                    service.addExceptionDate(date.getDate(), exceptionType);
+                } else {
+                    logger.warn("Unexpected exception type " + exceptionType + " for service " + serviceId + " and date " + date.getDate());
+                }
             }
         });
         if (!missingCalendarDates.isEmpty()) {
@@ -255,7 +264,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
             IdFor<Service> serviceId = tripData.getServiceId();
             IdFor<Route> routeId = tripData.getRouteId();
             IdFor<Trip> tripId = tripData.getTripId();
-            String tripHeadsign = tripData.getTripHeadsign();
+            String tripHeadsign = tripData.getHeadsign();
 
             if (transportData.hasRouteId(routeId)) {
                 Route route = transportData.getRouteById(routeId);
@@ -296,9 +305,10 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 logger.error("Missing agency " + agencyId);
             }
 
-            GTFSTransportationType routeType = routeData.getRouteType();
-
             IdFor<Route> routeId = routeData.getId();
+
+            GTFSTransportationType routeType = getTransportTypeWithDataWorkaround(routeData, agencyId);
+
             if (transportModes.contains(routeType)) {
                 String routeName = routeData.getLongName();
                 if (config.getRemoveRouteNameSuffix()) {
@@ -323,6 +333,17 @@ public class TransportDataFromFiles implements TransportDataProvider {
         return excludedRoutes;
     }
 
+    private GTFSTransportationType getTransportTypeWithDataWorkaround(RouteData routeData, IdFor<Agency> agencyId) {
+        // tfgm data issue workaround
+        GTFSTransportationType routeType = routeData.getRouteType();
+        if (Agency.IsMetrolink(agencyId) && routeType!=GTFSTransportationType.tram) {
+            logger.error("METROLINK Agency seen with transport type " + routeType.name() + " for " + routeData);
+            logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
+            routeType = GTFSTransportationType.tram;
+        }
+        return routeType;
+    }
+
     private Agency createMissingAgency(IdMap<Agency> allAgencies, IdFor<Agency> agencyId) {
         Agency unknown = new Agency(agencyId.getGraphId(), "UNKNOWN");
         logger.error("Created " + unknown);
@@ -337,13 +358,14 @@ public class TransportDataFromFiles implements TransportDataProvider {
         IdMap<Station> allStations = new IdMap<>();
 
         stops.forEach((stopData) -> {
-            if (bounds.contained(stopData.getGridPosition())) {
+            GridPosition position = getGridPosition(stopData.getLatLong());
+            if (bounds.contained(position)) {
                 String stopId = stopData.getId();
                 IdFor<Station> stationId = Station.formId(stopId);
 
                 Station station = allStations.getOrAdd(stationId, () ->
                         new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
-                                stopData.getLatLong(), stopData.getGridPosition()));
+                                stopData.getLatLong(), position));
 
                 if (stopData.isTFGMTram()) {
                     Platform platform = formPlatform(stopData);
@@ -358,6 +380,15 @@ public class TransportDataFromFiles implements TransportDataProvider {
         });
         logger.info("Pre Loaded " + allStations.size() + " stations");
         return allStations;
+    }
+
+    private GridPosition getGridPosition(LatLong latLong) {
+        try {
+            return CoordinateTransforms.getGridPosition(latLong);
+        } catch (TransformException exception) {
+            logger.error("Could not create valid grid position for position " + latLong, exception);
+        }
+        return GridPosition.invalid();
     }
 
     private String workAroundName(String name) {

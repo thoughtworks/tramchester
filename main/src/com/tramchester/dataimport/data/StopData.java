@@ -1,32 +1,61 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.GridPosition;
 
 import java.util.Objects;
 
+import static com.tramchester.domain.places.Station.TRAM_STATION_POSTFIX;
+
 public class StopData {
-    private final String id;
-    private final String code;
-    private final String area;
-    private final String name;
-    private final boolean isTram;
 
-    private final LatLong latLong;
 
-    // Need to do this once at first load so we have canonical grid position for each stop or station
-    // otherwise lossy conversions to/from latlong cause issues elsewhere as may yeild different results
-    private final GridPosition gridPosition;
+    @JsonProperty("stop_id")
+    private String id;
+    @JsonProperty("stop_code")
+    private String code;
 
-    public StopData(String id, String code, String area, String name, double latitude, double longitude,
-                    boolean isTram, GridPosition gridPosition) {
-        this.id = id.intern();
-        this.code = code.intern();
-        this.area = area.intern();
-        this.name = name.intern();
-        this.gridPosition = gridPosition;
-        this.latLong = new LatLong(latitude, longitude);
-        this.isTram = isTram;
+
+    @JsonProperty("stop_lat")
+    private double latitude;
+    @JsonProperty("stop_lon")
+    private double longitude;
+
+    private String area = "";
+    private String name;
+
+    // deserialization
+    public StopData() {
+
+    }
+
+    @JsonProperty("stop_name")
+    private void setName(String text) {
+        text = text.replace("\"", "").trim();
+
+        boolean isMetrolink = text.endsWith(TRAM_STATION_POSTFIX);
+
+        if (isMetrolink) {
+            setMetrolinkNameAndArea(text);
+        } else {
+            setNameAndArea(text);
+        }
+    }
+
+    private void setNameAndArea(String text) {
+        int indexOfDivider = text.indexOf(',');
+        if (indexOfDivider > 0) {
+            this.area = text.substring(0, indexOfDivider);
+        }
+        this.name = text;
+    }
+
+    private void setMetrolinkNameAndArea(String text) {
+        int indexOfDivider = text.indexOf(',');
+        this.area = text.substring(0, indexOfDivider);
+        this.name = text.substring(indexOfDivider+1, text.length());
+        this.name = name.replace(TRAM_STATION_POSTFIX, "").trim();
     }
 
     public String getId() {
@@ -46,11 +75,11 @@ public class StopData {
     }
 
     public boolean isTFGMTram() {
-        return isTram;
+        return id.startsWith(Station.METROLINK_PREFIX);
     }
 
     public LatLong getLatLong() {
-        return latLong;
+        return new LatLong(latitude, longitude);
     }
 
     @Override
@@ -73,13 +102,9 @@ public class StopData {
                 ", code='" + code + '\'' +
                 ", area='" + area + '\'' +
                 ", name='" + name + '\'' +
-                ", isTram=" + isTram +
-                ", latLong=" + latLong +
-                ", gridPosition=" + gridPosition +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 '}';
     }
 
-    public GridPosition getGridPosition() {
-        return gridPosition;
-    }
 }

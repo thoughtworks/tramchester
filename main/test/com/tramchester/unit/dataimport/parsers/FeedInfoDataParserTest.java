@@ -1,27 +1,26 @@
 package com.tramchester.unit.dataimport.parsers;
 
 
-import com.tramchester.dataimport.parsers.FeedInfoDataMapper;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FeedInfoDataParserTest {
+class FeedInfoDataParserTest extends ParserTestHelper<FeedInfo> {
     private static final String feedInfo = "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,20160530,20160615,feed_version";
 
-    @Test
-    void shouldParserFeedInfo() throws IOException {
-        ProvidesNow providesNow = new ProvidesLocalNow();
-        FeedInfoDataMapper feedInfoDataParser = new FeedInfoDataMapper(providesNow);
-        feedInfoDataParser.initColumnIndex(ParserBuilder.getRecordFor("feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version"));
+    @BeforeEach
+    void beforeEach() {
+        super.before(FeedInfo.class, "feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version");
+    }
 
-        FeedInfo info = feedInfoDataParser.parseEntry(ParserBuilder.getRecordFor(feedInfo));
+    @Test
+    void shouldParserFeedInfo() {
+
+        FeedInfo info = parse(feedInfo);
         assertThat(info.getPublisherName()).isEqualTo("feed_publisher_name");
         assertThat(info.getPublisherUrl()).isEqualTo("feed_publisher_url");
         assertThat(info.getTimezone()).isEqualTo("feed_timezone");

@@ -34,36 +34,36 @@ public class TransportDataReader {
         return dataSourceInfo;
     }
 
-    public Stream<CalendarData> getCalendar(CalendarDataMapper calendarDataMapper) {
-        return factory.getLoaderFor(InputFiles.calendar, calendarDataMapper).load();
+    public Stream<CalendarData> getCalendar() {
+        return factory.getLoaderFor(InputFiles.calendar, CalendarData.class).load();
     }
 
-    public Stream<CalendarDateData> getCalendarDates(CalendarDatesDataMapper calendarDatesMapper) {
-        return factory.getLoaderFor(InputFiles.calendar_dates, calendarDatesMapper).load();
+    public Stream<CalendarDateData> getCalendarDates() {
+        return factory.getLoaderFor(InputFiles.calendar_dates, CalendarDateData.class).load();
     }
 
     public Stream<StopTimeData> getStopTimes() {
         return factory.getLoaderFor(InputFiles.stop_times, StopTimeData.class).load();
     }
 
-    public Stream<TripData> getTrips(TripDataMapper tripDataMapper) {
-        return factory.getLoaderFor(InputFiles.trips, tripDataMapper).load();
+    public Stream<TripData> getTrips() {
+        return factory.getLoaderFor(InputFiles.trips, TripData.class).load();
     }
 
-    public Stream<StopData> getStops(StopDataMapper stopDataMapper) {
-        return factory.getLoaderFor(InputFiles.stops, stopDataMapper).load();
+    public Stream<StopData> getStops() {
+        return factory.getLoaderFor(InputFiles.stops, StopData.class).load();
     }
 
-    public Stream<RouteData> getRoutes(RouteDataMapper routeDataMapper) {
-        return factory.getLoaderFor(InputFiles.routes, routeDataMapper).load();
+    public Stream<RouteData> getRoutes() {
+        return factory.getLoaderFor(InputFiles.routes, RouteData.class).load();
     }
 
-    public Stream<FeedInfo> getFeedInfo(FeedInfoDataMapper feedInfoDataMapper) {
-        return factory.getLoaderFor(InputFiles.feed_info, feedInfoDataMapper).load();
+    public Stream<FeedInfo> getFeedInfo() {
+        return factory.getLoaderFor(InputFiles.feed_info, FeedInfo.class).load();
     }
 
-    public Stream<AgencyData> getAgencies(AgencyDataMapper agencyDataMapper) {
-        return factory.getLoaderFor(InputFiles.agency, agencyDataMapper).load();
+    public Stream<AgencyData> getAgencies() {
+        return factory.getLoaderFor(InputFiles.agency, AgencyData.class).load();
     }
 
 }

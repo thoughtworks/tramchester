@@ -1,32 +1,20 @@
 package com.tramchester.unit.dataimport.parsers;
 
-import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.time.TramTime;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.StringReader;
-import java.nio.file.Paths;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-class StopTimeDataParseTest {
-    private DataLoader<StopTimeData> dataDataLoader;
+class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
 
     private final String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type";
 
     @BeforeEach
     void beforeEachTestRuns() {
-        dataDataLoader = new DataLoader<>(Paths.get("unused"), StopTimeData.class);
-    }
-
-    @NotNull
-    private StopTimeData parse(String text) {
-        StringReader reader = new StringReader(header+System.lineSeparator()+text+System.lineSeparator());
-        return dataDataLoader.load(reader).findFirst().get();
+        super.before(StopTimeData.class, header);
     }
 
     @Test

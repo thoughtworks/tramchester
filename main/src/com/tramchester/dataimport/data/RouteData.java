@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.IdFor;
@@ -10,21 +11,19 @@ import java.util.Objects;
 
 public class RouteData {
 
-    private final IdFor<Route> id;
-    private final String shortName;
-    private final String longName;
-    private final IdFor<Agency> agencyid;
-    private final GTFSTransportationType routeType;
-    private final RouteDirection routeDirection;
+    @JsonProperty("route_id")
+    private String id;
+    @JsonProperty("route_short_name")
+    private String shortName;
+    @JsonProperty("route_long_name")
+    private String longName;
+    @JsonProperty("agency_id")
+    private String agencyid;
+    @JsonProperty("route_type")
+    private GTFSTransportationType routeType;
 
-    public RouteData(String id, String agencyid, String shortName, String longName, GTFSTransportationType routeType, RouteDirection routeDirection) {
-        String cleanId = removeSpaces(id);
-        this.id = IdFor.createId(cleanId.intern());
-        this.shortName = shortName;
-        this.longName = longName;
-        this.agencyid = IdFor.createId(agencyid);
-        this.routeType = routeType;
-        this.routeDirection = routeDirection;
+    public RouteData () {
+        // for deserialisation
     }
 
     private String removeSpaces(String text) {
@@ -32,7 +31,7 @@ public class RouteData {
     }
 
     public IdFor<Route> getId() {
-        return id;
+        return IdFor.createId(removeSpaces(id));
     }
 
     public String getShortName() {
@@ -44,7 +43,7 @@ public class RouteData {
     }
 
     public IdFor<Agency> getAgencyId() {
-        return agencyid;
+        return IdFor.createId(agencyid);
     }
 
     public GTFSTransportationType getRouteType() {
@@ -60,11 +59,34 @@ public class RouteData {
     }
 
     @Override
+    public String toString() {
+        return "RouteData{" +
+                "id='" + id + '\'' +
+                ", shortName='" + shortName + '\'' +
+                ", longName='" + longName + '\'' +
+                ", agencyid='" + agencyid + '\'' +
+                ", routeType=" + routeType +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
     public RouteDirection getRouteDirection() {
-        return routeDirection;
+        return mapDirection();
+    }
+
+    private RouteDirection mapDirection() {
+        if (id.endsWith(RouteDirection.Inbound.getSuffix())) {
+            return RouteDirection.Inbound;
+        } else if (id.endsWith(RouteDirection.Outbound.getSuffix())) {
+            return RouteDirection.Outbound;
+        } else if (id.endsWith(RouteDirection.Circular.getSuffix())) {
+            return RouteDirection.Circular;
+        } else {
+            return RouteDirection.Unknown;
+        }
     }
 }

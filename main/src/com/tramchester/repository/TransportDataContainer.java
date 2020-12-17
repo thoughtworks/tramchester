@@ -158,7 +158,10 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Service getServiceById(IdFor<Service>  serviceId) {
+    public Service getServiceById(IdFor<Service> serviceId) {
+        if (!services.hasId(serviceId)) {
+            logger.warn("No such service " + serviceId);
+        }
         return services.get(serviceId);
     }
 

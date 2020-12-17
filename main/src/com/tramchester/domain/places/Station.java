@@ -20,6 +20,7 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     private static final Logger logger = LoggerFactory.getLogger(Station.class);
 
     public static final String METROLINK_PREFIX = "9400ZZ";
+    public static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
 
     private final String area;
     private final IdFor<Station> id; // id is the "atoc code" for the tfgm data set

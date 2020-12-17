@@ -1,51 +1,29 @@
 package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.dataimport.parsers.CalendarDatesDataMapper;
-import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class CalendarDatesParserTest {
+class CalendarDatesParserTest extends ParserTestHelper<CalendarDateData> {
     private final String example = "Serv000001,20200831,2";
 
+    @BeforeEach
+    void beforeEach() {
+        super.before(CalendarDateData.class, "service_id,date,exception_type");
+    }
+
     @Test
-    void shouldParseData() throws IOException {
+    void shouldParseData() {
 
-        CalendarDatesDataMapper mapper = new CalendarDatesDataMapper(Collections.emptySet());
-
-        mapper.initColumnIndex(ParserBuilder.getRecordFor("service_id,date,exception_type"));
-
-        CalendarDateData result = mapper.parseEntry(ParserBuilder.getRecordFor(example));
+        CalendarDateData result = parse(example);
 
         Assertions.assertEquals(result.getServiceId().forDTO(), "Serv000001");
         Assertions.assertEquals(LocalDate.of(2020, 8, 31), result.getDate());
         Assertions.assertEquals(2, result.getExceptionType());
     }
 
-    @Test
-    void shouldIncludeIfServiceInList() throws IOException {
-        CSVRecord recordFor = ParserBuilder.getRecordFor(example);
-
-        CalendarDatesDataMapper calendarDataMapper = new CalendarDatesDataMapper(Collections.emptySet());
-        assertThat(calendarDataMapper.shouldInclude(recordFor)).isEqualTo(true);
-
-        Set<String> serviceList = new HashSet<>();
-        serviceList.add("Serv000001");
-        calendarDataMapper = new CalendarDatesDataMapper(serviceList);
-        assertThat(calendarDataMapper.shouldInclude(recordFor)).isEqualTo(true);
-
-        serviceList.clear();
-        serviceList.add("ServXXXXX");
-        calendarDataMapper = new CalendarDatesDataMapper(serviceList);
-        assertThat(calendarDataMapper.shouldInclude(recordFor)).isEqualTo(false);
-    }
 }

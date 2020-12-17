@@ -1,7 +1,11 @@
 package com.tramchester.dataimport;
 
+import com.fasterxml.jackson.core.FormatFeature;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +14,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 
 public class DataLoader<T> {
     private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
@@ -40,7 +45,10 @@ public class DataLoader<T> {
         try {
             // TODO buffered reader or not? Performance test....
             BufferedReader bufferedReader = new BufferedReader(in);
-            MappingIterator<T> reader = mapper.readerFor(targetType).with(schema).readValues(bufferedReader);
+            MappingIterator<T> reader = mapper.readerFor(targetType).
+                    with(schema).
+                    without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).
+                    readValues(bufferedReader);
 
             Iterable<T> iterable = () -> reader;
             return StreamSupport.stream(iterable.spliterator(), false);

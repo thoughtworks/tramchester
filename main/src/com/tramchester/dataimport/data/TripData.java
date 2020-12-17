@@ -1,21 +1,44 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 
 public class TripData {
-    private final IdFor<Route> routeId;
-    private final IdFor<Service> serviceId;
-    private final IdFor<Trip> tripId;
-    private final String tripHeadsign;
 
-    public TripData(String routeId, String serviceId, String tripId, String tripHeadsign) {
-        this.routeId = IdFor.createId(removeSpaces(routeId));
-        this.serviceId = IdFor.createId(serviceId);
-        this.tripId = IdFor.createId(tripId);
-        this.tripHeadsign = tripHeadsign.intern();
+    @JsonProperty("route_id")
+    private String routeId;
+    @JsonProperty("service_id")
+    private String serviceId;
+    @JsonProperty("trip_id")
+    private String tripId;
+    private String headsign;
+
+    public TripData() {
+        // deserialization
+    }
+
+    @JsonProperty("trip_headsign")
+    private void setHeadsign(String text) {
+        if (text.contains(Station.TRAM_STATION_POSTFIX)) {
+            setForMetrolink(text);
+        } else {
+            headsign = text;
+        }
+    }
+
+    private void setForMetrolink(String text) {
+        text = text.replace(Station.TRAM_STATION_POSTFIX,"").trim();
+        int indexOfDivider = text.indexOf(",");
+        if (indexOfDivider>0) {
+            // just the station part if present
+            headsign = text.substring(indexOfDivider+1).trim();
+        } else {
+            headsign = text;
+        }
     }
 
     private String removeSpaces(String text) {
@@ -23,19 +46,19 @@ public class TripData {
     }
 
     public IdFor<Route> getRouteId() {
-        return routeId;
+        return IdFor.createId(removeSpaces(routeId));
     }
 
     public IdFor<Service> getServiceId() {
-        return serviceId;
+        return  IdFor.createId(serviceId);
     }
 
     public IdFor<Trip> getTripId() {
-        return tripId;
+        return IdFor.createId(tripId);
     }
 
-    public String getTripHeadsign() {
-        return tripHeadsign;
+    public String getHeadsign() {
+        return headsign;
     }
 
     @Override
@@ -44,7 +67,7 @@ public class TripData {
                 "routeId='" + routeId + '\'' +
                 ", serviceId='" + serviceId + '\'' +
                 ", tripId='" + tripId + '\'' +
-                ", tripHeadsign='" + tripHeadsign + '\'' +
+                ", tripHeadsign='" + headsign + '\'' +
                 '}';
     }
 }

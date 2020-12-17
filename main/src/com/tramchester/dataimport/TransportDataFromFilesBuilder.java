@@ -4,16 +4,14 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
-import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.TransportDataSource;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -36,23 +34,22 @@ public class TransportDataFromFilesBuilder {
     public TransportDataFromFiles create() {
         // streams, so no data read yet
 
-        Set<String> includeAll = Collections.emptySet();
         List<TransportDataSource> dataStreams = new ArrayList<>();
 
         transportDataReaders.forEach(transportDataReader -> {
             Stream<FeedInfo> feedInfoData = Stream.empty();
             DataSourceConfig sourceConfig = transportDataReader.getConfig();
             if (sourceConfig.getHasFeedInfo()) {
-                feedInfoData = transportDataReader.getFeedInfo(new FeedInfoDataMapper(providesNow));
+                feedInfoData = transportDataReader.getFeedInfo();
             }
 
-            Stream<StopData> stopData = transportDataReader.getStops(new StopDataMapper(includeAll));
-            Stream<RouteData> routeData = transportDataReader.getRoutes(new RouteDataMapper(includeAll, false));
-            Stream<TripData> tripData = transportDataReader.getTrips(new TripDataMapper(includeAll));
+            Stream<StopData> stopData = transportDataReader.getStops();
+            Stream<RouteData> routeData = transportDataReader.getRoutes();
+            Stream<TripData> tripData = transportDataReader.getTrips();
             Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
-            Stream<CalendarData> calendarData = transportDataReader.getCalendar(new CalendarDataMapper(includeAll));
-            Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(includeAll));
-            Stream<AgencyData> agencyData = transportDataReader.getAgencies(new AgencyDataMapper(includeAll));
+            Stream<CalendarData> calendarData = transportDataReader.getCalendar();
+            Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
+            Stream<AgencyData> agencyData = transportDataReader.getAgencies();
 
             TransportDataSource transportDataSource =
                     new TransportDataSource(transportDataReader.getNameAndVersion(),

@@ -1,29 +1,37 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
 
 import java.time.LocalDate;
 
 // holds exceptions to main calendar
-public class CalendarDateData {
+public class CalendarDateData extends ParsesDate {
+
+    // TODO into Enum
     // https://developers.google.com/transit/gtfs/reference#calendar_datestxt
     public static final int ADDED = 1;
     public static final int REMOVED = 2;
 
-    private final IdFor<Service> serviceId;
-    private final LocalDate date;
-    private final int exceptionType;
+    @JsonProperty("service_id")
+    private String serviceId;
+    private LocalDate date;
 
-    public CalendarDateData(String serviceId, LocalDate date, int exceptionType) {
+    @JsonProperty("exception_type")
+    private int exceptionType;
 
-        this.serviceId = IdFor.createId(serviceId);
-        this.date = date;
-        this.exceptionType = exceptionType;
+    public CalendarDateData() {
+        // deserialization
+    }
+
+    @JsonProperty("date")
+    private void setDate(String text) {
+        date = parseDate(text);
     }
 
     public IdFor<Service> getServiceId() {
-        return serviceId;
+        return IdFor.createId(serviceId);
     }
 
     public LocalDate getDate() {

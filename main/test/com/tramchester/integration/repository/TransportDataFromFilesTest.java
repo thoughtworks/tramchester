@@ -7,7 +7,6 @@ import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.dataimport.parsers.CalendarDatesDataMapper;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -19,7 +18,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.DataExpiryCategory;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
@@ -32,10 +32,10 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.KnownTramRoute.*;
-import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
-import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
+import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TransportDataFromFilesTest {
@@ -310,15 +310,22 @@ class TransportDataFromFilesTest {
     }
 
     @Test
-    void shouldLoadExceptionalDates() {
-        Set<String> servicesToLoad = allServices.stream().map(Service::getId).map(IdFor::forDTO).collect(Collectors.toSet());
+    void shouldBeApplyingExceptionalDatesCorrectly() {
 
         TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
-        TransportDataReader transportDataReader = transportDataReaders.get(0);
-        Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates(new CalendarDatesDataMapper(servicesToLoad));
+        TransportDataReader transportDataReader = transportDataReaders.get(0); // yuk
+        Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
 
-        calendarsDates.forEach(exception -> {
+        Set<CalendarDateData> applyToCurrentServices = calendarsDates.
+                filter(calendarDateData -> transportData.hasServiceId(calendarDateData.getServiceId())).
+                collect(Collectors.toSet());
+
+        calendarsDates.close();
+
+        assertFalse(applyToCurrentServices.isEmpty());
+
+        applyToCurrentServices.forEach(exception -> {
             Service service = transportData.getServiceById(exception.getServiceId());
             LocalDate exceptionDate = exception.getDate();
             int exceptionType = exception.getExceptionType();
@@ -328,7 +335,6 @@ class TransportDataFromFilesTest {
                 assertFalse(service.operatesOn(exceptionDate));
             }
         });
-        calendarsDates.close();
     }
 
     @Test
@@ -399,7 +405,7 @@ class TransportDataFromFilesTest {
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
     }
 
-    @Disabled("Performance tests")
+    //@Disabled("Performance tests")
     @Test
     void voidShouldLoadData() {
         TransportDataFromFilesBuilder builder = componentContainer.get(TransportDataFromFilesBuilder.class);
