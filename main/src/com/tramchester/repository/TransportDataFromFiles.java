@@ -374,7 +374,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                     }
                 }
             } else {
-                logger.info("Excluding stop " + stopData);
+                logger.info("Excluding stop outside of bounds" + stopData);
             }
 
         });

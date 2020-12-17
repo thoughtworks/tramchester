@@ -19,7 +19,7 @@ class PostcodeRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new TramWithPostcodesEnabled(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(new TramWithPostcodesEnabled(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

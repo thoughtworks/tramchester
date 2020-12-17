@@ -25,7 +25,7 @@ class TrainDataLoadSpike {
     static void beforeClass() {
         TramchesterConfig testConfig = new IntegrationTrainTestConfig();
 
-        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

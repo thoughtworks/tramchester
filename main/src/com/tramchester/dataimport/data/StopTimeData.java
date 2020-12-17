@@ -14,16 +14,11 @@ public class StopTimeData {
     @JsonProperty("trip_id")
     private String tripId;
 
-
-    // TODO Make lazy
-    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     @JsonProperty("arrival_time")
-    private TramTime arrivalTime ;
+    private String arrivalTime ;
 
-    // TODO Make lazy
-    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     @JsonProperty("departure_time")
-    private TramTime departureTime;
+    private String departureTime;
 
     @JsonProperty("stop_id")
     private String stopId;
@@ -34,13 +29,14 @@ public class StopTimeData {
     @JsonProperty("drop_off_type")
     private GTFSPickupDropoffType dropOffType;
 
+    // supports testing only, TODO remove
     public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                         int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
         this.tripId = tripId;
         this.stopId = stopId;
 
-        this.arrivalTime = arrivalTime;
-        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime.toPattern()+":00";
+        this.departureTime = departureTime.toPattern()+":00";
         this.stopSequence = stopSequence;
         this.pickupType = pickupType;
         this.dropOffType = dropOffType;
@@ -69,11 +65,11 @@ public class StopTimeData {
     }
 
     public TramTime getArrivalTime() {
-        return arrivalTime;
+        return TramTime.parse(arrivalTime).get();
     }
 
     public TramTime getDepartureTime() {
-        return departureTime;
+        return TramTime.parse(departureTime).get();
     }
 
     public String getStopId() {
