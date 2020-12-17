@@ -3,7 +3,6 @@ package com.tramchester.dataimport;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
-import com.tramchester.dataimport.parsers.PostcodeDataMapper;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
@@ -84,9 +83,7 @@ public class PostcodeDataImporter {
             logger.info("Found " + csvFiles.size() + " files in " + directory.toAbsolutePath());
         }
 
-        PostcodeDataMapper mapper = new PostcodeDataMapper();
-
-        return csvFiles.stream().map(file -> loadDataFromFile(mapper, file)).collect(Collectors.toList());
+        return csvFiles.stream().map(this::loadDataFromFile).collect(Collectors.toList());
     }
 
     private void unzipIfRequired() {
@@ -119,10 +116,10 @@ public class PostcodeDataImporter {
         return true;
     }
 
-    private Stream<PostcodeData> loadDataFromFile(PostcodeDataMapper mapper, Path file) {
+    private Stream<PostcodeData> loadDataFromFile(Path file) {
         logger.info("Load postcode data from " + file.toAbsolutePath());
 
-        DataLoaderApacheCSV<PostcodeData> loader = new DataLoaderApacheCSV<>(file, mapper);
+        DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER);
 
         if (postcodeBounds.hasData()) {
             BoundingBox fileBounds = postcodeBounds.getBoundsFor(file);

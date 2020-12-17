@@ -1,18 +1,35 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.HasGridPosition;
 
 import java.util.Objects;
 
 public class PostcodeData implements HasGridPosition {
-    private final String postcode;
-    private final int eastings;
-    private final int northings;
+
+    public static final String CVS_HEADER = "Postcode,Positional_quality_indicator,Eastings,Northings,Country_code,NHS_regional_HA_code," +
+            "NHS_HA_code,Admin_county_code,Admin_district_code,Admin_ward_code";
+
+    private String postcode;
+
+    @JsonProperty("Eastings")
+    private int eastings;
+    @JsonProperty("Northings")
+    private int northings;
 
     public PostcodeData(String postcode, int eastings, int northings) {
         this.postcode = postcode;
         this.eastings = eastings;
         this.northings = northings;
+    }
+
+    public PostcodeData() {
+        // deserialization
+    }
+
+    @JsonProperty("Postcode")
+    private void setPostcode(String text) {
+        this.postcode = text.replaceAll(" ","");
     }
 
     public String getId() {

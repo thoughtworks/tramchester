@@ -13,12 +13,18 @@ public class StopTimeData {
 
     @JsonProperty("trip_id")
     private String tripId;
+
+
+    // TODO Make lazy
     @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     @JsonProperty("arrival_time")
     private TramTime arrivalTime ;
+
+    // TODO Make lazy
     @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     @JsonProperty("departure_time")
     private TramTime departureTime;
+
     @JsonProperty("stop_id")
     private String stopId;
     @JsonProperty("stop_sequence")

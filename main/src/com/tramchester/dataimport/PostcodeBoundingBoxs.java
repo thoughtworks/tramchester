@@ -1,10 +1,12 @@
 package com.tramchester.dataimport;
 
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
-import com.tramchester.dataimport.parsers.PostcodeHintsDataMapper;
 import com.tramchester.geo.BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +14,14 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -77,9 +79,8 @@ public class PostcodeBoundingBoxs {
 
     private void loadDataFromFile() {
         logger.info("File "+hintsFilePath+" existed, in playback mode");
-        PostcodeHintsDataMapper mapper = new PostcodeHintsDataMapper();
 
-        DataLoaderApacheCSV<PostcodeHintData> loader = new DataLoaderApacheCSV<>(hintsFilePath, mapper);
+        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFilePath, PostcodeHintData.class);
 
         Stream<PostcodeHintData> data = loader.load();
 
@@ -89,30 +90,22 @@ public class PostcodeBoundingBoxs {
         data.close();
     }
 
-
     private void recordBoundsForPostcodes() {
-        String filename = hintsFilePath.toAbsolutePath().toString();
+        logger.info("Recording bounds for postcode files in " + hintsFilePath.toAbsolutePath().toString());
 
-        logger.info("Recording bounds for postcode files in " + filename);
-        try (Writer writer = new FileWriter(hintsFilePath.toFile())) {
-            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            // Header
-            bufferedWriter.write(String.format("%s,%s,%s,%s,%s", PostcodeHintsDataMapper.Columns.file.name(),
-                    PostcodeHintsDataMapper.Columns.minEasting.name(), PostcodeHintsDataMapper.Columns.minNorthing.name(),
-                    PostcodeHintsDataMapper.Columns.maxEasting.name(), PostcodeHintsDataMapper.Columns.maxNorthing.name()));
-            bufferedWriter.newLine();
-            // entries
-            for (Map.Entry<Path, BoundingBox> entry : postcodeBounds.entrySet()) {
-                Path file = entry.getKey();
-                BoundingBox box = entry.getValue();
-                bufferedWriter.write(String.format("%s,%s,%s,%s,%s", file, box.getMinEastings(), box.getMinNorthings(),
-                        box.getMaxEasting(), box.getMaxNorthings()));
-                bufferedWriter.newLine();
-            }
-            bufferedWriter.flush();
-            bufferedWriter.close();
-        } catch (IOException exception) {
-            logger.error("Unable to save to " + filename, exception);
+        CsvMapper mapper = new CsvMapper();
+        CsvSchema schema = mapper.schemaFor(PostcodeHintData.class).withHeader();
+        ObjectWriter myObjectWriter = mapper.writer(schema);
+
+        List<PostcodeHintData> hints = postcodeBounds.entrySet().stream().
+                map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+
+        try(FileOutputStream outputStream = new FileOutputStream(hintsFilePath.toFile())) {
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+            OutputStreamWriter writerOutputStream = new OutputStreamWriter(bufferedOutputStream, StandardCharsets.UTF_8);
+            myObjectWriter.writeValue(writerOutputStream, hints);
+        } catch (IOException fileNotFoundException) {
+            logger.error("Exception when saving hints", fileNotFoundException);
         }
     }
 

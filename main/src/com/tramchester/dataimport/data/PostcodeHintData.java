@@ -1,38 +1,47 @@
 package com.tramchester.dataimport.data;
 
+import com.tramchester.geo.BoundingBox;
+
+import java.nio.file.Path;
+
 public class PostcodeHintData {
-    private final String file;
-    private final int minEasting;
-    private final int minNorthing;
-    private final int maxEasting;
-    private final int maxNorthing;
+    private String file;
+    private long minEasting;
+    private long minNorthing;
+    private long maxEasting;
+    private long maxNorthing;
 
-    public PostcodeHintData(String file, int minEasting, int minNorthing, int maxEasting, int maxNorthing) {
+    public PostcodeHintData() {
+        // for deserialization
+    }
 
-        this.file = file;
-        this.minEasting = minEasting;
-        this.minNorthing = minNorthing;
-        this.maxEasting = maxEasting;
-        this.maxNorthing = maxNorthing;
+    public PostcodeHintData(Path path, BoundingBox boundingBox)
+    {
+        this.file = path.toString();
+        this.minEasting = boundingBox.getMinEastings();
+        this.minNorthing = boundingBox.getMinNorthings();
+        this.maxEasting = boundingBox.getMaxEasting();
+        this.maxNorthing = boundingBox.getMaxNorthings();
+
     }
 
     public String getFile() {
         return file;
     }
 
-    public int getMinEasting() {
+    public long getMinEasting() {
         return minEasting;
     }
 
-    public int getMinNorthing() {
+    public long getMinNorthing() {
         return minNorthing;
     }
 
-    public int getMaxEasting() {
+    public long getMaxEasting() {
         return maxEasting;
     }
 
-    public int getMaxNorthing() {
+    public long getMaxNorthing() {
         return maxNorthing;
     }
 }

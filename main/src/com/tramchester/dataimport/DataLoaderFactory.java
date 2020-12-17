@@ -1,7 +1,5 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.dataimport.parsers.CSVEntryMapper;
-
 import java.nio.file.Path;
 
 public class DataLoaderFactory {

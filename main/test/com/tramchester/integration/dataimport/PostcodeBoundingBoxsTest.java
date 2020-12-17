@@ -1,8 +1,10 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.data.PostcodeData;
+import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
 import org.junit.jupiter.api.AfterEach;
@@ -12,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,24 +23,24 @@ import static org.junit.jupiter.api.Assertions.*;
 class PostcodeBoundingBoxsTest {
 
     private final  Path testFolder = Path.of("data", "test", "postcodeTest");
-    private Path hintsFiles;
+    private Path hintsFile;
     private PostcodeBoundingBoxs postcodeBoundingBoxs;
 
     @BeforeEach
     void beforeEachTest() throws IOException {
         TramchesterConfig config = new TramWithPostcodesEnabledTestData();
-        hintsFiles = config.getPostcodeDataPath().resolve("postcode_hints.csv");
+        hintsFile = config.getPostcodeDataPath().resolve("postcode_hints.csv");
         postcodeBoundingBoxs = new PostcodeBoundingBoxs(config);
 
         if (!Files.exists(testFolder)) {
             Files.createDirectory(testFolder);
         }
-        Files.deleteIfExists(hintsFiles);
+        Files.deleteIfExists(hintsFile);
     }
 
     @AfterEach
     void afterEachTest() throws IOException {
-        Files.deleteIfExists(hintsFiles);
+        Files.deleteIfExists(hintsFile);
     }
 
     @Test
@@ -64,10 +68,22 @@ class PostcodeBoundingBoxsTest {
             }
         }
 
+        // stop should save the file
         postcodeBoundingBoxs.stop();
-        assertTrue(Files.exists(hintsFiles));
 
-        // now should be playback
+        // check file on disc is as expected
+        assertTrue(Files.exists(hintsFile));
+        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFile, PostcodeHintData.class);
+        List<PostcodeHintData> loadedFromFile = loader.load().collect(Collectors.toList());
+        assertEquals(1, loadedFromFile.size());
+        PostcodeHintData hintData = loadedFromFile.get(0);
+        assertEquals("fileA.csv", hintData.getFile());
+        assertEquals(10, hintData.getMinEasting());
+        assertEquals(19, hintData.getMaxEasting());
+        assertEquals(5, hintData.getMinNorthing());
+        assertEquals(14, hintData.getMaxNorthing());
+
+        // now should be playback, loads from file
         postcodeBoundingBoxs.start();
         assertTrue(postcodeBoundingBoxs.hasData());
 
@@ -91,10 +107,10 @@ class PostcodeBoundingBoxsTest {
         assertEquals(14, results.getMaxNorthings());
 
         // delete file, then stop, should not recreate as in playback mode
-        Files.deleteIfExists(hintsFiles);
+        Files.deleteIfExists(hintsFile);
         postcodeBoundingBoxs.stop();
 
-        assertFalse(Files.exists(hintsFiles));
+        assertFalse(Files.exists(hintsFile));
     }
 
     @Test
@@ -108,7 +124,7 @@ class PostcodeBoundingBoxsTest {
         postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("eee", 0, 0));
 
         postcodeBoundingBoxs.stop();
-        assertTrue(Files.exists(hintsFiles));
+        assertTrue(Files.exists(hintsFile));
 
         // now should be playback
         postcodeBoundingBoxs.start();

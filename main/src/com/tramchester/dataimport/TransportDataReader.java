@@ -3,7 +3,6 @@ package com.tramchester.dataimport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.*;
-import com.tramchester.dataimport.parsers.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.DataSourceInfo;
 

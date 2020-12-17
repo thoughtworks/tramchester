@@ -1,17 +1,18 @@
 package com.tramchester.dataimport;
 
-import com.fasterxml.jackson.core.FormatFeature;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.tramchester.dataimport.data.PostcodeData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -21,10 +22,18 @@ public class DataLoader<T> {
 
     private final Path filePath;
     private final Class<T> targetType;
+    private final List<String> columns;
 
     public DataLoader(Path filePath, Class<T> targetType) {
         this.filePath = filePath.toAbsolutePath();
         this.targetType = targetType;
+        columns = new ArrayList<>();
+    }
+
+    public DataLoader(Path filePath, Class<T> targetType, String cvsHeader) {
+        this.filePath = filePath;
+        this.targetType = targetType;
+        columns = Arrays.asList(cvsHeader.split(","));
     }
 
     public Stream<T> load() {
@@ -40,7 +49,15 @@ public class DataLoader<T> {
 
     public Stream<T> load(Reader in) {
         CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        CsvSchema schema;
+        if (columns.isEmpty()) {
+            schema = CsvSchema.emptySchema().withHeader();
+        } else {
+            CsvSchema.Builder builder = CsvSchema.builder();
+            columns.forEach(builder::addColumn);
+            schema = builder.build();
+        }
 
         try {
             // TODO buffered reader or not? Performance test....

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+//@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class PostcodeDataImporterTest {
 
     private static ComponentContainer componentContainer;
@@ -32,7 +32,7 @@ class PostcodeDataImporterTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationTramTestConfig(); /// <= means tram stations only
-        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         importer = componentContainer.get(PostcodeDataImporter.class);

@@ -10,12 +10,10 @@ import static com.tramchester.domain.places.Station.TRAM_STATION_POSTFIX;
 
 public class StopData {
 
-
     @JsonProperty("stop_id")
     private String id;
     @JsonProperty("stop_code")
     private String code;
-
 
     @JsonProperty("stop_lat")
     private double latitude;
