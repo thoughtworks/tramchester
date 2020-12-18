@@ -2,6 +2,7 @@ package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.cloud.data.DownloadsLiveData;
+import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.healthchecks.LiveDataS3UploadHealthCheck;
@@ -23,17 +24,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
+    private final AppConfiguration configuration = TestEnv.GET();
     private LocalDateTime localNow;
     private ProvidesLocalNow providesLocalNow;
     private DownloadsLiveData downloadsLiveData;
     private LiveDataS3UploadHealthCheck healthCheck;
+    private Duration expectedDuration;
 
     @BeforeEach
     void beforeEachTest() {
         localNow = TestEnv.LocalNow();
         providesLocalNow = createMock(ProvidesLocalNow.class);
         downloadsLiveData = createMock(DownloadsLiveData.class);
-        healthCheck = new LiveDataS3UploadHealthCheck(providesLocalNow, downloadsLiveData);
+        healthCheck = new LiveDataS3UploadHealthCheck(providesLocalNow, downloadsLiveData, configuration);
+        expectedDuration = Duration.of(2 * configuration.getLiveDataConfig().getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
     }
 
     @Test
@@ -44,7 +48,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
         Stream<StationDepartureInfoDTO> liveDataSteam = liveData.stream();
 
         EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(localNow);
-        EasyMock.expect(downloadsLiveData.downloadFor(localNow.minusMinutes(10), Duration.of(10, ChronoUnit.MINUTES)))
+        EasyMock.expect(downloadsLiveData.downloadFor(localNow.minus(expectedDuration), expectedDuration))
                 .andReturn(liveDataSteam);
 
         replayAll();
@@ -58,7 +62,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnhealthIfNoDataFound() throws Exception {
         EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(localNow);
-        EasyMock.expect(downloadsLiveData.downloadFor(localNow.minusMinutes(10), Duration.of(10, ChronoUnit.MINUTES)))
+        EasyMock.expect(downloadsLiveData.downloadFor(localNow.minus(expectedDuration), expectedDuration))
                 .andReturn(Stream.empty());
 
         replayAll();

@@ -2,6 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.DownloadsLiveData;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import org.slf4j.Logger;
@@ -22,8 +23,8 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
     private final Duration checkDuration;
 
     @Inject
-    public LiveDataS3UploadHealthCheck(ProvidesLocalNow providesLocalNow, DownloadsLiveData downloadsLiveData) {
-        checkDuration = Duration.of(10, ChronoUnit.MINUTES);
+    public LiveDataS3UploadHealthCheck(ProvidesLocalNow providesLocalNow, DownloadsLiveData downloadsLiveData, TramchesterConfig config) {
+        checkDuration = Duration.of(2 * config.getLiveDataConfig().getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
         this.providesLocalNow = providesLocalNow;
         this.downloadsLiveData = downloadsLiveData;
     }
