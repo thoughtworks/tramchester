@@ -172,14 +172,14 @@ public class TestEnv {
 
     public static TramStopCall createTramStopCall(String tripId, String stopId, TramStations station, int seq, TramTime arrive,
                                                   TramTime depart) {
-        Platform platform = createPlatform(stopId);
+        Platform platform = createPlatform(stopId, station.getLatLong());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
         StopTimeData stopTimeData = new StopTimeData(tripId, arrive, depart, stopId, seq, pickupDropoff, pickupDropoff);
         return new TramStopCall(platform, TramStations.of(station), stopTimeData);
     }
 
-    private static Platform createPlatform(String id) {
-        return new Platform(id, "name:"+ id);
+    private static Platform createPlatform(String id, LatLong latLong) {
+        return new Platform(id, "name:"+ id, latLong);
     }
 
     public static BoundingBox getTFGMBusBounds() {

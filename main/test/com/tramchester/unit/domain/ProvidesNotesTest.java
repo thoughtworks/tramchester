@@ -5,10 +5,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.Note;
-import com.tramchester.domain.presentation.ProvidesNotes;
-import com.tramchester.domain.presentation.StationNote;
-import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -53,7 +50,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,29));
 
         replayAll();
-        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45), Collections.emptyList()), queryDate);
+        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45),
+                Collections.emptyList()), queryDate);
         verifyAll();
 
         assertThat(result, hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend)));
@@ -64,7 +62,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,30));
 
         replayAll();
-        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45), Collections.emptyList()), queryDate);
+        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45),
+                Collections.emptyList()), queryDate);
         verifyAll();
 
         assertThat(result, hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend)));
@@ -75,7 +74,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramServiceDate queryDate = new TramServiceDate(LocalDate.of(2016,10,31));
 
         replayAll();
-        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45), Collections.emptyList()), queryDate);
+        List<Note> result = provider.createNotesForJourney(new Journey(Collections.emptyList(), TramTime.of(11,45),
+                Collections.emptyList()), queryDate);
         verifyAll();
 
         assertThat(result, not(hasItem(new Note(ProvidesNotes.weekend, Note.NoteType.Weekend))));
@@ -111,7 +111,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldNotAddMessageIfNotMessageForJourney() {
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId");
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId", TestEnv.nearPiccGardens);
 
         TramTime queryTime = TramTime.of(8,11);
         LocalDate date = TestEnv.LocalNow().toLocalDate();
@@ -139,7 +139,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId");
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId", TestEnv.nearPiccGardens);
 
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime().minusHours(4));
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
@@ -166,7 +166,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId");
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId", TestEnv.nearPiccGardens);
 
         LocalDate localDate = lastUpdate.toLocalDate().plusDays(2);
         TramServiceDate queryDate = new TramServiceDate(localDate);
@@ -195,12 +195,12 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     @Test
     void shouldAddNotesForJourneysBasedOnLiveDataIfPresent() {
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId1");
-        VehicleStage stageB = createStageWithBoardingPlatform("platformId2");
-        VehicleStage stageC = createStageWithBoardingPlatform("platformId3");
-        WalkingToStationStage stageD = new WalkingToStationStage(new MyLocation("Altrincham",TestEnv.nearAltrincham),
+        VehicleStage stageA = createStageWithBoardingPlatform("platformId1", Bury.getLatLong());
+        VehicleStage stageB = createStageWithBoardingPlatform("platformId2", Cornbrook.getLatLong());
+        VehicleStage stageC = createStageWithBoardingPlatform("platformId3", NavigationRoad.getLatLong());
+        WalkingToStationStage stageD = new WalkingToStationStage(new MyLocation("Altrincham", TestEnv.nearAltrincham),
                 TramStations.of(Ashton), 7, TramTime.of(8,11));
-        VehicleStage stageE = createStageWithBoardingPlatform("platformId5");
+        VehicleStage stageE = createStageWithBoardingPlatform("platformId5", Altrincham.getLatLong());
 
         TramServiceDate serviceDate = new TramServiceDate(lastUpdate.toLocalDate());
         TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
@@ -269,18 +269,18 @@ class ProvidesNotesTest extends EasyMockSupport {
     }
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, Station station, String message) {
-        Platform platform = new Platform(station.forDTO() + "1", station.getName() + " platform 1");
+        Platform platform = new Platform(station.forDTO() + "1", station.getName() + " platform 1", station.getLatLong());
         station.addPlatform(platform);
         return new PlatformMessage(platform.getId(), message, lastUpdate, station, "displayId");
     }
 
-    private VehicleStage createStageWithBoardingPlatform(String platformId) {
+    private VehicleStage createStageWithBoardingPlatform(String platformId, LatLong latLong) {
         TramTime departTime = TramTime.of(11,22);
         Service service = new Service("serviceId", TestEnv.getTestRoute());
         Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
         VehicleStage vehicleStage = new VehicleStage(of(Ashton), TestEnv.getTestRoute(), TransportMode.Tram,
                 trip, departTime, of(PiccadillyGardens), 12, true);
-        Platform platform = new Platform(platformId, "platformName");
+        Platform platform = new Platform(platformId, "platformName", latLong);
         vehicleStage.setPlatform(platform);
         return vehicleStage;
     }

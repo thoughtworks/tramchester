@@ -180,7 +180,7 @@ public class TransportDataForTestProvider implements TransportDataProvider {
 
     private static TramStopCall createStop(TransportDataContainer container, Trip trip, Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         String platformId = station.getId() + "1";
-        Platform platform = new Platform(platformId, format("%s platform 1", station.getName()));
+        Platform platform = new Platform(platformId, format("%s platform 1", station.getName()), station.getLatLong());
         container.addPlatform(platform);
         station.addPlatform(platform);
         StopTimeData stopTimeData = new StopTimeData(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,

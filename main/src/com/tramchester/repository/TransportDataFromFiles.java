@@ -363,6 +363,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 String stopId = stopData.getId();
                 IdFor<Station> stationId = Station.formId(stopId);
 
+                // NOTE: Tram data has unique positions for each platform
+                // TODO What is the right position to use for a tram station?
                 Station station = allStations.getOrAdd(stationId, () ->
                         new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
                                 stopData.getLatLong(), position));
@@ -399,7 +401,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private Platform formPlatform(StopData stop) {
-        return new Platform(stop.getId(), stop.getName());
+        return new Platform(stop.getId(), stop.getName(), stop.getLatLong());
     }
 
 

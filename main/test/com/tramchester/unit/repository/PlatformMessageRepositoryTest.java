@@ -13,7 +13,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.checkerframework.checker.units.qual.C;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +46,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(TramStations.Shudehill);
-        platform = new Platform("someId1", "Shudehill platform 1");
+        platform = new Platform("someId1", "Shudehill platform 1", station.getLatLong());
         station.addPlatform(platform);
 
     }
@@ -90,7 +89,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals("some message", stationMessages.get(0).getMessage());
 
         Station otherStation = TramStations.of(TramStations.Ashton);
-        otherStation.addPlatform(new Platform("XXXX", "platform name"));
+        otherStation.addPlatform(new Platform("XXXX", "platform name", otherStation.getLatLong()));
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);
         assertTrue(noStationMsg.isEmpty());

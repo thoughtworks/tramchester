@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,19 +112,20 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldHaveRightSummaryAndHeadingFor2Stage() {
 
-        PlatformDTO boardingPlatformA = new PlatformDTO(new Platform(TramStations.Altrincham.getId()+"1", TramStations.Altrincham.getName()));
+        PlatformDTO boardingPlatformA = new PlatformDTO(new Platform(Altrincham.getId()+"1", Altrincham.getName(),
+                Altrincham.getLatLong()));
         RouteRefDTO piccToAltyRouteRef = new RouteRefDTO(createTramRoute(KnownTramRoute.PiccadillyAltrincham));
-        StageDTO stageA = new StageDTO(createStationRef(TramStations.Altrincham), createStationRef(TramStations.Cornbrook),
-                createStationRef(TramStations.Altrincham),
+        StageDTO stageA = new StageDTO(createStationRef(Altrincham), createStationRef(TramStations.Cornbrook),
+                createStationRef(Altrincham),
                 boardingPlatformA, timeToday(10, 8), timeToday(10, 20),
                 20-8,
                 "headSign", TransportMode.Tram, 9, piccToAltyRouteRef,
                 TravelAction.Board, when);
 
-        PlatformDTO boardingPlatformB = new PlatformDTO(new Platform(TramStations.Cornbrook.getId()+"1", TramStations.Cornbrook.getName()));
+        PlatformDTO boardingPlatformB = new PlatformDTO(new Platform(Cornbrook.getId()+"1", Cornbrook.getName(), Cornbrook.getLatLong()));
         RouteRefDTO altToPiccRouteRef = new RouteRefDTO(createTramRoute(KnownTramRoute.AltrinchamPiccadilly));
-        StageDTO stageB = new StageDTO(createStationRef(TramStations.Cornbrook), createStationRef(TramStations.Deansgate),
-                createStationRef(TramStations.Cornbrook),
+        StageDTO stageB = new StageDTO(createStationRef(Cornbrook), createStationRef(Deansgate),
+                createStationRef(Cornbrook),
                 boardingPlatformB, timeToday(10, 8), timeToday(10, 20),
                 20-8,
                 "headSign", TransportMode.Tram, 9, altToPiccRouteRef,
@@ -137,8 +139,8 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
         assertEquals(2, journeyDTO.getStages().size());
         assertFalse(journeyDTO.getIsDirect());
-        assertEquals(TramStations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(TramStations.Deansgate.forDTO(), journeyDTO.getEnd().getId());
+        assertEquals(Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(Deansgate.forDTO(), journeyDTO.getEnd().getId());
         assertEquals(1, journeyDTO.getChangeStations().size());
         assertEquals(TramStations.Cornbrook.forDTO(), journeyDTO.getChangeStations().get(0).getId());
 
@@ -156,9 +158,9 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldHaveRightSummaryAndHeadingFor3Stage() {
         List<StageDTO> stages = new LinkedList<>();
-        stages.add(createStage(TramStations.Altrincham, TravelAction.Board, TramStations.Cornbrook, 9));
-        stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, TramStations.Deansgate, 1));
-        stages.add(createStage(TramStations.Deansgate, TravelAction.Change, TramStations.Bury, 1));
+        stages.add(createStage(Altrincham, TravelAction.Board, TramStations.Cornbrook, 9));
+        stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, Deansgate, 1));
+        stages.add(createStage(Deansgate, TravelAction.Change, TramStations.Bury, 1));
 
 
         replayAll();
@@ -166,12 +168,12 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertFalse(journeyDTO.getIsDirect());
-        assertEquals(TramStations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(Altrincham.forDTO(), journeyDTO.getBegin().getId());
         assertEquals(TramStations.Bury.forDTO(), journeyDTO.getEnd().getId());
 
         List<String> changes = journeyDTO.getChangeStations().stream().
                 map(StationRefDTO::getName).collect(Collectors.toList());
-        assertEquals(Arrays.asList(TramStations.Cornbrook.getName(), TramStations.Deansgate.getName()), changes);
+        assertEquals(Arrays.asList(TramStations.Cornbrook.getName(), Deansgate.getName()), changes);
     }
 
     @Test
@@ -181,7 +183,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         TramStations destination = TramStations.Cornbrook;
 
         stages.add(createWalkingStage(start, destination, timeToday(8, 13), timeToday(8, 16)));
-        stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, TramStations.Deansgate, 1));
+        stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, Deansgate, 1));
 
         replayAll();
         JourneyDTO journey = factory.build(stages, queryTime, notes, path, when);
@@ -200,7 +202,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
-        assertEquals(TramStations.Altrincham.forDTO(), journeyDTO.getBegin().getId());
+        assertEquals(Altrincham.forDTO(), journeyDTO.getBegin().getId());
         assertEquals(TramStations.ExchangeSquare.forDTO(), journeyDTO.getEnd().getId());
     }
 
@@ -234,8 +236,8 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldHaveCorrectSummaryAndHeadingForTramStagesConnectedByWalk() {
         List<StageDTO> stages = new LinkedList<>();
-        stages.add(createStage(TramStations.ManAirport, TravelAction.Board, TramStations.Deansgate, 13));
-        stages.add(createConnectingStage(TramStations.Deansgate, TramStations.MarketStreet, timeToday(8, 13), timeToday(8, 16)));
+        stages.add(createStage(TramStations.ManAirport, TravelAction.Board, Deansgate, 13));
+        stages.add(createConnectingStage(Deansgate, TramStations.MarketStreet, timeToday(8, 13), timeToday(8, 16)));
         stages.add(createStage(TramStations.MarketStreet, TravelAction.Change, TramStations.Bury, 16));
 
         replayAll();
@@ -251,7 +253,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     void reproduceIssueWithJourneyWithJustWalking() {
         List<StageDTO> stages = new LinkedList<>();
         MyLocation start = myLocationFactory.create(new LatLong(1, 2));
-        stages.add(createWalkingStage(start, TramStations.Altrincham, timeToday(8, 0), timeToday(8, 10)));
+        stages.add(createWalkingStage(start, Altrincham, timeToday(8, 0), timeToday(8, 10)));
 
         replayAll();
         JourneyDTO journey = factory.build(stages, queryTime, notes, path, when);
@@ -264,7 +266,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
     private List<StageDTO> createThreeStages() {
         List<StageDTO> stages = new LinkedList<>();
-        stages.add(createStage(TramStations.Altrincham, TravelAction.Board, TramStations.Cornbrook, 7));
+        stages.add(createStage(Altrincham, TravelAction.Board, TramStations.Cornbrook, 7));
         stages.add(createStage(TramStations.Cornbrook, TravelAction.Change, TramStations.Victoria, 3));
         stages.add(createStage(TramStations.Victoria, TravelAction.Change, TramStations.ExchangeSquare, 13));
         return stages;

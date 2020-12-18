@@ -17,7 +17,6 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.TestEnv;
@@ -253,7 +252,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
                 startTime.plusMinutes(1), finish, passedStops, hasPlatforms);
 
         vehicleStage.setCost(cost);
-        Platform platform = new Platform(start.forDTO() + "1", "platform name");
+        Platform platform = new Platform(start.forDTO() + "1", "platform name", start.getLatLong());
         vehicleStage.setPlatform(platform);
 
         return vehicleStage;

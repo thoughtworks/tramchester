@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.HashSet;
@@ -13,15 +14,17 @@ public class Platform implements HasId<Platform>, GraphProperty {
     private final String name;
     private final Set<Route> servesRoutes;
     private final String platformNumber;
+    private final LatLong latLong;
 
     public String getPlatformNumber() {
         return platformNumber;
     }
 
-    public Platform(String id, String name) {
+    public Platform(String id, String name, LatLong latLong) {
         this.id = IdFor.createId(id);
         this.name = name.intern();
         platformNumber = id.substring(id.length()-1);
+        this.latLong = latLong;
         servesRoutes = new HashSet<>();
     }
 
@@ -73,5 +76,9 @@ public class Platform implements HasId<Platform>, GraphProperty {
 
     public boolean servesRoute(Route route) {
         return servesRoutes.contains(route);
+    }
+
+    public LatLong getLatLong() {
+        return latLong;
     }
 }

@@ -12,7 +12,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
 
@@ -34,8 +33,8 @@ class LocationDTOTest {
         testStation.addRoute(TestEnv.getTestRoute(IdFor.createId("routeIdA")));
         testStation.addRoute(TestEnv.getTestRoute(IdFor.createId("routeIdB")));
 
-        testStation.addPlatform(new Platform("9400ZZMAALT1", "Altrincham"));
-        testStation.addPlatform(new Platform("9400ZZMAALT2", "Altrincham"));
+        testStation.addPlatform(new Platform("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
+        testStation.addPlatform(new Platform("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));
 
         LocationDTO dto = new LocationDTO(testStation);
 

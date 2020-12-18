@@ -10,7 +10,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.checkerframework.checker.units.qual.C;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.of(Shudehill);
-        platform = new Platform("someId1", "Shudehill platform 1");
+        platform = new Platform("someId1", "Shudehill platform 1", Shudehill.getLatLong());
         station.addPlatform(platform);
     }
 
@@ -60,7 +59,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // second station, has due tram
         Station secondStation = of(Altrincham);
-        Platform platfromForSecondStation = new Platform("a1", "Altrincham platform 1");
+        Platform platfromForSecondStation = new Platform("a1", "Altrincham platform 1", Altrincham.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
 
         DueTram dueTramOther = new DueTram(of(ManAirport), "Due", 12, "Double", lastUpdate.toLocalTime());
@@ -69,7 +68,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         // third, no due trams
         Station thirdStation = of(Intu);
-        Platform platfromForThirdStation = new Platform("b2", "Intu platform 2");
+        Platform platfromForThirdStation = new Platform("b2", "Intu platform 2", Intu.getLatLong());
         secondStation.addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
@@ -96,7 +95,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "some message", station, dueTram);
 
         Station otherStation = of(Altrincham);
-        Platform otherPlatform = new Platform("other1", "Altrincham platform 1");
+        Platform otherPlatform = new Platform("other1", "Altrincham platform 1", otherStation.getLatLong());
         otherStation.addPlatform(otherPlatform);
 
         Station destinationManAirport = of(ManAirport);

@@ -5,6 +5,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
@@ -54,7 +55,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
                 TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury), 23, true);
         vehicleStage.setCost(5);
 
-        Platform platform = new Platform("platFormId", "platformName");
+        Platform platform = new Platform("platFormId", "platformName", new LatLong(1,1));
         vehicleStage.setPlatform(platform);
 
         replayAll();
