@@ -11,12 +11,17 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class LocationDTOTest {
@@ -34,30 +39,38 @@ class LocationDTOTest {
 
         LocationDTO dto = new LocationDTO(testStation);
 
-        Assertions.assertEquals(testStation.forDTO(), dto.getId());
-        Assertions.assertEquals(testStation.getTransportMode(), dto.getTransportMode());
-        Assertions.assertEquals(testStation.getName(), dto.getName());
-        Assertions.assertEquals(testStation.getLatLong(), dto.getLatLong());
-        Assertions.assertTrue(dto.isTram());
+        assertEquals(testStation.forDTO(), dto.getId());
+        assertEquals(testStation.getTransportMode(), dto.getTransportMode());
+        assertEquals(testStation.getName(), dto.getName());
+        assertEquals(testStation.getLatLong(), dto.getLatLong());
+        assertTrue(dto.isTram());
 
-        Assertions.assertEquals(2, dto.getRoutes().size());
+        assertEquals(2, dto.getRoutes().size());
         Set<String> routeIds = dto.getRoutes().stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
-        Assertions.assertTrue(routeIds.contains("routeIdA"));
-        Assertions.assertTrue(routeIds.contains("routeIdB"));
+        assertTrue(routeIds.contains("routeIdA"));
+        assertTrue(routeIds.contains("routeIdB"));
 
-        Assertions.assertTrue(dto.hasPlatforms());
-        Assertions.assertEquals(2, dto.getPlatforms().size());
+        assertTrue(dto.hasPlatforms());
+        assertEquals(2, dto.getPlatforms().size());
 
-        PlatformDTO platformDTOA = dto.getPlatforms().get(0);
-        Assertions.assertEquals(TramStations.Altrincham.forDTO()+"1", platformDTOA.getId());
-        Assertions.assertEquals("Altrincham platform 1", platformDTOA.getName());
-        Assertions.assertEquals("1", platformDTOA.getPlatformNumber());
+        Optional<PlatformDTO> findPlatformOne = getPlatformById(dto, TramStations.Altrincham.forDTO() + "1");
+        assertTrue(findPlatformOne.isPresent());
+        PlatformDTO platformDTOA = findPlatformOne.get();
+        assertEquals("Altrincham platform 1", platformDTOA.getName());
+        assertEquals("1", platformDTOA.getPlatformNumber());
 
-        PlatformDTO platformDTOB = dto.getPlatforms().get(1);
-        Assertions.assertEquals(TramStations.Altrincham.forDTO()+"2", platformDTOB.getId());
-        Assertions.assertEquals("Altrincham platform 2", platformDTOB.getName());
-        Assertions.assertEquals("2", platformDTOB.getPlatformNumber());
+        Optional<PlatformDTO> findPlatformTwo = getPlatformById(dto, TramStations.Altrincham.forDTO() + "2");
+        assertTrue(findPlatformTwo.isPresent());
+        PlatformDTO platformDTOB = findPlatformTwo.get();
+        assertEquals("Altrincham platform 2", platformDTOB.getName());
+        assertEquals("2", platformDTOB.getPlatformNumber());
 
+    }
+
+    @NotNull
+    private Optional<PlatformDTO> getPlatformById(LocationDTO dto, String platformId) {
+        return dto.getPlatforms().stream().
+                filter(platformDTO -> platformDTO.getId().equals(platformId)).findFirst();
     }
 
 }

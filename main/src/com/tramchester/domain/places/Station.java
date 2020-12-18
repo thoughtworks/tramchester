@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,13 +26,13 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     private final LatLong latLong;
     private final GridPosition gridPosition;
     private TransportMode transportMode;
-    private final List<Platform> platforms;
+    private final Set<Platform> platforms;
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
 
     public Station(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
         this.gridPosition = gridPosition;
-        platforms = new LinkedList<>();
+        platforms = new HashSet<>();
         servesRoutes = new HashSet<>();
         servesAgencies = new HashSet<>();
 
@@ -81,7 +79,7 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     }
 
     @Override
-    public List<Platform> getPlatforms() {
+    public Set<Platform> getPlatforms() {
         return platforms;
     }
 
@@ -90,14 +88,17 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
         return transportMode;
     }
 
-    public List<Platform> getPlatformsForRoute(Route route) {
-        return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toList());
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Station;
+    }
+
+    public Set<Platform> getPlatformsForRoute(Route route) {
+        return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toSet());
     }
 
     public void addPlatform(Platform platform) {
-        if (!platforms.contains(platform)) {
-            platforms.add(platform);
-        }
+        platforms.add(platform);
     }
 
     public boolean hasPlatform(IdFor<Platform> platformId) {
@@ -167,5 +168,9 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.STATION_ID;
+    }
+
+    public boolean hasPlatformsForRoute(Route route) {
+        return platforms.stream().anyMatch(platform -> platform.servesRoute(route));
     }
 }

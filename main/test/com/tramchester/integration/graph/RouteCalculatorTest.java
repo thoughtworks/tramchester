@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.VehicleStage;
 import com.tramchester.domain.places.Location;
@@ -101,9 +102,10 @@ public class RouteCalculatorTest {
 
         results.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(11, callingPoints.size());
+            assertEquals(13, callingPoints.size());
             assertEquals(Altrincham.getId(), callingPoints.get(0).getId());
-            assertEquals(TramStations.Deansgate.getId(), callingPoints.get(10).getId());
+            assertEquals(LocationType.Station, callingPoints.get(0).getLocationType());
+            assertEquals(TramStations.Deansgate.getId(), callingPoints.get(12).getId());
         });
     }
 

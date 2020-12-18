@@ -7,7 +7,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
-import java.util.List;
+import java.util.Set;
 
 public class MyLocation extends MapIdToDTOId<MyLocation> implements Location<MyLocation> {
 
@@ -61,13 +61,18 @@ public class MyLocation extends MapIdToDTOId<MyLocation> implements Location<MyL
     }
 
     @Override
-    public List<Platform> getPlatforms() {
+    public Set<Platform> getPlatforms() {
         return null;
     }
 
     @Override
     public TransportMode getTransportMode() {
         return TransportMode.Walk;
+    }
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Mobile;
     }
 
     @Override

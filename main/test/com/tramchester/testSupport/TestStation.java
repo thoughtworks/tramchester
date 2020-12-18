@@ -65,13 +65,13 @@ public class TestStation extends Station {
     }
 
     @Override
-    public List<Platform> getPlatforms() {
+    public Set<Platform> getPlatforms() {
         guardPlatformsAddedIntent();
         return super.getPlatforms();
     }
 
     @Override
-    public List<Platform> getPlatformsForRoute(Route route) {
+    public Set<Platform> getPlatformsForRoute(Route route) {
         throw new RuntimeException("Use real Station");
     }
 

@@ -1,10 +1,13 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
-public class RouteStation implements HasId<RouteStation>, HasTransportMode, GraphProperty {
+import java.util.Set;
+
+public class RouteStation implements HasId<RouteStation>, HasTransportMode, GraphProperty, Location<RouteStation> {
     // A station that serves a specific route
 
     private final Station station;
@@ -50,12 +53,47 @@ public class RouteStation implements HasId<RouteStation>, HasTransportMode, Grap
     }
 
     @Override
+    public String getName() {
+        return station.getName();
+    }
+
+    @Override
+    public LatLong getLatLong() {
+        return station.getLatLong();
+    }
+
+    @Override
+    public String getArea() {
+        return station.getArea();
+    }
+
+    @Override
+    public boolean hasPlatforms() {
+        return station.hasPlatformsForRoute(route);
+    }
+
+    @Override
+    public Set<Platform> getPlatforms() {
+        return station.getPlatformsForRoute(route);
+    }
+
+    @Override
     public TransportMode getTransportMode() {
         return route.getTransportMode();
     }
 
     @Override
+    public LocationType getLocationType() {
+        return LocationType.RouteStation;
+    }
+
+    @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.ROUTE_STATION_ID;
+    }
+
+    @Override
+    public String forDTO() {
+        return id.forDTO();
     }
 }

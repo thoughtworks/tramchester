@@ -70,4 +70,8 @@ public class Platform implements HasId<Platform>, GraphProperty {
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.PLATFORM_ID;
     }
+
+    public boolean servesRoute(Route route) {
+        return servesRoutes.contains(route);
+    }
 }

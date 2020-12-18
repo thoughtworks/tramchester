@@ -254,7 +254,7 @@ class TransportDataFromFilesTest {
         assertTrue(station.hasPlatforms());
         // only one platform at alty, well according to the timetable anyway....
         assertEquals(1, station.getPlatforms().size());
-        Platform platformOne = station.getPlatforms().get(0);
+        Platform platformOne = station.getPlatforms().stream().findFirst().get();
         assertEquals( TramStations.Altrincham.forDTO()+"1", platformOne.getId().forDTO());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());

@@ -41,20 +41,21 @@ class StationResourceTest {
 
     @Test
     void shouldGetSingleStationWithPlatforms() {
-        String id = TramStations.StPetersSquare.forDTO();
-        String endPoint = "stations/" + id;
+        String stationId = TramStations.StPetersSquare.forDTO();
+        String endPoint = "stations/" + stationId;
         Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
         Assertions.assertEquals(200,response.getStatus());
         LocationDTO result = response.readEntity(LocationDTO.class);
 
-        Assertions.assertEquals(id, result.getId());
+        Assertions.assertEquals(stationId, result.getId());
 
         List<PlatformDTO> platforms = result.getPlatforms();
         Assertions.assertEquals(4, platforms.size());
-        Assertions.assertEquals(id+"1", platforms.get(0).getId());
-        Assertions.assertEquals(id+"2", platforms.get(1).getId());
-        Assertions.assertEquals(id+"3", platforms.get(2).getId());
-        Assertions.assertEquals(id+"4", platforms.get(3).getId());
+        List<String> platformIds = platforms.stream().map(PlatformDTO::getId).collect(Collectors.toList());
+        Assertions.assertTrue(platformIds.contains(stationId+"1"));
+        Assertions.assertTrue(platformIds.contains(stationId+"2"));
+        Assertions.assertTrue(platformIds.contains(stationId+"3"));
+        Assertions.assertTrue(platformIds.contains(stationId+"4"));
 
         List<RouteRefDTO> routes = result.getRoutes();
         assertEquals(8, routes.size()); // 2 x 4

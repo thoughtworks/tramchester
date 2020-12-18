@@ -143,7 +143,7 @@ class LocationJourneyPlannerTest {
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
         results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
 
-        results.forEach(result -> assertTrue(result.getPath().size()==11 || result.getPath().size()==12));
+        results.forEach(result -> assertTrue(result.getPath().size()==13 || result.getPath().size()==14));
 
         // via nav road
         results.stream().filter(journey -> journey.getPath().size()==11).forEach(journey -> {
@@ -183,10 +183,10 @@ class LocationJourneyPlannerTest {
 
         results.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(11, callingPoints.size());
+            assertEquals(13, callingPoints.size());
             assertEquals(TramStations.Deansgate.getId(), callingPoints.get(0).getId());
-            assertEquals(TramStations.NavigationRoad.getId(), callingPoints.get(9).getId());
-            assertEquals(nearAltrincham, callingPoints.get(10).getLatLong());
+            assertEquals(TramStations.NavigationRoad.getId(), callingPoints.get(11).getId());
+            assertEquals(nearAltrincham, callingPoints.get(12).getLatLong());
         });
     }
 

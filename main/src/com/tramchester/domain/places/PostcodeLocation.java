@@ -5,8 +5,8 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements Location<PostcodeLocation> {
 
@@ -55,13 +55,18 @@ public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements 
     }
 
     @Override
-    public List<Platform> getPlatforms() {
+    public Set<Platform> getPlatforms() {
         return null;
     }
 
     @Override
     public TransportMode getTransportMode() {
         return TransportMode.Walk;
+    }
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Postcode;
     }
 
     @Override

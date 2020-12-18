@@ -4,7 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.util.List;
+import java.util.Set;
 
 public interface Location<TYPE extends Location<?>> extends HasTransportMode, IdForDTO, HasId<TYPE>, GraphProperty {
 
@@ -16,8 +16,10 @@ public interface Location<TYPE extends Location<?>> extends HasTransportMode, Id
 
     boolean hasPlatforms();
 
-    List<Platform> getPlatforms();
+    Set<Platform> getPlatforms();
 
     TransportMode getTransportMode();
+
+    LocationType getLocationType();
 
 }
