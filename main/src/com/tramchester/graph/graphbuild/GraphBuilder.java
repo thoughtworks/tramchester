@@ -12,6 +12,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,12 @@ public abstract class GraphBuilder  {
 
         public static boolean isStation(Labels label) {
             return label==TRAM_STATION || label==BUS_STATION || label==TRAIN_STATION;
+        }
+
+        public static Set<Labels> from(Iterable<Label> labels) {
+            Set<Labels> result = new HashSet<>();
+            labels.forEach(label -> result.add(valueOf(label.toString())));
+            return result;
         }
     }
 

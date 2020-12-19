@@ -46,7 +46,7 @@ public class WalkingState extends TraversalState {
                 return builders.tramStation.fromWalking(this, node, cost);
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.noPlatformStation.from(this, node, cost, nodeLabel);
+                return builders.noPlatformStation.from(this, node, cost);
             default:
                 throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
         }

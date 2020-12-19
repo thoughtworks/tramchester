@@ -107,7 +107,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
         loaded = true;
         logger.info("Finishing Loading data for " + sourceName);
-        //logger.info("Bounds for loaded stations " + stationLocations.getBounds());
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,

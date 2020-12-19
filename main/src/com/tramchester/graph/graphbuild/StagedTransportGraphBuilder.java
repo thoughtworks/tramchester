@@ -45,6 +45,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     // Station -[enter]-> Platform -[board]-> RouteStation -[toSvc]-> Service -> Hour-[toMinute]->
     //          -> Minute -> RouteStation-[depart]-> Platform -[leave]-> Station
     //
+    // OR
+    //
+    // Station -[board]-> RouteStation -[toSvc]-> Service -> Hour-[toMinute]->
+    //          -> Minute -> RouteStation-[depart]-> Station
+    //
     // RouteStation-[onRoute]->RouteStation
     //
     ///
@@ -513,8 +518,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProperty(routeStationNode, routeStation.getStation());
         setProperty(routeStationNode, routeStation.getRoute());
 
-        routeBuilderCache.putRouteStation(routeStation.getId(), routeStationNode);
+        Set<TransportMode> modes = routeStation.getTransportModes();
+        if (modes.size()==1) {
+            setProperty(routeStationNode, modes.iterator().next());
+        } else {
+            logger.error("Unable to set transportmode property as more than one mode for " + routeStation);
+        }
 
+        routeBuilderCache.putRouteStation(routeStation.getId(), routeStationNode);
     }
 
     private Node createStationNode(Transaction tx, Station station) {

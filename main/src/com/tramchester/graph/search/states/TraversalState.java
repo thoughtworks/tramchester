@@ -15,7 +15,13 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import javax.management.relation.RelationNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.BUS_STATION;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.TRAIN_STATION;
+import static java.lang.String.format;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
@@ -71,9 +77,21 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected abstract TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
                                                       JourneyState journeyState, int cost);
 
-    public TraversalState nextState(GraphBuilder.Labels nodeLabel, Node node,
+    protected TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
+                                             JourneyState journeyState, int cost) {
+        throw new RuntimeException(format("Multi label Not implemented at %s for %s labels were %s",
+                this.toString(), journeyState, nodeLabels));
+    }
+
+    public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
                                     JourneyState journeyState, int cost) {
-        child = createNextState(nodeLabel, node, journeyState, cost);
+        if (nodeLabels.size()==1) {
+            GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
+            child = createNextState(nodeLabel, node, journeyState, cost);
+        } else {
+            child = createNextState(nodeLabels, node, journeyState, cost);
+        }
+
         return child;
     }
 

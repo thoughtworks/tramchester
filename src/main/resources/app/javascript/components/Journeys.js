@@ -97,7 +97,7 @@ function actionFormatter(value, key, row) {
     if (row.action=='Walk to' || row.action=='Walk from') {
         return value;
     }
-    return value + ' ' + row.actionStation.transportMode;
+    return value + ' ' + row.route.transportMode;
 }
 
 function lineClass(value, key, row) {

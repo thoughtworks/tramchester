@@ -61,12 +61,11 @@ public class TramStationState extends TraversalState {
             case PLATFORM:
                 return builders.platform.from(this, node, cost);
             case QUERY_NODE:
-//            case QUERY_NODE_MID:
                 journeyState.connection();
                 return builders.walking.fromTramStation(this, node, cost);
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.noPlatformStation.fromNeighbour(this, node, cost, nodeLabel);
+                return builders.noPlatformStation.fromNeighbour(this, node, cost);
             default:
                 throw new RuntimeException("Unexpected node type: "+nodeLabel+ " at " + toString());
 

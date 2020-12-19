@@ -5,11 +5,13 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 
+import javax.swing.*;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -23,6 +25,15 @@ public class GraphProps {
 
     public static <C extends GraphProperty>  void setProperty(Entity entity, HasId<C> item) {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
+    }
+
+    public static <C extends GraphProperty>  void setProperty(Entity entity, TransportMode mode) {
+        entity.setProperty(TRANSPORT_MODE.getText(), mode.name());
+    }
+
+    public static TransportMode getTransportMode(Entity entity) {
+        String name = (String) entity.getProperty(TRANSPORT_MODE.getText());
+        return TransportMode.valueOf(name);
     }
 
     public static IdFor<Station> getStationId(Entity entity) {
@@ -111,5 +122,6 @@ public class GraphProps {
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
         entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString()+"_"+uid.toString());
     }
+
 
 }

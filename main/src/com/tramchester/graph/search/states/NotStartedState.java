@@ -29,6 +29,11 @@ public class NotStartedState extends TraversalState {
         return 0;
     }
 
+    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node firstNode, JourneyState journeyState, int cost) {
+        // should only be called for multi-mode stations
+        return builders.noPlatformStation.from(this, firstNode, cost);
+    }
+
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
@@ -37,7 +42,7 @@ public class NotStartedState extends TraversalState {
                 return builders.tramStation.fromStart(this, firstNode, cost);
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.noPlatformStation.from(this, firstNode, cost, nodeLabel);
+                return builders.noPlatformStation.from(this, firstNode, cost);
         }
         throw new RuntimeException("Unexpected node type: " + nodeLabel);
     }

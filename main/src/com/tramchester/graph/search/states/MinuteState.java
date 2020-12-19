@@ -3,6 +3,7 @@ package com.tramchester.graph.search.states;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -80,11 +81,13 @@ public class MinuteState extends TraversalState {
     private TraversalState toRouteStation(Node node, int cost) {
         Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
 
+        TransportMode transportMode = GraphProps.getTransportMode(node);
+
         // if towards dest then always follow whether interchange-only enabled or not
         List<Relationship> towardsDestination = getTowardsDestination(allDeparts);
         if (!towardsDestination.isEmpty()) {
             // we've nearly arrived
-            return builders.routeStation.fromMinuteState(this, node, cost, towardsDestination, tripId);
+            return builders.routeStation.fromMinuteState(this, node, cost, towardsDestination, tripId, transportMode);
         }
 
         // outbound service relationships that continue the current trip
@@ -101,9 +104,9 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // for a change of trip id we need to get off vehicle, then back on to another service
-            return builders.routeStationEndTrip.fromMinuteState(this, cost, routeStationOutbounds);
+            return builders.routeStationEndTrip.fromMinuteState(this, cost, routeStationOutbounds, transportMode);
         } else {
-            return builders.routeStation.fromMinuteState(this, node, cost, routeStationOutbounds, tripId);
+            return builders.routeStation.fromMinuteState(this, node, cost, routeStationOutbounds, tripId, transportMode);
         }
     }
 

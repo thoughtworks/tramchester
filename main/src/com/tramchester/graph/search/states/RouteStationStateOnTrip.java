@@ -11,6 +11,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
@@ -19,28 +20,38 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class RouteStationStateOnTrip extends TraversalState implements NodeId {
     private final long routeStationNodeId;
     private final IdFor<Trip> tripId;
+    private final TransportMode transportMode;
 
     public static class Builder {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
-                                              IdFor<Trip> tripId) {
-            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId);
+                                              IdFor<Trip> tripId, TransportMode transportMode) {
+            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId, transportMode);
         }
     }
 
     private RouteStationStateOnTrip(TraversalState parent, Iterable<Relationship> relationships, int cost,
-                                    long routeStationNodeId, IdFor<Trip> tripId) {
+                                    long routeStationNodeId, IdFor<Trip> tripId, TransportMode transportMode) {
         super(parent, relationships, cost);
         this.routeStationNodeId = routeStationNodeId;
         this.tripId = tripId;
+        this.transportMode = transportMode;
     }
 
     @Override
     public String toString() {
         return "RouteStationStateOnTrip{" +
                 "routeStationNodeId=" + routeStationNodeId +
-                ", tripId='" + tripId + '\'' +
+                ", tripId=" + tripId +
+                ", transportMode=" + transportMode +
                 "} " + super.toString();
+    }
+
+    @Override
+    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node nextNode,
+                                          JourneyState journeyState, int cost) {
+        // should be called for multi-mode stations only
+        return toStation(nextNode, journeyState, cost);
     }
 
     @Override
@@ -53,16 +64,16 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
                 return builders.service.fromRouteStation(this, tripId, nextNode, cost);
             case BUS_STATION:
             case TRAIN_STATION:
-                return toStation(nextNode, journeyState, cost, nodeLabel);
+                return toStation(nextNode, journeyState, cost);
             default:
                 throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
         }
     }
 
-    private TraversalState toStation(Node stationNode, JourneyState journeyState, int cost, GraphBuilder.Labels label) {
+    private TraversalState toStation(Node stationNode, JourneyState journeyState, int cost) {
         // no platforms in bus network, direct to station
         try {
-            journeyState.leave(modeFromLabel(label), getTotalCost());
+            journeyState.leave(transportMode, getTotalCost());
         } catch (TramchesterException e) {
             throw new RuntimeException("Unable to depart tram",e);
         }
@@ -73,7 +84,7 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
             return builders.destination.from(this, cost);
         }
 
-        return builders.noPlatformStation.fromRouteStation(this, stationNode, cost, label);
+        return builders.noPlatformStation.fromRouteStation(this, stationNode, cost);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
