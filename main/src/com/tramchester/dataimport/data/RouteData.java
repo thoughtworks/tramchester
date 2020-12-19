@@ -20,7 +20,7 @@ public class RouteData {
     @JsonProperty("agency_id")
     private String agencyid;
     @JsonProperty("route_type")
-    private GTFSTransportationType routeType;
+    private String routeType;
 
     public RouteData () {
         // for deserialisation
@@ -47,7 +47,7 @@ public class RouteData {
     }
 
     public GTFSTransportationType getRouteType() {
-        return routeType;
+        return GTFSTransportationType.parse(routeType);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RouteData {
                 ", shortName='" + shortName + '\'' +
                 ", longName='" + longName + '\'' +
                 ", agencyid='" + agencyid + '\'' +
-                ", routeType=" + routeType +
+                ", routeType=" + getRouteType() +
                 '}';
     }
 

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public enum TransportMode implements HasTransportMode {
-    Bus, Tram, Depart, Board, Walk, Connect, Train, NotSet;
+    Bus, Tram, Depart, Board, Walk, Connect, Train, NotSet, Unknown;
 
     public static TransportMode fromGTFS(GTFSTransportationType routeType) {
         switch (routeType) {
@@ -14,7 +14,7 @@ public enum TransportMode implements HasTransportMode {
             case bus: return TransportMode.Bus;
             case train: return TransportMode.Train;
             default:
-                throw new RuntimeException("Unexpected route type " + routeType);
+                throw new RuntimeException("Unexpected route type (check config?) " + routeType);
         }
 
     }

@@ -43,11 +43,13 @@ public class RouteCallingStations {
     public void start() {
         logger.info("start");
         Collection<Route> routes = transportData.getRoutes();
+        logger.info("Populating for " + routes.size() + " routes");
         routes.forEach(route -> populateFromServices(route, route.getServices()));
+        logger.info("ready");
     }
 
     private void populateFromServices(Route route, Set<Service> services) {
-        logger.info("Populate calling stations for " + HasId.asId(route));
+        logger.debug("Populate calling stations for route " + HasId.asId(route));
         Set<Trip> trips = services.stream().map(service -> service.getTripsFor(route)).flatMap(Collection::stream).collect(Collectors.toSet());
 
         // ASSUME: longest trips correspond to full end to end journeys on the whole route

@@ -140,8 +140,8 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
         if (transportMode.equals(TransportMode.NotSet)) {
             transportMode = route.getTransportMode();
         } else if (!transportMode.equals(route.getTransportMode())) {
-            String message = format("Here to detect if multi-mode stations exist, route %s and station %s",
-                    route, this.toString());
+            String message = format("Here to detect if multi-mode stations exist, already had %s, got route %s and station %s (%s)",
+                    transportMode, route, id, name);
             logger.error(message);
             throw new RuntimeException(message);
         }

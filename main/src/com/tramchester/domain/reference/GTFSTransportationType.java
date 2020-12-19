@@ -14,7 +14,8 @@ public enum GTFSTransportationType {
     aerialLift("6"),
     funicular("7"),
     trolleyBus("11"),
-    monorail("12");
+    monorail("12"),
+    unknown("99"); // not an official type
 
     private static final Map<String, GTFSTransportationType> textMap;
 
@@ -30,6 +31,13 @@ public enum GTFSTransportationType {
 
     GTFSTransportationType(String theText) {
         this.text = theText;
+    }
+
+    public static GTFSTransportationType parse(String routeType) {
+        if (textMap.containsKey(routeType)) {
+            return textMap.get(routeType);
+        }
+        return unknown;
     }
 
     private String getText() {

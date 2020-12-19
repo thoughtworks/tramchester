@@ -2,12 +2,15 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms {
 
@@ -51,5 +54,9 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
 
     public List<Location<?>> getPath() {
         return path;
+    }
+
+    public Set<TransportMode> getTransportModes() {
+        return stages.stream().map(TransportStage::getMode).collect(Collectors.toSet());
     }
 }

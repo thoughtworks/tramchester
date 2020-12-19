@@ -341,6 +341,12 @@ public class TransportDataFromFiles implements TransportDataProvider {
             logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
             routeType = GTFSTransportationType.tram;
         }
+        // train data workaround
+        if (routeData.getRouteType().equals(GTFSTransportationType.aerialLift) &&
+                routeData.getLongName().contains("replacement bus service")) {
+            logger.warn("Route has incorrect transport type for replace bus service, will set to bus. Route: " + routeData);
+            routeType = GTFSTransportationType.bus;
+        }
         return routeType;
     }
 
@@ -359,29 +365,37 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
         stops.forEach((stopData) -> {
             GridPosition position = getGridPosition(stopData.getLatLong());
-            if (bounds.contained(position)) {
-                String stopId = stopData.getId();
-                IdFor<Station> stationId = Station.formId(stopId);
-
-                // NOTE: Tram data has unique positions for each platform
-                // TODO What is the right position to use for a tram station?
-                Station station = allStations.getOrAdd(stationId, () ->
-                        new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
-                                stopData.getLatLong(), position));
-
-                if (stopData.isTFGMTram()) {
-                    Platform platform = formPlatform(stopData);
-                    if (!station.getPlatforms().contains(platform)) {
-                        station.addPlatform(platform);
-                    }
+            if (position.isValid()) {
+                if (bounds.contained(position)) {
+                    preLoadStation(allStations, stopData, position);
+                } else {
+                    logger.info("Excluding stop outside of bounds" + stopData);
                 }
             } else {
-                logger.info("Excluding stop outside of bounds" + stopData);
+                logger.warn("Stop has invalid postion " + stopData);
+                preLoadStation(allStations, stopData, position);
             }
-
         });
         logger.info("Pre Loaded " + allStations.size() + " stations");
         return allStations;
+    }
+
+    private void preLoadStation(IdMap<Station> allStations, StopData stopData, GridPosition position) {
+        String stopId = stopData.getId();
+        IdFor<Station> stationId = Station.formId(stopId);
+
+        // NOTE: Tram data has unique positions for each platform
+        // TODO What is the right position to use for a tram station?
+        Station station = allStations.getOrAdd(stationId, () ->
+                new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
+                        stopData.getLatLong(), position));
+
+        if (stopData.isTFGMTram()) {
+            Platform platform = formPlatform(stopData);
+            if (!station.getPlatforms().contains(platform)) {
+                station.addPlatform(platform);
+            }
+        }
     }
 
     private GridPosition getGridPosition(LatLong latLong) {

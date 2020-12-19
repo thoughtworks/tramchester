@@ -8,6 +8,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
 import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.PlatformMessageSource;
@@ -17,10 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
@@ -43,9 +41,14 @@ public class ProvidesNotes {
 
     public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
         List<Note> notes = new LinkedList<>();
-        notes.addAll(createNotesForADate(queryDate));
-        notes.addAll(liveNotesForJourney(journey, queryDate.getDate()));
-        return notes;
+        if (journey.getTransportModes().contains(TransportMode.Tram)) {
+            notes.addAll(createNotesForADate(queryDate));
+            notes.addAll(liveNotesForJourney(journey, queryDate.getDate()));
+            return notes;
+        } else {
+            logger.info("Not a tram journey, providing no notes");
+            return Collections.emptyList();
+        }
     }
 
     public List<Note> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time) {
