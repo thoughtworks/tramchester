@@ -3,12 +3,15 @@ package com.tramchester.unit.dataimport.parsers;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.PostcodeData;
+import com.tramchester.geo.GridPosition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.nio.file.Paths;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeDataParserTest  {
 
@@ -36,9 +39,11 @@ class PostcodeDataParserTest  {
 
         PostcodeData result = parse(example);
 
-        Assertions.assertEquals("AB101AB", result.getId());
-        Assertions.assertEquals(394235, result.getEastings());
-        Assertions.assertEquals(806529, result.getNorthings());
+        assertEquals("AB101AB", result.getId());
+        GridPosition gridPosition = result.getGridPosition();
+        assertTrue(gridPosition.isValid());
+        assertEquals(394235, gridPosition.getEastings());
+        assertEquals(806529, gridPosition.getNorthings());
     }
 
 
@@ -49,9 +54,21 @@ class PostcodeDataParserTest  {
 
         PostcodeData result = parse(example);
 
-        Assertions.assertEquals("M11EU", result.getId());
-        Assertions.assertEquals(384759, result.getEastings());
-        Assertions.assertEquals(398488, result.getNorthings());
+        assertEquals("M11EU", result.getId());
+        GridPosition gridPosition = result.getGridPosition();
+        assertTrue(gridPosition.isValid());
+        assertEquals(384759, gridPosition.getEastings());
+        assertEquals(398488, gridPosition.getNorthings());
+    }
+
+    @Test
+    void shouldMapToPostcodeWithInvalidGridPosition() {
+        String example = "\"M1  1EU\",10,0,0,\"E92000001\",\"E19000001\",\"E18000002\",\"\",\"E08000003\",\"E05011376\"";
+
+        PostcodeData result = parse(example);
+
+        assertEquals("M11EU", result.getId());
+        assertFalse(result.getGridPosition().isValid());
     }
 
 }

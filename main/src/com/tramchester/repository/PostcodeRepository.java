@@ -8,7 +8,6 @@ import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.CoordinateTransforms;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +52,7 @@ public class PostcodeRepository {
 
         sources.forEach(source-> {
             source.forEach(code -> {
-                try {
-                    postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getEastings(),
-                            code.getNorthings()), code.getId()));
-                } catch (TransformException e) {
-                    logger.warn("Unable to convert position of postcode to lat/long " + code);
-                }
+                postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getGridPosition()), code.getId()));
             });
 
             source.close();

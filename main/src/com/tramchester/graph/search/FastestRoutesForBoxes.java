@@ -6,9 +6,8 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.geo.HasGridPosition;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.TramJourneyToDTOMapper;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -60,7 +58,7 @@ public class FastestRoutesForBoxes {
                 map(box->cheapest(box, destination.getGridPosition(), journeyRequest));
     }
 
-    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, HasGridPosition destination, JourneyRequest request) {
+    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, GridPosition destination, JourneyRequest request) {
 
         if (journeysForBox.getBox().contained(destination)) {
             return new BoundingBoxWithCost(journeysForBox.getBox(), 0, null);

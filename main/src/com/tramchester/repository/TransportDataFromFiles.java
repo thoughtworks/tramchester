@@ -15,7 +15,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -326,6 +325,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 buildable.addAgency(agency);
                 buildable.addRoute(route);
             } else {
+                logger.info("Excluding route as no matched on transport mode :" + routeData);
                 excludedRoutes.add(routeId);
             }
         });
@@ -385,12 +385,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private GridPosition getGridPosition(LatLong latLong) {
-        try {
-            return CoordinateTransforms.getGridPosition(latLong);
-        } catch (TransformException exception) {
-            logger.error("Could not create valid grid position for position " + latLong, exception);
-        }
-        return GridPosition.invalid();
+        return CoordinateTransforms.getGridPosition(latLong);
     }
 
     private String workAroundName(String name) {

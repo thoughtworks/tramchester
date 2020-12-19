@@ -13,60 +13,74 @@ public class BoundingBox {
     //    maxEasting: 619307
     //    maxNorthings: 1108843
 
-    private final Long minEastings;
-    private final Long minNorthings;
-    private final Long maxEasting;
-    private final Long maxNorthings;
+    private final GridPosition bottomLeft;
+    private final GridPosition topRight;
 
     public BoundingBox(@JsonProperty(value = "minEastings", required = true) long minEastings,
                        @JsonProperty(value = "minNorthings", required = true) long minNorthings,
                        @JsonProperty(value = "maxEasting", required = true) long maxEasting,
                        @JsonProperty(value = "maxNorthings", required = true) long maxNorthings) {
-        this.minEastings = minEastings;
-        this.minNorthings = minNorthings;
-        this.maxEasting = maxEasting;
-        this.maxNorthings = maxNorthings;
+        this(new GridPosition(minEastings, minNorthings), new GridPosition(maxEasting, maxNorthings));
+    }
+
+    public BoundingBox(GridPosition bottomLeft, GridPosition topRight) {
+        this.bottomLeft = bottomLeft;
+        this.topRight = topRight;
     }
 
     public BoundingBox(BoundingBox other) {
-        this(other.minEastings, other.minNorthings, other.maxEasting, other.maxNorthings);
+        this(other.bottomLeft, other.topRight);
+    }
+
+    public GridPosition getBottomLeft() {
+        return bottomLeft;
+    }
+
+    public GridPosition getTopRight() {
+        return topRight;
     }
 
     public long getMinEastings() {
-        return minEastings;
+        return bottomLeft.getEastings();
     }
 
     public long getMinNorthings() {
-        return minNorthings;
+        return bottomLeft.getNorthings();
     }
 
     public long getMaxEasting() {
-        return maxEasting;
+        return topRight.getEastings();
     }
 
     public long getMaxNorthings() {
-        return maxNorthings;
+        return topRight.getNorthings();
     }
 
-    public boolean within(long margin, HasGridPosition position) {
-                return (position.getEastings() >= minEastings-margin) &&
-                        (position.getEastings() <= maxEasting+margin) &&
-                        (position.getNorthings() >= minNorthings-margin) &&
-                        (position.getNorthings() <= maxNorthings+margin);
+    public boolean within(long margin, GridPosition position) {
+        if (!position.isValid()) {
+            throw new RuntimeException("Invalid grid position " + position);
+        }
+                return (position.getEastings() >= getMinEastings()-margin) &&
+                        (position.getEastings() <= getMaxEasting()+margin) &&
+                        (position.getNorthings() >= getMinNorthings()-margin) &&
+                        (position.getNorthings() <= getMaxNorthings()+margin);
     }
 
-    public boolean contained(HasGridPosition position) {
-        return (position.getEastings() >= minEastings) &&
-                (position.getEastings() <= maxEasting) &&
-                (position.getNorthings() >= minNorthings) &&
-                (position.getNorthings() <= maxNorthings);
+    public boolean contained(GridPosition position) {
+        if (!position.isValid()) {
+            throw new RuntimeException("Invalid grid position " + position);
+        }
+
+        return (position.getEastings() >= getMinEastings()) &&
+                (position.getEastings() <= getMaxEasting()) &&
+                (position.getNorthings() >= getMinNorthings()) &&
+                (position.getNorthings() <= getMaxNorthings());
     }
 
     public boolean overlapsWith(BoundingBox other) {
-        GridPosition bottomLeft = new GridPosition(minEastings, minNorthings);
-        GridPosition topLeft = new GridPosition(minEastings, maxNorthings);
-        GridPosition topRight = new GridPosition(maxEasting, maxNorthings);
-        GridPosition bottomRight = new GridPosition(maxEasting, minNorthings);
+        GridPosition topLeft = new GridPosition(getMinEastings(), getMaxNorthings());
+        GridPosition bottomRight = new GridPosition(getMaxEasting(), getMinNorthings());
+
         if (other.contained(bottomLeft)) {
             return true;
         }
@@ -76,43 +90,8 @@ public class BoundingBox {
         if (other.contained(topRight)) {
             return true;
         }
-        if (other.contained(bottomRight)) {
-            return true;
-        }
-        return false;
+        return other.contained(bottomRight);
 
-    }
-
-    @Override
-    public String toString() {
-        return "BoundingBox{" +
-                "minEastings=" + minEastings +
-                ", minNorthings=" + minNorthings +
-                ", maxEasting=" + maxEasting +
-                ", maxNorthings=" + maxNorthings +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        BoundingBox box = (BoundingBox) o;
-
-        if (getMinEastings() != box.getMinEastings()) return false;
-        if (getMinNorthings() != box.getMinNorthings()) return false;
-        if (getMaxEasting() != box.getMaxEasting()) return false;
-        return getMaxNorthings() == box.getMaxNorthings();
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (int) (getMinEastings() ^ (getMinEastings() >>> 32));
-        result = 31 * result + (int) (getMinNorthings() ^ (getMinNorthings() >>> 32));
-        result = 31 * result + (int) (getMaxEasting() ^ (getMaxEasting() >>> 32));
-        result = 31 * result + (int) (getMaxNorthings() ^ (getMaxNorthings() >>> 32));
-        return result;
     }
 
 

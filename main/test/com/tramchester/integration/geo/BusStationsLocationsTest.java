@@ -6,7 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -47,14 +47,14 @@ class BusStationsLocationsTest {
 
     @Test
     void shouldGetAllStationsCloseToPiccGardens() {
-        List<Station> result = stationLocations.getNearestStationsTo(Postcodes.NearPiccadillyGardens.getLatLong(),
+        List<Station> result = stationLocations.getNearestStationsTo(TestPostcodes.NearPiccadillyGardens.getLatLong(),
                 500, nearestStopRangeKM);
         assertEquals(50, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralBury() {
-        List<Station> result = stationLocations.getNearestStationsTo(Postcodes.CentralBury.getLatLong(),
+        List<Station> result = stationLocations.getNearestStationsTo(TestPostcodes.CentralBury.getLatLong(),
                 500, nearestStopRangeKM);
         assertEquals(19, result.size());
     }

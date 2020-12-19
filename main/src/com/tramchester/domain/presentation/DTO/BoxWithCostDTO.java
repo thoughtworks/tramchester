@@ -33,8 +33,11 @@ public class BoxWithCostDTO {
 
     public static BoxWithCostDTO createFrom(TramJourneyToDTOMapper mapper, TramServiceDate serviceDate,
                                             BoundingBoxWithCost box) throws TransformException {
-        LatLong bottomLeft = CoordinateTransforms.getLatLong(box.getMinEastings(), box.getMinNorthings());
-        LatLong topRight = CoordinateTransforms.getLatLong(box.getMaxEasting(), box.getMaxNorthings());
+
+        // TODO Assuming valid positions here
+        LatLong bottomLeft = CoordinateTransforms.getLatLong(box.getBottomLeft());
+        LatLong topRight = CoordinateTransforms.getLatLong(box.getTopRight());
+
         if (box.getJourney()!=null) {
             return new BoxWithCostDTO(bottomLeft, topRight, box.getMinutes(), mapper.createJourneyDTO(box.getJourney(), serviceDate));
         } else {

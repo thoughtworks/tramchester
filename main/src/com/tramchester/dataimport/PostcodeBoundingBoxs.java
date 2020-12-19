@@ -8,6 +8,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.PostcodeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.GridPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,25 +113,27 @@ public class PostcodeBoundingBoxs {
     }
 
     public boolean checkOrRecord(Path sourceFilePath, PostcodeData postcode) {
-        if (postcode.getEastings()==0 || postcode.getNorthings()==0) {
-            logger.warn("Bad positional data for " + postcode);
+        if (!postcode.getGridPosition().isValid()) {
+            logger.warn("Bad position for " + postcode);
             return false;
         }
 
         if (playback) {
             if (postcodeBounds.containsKey(sourceFilePath)) {
-                return postcodeBounds.get(sourceFilePath).contained(postcode);
+                return postcodeBounds.get(sourceFilePath).contained(postcode.getGridPosition());
             }
             logger.warn("Missing file when in playback mode: " + sourceFilePath);
         } else {
             if (postcodeBounds.containsKey(sourceFilePath)) {
                 BoundingBox boundingBox = postcodeBounds.get(sourceFilePath);
-                if (!boundingBox.contained(postcode)) {
+                if (!boundingBox.contained(postcode.getGridPosition())) {
                     updateFor(sourceFilePath, postcode, boundingBox);
                 }
             } else {
-                postcodeBounds.put(sourceFilePath, new BoundingBox(postcode.getEastings(), postcode.getNorthings(),
-                        postcode.getEastings(), postcode.getNorthings()));
+                // initially just the first one
+                GridPosition gridPosition = postcode.getGridPosition();
+                postcodeBounds.put(sourceFilePath, new BoundingBox(gridPosition.getEastings(), gridPosition.getNorthings(),
+                        gridPosition.getEastings(), gridPosition.getNorthings()));
             }
         }
         return true;
@@ -138,8 +141,9 @@ public class PostcodeBoundingBoxs {
 
     private void updateFor(Path path, PostcodeData postcode, BoundingBox boundingBox) {
         logger.debug("Upadating bounds for " + path + " from " + postcode.getId());
-        long postcodeEastings = postcode.getEastings();
-        long postcodeNorthings = postcode.getNorthings();
+        GridPosition gridPosition = postcode.getGridPosition();
+        long postcodeEastings = gridPosition.getEastings();
+        long postcodeNorthings = gridPosition.getNorthings();
 
         long newMinEasting = Math.min(postcodeEastings, boundingBox.getMinEastings());
         long newMinNorthing = Math.min(postcodeNorthings, boundingBox.getMinNorthings());
@@ -148,7 +152,6 @@ public class PostcodeBoundingBoxs {
 
         postcodeBounds.put(path, new BoundingBox(newMinEasting, newMinNorthing, newMaxEasting, newMaxNorthing));
     }
-
 
     public BoundingBox getBoundsFor(Path file) {
         return postcodeBounds.get(file);

@@ -134,15 +134,16 @@ public class PostcodeDataImporter {
                 Stream<PostcodeData> postcodeDataStream = loader.load();
 
                 return postcodeDataStream.
-                        filter(postcode -> requiredBounds.within(margin, postcode)).
-                        filter(postcode -> stationLocations.hasAnyNearby(postcode, range));
+                        filter(postcode -> postcode.getGridPosition().isValid()).
+                        filter(postcode -> requiredBounds.within(margin, postcode.getGridPosition())).
+                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), range));
             }
         }
 
         Stream<PostcodeData> postcodeDataStream = loader.load();
         return postcodeDataStream.filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
-                filter(postcode -> requiredBounds.within(margin, postcode)).
-                filter(postcode -> stationLocations.hasAnyNearby(postcode, range));
+                filter(postcode -> requiredBounds.within(margin, postcode.getGridPosition())).
+                filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), range));
 
     }
 

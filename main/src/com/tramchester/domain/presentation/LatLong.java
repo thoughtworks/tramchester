@@ -8,12 +8,18 @@ public class LatLong {
 
     private double lat; // north/south
     private double lon; // east/west
+    private boolean valid;
 
-    private static final LatLong zero = new LatLong(0D,0D);
+    public static LatLong Invalid = new LatLong(-1000,-1000);
 
     // for json
     public LatLong() {
 
+    }
+
+    public LatLong(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
     }
 
     @Override
@@ -30,10 +36,6 @@ public class LatLong {
         return Objects.hash(lat, lon);
     }
 
-    public LatLong(double lat, double lon) {
-        this.lat = lat;
-        this.lon = lon;
-    }
 
     public double getLat() {
         return lat;
@@ -63,6 +65,6 @@ public class LatLong {
 
     @JsonIgnore
     public boolean isValid() {
-        return !this.equals(zero);
+        return ((lat>=-90) && (lat<=90) && (lon>=-180) && (lat<=180));
     }
 }

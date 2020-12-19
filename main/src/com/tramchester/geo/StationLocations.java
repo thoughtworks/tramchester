@@ -6,7 +6,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,7 @@ public class StationLocations implements StationLocationsRepository {
     private long minNorthings;
     private long maxNorthings;
 
-    private final HashMap<Station, HasGridPosition> positions;
+    private final HashMap<Station, GridPosition> positions;
 
     @Inject
     public StationLocations(StationRepository stationRepository) {
@@ -61,24 +60,20 @@ public class StationLocations implements StationLocationsRepository {
             if (!position.isValid()) {
                     logger.warn("Incorrect lat/long for " + station.getId());
             }
-            try {
-                HasGridPosition gridPosition = CoordinateTransforms.getGridPosition(position);
-                positions.put(station, gridPosition);
-                updateBoundingBox(gridPosition);
-                logger.debug("Added station " + station.getId() + " at grid " + gridPosition);
-            } catch (TransformException e) {
-                logger.error("Unable to store station as cannot convert location " + position, e);
-            }
+            GridPosition gridPosition = CoordinateTransforms.getGridPosition(position);
+            positions.put(station, gridPosition);
+            updateBoundingBox(gridPosition);
+            logger.debug("Added station " + station.getId() + " at grid " + gridPosition);
         }
     }
 
     @Override
-    public LatLong getStationPosition(Station station) throws TransformException {
-        HasGridPosition gridPostition = positions.get(station);
-        return CoordinateTransforms.getLatLong(gridPostition.getEastings(), gridPostition.getNorthings());
+    public LatLong getStationPosition(Station station) {
+        GridPosition gridPostition = positions.get(station);
+        return CoordinateTransforms.getLatLong(gridPostition);
     }
 
-    private void updateBoundingBox(HasGridPosition gridPosition) {
+    private void updateBoundingBox(GridPosition gridPosition) {
         long eastings = gridPosition.getEastings();
         long northings = gridPosition.getNorthings();
 
@@ -97,27 +92,22 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public HasGridPosition getStationGridPosition(Station station) {
+    public GridPosition getStationGridPosition(Station station) {
         return positions.get(station);
     }
 
     @Override
     public List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, double rangeInKM) {
-        try {
-            HasGridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
-            return nearestStationsSorted(gridPosition, maxToFind, rangeInKM);
-        } catch (TransformException e) {
-            logger.error("Unable to convert latlong to grid position", e);
-            return Collections.emptyList();
-        }
+        GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
+        return nearestStationsSorted(gridPosition, maxToFind, rangeInKM);
     }
 
     @Override
     @NotNull
-    public List<Station> nearestStationsSorted(@NotNull HasGridPosition gridPosition, int maxToFind, double rangeInKM) {
+    public List<Station> nearestStationsSorted(@NotNull GridPosition gridPosition, int maxToFind, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
 
-        Stream<Map.Entry<Station, HasGridPosition>> unsorted = getNearbyStream(gridPosition, rangeInMeters);
+        Stream<Map.Entry<Station, GridPosition>> unsorted = getNearbyStream(gridPosition, rangeInMeters);
 
         @NotNull List<Station> stationList;
         if (maxToFind > 1) {
@@ -149,13 +139,13 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @NotNull
-    private Stream<Map.Entry<Station, HasGridPosition>> getNearbyStream(@NotNull HasGridPosition otherPosition, long rangeInMeters) {
+    private Stream<Map.Entry<Station, GridPosition>> getNearbyStream(@NotNull GridPosition otherPosition, long rangeInMeters) {
         return getNearbyStreamSquare(otherPosition, rangeInMeters).
                         filter(entry -> GridPositions.withinDist(otherPosition, entry.getValue(), rangeInMeters));
     }
 
     @NotNull
-    private Stream<Map.Entry<Station, HasGridPosition>> getNearbyStreamSquare(@NotNull HasGridPosition otherPosition,
+    private Stream<Map.Entry<Station, GridPosition>> getNearbyStreamSquare(@NotNull GridPosition otherPosition,
                                                                               long rangeInMeters) {
         if (positions.isEmpty()) {
             logger.warn("No positions present");
@@ -166,7 +156,7 @@ public class StationLocations implements StationLocationsRepository {
                         filter(entry -> GridPositions.withinDistNorthing(otherPosition, entry.getValue(), rangeInMeters));
     }
 
-    private int compareDistances(HasGridPosition origin, HasGridPosition first, HasGridPosition second) {
+    private int compareDistances(GridPosition origin, GridPosition first, GridPosition second) {
         long firstDist = GridPositions.distanceTo(origin, first);
         long secondDist = GridPositions.distanceTo(origin, second);
         return Long.compare(firstDist, secondDist);
@@ -176,7 +166,7 @@ public class StationLocations implements StationLocationsRepository {
         return new BoundingBox(minEastings, minNorthings, maxEasting, maxNorthings);
     }
 
-    public boolean hasAnyNearby(HasGridPosition hasGridPosition, double rangeInKM) {
+    public boolean hasAnyNearby(GridPosition hasGridPosition, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
         return getNearbyStream(hasGridPosition, rangeInMeters).findAny().isPresent();
     }

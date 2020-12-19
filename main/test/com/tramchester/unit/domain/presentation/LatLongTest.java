@@ -18,6 +18,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 
 class LatLongTest {
 
@@ -40,12 +42,14 @@ class LatLongTest {
         LatLong latLong = new LatLong(-1,2);
 
         String output = mapper.writeValueAsString(latLong);
-        Assertions.assertEquals("{\"lat\":-1.0,\"lon\":2.0}", output);
+        assertEquals("{\"lat\":-1.0,\"lon\":2.0}", output);
 
         LatLong result =mapper.readValue(output, LatLong.class);
 
-        Assertions.assertEquals(-1, result.getLat(),0);
-        Assertions.assertEquals(2, result.getLon(),0);
+        assertEquals(-1, result.getLat(),0);
+        assertEquals(2, result.getLon(),0);
+        assertTrue(result.isValid());
+
     }
 
     @Test
@@ -54,8 +58,9 @@ class LatLongTest {
         latLong.setLat(5);
         latLong.setLon(2);
 
-        Assertions.assertEquals(5, latLong.getLat(), 0);
-        Assertions.assertEquals(2, latLong.getLon(), 0);
+        assertEquals(5, latLong.getLat(), 0);
+        assertEquals(2, latLong.getLon(), 0);
+        assertTrue(latLong.isValid());
     }
 
     @Test
@@ -71,9 +76,16 @@ class LatLongTest {
         double expectedLat = 52.940190;
         double expectedLon = -1.4965572;
 
-        Assertions.assertEquals(expectedLat, latLong.getOrdinate(0), DELTA);
-        Assertions.assertEquals(expectedLon, latLong.getOrdinate(1), DELTA);
+        assertEquals(expectedLat, latLong.getOrdinate(0), DELTA);
+        assertEquals(expectedLon, latLong.getOrdinate(1), DELTA);
 
+    }
+
+    @Test
+    void shouldHaveInvalidLatLong() {
+        LatLong latLong = LatLong.Invalid;
+
+        assertFalse(latLong.isValid());
     }
 
     @Test
@@ -92,8 +104,8 @@ class LatLongTest {
         long easting = Math.round(nationalGrid.getOrdinate(0));
         long northing = Math.round(nationalGrid.getOrdinate(1));
 
-        Assertions.assertEquals(expectedEasting, easting);
-        Assertions.assertEquals(expectedNorthing, northing);
+        assertEquals(expectedEasting, easting);
+        assertEquals(expectedNorthing, northing);
     }
 
 }

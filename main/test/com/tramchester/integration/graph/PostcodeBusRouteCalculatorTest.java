@@ -16,7 +16,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TestPostcodes;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -74,14 +74,14 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToPicc() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearPiccadillyGardens,
+        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
                 createRequest(5), 7);
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToShudehill() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearShudehill,
+        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearShudehill,
                 createRequest(5), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
@@ -89,36 +89,36 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldWalkFromBusStationToNearbyPostcode() {
-        checkNearby(BuryInterchange, Postcodes.CentralBury);
-        checkNearby(ShudehillInterchange, Postcodes.NearShudehill);
+        checkNearby(BuryInterchange, TestPostcodes.CentralBury);
+        checkNearby(ShudehillInterchange, TestPostcodes.NearShudehill);
     }
 
     @Test
     void shouldWalkFromPostcodeToBusStationNearby() {
-        checkNearby(Postcodes.CentralBury, BuryInterchange);
-        checkNearby(Postcodes.NearShudehill, ShudehillInterchange);
+        checkNearby(TestPostcodes.CentralBury, BuryInterchange);
+        checkNearby(TestPostcodes.NearShudehill, ShudehillInterchange);
     }
 
     @Test
     void shouldWalkFromPiccadillyGardensStopHToNearPiccadilyGardens() {
-        checkNearby(PiccadillyGardensStopN, Postcodes.NearPiccadillyGardens);
+        checkNearby(PiccadillyGardensStopN, TestPostcodes.NearPiccadillyGardens);
     }
 
     @Test
     void shouldWalkFromNearPiccadilyGardensToPiccadillyGardensStopH() {
-        checkNearby(Postcodes.NearPiccadillyGardens, PiccadillyGardensStopN);
+        checkNearby(TestPostcodes.NearPiccadillyGardens, PiccadillyGardensStopN);
     }
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeSouthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(BuryInterchange, Postcodes.NearShudehill,
+        Set<Journey> journeys = planner.quickestRouteForLocation(BuryInterchange, TestPostcodes.NearShudehill,
                 createRequest(3), 4);
         assertFalse(journeys.isEmpty());
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, ShudehillInterchange,
+        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, ShudehillInterchange,
                 createRequest(5), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
@@ -128,7 +128,7 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToBusStationCentral() {
         JourneyRequest journeyRequest = createRequest(3);
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, ShudehillInterchange, journeyRequest, 4);
+        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.NearPiccadillyGardens, ShudehillInterchange, journeyRequest, 4);
 
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
@@ -137,14 +137,14 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeCentral() {
         JourneyRequest journeyRequest = createRequest(2);
-        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.NearPiccadillyGardens, journeyRequest, 3);
+        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, TestPostcodes.NearPiccadillyGardens, journeyRequest, 3);
 
         assertFalse(journeys.isEmpty());
     }
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeNorthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, Postcodes.CentralBury,
+        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, TestPostcodes.CentralBury,
                 createRequest(2), 3);
 
         assertFalse(journeys.isEmpty());
@@ -162,7 +162,7 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodesSouthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.CentralBury, Postcodes.NearPiccadillyGardens,
+        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
                 createRequest(5), 6);
 
         assertFalse(journeys.isEmpty());
@@ -176,12 +176,12 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusNorthbound() {
-        Set<Journey> journeys = planner.quickestRouteForLocation(Postcodes.NearShudehill, BuryInterchange,
+        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.NearShudehill, BuryInterchange,
                 createRequest(5), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
 
-        Set<Journey> fromPicc = planner.quickestRouteForLocation(Postcodes.NearPiccadillyGardens, BuryInterchange,
+        Set<Journey> fromPicc = planner.quickestRouteForLocation(TestPostcodes.NearPiccadillyGardens, BuryInterchange,
                 createRequest(5), 6);
         assertFalse(fromPicc.isEmpty());
         assertWalkAtStart(fromPicc);

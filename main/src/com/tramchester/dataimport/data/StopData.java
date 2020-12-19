@@ -14,7 +14,6 @@ public class StopData {
     private String id;
     @JsonProperty("stop_code")
     private String code;
-
     @JsonProperty("stop_lat")
     private double latitude;
     @JsonProperty("stop_lon")

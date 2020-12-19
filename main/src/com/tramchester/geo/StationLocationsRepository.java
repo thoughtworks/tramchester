@@ -13,11 +13,11 @@ import java.util.Set;
 public interface StationLocationsRepository {
     LatLong getStationPosition(Station station) throws TransformException;
 
-    HasGridPosition getStationGridPosition(Station station);
+    GridPosition getStationGridPosition(Station station);
 
     List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, double rangeInKM);
 
-    @NotNull List<Station> nearestStationsSorted(@NotNull HasGridPosition gridPosition, int maxToFind, double rangeInKM);
+    @NotNull List<Station> nearestStationsSorted(@NotNull GridPosition gridPosition, int maxToFind, double rangeInKM);
 
     Set<Station> nearestStationsUnsorted(Station station, double rangeInKM);
 

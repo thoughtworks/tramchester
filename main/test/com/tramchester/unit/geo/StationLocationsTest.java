@@ -37,11 +37,11 @@ class StationLocationsTest extends EasyMockSupport {
 
     @Test
     void shouldHaveGridPositionBehaviours() {
-        HasGridPosition gridPositionA = new GridPosition(3,4);
+        GridPosition gridPositionA = new GridPosition(3,4);
         assertEquals(3, gridPositionA.getEastings());
         assertEquals(4, gridPositionA.getNorthings());
 
-        HasGridPosition origin = new GridPosition(0,0);
+        GridPosition origin = new GridPosition(0,0);
         assertEquals(5, GridPositions.distanceTo(origin, gridPositionA));
         assertEquals(5, GridPositions.distanceTo(gridPositionA, origin));
 
@@ -92,8 +92,8 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        HasGridPosition gridA = stationLocations.getStationGridPosition(stationA);
-        HasGridPosition gridB = stationLocations.getStationGridPosition(stationD);
+        GridPosition gridA = stationLocations.getStationGridPosition(stationA);
+        GridPosition gridB = stationLocations.getStationGridPosition(stationD);
         verifyAll();
 
         int rangeInKM = 1;
@@ -174,8 +174,8 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        HasGridPosition posA = stationLocations.getStationGridPosition(testStationA);
-        HasGridPosition posB = stationLocations.getStationGridPosition(testStationB);
+        GridPosition posA = stationLocations.getStationGridPosition(testStationA);
+        GridPosition posB = stationLocations.getStationGridPosition(testStationB);
 
         BoundingBox bounds = stationLocations.getBounds();
         verifyAll();

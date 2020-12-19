@@ -15,7 +15,7 @@ import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.*;
-import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -54,7 +54,7 @@ class PostcodeTramJourneyPlannerTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new TramWithPostcodesEnabled();
-        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }
@@ -70,7 +70,7 @@ class PostcodeTramJourneyPlannerTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner =  new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
         repository = componentContainer.get(PostcodeRepository.class);
-        centralLocation = repository.getPostcode(Postcodes.NearPiccadillyGardens.getId());
+        centralLocation = repository.getPostcode(TestPostcodes.NearPiccadillyGardens.getId());
     }
 
     @AfterEach
@@ -111,7 +111,7 @@ class PostcodeTramJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHavePostcodeToPostcodeJourney(JourneyRequest request) {
-        PostcodeLocation buryPostcode = repository.getPostcode(Postcodes.CentralBury.getId());
+        PostcodeLocation buryPostcode = repository.getPostcode(TestPostcodes.CentralBury.getId());
         Set<Journey> journeySet = planner.quickestRouteForLocation(centralLocation.getLatLong(),
                 buryPostcode.getLatLong(), request, maxStages);
 

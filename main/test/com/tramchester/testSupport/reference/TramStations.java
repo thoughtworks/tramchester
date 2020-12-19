@@ -98,12 +98,8 @@ public enum TramStations implements TestStations {
     private final Station station;
 
     TramStations(String id, String area, String name, LatLong latlong) {
-        try {
-            @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-            this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram);
-        } catch (TransformException e) {
-            throw new RuntimeException(e);
-        }
+        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram);
     }
 
     @Override

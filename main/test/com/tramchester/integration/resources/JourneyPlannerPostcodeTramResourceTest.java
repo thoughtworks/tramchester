@@ -8,7 +8,7 @@ import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.*;
-import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
@@ -46,7 +46,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadillyGardens), time, day,
+                prefix(TestPostcodes.CentralBury), prefix(TestPostcodes.NearPiccadillyGardens), time, day,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());
@@ -61,7 +61,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), TramStations.Piccadilly.forDTO(), time, day,
+                prefix(TestPostcodes.CentralBury), TramStations.Piccadilly.forDTO(), time, day,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());
@@ -76,7 +76,7 @@ class JourneyPlannerPostcodeTramResourceTest {
     @Test
     void shouldPlanJourneyFromStationToPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                TramStations.Piccadilly.forDTO(), prefix(Postcodes.CentralBury), time, day,
+                TramStations.Piccadilly.forDTO(), prefix(TestPostcodes.CentralBury), time, day,
                 null, false, 5);
 
         Assertions.assertEquals(200, response.getStatus());

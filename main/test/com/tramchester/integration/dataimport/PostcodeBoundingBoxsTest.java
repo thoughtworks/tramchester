@@ -123,9 +123,9 @@ class PostcodeBoundingBoxsTest {
         Path path = Path.of("anotherFile.csv");
         postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("aaa", 100, 120));
         postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("bbb", 200, 220));
-        postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("ccc", 0, 120));
-        postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("ddd", 100, 0));
-        postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("eee", 0, 0));
+        assertFalse(postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("ccc", 0, 120)));
+        assertFalse(postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("ddd", 100, 0)));
+        assertFalse(postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("eee", 0, 0)));
 
         postcodeBoundingBoxs.stop();
         assertTrue(Files.exists(hintsFile));

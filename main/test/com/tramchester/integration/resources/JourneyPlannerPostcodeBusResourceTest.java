@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.integration.testSupport.BusWithPostcodesEnabled;
-import com.tramchester.testSupport.reference.Postcodes;
+import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +48,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), prefix(Postcodes.NearPiccadillyGardens), time, day,
+                prefix(TestPostcodes.CentralBury), prefix(TestPostcodes.NearPiccadillyGardens), time, day,
                 null, false, 5);
         assertEquals(200, response.getStatus());
 
@@ -63,7 +63,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldWalkFromPostcodeToNearbyStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), BusStations.BuryInterchange.forDTO(), time, day,
+                prefix(TestPostcodes.CentralBury), BusStations.BuryInterchange.forDTO(), time, day,
                 null, false, 5);
         assertEquals(200, response.getStatus());
 
@@ -81,7 +81,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldWalkFromStationToNearbyPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                BusStations.BuryInterchange.forDTO(), prefix(Postcodes.CentralBury),  time, day,
+                BusStations.BuryInterchange.forDTO(), prefix(TestPostcodes.CentralBury),  time, day,
                 null, false, 5);
         assertEquals(200, response.getStatus());
 
@@ -99,7 +99,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(Postcodes.CentralBury), BusStations.ShudehillInterchange.forDTO(), time, day,
+                prefix(TestPostcodes.CentralBury), BusStations.ShudehillInterchange.forDTO(), time, day,
                 null, false, 5);
 
         assertEquals(200, response.getStatus());
@@ -114,7 +114,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                BusStations.ShudehillInterchange.forDTO(), prefix(Postcodes.CentralBury), time, day,
+                BusStations.ShudehillInterchange.forDTO(), prefix(TestPostcodes.CentralBury), time, day,
                 null, false, 5);
 
         assertEquals(200, response.getStatus());

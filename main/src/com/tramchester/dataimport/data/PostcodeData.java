@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.HasGridPosition;
 
 import java.util.Objects;
@@ -18,15 +19,18 @@ public class PostcodeData implements HasGridPosition {
     private int northings;
 
     public PostcodeData(String postcode, int eastings, int northings) {
+        // for test
         this.postcode = postcode;
         this.eastings = eastings;
         this.northings = northings;
     }
 
+    @SuppressWarnings("unused")
     public PostcodeData() {
         // deserialization
     }
 
+    @SuppressWarnings("unused")
     @JsonProperty("Postcode")
     private void setPostcode(String text) {
         this.postcode = text.replaceAll(" ","");
@@ -34,14 +38,6 @@ public class PostcodeData implements HasGridPosition {
 
     public String getId() {
         return postcode;
-    }
-
-    public long getEastings() {
-        return eastings;
-    }
-
-    public long getNorthings() {
-        return northings;
     }
 
     @Override
@@ -64,5 +60,14 @@ public class PostcodeData implements HasGridPosition {
     @Override
     public int hashCode() {
         return Objects.hash(postcode);
+    }
+
+    @Override
+    public GridPosition getGridPosition() {
+        // strictly speaking 0 is a valid position, but many postcodes seem to be to 0,0 in the input file
+        if (eastings==0 || northings==0) {
+            return GridPosition.Invalid;
+        }
+        return new GridPosition(eastings, northings);
     }
 }

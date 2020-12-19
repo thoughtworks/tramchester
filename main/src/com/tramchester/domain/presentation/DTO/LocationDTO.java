@@ -32,21 +32,12 @@ public class LocationDTO {
 
     public LocationDTO(PostcodeLocation source) {
         this(source, Collections.emptyList(), Collections.emptyList());
-        platforms = Collections.emptyList();
-        routes = Collections.emptyList();
     }
 
     public LocationDTO(Station source) {
         this(source,
                 source.hasPlatforms() ? source.getPlatforms().stream().map(PlatformDTO::new).collect(Collectors.toList()) : Collections.emptyList(),
                 source.getRoutes().stream().map(RouteRefDTO::new).collect(Collectors.toList()));
-//        platforms = new LinkedList<>();
-//        if (source.hasPlatforms()) {
-//            Set<Platform> sourcePlatforms = source.getPlatforms();
-//            sourcePlatforms.forEach(platform -> platforms.add(new PlatformDTO(platform)));
-//        }
-//        routes = new LinkedList<>();
-//        source.getRoutes().forEach(route -> routes.add(new RouteRefDTO(route)));
     }
 
     private LocationDTO(Location<?> source, List<PlatformDTO> platforms, List<RouteRefDTO> routes) {

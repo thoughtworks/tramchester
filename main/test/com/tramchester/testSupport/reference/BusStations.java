@@ -1,9 +1,9 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.IdFor;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
@@ -11,7 +11,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
-import org.opengis.referencing.operation.TransformException;
 
 public enum BusStations implements TestStations {
 
@@ -34,12 +33,8 @@ public enum BusStations implements TestStations {
     private final TestStation station;
 
     BusStations(String id, String area, String name, LatLong latlong) {
-        try {
-            @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-            this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Bus);
-        } catch (TransformException e) {
-            throw new RuntimeException(e);
-        }
+        @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Bus);
     }
 
     public static Station of(BusStations enumValue) {

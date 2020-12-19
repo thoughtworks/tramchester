@@ -1,6 +1,9 @@
 package com.tramchester.geo;
 
-public class GridPosition implements HasGridPosition {
+// Note: UK national grid
+// https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid#All-numeric_grid_references
+
+public class GridPosition {
     private final long eastings;
     private final long northings;
 
@@ -9,9 +12,8 @@ public class GridPosition implements HasGridPosition {
         this.northings = northings;
     }
 
-    public static GridPosition invalid() {
-        return new GridPosition(-1,-1);
-    }
+    // National grid positions as always +ve
+    public static GridPosition Invalid =  new GridPosition(Long.MIN_VALUE,Long.MIN_VALUE);
 
     public long getEastings() {
         return eastings;
@@ -21,6 +23,9 @@ public class GridPosition implements HasGridPosition {
         return northings;
     }
 
+    public boolean isValid() {
+        return eastings>=0 && northings>=0;
+    }
 
     @Override
     public String toString() {
@@ -47,4 +52,5 @@ public class GridPosition implements HasGridPosition {
         result = 31 * result + (int) (getNorthings() ^ (getNorthings() >>> 32));
         return result;
     }
+
 }

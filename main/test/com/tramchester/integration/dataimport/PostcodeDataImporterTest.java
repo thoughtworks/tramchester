@@ -10,7 +10,6 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -77,15 +76,15 @@ class PostcodeDataImporterTest {
         // Check bounding box formed by stations plus margin
         long margin = Math.round(testConfig.getNearestStopRangeKM() * 1000D);
 
-        long eastingsMax = loadedPostcodes.stream().map(PostcodeData::getEastings).max(Long::compareTo).get();
-        long eastingsMin = loadedPostcodes.stream().map(PostcodeData::getEastings).min(Long::compareTo).get();
+        long eastingsMax = loadedPostcodes.stream().map(data -> data.getGridPosition().getEastings()).max(Long::compareTo).get();
+        long eastingsMin = loadedPostcodes.stream().map(data -> data.getGridPosition().getEastings()).min(Long::compareTo).get();
 
         BoundingBox bounds = stationLocations.getBounds();
         assertTrue(eastingsMax <= bounds.getMaxEasting()+margin);
         assertTrue(eastingsMin >= bounds.getMinEastings()-margin);
 
-        long northingsMax = loadedPostcodes.stream().map(PostcodeData::getNorthings).max(Long::compareTo).get();
-        long northingsMin = loadedPostcodes.stream().map(PostcodeData::getNorthings).min(Long::compareTo).get();
+        long northingsMax = loadedPostcodes.stream().map(data -> data.getGridPosition().getNorthings()).max(Long::compareTo).get();
+        long northingsMin = loadedPostcodes.stream().map(data -> data.getGridPosition().getNorthings()).min(Long::compareTo).get();
         assertTrue(northingsMax < bounds.getMaxNorthings()+margin);
         assertTrue(northingsMin > bounds.getMinNorthings()-margin);
 
@@ -102,7 +101,8 @@ class PostcodeDataImporterTest {
     }
 
     private boolean outsideStationRange(PostcodeData postcode) {
-        List<Station> found = stationLocations.nearestStationsSorted(postcode, 1, testConfig.getNearestStopRangeKM());
+        List<Station> found = stationLocations.nearestStationsSorted(postcode.getGridPosition(), 1,
+                testConfig.getNearestStopRangeKM());
         return found.isEmpty();
     }
 }

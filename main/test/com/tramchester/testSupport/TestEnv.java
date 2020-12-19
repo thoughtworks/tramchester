@@ -17,7 +17,6 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.testSupport.reference.TramStations;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
@@ -83,19 +82,11 @@ public class TestEnv {
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
         sunday = getNextDate(DayOfWeek.SUNDAY, today);
         monday = getNextDate(DayOfWeek.MONDAY, today);
-        nearAltrinchamGrid = guardedToGrid(nearAltrincham);
-        nearPiccGardensGrid = guardedToGrid(nearPiccGardens);
-        nearShudehillGrid = guardedToGrid(nearShudehill);
-        nearStockportBusGrid = guardedToGrid(nearStockportBus);
-        nearGreenwichGrid = guardedToGrid(nearGreenwich);
-    }
-
-    private static GridPosition guardedToGrid(LatLong latLong) {
-        try {
-            return CoordinateTransforms.getGridPosition(latLong);
-        } catch (TransformException exception) {
-            throw new RuntimeException(exception);
-        }
+        nearAltrinchamGrid = CoordinateTransforms.getGridPosition(nearAltrincham);
+        nearPiccGardensGrid = CoordinateTransforms.getGridPosition(nearPiccGardens);
+        nearShudehillGrid = CoordinateTransforms.getGridPosition(nearShudehill);
+        nearStockportBusGrid = CoordinateTransforms.getGridPosition(nearStockportBus);
+        nearGreenwichGrid = CoordinateTransforms.getGridPosition(nearGreenwich);
     }
 
     public static LocalDate nextSaturday() {
