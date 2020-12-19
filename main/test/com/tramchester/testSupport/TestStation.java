@@ -9,7 +9,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.StationRepository;
 import org.opengis.referencing.operation.TransformException;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
 public class TestStation extends Station {
@@ -54,8 +54,8 @@ public class TestStation extends Station {
     }
 
     @Override
-    public TransportMode getTransportMode() {
-        return mode;
+    public Set<TransportMode> getTransportModes() {
+        return Collections.singleton(mode);
     }
 
     @Override

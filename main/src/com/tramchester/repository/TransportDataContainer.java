@@ -93,7 +93,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Station> getStationsForMode(TransportMode mode) {
-        return stationsById.filter(item -> item.getTransportMode()==mode);
+        return stationsById.filter(item -> item.getTransportModes().contains(mode));
     }
 
     @Override

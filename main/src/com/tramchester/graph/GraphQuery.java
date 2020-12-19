@@ -3,11 +3,9 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasId;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -17,6 +15,7 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @LazySingleton
 public class GraphQuery {
@@ -35,7 +34,10 @@ public class GraphQuery {
     }
 
     public Node getStationNode(Transaction txn, Station station) {
-        return findNode(txn, GraphBuilder.Labels.forMode(station.getTransportMode()), station);
+        Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.forMode(station.getTransportModes());
+        // ought to be able find with any of the labels, os use the first one
+        GraphBuilder.Labels label = labels.iterator().next();
+        return findNode(txn, label, station);
     }
 
     private <C extends GraphProperty>  Node findNode(Transaction txn, GraphBuilder.Labels label, HasId<C> hasId) {

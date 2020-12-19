@@ -95,7 +95,7 @@ public class InterchangeRepository  {
         if (TransportMode.isTrain(station)) {
             return trainInterchanges.hasId(station.getId());
         }
-        logger.warn("Interchanges not defined for station of type " +station.getTransportMode() + " id was " + station.getId());
+        logger.warn("Interchanges not defined for station of type " +station.getTransportModes() + " id was " + station.getId());
         return false;
     }
 

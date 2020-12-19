@@ -3,16 +3,18 @@ package com.tramchester.domain.presentation.DTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Location;
 
+import java.util.Set;
+
 public class StationRefDTO {
     private String id;
     private String name;
     private String area;
-    private TransportMode transportMode;
+    private Set<TransportMode> transportModes;
 
     public StationRefDTO(Location<?> station) {
         this.id = station.forDTO();
         this.name = station.getName();
-        this.transportMode = station.getTransportMode();
+        this.transportModes = station.getTransportModes();
         this.area = station.getArea();
     }
 
@@ -34,7 +36,7 @@ public class StationRefDTO {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", area='" + area + '\'' +
-                ", transportMode=" + transportMode +
+                ", transportModes=" + transportModes +
                 '}';
     }
 
@@ -53,8 +55,8 @@ public class StationRefDTO {
         return getId().hashCode();
     }
 
-    public TransportMode getTransportMode() {
-        return transportMode;
+    public Set<TransportMode> getTransportModes() {
+        return transportModes;
     }
 
     public String getArea() {

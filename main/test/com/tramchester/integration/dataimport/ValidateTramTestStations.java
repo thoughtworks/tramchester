@@ -51,7 +51,7 @@ class ValidateTramTestStations {
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
             assertEquals(realStation.getArea(), testStation.getArea(), "area wrong for " + testStationName);
-            assertEquals(realStation.getTransportMode(), testStation.getTransportMode(), "mode wrong for " + testStationName);
+            assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
             assertEquals(realStation.getLatLong(), testStation.getLatLong(), "latlong wrong for " + testStationName);
 
         });

@@ -5,17 +5,12 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 public class Station extends MapIdToDTOId<Station> implements Location<Station> {
-    private static final Logger logger = LoggerFactory.getLogger(Station.class);
 
     public static final String METROLINK_PREFIX = "9400ZZ";
     public static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
@@ -25,7 +20,6 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     private final String name;
     private final LatLong latLong;
     private final GridPosition gridPosition;
-    private TransportMode transportMode;
     private final Set<Platform> platforms;
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
@@ -38,7 +32,6 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
 
         this.id = id;
         this.name = stationName;
-        this.transportMode = TransportMode.NotSet; // can't determine reliably until know the route
         this.latLong = latLong;
         this.area = area;
     }
@@ -84,8 +77,8 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
     }
 
     @Override
-    public TransportMode getTransportMode() {
-        return transportMode;
+    public Set<TransportMode> getTransportModes() {
+        return servesRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
     }
 
     @Override
@@ -129,7 +122,7 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", latLong=" + latLong +
-                ", mode=" + transportMode +
+                ", mode=" + getTransportModes() +
                 ", platforms=" + HasId.asIds(platforms) +
                 ", servesRoutes=" + HasId.asIds(servesRoutes) +
                 '}';
@@ -137,15 +130,6 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
 
     public void addRoute(Route route) {
         servesRoutes.add(route);
-        if (transportMode.equals(TransportMode.NotSet)) {
-            transportMode = route.getTransportMode();
-        } else if (!transportMode.equals(route.getTransportMode())) {
-            String message = format("Here to detect if multi-mode stations exist, already had %s, got route %s and station %s (%s)",
-                    transportMode, route, id, name);
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
-
         servesAgencies.add(route.getAgency());
     }
 

@@ -4,6 +4,8 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
+import java.util.Set;
+
 // KEEP for assisting with debugging
 public class NodeTypeDirect implements NodeTypeRepository {
     @Override
@@ -53,6 +55,11 @@ public class NodeTypeDirect implements NodeTypeRepository {
 
     @Override
     public void put(long id, GraphBuilder.Labels label) {
+        // no-op
+    }
+
+    @Override
+    public void put(long id, Set<GraphBuilder.Labels> label) {
         // no-op
     }
 }

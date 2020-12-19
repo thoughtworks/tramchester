@@ -1,7 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -10,7 +9,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +21,7 @@ public class LocationDTO {
     private List<PlatformDTO> platforms;
 
     private List<RouteRefDTO> routes;
-    private TransportMode transportMode;
+    private Set<TransportMode> transportModes;
     private LocationType locationType;
 
     public LocationDTO() {
@@ -44,7 +42,7 @@ public class LocationDTO {
         this.id = source.getId().forDTO();
         this.name = source.getName();
         this.latLong = source.getLatLong();
-        this.transportMode = source.getTransportMode();
+        this.transportModes = source.getTransportModes();
         this.area = source.getArea();
         this.locationType = source.getLocationType();
         this.platforms = platforms;
@@ -65,7 +63,7 @@ public class LocationDTO {
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public boolean isTram() {
-        return transportMode.equals(TransportMode.Tram);
+        return transportModes.contains(TransportMode.Tram);
     }
 
     public String getArea() {
@@ -86,8 +84,8 @@ public class LocationDTO {
         return platforms;
     }
 
-    public TransportMode getTransportMode() {
-        return transportMode;
+    public Set<TransportMode> getTransportModes() {
+        return transportModes;
     }
 
     public LocationType getLocationType() { return locationType; }
@@ -116,7 +114,7 @@ public class LocationDTO {
                 ", latLong=" + latLong +
                 ", platforms=" + platforms +
                 ", routes=" + routes +
-                ", transportMode=" + transportMode +
+                ", transportModes=" + transportModes +
                 '}';
     }
 

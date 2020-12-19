@@ -1,6 +1,7 @@
 package com.tramchester.domain.reference;
 
 import com.tramchester.domain.HasTransportMode;
+import com.tramchester.domain.HasTransportModes;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,12 +24,24 @@ public enum TransportMode implements HasTransportMode {
         return item.getTransportMode().equals(TransportMode.Tram);
     }
 
+    public static boolean isTram(HasTransportModes hasModes) {
+        return hasModes.getTransportModes().contains(TransportMode.Tram);
+    }
+
     public static boolean isBus(HasTransportMode item) {
         return item.getTransportMode().equals(TransportMode.Bus);
     }
 
+    public static boolean isBus(HasTransportModes item) {
+        return item.getTransportModes().contains(TransportMode.Bus);
+    }
+
     public static boolean isTrain(HasTransportMode item) {
         return item.getTransportMode().equals(TransportMode.Train);
+    }
+
+    public static boolean isTrain(HasTransportModes item) {
+        return item.getTransportModes().contains(TransportMode.Train);
     }
 
     public static Set<TransportMode> fromGTFS(Set<GTFSTransportationType> gtfsTransportationTypes) {

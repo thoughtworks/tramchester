@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.reference.TransportMode;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.*;
@@ -47,6 +48,12 @@ public enum TransportRelationshipTypes implements RelationshipType {
             default:
                 throw new RuntimeException("Unexpected travel mode " + transportMode);
         }
+    }
+
+    public static boolean isNeighbour(Relationship relationship) {
+        return relationship.isType(TRAM_NEIGHBOUR) ||
+                relationship.isType(TRAIN_NEIGHBOUR) ||
+                relationship.isType(BUS_NEIGHBOUR);
     }
 }
 

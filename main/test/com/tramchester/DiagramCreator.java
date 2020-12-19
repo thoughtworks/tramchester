@@ -53,7 +53,10 @@ public class DiagramCreator {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
-                Node startNode = graphDatabase.findNode(txn, GraphBuilder.Labels.forMode(startPoint.getTransportMode()),
+                Set<GraphBuilder.Labels> startLabels = forMode(startPoint.getTransportModes());
+                GraphBuilder.Labels first = startLabels.iterator().next();
+
+                Node startNode = graphDatabase.findNode(txn, first,
                         startPoint.getProp().getText(), startPoint.getId().getGraphId());
                 if (startNode==null) {
                     logger.warn("Can't find start node for station " + startPoint);

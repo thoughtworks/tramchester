@@ -4,6 +4,8 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
+import java.util.Set;
+
 public interface NodeTypeRepository {
     boolean isTime(Node node);
     boolean isHour(Node node);
@@ -17,5 +19,5 @@ public interface NodeTypeRepository {
 
     void populateNodeLabelMap(GraphDatabase graphDatabase);
     void put(long id, GraphBuilder.Labels label);
-
+    void put(long id, Set<GraphBuilder.Labels> label);
 }

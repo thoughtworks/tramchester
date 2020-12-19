@@ -2,10 +2,18 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.*;
-import org.neo4j.graphdb.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.TransportRelationshipTypes;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -55,6 +63,10 @@ public abstract class GraphBuilder  {
             }
         }
 
+        public static Set<Labels> forMode(Set<TransportMode> modes) {
+            return modes.stream().map(mode -> forMode(mode.getTransportMode())).collect(Collectors.toSet());
+        }
+
         public static boolean isStation(Labels label) {
             return label==TRAM_STATION || label==BUS_STATION || label==TRAIN_STATION;
         }
@@ -102,6 +114,13 @@ public abstract class GraphBuilder  {
         numberNodes++;
         Node node = graphDatabase.createNode(tx, label);
         nodeIdLabelMap.put(node.getId(), label);
+        return node;
+    }
+
+    protected Node createGraphNode(Transaction tx, Set<Labels> labels) {
+        numberNodes++;
+        Node node = graphDatabase.createNode(tx, labels);
+        nodeIdLabelMap.put(node.getId(), labels);
         return node;
     }
 

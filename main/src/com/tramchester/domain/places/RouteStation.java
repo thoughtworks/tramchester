@@ -5,9 +5,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
+import java.util.Collections;
 import java.util.Set;
 
-public class RouteStation implements HasId<RouteStation>, HasTransportMode, GraphProperty, Location<RouteStation> {
+public class RouteStation implements HasId<RouteStation>, GraphProperty, Location<RouteStation> {
     // A station that serves a specific route
 
     private final Station station;
@@ -78,8 +79,8 @@ public class RouteStation implements HasId<RouteStation>, HasTransportMode, Grap
     }
 
     @Override
-    public TransportMode getTransportMode() {
-        return route.getTransportMode();
+    public Set<TransportMode> getTransportModes() {
+        return Collections.singleton(route.getTransportMode());
     }
 
     @Override

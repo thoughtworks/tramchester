@@ -285,6 +285,12 @@ public class GraphDatabase {
         return tx.createNode(label);
     }
 
+    public Node createNode(Transaction tx, Set<GraphBuilder.Labels> labels) {
+        GraphBuilder.Labels[] toApply = new GraphBuilder.Labels[labels.size()];
+        labels.toArray(toApply);
+        return tx.createNode(toApply);
+    }
+
     public Node findNode(Transaction tx, GraphBuilder.Labels labels, String idField, String idValue) {
         return tx.findNode(labels, idField, idValue);
     }

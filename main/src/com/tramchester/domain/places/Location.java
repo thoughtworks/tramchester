@@ -6,7 +6,7 @@ import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
 
-public interface Location<TYPE extends Location<?>> extends HasTransportMode, IdForDTO, HasId<TYPE>, GraphProperty {
+public interface Location<TYPE extends Location<?>> extends IdForDTO, HasId<TYPE>, HasTransportModes, GraphProperty {
 
     String getName();
 
@@ -17,8 +17,6 @@ public interface Location<TYPE extends Location<?>> extends HasTransportMode, Id
     boolean hasPlatforms();
 
     Set<Platform> getPlatforms();
-
-    TransportMode getTransportMode();
 
     LocationType getLocationType();
 

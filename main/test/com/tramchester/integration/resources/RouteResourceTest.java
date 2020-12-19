@@ -64,7 +64,7 @@ class RouteResourceTest {
         StationRefWithPosition first = stations.get(0);
         assertEquals(TramStations.ManAirport.forDTO(), first.getId());
         assertEquals(TramStations.ManAirport.getLatLong(), first.getLatLong());
-        assertEquals(TransportMode.Tram, first.getTransportMode());
+        assertTrue(first.getTransportModes().contains(TransportMode.Tram));
 
         assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
     }

@@ -223,8 +223,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private Node getStationNode(Transaction txn, Station station) {
-        return graphDatabase.findNode(txn, Labels.forMode(station.getTransportMode()),
-                station.getProp().getText(), station.getId().getGraphId());
+        Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.forMode(station.getTransportModes());
+        // ought to be able find with any of the labels, os use the first one
+        GraphBuilder.Labels label = labels.iterator().next();
+
+        return graphDatabase.findNode(txn, label, station.getProp().getText(), station.getId().getGraphId());
     }
 
     private void createStationAndPlatforms(Transaction txn, Route route, Station station, RouteBuilderCache routeBuilderCache) {
@@ -516,9 +519,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private Node createStationNode(Transaction tx, Station station) {
 
-        Labels label = Labels.forMode(station.getTransportMode());
-        logger.debug(format("Creating station node: %s with label: %s ", station, label));
-        Node stationNode = createGraphNode(tx, label);
+        Set<Labels> labels = Labels.forMode(station.getTransportModes());
+        logger.debug(format("Creating station node: %s with label: %s ", station, labels));
+        Node stationNode = createGraphNode(tx, labels);
         setProperty(stationNode, station);
         return stationNode;
     }

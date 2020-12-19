@@ -1,14 +1,25 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.reference.KnownTramRoute;
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.reference.RoutesForTesting;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StationTest {
 
@@ -17,12 +28,12 @@ class StationTest {
         Station tramStation = TestStation.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Tram);
 
-        Assertions.assertEquals("stopName", tramStation.getName());
-        Assertions.assertEquals(IdFor.createId("id"), tramStation.getId());
-        Assertions.assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
-        Assertions.assertEquals(2.3, tramStation.getLatLong().getLon(),0);
-        Assertions.assertEquals("area", tramStation.getArea());
-        Assertions.assertTrue(TransportMode.isTram(tramStation));
+        assertEquals("stopName", tramStation.getName());
+        assertEquals(IdFor.createId("id"), tramStation.getId());
+        assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
+        assertEquals(2.3, tramStation.getLatLong().getLon(),0);
+        assertEquals("area", tramStation.getArea());
+        assertTrue(TransportMode.isTram(tramStation));
     }
 
     @Test
@@ -30,19 +41,36 @@ class StationTest {
         Station busStation = TestStation.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Bus);
 
-        Assertions.assertEquals("stopName", busStation.getName());
-        Assertions.assertEquals(IdFor.createId("id"), busStation.getId());
-        Assertions.assertEquals(-2.0, busStation.getLatLong().getLat(),0);
-        Assertions.assertEquals(2.3, busStation.getLatLong().getLon(),0);
-        Assertions.assertEquals("area", busStation.getArea());
-        Assertions.assertTrue(TransportMode.isBus(busStation));
+        assertEquals("stopName", busStation.getName());
+        assertEquals(IdFor.createId("id"), busStation.getId());
+        assertEquals(-2.0, busStation.getLatLong().getLat(),0);
+        assertEquals(2.3, busStation.getLatLong().getLon(),0);
+        assertEquals("area", busStation.getArea());
+        assertTrue(TransportMode.isBus(busStation));
     }
 
     @Test
     void testShouldFormIdByRemovingPlatformForTramStop() {
-        Assertions.assertEquals(IdFor.createId("9400ZZid"), Station.formId("9400ZZid1"));
-        Assertions.assertEquals(IdFor.createId("9400XXid1"), Station.formId("9400XXid1"));
+        assertEquals(IdFor.createId("9400ZZid"), Station.formId("9400ZZid1"));
+        assertEquals(IdFor.createId("9400XXid1"), Station.formId("9400XXid1"));
 
+    }
+
+    @Test
+    void shouldHaveCorrectTransportModes() {
+        Station station = new Station(IdFor.createId("stationId"), "area", "name", TestEnv.nearPiccGardens,
+                CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens));
+
+        assertTrue(station.getTransportModes().isEmpty());
+
+        station.addRoute(RoutesForTesting.createTramRoute(KnownTramRoute.PiccadillyAltrincham));
+        assertTrue(station.getTransportModes().contains(TransportMode.Tram));
+
+        Agency agency = Agency.Walking;
+        station.addRoute(new Route("routeId", "shortName", "name", agency, TransportMode.Train, RouteDirection.Inbound));
+        assertTrue(station.getTransportModes().contains(TransportMode.Train));
+
+        assertEquals(2, station.getTransportModes().size());
     }
 
 

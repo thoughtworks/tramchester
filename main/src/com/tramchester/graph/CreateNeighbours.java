@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.HasId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -76,7 +77,7 @@ public class CreateNeighbours {
             stations.forEach(station -> {
                 if (filter.shouldInclude(station)) {
                     Set<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM);
-                    addRelationships(txn, filter, station, nearby);
+                    addNeighbourRelationships(txn, filter, station, nearby);
                 }
             });
             addDBFlag(txn);
@@ -93,33 +94,44 @@ public class CreateNeighbours {
         txn.createNode(GraphBuilder.Labels.NEIGHBOURS_ENABLED);
     }
 
-    private void addRelationships(Transaction txn, GraphFilter filter, Station station, Set<Station> others) {
-        logger.info("Adding neighbour relations from " + station.getId() + " to " + HasId.asIds(others));
+    private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<Station> others) {
+        logger.info("Adding neighbour relations from " + from.getId() + " to " + HasId.asIds(others));
         double mph = config.getWalkingMPH();
-        final Node stationNode = graphQuery.getStationNode(txn, station);
+        final Node stationNode = graphQuery.getStationNode(txn, from);
         if (stationNode!=null) {
             others.stream().filter(filter::shouldInclude).forEach(other -> {
                 Node otherNode = graphQuery.getStationNode(txn, other);
-                RelationshipType relationType = getRelationType(other);
-                Set<Long> already = new HashSet<>();
-                stationNode.getRelationships(Direction.OUTGOING, relationType).
-                        forEach(relationship -> already.add(relationship.getEndNode().getId()));
+                Set<RelationshipType> relationTypes = getRelationTypes(other);
 
-                if (!already.contains(otherNode.getId())) {
-                    Relationship relationship = stationNode.createRelationshipTo(otherNode, relationType);
-                    GraphProps.setCostProp(relationship, CoordinateTransforms.calcCostInMinutes(station, other, mph));
-                } else {
-                    logger.info("Relationship of type " + relationType + " already present from " + station + " to " + other);
-                }
+                relationTypes.forEach(relationType ->
+                        addNeighbourRelationship(relationType, from, stationNode, mph, other, otherNode));
             });
         } else {
-            logger.warn("Cannot add neighbours for station, no node found, station: "+station.getId());
+            logger.warn("Cannot add neighbours for station, no node found, station: "+from.getId());
         }
     }
 
+    private void addNeighbourRelationship(RelationshipType relationType, Station from, Node fromNode, double mph, Station other, Node otherNode) {
+        Set<Long> already = new HashSet<>();
+        fromNode.getRelationships(Direction.OUTGOING, relationType).
+                forEach(relationship -> already.add(relationship.getEndNode().getId()));
+
+        if (!already.contains(otherNode.getId())) {
+            Relationship relationship = fromNode.createRelationshipTo(otherNode, relationType);
+            GraphProps.setCostProp(relationship, CoordinateTransforms.calcCostInMinutes(from, other, mph));
+        } else {
+            logger.info("Relationship of type " + relationType + " already present from " + from + " to " + other);
+        }
+    }
+
+    private Set<RelationshipType> getRelationTypes(Station end) {
+        Set<TransportMode> endModes = end.getTransportModes();
+        return endModes.stream().map(this::getRelationType).collect(Collectors.toSet());
+    }
+
     @NotNull
-    private TransportRelationshipTypes getRelationType(Station station) {
-        switch (station.getTransportMode()) {
+    private TransportRelationshipTypes getRelationType(TransportMode mode) {
+        switch (mode) {
             case Tram:
                 return TransportRelationshipTypes.TRAM_NEIGHBOUR;
             case Bus:
@@ -127,8 +139,7 @@ public class CreateNeighbours {
             case Train:
                 return TransportRelationshipTypes.TRAIN_NEIGHBOUR;
             default:
-                // TODO Train
-                throw new RuntimeException("Unsupported mode " + station.getTransportMode());
+                throw new RuntimeException("Unsupported mode " + mode);
         }
     }
 

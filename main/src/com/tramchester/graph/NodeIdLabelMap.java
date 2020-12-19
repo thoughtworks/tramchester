@@ -80,6 +80,11 @@ public class NodeIdLabelMap implements NodeTypeRepository {
         map.get(label).add(id);
     }
 
+    @Override
+    public void put(long id, Set<GraphBuilder.Labels> labels) {
+        labels.forEach(label -> put(id, label));
+    }
+
     public boolean isService(Node nodeId) {
         return has(GraphBuilder.Labels.SERVICE, nodeId.getId());
     }

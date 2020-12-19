@@ -50,7 +50,7 @@ class RouteMapperTest {
         StationRefWithPosition stationRefWithPosition = stations.get(0);
         Assertions.assertEquals(TramStations.ManAirport.forDTO(), stationRefWithPosition.getId());
         Assertions.assertEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong());
-        Assertions.assertEquals(TransportMode.Tram, stationRefWithPosition.getTransportMode());
+        Assertions.assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
         Assertions.assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
     }
 }
