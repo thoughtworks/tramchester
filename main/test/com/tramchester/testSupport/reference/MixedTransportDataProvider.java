@@ -8,6 +8,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -24,12 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @LazySingleton
-public class MixedTransportDataForTestProvider implements TransportDataProvider {
+public class MixedTransportDataProvider implements TransportDataProvider {
     private final TestMixedTransportData container;
     private boolean populated;
 
     @Inject
-    public MixedTransportDataForTestProvider(ProvidesNow providesNow) {
+    public MixedTransportDataProvider(ProvidesNow providesNow) {
         container = new TestMixedTransportData(providesNow);
         populated = false;
     }
@@ -38,7 +39,7 @@ public class MixedTransportDataForTestProvider implements TransportDataProvider 
         return getTestData();
     }
 
-    public TestMixedTransportData getTestData() {
+    private TestMixedTransportData getTestData() {
         if (!populated) {
             populateTestData(container);
             populated = true;
@@ -46,27 +47,30 @@ public class MixedTransportDataForTestProvider implements TransportDataProvider 
         return container;
     }
 
+    public static final Route FERRY_ROUTE = new Route(IdFor.createId("FER:42:C"), "42", "Lakes",
+            new Agency("FER", "ferryAgency"), TransportMode.Ferry, RouteDirection.Inbound);
+
     private void populateTestData(TransportDataContainer container) {
         Route routeA = RoutesForTesting.AIR_TO_BUXTON; // TODO This route not present during lockdown
-        Route routeB = RoutesForTesting.ALTY_TO_STOCKPORT;
+        Route ferryRoute = FERRY_ROUTE; //RoutesForTesting.ALTY_TO_STOCKPORT;
         Route routeC = RoutesForTesting.ALTY_TO_STOCKPORT_WBT;
 
         Agency agency = new Agency("MET", "agencyName");
         agency.addRoute(routeA);
-        agency.addRoute(routeB);
+        agency.addRoute(ferryRoute);
         agency.addRoute(routeC);
         container.addAgency(agency);
 
         Service serviceA = new Service(TestMixedTransportData.serviceAId, routeA);
-        Service serviceB = new Service(TestMixedTransportData.serviceBId, routeB);
+        Service serviceB = new Service(TestMixedTransportData.serviceBId, ferryRoute);
         Service serviceC = new Service(TestMixedTransportData.serviceCId, routeC);
 
         routeA.addService(serviceA);
-        routeB.addService(serviceB);
+        ferryRoute.addService(serviceB);
         routeC.addService(serviceC);
 
         container.addRoute(routeA);
-        container.addRoute(routeB);
+        container.addRoute(ferryRoute);
         container.addRoute(routeC);
 
         serviceA.setDays(true, false, false, false, false, false, false);
@@ -82,7 +86,6 @@ public class MixedTransportDataForTestProvider implements TransportDataProvider 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         Trip tripA = new Trip(TestMixedTransportData.TRIP_A_ID, "headSign", serviceA, routeA);
 
-        //LatLong latLong = new LatLong(latitude, longitude);
         Station first = new TestNoPlatformStation(TestMixedTransportData.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Bus);
         addAStation(container, first);
@@ -139,12 +142,12 @@ public class MixedTransportDataForTestProvider implements TransportDataProvider 
         serviceC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
-        addRouteStation(container, stationFour, routeB);
-        addRouteStation(container, interchangeStation, routeB);
+        addRouteStation(container, stationFour, ferryRoute);
+        addRouteStation(container, interchangeStation, ferryRoute);
 
-        createInterchangeToStation4Trip(container,routeB, serviceB, interchangeStation, stationFour, LocalTime.of(8, 26), "tripBId");
-        createInterchangeToStation4Trip(container,routeB, serviceB, interchangeStation, stationFour, LocalTime.of(9, 10), "tripB2Id");
-        createInterchangeToStation4Trip(container,routeB, serviceB, interchangeStation, stationFour, LocalTime.of(9, 20), "tripB3Id");
+        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour, LocalTime.of(8, 26), "tripBId");
+        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour, LocalTime.of(9, 10), "tripB2Id");
+        createInterchangeToStation4Trip(container,ferryRoute, serviceB, interchangeStation, stationFour, LocalTime.of(9, 20), "tripB3Id");
 
         container.addTrip(tripA);
         container.addTrip(tripC);
@@ -181,10 +184,6 @@ public class MixedTransportDataForTestProvider implements TransportDataProvider 
 
     private static NoPlatformStopCall createStop(Trip trip, Station station,
                                                  TramTime arrivalTime, TramTime departureTime, int sequenceNum, TransportMode mode) {
-//        String platformId = station.getId() + "1";
-//        Platform platform = new Platform(platformId, format("%s platform 1", station.getName()), station.getLatLong());
-//        container.addPlatform(platform);
-//        station.addPlatform(platform);
         StopTimeData stopTimeData = new StopTimeData(trip.getId().forDTO(), arrivalTime, departureTime, station.forDTO(),
                 sequenceNum, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
         return new NoPlatformStopCall(station, stopTimeData, mode);
@@ -203,8 +202,8 @@ public class MixedTransportDataForTestProvider implements TransportDataProvider 
         public static final String SECOND_STATION = PREFIX + "_ST_SECOND";
         public static final String LAST_STATION = PREFIX + "_ST_LAST";
         public static final String INTERCHANGE = PREFIX + "_INTERCHANGE";
-        private static final String STATION_FOUR = PREFIX + "_ST_FOUR";
-        private static final String STATION_FIVE = PREFIX + "_ST_FIVE";
+        public static final String STATION_FOUR = PREFIX + "_ST_FOUR";
+        public static final String STATION_FIVE = PREFIX + "_ST_FIVE";
 
         public TestMixedTransportData(ProvidesNow providesNow) {
             super(providesNow);

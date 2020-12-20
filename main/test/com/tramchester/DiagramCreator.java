@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -200,7 +201,9 @@ public class DiagramCreator {
         if (node.hasLabel(ROUTE_STATION)) {
             // TODO Look up station name from the ID?
             String stationName = GraphProps.getStationId(node).getGraphId();
-            return format("%s\n%s", GraphProps.getRouteId(node).getGraphId(), stationName);
+            TransportMode mode = GraphProps.getTransportMode(node);
+            String graphId = GraphProps.getRouteId(node).getGraphId();
+            return format("%s\n%s\n%s", graphId, stationName, mode.name());
         }
         if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
             return node.getProperty(STATION_ID.getText()).toString();

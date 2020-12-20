@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.*;
 
-class GraphWithSimpleTramRouteTest {
+class TramRouteTest {
 
     private static final String TMP_DB = "tmp.db";
 

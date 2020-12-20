@@ -25,7 +25,7 @@ dataSources:
     dataPath: data/trains
     unzipPath: ./
     hasFeedInfo: false
-    transportModes: [ train, bus ]
+    transportModes: [ train, bus, subway, ferry ]
 bounds:
   minEastings: 147588
   minNorthings: 30599

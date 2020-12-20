@@ -89,6 +89,11 @@ public class InterchangeRepository  {
         if (TransportMode.isTram(station)) {
             return TramInterchanges.has(station);
         }
+        if (station.getTransportModes().size()>1) {
+            logger.info("More than one transport more, see as interchange station id " + station.getId());
+            return true;
+        }
+
         if (TransportMode.isBus(station)) {
             return busInterchanges.hasId(station.getId());
         }

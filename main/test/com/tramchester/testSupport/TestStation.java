@@ -10,17 +10,18 @@ import com.tramchester.repository.StationRepository;
 import org.opengis.referencing.operation.TransformException;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class TestStation extends Station {
 
-    private final TransportMode mode;
+    private final TransportMode initialMode;
     private boolean platformsAdded;
     private boolean routesAdded;
 
-    public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode mode) {
+    public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode initialMode) {
         super(IdFor.createId(id), area, stationName, latLong, gridPosition);
-        this.mode = mode;
+        this.initialMode = initialMode;
         platformsAdded = false;
         routesAdded = false;
     }
@@ -55,7 +56,12 @@ public class TestStation extends Station {
 
     @Override
     public Set<TransportMode> getTransportModes() {
-        return Collections.singleton(mode);
+        Set<TransportMode> result = new HashSet<>();
+        result.add(initialMode);
+        if (routesAdded) {
+           result.addAll(super.getTransportModes());
+        }
+        return result;
     }
 
     @Override

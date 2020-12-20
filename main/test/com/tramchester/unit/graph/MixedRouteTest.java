@@ -2,6 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.DiagramCreator;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.presentation.TransportStage;
@@ -16,7 +17,7 @@ import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.MixedTransportDataForTestProvider;
+import com.tramchester.testSupport.reference.MixedTransportDataProvider;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -27,17 +28,18 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.MixedTransportDataForTestProvider.TestMixedTransportData.FIRST_STATION;
-import static com.tramchester.testSupport.reference.MixedTransportDataForTestProvider.TestMixedTransportData.SECOND_STATION;
+import static com.tramchester.testSupport.reference.MixedTransportDataProvider.TestMixedTransportData.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GraphWithSimpleMixedRouteTest {
+class MixedRouteTest {
     private static final String TMP_DB = "tmp2.db";
 
-    private static MixedTransportDataForTestProvider.TestMixedTransportData transportData;
+    private static MixedTransportDataProvider.TestMixedTransportData transportData;
     private static RouteCalculator calculator;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private static GraphWithSimpleMixedRouteTest.SimpleGraphConfig config;
+    private static MixedRouteTest.SimpleGraphConfig config;
 
     private TramServiceDate queryDate;
     private TramTime queryTime;
@@ -45,16 +47,16 @@ class GraphWithSimpleMixedRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new GraphWithSimpleMixedRouteTest.SimpleGraphConfig();
+        config = new MixedRouteTest.SimpleGraphConfig();
 
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
-        componentContainer = new ComponentsBuilder<MixedTransportDataForTestProvider>().
-                overrideProvider(MixedTransportDataForTestProvider.class).
+        componentContainer = new ComponentsBuilder<MixedTransportDataProvider>().
+                overrideProvider(MixedTransportDataProvider.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initContainer();
 
-        transportData = (MixedTransportDataForTestProvider.TestMixedTransportData) componentContainer.get(TransportData.class);
+        transportData = (MixedTransportDataProvider.TestMixedTransportData) componentContainer.get(TransportData.class);
         database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
     }
@@ -91,30 +93,76 @@ class GraphWithSimpleMixedRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getSecond(), journeyRequest).
                 collect(Collectors.toSet());
-        Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, SECOND_STATION, 0, queryTime);
+        assertEquals(1, journeys.size());
+        assertFirstAndLastForOneStage(journeys, FIRST_STATION, SECOND_STATION, 0, queryTime);
     }
 
-    private static void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
-                                   int passedStops, TramTime queryTime) {
+    @Test
+    void shouldTestMultiStopJourneyIsPossible() {
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
+                transportData.getLast(), journeyRequest).
+                collect(Collectors.toSet());
+        assertEquals(1, journeys.size());
+        assertFirstAndLastForOneStage(journeys, FIRST_STATION, LAST_STATION, 2, queryTime);
+    }
+
+    @Test
+    void shouldTestMultiStopJourneyFerryIsPossible() {
+        ///
+        // Note relies on multi-mode stations automatically beign seen as interchanges
+        // Change at Interchange ONLY is enable in config below
+        ///
+        assertTrue(config.getChangeAtInterchangeOnly(),"valid precondition");
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+
+        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
+                transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
+        assertEquals(1, journeys.size(), "journeys");
+        Journey journey = (Journey) journeys.toArray()[0];
+
+        List<TransportStage<?,?>> stages = journey.getStages();
+        assertEquals(2, stages.size());
+
+        TransportStage<?,?> first = stages.get(0);
+        assertEquals(FIRST_STATION, first.getFirstStation().forDTO());
+
+        TransportStage<?,?> last = stages.get(1);
+        assertEquals(STATION_FOUR, last.getLastStation().forDTO());
+
+    }
+
+    @Test
+    void createDiagramOfTestNetwork() {
+        DiagramCreator creator = new DiagramCreator(database, Integer.MAX_VALUE);
+        Assertions.assertAll(() -> creator.create("mixed_test_network.dot", transportData.getFirst()));
+    }
+
+    private static void assertFirstAndLastForOneStage(Set<Journey> journeys, String firstStation, String secondStation,
+                                                      int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];
         List<TransportStage<?,?>> stages = journey.getStages();
         TransportStage<?,?> vehicleStage = stages.get(0);
-        Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
-        Assertions.assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
-        Assertions.assertEquals(passedStops,  vehicleStage.getPassedStops());
+        assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
+        assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
+        assertEquals(passedStops,  vehicleStage.getPassedStops());
         Assertions.assertFalse(vehicleStage.hasBoardingPlatform());
 
         TramTime departTime = vehicleStage.getFirstDepartureTime();
-        Assertions.assertTrue(departTime.isAfter(queryTime));
+        assertTrue(departTime.isAfter(queryTime));
 
-        Assertions.assertTrue(vehicleStage.getDuration()>0);
+        assertTrue(vehicleStage.getDuration()>0);
     }
 
     private static class SimpleGraphConfig extends IntegrationTestConfig {
 
         public SimpleGraphConfig() {
             super("unitTest", TMP_DB);
+        }
+
+        @Override
+        public boolean getChangeAtInterchangeOnly() {
+            return true;
         }
 
         @Override
