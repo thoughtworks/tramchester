@@ -58,7 +58,9 @@ export default {
         routes.forEach(route => {
             var steps = [];
             route.stations.forEach(station => {
-                steps.push([station.latLong.lat, station.latLong.lon]);
+                if (station.latLong.valid) {
+                    steps.push([station.latLong.lat, station.latLong.lon]);
+                }
             })
             var line = L.polyline(steps); 
             line.bindTooltip(route.routeName + "<br>" 
@@ -82,19 +84,21 @@ export default {
         let maxLon = -1000;
         routes.forEach(route => {
             route.stations.forEach(position => {
-                var lat = position.latLong.lat;
-                if (lat < minLat) {
-                    minLat = lat;
-                }
-                else if (lat > maxLat) {
-                    maxLat = lat;
-                }
-                var lon = position.latLong.lon;
-                if (lon < minLon) {
-                    minLon = lon;
-                }
-                else if (lon > maxLon) {
-                    maxLon = lon;
+                if (position.latLong.valid) {
+                    var lat = position.latLong.lat;
+                    if (lat < minLat) {
+                        minLat = lat;
+                    }
+                    else if (lat > maxLat) {
+                        maxLat = lat;
+                    }
+                    var lon = position.latLong.lon;
+                    if (lon < minLon) {
+                        minLon = lon;
+                    }
+                    else if (lon > maxLon) {
+                        maxLon = lon;
+                    }
                 }
             });
         })

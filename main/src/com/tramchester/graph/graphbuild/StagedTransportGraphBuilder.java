@@ -202,12 +202,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
 
-//        String beginSvcNodeId = begin.getId().getGraphId()+"_"+end.getId().getGraphId()+"_"+ service.getId().getGraphId();
-
         Node routeStationStart = routeBuilderCache.getRouteStation(tx, route, begin);
 
         Node svcNode = createGraphNode(tx, Labels.SERVICE);
-//        setIdProp(svcNode, beginSvcNodeId);
         setProperty(svcNode, service);
         setProperty(svcNode, route);
         setTowardsProp(svcNode, end.getId());

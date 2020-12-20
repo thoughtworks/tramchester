@@ -42,14 +42,25 @@ class LatLongTest {
         LatLong latLong = new LatLong(-1,2);
 
         String output = mapper.writeValueAsString(latLong);
-        assertEquals("{\"lat\":-1.0,\"lon\":2.0}", output);
+        assertEquals("{\"lat\":-1.0,\"lon\":2.0,\"valid\":true}", output);
 
-        LatLong result =mapper.readValue(output, LatLong.class);
+        LatLong result = mapper.readValue(output, LatLong.class);
 
         assertEquals(-1, result.getLat(),0);
         assertEquals(2, result.getLon(),0);
         assertTrue(result.isValid());
+    }
 
+    @Test
+    void shouldBeAbleToSerialiseAndDeSerialiseInvalid() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        LatLong latLong = LatLong.Invalid;
+
+        String output = mapper.writeValueAsString(latLong);
+
+        LatLong result = mapper.readValue(output, LatLong.class);
+
+        assertFalse(result.isValid());
     }
 
     @Test

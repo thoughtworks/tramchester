@@ -29,12 +29,12 @@ import static com.tramchester.domain.reference.KnownTramRoute.RochdaleManchester
 import static java.lang.String.format;
 
 @LazySingleton
-public class TransportDataForTestProvider implements TransportDataProvider {
+public class TramTransportDataForTestProvider implements TransportDataProvider {
     private final TestTransportData container;
     private boolean populated;
 
     @Inject
-    public TransportDataForTestProvider(ProvidesNow providesNow) {
+    public TramTransportDataForTestProvider(ProvidesNow providesNow) {
         container = new TestTransportData(providesNow);
         populated = false;
     }

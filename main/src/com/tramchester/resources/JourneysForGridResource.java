@@ -10,7 +10,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.mappers.TramJourneyToDTOMapper;
+import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.StationRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,11 +39,11 @@ public class JourneysForGridResource {
 
     private final StationRepository repository;
     private final FastestRoutesForBoxes search;
-    private final TramJourneyToDTOMapper dtoMapper;
+    private final JourneyToDTOMapper dtoMapper;
     private final ObjectMapper objectMapper;
 
     @Inject
-    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, TramJourneyToDTOMapper dtoMapper,
+    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
                                    ObjectMapper objectMapper) {
         this.repository = repository;
         this.search = search;

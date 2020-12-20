@@ -20,6 +20,9 @@ public class JourneyConstraints {
     private static final int BUSES_MAX_PATH_LENGTH = 1000; // todo right value?
     private static final int TRAMS_MAX_PATH_LENGTH = 400;
     private static final int TRAINS_MAX_PATH_LENGTH = 2000; // todo right value?
+    private static final int FERRY_MAX_PATH_LENGTH = 200; // todo right value?
+    private static final int SUBWAY_MAX_PATH_LENGTH = 400; // todo right value?
+
 
     private static final Logger logger = LoggerFactory.getLogger(JourneyConstraints.class);
 
@@ -70,6 +73,8 @@ public class JourneyConstraints {
             case tram: return TRAMS_MAX_PATH_LENGTH;
             case bus: return BUSES_MAX_PATH_LENGTH;
             case train: return TRAINS_MAX_PATH_LENGTH;
+            case subway: return SUBWAY_MAX_PATH_LENGTH;
+            case ferry: return FERRY_MAX_PATH_LENGTH;
             default:
                 throw new RuntimeException("Unexpected transport mode " + mode);
         }

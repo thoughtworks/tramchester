@@ -4,7 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
@@ -15,12 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import javax.management.relation.RelationNotFoundException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.BUS_STATION;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.TRAIN_STATION;
 import static java.lang.String.format;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
@@ -146,15 +141,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 ", parentCost=" + parentCost + System.lineSeparator() +
                 ", parent=" + parent +
                 '}';
-    }
-
-    public static TransportMode modeFromLabel(GraphBuilder.Labels nodeLabel) {
-        switch (nodeLabel) {
-            case BUS_STATION: return TransportMode.Bus;
-            case TRAIN_STATION: return TransportMode.Train;
-            default:
-                throw new RuntimeException("Cannot create NoPlatformStation from label " + nodeLabel);
-        }
     }
 
     public boolean destinationRoute(IdFor<Route> routeId) {

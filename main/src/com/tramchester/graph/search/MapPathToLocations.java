@@ -55,7 +55,8 @@ public class MapPathToLocations {
     }
 
     private boolean isStationNode(Node node) {
-        return node.hasLabel(BUS_STATION) || node.hasLabel(TRAM_STATION) || node.hasLabel(TRAIN_STATION);
+        return node.hasLabel(BUS_STATION) || node.hasLabel(TRAM_STATION) || node.hasLabel(TRAIN_STATION)
+                || node.hasLabel(FERRY_STATION) || node.hasLabel(SUBWAY_STATION);
     }
 
 }

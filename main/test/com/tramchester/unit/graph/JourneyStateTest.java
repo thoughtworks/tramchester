@@ -16,7 +16,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.reference.TransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ class JourneyStateTest {
         
         Set<Station> destinations = Collections.singleton(station);
         ProvidesNow providesNow = new ProvidesLocalNow();
-        StationRepository repository = new TransportDataForTestProvider(providesNow).getData();
+        StationRepository repository = new TramTransportDataForTestProvider(providesNow).getData();
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics())),

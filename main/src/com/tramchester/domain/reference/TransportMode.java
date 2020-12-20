@@ -7,13 +7,26 @@ import java.util.HashSet;
 import java.util.Set;
 
 public enum TransportMode implements HasTransportMode {
-    Bus, Tram, Depart, Board, Walk, Connect, Train, NotSet, Unknown;
+    Bus,
+    Tram,
+    Train,
+    Walk,
+    Ferry,
+    Subway,
+
+    Depart,
+    Board,
+    Connect,
+    NotSet,
+    Unknown;
 
     public static TransportMode fromGTFS(GTFSTransportationType routeType) {
         switch (routeType) {
             case tram: return TransportMode.Tram;
             case bus: return TransportMode.Bus;
             case train: return TransportMode.Train;
+            case ferry: return TransportMode.Ferry;
+            case subway: return TransportMode.Subway;
             default:
                 throw new RuntimeException("Unexpected route type (check config?) " + routeType);
         }

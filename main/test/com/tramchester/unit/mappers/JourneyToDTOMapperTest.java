@@ -17,11 +17,11 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.mappers.TramJourneyToDTOMapper;
+import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.reference.TransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,14 +36,14 @@ import java.util.List;
 
 import static com.tramchester.testSupport.reference.BusStations.AltrinchamInterchange;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static com.tramchester.testSupport.reference.TransportDataForTestProvider.TestTransportData.TRIP_A_ID;
+import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TramJourneyToDTOMapperTest extends EasyMockSupport {
-    private static TransportDataForTestProvider.TestTransportData transportData;
+class JourneyToDTOMapperTest extends EasyMockSupport {
+    private static TramTransportDataForTestProvider.TestTransportData transportData;
     private final LocalDate when = TestEnv.testDay();
 
-    private TramJourneyToDTOMapper mapper;
+    private JourneyToDTOMapper mapper;
     private List<TransportStage<?,?>> stages;
     private TramServiceDate tramServiceDate;
     private JourneyDTOFactory journeyFactory;
@@ -56,7 +56,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
     static void onceBeforeAnyTestsRun() {
         //StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
-        transportData = new TransportDataForTestProvider(providesNow).getTestData();
+        transportData = new TramTransportDataForTestProvider(providesNow).getTestData();
     }
 
     @BeforeEach
@@ -67,7 +67,7 @@ class TramJourneyToDTOMapperTest extends EasyMockSupport {
 
         notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", of(StPetersSquare)));
 
-        mapper = new TramJourneyToDTOMapper(journeyFactory, stageFactory, providesNotes);
+        mapper = new JourneyToDTOMapper(journeyFactory, stageFactory, providesNotes);
         stages = new LinkedList<>();
         tramServiceDate = new TramServiceDate(when);
         nearPiccGardensLocation = new MyLocation("Manchester", TestEnv.nearPiccGardens);

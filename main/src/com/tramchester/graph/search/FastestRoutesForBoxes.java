@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.mappers.TramJourneyToDTOMapper;
+import com.tramchester.mappers.JourneyToDTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +30,10 @@ public class FastestRoutesForBoxes {
 
     private final StationLocations stationLocations;
     private final RouteCalculator calculator;
-    private final TramJourneyToDTOMapper dtoMapper;
+    private final JourneyToDTOMapper dtoMapper;
 
     @Inject
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator, TramJourneyToDTOMapper dtoMapper) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator, JourneyToDTOMapper dtoMapper) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;
         this.dtoMapper = dtoMapper;

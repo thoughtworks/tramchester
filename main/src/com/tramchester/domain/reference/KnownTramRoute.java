@@ -66,4 +66,7 @@ public enum KnownTramRoute {
     public RouteDirection direction() {
         return direction;
     }
+
+    public TransportMode mode() { return TransportMode.Tram; }
+
 }

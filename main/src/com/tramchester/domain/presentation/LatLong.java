@@ -1,14 +1,15 @@
 package com.tramchester.domain.presentation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.Objects;
 
+@JsonIgnoreProperties(value = "valid", allowGetters = true)
 public class LatLong {
 
     private double lat; // north/south
     private double lon; // east/west
-    private boolean valid;
 
     public static LatLong Invalid = new LatLong(-1000,-1000);
 
@@ -36,7 +37,6 @@ public class LatLong {
         return Objects.hash(lat, lon);
     }
 
-
     public double getLat() {
         return lat;
     }
@@ -60,10 +60,10 @@ public class LatLong {
         return "LatLong{" +
                 "lat=" + lat +
                 ", lon=" + lon +
+                ", valid=" + isValid() +
                 '}';
     }
 
-    @JsonIgnore
     public boolean isValid() {
         return ((lat>=-90) && (lat<=90) && (lon>=-180) && (lat<=180));
     }

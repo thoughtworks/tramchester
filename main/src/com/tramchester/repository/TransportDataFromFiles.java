@@ -208,7 +208,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
                                     Route route, Station station) {
         StopCall stopCall;
         IdFor<Platform> platformId = stopTimeData.getPlatformId();
-        switch (route.getTransportMode()) {
+        TransportMode transportMode = route.getTransportMode();
+        switch (transportMode) {
             case Tram:
                 if (buildable.hasPlatformId(platformId)) {
                     Platform platform = buildable.getPlatform(platformId);
@@ -220,13 +221,15 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 stopCall = new TramStopCall(platform, station, stopTimeData);
                 break;
             case Bus:
-                stopCall = new BusStopCall(station, stopTimeData);
-                break;
             case Train:
-                stopCall = new TrainStopCall(station, stopTimeData);
+            case Ferry:
+            case Subway:
+                stopCall = new NoPlatformStopCall(station, stopTimeData, transportMode);
                 break;
+
             default:
-                throw new RuntimeException("Unexpected transport mode " + route.getTransportMode());
+                throw new RuntimeException("Unexpected transport mode " + transportMode + " with " + stopTimeData
+                            + " and " + station);
 
         }
 

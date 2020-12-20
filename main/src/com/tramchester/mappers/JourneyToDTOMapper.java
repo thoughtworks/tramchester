@@ -24,14 +24,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class TramJourneyToDTOMapper {
-    private static final Logger logger = LoggerFactory.getLogger(TramJourneyToDTOMapper.class);
+public class JourneyToDTOMapper {
+    private static final Logger logger = LoggerFactory.getLogger(JourneyToDTOMapper.class);
     private final JourneyDTOFactory journeyFactory;
     private final StageDTOFactory stageFactory;
     private final ProvidesNotes providesNotes;
 
     @Inject
-    public TramJourneyToDTOMapper(JourneyDTOFactory journeyFactory, StageDTOFactory stageFactory, ProvidesNotes providesNotes) {
+    public JourneyToDTOMapper(JourneyDTOFactory journeyFactory, StageDTOFactory stageFactory, ProvidesNotes providesNotes) {
         this.journeyFactory = journeyFactory;
         this.stageFactory = stageFactory;
         this.providesNotes = providesNotes;
@@ -61,6 +61,8 @@ public class TramJourneyToDTOMapper {
             case Tram:
             case Bus:
             case Train:
+            case Ferry:
+            case Subway:
                 return decideActionForStations(stages);
             case Walk:
                 return decideWalkingAction(rawStage);

@@ -8,6 +8,7 @@ import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import org.checkerframework.checker.units.qual.A;
 
 import static java.lang.String.format;
 
@@ -25,10 +26,13 @@ public class RoutesForTesting {
         new Agency("GMS", "agencyName"), TransportMode.Bus, RouteDirection.Inbound);
     public static final Route ALTY_TO_STOCKPORT_WBT = new Route(IdFor.createId("WBT:5A:I:"), "5A", "Alty to Stockport",
             new Agency("WBT", "Warrington's Own Buses"), TransportMode.Bus, RouteDirection.Inbound);
+    public static final Route AIR_TO_BUXTON = new Route(IdFor.createId("HGP:199:I:"), "199",
+            "Manchester Airport - Stockport - Buxton Skyline",  new Agency("HGP", "High Peak Buses"),
+            TransportMode.Bus, RouteDirection.Circular);
 
     public static Route createTramRoute(KnownTramRoute knownRoute) {
         return new Route(knownRoute.getId(), knownRoute.number(), knownRoute.name(), TestEnv.MetAgency(),
-                TransportMode.Tram, knownRoute.direction());
+                knownRoute.mode(), knownRoute.direction());
     }
 
     @Deprecated

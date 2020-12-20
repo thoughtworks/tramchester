@@ -7,7 +7,7 @@ import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.mappers.TramJourneyToDTOMapper;
+import com.tramchester.mappers.JourneyToDTOMapper;
 import org.opengis.referencing.operation.TransformException;
 
 @JsonTypeName("BoxWithCost")
@@ -31,7 +31,7 @@ public class BoxWithCostDTO {
         // deserialisation
     }
 
-    public static BoxWithCostDTO createFrom(TramJourneyToDTOMapper mapper, TramServiceDate serviceDate,
+    public static BoxWithCostDTO createFrom(JourneyToDTOMapper mapper, TramServiceDate serviceDate,
                                             BoundingBoxWithCost box) throws TransformException {
 
         // TODO Assuming valid positions here

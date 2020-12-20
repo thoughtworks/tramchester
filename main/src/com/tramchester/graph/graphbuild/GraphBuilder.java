@@ -43,6 +43,8 @@ public abstract class GraphBuilder  {
         TRAM_STATION,
         BUS_STATION,
         TRAIN_STATION,
+        FERRY_STATION,
+        SUBWAY_STATION,
         PLATFORM,
         QUERY_NODE,
         SERVICE,
@@ -59,6 +61,10 @@ public abstract class GraphBuilder  {
                     return BUS_STATION;
                 case Train:
                     return TRAIN_STATION;
+                case Ferry:
+                    return FERRY_STATION;
+                case Subway:
+                    return SUBWAY_STATION;
                 default:
                     throw new RuntimeException("Unsupported mode " + mode);
             }
@@ -69,7 +75,8 @@ public abstract class GraphBuilder  {
         }
 
         public static boolean isStation(Labels label) {
-            return label==TRAM_STATION || label==BUS_STATION || label==TRAIN_STATION;
+            return label==TRAM_STATION || label==BUS_STATION || label==TRAIN_STATION || label==FERRY_STATION
+                    || label==SUBWAY_STATION;
         }
 
         public static Set<Labels> from(Iterable<Label> labels) {

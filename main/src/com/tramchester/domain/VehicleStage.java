@@ -73,7 +73,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     public void setPlatform(Platform platform) {
         if (!hasPlatforms) {
-            throw new RuntimeException("Adding platforms to a non-platform vehical stage " + toString());
+            throw new RuntimeException("Adding platforms to a zero-platform vehicle stage " + toString());
         }
         this.platform = platform;
     }

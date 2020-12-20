@@ -23,7 +23,8 @@ public class NodeIdLabelMap implements NodeTypeRepository {
     private final ConcurrentMap<Long, Boolean> queryNodes;
 
     private final Set<GraphBuilder.Labels> nodesToCache = new HashSet<>(Arrays.asList(
-            ROUTE_STATION, PLATFORM, SERVICE, HOUR, MINUTE, TRAM_STATION, BUS_STATION, TRAIN_STATION
+            ROUTE_STATION, PLATFORM, SERVICE, HOUR, MINUTE, TRAM_STATION, BUS_STATION, TRAIN_STATION,
+            FERRY_STATION, SUBWAY_STATION
     ));
 
     public NodeIdLabelMap() {

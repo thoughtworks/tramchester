@@ -36,6 +36,8 @@ public enum GraphPropertyKey {
             case TRAIN_STATION:
             case BUS_STATION:
             case TRAM_STATION:
+            case FERRY_STATION:
+            case SUBWAY_STATION:
                 return STATION_ID;
             case ROUTE_STATION:
                 return ROUTE_STATION_ID;

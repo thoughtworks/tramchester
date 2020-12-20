@@ -13,7 +13,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
-import com.tramchester.mappers.TramJourneyToDTOMapper;
+import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.PostcodeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -37,12 +37,12 @@ public class ProcessPlanRequest {
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final TransportData transportData;
     private final PostcodeRepository postcodeRepository;
-    private final TramJourneyToDTOMapper tramJourneyToDTOMapper;
+    private final JourneyToDTOMapper journeyToDTOMapper;
 
     @Inject
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
                               RouteCalculatorArriveBy routeCalculatorArriveBy, TransportData transportData,
-                              PostcodeRepository postcodeRepository, TramJourneyToDTOMapper tramJourneyToDTOMapper) {
+                              PostcodeRepository postcodeRepository, JourneyToDTOMapper journeyToDTOMapper) {
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
 
@@ -50,7 +50,7 @@ public class ProcessPlanRequest {
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
         this.transportData = transportData;
         this.postcodeRepository = postcodeRepository;
-        this.tramJourneyToDTOMapper = tramJourneyToDTOMapper;
+        this.journeyToDTOMapper = journeyToDTOMapper;
     }
 
     public Stream<JourneyDTO> directRequest(Transaction txn, String startId, String endId, JourneyRequest journeyRequest,
@@ -72,7 +72,7 @@ public class ProcessPlanRequest {
 
     private Stream<JourneyDTO> mapToDTOStream(TramServiceDate queryDate, Stream<Journey> journeyStream) {
         return journeyStream.
-                map(journey -> tramJourneyToDTOMapper.createJourneyDTO(journey, queryDate)).
+                map(journey -> journeyToDTOMapper.createJourneyDTO(journey, queryDate)).
                 // TODO Check, ideally remove from here and push down into traverser code?
                 limit(config.getMaxNumResults());
     }

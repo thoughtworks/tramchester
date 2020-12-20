@@ -76,6 +76,9 @@ public class StopData {
     }
 
     public LatLong getLatLong() {
+        if (latitude==0 || longitude==0) {
+            return LatLong.Invalid;
+        }
         return new LatLong(latitude, longitude);
     }
 

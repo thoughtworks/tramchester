@@ -21,7 +21,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -34,13 +34,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TransportDataForTestProvider.TestTransportData.*;
+import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.*;
 
-class GraphWithSimpleRouteTest {
+class GraphWithSimpleTramRouteTest {
 
     private static final String TMP_DB = "tmp.db";
 
-    private static TransportDataForTestProvider.TestTransportData transportData;
+    private static TramTransportDataForTestProvider.TestTransportData transportData;
     private static RouteCalculator calculator;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
@@ -57,12 +57,12 @@ class GraphWithSimpleRouteTest {
 
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
-        componentContainer = new ComponentsBuilder<TransportDataForTestProvider>().
-                overrideProvider(TransportDataForTestProvider.class).
+        componentContainer = new ComponentsBuilder<TramTransportDataForTestProvider>().
+                overrideProvider(TramTransportDataForTestProvider.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initContainer();
 
-        transportData = (TransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
+        transportData = (TramTransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
         database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
     }
@@ -101,7 +101,7 @@ class GraphWithSimpleRouteTest {
                 transportData.getSecond(), journeyRequest).
                 collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, SECOND_STATION, 0);
+        assertFirstAndLast(journeys, FIRST_STATION, SECOND_STATION, 0, queryTime);
     }
 
     @Test
@@ -141,7 +141,7 @@ class GraphWithSimpleRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, INTERCHANGE, 1);
+        assertFirstAndLast(journeys, FIRST_STATION, INTERCHANGE, 1, queryTime);
         checkForPlatforms(journeys);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
     }
@@ -164,7 +164,7 @@ class GraphWithSimpleRouteTest {
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getLast(), journeyRequest).collect(Collectors.toSet());
         Assertions.assertEquals(1, journeys.size());
-        assertFirstAndLast(journeys, FIRST_STATION, LAST_STATION, 2);
+        assertFirstAndLast(journeys, FIRST_STATION, LAST_STATION, 2, queryTime);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
     }
 
@@ -220,8 +220,8 @@ class GraphWithSimpleRouteTest {
         Assertions.assertAll(() -> creator.create("test_network.dot", transportData.getFirst()));
     }
 
-    private void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
-                                    int passedStops) {
+    private static void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
+                                          int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];
         List<TransportStage<?,?>> stages = journey.getStages();
         TransportStage<?,?> vehicleStage = stages.get(0);
