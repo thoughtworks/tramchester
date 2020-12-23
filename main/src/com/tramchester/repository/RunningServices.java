@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.IdSet;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-@LazySingleton
 public class RunningServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningServices.class);
 

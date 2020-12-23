@@ -268,7 +268,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
-        return services.filter(item -> item.operatesOn(date.getDate()));
+        return services.filter(item -> item.getCalendar().operatesOn(date.getDate()));
     }
 
     public boolean hasRouteId(IdFor<Route>  routeId) {

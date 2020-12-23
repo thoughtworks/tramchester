@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
-import com.tramchester.domain.presentation.TramPositionDTO;
+import com.tramchester.domain.presentation.DTO.TramPositionDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.TramPosition;

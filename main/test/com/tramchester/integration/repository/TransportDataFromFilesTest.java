@@ -150,12 +150,22 @@ class TransportDataFromFilesTest {
         Set<Service> results = transportData.getServicesOnDate(date);
 
         assertFalse(results.isEmpty());
-        long onCorrectDate = results.stream().filter(svc -> svc.operatesOn(nextSaturday)).count();
+        long onCorrectDate = results.stream().filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noTramsDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
         results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
         assertTrue(results.isEmpty());
+    }
+
+    @Disabled("WIP")
+    @Test
+    void shouldHaveCorrectDatesAndServicesForChirstmas2020() {
+        LocalDate christmasDay = LocalDate.of(2020, 12, 25);
+
+        Set<Service> services = transportData.getServicesOnDate(TramServiceDate.of(christmasDay));
+
+        assertTrue(services.isEmpty());
     }
 
     @Test
@@ -183,7 +193,7 @@ class TransportDataFromFilesTest {
 
         Collection<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
-                filter(svc -> !svc.operatesOn(queryDate)).collect(Collectors.toSet());
+                filter(svc -> !svc.getCalendar().operatesOn(queryDate)).collect(Collectors.toSet());
         Set<Route> routes = expiringServices.stream().map(Service::getRoutes).flatMap(Collection::stream).collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), expiringServices, HasId.asIds(routes) + " with expiring svcs " +HasId.asIds(expiringServices));
@@ -205,7 +215,7 @@ class TransportDataFromFilesTest {
             Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);
 
             IdSet<Service> servicesOnDateIds = servicesOnDate.stream().collect(IdSet.collector());
-            transportData.getStations().stream().forEach(station -> {
+            transportData.getStations().forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                         filter(trip -> trip.getStops().callsAt(station)).
                         filter(trip -> servicesOnDateIds.contains(trip.getService().getId())).
@@ -327,12 +337,14 @@ class TransportDataFromFilesTest {
 
         applyToCurrentServices.forEach(exception -> {
             Service service = transportData.getServiceById(exception.getServiceId());
+            ServiceCalendar calendar = service.getCalendar();
+
             LocalDate exceptionDate = exception.getDate();
             int exceptionType = exception.getExceptionType();
             if (exceptionType == CalendarDateData.ADDED) {
-                assertTrue(service.operatesOn(exceptionDate));
+                assertTrue(calendar.operatesOn(exceptionDate));
             } else if (exceptionType == CalendarDateData.REMOVED) {
-                assertFalse(service.operatesOn(exceptionDate));
+                assertFalse(calendar.operatesOn(exceptionDate));
             }
         });
     }
@@ -353,7 +365,7 @@ class TransportDataFromFilesTest {
         LocalDate nextTuesday = TestEnv.testDay();
 
         Set<Service> onDay = services.stream().
-                filter(service -> service.operatesOn(nextTuesday)).
+                filter(service -> service.getCalendar().operatesOn(nextTuesday)).
                 collect(Collectors.toSet());
 
         TramTime time = TramTime.of(12, 0);
@@ -375,7 +387,7 @@ class TransportDataFromFilesTest {
 
         // TODO Due to exception dates makes no sense to use getDays
         IdSet<Service> mondayAshToManServices = allServices.stream()
-                .filter(svc -> svc.operatesOn(aMonday))
+                .filter(svc -> svc.getCalendar().operatesOn(aMonday))
                 .filter(svc -> svc.getRoutes().contains(createTramRoute(AshtonunderLyneManchesterEccles)))
                 .collect(IdSet.collector());
 
@@ -405,9 +417,9 @@ class TransportDataFromFilesTest {
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
     }
 
-    //@Disabled("Performance tests")
+    @Disabled("Performance tests")
     @Test
-    void voidShouldLoadData() {
+    void shouldLoadData() {
         TransportDataFromFilesBuilder builder = componentContainer.get(TransportDataFromFilesBuilder.class);
 
         int count = 10;

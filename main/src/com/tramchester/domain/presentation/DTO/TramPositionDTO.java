@@ -1,4 +1,4 @@
-package com.tramchester.domain.presentation;
+package com.tramchester.domain.presentation.DTO;
 
 import com.tramchester.domain.presentation.DTO.DepartureDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;

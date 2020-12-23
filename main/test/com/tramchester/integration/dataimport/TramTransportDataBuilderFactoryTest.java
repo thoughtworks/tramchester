@@ -65,8 +65,8 @@ class TramTransportDataBuilderFactoryTest {
         Service service = route.getServices().stream().findFirst().get();
         assertThat(service.getId()).isEqualTo(IdFor.createId("Serv000001"));
         assertThat(service.getAllTrips()).hasSize(3);
-        assertThat(service.operatesOn(LocalDate.of(2014,11,1)));
-        assertThat(!service.operatesOn(LocalDate.of(2014,11,20)));
+        assertThat(service.getCalendar().operatesOn(LocalDate.of(2014,11,1)));
+        assertThat(!service.getCalendar().operatesOn(LocalDate.of(2014,11,20)));
 
         Trip trip = service.getAllTrips().stream().findFirst().get();
         assertThat(trip.getId()).isEqualTo(IdFor.createId("Trip000001"));

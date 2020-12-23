@@ -19,6 +19,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestNoPlatformStation;
 
 import javax.inject.Inject;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -73,15 +74,17 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         container.addRoute(ferryRoute);
         container.addRoute(routeC);
 
-        serviceA.setDays(true, false, false, false, false, false, false);
-        serviceB.setDays(true, false, false, false, false, false, false);
-        serviceC.setDays(true, false, false, false, false, false, false);
-
         LocalDate startDate = LocalDate.of(2014, 2, 10);
         LocalDate endDate = LocalDate.of(2020, 8, 15);
-        serviceA.setServiceDateRange(startDate, endDate);
-        serviceB.setServiceDateRange(startDate, endDate);
-        serviceC.setServiceDateRange(startDate, endDate);
+
+        ServiceCalendar serviceCalendarA = new ServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        ServiceCalendar serviceCalendarB = new ServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        ServiceCalendar serviceCalendarC = new ServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+
+        serviceA.setCalendar(serviceCalendarA);
+        serviceB.setCalendar(serviceCalendarB);
+        serviceC.setCalendar(serviceCalendarC);
+
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         Trip tripA = new Trip(TestMixedTransportData.TRIP_A_ID, "headSign", serviceA, routeA);

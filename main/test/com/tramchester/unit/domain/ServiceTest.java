@@ -1,9 +1,9 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
@@ -14,61 +14,12 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServiceTest {
 
-    @Test
-    void shouldSetStartDateAndEndDate() {
 
-        Service service = new Service("", TestEnv.getTestRoute());
-
-        LocalDate startDate = LocalDate.of(2014, 10, 5);
-        LocalDate endDate = LocalDate.of(2014, 12, 25);
-
-        service.setDays(true,true,true,true,true,true, true);
-
-        service.setServiceDateRange(startDate, endDate);
-
-        assertTrue(service.operatesOn(startDate));
-        assertTrue(service.operatesOn(endDate));
-        assertTrue(service.operatesOn(LocalDate.of(2014,11,30)));
-
-        Assertions.assertFalse(service.operatesOn(LocalDate.of(2016,11,30)));
-        Assertions.assertFalse(service.operatesOn(startDate.minusDays(1)));
-        Assertions.assertFalse(service.operatesOn(endDate.plusDays(1)));
-    }
-
-    @Test
-    void shouldCheckIfServiceHasExceptionDatesRemoved() {
-        Service service = new Service("", TestEnv.getTestRoute());
-        LocalDate startDate = LocalDate.of(2020, 10, 5);
-        LocalDate endDate = LocalDate.of(2020, 12, 10);
-        service.setServiceDateRange(startDate, endDate);
-        service.setDays(true,true,true,true,true,true,true);
-
-        LocalDate queryDate = LocalDate.of(2020, 12, 1);
-        assertTrue(service.operatesOn(queryDate));
-        service.addExceptionDate(queryDate, CalendarDateData.REMOVED);
-        Assertions.assertFalse(service.operatesOn(queryDate));
-    }
-
-    @Test
-    void shouldCheckIfServiceHasExceptionDatesAdded() {
-        Service service = new Service("", TestEnv.getTestRoute());
-
-        LocalDate startDate = TestEnv.LocalNow().toLocalDate();
-        LocalDate endDate = TestEnv.testDay().plusWeeks(2);
-        service.setServiceDateRange(startDate, endDate);
-
-        service.setDays(false, false, false, false, false, false, true);
-        assertTrue(service.operatesOn(TestEnv.nextSunday()));
-
-        LocalDate weekTuesday = TestEnv.testDay().plusWeeks(1);
-        Assertions.assertFalse(service.operatesOn(weekTuesday));
-        service.addExceptionDate(weekTuesday, CalendarDateData.ADDED);
-        assertTrue(service.operatesOn(weekTuesday));
-    }
 
     @Test
     void shouldAddTripsToService() {
@@ -97,16 +48,20 @@ class ServiceTest {
     }
 
     @Test
-    void shouldSetWeekendDaysOnService() {
-        Service service = new Service("", TestEnv.getTestRoute());
+    void shouldNoticeNoDatesSet() {
+        Service service = new Service("svcXXX", TestEnv.getTestRoute(IdFor.createId("ROUTE66")));
+        assertFalse(service.hasCalendar());
 
-        service.setServiceDateRange(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay().plusWeeks(2));
-        service.setDays(false, false, false, false, false, true, true);
+        LocalDate startDate = LocalDate.of(2014, 10, 5);
+        LocalDate endDate = LocalDate.of(2014, 12, 25);
 
-        Assertions.assertFalse(service.operatesOn(TestEnv.testDay().plusWeeks(1)));
-        assertTrue(service.operatesOn(TestEnv.nextSaturday()));
-        assertTrue(service.operatesOn(TestEnv.nextSunday()));
+        ServiceCalendar serviceCalendar = new ServiceCalendar(startDate, endDate, TestEnv.allDays());
+
+        service.setCalendar(serviceCalendar);
+
+        assertTrue(service.hasCalendar());
     }
+
 
     @Test
     void shouldSetRouteIdAndServiceId() {
@@ -123,35 +78,6 @@ class ServiceTest {
         assertThat(service.getRoutes()).hasSize(2);
     }
 
-    @Test
-    void shouldNoticeNoDatesSet() {
-        Service service = new Service("svcXXX", TestEnv.getTestRoute(IdFor.createId("ROUTE66")));
-        assertTrue(service.HasMissingDates());
 
-        service.setServiceDateRange(LocalDate.MIN, LocalDate.MAX);
-        assertTrue(service.HasMissingDates());
-
-        service.setServiceDateRange(TestEnv.LocalNow().toLocalDate(), TestEnv.testDay());
-        assertTrue(service.HasMissingDates());// no days set
-
-        service.setDays(true, false, false, false, false, false, false);
-        Assertions.assertFalse(service.HasMissingDates()); // now have days
-
-        service.setServiceDateRange(LocalDate.MIN, LocalDate.MAX);
-        assertTrue(service.HasMissingDates()); // invalid dates
-
-    }
-
-    @Test
-    void shouldReportNoDatesSetIncludingExceptions() {
-        Service service = new Service("svcXXX", TestEnv.getTestRoute(IdFor.createId("ROUTE66")));
-
-        service.setDays(true, false, false, false, false, false, false);
-
-        assertTrue(service.HasMissingDates()); // missing dates
-
-        service.addExceptionDate(TestEnv.testDay(), CalendarDateData.ADDED);
-        Assertions.assertFalse(service.HasMissingDates());
-    }
 
 }

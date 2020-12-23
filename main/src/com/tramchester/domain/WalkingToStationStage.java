@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -24,6 +25,11 @@ public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
     @Override
     public Location<?> getActionStation() {
         return getLastStation();
+    }
+
+    @Override
+    public IdFor<Trip> getTripId() {
+        return IdFor.invalid();
     }
 
     @Override

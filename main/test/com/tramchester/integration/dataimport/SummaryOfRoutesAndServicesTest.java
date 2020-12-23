@@ -23,7 +23,7 @@ class SummaryOfRoutesAndServicesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -38,7 +38,7 @@ class SummaryOfRoutesAndServicesTest {
     }
 
     @Test
-    void createsSummaryOfRoutesAndServicesToAidInDiagnostics() throws FileNotFoundException {
+    void createsSummaryOqfRoutesAndServicesToAidInDiagnostics() throws FileNotFoundException {
         String fileName = "summaryOfRouteAndServices.txt";
         OutputStream fileStream = new FileOutputStream(fileName);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);
@@ -50,13 +50,13 @@ class SummaryOfRoutesAndServicesTest {
                 printStream.printf("Service ID:%s  (%s)%n",svc.getId(), route.getName());
                 svc.summariseDates(printStream);
 
-                svc.getTripsFor(route).forEach(trip ->{
-                    StopCalls stops = trip.getStops();
-                    stops.getLegs().forEach(leg -> printStream.println(format("Trip: %s From: %s To: %s %s %s",
-                            trip.getId(), leg.getFirstStation().getName(),
-                            leg.getSecondStation().getName(),
-                            trip.earliestDepartTime().toPattern(), trip.latestDepartTime().toPattern())));
-                });
+//                svc.getTripsFor(route).forEach(trip ->{
+//                    StopCalls stops = trip.getStops();
+//                    stops.getLegs().forEach(leg -> printStream.println(format("Trip: %s From: %s To: %s %s %s",
+//                            trip.getId(), leg.getFirstStation().getName(),
+//                            leg.getSecondStation().getName(),
+//                            trip.earliestDepartTime().toPattern(), trip.latestDepartTime().toPattern())));
+//                });
                 printStream.println();
 
             });

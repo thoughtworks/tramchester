@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -99,9 +100,15 @@ public class TransportDataFromFiles implements TransportDataProvider {
         buildable.reportNumbers();
 
         // update svcs where calendar data is missing
-        buildable.getServices().stream().filter(Service::HasMissingDates).forEach(
-                svc -> logger.warn(format("source %s Service %s has missing date data or runs on zero days",
-                        sourceName, svc.getId()))
+        buildable.getServices().stream().filter(service -> !service.hasCalendar()).forEach(
+                svc -> logger.warn(format("source %s Service %s has missing calendar", sourceName, svc.getId()))
+        );
+        buildable.getServices().stream().filter(Service::hasCalendar).forEach(service -> {
+            ServiceCalendar calendar = service.getCalendar();
+            if (calendar.operatesNoDays()) {
+                    logger.warn(format("source %s Service %s operates zero days %s", sourceName, service.getId(), calendar));
+                }
+            }
         );
         dataSource.closeAll();
 
@@ -111,48 +118,65 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
                                    Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
+        AtomicInteger countCalendars = new AtomicInteger(0);
+        logger.info("Loading calendars for " + services.size() +" services");
 
-        logger.info("Loading calendars");
         IdSet<Service> missingCalendar = services.getIds();
         calendars.forEach(calendarData -> {
             IdFor<Service> serviceId = calendarData.getServiceId();
             Service service = buildable.getService(serviceId);
 
             if (service != null) {
+                countCalendars.getAndIncrement();
                 missingCalendar.remove(serviceId);
-                service.setDays(
-                        calendarData.isMonday(),
-                        calendarData.isTuesday(),
-                        calendarData.isWednesday(),
-                        calendarData.isThursday(),
-                        calendarData.isFriday(),
-                        calendarData.isSaturday(),
-                        calendarData.isSunday()
-                );
-                service.setServiceDateRange(calendarData.getStartDate(), calendarData.getEndDate());
+                ServiceCalendar serviceCalendar = new ServiceCalendar(calendarData);
+                service.setCalendar(serviceCalendar);
             }
         });
         if (!missingCalendar.isEmpty()) {
             logger.warn("Failed to match service id " + missingCalendar.toString() + " for calendar");
         }
+        logger.info("Loaded " + countCalendars.get() + " calendar entries");
 
-        logger.info("Loading calendar dates");
+        updateServiceDatesFromCalendarDates(buildable, calendarsDates, services);
+    }
+
+    private void updateServiceDatesFromCalendarDates(TransportDataContainer buildable, Stream<CalendarDateData> calendarsDates,
+                                                     IdMap<Service> services) {
+        logger.info("Loading calendar dates "+ services.size() +" services");
         IdSet<Service> missingCalendarDates = services.getIds();
+        AtomicInteger countCalendarDates = new AtomicInteger(0);
+
         calendarsDates.forEach(date -> {
             IdFor<Service> serviceId = date.getServiceId();
             Service service = buildable.getService(serviceId);
             if (service != null) {
-                missingCalendarDates.remove(serviceId);
-                int exceptionType = date.getExceptionType();
-                if (exceptionType==CalendarDateData.ADDED || exceptionType==CalendarDateData.REMOVED) {
-                    service.addExceptionDate(date.getDate(), exceptionType);
+                if (service.hasCalendar()) {
+                    countCalendarDates.getAndIncrement();
+                    missingCalendarDates.remove(serviceId);
+                    addException(date, service.getCalendar(), serviceId);
                 } else {
-                    logger.warn("Unexpected exception type " + exceptionType + " for service " + serviceId + " and date " + date.getDate());
+                    // TODO Create a one off entry? Auto populate based on all exceptions? i.e. days of week
+                    logger.error("Missing calendar for service " + service.getId() + " so could not add " + date);
                 }
             }
         });
         if (!missingCalendarDates.isEmpty()) {
             logger.warn("Failed to find service id " + missingCalendarDates.toString() + " for calendar_dates");
+        }
+        logger.info("Loaded " + countCalendarDates.get() + " calendar date entries");
+    }
+
+
+    private void addException(CalendarDateData date, ServiceCalendar calendar, IdFor<Service> serviceId) {
+        int exceptionType = date.getExceptionType();
+        LocalDate exceptionDate = date.getDate();
+        if (exceptionType == CalendarDateData.ADDED) {
+            calendar.includeExtraDate(exceptionDate);
+        } else if (exceptionType == CalendarDateData.REMOVED) {
+            calendar.excludeDate(exceptionDate);
+        } else {
+            logger.warn("Unexpected exception type " + exceptionType + " for service " + serviceId + " and date " + exceptionDate);
         }
     }
 

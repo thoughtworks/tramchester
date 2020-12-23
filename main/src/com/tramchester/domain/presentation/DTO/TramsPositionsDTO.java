@@ -1,7 +1,5 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.tramchester.domain.presentation.TramPositionDTO;
-
 import java.util.List;
 
 public class TramsPositionsDTO {

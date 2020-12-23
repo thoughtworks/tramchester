@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.reference.TransportMode;
@@ -32,11 +33,12 @@ public class StageDTO {
     private String action;
 
     private RouteRefDTO route;
+    private String tripId;
 
     public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
                     LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
-                    RouteRefDTO route, TravelAction action, LocalDate queryDate) {
+                    RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
         this.firstStation = firstStation;
         this.lastStation = lastStation;
         this.actionStation = actionStation;
@@ -51,26 +53,18 @@ public class StageDTO {
         this.route = route;
         this.action = action.toString();
         this.queryDate = queryDate;
+        this.tripId = tripId;
     }
 
     public StageDTO(StationRefWithPosition firstStation, StationRefWithPosition lastStation, StationRefWithPosition actionStation,
                     PlatformDTO boardingPlatform, LocalDateTime firstDepartureTime, LocalDateTime expectedArrivalTime, int duration,
                     String headSign, TransportMode mode, int passedStops,
-                    RouteRefDTO route, TravelAction action, LocalDate queryDate) {
-        this.firstStation = firstStation;
-        this.lastStation = lastStation;
-        this.actionStation = actionStation;
+                    RouteRefDTO route, TravelAction action, LocalDate queryDate, String tripId) {
+        this(firstStation, lastStation, actionStation, firstDepartureTime, expectedArrivalTime, duration, headSign, mode,
+            passedStops, route, action, queryDate, tripId);
+
         this.hasPlatform = true;
         this.platform = boardingPlatform;
-        this.firstDepartureTime = firstDepartureTime;
-        this.expectedArrivalTime = expectedArrivalTime;
-        this.duration = duration;
-        this.headSign = headSign;
-        this.mode = mode;
-        this.passedStops = passedStops;
-        this.route = route;
-        this.action = action.toString();
-        this.queryDate = queryDate;
     }
 
     public StageDTO() {
@@ -140,6 +134,11 @@ public class StageDTO {
         return action;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public String getTripId() {
+        return tripId;
+    }
+
     @Override
     public String toString() {
         return "StageDTO{" +
@@ -156,7 +155,8 @@ public class StageDTO {
                 ", mode=" + mode +
                 ", passedStops=" + passedStops +
                 ", action='" + action + '\'' +
-                ", route='" + route + '\'' +
+                ", route=" + route +
+                ", tripId='" + tripId + '\'' +
                 '}';
     }
 

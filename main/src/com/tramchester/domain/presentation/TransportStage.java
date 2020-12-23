@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -25,4 +26,5 @@ public interface TransportStage<FROM extends Location<?>, DEST extends Location<
     TransportMode getMode();
     int getPassedStops();
 
+    IdFor<Trip> getTripId();
 }

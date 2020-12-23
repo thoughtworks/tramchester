@@ -72,6 +72,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board);
+        assertEquals(trip.getId().forDTO(), stageDTO.getTripId());
     }
 
     @Test

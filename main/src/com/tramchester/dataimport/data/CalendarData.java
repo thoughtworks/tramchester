@@ -40,36 +40,36 @@ public class CalendarData extends ParsesDate {
         this.end = parseDate(text);
     }
 
-    public boolean isMonday() {
-        return isSet(monday);
-    }
-
-    private boolean isSet(String text) {
+    private boolean isFlagSet(String text) {
         return "1".equals(text);
     }
 
+    public boolean isMonday() {
+        return isFlagSet(monday);
+    }
+
     public boolean isTuesday() {
-        return isSet(tuesday);
+        return isFlagSet(tuesday);
     }
 
     public boolean isWednesday() {
-        return isSet(wednesday);
+        return isFlagSet(wednesday);
     }
 
     public boolean isThursday() {
-        return isSet(thursday);
+        return isFlagSet(thursday);
     }
 
     public boolean isFriday() {
-        return isSet(friday);
+        return isFlagSet(friday);
     }
 
     public boolean isSaturday() {
-        return isSet(saturday);
+        return isFlagSet(saturday);
     }
 
     public boolean isSunday() {
-        return isSet(sunday);
+        return isFlagSet(sunday);
     }
 
     public LocalDate getEndDate() {

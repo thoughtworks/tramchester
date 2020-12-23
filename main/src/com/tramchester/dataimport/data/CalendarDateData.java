@@ -41,4 +41,14 @@ public class CalendarDateData extends ParsesDate {
     public int getExceptionType() {
         return exceptionType;
     }
+
+
+    @Override
+    public String toString() {
+        return "CalendarDateData{" +
+                "serviceId='" + serviceId + '\'' +
+                ", date=" + date +
+                ", exceptionType=" + exceptionType +
+                "} ";
+    }
 }

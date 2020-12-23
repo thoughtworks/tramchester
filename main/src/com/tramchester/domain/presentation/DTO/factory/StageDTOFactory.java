@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.VehicleStage;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
@@ -52,6 +53,8 @@ public class StageDTOFactory {
             routeRefDTO = new RouteRefDTO(route);
         }
 
+        String tripId = source.getTripId().isValid() ? source.getTripId().forDTO() : "";
+
         if (source.hasBoardingPlatform()) {
             PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());
 
@@ -62,7 +65,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), routeRefDTO, travelAction, queryDate);
+                    source.getPassedStops(), routeRefDTO, travelAction, queryDate, tripId);
         } else {
             return new StageDTO(firstStation,
                     lastStation,
@@ -70,7 +73,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), routeRefDTO, travelAction, queryDate);
+                    source.getPassedStops(), routeRefDTO, travelAction, queryDate, tripId);
         }
     }
 

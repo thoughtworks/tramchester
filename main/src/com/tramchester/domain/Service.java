@@ -1,15 +1,11 @@
 package com.tramchester.domain;
 
 
-import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.io.PrintStream;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -21,12 +17,8 @@ public class Service implements HasId<Service>, GraphProperty {
     private final IdFor<Service> serviceId;
     private final Set<Route> routes;
     private final Set<Trip> trips;
-    private TramServiceDate startDate;
-    private TramServiceDate endDate;
 
-    private final Set<DayOfWeek> days;
-    private final Set<LocalDate> additional;
-    private final Set<LocalDate> removed;
+    private ServiceCalendar calendar;
 
     private TramTime earliestDepart;
     private TramTime latestDepart;
@@ -40,11 +32,9 @@ public class Service implements HasId<Service>, GraphProperty {
         this.routes = new HashSet<>();
         this.routes.add(route);
         this.trips = new LinkedHashSet<>();
-        this.days = new HashSet<>();
-        this.additional = new HashSet<>();
-        this.removed = new HashSet<>();
         earliestDepart = null;
         latestDepart = null;
+        calendar = null;
     }
 
     public IdFor<Service> getId() {
@@ -86,33 +76,13 @@ public class Service implements HasId<Service>, GraphProperty {
         }
     }
 
-    public void setDays(boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, boolean sunday) {
-        maybeDay(monday, DayOfWeek.MONDAY);
-        maybeDay(tuesday, DayOfWeek.TUESDAY);
-        maybeDay(wednesday, DayOfWeek.WEDNESDAY);
-        maybeDay(thursday, DayOfWeek.THURSDAY);
-        maybeDay(friday, DayOfWeek.FRIDAY);
-        maybeDay(saturday, DayOfWeek.SATURDAY);
-        maybeDay(sunday, DayOfWeek.SUNDAY);
-    }
-
-    private void maybeDay(boolean flag, DayOfWeek dayOfWeek) {
-        if (flag) {
-            days.add(dayOfWeek);
-        }
-    }
-
     @Override
     public String toString() {
         return "Service{" +
-                "serviceId='" + serviceId + '\'' +
-                ", route=" + HasId.asIds(routes) +
-                ", trips=" + HasId.asIds(trips) +
-                ", days=" + days +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", additional=" + additional +
-                ", removed=" + removed +
+                "serviceId=" + serviceId +
+                ", routes=" + routes +
+                ", trips=" + trips +
+                ", calendar=" + calendar +
                 ", earliestDepart=" + earliestDepart +
                 ", latestDepart=" + latestDepart +
                 '}';
@@ -124,32 +94,6 @@ public class Service implements HasId<Service>, GraphProperty {
 
     public Set<Trip> getTripsFor(Route route) {
         return trips.stream().filter(trip->trip.getRoute().equals(route)).collect(Collectors.toSet());
-    }
-
-    public void setServiceDateRange(LocalDate startDate, LocalDate endDate) {
-        this.startDate = new TramServiceDate(startDate);
-        this.endDate = new TramServiceDate(endDate);
-    }
-
-    public boolean HasMissingDates() {
-        if (!additional.isEmpty()) {
-            return false;
-        }
-        if (startDate==null || endDate==null) {
-            return true;
-        }
-        if (startDate.getDate().equals(LocalDate.MIN) && endDate.getDate().equals(LocalDate.MAX)) {
-            return true;
-        }
-        return days.isEmpty();
-    }
-
-    public void addExceptionDate(LocalDate exceptionDate, int exceptionType) {
-        if (exceptionType==CalendarDateData.ADDED) {
-            additional.add(exceptionDate);
-        } else if (exceptionType==CalendarDateData.REMOVED) {
-            removed.add(exceptionDate);
-        }
     }
 
     @Override
@@ -165,25 +109,6 @@ public class Service implements HasId<Service>, GraphProperty {
         return Objects.hash(serviceId);
     }
 
-    public boolean operatesOn(LocalDate queryDate) {
-        if (additional.contains(queryDate)) {
-            return true;
-        }
-        if (removed.contains(queryDate)) {
-            return false;
-        }
-
-        LocalDate begin = startDate.getDate();
-        LocalDate end = endDate.getDate();
-        if  (queryDate.isAfter(begin) && queryDate.isBefore(end)) {
-            return days.contains(queryDate.getDayOfWeek());
-        }
-        if (queryDate.equals(begin) || queryDate.equals(end)) {
-            return true;
-        }
-        return false;
-    }
-
     public TramTime earliestDepartTime() {
         return earliestDepart;
     }
@@ -193,35 +118,27 @@ public class Service implements HasId<Service>, GraphProperty {
     }
 
     public void summariseDates(PrintStream printStream) {
-        printStream.printf("starts %s ends %s days %s%n",
-                startDate.toDateString(), endDate.toDateString(), reportDays());
         printStream.printf("Earliest: %s Latest: %s%n", earliestDepartTime().toPattern(), latestDepartTime().toPattern());
-        if (!additional.isEmpty()) {
-            printStream.println("Additional on: " + additional.toString());
-        }
-        if (!removed.isEmpty()) {
-            printStream.println("Not running on: " + removed.toString());
-        }
-    }
-
-    private String reportDays() {
-        StringBuilder found = new StringBuilder();
-        for (int i = 0; i < DayOfWeek.values().length; i++) {
-            if (days.contains(DayOfWeek.values()[i])) {
-                if (found.length()>0) {
-                    found.append(",");
-                }
-                found.append(DayOfWeek.values()[i].name());
-            }
-        }
-        if (found.length()==0) {
-            return "SPECIAL";
-        }
-        return found.toString();
+        calendar.summariseDates(printStream);
     }
 
     @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.SERVICE_ID;
+    }
+
+    public void setCalendar(ServiceCalendar serviceCalendar) {
+        if (this.calendar!=null) {
+            throw new RuntimeException("Attempt to overwrite calendar for service " + this.serviceId + " overwrite was " + serviceCalendar);
+        }
+        this.calendar = serviceCalendar;
+    }
+
+    public ServiceCalendar getCalendar() {
+        return calendar;
+    }
+
+    public boolean hasCalendar() {
+        return calendar!=null;
     }
 }
