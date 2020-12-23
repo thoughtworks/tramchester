@@ -23,7 +23,7 @@ class RouteCostCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
         TramchesterConfig config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -53,7 +53,7 @@ class RouteCostCalculatorTest {
 
         try(Transaction txn = database.beginTx()) {
             assertEquals(64, getApproxCostBetween(txn, TramStations.Bury, TramStations.Altrincham));
-            assertEquals(65, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
+            assertEquals(62, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
         }
     }
 

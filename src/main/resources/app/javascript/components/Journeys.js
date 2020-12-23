@@ -61,7 +61,7 @@ function stopsFormatter(value, key, row) {
 
 function routeFormatter(mode, key, row) {
     if (mode==='Bus') {
-        return row.route.shortName;
+        return row.route.routeName;
     } else {
         return row.route.routeName;
     }

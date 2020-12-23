@@ -18,6 +18,7 @@ public interface StationRepository {
 
     Station getStationById(IdFor<Station> stationId);
     boolean hasStationId(IdFor<Station> stationId);
+    String getStationName(IdFor<Station> stationId);
 
     // live data association
     Optional<Station> getTramStationByName(String name);

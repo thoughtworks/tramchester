@@ -87,6 +87,11 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
+    public String getStationName(IdFor<Station> stationId) {
+        return getStationById(stationId).getName();
+    }
+
+    @Override
     public Set<Station> getStations() {
         return stationsById.getValues();
     }

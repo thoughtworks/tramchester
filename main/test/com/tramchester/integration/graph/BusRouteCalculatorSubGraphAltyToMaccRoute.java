@@ -7,10 +7,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.RouteReachable;
 import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
@@ -20,36 +22,40 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
+import javax.annotation.processing.RoundEnvironment;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
-    private static final IdFor<Route> ROUTE_ID = IdFor.createId("DGC:  88:O:");
+    private static final IdFor<Route> ROUTE_ID = IdFor.createId("DGC:88:O:");
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
+    private static Config config;
 
     private RouteCalculatorTestFacade calculator;
     private Transaction txn;
     private TramServiceDate when;
     private List<Station> routeStations;
+    private TransportData transportData;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(ROUTE_ID);
 
-        TramchesterConfig config = new Config("altyMacRoute");
+        config = new Config("altyMacRoute");
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -57,13 +63,14 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
+    static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
+        FileUtils.deleteDirectory(config.getDBPath().toFile());
     }
 
     @BeforeEach
     void beforeEachTestRuns() {
-        TransportData transportData = componentContainer.get(TransportData.class);
+        transportData = componentContainer.get(TransportData.class);
         RouteCallingStations routeCallingStations = componentContainer.get(RouteCallingStations.class);
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), transportData, txn);
@@ -77,6 +84,22 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @AfterEach
     void afterEachTestRuns() {
         txn.close();
+    }
+
+    @Test
+    void shouldBeFilteringByCorrectRoute() {
+        Route route = transportData.getRouteById(ROUTE_ID);
+        assertNotNull(route);
+
+        Station start = transportData.getStationById(BusStations.AltrinchamInterchange.getId());
+        Station end = transportData.getStationById(BusStations.MacclefieldBusStationBay1.getId());
+        RouteStation routeStation = transportData.getRouteStation(start, route);
+
+        RouteReachable routeReachable = componentContainer.get(RouteReachable.class);
+
+        assertTrue(routeReachable.getRouteReachableWithInterchange(routeStation, end));
+        assertTrue(start.getRoutes().contains(route));
+        assertTrue(end.getRoutes().contains(route));
     }
 
     @Test

@@ -26,7 +26,7 @@ public class TestStation extends Station {
         routesAdded = false;
     }
 
-    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) throws TransformException {
+    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) {
         return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode);
     }
 

@@ -58,10 +58,14 @@ public class RouteReachable {
             firstRoutes.forEach(route -> {
                 RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
                 Node routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
-                Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
-                for (Relationship edge : edges) {
-                    if (endStationId.matchesStationNodePropery(edge.getEndNode())) {
-                        results.add(route);
+                if (routeStationNode==null) {
+                    logger.warn("Missing route station, graph DB rebuild needed?");
+                } else {
+                    Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
+                    for (Relationship edge : edges) {
+                        if (endStationId.matchesStationNodePropery(edge.getEndNode())) {
+                            results.add(route);
+                        }
                     }
                 }
             });

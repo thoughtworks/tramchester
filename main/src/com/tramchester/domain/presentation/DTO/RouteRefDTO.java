@@ -20,8 +20,13 @@ public class RouteRefDTO {
     }
 
     public RouteRefDTO(Route route) {
+        this(route, route.getName());
+    }
+
+    public RouteRefDTO(Route route, String routeName) {
+        this.routeName = routeName;
+
         this.id = route.getId().forDTO();
-        this.routeName = route.getName();
         this.transportMode = route.getTransportMode();
         this.shortName = route.getShortName();
     }

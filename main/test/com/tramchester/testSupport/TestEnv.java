@@ -55,8 +55,8 @@ public class TestEnv {
     public static final GridPosition nearStockportBusGrid;
     public static final GridPosition nearGreenwichGrid;
 
-    public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("YYYY-MM-dd");
-    public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMYYYY");
+    public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     private static final Agency MET = new Agency("MET", "agencyName");

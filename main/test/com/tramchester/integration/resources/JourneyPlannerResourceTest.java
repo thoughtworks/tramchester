@@ -185,7 +185,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        assertTrue(journeys.size()>0);
+        assertTrue(journeys.size()>0, "no journeys");
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
     }
 

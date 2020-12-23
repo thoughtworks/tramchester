@@ -220,6 +220,19 @@ task unit(type: Test, dependsOn: compileJava) {
     }
 }
 
+task liveMessages(type: Test, dependsOn: compileJava) {
+    useJUnitPlatform {
+        includeTags "liveDataMessages"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError"
+    }
+}
+
 task integration(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "1750m"

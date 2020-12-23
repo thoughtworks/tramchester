@@ -90,7 +90,7 @@ public class InterchangeRepository  {
             return TramInterchanges.has(station);
         }
         if (station.getTransportModes().size()>1) {
-            logger.info("More than one transport more, see as interchange station id " + station.getId());
+            //logger.info("More than one transport more, see as interchange station id " + station.getId());
             return true;
         }
 

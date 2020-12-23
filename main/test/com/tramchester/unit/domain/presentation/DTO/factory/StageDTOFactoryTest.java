@@ -3,15 +3,22 @@ package com.tramchester.unit.domain.presentation.DTO.factory;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestNoPlatformStation;
 import com.tramchester.testSupport.reference.TramStations;
+import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,10 +32,12 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
     private StageDTOFactory factory;
     private LocalDate when;
+    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRun() {
-        factory = new StageDTOFactory();
+        stationRepository = createMock(StationRepository.class);
+        factory = new StageDTOFactory(stationRepository);
         when = TestEnv.testDay();
     }
 
@@ -63,6 +72,39 @@ class StageDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         checkValues(vehicleStage, stageDTO, true, TravelAction.Board);
+    }
+
+    @Test
+    void shouldMapRouteNameForTrainRoutes() {
+        Agency agency = new Agency("GW", "Great Western");
+        Route route = new Route("routeId", "shortName", "GW train service from PAD to NBY", agency,
+                TransportMode.Train, RouteDirection.Unknown);
+
+        Service service = new Service("svcId", route);
+
+        Trip trip = new Trip("tripId", "headSign", service, route);
+        Station startStation = TestNoPlatformStation.forTest("idA", "areaA", "name A", TestEnv.nearStockportBus, TransportMode.Train);
+        Station endStation = TestNoPlatformStation.forTest("idB", "areaB", "name B", TestEnv.nearPiccGardens, TransportMode.Train);
+        VehicleStage vehicleStage = new VehicleStage(startStation, route,
+                TransportMode.Train, trip, TramTime.of(0, 0), endStation, 23, false);
+        vehicleStage.setCost(5);
+
+        EasyMock.expect(stationRepository.hasStationId(IdFor.createId("NBY"))).andReturn(true);
+        EasyMock.expect(stationRepository.getStationName(IdFor.createId("NBY"))).andReturn("Newbury");
+        EasyMock.expect(stationRepository.hasStationId(IdFor.createId("PAD"))).andReturn(true);
+        EasyMock.expect(stationRepository.getStationName(IdFor.createId("PAD"))).andReturn("London Paddington");
+
+        replayAll();
+        StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
+        verifyAll();
+
+        RouteRefDTO routeRefDTO = stageDTO.getRoute();
+
+        assertEquals(route.getId().forDTO(), routeRefDTO.getId());
+        assertEquals(route.getShortName(), routeRefDTO.getShortName());
+        assertEquals(TransportMode.Train, routeRefDTO.getTransportMode());
+
+        assertEquals("Great Western train service from London Paddington to Newbury", routeRefDTO.getRouteName());
     }
 
     private void checkValues(TransportStage<?,?> stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
