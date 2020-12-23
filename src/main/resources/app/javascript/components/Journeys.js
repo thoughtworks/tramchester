@@ -27,7 +27,7 @@ function nameForStation(station) {
     if (station.id=='MyLocationPlaceholderId') {
         return name;
     }
-    if (station.transportMode=='Tram') {
+    if (station.transportModes.includes('Tram')) {
         return name; // tram names unambiguous so no need for area prefx
     }
     if (!name.includes(station.area)) {
@@ -46,7 +46,7 @@ function stageHeadsignClass(value, key, row) {
     if (row.action=='Walk to' || row.action=='Walk from') {
         return 'walkingHeadSign';
     }
-    if (row.actionStation.transportMode=='Train') {
+    if (row.actionStation.transportModes.includes('Train')) {
         return 'trainHeadSign';
     }
     return "headsign";
