@@ -8,6 +8,7 @@ import io.dropwizard.Configuration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Set;
 
 @SuppressWarnings("unused")
@@ -43,6 +44,11 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     @JsonProperty("transportModes")
     private Set<GTFSTransportationType> transportModes;
 
+    // date format: 2020-12-25
+    @NotNull
+    @JsonProperty("noServices")
+    private Set<LocalDate> noServices;
+
     @Override
     public String getName() {
         return name;
@@ -56,6 +62,11 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     @Override
     public Set<GTFSTransportationType> getTransportModes() {
         return transportModes;
+    }
+
+    @Override
+    public Set<LocalDate> getNoServices() {
+        return noServices;
     }
 
     @Override

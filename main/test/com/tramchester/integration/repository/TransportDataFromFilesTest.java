@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
@@ -41,13 +42,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class TransportDataFromFilesTest {
 
     private static ComponentContainer componentContainer;
+    private static IntegrationTramTestConfig config;
 
     private TransportData transportData;
     private Collection<Service> allServices;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder<>().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+        config = new IntegrationTramTestConfig();
+        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -158,7 +161,8 @@ class TransportDataFromFilesTest {
         assertTrue(results.isEmpty());
     }
 
-    @Disabled("WIP")
+    // TODO REMOVE THIS, also update TFGMTestDataSourceConfig to remove Christmas day
+    // TODO REMOVE THIS, also update TFGMTestDataSourceConfig to remove Christmas day
     @Test
     void shouldHaveCorrectDatesAndServicesForChirstmas2020() {
         LocalDate christmasDay = LocalDate.of(2020, 12, 25);
@@ -335,6 +339,10 @@ class TransportDataFromFilesTest {
 
         assertFalse(applyToCurrentServices.isEmpty());
 
+        assertEquals(1,  config.getDataSourceConfig().size(), "expected only one data source");
+        DataSourceConfig sourceConfig = config.getDataSourceConfig().get(0);
+        Set<LocalDate> excludedByConfig = sourceConfig.getNoServices();
+
         applyToCurrentServices.forEach(exception -> {
             Service service = transportData.getServiceById(exception.getServiceId());
             ServiceCalendar calendar = service.getCalendar();
@@ -342,7 +350,11 @@ class TransportDataFromFilesTest {
             LocalDate exceptionDate = exception.getDate();
             int exceptionType = exception.getExceptionType();
             if (exceptionType == CalendarDateData.ADDED) {
-                assertTrue(calendar.operatesOn(exceptionDate));
+                if (excludedByConfig.contains(exceptionDate)) {
+                    assertFalse(calendar.operatesOn(exceptionDate));
+                } else {
+                    assertTrue(calendar.operatesOn(exceptionDate));
+                }
             } else if (exceptionType == CalendarDateData.REMOVED) {
                 assertFalse(calendar.operatesOn(exceptionDate));
             }

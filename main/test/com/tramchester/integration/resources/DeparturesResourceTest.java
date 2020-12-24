@@ -113,7 +113,7 @@ class DeparturesResourceTest {
         double lon = -2.2392436d;
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
         SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
-        assertFalse(departures.isEmpty());
+        assertFalse(departures.isEmpty(), "no departures");
     }
 
     @Test

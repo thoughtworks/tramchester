@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Set;
 
 @JsonDeserialize(as=DataSourceAppConfig.class)
@@ -31,4 +32,8 @@ public interface DataSourceConfig {
 
     // transport modes to include from this dataset
     Set<GTFSTransportationType> getTransportModes();
+
+    // no service dates
+    // basically a workaround for tfgm including services for dates their website says there are no services..
+    Set<LocalDate> getNoServices();
 }

@@ -35,7 +35,7 @@ class TramPositionsResourceTest {
 
         // should have some positions
         List<TramPositionDTO> positions = filtered.getPositionsList();
-        assertFalse(positions.isEmpty());
+        assertFalse(positions.isEmpty(), "no tram positions available");
 
         // ALL of those positions should have trams
         long positionsWithTrams = positions.stream().filter(position -> !position.getTrams().isEmpty()).count();
@@ -66,7 +66,7 @@ class TramPositionsResourceTest {
         List<TramPositionDTO> positions = unfiltered.getPositionsList();
         assertFalse(positions.isEmpty());
         long positionsWithTrams = positions.stream().filter(position -> !position.getTrams().isEmpty()).count();
-        assertTrue(positionsWithTrams>0);
+        assertTrue(positionsWithTrams>0, "no tram positions available");
         // for unfiltered should have more positions than ones with trams
         assertTrue(positions.size() > positionsWithTrams);
 

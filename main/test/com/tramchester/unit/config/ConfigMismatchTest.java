@@ -2,6 +2,7 @@ package com.tramchester.unit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
@@ -10,11 +11,13 @@ import io.dropwizard.jackson.Jackson;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import javax.validation.Valid;
 import javax.validation.Validator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,6 +87,20 @@ class ConfigMismatchTest {
         LiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
         assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
         assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
+
+        List<DataSourceConfig> expectedDataSourceConfigs = expected.getDataSourceConfig();
+        List<DataSourceConfig> dataSourceConfigs = testConfig.getDataSourceConfig();
+        assertEquals(expectedDataSourceConfigs.size(), dataSourceConfigs.size());
+        //assume same order
+        for (int i = 0; i < expectedDataSourceConfigs.size(); i++) {
+            DataSourceConfig expectedDataSource = expectedDataSourceConfigs.get(i);
+            DataSourceConfig dataSourceConfig = dataSourceConfigs.get(i);
+
+            assertEquals(expectedDataSource.getNoServices(), dataSourceConfig.getNoServices());
+            assertEquals(expectedDataSource.getTransportModes(), dataSourceConfig.getTransportModes());
+
+        }
+
     }
 
     private AppConfiguration loadConfigFromFile(String configFilename) throws IOException, ConfigurationException {

@@ -5,6 +5,8 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Set;
 
 public class TFGMTestDataSourceConfig implements DataSourceConfig {
@@ -59,5 +61,10 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
     @Override
     public Set<GTFSTransportationType> getTransportModes() {
         return modes;
+    }
+
+    @Override
+    public Set<LocalDate> getNoServices() {
+        return Collections.singleton(LocalDate.of(2020,12,25));
     }
 }

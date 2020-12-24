@@ -5,6 +5,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 
@@ -51,5 +52,10 @@ class RailTestDataSourceConfig implements DataSourceConfig {
     @Override
     public Set<GTFSTransportationType> getTransportModes() {
         return Collections.singleton(GTFSTransportationType.train);
+    }
+
+    @Override
+    public Set<LocalDate> getNoServices() {
+        return Collections.emptySet();
     }
 }

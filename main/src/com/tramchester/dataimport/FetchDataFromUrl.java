@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -91,6 +92,11 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             @Override
             public Set<GTFSTransportationType> getTransportModes() {
                 return Collections.singleton(GTFSTransportationType.tram);
+            }
+
+            @Override
+            public Set<LocalDate> getNoServices() {
+                return Collections.emptySet();
             }
         };
         URLDownloadAndModTime downloader = new URLDownloadAndModTime();

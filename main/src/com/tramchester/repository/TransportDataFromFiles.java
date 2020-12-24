@@ -93,7 +93,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
         IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations, tripsAndServices.trips);
         allStations.clear();
 
-        populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services);
+        populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services, dataSource.getConfig());
         tripsAndServices.clear();
 
         buildable.updateTimesForServices();
@@ -103,23 +103,34 @@ public class TransportDataFromFiles implements TransportDataProvider {
         buildable.getServices().stream().filter(service -> !service.hasCalendar()).forEach(
                 svc -> logger.warn(format("source %s Service %s has missing calendar", sourceName, svc.getId()))
         );
-        buildable.getServices().stream().filter(Service::hasCalendar).forEach(service -> {
-            ServiceCalendar calendar = service.getCalendar();
-            if (calendar.operatesNoDays()) {
-                    logger.warn(format("source %s Service %s operates zero days %s", sourceName, service.getId(), calendar));
-                }
-            }
-        );
+
+        reportZeroDaysServices(buildable);
+
         dataSource.closeAll();
 
         loaded = true;
         logger.info("Finishing Loading data for " + sourceName);
     }
 
+    private void reportZeroDaysServices(TransportDataContainer buildable) {
+        IdSet<Service> noDayServices = new IdSet<>();
+        buildable.getServices().stream().filter(Service::hasCalendar).forEach(service -> {
+            ServiceCalendar calendar = service.getCalendar();
+            if (calendar.operatesNoDays()) {
+                // feedvalidator flags these as warnings also
+                noDayServices.add(service.getId());
+                }
+            }
+        );
+        if (!noDayServices.isEmpty()) {
+            logger.warn("The following services do no operate on any days per calendar.txt file " + noDayServices.toString());
+        }
+    }
+
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
-                                   Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
+                                   Stream<CalendarDateData> calendarsDates, IdMap<Service> services, DataSourceConfig config) {
         AtomicInteger countCalendars = new AtomicInteger(0);
-        logger.info("Loading calendars for " + services.size() +" services");
+        logger.info("Loading calendars for " + services.size() +" services ");
 
         IdSet<Service> missingCalendar = services.getIds();
         calendars.forEach(calendarData -> {
@@ -138,12 +149,12 @@ public class TransportDataFromFiles implements TransportDataProvider {
         }
         logger.info("Loaded " + countCalendars.get() + " calendar entries");
 
-        updateServiceDatesFromCalendarDates(buildable, calendarsDates, services);
+        updateServiceDatesFromCalendarDates(buildable, calendarsDates, services, config.getNoServices());
     }
 
     private void updateServiceDatesFromCalendarDates(TransportDataContainer buildable, Stream<CalendarDateData> calendarsDates,
-                                                     IdMap<Service> services) {
-        logger.info("Loading calendar dates "+ services.size() +" services");
+                                                     IdMap<Service> services, Set<LocalDate> noServices) {
+        logger.info("Loading calendar dates "+ services.size() +" services with no services on " + noServices);
         IdSet<Service> missingCalendarDates = services.getIds();
         AtomicInteger countCalendarDates = new AtomicInteger(0);
 
@@ -154,7 +165,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
                     missingCalendarDates.remove(serviceId);
-                    addException(date, service.getCalendar(), serviceId);
+                    addException(date, service.getCalendar(), serviceId, noServices);
                 } else {
                     // TODO Create a one off entry? Auto populate based on all exceptions? i.e. days of week
                     logger.error("Missing calendar for service " + service.getId() + " so could not add " + date);
@@ -164,15 +175,35 @@ public class TransportDataFromFiles implements TransportDataProvider {
         if (!missingCalendarDates.isEmpty()) {
             logger.warn("Failed to find service id " + missingCalendarDates.toString() + " for calendar_dates");
         }
+        addNoServicesDatesToAllCalendars(services, noServices, missingCalendarDates);
+
         logger.info("Loaded " + countCalendarDates.get() + " calendar date entries");
     }
 
+    private void addNoServicesDatesToAllCalendars(IdMap<Service> services, Set<LocalDate> noServices, IdSet<Service> missingCalendarDates) {
+        if (noServices.isEmpty()) {
+            return;
+        }
+        logger.warn("Adding no service dates from source config " + noServices);
+        services.forEach(service -> {
+            if (!missingCalendarDates.contains(service.getId())) {
+                noServices.forEach(noServiceDate -> service.getCalendar().excludeDate(noServiceDate));
+            }
+        });
+        logger.info("Added service dates");
 
-    private void addException(CalendarDateData date, ServiceCalendar calendar, IdFor<Service> serviceId) {
+    }
+
+
+    private void addException(CalendarDateData date, ServiceCalendar calendar, IdFor<Service> serviceId, Set<LocalDate> noServices) {
         int exceptionType = date.getExceptionType();
         LocalDate exceptionDate = date.getDate();
         if (exceptionType == CalendarDateData.ADDED) {
-            calendar.includeExtraDate(exceptionDate);
+            if (!noServices.contains(exceptionDate)) {
+                calendar.includeExtraDate(exceptionDate);
+            } else {
+                logger.warn(format("Ignoring extra data %s as configured as no service date from %s", exceptionDate, noServices));
+            }
         } else if (exceptionType == CalendarDateData.REMOVED) {
             calendar.excludeDate(exceptionDate);
         } else {
@@ -351,12 +382,20 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 buildable.addAgency(agency);
                 buildable.addRoute(route);
             } else {
-                logger.info("Excluding route as no matched on transport mode :" + routeData);
                 excludedRoutes.add(routeId);
             }
         });
+        logExcludedRoutes(transportModes, excludedRoutes);
         logger.info("Loaded " + count.get() + " routes of transport types " + transportModes + " excluded "+ excludedRoutes.size());
         return excludedRoutes;
+    }
+
+    private void logExcludedRoutes(Set<GTFSTransportationType> transportModes, IdSet<Route> excludedRoutes) {
+        if (excludedRoutes.isEmpty()) {
+            return;
+        }
+        logger.info("Excluded the following route id's as did not match modes " + transportModes + " routes: " +
+                excludedRoutes);
     }
 
     private GTFSTransportationType getTransportTypeWithDataWorkaround(RouteData routeData, IdFor<Agency> agencyId) {
