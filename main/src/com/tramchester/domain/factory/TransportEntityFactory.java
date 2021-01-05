@@ -28,7 +28,7 @@ public class TransportEntityFactory {
         return new Agency(agencyId.getGraphId(), "UNKNOWN");
     }
 
-    public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
+    public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
         IdFor<Route> routeId = routeData.getId();
 
         return new Route(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
@@ -67,5 +67,9 @@ public class TransportEntityFactory {
 
     public ServiceCalendar createServiceCalendar(CalendarData calendarData) {
         return new ServiceCalendar(calendarData);
+    }
+
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
+        return routeData.getRouteType();
     }
 }

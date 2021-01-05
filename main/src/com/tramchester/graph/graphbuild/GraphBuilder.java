@@ -60,6 +60,7 @@ public abstract class GraphBuilder  {
                 case Bus:
                     return BUS_STATION;
                 case Train:
+                case RailReplacementBus:
                     return TRAIN_STATION;
                 case Ferry:
                     return FERRY_STATION;

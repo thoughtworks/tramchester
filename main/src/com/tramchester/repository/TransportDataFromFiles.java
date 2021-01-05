@@ -84,15 +84,16 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
         TransportEntityFactory entityFactory = dataSource.getEntityFactory();
 
+        IdMap<Station> allStations = preLoadStations(dataSource.stops, entityFactory);
+
         IdMap<Agency> allAgencies = preloadAgencys(dataSource.agencies, entityFactory);
-        IdSet<Route> excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, sourceConfig, entityFactory);
+        IdSet<Route> excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, allStations, sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.size()+" routes ");
         allAgencies.clear();
 
         TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.trips, excludedRoutes, entityFactory);
         excludedRoutes.clear();
 
-        IdMap<Station> allStations = preLoadStations(dataSource.stops, entityFactory);
         IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations, tripsAndServices.trips, entityFactory,
                 sourceConfig);
         allStations.clear();
@@ -342,7 +343,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private IdSet<Route> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
-                                       IdMap<Agency> allAgencies, DataSourceConfig sourceConfig,
+                                        IdMap<Agency> allAgencies, IdMap<Station> allStations, DataSourceConfig sourceConfig,
                                         TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
@@ -356,12 +357,12 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 logger.error("Missing agency " + agencyId);
             }
 
-            GTFSTransportationType routeType = getTransportTypeWithDataWorkaround(routeData, agencyId);
+            GTFSTransportationType routeType = factory.getRouteType(routeData, agencyId);
 
             if (transportModes.contains(routeType)) {
                 Agency agency = missingAgency ? createMissingAgency(allAgencies, agencyId, factory) : allAgencies.get(agencyId);
 
-                Route route = factory.createRoute(routeType, routeData, agency);
+                Route route = factory.createRoute(routeType, routeData, agency, allStations);
 
                 agency.addRoute(route);
                 buildable.addAgency(agency);
@@ -385,23 +386,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
         }
         logger.info("Excluded the following route id's as did not match modes " + transportModes + " routes: " +
                 excludedRoutes);
-    }
-
-    private GTFSTransportationType getTransportTypeWithDataWorkaround(RouteData routeData, IdFor<Agency> agencyId) {
-        // tfgm data issue workaround
-        GTFSTransportationType routeType = routeData.getRouteType();
-        if (Agency.IsMetrolink(agencyId) && routeType!=GTFSTransportationType.tram) {
-            logger.error("METROLINK Agency seen with transport type " + routeType.name() + " for " + routeData);
-            logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
-            routeType = GTFSTransportationType.tram;
-        }
-        // train data workaround
-        if (routeData.getRouteType().equals(GTFSTransportationType.aerialLift) &&
-                routeData.getLongName().contains("replacement bus service")) {
-            logger.warn("Route has incorrect transport type for replace bus service, will set to bus. Route: " + routeData);
-            routeType = GTFSTransportationType.bus;
-        }
-        return routeType;
     }
 
     private Agency createMissingAgency(IdMap<Agency> allAgencies, IdFor<Agency> agencyId, TransportEntityFactory factory) {

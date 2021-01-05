@@ -528,7 +528,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private Node createStationNode(Transaction tx, Station station) {
 
         Set<Labels> labels = Labels.forMode(station.getTransportModes());
-        logger.debug(format("Creating station node: %s with label: %s ", station, labels));
+        logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
         Node stationNode = createGraphNode(tx, labels);
         setProperty(stationNode, station);
         return stationNode;

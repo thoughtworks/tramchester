@@ -25,15 +25,9 @@ import java.time.LocalDateTime;
 
 @LazySingleton
 public class StageDTOFactory {
-    private static final Logger logger = LoggerFactory.getLogger(StageDTOFactory.class);
-    private static final String FROM = "from ";
-    private static final String TO = " to ";
-
-    private final StationRepository stationRepository;
 
     @Inject
-    public StageDTOFactory(StationRepository stationRepository) {
-        this.stationRepository = stationRepository;
+    public StageDTOFactory() {
     }
 
     public StageDTO build(TransportStage<?,?> source, TravelAction travelAction, LocalDate queryDate) {
@@ -44,14 +38,8 @@ public class StageDTOFactory {
         LocalDateTime firstDepartureTime = source.getFirstDepartureTime().toDate(queryDate);
         LocalDateTime expectedArrivalTime = source.getExpectedArrivalTime().toDate(queryDate);
 
-        RouteRefDTO routeRefDTO;
         Route route = source.getRoute();
-        if (TransportMode.isTrain(route)) {
-            String name = expandRouteNameFor(route);
-            routeRefDTO = new RouteRefDTO(route, name);
-        } else {
-            routeRefDTO = new RouteRefDTO(route);
-        }
+        RouteRefDTO routeRefDTO = new RouteRefDTO(route);
 
         String tripId = source.getTripId().isValid() ? source.getTripId().forDTO() : "";
 
@@ -75,43 +63,6 @@ public class StageDTOFactory {
                     source.getMode(),
                     source.getPassedStops(), routeRefDTO, travelAction, queryDate, tripId);
         }
-    }
-
-    private String expandRouteNameFor(Route route) {
-        ///
-        // many train routes names have format "<AGENCY_ID> train service from <STATIONID> to <STATIONID>"
-        // so replace those with names if possible
-
-        String orginal = route.getName();
-        String target = orginal;
-
-        // agency name
-        Agency agency = route.getAgency();
-        String agencyId = agency.getId().forDTO();
-        String prefix = agencyId + " train service";
-        if (target.startsWith(prefix)) {
-            target = target.replace(agencyId, agency.getName());
-        }
-        // station names
-        int indexOfFrom = target.indexOf(FROM);
-        int indexOfTo = target.indexOf(TO);
-        if (indexOfFrom>0 && indexOfTo>0) {
-            String from = target.substring(indexOfFrom + FROM.length(), indexOfTo);
-            String to = target.substring(indexOfTo + TO.length());
-            IdFor<Station> fromId = IdFor.createId(from);
-            IdFor<Station> toId = IdFor.createId(to);
-
-            if (stationRepository.hasStationId(toId) && stationRepository.hasStationId(fromId)) {
-                String toName = stationRepository.getStationName(toId);
-                String fromName = stationRepository.getStationName(fromId);
-                target = target.substring(0, indexOfFrom) + "from " + fromName + " to " + toName;
-            }
-            logger.info("Mapped route name form '" + orginal + "' to '" + target + "'");
-        } else {
-            logger.warn("Train route name format unrecognised " + orginal);
-        }
-        return target;
-
     }
 
 }

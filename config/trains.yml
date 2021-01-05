@@ -25,7 +25,7 @@ dataSources:
     dataPath: data/trains
     unzipPath: ./
     hasFeedInfo: false
-    transportModes: [ train, bus, subway, ferry ]
+    transportModes: [ train, bus, subway, ferry, replacementBus ]
     transportModesWithPlatforms: []
     noServices: []
 bounds:

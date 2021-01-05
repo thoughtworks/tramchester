@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
+import com.tramchester.domain.factory.TransportEntityFactoryForGBRail;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.TransportDataFromFiles;
@@ -71,6 +72,8 @@ public class TransportDataFromFilesBuilder {
         String name = sourceConfig.getName();
         if ("tfgm".equals(name)) {
             return new TransportEntityFactoryForTFGM(config);
+        } else if ("gb-rail".equals(name)) {
+            return new TransportEntityFactoryForGBRail(config);
         } else {
             return new TransportEntityFactory(config);
         }

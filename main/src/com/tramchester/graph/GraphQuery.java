@@ -20,8 +20,6 @@ import java.util.Set;
 @LazySingleton
 public class GraphQuery {
 
-    //private static final Logger logger = LoggerFactory.getLogger(GraphQuery.class);
-
     private final GraphDatabase graphDatabase;
 
     @Inject
@@ -35,7 +33,7 @@ public class GraphQuery {
 
     public Node getStationNode(Transaction txn, Station station) {
         Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.forMode(station.getTransportModes());
-        // ought to be able find with any of the labels, os use the first one
+        // ought to be able find with any of the labels, so use the first one
         GraphBuilder.Labels label = labels.iterator().next();
         return findNode(txn, label, station);
     }

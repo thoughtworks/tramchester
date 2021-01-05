@@ -46,7 +46,9 @@ public enum TransportRelationshipTypes implements RelationshipType {
     public static TransportRelationshipTypes from(TransportMode transportMode) {
         switch (transportMode) {
             case Train: return TRAIN_GOES_TO;
-            case Bus: return BUS_GOES_TO;
+            case Bus:
+            case RailReplacementBus:
+                return BUS_GOES_TO;
             case Tram: return TRAM_GOES_TO;
             case Ferry: return FERRY_GOES_TO;
             case Subway: return SUBWAY_GOES_TO;

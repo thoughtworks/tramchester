@@ -15,7 +15,10 @@ public enum GTFSTransportationType {
     funicular("7"),
     trolleyBus("11"),
     monorail("12"),
-    unknown("99"); // not an official type
+
+    // NOTE: These are not official types
+    replacementBus("98"),
+    unknown("99");
 
     private static final Map<String, GTFSTransportationType> textMap;
 

@@ -13,6 +13,7 @@ public enum TransportMode implements HasTransportMode {
     Walk,
     Ferry,
     Subway,
+    RailReplacementBus,
 
     Depart,
     Board,
@@ -27,6 +28,7 @@ public enum TransportMode implements HasTransportMode {
             case train: return TransportMode.Train;
             case ferry: return TransportMode.Ferry;
             case subway: return TransportMode.Subway;
+            case replacementBus: return TransportMode.RailReplacementBus;
             default:
                 throw new RuntimeException("Unexpected route type (check config?) " + routeType);
         }

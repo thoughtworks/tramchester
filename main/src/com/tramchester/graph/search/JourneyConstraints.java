@@ -71,7 +71,9 @@ public class JourneyConstraints {
     private int getPathMaxFor(GTFSTransportationType mode) {
         switch (mode) {
             case tram: return TRAMS_MAX_PATH_LENGTH;
-            case bus: return BUSES_MAX_PATH_LENGTH;
+            case replacementBus:
+            case bus:
+                return BUSES_MAX_PATH_LENGTH;
             case train: return TRAINS_MAX_PATH_LENGTH;
             case subway: return SUBWAY_MAX_PATH_LENGTH;
             case ferry: return FERRY_MAX_PATH_LENGTH;

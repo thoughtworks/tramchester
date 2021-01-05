@@ -14,7 +14,6 @@ import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestNoPlatformStation;
 import com.tramchester.testSupport.reference.TramStations;
@@ -37,7 +36,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRun() {
         stationRepository = createMock(StationRepository.class);
-        factory = new StageDTOFactory(stationRepository);
+        factory = new StageDTOFactory();
         when = TestEnv.testDay();
     }
 

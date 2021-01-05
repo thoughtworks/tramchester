@@ -60,6 +60,7 @@ public class JourneyToDTOMapper {
         switch (rawStage.getMode()) {
             case Tram:
             case Bus:
+            case RailReplacementBus:
             case Train:
             case Ferry:
             case Subway:
