@@ -17,6 +17,8 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.GTFSTransportationType.bus;
+import static com.tramchester.domain.reference.GTFSTransportationType.train;
 import static java.lang.String.format;
 
 @LazySingleton
@@ -46,11 +48,11 @@ public class InterchangeRepository  {
 
     @PostConstruct
     public void start() {
-        if (modes.contains(GTFSTransportationType.bus)) {
+        if (modes.contains(bus)) {
             busInterchanges = createBusInterchangeList();
             logger.info(format("Added %s bus interchanges", busInterchanges.size()));
         }
-        if (modes.contains(GTFSTransportationType.train)) {
+        if (modes.contains(train)) {
             trainInterchanges = createTrainMultiAgencyStationList();
             logger.info(format("Added %s train interchanges", trainInterchanges.size()));
         }
@@ -90,6 +92,7 @@ public class InterchangeRepository  {
             return TramInterchanges.has(station);
         }
         if (station.getTransportModes().size()>1) {
+            // todo this is problematic for trains unless map replacement bus services to different transport mode
             //logger.info("More than one transport more, see as interchange station id " + station.getId());
             return true;
         }

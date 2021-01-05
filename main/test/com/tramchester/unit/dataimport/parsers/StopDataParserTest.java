@@ -10,13 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StopDataParserTest extends ParserTestHelper<StopData> {
 
-    private final String tramStop = "9400ZZMAWYT2,mantwjdt,\"Wythenshawe, Wythenshawe Town Centre (Manchester Metrolink)\",53.38003," +
-            "-2.26381,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT2";
-
-
-    private final String tfgmBusStop = "800NEH0341,missing,\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\",53.53509,-2.19333"+
-            ",http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341";
-
 
     @BeforeEach
     void beforeEach() {
@@ -26,6 +19,8 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
     @Test
     void shouldParseTramStop() {
 
+        String tramStop = "9400ZZMAWYT2,mantwjdt,\"Wythenshawe, Wythenshawe Town Centre (Manchester Metrolink)\",53.38003," +
+                "-2.26381,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT2";
         StopData stopData = parse(tramStop);
 
         assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT2");
@@ -34,11 +29,13 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getArea()).isEqualTo("Wythenshawe");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38003);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26381);
-        assertThat(stopData.isTFGMTram()).isEqualTo(true);
+        assertThat(stopData.hasPlatforms()).isEqualTo(true);
     }
 
     @Test
     void shouldParseTFGMBusStop() {
+        String tfgmBusStop = "800NEH0341,missing,\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\",53.53509,-2.19333" +
+                ",http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341";
         StopData stopData = parse(tfgmBusStop);
 
         assertThat(stopData.getId()).isEqualTo("800NEH0341");
@@ -48,7 +45,7 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53509);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.19333);
         assertTrue(stopData.getLatLong().isValid());
-        assertThat(stopData.isTFGMTram()).isEqualTo(false);
+        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 
     @Test
@@ -61,7 +58,7 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getArea()).isEqualTo("Alkrington Garden Village");
         assertThat(stopData.getName()).isEqualTo("Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)");
         assertFalse(stopData.getLatLong().isValid());
-        assertThat(stopData.isTFGMTram()).isEqualTo(false);
+        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 
     @Test
@@ -81,6 +78,6 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getName()).isEqualTo("Hope (Derbyshire)");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.34611);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-1.72989);
-        assertThat(stopData.isTFGMTram()).isEqualTo(false);
+        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 }

@@ -34,6 +34,8 @@ public interface DataSourceConfig {
     Set<GTFSTransportationType> getTransportModes();
 
     // no service dates
-    // basically a workaround for tfgm including services for dates their website says there are no services..
+    // basically a workaround for tfgm timetable including services for dates their website says there are no services..
     Set<LocalDate> getNoServices();
+
+    
 }

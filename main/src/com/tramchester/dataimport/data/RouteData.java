@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.RouteDirection;
 
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class RouteData {
 
     @JsonProperty("route_id")

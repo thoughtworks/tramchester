@@ -455,7 +455,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
                         stopData.getLatLong(), position));
 
-        if (stopData.isTFGMTram()) {
+        if (stopData.hasPlatforms()) {
             Platform platform = formPlatform(stopData);
             if (!station.getPlatforms().contains(platform)) {
                 station.addPlatform(platform);

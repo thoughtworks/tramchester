@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import static com.tramchester.domain.places.Station.TRAM_STATION_POSTFIX;
 
+@SuppressWarnings("unused")
 public class StopData {
 
     @JsonProperty("stop_id")
@@ -24,7 +25,6 @@ public class StopData {
 
     // deserialization
     public StopData() {
-
     }
 
     @JsonProperty("stop_name")
@@ -71,7 +71,7 @@ public class StopData {
         return area;
     }
 
-    public boolean isTFGMTram() {
+    public boolean hasPlatforms() {
         return id.startsWith(Station.METROLINK_PREFIX);
     }
 

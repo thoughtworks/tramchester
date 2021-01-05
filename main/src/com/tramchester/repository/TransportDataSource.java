@@ -8,7 +8,6 @@ import com.tramchester.domain.FeedInfo;
 
 import java.util.stream.Stream;
 
-@LazySingleton
 public class TransportDataSource {
     final Stream<StopData> stops;
     final Stream<RouteData> routes;
