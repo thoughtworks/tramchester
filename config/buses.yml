@@ -27,6 +27,7 @@ dataSources:
     unzipPath: gtdf-out
     hasFeedInfo: true
     transportModes: [ bus ]
+    transportModesWithPlatforms: []
     noServices: []
 bounds:
   minEastings: 112685

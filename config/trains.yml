@@ -26,6 +26,7 @@ dataSources:
     unzipPath: ./
     hasFeedInfo: false
     transportModes: [ train, bus, subway, ferry ]
+    transportModesWithPlatforms: []
     noServices: []
 bounds:
   minEastings: 147588

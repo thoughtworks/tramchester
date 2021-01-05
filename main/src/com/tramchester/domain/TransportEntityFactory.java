@@ -23,9 +23,12 @@ public class TransportEntityFactory {
         return new Agency(agencyData.getId(), agencyData.getName());
     }
 
+    public Agency createUnknownAgency(IdFor<Agency> agencyId) {
+        return new Agency(agencyId.getGraphId(), "UNKNOWN");
+    }
+
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency) {
         IdFor<Route> routeId = routeData.getId();
-
 
         String routeName = routeData.getLongName();
         if (config.getRemoveRouteNameSuffix()) {
@@ -76,5 +79,9 @@ public class TransportEntityFactory {
 
     public StopCall createNoPlatformStopCall(Station station, StopTimeData stopTimeData) {
         return new NoPlatformStopCall(station, stopTimeData);
+    }
+
+    public ServiceCalendar createServiceCalendar(CalendarData calendarData) {
+        return new ServiceCalendar(calendarData);
     }
 }

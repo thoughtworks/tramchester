@@ -21,6 +21,7 @@ dataSources:
     unzipPath: gtdf-out
     hasFeedInfo: true
     transportModes: [ tram ]
+    transportModesWithPlatforms: [ Tram ]
     noServices: [ 2020-12-25 ]
 bounds:
   minEastings: 333211

@@ -233,7 +233,7 @@ public class MapPathToStages {
             TransportMode transportMode = route.getTransportMode();
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
                     transportMode, trip, boardingTime,
-                    departStation, passedStops, TransportMode.isTram(transportMode));
+                    departStation, passedStops, boardingStation.hasPlatforms()); // TransportMode.isTram(transportMode));
 
             if (stopsSeen == 0) {
                 logger.error("Zero passed stops " + vehicleStage);

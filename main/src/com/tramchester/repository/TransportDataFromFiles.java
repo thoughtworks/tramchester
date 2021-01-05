@@ -96,7 +96,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 sourceConfig);
         allStations.clear();
 
-        populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services, dataSource.getConfig());
+        populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services, sourceConfig, entityFactory);
         tripsAndServices.clear();
 
         buildable.updateTimesForServices();
@@ -131,7 +131,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
-                                   Stream<CalendarDateData> calendarsDates, IdMap<Service> services, DataSourceConfig config) {
+                                   Stream<CalendarDateData> calendarsDates, IdMap<Service> services, DataSourceConfig config,
+                                   TransportEntityFactory factory) {
         AtomicInteger countCalendars = new AtomicInteger(0);
         logger.info("Loading calendars for " + services.size() +" services ");
 
@@ -143,7 +144,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
             if (service != null) {
                 countCalendars.getAndIncrement();
                 missingCalendar.remove(serviceId);
-                ServiceCalendar serviceCalendar = new ServiceCalendar(calendarData);
+                ServiceCalendar serviceCalendar = factory.createServiceCalendar(calendarData);
                 service.setCalendar(serviceCalendar);
             }
         });
@@ -282,32 +283,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
         } else {
             return factory.createNoPlatformStopCall(station, stopTimeData);
         }
-
-//        switch (transportMode) {
-//            case Tram:
-//                if (buildable.hasPlatformId(platformId)) {
-//                    Platform platform = buildable.getPlatform(platformId);
-//                    platform.addRoute(route);
-//                } else {
-//                    logger.error("Missing platform " + platformId);
-//                }
-//                Platform platform = buildable.getPlatform(platformId);
-//                stopCall = new TramStopCall(platform, station, stopTimeData);
-//                break;
-//            case Bus:
-//            case Train:
-//            case Ferry:
-//            case Subway:
-//                stopCall = new NoPlatformStopCall(station, stopTimeData, transportMode);
-//                break;
-//
-//            default:
-//                throw new RuntimeException("Unexpected transport mode " + transportMode + " with " + stopTimeData
-//                            + " and " + station);
-//
-//        }
-//
-//        return stopCall;
     }
 
     private void addStation(TransportDataContainer buildable, Route route, Station station, TransportEntityFactory factory) {
@@ -383,7 +358,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
             GTFSTransportationType routeType = getTransportTypeWithDataWorkaround(routeData, agencyId);
 
             if (transportModes.contains(routeType)) {
-                Agency agency = missingAgency ? createMissingAgency(allAgencies, agencyId) : allAgencies.get(agencyId);
+                Agency agency = missingAgency ? createMissingAgency(allAgencies, agencyId, factory) : allAgencies.get(agencyId);
 
                 Route route = factory.createRoute(routeType, routeData, agency);
 
@@ -428,8 +403,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
         return routeType;
     }
 
-    private Agency createMissingAgency(IdMap<Agency> allAgencies, IdFor<Agency> agencyId) {
-        Agency unknown = new Agency(agencyId.getGraphId(), "UNKNOWN");
+    private Agency createMissingAgency(IdMap<Agency> allAgencies, IdFor<Agency> agencyId, TransportEntityFactory factory) {
+        Agency unknown = factory.createUnknownAgency(agencyId);
         logger.error("Created " + unknown);
         allAgencies.add(unknown);
         return unknown;

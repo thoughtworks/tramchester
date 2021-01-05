@@ -19,21 +19,24 @@ import java.util.Set;
 
 @LazySingleton
 public class TramStationAdjacenyRepository  {
+
+    // each station and it's direct neighbours
+
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 
     private final Map<Pair<Station,Station>, Integer> matrix;
-    private final TransportData transportDataSource;
+    private final TransportData transportData;
 
     @Inject
-    public TramStationAdjacenyRepository(TransportData transportDataSource) {
-        this.transportDataSource = transportDataSource;
+    public TramStationAdjacenyRepository(TransportData transportData) {
+        this.transportData = transportData;
         matrix = new HashMap<>();
     }
 
     @PostConstruct
     public void start() {
         logger.info("Build adjacency matrix");
-        Collection<Trip> trips = transportDataSource.getTrips();
+        Collection<Trip> trips = transportData.getTrips();
         trips.stream().filter(TransportMode::isTram).forEach(trip -> {
             StopCalls stops = trip.getStops();
             stops.getLegs().forEach(leg -> {

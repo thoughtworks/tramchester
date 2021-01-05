@@ -28,6 +28,8 @@ dataSources:
     unzipPath: gtdf-out
     hasFeedInfo: true
     transportModes: [ tram, bus ]
+    transportModesWithPlatforms: [ Tram ]
+    noServices: []
   -
     name: rail
     URL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
@@ -36,6 +38,9 @@ dataSources:
     unzipPath: ./
     hasFeedInfo: false
     transportModes: [ train ]
+    transportModesWithPlatforms: []
+    noServices: []
+
 bounds:
   minEastings: 333211
   minNorthings: 373264
