@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 public class LocalDateTimeJsonSerializeAsMillis extends JsonSerializer<LocalDateTime> {
 
+    // used for recent journey cookies
     @Override
     public void serialize(LocalDateTime time, JsonGenerator gen, SerializerProvider arg2) throws IOException {
         long millis = time.atZone(TramchesterConfig.TimeZone).toInstant().toEpochMilli();

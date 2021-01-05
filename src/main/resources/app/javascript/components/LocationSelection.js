@@ -2,8 +2,14 @@
 import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
 
 
-function sort(values, alreadyDisplayed) {
-    var results = values.filter(stop => !alreadyDisplayed.includes(stop.id));
+function sort(stopMap, alreadyDisplayed) {
+
+    if (stopMap==null) {
+        return [];
+    }
+
+    var stops = Array.from(stopMap.values());
+    var results = stops.filter(stop => !alreadyDisplayed.includes(stop.id));
     return results.sort((a,b) => {
         var x = a.name.toLowerCase();
         var y = b.name.toLowerCase();
@@ -19,8 +25,7 @@ export default {
     props: ['value','other','name','bus','stops','geo','disabled'], 
     data: function () {
         return {
-            current: this.value,
-            postcodes: []
+            current: this.value
         }
     },
     methods: {
@@ -31,10 +36,6 @@ export default {
     computed: {
         allstops: function () {
             return sort(this.stops.allStops, this.alreadyDisplayed);
-        },
-        busstops: function () {
-            // todo use sort?
-            return this.stops.allStops.concat(this.stops.postcodes).filter(stop => !this.alreadyDisplayed.includes(stop.id));
         },
         alreadyDisplayed: function () {
             var results = [];
@@ -86,7 +87,7 @@ export default {
         <vue-bootstrap-typeahead
             :disabled="disabled"
             class="mb-4"
-            :data="busstops"
+            :data="allstops"
             v-model="current"
             maxMatches=20
             minMatchingChars=3

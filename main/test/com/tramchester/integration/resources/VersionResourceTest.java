@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
@@ -51,13 +52,16 @@ class VersionResourceTest {
         Response responce = IntegrationClient.getApiResponse(appExtension, endPoint+"/modes");
         assertEquals(200, responce.getStatus());
 
-        List<TransportMode> results = responce.readEntity(new GenericType<>() {});
+        ConfigDTO results = responce.readEntity(ConfigDTO.class);
 
-        assertFalse(results.isEmpty());
+        List<TransportMode> modes = results.getModes();
+        assertFalse(modes.isEmpty());
 
         Set<GTFSTransportationType> configModes = configuration.getTransportModes();
         List<TransportMode> expected = configModes.stream().map(TransportMode::fromGTFS).collect(Collectors.toList());
-        assertEquals(expected, results);
+        assertEquals(expected, modes);
+
+        assertEquals(configuration.getLoadPostcodes(), results.getPostcodesEnabled());
     }
 
 }

@@ -1,5 +1,7 @@
 package com.tramchester.resources;
 
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
 import com.tramchester.repository.TransportModeRepository;
@@ -14,8 +16,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -25,10 +25,12 @@ import java.util.concurrent.TimeUnit;
 public class VersionResource {
 
     private final TransportModeRepository repository;
+    private final TramchesterConfig config;
 
     @Inject
-    public VersionResource(TransportModeRepository repository) {
+    public VersionResource(TransportModeRepository repository, TramchesterConfig config) {
         this.repository = repository;
+        this.config = config;
     }
 
     @GET
@@ -39,14 +41,14 @@ public class VersionResource {
     }
 
     @GET
-    @ApiOperation(value = "Transport modes enabled on server", response = TransportMode.class, responseContainer = "List")
+    @ApiOperation(value = "Transport modes enabled on server", response = ConfigDTO.class)
     @Path("/modes")
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response modes() {
         Set<TransportMode> modes = repository.getModes();
 
-        List<TransportMode> list = new ArrayList<>(modes);
+        ConfigDTO configDTO = new ConfigDTO(modes, config.getLoadPostcodes());
 
-        return Response.ok(list).build();
+        return Response.ok(configDTO).build();
     }
 }

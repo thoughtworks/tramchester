@@ -12,6 +12,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class LocalDateTimeJsonDeserializerAsMillis extends JsonDeserializer<LocalDateTime> {
+
+    // used for recent journey cookies
+
     @Override
     public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();

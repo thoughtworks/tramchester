@@ -97,7 +97,8 @@ function getTransportModesThenStations(app) {
     axios.get('/api/version/modes')
         .then(function (response) {
             app.networkError = false;
-            app.modes = response.data;
+            app.modes = response.data.modes;
+            app.postcodesEnabled = response.data.postcodesEnabled;
             getStations(app);
         })
         .catch(function (error) {
@@ -122,16 +123,11 @@ function getStations(app) {
 }
 
 async function getStationsFromServer(app) {
-    if (busEnabled(app)) {
-        axios.get("/api/postcodes", { timeout: 30000}).then(function (response) {
-            app.networkError = false;
-            app.stops.postcodes = Object.freeze(response.data);
-        }).catch(function (error){
-            reportError(error);
-        });
-    }
 
     var gets = [];
+    if (app.postcodesEnabled) {
+        gets.push(axios.get("/api/postcodes", { timeout: 30000}));
+    }
     app.modes.forEach(mode => {
         gets.push(axios.get('/api/stations/mode/'+mode));
     });
@@ -141,11 +137,12 @@ async function getStationsFromServer(app) {
     }
 
     await Promise.allSettled(gets).then(function(results) {
+        app.stops.allStops = new Map();
         results.forEach(result => {
             var receivedStops = result.value.data;
-            app.stops.allStops = app.stops.allStops.concat(receivedStops);
+            receivedStops.forEach(stop => app.stops.allStops.set(stop.id, stop))
         });
-        app.stops.allStops = Object.freeze(app.stops.allStops);
+        app.stops.allStops = Object.freeze(app.stops.allStops); //performance, still needed?
         app.ready = true;
     });
 
@@ -236,10 +233,9 @@ function addParsedDatesToLive(liveData) {
  var data = {
     ready: false,                   // ready to respond
     stops: {
-        allStops: [],
+        allStops: null,        // (station) id->station
         nearestStops: [],
-        recentStops: [],
-        postcodes: []
+        recentStops: []
     },
     startStop: null,
     endStop: null,
@@ -255,7 +251,8 @@ function addParsedDatesToLive(liveData) {
     liveInProgress: false,      // looking for live data
     networkError: false,        // network error on either query
     hasGeo: false,
-    location: null
+    location: null,
+    postcodesEnabled: false
 }
 
 var app = new Vue({

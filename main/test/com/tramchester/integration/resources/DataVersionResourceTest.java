@@ -2,7 +2,7 @@ package com.tramchester.integration.resources;
 
 
 import com.tramchester.App;
-import com.tramchester.domain.presentation.DataVersionDTO;
+import com.tramchester.domain.presentation.DTO.DataVersionDTO;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;

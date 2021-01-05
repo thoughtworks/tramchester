@@ -3,7 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.presentation.DataVersionDTO;
+import com.tramchester.domain.presentation.DTO.DataVersionDTO;
 import com.tramchester.repository.ProvidesFeedInfo;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
