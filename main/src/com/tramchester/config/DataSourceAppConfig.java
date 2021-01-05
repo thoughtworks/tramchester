@@ -3,6 +3,7 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
@@ -44,6 +45,10 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     @JsonProperty("transportModes")
     private Set<GTFSTransportationType> transportModes;
 
+    @NotNull
+    @JsonProperty("transportModesWithPlatforms")
+    private Set<TransportMode> transportModesWithPlatforms;
+
     // date format: 2020-12-25
     @NotNull
     @JsonProperty("noServices")
@@ -62,6 +67,11 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
     @Override
     public Set<GTFSTransportationType> getTransportModes() {
         return transportModes;
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModesWithPlatforms() {
+        return transportModesWithPlatforms;
     }
 
     @Override
@@ -102,6 +112,10 @@ public class DataSourceAppConfig extends Configuration implements DataSourceConf
                 ", tramDataCheckUrl='" + tramDataCheckUrl + '\'' +
                 ", dataPath=" + dataPath +
                 ", unzipPath=" + unzipPath +
-                '}';
+                ", hasFeedInfo=" + hasFeedInfo +
+                ", transportModes=" + transportModes +
+                ", transportModesWithPlatforms=" + transportModesWithPlatforms +
+                ", noServices=" + noServices +
+                "} " + super.toString();
     }
 }

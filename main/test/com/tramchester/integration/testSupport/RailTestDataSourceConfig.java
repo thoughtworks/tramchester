@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,6 +53,11 @@ class RailTestDataSourceConfig implements DataSourceConfig {
     @Override
     public Set<GTFSTransportationType> getTransportModes() {
         return Collections.singleton(GTFSTransportationType.train);
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModesWithPlatforms() {
+        return Collections.emptySet();
     }
 
     @Override

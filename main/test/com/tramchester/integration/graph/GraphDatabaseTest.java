@@ -363,6 +363,11 @@ class GraphDatabaseTest {
             }
 
             @Override
+            public Set<TransportMode> getTransportModesWithPlatforms() {
+                return null;
+            }
+
+            @Override
             public Set<LocalDate> getNoServices() {
                 return Collections.emptySet();
             }

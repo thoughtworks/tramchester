@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.input.StopCalls;
-import com.tramchester.domain.input.TramStopCall;
+import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -14,14 +14,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TramStopCallsTest {
+class PlatformStopCallsTest {
     private TramStations stationA;
     private TramStations stationB;
     private TramStations stationC;
     private TramStations stationD;
-    private TramStopCall stopA;
-    private TramStopCall stopB;
-    private TramStopCall stopC;
+    private PlatformStopCall stopA;
+    private PlatformStopCall stopB;
+    private PlatformStopCall stopC;
     private StopCalls stops;
 
     @BeforeEach

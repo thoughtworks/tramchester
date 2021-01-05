@@ -10,15 +10,14 @@ import com.tramchester.testSupport.TestConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TransportModeRepositoryTest {
+
+    private final Set<TransportMode> modesWithPlatforms = Collections.singleton(TransportMode.Tram);
 
     @Test
     void shouldHaveCorrectTransportModesSingle() {
@@ -57,13 +56,13 @@ class TransportModeRepositoryTest {
         configModesSourceA.add(GTFSTransportationType.train);
 
         List<DataSourceConfig> dataSources = new LinkedList<>();
-        DataSourceConfig sourceA = new TFGMTestDataSourceConfig("folder/some/pathA", configModesSourceA);
+        DataSourceConfig sourceA = new TFGMTestDataSourceConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms);
         dataSources.add(sourceA);
 
         Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
         configModesSourceB.add(GTFSTransportationType.bus);
         configModesSourceB.add(GTFSTransportationType.train);
-        DataSourceConfig sourceB = new TFGMTestDataSourceConfig("folder/some/pathB", configModesSourceB);
+        DataSourceConfig sourceB = new TFGMTestDataSourceConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms);
         dataSources.add(sourceB);
 
         TramchesterConfig config = new ModeConfig(dataSources);
@@ -80,7 +79,7 @@ class TransportModeRepositoryTest {
     @NotNull
     private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
         List<DataSourceConfig> dataSources = new LinkedList<>();
-        DataSourceConfig tramConfig = new TFGMTestDataSourceConfig("folder/some/path", configModes);
+        DataSourceConfig tramConfig = new TFGMTestDataSourceConfig("folder/some/path", configModes, modesWithPlatforms);
         dataSources.add(tramConfig);
         return new ModeConfig(dataSources);
     }

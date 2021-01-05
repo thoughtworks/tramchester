@@ -5,6 +5,7 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -22,7 +23,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
     private URLDownloadAndModTime urlDownloader;
     private final DataSourceConfig config = new TFGMTestDataSourceConfig("data/folder",
-            Collections.singleton(GTFSTransportationType.tram));
+            Collections.singleton(GTFSTransportationType.tram), Collections.singleton(TransportMode.Tram));
     private FetchFileModTime fetchFileModTime;
     private NewDataAvailableHealthCheck healthCheck;
     private String expectedURL;

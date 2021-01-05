@@ -14,7 +14,8 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     public IntegrationBusTestConfig(String dbName) {
         super("integrationBusTest", dbName);
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus));
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus),
+                Collections.emptySet());
     }
 
     @Override

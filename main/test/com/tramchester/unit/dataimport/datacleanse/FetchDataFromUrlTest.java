@@ -6,6 +6,7 @@ import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.dataimport.Unzipper;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -106,7 +107,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         private final String targetZipFilename;
 
         public SourceConfig(String dataFolder, String targetZipFilename) {
-            super(dataFolder, Collections.singleton(GTFSTransportationType.tram));
+            super(dataFolder, Collections.singleton(GTFSTransportationType.tram), Collections.singleton(TransportMode.Tram));
             this.targetZipFilename = targetZipFilename;
         }
 

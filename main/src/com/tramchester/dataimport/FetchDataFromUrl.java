@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,11 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             @Override
             public Set<GTFSTransportationType> getTransportModes() {
                 return Collections.singleton(GTFSTransportationType.tram);
+            }
+
+            @Override
+            public Set<TransportMode> getTransportModesWithPlatforms() {
+                return Collections.singleton(TransportMode.Tram);
             }
 
             @Override

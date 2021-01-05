@@ -6,7 +6,7 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.TramStopCall;
+import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.presentation.LatLong;
@@ -153,17 +153,17 @@ public class TestEnv {
         return System.getenv("CIRCLECI") != null;
     }
 
-    public static TramStopCall createTramStopCall(IdFor<Trip> tripId, String stopId, TramStations station, int seq,
-                                                  TramTime arrive, TramTime depart) {
+    public static PlatformStopCall createTramStopCall(IdFor<Trip> tripId, String stopId, TramStations station, int seq,
+                                                      TramTime arrive, TramTime depart) {
         return createTramStopCall(tripId.forDTO(), stopId, station, seq, arrive, depart);
     }
 
-    public static TramStopCall createTramStopCall(String tripId, String stopId, TramStations station, int seq, TramTime arrive,
-                                                  TramTime depart) {
+    public static PlatformStopCall createTramStopCall(String tripId, String stopId, TramStations station, int seq, TramTime arrive,
+                                                      TramTime depart) {
         Platform platform = createPlatform(stopId, station.getLatLong());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
         StopTimeData stopTimeData = new StopTimeData(tripId, arrive, depart, stopId, seq, pickupDropoff, pickupDropoff);
-        return new TramStopCall(platform, TramStations.of(station), stopTimeData);
+        return new PlatformStopCall(platform, TramStations.of(station), stopTimeData);
     }
 
     private static Platform createPlatform(String id, LatLong latLong) {

@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,11 +17,13 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
     //
 
     private final String dataFolder;
-    private final Set<GTFSTransportationType> modes;
+    private final Set<GTFSTransportationType> sourceModes;
+    private final Set<TransportMode> modesWithPlatforms;
 
-    public TFGMTestDataSourceConfig(String dataFolder, Set<GTFSTransportationType> modes) {
+    public TFGMTestDataSourceConfig(String dataFolder, Set<GTFSTransportationType> sourceModes, Set<TransportMode> modesWithPlatforms) {
         this.dataFolder = dataFolder;
-        this.modes = modes;
+        this.sourceModes = sourceModes;
+        this.modesWithPlatforms = modesWithPlatforms;
     }
 
     @Override
@@ -60,7 +63,12 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
 
     @Override
     public Set<GTFSTransportationType> getTransportModes() {
-        return modes;
+        return sourceModes;
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModesWithPlatforms() {
+        return modesWithPlatforms;
     }
 
     @Override

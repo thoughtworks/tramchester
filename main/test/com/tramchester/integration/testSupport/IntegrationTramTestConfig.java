@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     public IntegrationTramTestConfig(String dbName) {
         super("integrationTramTest", dbName);
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", Collections.singleton(GTFSTransportationType.tram));
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", Collections.singleton(GTFSTransportationType.tram),
+                Collections.singleton(TransportMode.Tram));
     }
 
     @Override

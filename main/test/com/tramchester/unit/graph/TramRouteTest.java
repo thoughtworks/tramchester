@@ -245,7 +245,7 @@ class TramRouteTest {
         @Override
         protected List<DataSourceConfig> getDataSourceFORTESTING() {
             TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("data/tram",
-                    Collections.singleton(GTFSTransportationType.tram));
+                    Collections.singleton(GTFSTransportationType.tram), Collections.singleton(TransportMode.Tram));
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }
 

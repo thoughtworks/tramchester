@@ -51,7 +51,8 @@ class CreateNeighboursTest {
 
         @Override
         protected List<DataSourceConfig> getDataSourceFORTESTING() {
-            return Collections.singletonList(new TFGMTestDataSourceConfig("data/neighbours", TestEnv.tramAndBus));
+            return Collections.singletonList(new TFGMTestDataSourceConfig("data/neighbours", TestEnv.tramAndBus,
+                    Collections.singleton(TransportMode.Tram)));
         }
 
         @Override

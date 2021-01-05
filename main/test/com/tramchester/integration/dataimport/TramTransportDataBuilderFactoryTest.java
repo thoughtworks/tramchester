@@ -9,6 +9,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -96,7 +97,7 @@ class TramTransportDataBuilderFactoryTest {
 
     private static class SourceConfig extends TFGMTestDataSourceConfig {
         public SourceConfig(String dataFolder) {
-            super(dataFolder, Collections.singleton(GTFSTransportationType.tram));
+            super(dataFolder, Collections.singleton(GTFSTransportationType.tram), Collections.singleton(TransportMode.Tram));
         }
 
         @Override

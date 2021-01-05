@@ -81,16 +81,19 @@ public class TransportDataFromFiles implements TransportDataProvider {
             buildable.addDataSourceInfo(dataSourceInfo);
         }
 
-        IdMap<Agency> allAgencies = preloadAgencys(dataSource.agencies);
-        IdSet<Route> excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, sourceConfig);
+        TransportEntityFactory entityFactory = dataSource.getEntityFactory();
+
+        IdMap<Agency> allAgencies = preloadAgencys(dataSource.agencies, entityFactory);
+        IdSet<Route> excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.size()+" routes ");
         allAgencies.clear();
 
-        TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.trips, excludedRoutes);
+        TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.trips, excludedRoutes, entityFactory);
         excludedRoutes.clear();
 
-        IdMap<Station> allStations = preLoadStations(dataSource.stops);
-        IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations, tripsAndServices.trips);
+        IdMap<Station> allStations = preLoadStations(dataSource.stops, entityFactory);
+        IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations, tripsAndServices.trips, entityFactory,
+                sourceConfig);
         allStations.clear();
 
         populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services, dataSource.getConfig());
@@ -212,7 +215,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
-                                   IdMap<Station> stations, IdMap<Trip> trips) {
+                                             IdMap<Station> stations, IdMap<Trip> trips,
+                                             TransportEntityFactory factory, DataSourceConfig dataSourceConfig) {
         logger.info("Loading stop times");
         IdMap<Service> addedServices = new IdMap<>();
         IdSet<Station> excludedStations = new IdSet<>();
@@ -228,9 +232,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 Station station = stations.get(stationId);
                 Route route = trip.getRoute();
 
-                addStation(buildable, route, station);
+                addStation(buildable, route, station, factory);
 
-                StopCall stopCall = createStopCall(buildable, stopTimeData, route, station);
+                StopCall stopCall = createStopCall(buildable, stopTimeData, route, station, factory, dataSourceConfig);
                 trip.addStop(stopCall);
 
                 if (!buildable.hasTripId(trip.getId())) {
@@ -260,38 +264,53 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
-                                    Route route, Station station) {
-        StopCall stopCall;
+                                    Route route, Station station, TransportEntityFactory factory,
+                                    DataSourceConfig sourceConfig) {
         IdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
-        switch (transportMode) {
-            case Tram:
-                if (buildable.hasPlatformId(platformId)) {
-                    Platform platform = buildable.getPlatform(platformId);
-                    platform.addRoute(route);
-                } else {
-                    logger.error("Missing platform " + platformId);
-                }
+
+        // TODO Should be HasPlatform
+        if (sourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
+            if (buildable.hasPlatformId(platformId)) {
                 Platform platform = buildable.getPlatform(platformId);
-                stopCall = new TramStopCall(platform, station, stopTimeData);
-                break;
-            case Bus:
-            case Train:
-            case Ferry:
-            case Subway:
-                stopCall = new NoPlatformStopCall(station, stopTimeData, transportMode);
-                break;
-
-            default:
-                throw new RuntimeException("Unexpected transport mode " + transportMode + " with " + stopTimeData
-                            + " and " + station);
-
+                platform.addRoute(route);
+            } else {
+                logger.error("Missing platform " + platformId);
+            }
+            Platform platform = buildable.getPlatform(platformId);
+            return factory.createPlatformStopCall(platform, station, stopTimeData);
+        } else {
+            return factory.createNoPlatformStopCall(station, stopTimeData);
         }
 
-        return stopCall;
+//        switch (transportMode) {
+//            case Tram:
+//                if (buildable.hasPlatformId(platformId)) {
+//                    Platform platform = buildable.getPlatform(platformId);
+//                    platform.addRoute(route);
+//                } else {
+//                    logger.error("Missing platform " + platformId);
+//                }
+//                Platform platform = buildable.getPlatform(platformId);
+//                stopCall = new TramStopCall(platform, station, stopTimeData);
+//                break;
+//            case Bus:
+//            case Train:
+//            case Ferry:
+//            case Subway:
+//                stopCall = new NoPlatformStopCall(station, stopTimeData, transportMode);
+//                break;
+//
+//            default:
+//                throw new RuntimeException("Unexpected transport mode " + transportMode + " with " + stopTimeData
+//                            + " and " + station);
+//
+//        }
+//
+//        return stopCall;
     }
 
-    private void addStation(TransportDataContainer buildable, Route route, Station station) {
+    private void addStation(TransportDataContainer buildable, Route route, Station station, TransportEntityFactory factory) {
         station.addRoute(route);
 
         IdFor<Station> stationId = station.getId();
@@ -303,13 +322,13 @@ public class TransportDataFromFiles implements TransportDataProvider {
         }
 
         if (!buildable.hasRouteStationId(RouteStation.formId(stationId, route.getId()))) {
-            RouteStation routeStation = new RouteStation(station, route);
+            RouteStation routeStation = factory.createRouteStation(station, route);
             buildable.addRouteStation(routeStation);
         }
     }
 
     private TripAndServices loadTripsAndServices(TransportData transportData, Stream<TripData> tripDataStream,
-                                                 IdSet<Route> excludedRoutes) {
+                                                 IdSet<Route> excludedRoutes, TransportEntityFactory factory) {
         logger.info("Loading trips");
         IdMap<Trip> trips = new IdMap<>();
         IdMap<Service> services = new IdMap<>();
@@ -320,13 +339,12 @@ public class TransportDataFromFiles implements TransportDataProvider {
             IdFor<Service> serviceId = tripData.getServiceId();
             IdFor<Route> routeId = tripData.getRouteId();
             IdFor<Trip> tripId = tripData.getTripId();
-            String tripHeadsign = tripData.getHeadsign();
 
             if (transportData.hasRouteId(routeId)) {
                 Route route = transportData.getRouteById(routeId);
 
-                Service service = services.getOrAdd(serviceId, () -> new Service(serviceId, route));
-                trips.getOrAdd(tripId, () -> new Trip(tripId, tripHeadsign, service, route));
+                Service service = services.getOrAdd(serviceId, () -> factory.createService(serviceId, route));
+                trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
                 service.addRoute(route);
                 count.getAndIncrement();
             } else {
@@ -339,16 +357,17 @@ public class TransportDataFromFiles implements TransportDataProvider {
         return new TripAndServices(services, trips);
     }
 
-    private  IdMap<Agency> preloadAgencys(Stream<AgencyData> agencyDataStream) {
+    private  IdMap<Agency> preloadAgencys(Stream<AgencyData> agencyDataStream, TransportEntityFactory factory) {
         logger.info("Loading all agencies");
         IdMap<Agency> agencies = new IdMap<>();
-        agencyDataStream.forEach(agencyData -> agencies.add(new Agency(agencyData.getId(), agencyData.getName())));
+        agencyDataStream.forEach(agencyData -> agencies.add(factory.createAgency(agencyData)));
         logger.info("Loaded " + agencies.size() + " agencies");
         return agencies;
     }
 
     private IdSet<Route> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
-                                       IdMap<Agency> allAgencies, DataSourceConfig sourceConfig) {
+                                       IdMap<Agency> allAgencies, DataSourceConfig sourceConfig,
+                                        TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
 
@@ -361,27 +380,21 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 logger.error("Missing agency " + agencyId);
             }
 
-            IdFor<Route> routeId = routeData.getId();
-
             GTFSTransportationType routeType = getTransportTypeWithDataWorkaround(routeData, agencyId);
 
             if (transportModes.contains(routeType)) {
-                String routeName = routeData.getLongName();
-                if (config.getRemoveRouteNameSuffix()) {
-                    int indexOf = routeName.indexOf("(");
-                    if (indexOf > -1) {
-                        routeName = routeName.substring(0,indexOf).trim();
-                    }
-                }
-
-                count.getAndIncrement();
                 Agency agency = missingAgency ? createMissingAgency(allAgencies, agencyId) : allAgencies.get(agencyId);
-                Route route = new Route(routeId, routeData.getShortName().trim(), routeName, agency,
-                        TransportMode.fromGTFS(routeType), routeData.getRouteDirection());
+
+                Route route = factory.createRoute(routeType, routeData, agency);
+
                 agency.addRoute(route);
                 buildable.addAgency(agency);
                 buildable.addRoute(route);
+
+                count.getAndIncrement();
+
             } else {
+                IdFor<Route> routeId = routeData.getId();
                 excludedRoutes.add(routeId);
             }
         });
@@ -422,7 +435,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
         return unknown;
     }
 
-    private IdMap<Station> preLoadStations(Stream<StopData> stops) {
+    private IdMap<Station> preLoadStations(Stream<StopData> stops, TransportEntityFactory factory) {
         logger.info("Loading stops within bounds");
         BoundingBox bounds = config.getBounds();
 
@@ -432,31 +445,29 @@ public class TransportDataFromFiles implements TransportDataProvider {
             GridPosition position = getGridPosition(stopData.getLatLong());
             if (position.isValid()) {
                 if (bounds.contained(position)) {
-                    preLoadStation(allStations, stopData, position);
+                    preLoadStation(allStations, stopData, position, factory);
                 } else {
                     logger.info("Excluding stop outside of bounds" + stopData);
                 }
             } else {
                 logger.warn("Stop has invalid postion " + stopData);
-                preLoadStation(allStations, stopData, position);
+                preLoadStation(allStations, stopData, position, factory);
             }
         });
         logger.info("Pre Loaded " + allStations.size() + " stations");
         return allStations;
     }
 
-    private void preLoadStation(IdMap<Station> allStations, StopData stopData, GridPosition position) {
+    private void preLoadStation(IdMap<Station> allStations, StopData stopData, GridPosition position, TransportEntityFactory factory) {
         String stopId = stopData.getId();
         IdFor<Station> stationId = Station.formId(stopId);
 
         // NOTE: Tram data has unique positions for each platform
         // TODO What is the right position to use for a tram station?
-        Station station = allStations.getOrAdd(stationId, () ->
-                new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
-                        stopData.getLatLong(), position));
+        Station station = allStations.getOrAdd(stationId, () -> factory.createStation(stationId, stopData, position));
 
         if (stopData.hasPlatforms()) {
-            Platform platform = formPlatform(stopData);
+            Platform platform = formPlatform(stopData, factory);
             if (!station.getPlatforms().contains(platform)) {
                 station.addPlatform(platform);
             }
@@ -467,17 +478,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
         return CoordinateTransforms.getGridPosition(latLong);
     }
 
-    private String workAroundName(String name) {
-        if ("St Peters Square".equals(name)) {
-            return "St Peter's Square";
-        }
-        return name;
+    private Platform formPlatform(StopData stop, TransportEntityFactory factory) {
+        return factory.createPlatform(stop);
     }
-
-    private Platform formPlatform(StopData stop) {
-        return new Platform(stop.getId(), stop.getName(), stop.getLatLong());
-    }
-
 
     private static class TripAndServices  {
         private final IdMap<Service> services;

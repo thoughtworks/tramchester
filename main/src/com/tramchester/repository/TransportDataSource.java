@@ -1,10 +1,10 @@
 package com.tramchester.repository;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.TransportEntityFactory;
 
 import java.util.stream.Stream;
 
@@ -19,12 +19,13 @@ public class TransportDataSource {
     private final DataSourceConfig config;
     final Stream<AgencyData> agencies;
     final private DataSourceInfo dataSourceInfo;
+    final private TransportEntityFactory entityFactory;
 
     public TransportDataSource(DataSourceInfo dataSourceInfo, Stream<AgencyData> agencies, Stream<StopData> stops,
                                Stream<RouteData> routes, Stream<TripData> trips, Stream<StopTimeData> stopTimes,
                                Stream<CalendarData> calendars,
                                Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates,
-                               DataSourceConfig config) {
+                               DataSourceConfig config, TransportEntityFactory entityFactory) {
         this.dataSourceInfo = dataSourceInfo;
         this.agencies = agencies;
         this.stops = stops;
@@ -35,6 +36,7 @@ public class TransportDataSource {
         this.feedInfo = feedInfo;
         this.calendarsDates = calendarsDates;
         this.config = config;
+        this.entityFactory = entityFactory;
     }
 
     public void closeAll() {
@@ -54,5 +56,9 @@ public class TransportDataSource {
 
     public DataSourceConfig getConfig() {
         return config;
+    }
+
+    public TransportEntityFactory getEntityFactory() {
+        return entityFactory;
     }
 }

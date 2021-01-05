@@ -189,7 +189,7 @@ public class MixedTransportDataProvider implements TransportDataProvider {
                                                  TramTime arrivalTime, TramTime departureTime, int sequenceNum, TransportMode mode) {
         StopTimeData stopTimeData = new StopTimeData(trip.getId().forDTO(), arrivalTime, departureTime, station.forDTO(),
                 sequenceNum, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
-        return new NoPlatformStopCall(station, stopTimeData, mode);
+        return new NoPlatformStopCall(station, stopTimeData);
     }
 
 

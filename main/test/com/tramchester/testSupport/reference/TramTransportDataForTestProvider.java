@@ -3,7 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
-import com.tramchester.domain.input.TramStopCall;
+import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -94,28 +94,28 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Tram);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
-        TramStopCall stopA = createStop(container, tripA, first, TramTime.of(8, 0), TramTime.of(8, 0), 1);
+        PlatformStopCall stopA = createStop(container, tripA, first, TramTime.of(8, 0), TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
         Station second = new TestStation(TestTransportData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid, TransportMode.Tram);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
-        TramStopCall stopB = createStop(container, tripA, second, TramTime.of(8, 11), TramTime.of(8, 11), 2);
+        PlatformStopCall stopB = createStop(container, tripA, second, TramTime.of(8, 11), TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
         Station interchangeStation = new TestStation(TestTransportData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
                 TestEnv.nearShudehillGrid, TransportMode.Tram);
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
-        TramStopCall stopC = createStop(container, tripA, interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), 3);
+        PlatformStopCall stopC = createStop(container, tripA, interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
         Station last = new TestStation(TestTransportData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
-        TramStopCall stopD = createStop(container, tripA, last, TramTime.of(8, 40), TramTime.of(8, 40), 4);
+        PlatformStopCall stopD = createStop(container, tripA, last, TramTime.of(8, 40), TramTime.of(8, 40), 4);
         tripA.addStop(stopD);
 
         // service A
@@ -131,9 +131,9 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
 
         //
         Trip tripC = new Trip("tripCId", "headSignC", serviceC, routeC);
-        TramStopCall stopG = createStop(container, tripC, interchangeStation, TramTime.of(8, 26), TramTime.of(8, 27), 1);
+        PlatformStopCall stopG = createStop(container, tripC, interchangeStation, TramTime.of(8, 26), TramTime.of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
-        TramStopCall stopH = createStop(container, tripC, stationFive, TramTime.of(8, 31), TramTime.of(8, 33), 2);
+        PlatformStopCall stopH = createStop(container, tripC, stationFive, TramTime.of(8, 31), TramTime.of(8, 33), 2);
         addRouteStation(container, stationFive, routeC);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
@@ -170,24 +170,24 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
     private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
         Trip trip = new Trip(tripId, "headSignTripB2", service, route);
-        TramStopCall stop1 = createStop(container,trip, interchangeStation, TramTime.of(startTime),
+        PlatformStopCall stop1 = createStop(container,trip, interchangeStation, TramTime.of(startTime),
                 TramTime.of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
-        TramStopCall stop2 = createStop(container,trip, station, TramTime.of(startTime.plusMinutes(5)),
+        PlatformStopCall stop2 = createStop(container,trip, station, TramTime.of(startTime.plusMinutes(5)),
                 TramTime.of(startTime.plusMinutes(8)), 2);
         trip.addStop(stop2);
         service.addTrip(trip);
         container.addTrip(trip);
     }
 
-    private static TramStopCall createStop(TransportDataContainer container, Trip trip, Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
+    private static PlatformStopCall createStop(TransportDataContainer container, Trip trip, Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         String platformId = station.getId() + "1";
         Platform platform = new Platform(platformId, format("%s platform 1", station.getName()), station.getLatLong());
         container.addPlatform(platform);
         station.addPlatform(platform);
         StopTimeData stopTimeData = new StopTimeData(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
                 GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
-        return new TramStopCall(platform, station, stopTimeData);
+        return new PlatformStopCall(platform, station, stopTimeData);
     }
 
 

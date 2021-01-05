@@ -7,6 +7,7 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -14,7 +15,6 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.MixedTransportDataProvider;
@@ -73,7 +73,6 @@ class MixedRouteTest {
 
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
-        StationRepository stationRepo = componentContainer.get(StationRepository.class);
     }
 
     @NotNull
@@ -169,7 +168,7 @@ class MixedRouteTest {
         protected List<DataSourceConfig> getDataSourceFORTESTING() {
             Set<GTFSTransportationType> modes = new HashSet<>(Arrays.asList(GTFSTransportationType.bus, GTFSTransportationType.tram));
             TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("unused",
-                    modes);
+                    modes, Collections.singleton(TransportMode.Tram));
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }
 

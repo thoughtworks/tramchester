@@ -161,8 +161,6 @@ class TransportDataFromFilesTest {
         assertTrue(results.isEmpty());
     }
 
-    // TODO REMOVE THIS, also update TFGMTestDataSourceConfig to remove Christmas day
-    // TODO REMOVE THIS, also update TFGMTestDataSourceConfig to remove Christmas day
     @Test
     void shouldHaveCorrectDatesAndServicesForChirstmas2020() {
         LocalDate christmasDay = LocalDate.of(2020, 12, 25);

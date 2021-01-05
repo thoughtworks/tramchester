@@ -5,6 +5,7 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.TransportEntityFactory;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.TransportDataSource;
@@ -34,6 +35,9 @@ public class TransportDataFromFilesBuilder {
     public TransportDataFromFiles create() {
         // streams, so no data read yet
 
+        // TODO inject datasource specific versions to allow per source mapping
+        TransportEntityFactory entityFactory = new TransportEntityFactory(config);
+
         List<TransportDataSource> dataStreams = new ArrayList<>();
 
         transportDataReaders.forEach(transportDataReader -> {
@@ -54,7 +58,7 @@ public class TransportDataFromFilesBuilder {
             TransportDataSource transportDataSource =
                     new TransportDataSource(transportDataReader.getNameAndVersion(),
                             agencyData, stopData, routeData, tripData,
-                            stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig);
+                            stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
             dataStreams.add(transportDataSource);
         });
 

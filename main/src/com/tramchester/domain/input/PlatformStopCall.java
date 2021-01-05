@@ -4,10 +4,10 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 
-public class TramStopCall extends StopCall {
+public class PlatformStopCall extends StopCall {
     private final Platform callingPlatform;
 
-    public TramStopCall(Platform platform, Station station, StopTimeData stopTimeData) {
+    public PlatformStopCall(Platform platform, Station station, StopTimeData stopTimeData) {
         super(station, stopTimeData);
         this.callingPlatform = platform;
     }
