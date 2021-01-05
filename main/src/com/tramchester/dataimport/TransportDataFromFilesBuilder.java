@@ -5,7 +5,8 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.TransportEntityFactory;
+import com.tramchester.domain.factory.TransportEntityFactory;
+import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.TransportDataSource;
@@ -35,14 +36,12 @@ public class TransportDataFromFilesBuilder {
     public TransportDataFromFiles create() {
         // streams, so no data read yet
 
-        // TODO inject datasource specific versions to allow per source mapping
-        TransportEntityFactory entityFactory = new TransportEntityFactory(config);
-
         List<TransportDataSource> dataStreams = new ArrayList<>();
 
         transportDataReaders.forEach(transportDataReader -> {
             Stream<FeedInfo> feedInfoData = Stream.empty();
             DataSourceConfig sourceConfig = transportDataReader.getConfig();
+
             if (sourceConfig.getHasFeedInfo()) {
                 feedInfoData = transportDataReader.getFeedInfo();
             }
@@ -55,14 +54,26 @@ public class TransportDataFromFilesBuilder {
             Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
             Stream<AgencyData> agencyData = transportDataReader.getAgencies();
 
+            TransportEntityFactory entityFactory = getEntityFactoryFor(sourceConfig);
+
             TransportDataSource transportDataSource =
                     new TransportDataSource(transportDataReader.getNameAndVersion(),
                             agencyData, stopData, routeData, tripData,
                             stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
+
             dataStreams.add(transportDataSource);
         });
 
         return new TransportDataFromFiles(dataStreams, config, providesNow);
+    }
+
+    private TransportEntityFactory getEntityFactoryFor(DataSourceConfig sourceConfig) {
+        String name = sourceConfig.getName();
+        if ("tfgm".equals(name)) {
+            return new TransportEntityFactoryForTFGM(config);
+        } else {
+            return new TransportEntityFactory(config);
+        }
     }
 }
 

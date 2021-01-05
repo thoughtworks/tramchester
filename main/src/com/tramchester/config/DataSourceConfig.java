@@ -25,7 +25,7 @@ public interface DataSourceConfig {
     // name of fetched zip file
     String getZipFilename();
 
-    // name for diag and logging purposed
+    // name for diag, logging and entity factory selection
     String getName();
 
     // expect to see feedinfo.txt for this data set

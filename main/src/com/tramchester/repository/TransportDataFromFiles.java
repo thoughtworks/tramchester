@@ -5,6 +5,7 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
+import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;

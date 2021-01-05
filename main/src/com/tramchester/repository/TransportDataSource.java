@@ -4,7 +4,7 @@ import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
-import com.tramchester.domain.TransportEntityFactory;
+import com.tramchester.domain.factory.TransportEntityFactory;
 
 import java.util.stream.Stream;
 
