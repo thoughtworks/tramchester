@@ -138,8 +138,8 @@ public class App extends Application<AppConfiguration>  {
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
 
-        // only enable live data if tram's enabled
-        if ( configuration.getTransportModes().contains(GTFSTransportationType.tram)) {
+        // only enable live data present in config
+        if (configuration.getLiveDataConfig() != null) {
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 

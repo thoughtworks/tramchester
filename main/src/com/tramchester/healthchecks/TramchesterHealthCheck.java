@@ -14,4 +14,6 @@ public abstract class TramchesterHealthCheck extends HealthCheck {
     protected boolean isLateNight(LocalDateTime dateTime) {
         return TramTime.of(dateTime).between(startOfNight, endOfNight);
     }
+
+    public abstract boolean isEnabled();
 }

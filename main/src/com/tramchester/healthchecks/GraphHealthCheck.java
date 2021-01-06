@@ -35,4 +35,9 @@ public class GraphHealthCheck extends TramchesterHealthCheck {
     public String getName() {
         return "graphDB";
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

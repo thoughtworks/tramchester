@@ -18,16 +18,17 @@ public class S3Keys {
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
-    private final String environment;
+    private final TramchesterConfig config;
 
     @Inject
     public S3Keys(TramchesterConfig config) {
-        environment = config.getLiveDataConfig().getS3Prefix();
+        this.config = config;
     }
 
     public String create(LocalDateTime timeStamp) {
-        // TODO this ought to be UTC, not local
+        String environment = config.getLiveDataConfig().getS3Prefix();
 
+        // TODO this ought to be UTC, not local
         String date = timeStamp.toLocalDate().format(dateFormatter);
         String time = timeStamp.toLocalTime().format(timeFormatter);
 
@@ -35,8 +36,9 @@ public class S3Keys {
     }
 
     public String createPrefix(LocalDate timeStamp) {
-        // TODO this ought to be UTC, not local
+        String environment = config.getLiveDataConfig().getS3Prefix();
 
+        // TODO this ought to be UTC, not local
         return format("%s/%s", environment, timeStamp.format(dateFormatter));
     }
 

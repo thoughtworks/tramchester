@@ -1,6 +1,7 @@
 package com.tramchester.cloud.data;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -13,6 +14,8 @@ import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -30,18 +33,41 @@ public class ClientForS3 {
     // TODO Switch to specific string encoding to/from bytes instead of the default
 
     private static final Logger logger = LoggerFactory.getLogger(ClientForS3.class);
-    private final String bucket;
+    private final LiveDataConfig config;
 
+    private String bucket;
     private S3Client s3Client;
 
     @Inject
     public ClientForS3(TramchesterConfig config) {
-        this.bucket = config.getLiveDataConfig().getS3Bucket();
+        s3Client = null;
+        this.config = config.getLiveDataConfig();
+    }
+
+    @PostConstruct
+    public void start() {
+        if (config==null) {
+            logger.warn("Not started, live data config not set");
+            return;
+        }
+
+        logger.info("Starting");
+        this.bucket = config.getS3Bucket();
         try {
             s3Client = S3Client.create();
+            logger.info("Started");
         }
         catch (AwsServiceException exception) {
             logger.warn("Unable to init S3 client, no live data will be archived.");
+        }
+    }
+
+    @PreDestroy
+    public void stop() {
+        if (s3Client!=null) {
+            logger.info("Stopping");
+            s3Client.close();
+            s3Client = null;
         }
     }
 

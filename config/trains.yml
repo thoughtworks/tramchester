@@ -33,14 +33,6 @@ bounds:
   minNorthings: 30599
   maxEasting: 654747
   maxNorthings: 967921
-liveData:
-  dataUrl: https://api.tfgm.com/odata/Metrolinks
-  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
-  s3Bucket: tramchesterlivedata
-  s3Prefix: ${PLACE:- "test"}
-  refreshPeriodSeconds: 20
-  maxNumberStationsWithoutMessages: 10
-  maxNumberStationsWithoutData: 5
 stationClosures: []
 instanceDataUrl: http://169.254.169.254
 loadPostcodes: false

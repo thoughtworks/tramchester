@@ -4,6 +4,7 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.netflix.governator.guice.lazy.LazySingleton;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,12 +21,26 @@ public class RegistersHealthchecks {
                                  LiveDataMessagesHealthCheck liveDataMessagesHealthCheck,
                                  LiveDataS3UploadHealthCheck liveDataS3UploadHealthCheck) {
         this.healthChecks = new HashSet<>();
-        healthChecks.addAll(dataExpiryHealthCheckFactory.getHealthChecks());
-        healthChecks.addAll(newDataAvailableHealthCheckFactory.getHealthChecks());
-        healthChecks.add(graphHealthCheck);
-        healthChecks.add(liveDataHealthCheck);
-        healthChecks.add(liveDataMessagesHealthCheck);
-        healthChecks.add(liveDataS3UploadHealthCheck);
+
+        addIfEnabled(dataExpiryHealthCheckFactory.getHealthChecks());
+        addIfEnabled(newDataAvailableHealthCheckFactory.getHealthChecks());
+        addIfEnabled(graphHealthCheck);
+
+        // live data healthchecks
+        addIfEnabled(liveDataHealthCheck);
+        addIfEnabled(liveDataMessagesHealthCheck);
+        addIfEnabled(liveDataS3UploadHealthCheck);
+    }
+
+
+    private void addIfEnabled(Collection<TramchesterHealthCheck> healthChecks) {
+        healthChecks.forEach(this::addIfEnabled);
+    }
+
+    private void addIfEnabled(TramchesterHealthCheck healthCheck) {
+        if (healthCheck.isEnabled()) {
+            healthChecks.add(healthCheck);
+        }
     }
 
     public void registerAllInto(HealthCheckRegistry registry) {

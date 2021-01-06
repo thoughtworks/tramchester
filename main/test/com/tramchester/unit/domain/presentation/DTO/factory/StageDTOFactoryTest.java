@@ -74,39 +74,6 @@ class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(trip.getId().forDTO(), stageDTO.getTripId());
     }
 
-    @Test
-    void shouldMapRouteNameForTrainRoutes() {
-        Agency agency = new Agency("GW", "Great Western");
-        Route route = new Route("routeId", "shortName", "GW train service from PAD to NBY", agency,
-                TransportMode.Train, RouteDirection.Unknown);
-
-        Service service = new Service("svcId", route);
-
-        Trip trip = new Trip("tripId", "headSign", service, route);
-        Station startStation = TestNoPlatformStation.forTest("idA", "areaA", "name A", TestEnv.nearStockportBus, TransportMode.Train);
-        Station endStation = TestNoPlatformStation.forTest("idB", "areaB", "name B", TestEnv.nearPiccGardens, TransportMode.Train);
-        VehicleStage vehicleStage = new VehicleStage(startStation, route,
-                TransportMode.Train, trip, TramTime.of(0, 0), endStation, 23, false);
-        vehicleStage.setCost(5);
-
-        EasyMock.expect(stationRepository.hasStationId(IdFor.createId("NBY"))).andReturn(true);
-        EasyMock.expect(stationRepository.getStationName(IdFor.createId("NBY"))).andReturn("Newbury");
-        EasyMock.expect(stationRepository.hasStationId(IdFor.createId("PAD"))).andReturn(true);
-        EasyMock.expect(stationRepository.getStationName(IdFor.createId("PAD"))).andReturn("London Paddington");
-
-        replayAll();
-        StageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
-        verifyAll();
-
-        RouteRefDTO routeRefDTO = stageDTO.getRoute();
-
-        assertEquals(route.getId().forDTO(), routeRefDTO.getId());
-        assertEquals(route.getShortName(), routeRefDTO.getShortName());
-        assertEquals(TransportMode.Train, routeRefDTO.getTransportMode());
-
-        assertEquals("Great Western train service from London Paddington to Newbury", routeRefDTO.getRouteName());
-    }
-
     private void checkValues(TransportStage<?,?> stage, StageDTO dto, boolean hasPlatform, TravelAction action) {
         assertEquals(stage.getActionStation().forDTO(), dto.getActionStation().getId());
         assertEquals(stage.getMode(), dto.getMode());

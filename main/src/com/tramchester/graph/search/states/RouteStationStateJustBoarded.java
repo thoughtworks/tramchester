@@ -39,6 +39,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART),
                     noPlatformStation);
             if (TransportMode.isBus(mode)) {
+                // TODO What about Train, Ferry, etc/
                 outbounds.addAll(orderByDistance(node));
             } else {
                 outbounds.addAll(orderByRoute(noPlatformStation, node));
@@ -54,7 +55,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
             toServices.forEach(relationship -> {
                 IdFor<Route> routeId = IdFor.getRouteIdFrom(relationship);
-                if (state.destinationRoute(routeId)) {
+                if (state.hasDestinationRoute(routeId)) {
                     highPriority.add(relationship);
                 } else {
                     lowPriority.add(relationship);

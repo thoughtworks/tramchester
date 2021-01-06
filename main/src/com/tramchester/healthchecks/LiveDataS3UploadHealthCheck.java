@@ -2,12 +2,14 @@ package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.DownloadsLiveData;
+import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -20,13 +22,31 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
 
     private final ProvidesLocalNow providesLocalNow;
     private final DownloadsLiveData downloadsLiveData;
-    private final Duration checkDuration;
+    private final LiveDataConfig config;
+
+    private Duration checkDuration;
 
     @Inject
     public LiveDataS3UploadHealthCheck(ProvidesLocalNow providesLocalNow, DownloadsLiveData downloadsLiveData, TramchesterConfig config) {
-        checkDuration = Duration.of(2 * config.getLiveDataConfig().getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
         this.providesLocalNow = providesLocalNow;
         this.downloadsLiveData = downloadsLiveData;
+        this.config = config.getLiveDataConfig();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return config!=null;
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.info("start");
+        if (isEnabled()) {
+            checkDuration = Duration.of(2 * config.getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
+            logger.info("started");
+        } else {
+            logger.warn("disabled");
+        }
     }
 
     @Override

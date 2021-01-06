@@ -36,6 +36,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
         localNow = TestEnv.LocalNow();
         providesLocalNow = createMock(ProvidesLocalNow.class);
         downloadsLiveData = createMock(DownloadsLiveData.class);
+
         healthCheck = new LiveDataS3UploadHealthCheck(providesLocalNow, downloadsLiveData, configuration);
         expectedDuration = Duration.of(2 * configuration.getLiveDataConfig().getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
     }
@@ -52,6 +53,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
                 .andReturn(liveDataSteam);
 
         replayAll();
+        healthCheck.start();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 
@@ -66,6 +68,7 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
                 .andReturn(Stream.empty());
 
         replayAll();
+        healthCheck.start();
         HealthCheck.Result result = healthCheck.check();
         verifyAll();
 

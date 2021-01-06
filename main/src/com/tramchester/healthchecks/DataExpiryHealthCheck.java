@@ -62,4 +62,9 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     public String getName() {
         return "dataExpiry";
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

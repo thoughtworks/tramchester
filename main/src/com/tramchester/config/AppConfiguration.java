@@ -126,7 +126,8 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("stationClosures")
     private List<StationClosure> stationClosures;
 
-    @NotNull
+    // TODO move live data config into the associated data source config section?
+    //@NotNull
     @JsonProperty("liveData")
     private LiveDataAppConfig liveDataConfig;
 
@@ -168,16 +169,6 @@ public class AppConfiguration extends TramchesterConfig {
     public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
         return swaggerBundleConfiguration;
     }
-
-//    @Valid
-//    @NotNull
-//    @JsonProperty
-//    private final AssetsConfiguration assets = AssetsConfiguration.builder().build();
-//
-//    @Override
-//    public AssetsConfiguration getAssetsConfiguration() {
-//        return assets;
-//    }
 
     @Override
     public int getDataExpiryThreadhold() {

@@ -33,6 +33,11 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
         this.stationRepository = stationRepository;
     }
 
+    @Override
+    public boolean isEnabled() {
+        return config!=null;
+    }
+
     // normally only between 2 and 4 missing
     // private static final int MISSING_MSGS_LIMIT = 4;
     // during night hours gradually goes to zero than back to full about 6.05am
@@ -74,4 +79,5 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
     public String getName() {
         return "liveDataMessages";
     }
+
 }

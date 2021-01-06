@@ -27,10 +27,16 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
     @Inject
     public LiveDataHealthCheck(DueTramsRepository repository, ProvidesNow providesNow, StationRepository stationRepository,
                                TramchesterConfig config) {
+        this.config = config.getLiveDataConfig();
+
         this.repository = repository;
         this.providesNow = providesNow;
         this.stationRepository = stationRepository;
-        this.config = config.getLiveDataConfig();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return config!=null;
     }
 
     @Override
@@ -70,4 +76,5 @@ public class LiveDataHealthCheck extends TramchesterHealthCheck {
     public String getName() {
         return "liveData";
     }
+
 }

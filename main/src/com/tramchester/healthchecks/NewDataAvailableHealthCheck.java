@@ -53,4 +53,9 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     public String getName() {
         return "new data for " + config.getName();
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

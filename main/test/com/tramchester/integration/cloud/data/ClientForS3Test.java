@@ -57,11 +57,13 @@ class ClientForS3Test {
     @BeforeEach
     void beforeEachTestRuns() {
         clientForS3 = new ClientForS3(TestEnv.GET());
+        clientForS3.start();
         s3TestSupport.cleanBucket();
     }
 
     @AfterEach
     void afterEachTestRuns() {
+        clientForS3.stop();
         s3TestSupport.cleanBucket();
     }
 
@@ -96,7 +98,9 @@ class ClientForS3Test {
     @Test
     void shouldReturnFalseIfNonExistentBucket() {
         ClientForS3 anotherClient = new ClientForS3(new NoSuchBucketExistsConfig());
+        anotherClient.start();
         boolean uploaded = anotherClient.upload(KEY, "someText");
+        anotherClient.stop();
         assertFalse(uploaded);
     }
 

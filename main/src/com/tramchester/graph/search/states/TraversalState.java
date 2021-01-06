@@ -143,7 +143,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 '}';
     }
 
-    public boolean destinationRoute(IdFor<Route> routeId) {
+    public boolean hasDestinationRoute(IdFor<Route> routeId) {
         return destinationRouteIds.contains(routeId);
     }
 
