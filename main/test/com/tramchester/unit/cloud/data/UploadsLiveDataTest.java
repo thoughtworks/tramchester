@@ -28,19 +28,18 @@ class UploadsLiveDataTest extends EasyMockSupport {
     private ClientForS3 clientForS3;
     private UploadsLiveData uploadsLiveData;
     private List<StationDepartureInfo> liveData;
-    private final String environment = "test";
     private StationDepartureMapper mapper;
+    private S3Keys s3Keys;
+    private LocalDateTime lastUpdateTime;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        LocalDateTime lastUpdateTime = LocalDateTime.parse("2018-11-15T15:06:32");
+        lastUpdateTime = LocalDateTime.parse("2018-11-15T15:06:32");
 
         clientForS3 = createStrictMock(ClientForS3.class);
         mapper = createStrictMock(StationDepartureMapper.class);
 
-        // todo mock this?
-        TramchesterConfig config = TestEnv.GET();
-        S3Keys s3Keys = new S3Keys(config);
+        s3Keys = createMock(S3Keys.class);
 
         uploadsLiveData = new UploadsLiveData(clientForS3, mapper, s3Keys);
 
@@ -56,11 +55,14 @@ class UploadsLiveDataTest extends EasyMockSupport {
         List<StationDepartureInfoDTO> dtos = new ArrayList<>();
         dtos.add(new StationDepartureInfoDTO(liveData.get(0)));
 
+        EasyMock.expect(s3Keys.createPrefix(lastUpdateTime.toLocalDate())).andReturn("prefix");
+        EasyMock.expect(s3Keys.create(lastUpdateTime)).andReturn("key");
+
         EasyMock.expect(clientForS3.isStarted()).andReturn(true);
-        EasyMock.expect(clientForS3.keyExists(environment+"/20181115",environment+"/20181115/15:06:32")).andReturn(false);
+        EasyMock.expect(clientForS3.keyExists("prefix","key")).andReturn(false);
         EasyMock.expect(mapper.map(dtos)).andReturn("someJson");
 
-        EasyMock.expect(clientForS3.upload(environment+"/20181115/15:06:32", "someJson")).andReturn(true);
+        EasyMock.expect(clientForS3.upload("key", "someJson")).andReturn(true);
 
         replayAll();
         boolean result = uploadsLiveData.seenUpdate(liveData);
@@ -71,8 +73,12 @@ class UploadsLiveDataTest extends EasyMockSupport {
 
     @Test
     void shouldNotUploadIfKeyExists() {
+
+        EasyMock.expect(s3Keys.createPrefix(lastUpdateTime.toLocalDate())).andReturn("prefix");
+        EasyMock.expect(s3Keys.create(lastUpdateTime)).andReturn("key");
+
         EasyMock.expect(clientForS3.isStarted()).andReturn(true);
-        EasyMock.expect(clientForS3.keyExists(environment+"/20181115", environment+"/20181115/15:06:32")).andReturn(true);
+        EasyMock.expect(clientForS3.keyExists("prefix", "key")).andReturn(true);
 
         replayAll();
         boolean result = uploadsLiveData.seenUpdate(liveData);

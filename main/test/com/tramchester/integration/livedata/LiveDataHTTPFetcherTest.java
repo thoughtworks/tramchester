@@ -38,7 +38,7 @@ class LiveDataHTTPFetcherTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        configuration = new IntegrationTramTestConfig();
+        configuration = new IntegrationTramTestConfig(true);
         componentContainer = new ComponentsBuilder<TransportDataFromFiles>().create(configuration, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

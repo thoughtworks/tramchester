@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestLiveDataConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +30,7 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
         repository = createMock(DueTramsRepository.class);
         stationRepository = createMock(StationRepository.class);
         providesNow = createMock(ProvidesNow.class);
-        TramchesterConfig config =  new IntegrationTramTestConfig();
+        TramchesterConfig config = TestEnv.GET(new TestLiveDataConfig());
 
         healthCheck = new LiveDataHealthCheck(repository, providesNow, stationRepository, config);
     }

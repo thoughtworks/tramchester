@@ -45,7 +45,7 @@ class ConfigMismatchTest {
     void shouldHaveKeyParametersSameForTramIntegrationTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
 
         validateCoreParameters(appConfig, testConfig);
 

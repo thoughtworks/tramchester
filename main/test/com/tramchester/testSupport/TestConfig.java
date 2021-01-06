@@ -154,6 +154,6 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public LiveDataConfig getLiveDataConfig() {
-        return new TestLiveDataConfig();
+        return null;
     }
 }

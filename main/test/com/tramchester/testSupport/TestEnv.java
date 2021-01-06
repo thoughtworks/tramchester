@@ -4,6 +4,8 @@ import com.codahale.metrics.Gauge;
 import com.tramchester.CacheMetrics;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.input.PlatformStopCall;
@@ -65,6 +67,20 @@ public class TestEnv {
             @Override
             protected List<DataSourceConfig> getDataSourceFORTESTING() {
                 return Collections.emptyList();
+            }
+        };
+    }
+
+    public static TramchesterConfig GET(TestLiveDataConfig testLiveDataConfig) {
+        return new TestConfig() {
+            @Override
+            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+                return null;
+            }
+
+            @Override
+            public LiveDataConfig getLiveDataConfig() {
+                return testLiveDataConfig;
             }
         };
     }
@@ -212,4 +228,6 @@ public class TestEnv {
         return new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY));
     }
+
+
 }

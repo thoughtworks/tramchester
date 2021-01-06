@@ -3,10 +3,15 @@ package com.tramchester.unit.healthchecks;
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.cloud.data.DownloadsLiveData;
 import com.tramchester.config.AppConfiguration;
+import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.healthchecks.LiveDataS3UploadHealthCheck;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestLiveDataConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
-    private final AppConfiguration configuration = TestEnv.GET();
+    private final TramchesterConfig configuration = TestEnv.GET(new TestLiveDataConfig());
     private LocalDateTime localNow;
     private ProvidesLocalNow providesLocalNow;
     private DownloadsLiveData downloadsLiveData;

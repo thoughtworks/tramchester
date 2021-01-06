@@ -30,37 +30,40 @@ class DownloadsLiveDataTest extends EasyMockSupport {
     private ClientForS3 clientForS3;
     private DownloadsLiveData downloader;
     private S3Keys s3Keys;
-    private StationDepartureMapper stationDepartureMapper;
     private StationDepartureInfoDTO departsDTO;
 
-    Capture<ClientForS3.ResponseMapper<StationDepartureInfoDTO>> responseMapperCapture;
+    private Capture<ClientForS3.ResponseMapper<StationDepartureInfoDTO>> responseMapperCapture;
 
     @BeforeEach
     void beforeEachTestRuns() {
         clientForS3 = createStrictMock(ClientForS3.class);
-        stationDepartureMapper = createStrictMock(StationDepartureMapper.class);
-        s3Keys = new S3Keys(TestEnv.GET());
+        StationDepartureMapper stationDepartureMapper = createStrictMock(StationDepartureMapper.class);
+        s3Keys = createMock(S3Keys.class);
+
         downloader = new DownloadsLiveData(clientForS3, stationDepartureMapper, s3Keys);
 
-        StationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:32"), "displayId",
+        StationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(
+                LocalDateTime.parse("2018-11-15T15:06:32"), "displayId",
                 "platforId", "messageTxt", TramStations.of(TramStations.NavigationRoad));
         departsDTO = new StationDepartureInfoDTO(stationDepartureInfo);
 
         responseMapperCapture = Capture.newInstance();
-
     }
 
     @Test
-    void shouldDownloadDataForGivenRange() {
+    void shouldDownloadDataForGivenRange() throws S3Keys.S3KeyException {
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,42);
         Duration duration = Duration.of(1, HOURS);
 
-        String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String expectedKey = s3Keys.create(start);
-        Set<String> keys = Collections.singleton(expectedKey);
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(keys);
-        EasyMock.expect(clientForS3.download(EasyMock.eq(keys), EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO));
+        Set<String> keysFromS3 = Collections.singleton("keysFromS3");
+
+        EasyMock.expect(s3Keys.createPrefix(start.toLocalDate())).andReturn("expectedPrefix");
+        EasyMock.expect(s3Keys.parse("keysFromS3")).andReturn(start);
+
+        EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(keysFromS3);
+        EasyMock.expect(clientForS3.download(EasyMock.eq(keysFromS3),
+                EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO));
 
         replayAll();
         List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
@@ -71,7 +74,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldDownloadDataForGivenRangeMultipleKeys() {
+    void shouldDownloadDataForGivenRangeMultipleKeys() throws S3Keys.S3KeyException {
 
         StationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB",
                 "platforIdB", "messageTxt", TramStations.of(TramStations.Bury));
@@ -80,21 +83,27 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);
         Duration duration = Duration.of(1, HOURS);
 
-        String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String keyA = s3Keys.create(start.plusMinutes(5));
-        String keyB = s3Keys.create(start.plusMinutes(10));
-        String keyC = s3Keys.create(start.plusMinutes(65));
+        String keyA = "keyA";
+        String keyB = "keyB";
+        String keyC = "keyC";
 
         Set<String> keys = new HashSet<>();
         keys.add(keyA);
         keys.add(keyB);
         keys.add(keyC);
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(keys);
+
+        EasyMock.expect(s3Keys.createPrefix(start.toLocalDate())).andReturn("expectedPrefix");
+        EasyMock.expect(s3Keys.parse("keyA")).andReturn(start.plusMinutes(5));
+        EasyMock.expect(s3Keys.parse("keyB")).andReturn(start.plusMinutes(10));
+        EasyMock.expect(s3Keys.parse("keyC")).andReturn(start.plusMinutes(65));
+
+        EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(keys);
 
         Set<String> matching = new HashSet<>();
         matching.add(keyA);
         matching.add(keyB);
-        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO, otherDTO));
+        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).
+                andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();
         List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
@@ -106,21 +115,28 @@ class DownloadsLiveDataTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldDownloadDataForGivenMutipleDays() {
+    void shouldDownloadDataForGivenMutipleDays() throws S3Keys.S3KeyException {
 
-        StationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"), "displayIdB",
-                "platforIdB", "messageTxt", TramStations.of(TramStations.Bury));
+        StationDepartureInfo other = LiveDataUpdaterTest.createDepartureInfoWithDueTram(LocalDateTime.parse("2018-11-15T15:06:54"),
+                "displayIdB", "platforIdB", "messageTxt", TramStations.of(TramStations.Bury));
         StationDepartureInfoDTO otherDTO = new StationDepartureInfoDTO(other);
 
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,1);
         Duration duration = Duration.of(2, DAYS);
 
-        String expectedPrefixA = s3Keys.createPrefix(start.toLocalDate());
-        String expectedPrefixB = s3Keys.createPrefix(start.toLocalDate().plusDays(1));
-        String expectedPrefixC = s3Keys.createPrefix(start.toLocalDate().plusDays(2));
+        String expectedPrefixA = "expectedPrefixA";
+        String expectedPrefixB = "expectedPrefixB";
+        String expectedPrefixC = "expectedPrefixC";
 
-        String keyA = s3Keys.create(start);
-        String keyC = s3Keys.create(start.plusDays(2));
+        String keyA = "keyA";
+        String keyC = "keyC";
+
+        EasyMock.expect(s3Keys.createPrefix(start.toLocalDate())).andReturn(expectedPrefixA);
+        EasyMock.expect(s3Keys.createPrefix(start.toLocalDate().plusDays(1))).andReturn(expectedPrefixB);
+        EasyMock.expect(s3Keys.createPrefix(start.toLocalDate().plusDays(2))).andReturn(expectedPrefixC);
+
+        EasyMock.expect(s3Keys.parse(keyA)).andReturn(start);
+        EasyMock.expect(s3Keys.parse(keyC)).andReturn(start.plusDays(2));
 
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixA)).andReturn(Collections.singleton(keyA));
         EasyMock.expect(clientForS3.getKeysFor(expectedPrefixB)).andReturn(Collections.emptySet());
@@ -129,7 +145,8 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         Set<String> matching = new HashSet<>();
         matching.add(keyA);
         matching.add(keyC);
-        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO, otherDTO));
+        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).
+                andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();
         List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());
@@ -141,13 +158,16 @@ class DownloadsLiveDataTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldSkipOutOfRangeKey() {
+    void shouldSkipOutOfRangeKey() throws S3Keys.S3KeyException {
         LocalDateTime start = LocalDateTime.of(2020,11,29, 15,42);
         Duration duration = Duration.of(1, HOURS);
 
-        String expectedPrefix = s3Keys.createPrefix(start.toLocalDate());
-        String expectedKey = s3Keys.create(start.plusMinutes(65));
-        EasyMock.expect(clientForS3.getKeysFor(expectedPrefix)).andReturn(Collections.singleton(expectedKey));
+        String expectedKey = "keyA";
+
+        EasyMock.expect(s3Keys.createPrefix(start.toLocalDate())).andReturn("expectedPrefix");
+        EasyMock.expect(s3Keys.parse("keyA")).andReturn(start.plusMinutes(65));
+
+        EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(Collections.singleton(expectedKey));
 
         replayAll();
         List<StationDepartureInfoDTO>  results = downloader.downloadFor(start, duration).collect(Collectors.toList());

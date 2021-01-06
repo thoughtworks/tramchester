@@ -21,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class TramPositionsResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+            new IntegrationTramTestConfig(true));
 
     @Test
     void shouldGetSomePositionsFilteredByDefault() {

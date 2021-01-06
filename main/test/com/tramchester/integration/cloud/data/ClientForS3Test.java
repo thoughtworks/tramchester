@@ -4,6 +4,7 @@ import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestLiveDataConfig;
@@ -56,7 +57,7 @@ class ClientForS3Test {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        clientForS3 = new ClientForS3(TestEnv.GET());
+        clientForS3 = new ClientForS3(new IntegrationTramTestConfig(true));
         clientForS3.start();
         s3TestSupport.cleanBucket();
     }
