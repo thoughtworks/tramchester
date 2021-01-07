@@ -1,8 +1,8 @@
 package com.tramchester.integration.graph;
 
+import com.google.common.collect.Lists;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.HasId;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -22,6 +22,7 @@ import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
@@ -29,9 +30,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.KnownTramRoute.*;
+import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TramGraphBuilderTest {
     private static ComponentContainer componentContainer;
@@ -40,6 +44,9 @@ class TramGraphBuilderTest {
     private Transaction txn;
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
+    private Route tramRouteAshtonEccles;
+    private Route tramRouteEcclesAshton;
+    private Route tramRouteAltPicc;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,6 +57,10 @@ class TramGraphBuilderTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        tramRouteAshtonEccles = createTramRoute(AshtonunderLyneManchesterEccles);
+        tramRouteEcclesAshton = createTramRoute(EcclesManchesterAshtonunderLyne);
+        tramRouteAltPicc = createTramRoute(AltrinchamPiccadilly);
+
         graphQuery = componentContainer.get(GraphQuery.class);
         transportData = componentContainer.get(TransportData.class);
         stationRepository = componentContainer.get(StationRepository.class);
@@ -68,14 +79,63 @@ class TramGraphBuilderTest {
     }
 
     @Test
+    void shouldHaveLinkRelationshipsCorrectForInterchange() {
+        Station cornbrook = TramStations.of(Cornbrook);
+        Node cornbrookNode = graphQuery.getStationNode(txn, cornbrook);
+        Iterable<Relationship> outboundLinks = cornbrookNode.getRelationships(Direction.OUTGOING, LINKED);
+
+        List<Relationship> list = Lists.newArrayList(outboundLinks);
+        assertEquals(3, list.size());
+
+        Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
+                map(GraphProps::getStationId).collect(Collectors.toSet());
+
+        assertTrue(destinations.contains(TraffordBar.getId()));
+        assertTrue(destinations.contains(Pomona.getId()));
+        assertTrue(destinations.contains(Deansgate.getId()));
+    }
+
+    @Test
+    void shouldHaveLinkRelationshipsCorrectForEndOfLine() {
+        Station alty = TramStations.of(Altrincham);
+        Node altyNode = graphQuery.getStationNode(txn, alty);
+        Iterable<Relationship> outboundLinks = altyNode.getRelationships(Direction.OUTGOING, LINKED);
+
+        List<Relationship> list = Lists.newArrayList(outboundLinks);
+        assertEquals(1, list.size());
+
+        Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
+                map(GraphProps::getStationId).collect(Collectors.toSet());
+
+        assertTrue(destinations.contains(NavigationRoad.getId()));
+    }
+
+    @Test
+    void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
+        Station exchangeSq = TramStations.of(ExchangeSquare);
+        Node exchangeSqNode = graphQuery.getStationNode(txn, exchangeSq);
+        Iterable<Relationship> outboundLinks = exchangeSqNode.getRelationships(Direction.OUTGOING, LINKED);
+
+        List<Relationship> list = Lists.newArrayList(outboundLinks);
+        assertEquals(2, list.size());
+
+        Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
+                map(GraphProps::getStationId).collect(Collectors.toSet());
+
+        assertTrue(destinations.contains(Victoria.getId()));
+        assertTrue(destinations.contains(StPetersSquare.getId()));
+    }
+
+    @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
         Station mediaCityUK = TramStations.of(MediaCityUK);
 
-        List<Relationship> outbounds = getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(mediaCityUK, createTramRoute(EcclesManchesterAshtonunderLyne)));
-        outbounds.addAll(getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(mediaCityUK, createTramRoute(AshtonunderLyneManchesterEccles))));
+        RouteStation routeStationMediaCityA = stationRepository.getRouteStation(mediaCityUK, tramRouteEcclesAshton);
+        List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationMediaCityA, Direction.OUTGOING);
+
+        RouteStation routeStationMediaCityB = stationRepository.getRouteStation(mediaCityUK, tramRouteAshtonEccles);
+        outbounds.addAll(graphQuery.getRouteStationRelationships(txn, routeStationMediaCityB, Direction.OUTGOING));
 
         Set<IdFor<Service>> graphSvcIds = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -88,25 +148,21 @@ class TramGraphBuilderTest {
                 collect(Collectors.toSet());
         fileSvcIds.removeAll(graphSvcIds);
 
-        Assertions.assertEquals(0, fileSvcIds.size());
-    }
-
-    private List<Relationship> getOutboundRouteStationRelationships(Transaction txn, HasId<RouteStation> routeStationId) {
-        return graphQuery.getRouteStationRelationships(txn, routeStationId, Direction.OUTGOING);
+        assertEquals(0, fileSvcIds.size());
     }
 
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
-        List<Relationship> outbounds = getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(of(Cornbrook), createTramRoute(AltrinchamPiccadilly)));
+        RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAltPicc);
+        List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAltyPiccRoute, Direction.OUTGOING);
 
-        Assertions.assertTrue(outbounds.size()>1, "have at least one outbound");
+        assertTrue(outbounds.size()>1, "have at least one outbound");
 
-        outbounds = getOutboundRouteStationRelationships(txn,
-                stationRepository.getRouteStation(of(Cornbrook), createTramRoute(AshtonunderLyneManchesterEccles)));
+        RouteStation routeStationCornbrookAshtonEcclesRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAshtonEccles);
+        outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAshtonEcclesRoute, Direction.OUTGOING);
 
-        Assertions.assertTrue(outbounds.size()>1);
+        assertTrue(outbounds.size()>1);
 
     }
 
@@ -155,9 +211,9 @@ class TramGraphBuilderTest {
 
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
-        List<Relationship> graphOutbounds = getOutboundRouteStationRelationships(txn, routeStation);
+        List<Relationship> graphOutbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.OUTGOING);
 
-        Assertions.assertTrue(graphOutbounds.size()>0);
+        assertTrue(graphOutbounds.size()>0);
 
         List<IdFor<Service>> serviceRelatIds = graphOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -177,8 +233,8 @@ class TramGraphBuilderTest {
 
         // NOTE: Check clean target that and graph has been rebuilt if see failure here
         // each svc should be one outbound, no dups, so use list not set of ids
-        Assertions.assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
-        Assertions.assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
+        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
+        assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
     }
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
@@ -194,7 +250,7 @@ class TramGraphBuilderTest {
         long boardingCount = inbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.BOARD)
                         || relationship.isType(TransportRelationshipTypes.INTERCHANGE_BOARD)).count();
-        Assertions.assertEquals(1, boardingCount);
+        assertEquals(1, boardingCount);
 
         SortedSet<IdFor<Service>> graphInboundSvcIds = graphTramsIntoStation.stream().
                 map(GraphProps::getServiceId).collect(Collectors.toCollection(TreeSet::new));
@@ -210,19 +266,19 @@ class TramGraphBuilderTest {
         SortedSet<IdFor<Service>> svcIdsFromCallingTrips = callingTrips.stream().
                 map(trip -> trip.getService().getId()).collect(Collectors.toCollection(TreeSet::new));
 
-        Assertions.assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
+        assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
 
         Set<IdFor<Trip>> graphInboundTripIds = graphTramsIntoStation.stream().
                 map(GraphProps::getTripId).
                 collect(Collectors.toSet());
 
-        Assertions.assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
+        assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
 
         Set<IdFor<Trip>> tripIdsFromFile = callingTrips.stream().
                 map(Trip::getId).
                 collect(Collectors.toSet());
 
         tripIdsFromFile.removeAll(graphInboundTripIds);
-        Assertions.assertEquals(0, tripIdsFromFile.size());
+        assertEquals(0, tripIdsFromFile.size());
     }
 }

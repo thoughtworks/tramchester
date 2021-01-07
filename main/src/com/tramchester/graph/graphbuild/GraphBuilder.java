@@ -33,7 +33,7 @@ public abstract class GraphBuilder  {
 
     public static class Ready {
         protected Ready() {
-            // prevent guice creating this, want to create dependency on the Guilder
+            // prevent guice creating this, want to create dependency on the Builder
         }
     }
 

@@ -28,7 +28,8 @@ public enum TransportRelationshipTypes implements RelationshipType {
     ON_ROUTE,
     TRAM_NEIGHBOUR,
     BUS_NEIGHBOUR,
-    TRAIN_NEIGHBOUR;
+    TRAIN_NEIGHBOUR,
+    LINKED;
 
     private static final TransportRelationshipTypes[] forPlanning;
 

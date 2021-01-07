@@ -141,8 +141,9 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(database, 3);
-        creator.create(format("%s_trams.dot", "subgraph_mediacity"), TramStations.of(MediaCityUK));
+        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+        //DiagramCreator creator = new DiagramCreator(database);
+        creator.create(format("%s_trams.dot", "subgraph_mediacity"), TramStations.of(MediaCityUK), Integer.MAX_VALUE);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

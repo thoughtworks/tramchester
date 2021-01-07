@@ -13,7 +13,7 @@ import org.neo4j.graphdb.Node;
 
 import javax.swing.*;
 import java.time.LocalTime;
-import java.util.UUID;
+import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -28,12 +28,33 @@ public class GraphProps {
     }
 
     public static <C extends GraphProperty>  void setProperty(Entity entity, TransportMode mode) {
-        entity.setProperty(TRANSPORT_MODE.getText(), mode.name());
+        entity.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
     }
 
     public static TransportMode getTransportMode(Entity entity) {
-        String name = (String) entity.getProperty(TRANSPORT_MODE.getText());
-        return TransportMode.valueOf(name);
+        short number = (short) entity.getProperty(TRANSPORT_MODE.getText());
+        return TransportMode.fromNumber(number);
+    }
+
+    public static Set<TransportMode> getTransportModes(Entity entity) {
+        if (!entity.hasProperty(TRANSPORT_MODES.getText())) {
+            return Collections.emptySet();
+        }
+
+        short[] existing = (short[]) entity.getProperty(TRANSPORT_MODES.getText());
+        return TransportMode.fromNumbers(existing);
+    }
+
+    public static void addTransportMode(Entity entity, TransportMode mode) {
+        if (!(entity.hasProperty(TRANSPORT_MODES.getText()))) {
+            entity.setProperty(TRANSPORT_MODES.getText(), new short[]{mode.getNumber()});
+            return;
+        }
+
+        short[] existing = (short[]) entity.getProperty(TRANSPORT_MODES.getText());
+        short[] replacement =  Arrays.copyOf(existing, existing.length+1);
+        replacement[existing.length] = mode.getNumber();
+        entity.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
 
     public static IdFor<Station> getStationId(Entity entity) {
@@ -48,8 +69,8 @@ public class GraphProps {
         node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
     }
 
-    private static Object getProperty(Entity node, GraphPropertyKey longitude) {
-        return node.getProperty(longitude.getText());
+    private static Object getProperty(Entity node, GraphPropertyKey graphPropertyKey) {
+        return node.getProperty(graphPropertyKey.getText());
     }
 
     public static String getTrips(Entity relationship) {

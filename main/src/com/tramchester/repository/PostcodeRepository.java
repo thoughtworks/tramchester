@@ -74,10 +74,6 @@ public class PostcodeRepository {
         return Collections.unmodifiableCollection(postcodes.getValues());
     }
 
-    public int getNumberOf() {
-        return postcodes.size();
-    }
-
     public LocalDateTime getLastModifiedDate() {
         return lastModifiedTime;
     }

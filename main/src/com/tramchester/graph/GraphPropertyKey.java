@@ -10,6 +10,7 @@ public enum GraphPropertyKey {
     ROUTE_ID("route_id"),
     SERVICE_ID("service_id"),
     TRANSPORT_MODE("transport_mode"),
+    TRANSPORT_MODES("transport_modes"),
 
     COST("cost"),
     HOUR("hour"),

@@ -133,8 +133,9 @@ class MixedRouteTest {
 
     @Test
     void createDiagramOfTestNetwork() {
-        DiagramCreator creator = new DiagramCreator(database, Integer.MAX_VALUE);
-        Assertions.assertAll(() -> creator.create("mixed_test_network.dot", transportData.getFirst()));
+        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+        //DiagramCreator creator = new DiagramCreator(database, ready);
+        Assertions.assertAll(() -> creator.create("mixed_test_network.dot", transportData.getFirst(), Integer.MAX_VALUE));
     }
 
     private static void assertFirstAndLastForOneStage(Set<Journey> journeys, String firstStation, String secondStation,

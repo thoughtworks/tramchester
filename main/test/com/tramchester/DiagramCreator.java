@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
@@ -13,6 +14,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.*;
 import java.util.*;
 
@@ -23,23 +25,23 @@ import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 import static java.lang.String.format;
 
 
-// TODO Rewrite to use query instead
+@LazySingleton
 public class DiagramCreator {
     private static final Logger logger = LoggerFactory.getLogger(DiagramCreator.class);
 
     private final GraphDatabase graphDatabase;
-    private final int depthLimit;
 
-    public DiagramCreator(GraphDatabase graphDatabase, int depthLimit) {
+    @Inject
+    public DiagramCreator(GraphDatabase graphDatabase, GraphBuilder.Ready readyToken) {
+        // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
-        this.depthLimit = depthLimit;
     }
 
-    public void create(String filename, Station station) throws IOException {
-        create(filename, Collections.singletonList(station));
+    public void create(String filename, Station station, int depthLimit) throws IOException {
+        create(filename, Collections.singletonList(station), depthLimit);
     }
 
-    public void create(String fileName, List<Station> startPointsList) throws IOException {
+    public void create(String fileName, List<Station> startPointsList, int depthLimit) throws IOException {
 
         Set<Long> nodeSeen = new HashSet<>();
         Set<Long> relationshipSeen = new HashSet<>();
@@ -60,9 +62,10 @@ public class DiagramCreator {
                 Node startNode = graphDatabase.findNode(txn, first,
                         startPoint.getProp().getText(), startPoint.getId().getGraphId());
                 if (startNode==null) {
-                    logger.warn("Can't find start node for station " + startPoint);
+                    logger.warn("Can't find start node for station " + startPoint.getId());
+                    builder.append("MISSING NODE\n");
                 } else {
-                    visit(startNode, builder, 0, nodeSeen, relationshipSeen);
+                    visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen);
                 }
             });
 
@@ -78,7 +81,7 @@ public class DiagramCreator {
     }
 
     private void visit(Node node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen) {
-        if (depth>=depthLimit) {
+        if (depth<=0) {
             return;
         }
         if (nodeSeen.contains(node.getId())) {
@@ -102,7 +105,7 @@ public class DiagramCreator {
 
             // startNode -> targetNode
             addEdge(builder, towards, createNodeId(startNode), createNodeId(targetNode), relationshipSeen);
-            visit(startNode, builder, depth+1, nodeSeen, relationshipSeen);
+            visit(startNode, builder, depth-1, nodeSeen, relationshipSeen);
         });
     }
 
@@ -123,7 +126,7 @@ public class DiagramCreator {
                     tramGoesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
             }
-            visit(rawEndNode, builder, depth+1, seen, relationshipSeen);
+            visit(rawEndNode, builder, depth-1, seen, relationshipSeen);
         });
 
         // add services for this node
@@ -188,7 +191,7 @@ public class DiagramCreator {
             return "box";
         }
         if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
-            return "circle";
+            return "box";
         }
 
         return "box";
@@ -241,10 +244,11 @@ public class DiagramCreator {
             case ON_ROUTE: return "R";
             case INTERCHANGE_BOARD: return "IB";
             case INTERCHANGE_DEPART: return "ID";
-            case TRAM_GOES_TO: return "Tram";
+            case TRAM_GOES_TO: return "TramGoesTo";
             case DEPART: return "D";
-            case BUS_GOES_TO: return "Bus";
-            case TRAIN_GOES_TO: return "Train";
+            case BUS_GOES_TO: return "BusGoesTo";
+            case TRAIN_GOES_TO: return "TrainGoesTo";
+            case LINKED: return "Link";
             default: return "Unkn";
         }
     }

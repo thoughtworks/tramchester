@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class GraphBuildAndStartTest {
 
     // spin up graph, primarily here to diagnose out of memory issues, isolate just the graph build
@@ -61,7 +63,7 @@ class GraphBuildAndStartTest {
                 nodeIdLabelMap, transportData, interchangeRepository);
 
         GraphBuilder.Ready ready = graphBuilder.getReady();
-        GraphQuery graphQuery = new GraphQuery(graphDatabase, ready);
+        assertNotNull(ready);
 
         interchangeRepository.start();
         graphDatabase.start();

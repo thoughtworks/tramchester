@@ -22,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class PostcodeResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
+            new TramWithPostcodesEnabled());
     private final String endPoint = "postcodes";
 
     @Test

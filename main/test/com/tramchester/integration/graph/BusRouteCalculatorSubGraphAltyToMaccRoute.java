@@ -3,7 +3,6 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Route;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
-import javax.annotation.processing.RoundEnvironment;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -133,8 +131,9 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
-        DiagramCreator creator = new DiagramCreator(database, 4);
-        creator.create(format("%s_trams.dot", "altyToMacBuses"), routeStations);
+        //DiagramCreator creator = new DiagramCreator(database);
+        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+        creator.create(format("%s_trams.dot", "altyToMacBuses"), routeStations, Integer.MAX_VALUE);
     }
 
     private static class Config extends IntegrationBusTestConfig {

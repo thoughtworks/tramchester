@@ -24,6 +24,7 @@ public class GraphQuery {
 
     @Inject
     public GraphQuery(GraphDatabase graphDatabase, GraphBuilder.Ready ready) {
+        // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
     }
 

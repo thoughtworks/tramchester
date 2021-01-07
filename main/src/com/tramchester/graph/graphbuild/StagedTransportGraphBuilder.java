@@ -52,6 +52,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     //
     // RouteStation-[onRoute]->RouteStation
     //
+    // Station-[linked]->Station
+    //
     ///
 
     private final TransportData transportData;
@@ -142,7 +144,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         forEach(station -> createStationAndPlatforms(tx, route, station, routeBuilderCache));
 
                 // route relationships
-                createRouteRelationships(tx, filter, route, routeBuilderCache);
+                createRouteAndLinkRelationships(tx, filter, route, routeBuilderCache);
                 tx.commit();
             }
 
@@ -255,7 +257,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createRouteRelationships(Transaction tx, GraphFilter filter, Route route, RouteBuilderCache routeBuilderCache) {
+    private void createRouteAndLinkRelationships(Transaction tx, GraphFilter filter, Route route, RouteBuilderCache routeBuilderCache) {
         Stream<Service> services = getServices(filter, route);
 
         Map<Pair<Station, Station>, Integer> pairs = new HashMap<>();
@@ -270,9 +272,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     }
                 });
             }));
-        pairs.forEach((pair, cost) -> createRouteRelationship(
-                routeBuilderCache.getRouteStation(tx, route, pair.getLeft()),
-                routeBuilderCache.getRouteStation(tx, route, pair.getRight()), route, cost));
+
+        pairs.forEach((pair, cost) -> {
+            Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getLeft());
+            Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getRight());
+            createRouteRelationship(startNode, endNode, route, cost);
+
+        });
+
+        pairs.keySet().forEach(pair -> {
+            Node startNode = routeBuilderCache.getStation(tx, pair.getLeft());
+            Node endNode = routeBuilderCache.getStation(tx, pair.getRight());
+            createLinkRelationship(startNode, endNode, route.getTransportMode());
+        });
 
     }
 
@@ -376,6 +388,26 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         });
     }
 
+    private void createLinkRelationship(Node from, Node to, TransportMode mode) {
+        if (from.hasRelationship(OUTGOING, LINKED)) {
+            Iterable<Relationship> existings = from.getRelationships(OUTGOING, LINKED);
+
+            // if there is an existing link between staions then update iff the transport mode not already present
+            for (Relationship existing : existings) {
+                if (existing.getEndNode().equals(to)) {
+                    Set<TransportMode> existingModes = getTransportModes(existing);
+                    if (!existingModes.contains(mode)) {
+                        addTransportMode(existing, mode);
+                    }
+                    return;
+                }
+            }
+        }
+
+        Relationship stationsLinked = from.createRelationshipTo(to, LINKED);
+        addTransportMode(stationsLinked, mode);
+    }
+
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {
         Set<Node> endNodes = new HashSet<>();
 
@@ -385,12 +417,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
             for (Relationship current : relationships) {
                 endNodes.add(current.getEndNode());
-                // normal situation, where (especially) trains go via different paths even thought route is the "same"
-
-//                logger.info(format("Existing outbounds at %s for same route %s currently has %s, new is %s",
-//                        from.getProperty(STATION_ID), route.getId(),
-//                        current.getEndNode().getProperty(STATION_ID),
-//                        to.getProperty(STATION_ID)));
+                // diff outbounds for same route actually a normal situation, where (especially) trains go via
+                // different paths even thought route is the "same"
             }
 
         }
@@ -400,7 +428,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             setProperty(onRoute, route);
             setCostProp(onRoute, cost);
         }
-
     }
 
     private Node createPlatformNode(Transaction tx, Platform platform) {

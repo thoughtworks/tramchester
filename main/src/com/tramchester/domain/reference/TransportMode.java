@@ -3,23 +3,41 @@ package com.tramchester.domain.reference;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public enum TransportMode implements HasTransportMode {
-    Bus,
-    Tram,
-    Train,
-    Walk,
-    Ferry,
-    Subway,
-    RailReplacementBus,
+    Bus((short)1),
+    Tram((short)2),
+    Train((short)3),
+    Walk((short)4),
+    Ferry((short)5),
+    Subway((short)6),
+    RailReplacementBus((short)7),
 
-    Depart,
-    Board,
-    Connect,
-    NotSet,
-    Unknown;
+    Depart((short)50),
+    Board((short)51),
+    Connect((short)52),
+    NotSet((short)53),
+    Unknown((short)99);
+
+    private static final Map<Short, TransportMode> theMap;
+
+    static {
+        theMap = new HashMap<>();
+        for (int i = 0; i < values().length; i++) {
+            TransportMode value = values()[i];
+            theMap.put(value.number, value);
+        }
+    }
+
+    private final short number;
+
+    TransportMode(short number) {
+        this.number = number;
+    }
 
     public static TransportMode fromGTFS(GTFSTransportationType routeType) {
         switch (routeType) {
@@ -32,7 +50,6 @@ public enum TransportMode implements HasTransportMode {
             default:
                 throw new RuntimeException("Unexpected route type (check config?) " + routeType);
         }
-
     }
 
     public static boolean isTram(HasTransportMode item) {
@@ -65,8 +82,24 @@ public enum TransportMode implements HasTransportMode {
         return result;
     }
 
+    public static TransportMode fromNumber(short number) {
+        return theMap.get(number);
+    }
+
+    public static Set<TransportMode> fromNumbers(short[] numbers) {
+        Set<TransportMode> result = new HashSet<>();
+        for (short value : numbers) {
+            result.add(theMap.get(value));
+        }
+        return result;
+    }
+
     @Override
     public TransportMode getTransportMode() {
         return this;
+    }
+
+    public short getNumber() {
+        return number;
     }
 }
