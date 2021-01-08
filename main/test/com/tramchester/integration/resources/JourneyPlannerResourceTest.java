@@ -168,10 +168,13 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
             Assertions.assertEquals("1", platform2.getPlatformNumber());
             // multiple possible places to change depending on timetable etc
-            assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1", "Cornbrook platform 1", "St Peter's Square platform 1")));
+            assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1",
+                    "Cornbrook platform 1",
+                    "St Peter's Square platform 1", "Piccadilly Gardens platform 1")));
             assertThat( platform2.getId(), is(oneOf(TramStations.Piccadilly.forDTO()+"1",
                     TramStations.Cornbrook.forDTO()+"1",
-                    TramStations.StPetersSquare.forDTO()+"1")));
+                    TramStations.StPetersSquare.forDTO()+"1",
+                    TramStations.PiccadillyGardens.forDTO()+"1")));
         });
 
     }

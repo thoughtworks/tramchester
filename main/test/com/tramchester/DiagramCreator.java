@@ -7,6 +7,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -32,7 +33,7 @@ public class DiagramCreator {
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public DiagramCreator(GraphDatabase graphDatabase, GraphBuilder.Ready readyToken) {
+    public DiagramCreator(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready readyToken) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
     }

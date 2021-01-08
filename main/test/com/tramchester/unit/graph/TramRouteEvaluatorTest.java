@@ -1,8 +1,10 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.CacheMetrics;
+import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
@@ -18,7 +20,10 @@ import com.tramchester.graph.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
+import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestLiveDataConfig;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
@@ -35,6 +40,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -59,7 +65,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private Relationship lastRelationship;
 
     @BeforeEach
-    void onceBeforeEachTestRuns() throws TransformException {
+    void onceBeforeEachTestRuns() {
         Station forTest = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1, 1), TransportMode.Tram);
         destinationStations = Collections.singleton(forTest);
         forTest.addRoute(TestEnv.getTestRoute());
@@ -68,7 +74,14 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         previousSuccessfulVisit = createMock(PreviousSuccessfulVisits.class);
         nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()));
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
-        config = TestEnv.GET();
+
+        config = new TestConfig() {
+            @Override
+            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+                return Collections.singletonList(new TFGMTestDataSourceConfig("data/tram",
+                       GTFSTransportationType.tram, TransportMode.Tram));
+            }
+        };
 
         latLongHint = TramStations.ManAirport.getLatLong();
         destinationNodeId = 88L;

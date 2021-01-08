@@ -25,7 +25,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     @Override
     public boolean getChangeAtInterchangeOnly() {
-        return false;
+        return true;
     }
 
     @Override

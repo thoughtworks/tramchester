@@ -37,6 +37,13 @@ public class CreateNeighbours {
     private final double rangeInKM;
     private final GraphFilter filter;
 
+    ///
+    // finds stations within a specified distance and adds a direct relationship between them
+    // this aids with routing where stops are very close together but are not linked in any other way
+    ///
+
+    // TODO Generalise to TransportRelationshipTypes.NEIGHBOUR with TransportMode property
+
     @Inject
     public CreateNeighbours(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery, StationRepository repository,
                             StationLocationsRepository stationLocations, TramchesterConfig config) {

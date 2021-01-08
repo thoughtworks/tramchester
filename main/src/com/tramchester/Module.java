@@ -9,6 +9,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataProvider;
 
@@ -47,7 +48,12 @@ public class Module extends AbstractModule {
     }
 
     @Provides
-    GraphBuilder.Ready providesReadyToken(StagedTransportGraphBuilder graphBuilder) {
+    StationsAndLinksGraphBuilder.Ready providesReadyToken(StationsAndLinksGraphBuilder graphBuilder) {
+        return graphBuilder.getReady();
+    }
+
+    @Provides
+    StagedTransportGraphBuilder.Ready providesReadyToken(StagedTransportGraphBuilder graphBuilder) {
         return graphBuilder.getReady();
     }
 

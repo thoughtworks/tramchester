@@ -48,7 +48,7 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         return container;
     }
 
-    public static final Route FERRY_ROUTE = new Route(IdFor.createId("FER:42:C"), "42", "Lakes",
+    private static final Route FERRY_ROUTE = new Route(IdFor.createId("FER:42:C"), "42", "Lakes",
             new Agency("FER", "ferryAgency"), TransportMode.Ferry, RouteDirection.Inbound);
 
     private void populateTestData(TransportDataContainer container) {

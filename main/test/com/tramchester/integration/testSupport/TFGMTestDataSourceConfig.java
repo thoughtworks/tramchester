@@ -26,6 +26,10 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
         this.modesWithPlatforms = modesWithPlatforms;
     }
 
+    public TFGMTestDataSourceConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform) {
+        this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform));
+    }
+
     @Override
     public String getTramDataUrl() {
         return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";

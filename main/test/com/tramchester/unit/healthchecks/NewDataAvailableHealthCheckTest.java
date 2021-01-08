@@ -23,7 +23,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
     private URLDownloadAndModTime urlDownloader;
     private final DataSourceConfig config = new TFGMTestDataSourceConfig("data/folder",
-            Collections.singleton(GTFSTransportationType.tram), Collections.singleton(TransportMode.Tram));
+            GTFSTransportationType.tram, TransportMode.Tram);
     private FetchFileModTime fetchFileModTime;
     private NewDataAvailableHealthCheck healthCheck;
     private String expectedURL;

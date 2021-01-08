@@ -167,7 +167,9 @@ class MixedRouteTest {
 
         @Override
         protected List<DataSourceConfig> getDataSourceFORTESTING() {
-            Set<GTFSTransportationType> modes = new HashSet<>(Arrays.asList(GTFSTransportationType.bus, GTFSTransportationType.tram));
+            Set<GTFSTransportationType> modes = new HashSet<>(
+                    Arrays.asList(GTFSTransportationType.bus, GTFSTransportationType.tram, GTFSTransportationType.ferry));
+
             TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("unused",
                     modes, Collections.singleton(TransportMode.Tram));
             return Collections.singletonList(tfgmTestDataSourceConfig);

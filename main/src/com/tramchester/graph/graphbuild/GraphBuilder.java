@@ -31,12 +31,6 @@ public abstract class GraphBuilder  {
     protected static final int ENTER_INTER_PLATFORM_COST = 0;
     protected static final int LEAVE_INTER_PLATFORM_COST = 0;
 
-    public static class Ready {
-        protected Ready() {
-            // prevent guice creating this, want to create dependency on the Builder
-        }
-    }
-
     public enum Labels implements Label
     {
         ROUTE_STATION,
@@ -87,43 +81,31 @@ public abstract class GraphBuilder  {
         }
     }
 
-    private final TramchesterConfig config;
-    private final GraphFilter graphFilter;
+    protected final TramchesterConfig config;
+    protected final GraphFilter graphFilter;
     protected final GraphDatabase graphDatabase;
-    private final NodeTypeRepository nodeIdLabelMap;
+    protected final GraphBuilderCache builderCache;
+    protected final NodeTypeRepository nodeIdLabelMap;
 
     private int numberNodes;
     private int numberRelationships;
 
     protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, TramchesterConfig config,
-                           NodeTypeRepository nodeIdLabelMap) {
+                           GraphBuilderCache builderCache, NodeTypeRepository nodeIdLabelMap) {
         this.graphDatabase = graphDatabase;
         this.config = config;
         this.graphFilter = graphFilter;
+        this.builderCache = builderCache;
         this.nodeIdLabelMap = nodeIdLabelMap;
         numberNodes = 0;
         numberRelationships = 0;
     }
 
-    public void start() {
-        logger.info("start");
-        if (graphDatabase.isCleanDB()) {
-            logger.info("Rebuild of graph DB for " + config.getGraphName());
-            if (graphFilter.isFiltered()) {
-                buildGraphwithFilter(graphFilter, graphDatabase);
-            } else {
-                buildGraph(graphDatabase);
-            }
-            logger.info("Graph rebuild is finished for " + config.getGraphName());
-        } else {
-            logger.info("No rebuild of graph, using existing data");
-            nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
-        }
-    }
 
-    protected abstract void buildGraph(GraphDatabase graphDatabase);
 
-    protected abstract void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase);
+    protected abstract void buildGraph(GraphDatabase graphDatabase, GraphBuilderCache builderCache);
+
+    protected abstract void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache);
 
     protected Node createGraphNode(Transaction tx, Labels label) {
         numberNodes++;

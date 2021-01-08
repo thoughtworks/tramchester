@@ -20,8 +20,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -45,42 +44,12 @@ class BusInterchangeRepositoryTest {
         repository = componentContainer.get(InterchangeRepository.class);
     }
 
-    @Test
-    void shouldFindTramInterchanges() {
-        for (IdFor<Station> interchange : TramInterchanges.stations()) {
-            assertTrue(repository.isInterchange(interchange));
-        }
-    }
-
     @BusTest
     @Test
     void shouldFindBusInterchanges() {
-
-        Collection<Station> interchanges = repository.getBusInterchanges();
-
-        for (Station interchange : interchanges) {
-            assertFalse(TransportMode.isTram(interchange));
-        }
-
+        IdSet<Station> interchanges = repository.getInterchangesFor(TransportMode.Bus);
         assertFalse(interchanges.isEmpty());
-        IdSet<Station> interchangeIds = interchanges.stream().collect(IdSet.collector());
-        assertTrue(interchangeIds.contains(BusStations.AltrinchamInterchange.getId()));
+        assertTrue(interchanges.contains(BusStations.AltrinchamInterchange.getId()));
     }
-
-//    @BusTest
-//    @Test
-//    void shouldFindSharedStationsUsedByMultipleAgencies() {
-//
-//        Set<Station> shared = repository.getBusMultiAgencyStations();
-//
-//        assertFalse(shared.isEmpty());
-//
-//        assertTrue(shared.contains(BusStations.AltrinchamInterchange));
-//        assertTrue(shared.contains(BusStations.StockportBusStation));
-//        assertTrue(shared.contains(BusStations.ShudehillInterchange));
-//
-//        StationRepository stationRepos = dependencies.get(StationRepository.class);
-//        assertNotEquals(stationRepos.getStations().size(), shared.size());
-//    }
 
 }

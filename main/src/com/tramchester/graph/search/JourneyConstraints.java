@@ -3,7 +3,6 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningServices;
@@ -68,15 +67,15 @@ public class JourneyConstraints {
         return config.getTransportModes().stream().map(this::getPathMaxFor).max(Integer::compareTo).get();
     }
 
-    private int getPathMaxFor(GTFSTransportationType mode) {
+    private int getPathMaxFor(TransportMode mode) {
         switch (mode) {
-            case tram: return TRAMS_MAX_PATH_LENGTH;
-            case replacementBus:
-            case bus:
+            case Tram: return TRAMS_MAX_PATH_LENGTH;
+            case RailReplacementBus:
+            case Bus:
                 return BUSES_MAX_PATH_LENGTH;
-            case train: return TRAINS_MAX_PATH_LENGTH;
-            case subway: return SUBWAY_MAX_PATH_LENGTH;
-            case ferry: return FERRY_MAX_PATH_LENGTH;
+            case Train: return TRAINS_MAX_PATH_LENGTH;
+            case Subway: return SUBWAY_MAX_PATH_LENGTH;
+            case Ferry: return FERRY_MAX_PATH_LENGTH;
             default:
                 throw new RuntimeException("Unexpected transport mode " + mode);
         }

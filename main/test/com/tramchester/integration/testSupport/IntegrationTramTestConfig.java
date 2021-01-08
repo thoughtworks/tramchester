@@ -29,8 +29,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled) {
         super("integrationTramTest", dbName);
         this.liveDataEnabled = liveDataEnabled;
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", Collections.singleton(GTFSTransportationType.tram),
-                Collections.singleton(TransportMode.Tram));
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", GTFSTransportationType.tram,
+                TransportMode.Tram);
     }
 
     @Override

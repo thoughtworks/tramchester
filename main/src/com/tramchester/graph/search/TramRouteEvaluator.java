@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.PreviousSuccessfulVisits;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
@@ -42,8 +44,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
-        Set<GTFSTransportationType> transportModes = config.getTransportModes();
-        loopDetection = transportModes.contains(GTFSTransportationType.bus) || transportModes.contains(GTFSTransportationType.train);
+        Set<TransportMode> transportModes = config.getTransportModes();
+
+        // TODO Should be by TransportMode AND Datasource
+        loopDetection =  (transportModes.size()>1) || !transportModes.contains(Tram);
         success = 0;
         currentLowestCost = Integer.MAX_VALUE;
         stationNodes = new HashSet<>();

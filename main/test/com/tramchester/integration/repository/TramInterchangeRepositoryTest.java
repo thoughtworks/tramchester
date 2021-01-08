@@ -31,9 +31,9 @@ class TramInterchangeRepositoryTest {
     }
 
     @Test
-    void shouldFindTramInterchanges() {
+    void shouldHaveOfficialTramInterchanges() {
         for (IdFor<Station> interchange : TramInterchanges.stations()) {
-            Assertions.assertTrue(repository.isInterchange(interchange));
+            Assertions.assertTrue(repository.isInterchange(interchange), interchange.toString());
         }
     }
 

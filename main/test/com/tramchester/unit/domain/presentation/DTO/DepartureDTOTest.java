@@ -34,6 +34,9 @@ class DepartureDTOTest {
     @Test
     void shouldCreateFromDueTramAndLocation() {
         LocalTime updateTime = TestEnv.LocalNow().toLocalTime();
+        if (updateTime.getHour()==23) {
+            updateTime = updateTime.minusHours(1);
+        }
 
         DueTram dueTram = getDueTram(updateTime, TramStations.Bury, 42);
         DepartureDTO departureDTO = new DepartureDTO(TramStations.of(StPetersSquare), dueTram, updateDate);

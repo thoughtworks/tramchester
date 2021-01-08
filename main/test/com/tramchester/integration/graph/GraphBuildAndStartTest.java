@@ -5,12 +5,11 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.graph.DiscoverInterchangeStations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.NodeIdLabelMap;
-import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.graphbuild.IncludeAllFilter;
-import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.graphbuild.*;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
@@ -28,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class GraphBuildAndStartTest {
 
     // spin up graph, primarily here to diagnose out of memory issues, isolate just the graph build
-    @Disabled("for diagnostics only")
+    //@Disabled("for diagnostics only")
     @Test
     void shouldBuildGraphAndStart() throws IOException {
         TramchesterConfig config =new SubgraphConfig();
@@ -42,7 +41,7 @@ class GraphBuildAndStartTest {
         fetcher.fetchData(unzipper);
         ProvidesNow providesNow = new ProvidesLocalNow();
 
-        NodeIdLabelMap nodeIdLabelMap = new NodeIdLabelMap();
+        NodeTypeRepository nodeTypeRepository = new NodeIdLabelMap();
 
         CsvMapper mapper = CsvMapper.builder().build();
 
@@ -51,24 +50,33 @@ class GraphBuildAndStartTest {
                 providesNow, config);
         TransportDataFromFiles builder = fileFactory.create();
 
-        //StationLocations stationLocations = new StationLocations(builder);
-        //builder.load();
         TransportData transportData = builder.getData();
-        InterchangeRepository interchangeRepository = new InterchangeRepository(transportData, config);
-
-        IncludeAllFilter graphFilter = new IncludeAllFilter();
         GraphDatabase graphDatabase = new GraphDatabase(config, transportData);
 
-        StagedTransportGraphBuilder graphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, graphFilter,
-                nodeIdLabelMap, transportData, interchangeRepository);
+        IncludeAllFilter graphFilter = new IncludeAllFilter();
 
-        GraphBuilder.Ready ready = graphBuilder.getReady();
-        assertNotNull(ready);
+        GraphBuilderCache builderCache = new GraphBuilderCache();
+        StationsAndLinksGraphBuilder stationAndLinksBuilder = new StationsAndLinksGraphBuilder(graphDatabase, config, graphFilter, nodeTypeRepository,
+                transportData, builderCache);
+
+        StationsAndLinksGraphBuilder.Ready stationAndLinksBuilderReady = stationAndLinksBuilder.getReady();
+        DiscoverInterchangeStations discoverInterchangeStations = new DiscoverInterchangeStations(graphDatabase, stationAndLinksBuilderReady);
+        InterchangeRepository interchangeRepository = new InterchangeRepository(discoverInterchangeStations, transportData, config);
+
+        StagedTransportGraphBuilder stagedTransportGraphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, graphFilter,
+                nodeTypeRepository, transportData, interchangeRepository, builderCache, stationAndLinksBuilderReady);
+
+        StagedTransportGraphBuilder.Ready graphBuilderReady = stagedTransportGraphBuilder.getReady();
+        assertNotNull(graphBuilderReady);
+
+        ////////
+
+        graphDatabase.start();
 
         interchangeRepository.start();
-        graphDatabase.start();
         Assertions.assertTrue(graphDatabase.isAvailable(2000));
-        graphBuilder.start();
+        stationAndLinksBuilder.start();
+        stagedTransportGraphBuilder.start();
 
         graphDatabase.stop();
         interchangeRepository.dispose();

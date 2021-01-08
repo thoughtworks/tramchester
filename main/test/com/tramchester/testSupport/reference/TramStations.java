@@ -69,7 +69,6 @@ public enum TramStations implements TestStations {
             Ashton,
             Rochdale,
             Bury,
-            ExchangeSquare,
             Intu));
 
     public static Set<TramStations> Interchanges = new HashSet<>(Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,

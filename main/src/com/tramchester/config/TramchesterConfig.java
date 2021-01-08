@@ -2,15 +2,18 @@ package com.tramchester.config;
 
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.nio.file.Path;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class TramchesterConfig extends Configuration {
 
@@ -102,10 +105,12 @@ public abstract class TramchesterConfig extends Configuration {
     // bounding box for stations to include
     public abstract BoundingBox getBounds();
 
-    public Set<GTFSTransportationType> getTransportModes() {
-        HashSet<GTFSTransportationType> result = new HashSet<>();
-        getDataSourceConfig().forEach(sourceConfig -> result.addAll(sourceConfig.getTransportModes()));
-        return result;
+    public Set<TransportMode> getTransportModes() {
+        return getDataSourceConfig().stream().
+                map(DataSourceConfig::getTransportModes).
+                flatMap(Collection::stream).
+                map(TransportMode::fromGTFS).
+                collect(Collectors.toSet());
     }
 
 }

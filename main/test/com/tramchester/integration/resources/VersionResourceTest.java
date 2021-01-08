@@ -21,8 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class VersionResourceTest {
@@ -49,18 +48,17 @@ class VersionResourceTest {
 
     @Test
     void shouldGetTransportModes() {
+        Set<TransportMode> expectedModes = configuration.getTransportModes();
+
         Response responce = IntegrationClient.getApiResponse(appExtension, endPoint+"/modes");
         assertEquals(200, responce.getStatus());
 
         ConfigDTO results = responce.readEntity(ConfigDTO.class);
 
-        List<TransportMode> modes = results.getModes();
-        assertFalse(modes.isEmpty());
+        List<TransportMode> result = results.getModes();
 
-        Set<GTFSTransportationType> configModes = configuration.getTransportModes();
-        List<TransportMode> expected = configModes.stream().map(TransportMode::fromGTFS).collect(Collectors.toList());
-        assertEquals(expected, modes);
-
+        assertEquals(expectedModes.size(), result.size());
+        assertTrue(expectedModes.containsAll(result));
         assertEquals(configuration.getLoadPostcodes(), results.getPostcodesEnabled());
     }
 

@@ -29,7 +29,7 @@ class CreateDotDiagramTest {
     private static ComponentContainer componentContainer;
     private GraphDatabase database;
     private StationRepository repository;
-    private GraphBuilder.Ready ready;
+    private StagedTransportGraphBuilder.Ready ready;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
