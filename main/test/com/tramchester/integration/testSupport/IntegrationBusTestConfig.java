@@ -33,7 +33,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     @Override
     public boolean getCreateNeighbours() {
-        return true;
+        return false;
     }
 
     @Override

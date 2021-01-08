@@ -35,6 +35,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     private final List<TransportDataSource> transportDataStreams;
     private final TramchesterConfig config;
     private boolean loaded = false;
+    private final ProvidesNow providesNow;
 
     private final TransportDataContainer dataContainer;
 
@@ -43,6 +44,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                                   TramchesterConfig config, ProvidesNow providesNow) {
         this.transportDataStreams = transportDataStreams;
         this.config = config;
+        this.providesNow = providesNow;
         dataContainer = new TransportDataContainer(providesNow);
     }
 
@@ -208,13 +210,24 @@ public class TransportDataFromFiles implements TransportDataProvider {
             if (!noServices.contains(exceptionDate)) {
                 calendar.includeExtraDate(exceptionDate);
             } else {
-                logger.warn(format("Ignoring extra data %s as configured as no service date from %s", exceptionDate, noServices));
+                logDateIssue(exceptionDate, noServices);
             }
         } else if (exceptionType == CalendarDateData.REMOVED) {
             calendar.excludeDate(exceptionDate);
         } else {
             logger.warn("Unexpected exception type " + exceptionType + " for service " + serviceId + " and date " + exceptionDate);
         }
+    }
+
+    private void logDateIssue(LocalDate exceptionDate, Set<LocalDate> noServices) {
+        LocalDate currentDate = providesNow.getDate();
+        String msg = format("Ignoring extra date %s as configured as no service date from %s", exceptionDate, noServices);
+        if (currentDate.isAfter(exceptionDate)) {
+            logger.debug(msg);
+        } else {
+            logger.warn(msg);
+        }
+
     }
 
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,

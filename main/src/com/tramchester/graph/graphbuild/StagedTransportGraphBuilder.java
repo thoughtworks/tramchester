@@ -110,6 +110,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         try {
             logger.info("Rebuilding the graph...");
 
+            // TODO Agencies could be done in parallel as should be no overlap except at route station level?
+            // Performance only really an issue for buses currently.
             for(Agency agency : transportData.getAgencies()) {
                 logger.info("Adding agency " + agency.getId());
                 Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);

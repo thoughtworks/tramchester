@@ -71,9 +71,7 @@ class LocationJourneyPlannerTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0), false,
                 2, testConfig.getMaxJourneyDuration());
-        Set<Journey> unsortedResults = getJourneySet(
-                journeyRequest,
-                nearPiccGardens, TramStations.PiccadillyGardens, 3);
+        Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, TramStations.PiccadillyGardens, journeyRequest, 3);
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -89,10 +87,6 @@ class LocationJourneyPlannerTest {
             assertEquals(nearPiccGardens, callingPoints.get(0).getLatLong());
             assertEquals(TramStations.PiccadillyGardens.getId(), callingPoints.get(1).getId());
         });
-    }
-
-    private Set<Journey> getJourneySet(JourneyRequest journeyRequest, LatLong nearPiccGardens, TramStations dest, int maxStages) {
-        return planner.quickestRouteForLocation(nearPiccGardens, dest, journeyRequest, maxStages);
     }
 
     @Test
@@ -258,8 +252,8 @@ class LocationJourneyPlannerTest {
     private Set<Journey> getJourneysForWalkThenTram(LatLong latLong, TramStations destination, TramTime queryTime, boolean arriveBy, int maxChanges) {
         TramServiceDate date = new TramServiceDate(when);
 
-        return getJourneySet(new JourneyRequest(date, queryTime, arriveBy, maxChanges,
-                testConfig.getMaxJourneyDuration()), latLong, destination, maxChanges+1);
+        return planner.quickestRouteForLocation(latLong, destination, new JourneyRequest(date, queryTime, arriveBy, maxChanges,
+                testConfig.getMaxJourneyDuration()), maxChanges+1);
     }
 
     private List<Journey> getSortedJourneysForTramThenWalk(TramStations start, LatLong latLong, TramTime queryTime, boolean arriveBy, int maxChanges) {

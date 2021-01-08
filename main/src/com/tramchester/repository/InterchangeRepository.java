@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static java.lang.String.format;
 
 @LazySingleton
 public class InterchangeRepository  {
@@ -52,6 +53,7 @@ public class InterchangeRepository  {
         enabledModes.forEach(mode -> {
             IdSet<Station> found = discoverInterchangeStations.findFor(mode, LINK_THRESHHOLD, false);
             interchanges.put(mode, found);
+            logger.info(format("Added %s interchanges for %s", found.size(), mode));
         });
         addAdditionalTramInterchanges();
         addMultiModeStations();
@@ -59,8 +61,11 @@ public class InterchangeRepository  {
     }
 
     private void addAdditionalTramInterchanges() {
-        IdSet<Station> tramInterchanges = interchanges.get(Tram);
-        TramInterchanges.stations().forEach(tramInterchanges::add);
+        // TODO should really check data source as well
+        if (enabledModes.contains(Tram)) {
+            IdSet<Station> tramInterchanges = interchanges.get(Tram);
+            TramInterchanges.stations().forEach(tramInterchanges::add);
+        }
     }
 
 

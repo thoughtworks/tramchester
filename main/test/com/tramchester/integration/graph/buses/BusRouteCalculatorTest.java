@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph;
+package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
@@ -10,6 +10,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.BusTest;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -68,8 +69,9 @@ class BusRouteCalculatorTest {
         txn.close();
     }
 
+    @BusTest
     @Test
-    void shouldHaveStockToALtyJourney() {
+    void shouldHaveStockToALtyJourneyAndBackAgain() {
         TramTime travelTime = TramTime.of(8, 0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
@@ -91,6 +93,7 @@ class BusRouteCalculatorTest {
         assertFalse(journeys2Stages.isEmpty());
     }
 
+    @BusTest
     @Test
     void shouldFindAltyToKnutfordAtExpectedTime() {
         TramTime travelTime = TramTime.of(9, 55);
@@ -102,6 +105,7 @@ class BusRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
     }
 
+    @BusTest
     @Test
     void shouldNotRevisitSameBusStationAltyToKnutsford() {
         TramTime travelTime = TramTime.of(15, 25);
@@ -123,6 +127,7 @@ class BusRouteCalculatorTest {
 
     }
 
+    @BusTest
     @Test
     void shouldHavePiccadilyToStockportJourney() {
         int maxChanges = 2;

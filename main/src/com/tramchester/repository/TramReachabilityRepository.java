@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -18,20 +19,27 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+
+/**
+* Builds a matrix representing the reachability of any tram station from a specific route station
+* Used for journey planning optimisation.
+*/
 @LazySingleton
 public class TramReachabilityRepository {
-    private static final Logger logger = LoggerFactory.getLogger(RoutesMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(TramReachabilityRepository.class);
 
     private final RouteReachable routeReachable;
     private final TransportData transportData;
+    private final TramchesterConfig config;
 
     private final List<IdFor<Station>> tramStationIndexing; // a list as we need ordering and IndexOf
     private final Map<IdFor<RouteStation>, boolean[]> matrix; // stationId -> boolean[]
 
     @Inject
-    public TramReachabilityRepository(RouteReachable routeReachable, TransportData transportData) {
+    public TramReachabilityRepository(RouteReachable routeReachable, TransportData transportData, TramchesterConfig config) {
         this.routeReachable = routeReachable;
         this.transportData = transportData;
+        this.config = config;
         tramStationIndexing = new ArrayList<>();
         matrix = new HashMap<>();
     }
@@ -48,6 +56,11 @@ public class TramReachabilityRepository {
     }
 
     private void buildRepository() {
+        if (!config.getTransportModes().contains(TransportMode.Tram)) {
+            logger.warn("Skipping, trams not enabled");
+            return;
+        }
+
         logger.info("Build repository");
 
         Set<RouteStation> routeStations = transportData.getRouteStations().stream().
@@ -75,7 +88,13 @@ public class TramReachabilityRepository {
             });
             matrix.put(routeStation.getId(), flags);
         });
-        logger.info(format("Added %s entries", size));
+
+        String msg = format("Added %s entries", size);
+        if (size>0) {
+            logger.info(msg);
+        } else {
+            logger.warn(msg);
+        }
     }
 
     public boolean stationReachable(RouteStation routeStation, Station destinationStation) {

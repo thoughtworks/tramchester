@@ -43,10 +43,12 @@ public class TestEnv {
     private static final LocalDate monday;
 
     public static final LatLong nearAltrincham = new LatLong(53.387483D, -2.351463D);
+    public static final LatLong nearAltrinchamInterchange = new LatLong(53.3873279D,-2.3498573D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
     public static final LatLong nearStockportBus = new LatLong(53.408735,-2.1656593);
     public static final LatLong nearGreenwich = new LatLong(51.477928, -0.001545);
+    public static final LatLong nearKnutsfordBusStation = new LatLong(53.3026112D,-2.3774635D);
 
     public static final GridPosition nearAltrinchamGrid;
     public static final GridPosition nearPiccGardensGrid;
@@ -61,6 +63,7 @@ public class TestEnv {
     private static final Agency MET = new Agency("MET", "agencyName");
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
+
 
     public static AppConfiguration GET() {
         return new TestConfig() {

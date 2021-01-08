@@ -39,19 +39,19 @@ public class LocationJourneyPlannerTestFacade {
         return asSetClosed(planner.quickestRouteForLocation(txn, start.getLatLong(), dest.getLatLong(), request), maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(BusStations start, PostcodeLocation dest, JourneyRequest request, int maxStages) {
+    public Set<Journey> quickestRouteForLocation(TestStations start, PostcodeLocation dest, JourneyRequest request, int maxStages) {
         return quickestRouteForLocation(getReal(start), dest.getLatLong(), request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(PostcodeLocation start, BusStations dest, JourneyRequest request, int maxStages) {
+    public Set<Journey> quickestRouteForLocation(PostcodeLocation start, TestStations dest, JourneyRequest request, int maxStages) {
         return quickestRouteForLocation(start.getLatLong(), getReal(dest), request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(LatLong start, TramStations dest, JourneyRequest request, int maxStages) {
+    public Set<Journey> quickestRouteForLocation(LatLong start, TestStations dest, JourneyRequest request, int maxStages) {
         return quickestRouteForLocation(start, getReal(dest), request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(TramStations start, LatLong dest, JourneyRequest request, int maxStages) {
+    public Set<Journey> quickestRouteForLocation(TestStations start, LatLong dest, JourneyRequest request, int maxStages) {
         return quickestRouteForLocation(getReal(start), dest, request, maxStages);
     }
 
@@ -59,11 +59,7 @@ public class LocationJourneyPlannerTestFacade {
         return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request), maxStages);
     }
 
-    private Station getReal(BusStations testStation) {
-        return TestStation.real(stationRepository, testStation);
-    }
-
-    private Station getReal(TramStations testStation) {
+    private Station getReal(TestStations testStation) {
         return TestStation.real(stationRepository, testStation);
     }
 
