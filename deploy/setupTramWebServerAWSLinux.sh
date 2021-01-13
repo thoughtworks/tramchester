@@ -56,6 +56,7 @@ wget -nv https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/late
 sudo rpm -U ./amazon-cloudwatch-agent.rpm
 sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" config/cloudwatch_agent.json
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:config/cloudwatch_agent.json -s
+logger cloud watch agent installed
 
 # fix ownership
 chown -R ec2-user .
