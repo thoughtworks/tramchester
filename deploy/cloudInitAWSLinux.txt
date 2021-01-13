@@ -1,2 +1,2 @@
 #!/bin/bash
-yum install -y java-11-amazon-corretto-headless
+yum install -y java-15-amazon-corretto-headless
