@@ -1,2 +1,3 @@
 #!/bin/bash
-amazon-linux-extras install -y java-openjdk11
+amazon-linux-extras enable corretto8
+yum install java-1.8.0-amazon-corretto
