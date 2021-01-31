@@ -19,8 +19,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class UploadsLiveDataTest extends EasyMockSupport {
@@ -68,7 +71,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         boolean result = uploadsLiveData.seenUpdate(liveData);
         verifyAll();
 
-        Assertions.assertTrue(result);
+        assertTrue(result);
     }
 
     @Test
@@ -84,7 +87,18 @@ class UploadsLiveDataTest extends EasyMockSupport {
         boolean result = uploadsLiveData.seenUpdate(liveData);
         verifyAll();
 
-        Assertions.assertTrue(result);
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldNotUploadIfEmptyList() {
+        EasyMock.expect(clientForS3.isStarted()).andReturn(true);
+
+        replayAll();
+        boolean result = uploadsLiveData.seenUpdate(Collections.emptyList());
+        verifyAll();
+
+        assertFalse(result);
     }
 
     @Test
@@ -95,6 +109,6 @@ class UploadsLiveDataTest extends EasyMockSupport {
         boolean result = uploadsLiveData.seenUpdate(liveData);
         verifyAll();
 
-        Assertions.assertFalse(result);
+        assertFalse(result);
     }
 }

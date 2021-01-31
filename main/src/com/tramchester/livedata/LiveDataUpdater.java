@@ -64,11 +64,19 @@ public class LiveDataUpdater {
         logger.info(format("Received %s updates", received));
 
         List<StationDepartureInfo> fresh = filterForFreshness(receivedInfos);
-        logger.info(fresh.size() + " of " + received + " are fresh");
+        int freshCount = fresh.size();
+        String msg = freshCount + " of received " + received + " are fresh";
+        if (freshCount > 0) {
+            logger.info(msg);
+        } else {
+            logger.error(msg);
+        }
 
         dueTramsRepository.updateCache(fresh);
         platformMessageRepository.updateCache(fresh);
-        invokeObservers(fresh);
+        if (!fresh.isEmpty()) {
+            invokeObservers(fresh);
+        }
 
         fresh.clear();
         receivedInfos.clear();
@@ -86,11 +94,14 @@ public class LiveDataUpdater {
                 fresh.add(departureInfo);
             } else {
                 stale = stale + 1;
-                logger.info("Received stale departure info " + departureInfo);
+                logger.warn("Received stale departure info " + departureInfo);
             }
         }
         if (stale >0) {
-            logger.warn("Received " + stale + " messages");
+            logger.warn("Received " + stale + " stale messages out of " + receivedInfos.size());
+        }
+        if (fresh.isEmpty()) {
+            logger.warn("Got zero fresh messages");
         }
         return fresh;
     }
@@ -98,14 +109,15 @@ public class LiveDataUpdater {
     private boolean isTimely(StationDepartureInfo newDepartureInfo, LocalDate date, TramTime now) {
         LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
         if (!updateDate.equals(date)) {
-            logger.warn("Received invalid update, date was " + updateDate);
+            logger.info("Received invalid update, date was " + updateDate);
             return false;
         }
         TramTime updateTime = TramTime.of(newDepartureInfo.getLastUpdate());
         if (TramTime.diffenceAsMinutes(now, updateTime) > TIME_LIMIT) {
-            logger.warn(format("Received invalid update. Local Now: %s Update: %s ", providesNow.getNow(), updateDate));
+            logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNow(), updateTime));
             return false;
         }
+
         return true;
     }
 

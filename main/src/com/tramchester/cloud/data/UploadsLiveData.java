@@ -37,6 +37,10 @@ public class UploadsLiveData implements LiveDataObserver {
             logger.warn("S3 client not started, no live data will be archived");
             return false;
         }
+        if (stationDepartureInfos.isEmpty()) {
+            logger.error("Invoked with zero departures");
+            return false;
+        }
 
         List<StationDepartureInfoDTO> dtoToUpload = stationDepartureInfos.stream().
                 map(StationDepartureInfoDTO::new).collect(Collectors.toList());
