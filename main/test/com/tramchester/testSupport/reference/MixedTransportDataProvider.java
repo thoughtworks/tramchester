@@ -49,14 +49,14 @@ public class MixedTransportDataProvider implements TransportDataProvider {
     }
 
     private static final Route FERRY_ROUTE = new Route(IdFor.createId("FER:42:C"), "42", "Lakes",
-            new Agency("FER", "ferryAgency"), TransportMode.Ferry, RouteDirection.Inbound);
+            new Agency(DataSourceID.GBRail(), "FER", "ferryAgency"), TransportMode.Ferry, RouteDirection.Inbound);
 
     private void populateTestData(TransportDataContainer container) {
         Route routeA = RoutesForTesting.AIR_TO_BUXTON; // TODO This route not present during lockdown
         Route ferryRoute = FERRY_ROUTE; //RoutesForTesting.ALTY_TO_STOCKPORT;
         Route routeC = RoutesForTesting.ALTY_TO_STOCKPORT_WBT;
 
-        Agency agency = new Agency("MET", "agencyName");
+        Agency agency = new Agency(DataSourceID.TFGM(), "MET", "agencyName");
         agency.addRoute(routeA);
         agency.addRoute(ferryRoute);
         agency.addRoute(routeC);
@@ -242,13 +242,13 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         }
 
         @Override
-        public Map<String, FeedInfo> getFeedInfos() {
+        public Map<DataSourceID, FeedInfo> getFeedInfos() {
             FeedInfo info = new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
                     LocalDate.of(2016, 5, 25),
                     LocalDate.of(2016, 6, 30), "version");
 
-            Map<String, FeedInfo> result = new HashMap<>();
-            result.put("TransportDataForTest", info);
+            Map<DataSourceID, FeedInfo> result = new HashMap<>();
+            result.put(new DataSourceID("TransportDataForTest"), info);
             return result;
         }
 

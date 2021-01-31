@@ -1,7 +1,6 @@
 package com.tramchester.domain;
 
 import com.tramchester.graph.GraphPropertyKey;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 
@@ -9,16 +8,18 @@ public class Agency implements HasId<Agency>, GraphProperty {
     private final Set<Route> routes;
     private final IdFor<Agency> agencyId;
     private final String agencyName;
+    private final DataSourceID dataSourceID;
 
     public static final Agency Walking;
     private static final Agency Metrolink;
 
     static {
-        Walking = new Agency("Walking", "Walking");
-        Metrolink = new Agency("MET", "Metrolink");
+        Walking = new Agency(DataSourceID.Internal(), "Walking", "Walking");
+        Metrolink = new Agency(DataSourceID.TFGM(), "MET", "Metrolink");
     }
 
-    public Agency(String agencyId, String agencyName) {
+    public Agency(DataSourceID dataSourceID, String agencyId, String agencyName) {
+        this.dataSourceID = dataSourceID;
         this.agencyId =  IdFor.createId(agencyId);
         this.agencyName = agencyName;
         routes = new HashSet<>();

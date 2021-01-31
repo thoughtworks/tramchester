@@ -2,6 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import org.slf4j.Logger;
@@ -18,11 +19,11 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
 
     private final FeedInfo feedInfo;
     private final TramchesterConfig config;
-    private final String name;
+    private final DataSourceID name;
     private final ProvidesLocalNow providesLocalNow;
 
     @Inject
-    public DataExpiryHealthCheck(FeedInfo feedInfo, String name, ProvidesLocalNow providesLocalNow, TramchesterConfig config) {
+    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesLocalNow providesLocalNow, TramchesterConfig config) {
         this.feedInfo = feedInfo;
         this.name = name;
         this.providesLocalNow = providesLocalNow;

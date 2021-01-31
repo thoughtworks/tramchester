@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
@@ -31,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GraphDatabaseTest {
 
-    private static final String SRC_1_NAME = "src1";
-    private static final String SRC_2_NAME = "src2";
+    private static final DataSourceID SRC_1_NAME = new DataSourceID("src1");
+    private static final DataSourceID SRC_2_NAME = new DataSourceID("src2");
     private static final String VERSION_1_VALID = "version1";
     private static final String VERSION_2_VALID = "version21";
     private static final int SHUTDOWN_TIMEOUT_MILLI = 200;
@@ -140,7 +141,7 @@ class GraphDatabaseTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
-            node.setProperty(SRC_1_NAME, VERSION_1_VALID);
+            node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
             // create a node in the DB to check for when we reload the same DB file
             graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
             tx.commit();
@@ -164,8 +165,8 @@ class GraphDatabaseTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
-            node.setProperty(SRC_1_NAME, VERSION_1_VALID);
-            node.setProperty(SRC_2_NAME, VERSION_2_VALID);
+            node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
+            node.setProperty(SRC_2_NAME.getName(), VERSION_2_VALID);
             // create a node in the DB to check for when we reload the same DB file
             graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
             tx.commit();
@@ -190,8 +191,8 @@ class GraphDatabaseTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
-            node.setProperty(SRC_1_NAME, VERSION_1_VALID);
-            node.setProperty(SRC_2_NAME, VERSION_2_VALID);
+            node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
+            node.setProperty(SRC_2_NAME.getName(), VERSION_2_VALID);
             node.setProperty("src3", "anotherVersion");
             // create a node in the DB to check for when we reload the same DB file
             graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
@@ -215,7 +216,7 @@ class GraphDatabaseTest {
 
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
-            node.setProperty(SRC_1_NAME, "XXXXXX");
+            node.setProperty(SRC_1_NAME.getName(), "XXXXXX");
             // create a node in the DB to check for when we reload the same DB file
             graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
             tx.commit();
@@ -239,8 +240,8 @@ class GraphDatabaseTest {
 
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
-            node.setProperty(SRC_1_NAME, VERSION_1_VALID);
-            node.setProperty(SRC_2_NAME, "XXXXX");
+            node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
+            node.setProperty(SRC_2_NAME.getName(), "XXXXX");
             // create a node in the DB to check for when we reload the same DB file
             graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
             tx.commit();
@@ -262,8 +263,8 @@ class GraphDatabaseTest {
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
 
-        dataSourceConfigs.add(createDataSource(SRC_1_NAME));
-        dataSourceConfigs.add(createDataSource(SRC_2_NAME));
+        dataSourceConfigs.add(createDataSource(SRC_1_NAME.getName()));
+        dataSourceConfigs.add(createDataSource(SRC_2_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, "version42", lastModTime, modes));
 
@@ -273,7 +274,7 @@ class GraphDatabaseTest {
 
         try(Transaction tx = graphDatabase.beginTx()) {
             Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
-            node.setProperty(SRC_2_NAME, "version42");
+            node.setProperty(SRC_2_NAME.getName(), "version42");
             // create a node in the DB to check for when we reload the same DB file
             graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
             tx.commit();
@@ -292,9 +293,9 @@ class GraphDatabaseTest {
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Bus);
 
-        dataSourceConfigs.add(createDataSource(SRC_1_NAME));
+        dataSourceConfigs.add(createDataSource(SRC_1_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
-        dataSourceConfigs.add(createDataSource(SRC_2_NAME));
+        dataSourceConfigs.add(createDataSource(SRC_2_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, VERSION_2_VALID, lastModTime, modes));
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();
@@ -304,7 +305,7 @@ class GraphDatabaseTest {
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
 
-        dataSourceConfigs.add(createDataSource(SRC_1_NAME));
+        dataSourceConfigs.add(createDataSource(SRC_1_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();

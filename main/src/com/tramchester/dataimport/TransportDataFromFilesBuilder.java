@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForGBRail;
@@ -69,10 +70,10 @@ public class TransportDataFromFilesBuilder {
     }
 
     private TransportEntityFactory getEntityFactoryFor(DataSourceConfig sourceConfig) {
-        String name = sourceConfig.getName();
-        if ("tfgm".equals(name)) {
+        DataSourceID sourceName = new DataSourceID(sourceConfig.getName());
+        if (DataSourceID.TFGM().equals(sourceName)) {
             return new TransportEntityFactoryForTFGM(config);
-        } else if ("gb-rail".equals(name)) {
+        } else if (DataSourceID.GBRail().equals(sourceName)) {
             return new TransportEntityFactoryForGBRail(config);
         } else {
             return new TransportEntityFactory(config);

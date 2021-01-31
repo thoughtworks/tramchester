@@ -83,9 +83,9 @@ class TramTransportDataBuilderFactoryTest {
         assertEquals(1, dataSourceInfo.size());
         DataSourceInfo result = dataSourceInfo.iterator().next();
         assertThat(result.getVersion()).isEqualTo("20150617");
-        assertThat(result.getName()).isEqualTo("tfgm");
+        assertThat(result.getID()).isEqualTo(DataSourceID.TFGM());
 
-        FeedInfo feedInfo = transportData.getFeedInfos().get("tfgm");
+        FeedInfo feedInfo = transportData.getFeedInfos().get(DataSourceID.TFGM());
         assertThat(feedInfo.getPublisherName()).isEqualTo("Transport for Greater Manchester");
         assertThat(feedInfo.getPublisherUrl()).isEqualTo("http://www.tfgm.com");
         assertThat(feedInfo.getTimezone()).isEqualTo("Europe/London");

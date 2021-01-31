@@ -77,7 +77,7 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldGetFeedInfo() {
-        FeedInfo result = transportData.getFeedInfos().get("tfgm");
+        FeedInfo result = transportData.getFeedInfos().get(DataSourceID.TFGM());
         assertEquals("http://www.tfgm.com", result.getPublisherUrl());
     }
 

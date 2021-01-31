@@ -7,20 +7,20 @@ import java.util.Set;
 
 public class DataSourceInfo {
 
-    private final String name;
+    private final DataSourceID sourceID;
     private final String version;
     private final LocalDateTime lastModTime;
     private final Set<TransportMode> modes;
 
-    public DataSourceInfo(String name, String version, LocalDateTime lastModTime, Set<TransportMode> modes) {
-        this.name = name;
+    public DataSourceInfo(DataSourceID sourceID, String version, LocalDateTime lastModTime, Set<TransportMode> modes) {
+        this.sourceID = sourceID;
         this.version = version;
         this.lastModTime = lastModTime;
         this.modes = modes;
     }
 
-    public String getName() {
-        return name;
+    public DataSourceID getID() {
+        return sourceID;
     }
 
     public String getVersion() {
@@ -38,7 +38,7 @@ public class DataSourceInfo {
     @Override
     public String toString() {
         return "DataSourceInfo{" +
-                "name='" + name + '\'' +
+                "name='" + sourceID + '\'' +
                 ", version='" + version + '\'' +
                 ", lastModTime=" + lastModTime +
                 ", modes=" + modes +

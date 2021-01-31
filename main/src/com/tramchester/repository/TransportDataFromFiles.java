@@ -67,9 +67,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
     }
 
     private void load(TransportDataSource dataSource, TransportDataContainer buildable) {
-        DataSourceInfo dataSourceInfo = dataSource.getNameAndVersion();
+        DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
 
-        String sourceName = dataSourceInfo.getName();
+        DataSourceID sourceName = dataSourceInfo.getID();
         DataSourceConfig sourceConfig = dataSource.getConfig();
         logger.info("Loading data for " + sourceName);
 
@@ -77,7 +77,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
             // replace version string (which is from mod time) with the one from the feedinfo file, if present
             FeedInfo feedInfo = dataSource.feedInfo.findFirst().get();
             buildable.addDataSourceInfo(new DataSourceInfo(sourceName, feedInfo.getVersion(),
-                    dataSourceInfo.getLastModTime(), dataSource.getNameAndVersion().getModes()));
+                    dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes()));
             buildable.addFeedInfo(sourceName, feedInfo);
         } else {
             logger.warn("No feedinfo for " + sourceName);
@@ -88,7 +88,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
         IdMap<Station> allStations = preLoadStations(dataSource.stops, entityFactory);
 
-        IdMap<Agency> allAgencies = preloadAgencys(dataSource.agencies, entityFactory);
+        IdMap<Agency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
         IdSet<Route> excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, allStations, sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.size()+" routes ");
         allAgencies.clear();
@@ -347,17 +347,17 @@ public class TransportDataFromFiles implements TransportDataProvider {
         return new TripAndServices(services, trips);
     }
 
-    private  IdMap<Agency> preloadAgencys(Stream<AgencyData> agencyDataStream, TransportEntityFactory factory) {
-        logger.info("Loading all agencies");
+    private  IdMap<Agency> preloadAgencys(DataSourceID dataSourceID, Stream<AgencyData> agencyDataStream, TransportEntityFactory factory) {
+        logger.info("Loading all agencies for " + dataSourceID);
         IdMap<Agency> agencies = new IdMap<>();
-        agencyDataStream.forEach(agencyData -> agencies.add(factory.createAgency(agencyData)));
-        logger.info("Loaded " + agencies.size() + " agencies");
+        agencyDataStream.forEach(agencyData -> agencies.add(factory.createAgency(dataSourceID, agencyData)));
+        logger.info("Loaded " + agencies.size() + " agencies for " + dataSourceID);
         return agencies;
     }
 
     private IdSet<Route> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
-                                        IdMap<Agency> allAgencies, IdMap<Station> allStations, DataSourceConfig sourceConfig,
-                                        TransportEntityFactory factory) {
+                                        IdMap<Agency> allAgencies, IdMap<Station> allStations,
+                                        DataSourceConfig sourceConfig, TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
 
@@ -373,7 +373,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
             GTFSTransportationType routeType = factory.getRouteType(routeData, agencyId);
 
             if (transportModes.contains(routeType)) {
-                Agency agency = missingAgency ? createMissingAgency(allAgencies, agencyId, factory) : allAgencies.get(agencyId);
+                DataSourceID dataSourceID = new DataSourceID(sourceConfig.getName());
+                Agency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory) : allAgencies.get(agencyId);
 
                 Route route = factory.createRoute(routeType, routeData, agency, allStations);
 
@@ -401,9 +402,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 excludedRoutes);
     }
 
-    private Agency createMissingAgency(IdMap<Agency> allAgencies, IdFor<Agency> agencyId, TransportEntityFactory factory) {
-        Agency unknown = factory.createUnknownAgency(agencyId);
-        logger.error("Created " + unknown);
+    private Agency createMissingAgency(DataSourceID dataSourceID, IdMap<Agency> allAgencies, IdFor<Agency> agencyId, TransportEntityFactory factory) {
+        Agency unknown = factory.createUnknownAgency(dataSourceID, agencyId);
+        logger.error("Created agency" + unknown + " for " + dataSourceID);
         allAgencies.add(unknown);
         return unknown;
     }

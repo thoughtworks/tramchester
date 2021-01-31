@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
@@ -157,21 +158,22 @@ public class GraphDatabase {
                 return false;
             }
 
-            dataSourceInfo.forEach(nameAndVersion -> {
-                String name = nameAndVersion.getName();
+            dataSourceInfo.forEach(sourceInfo -> {
+                DataSourceID sourceName = sourceInfo.getID();
+                String name = sourceName.getName();
                 logger.info("Checking version for " + name);
 
                 if (allProps.containsKey(name)) {
                     String graphValue = allProps.get(name).toString();
-                    boolean matches = nameAndVersion.getVersion().equals(graphValue);
-                    upToDate.put(nameAndVersion, matches);
+                    boolean matches = sourceInfo.getVersion().equals(graphValue);
+                    upToDate.put(sourceInfo, matches);
                     if (matches) {
-                        logger.info("Got correct VERSION node value for " + nameAndVersion);
+                        logger.info("Got correct VERSION node value for " + sourceInfo);
                     } else {
-                        logger.warn(format("Mismatch on graph VERSION, got '%s' for %s", graphValue, nameAndVersion));
+                        logger.warn(format("Mismatch on graph VERSION, got '%s' for %s", graphValue, sourceInfo));
                     }
                 } else {
-                    upToDate.put(nameAndVersion, false);
+                    upToDate.put(sourceInfo, false);
                     logger.warn("Could not find version for " + name + " properties were " + allProps.toString());
                 }
             });

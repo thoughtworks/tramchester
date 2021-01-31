@@ -35,7 +35,7 @@ public class TransportDataContainer implements TransportData {
     private final Set<DataSourceInfo> dataSourceInfos = new HashSet<>();
 
     // data source name -> feedinfo (if present)
-    private final Map<String, FeedInfo> feedInfoMap = new HashMap<>();
+    private final Map<DataSourceID, FeedInfo> feedInfoMap = new HashMap<>();
 
     public TransportDataContainer(ProvidesNow providesNow) {
         this.providesNow = providesNow;
@@ -280,11 +280,11 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Map<String, FeedInfo> getFeedInfos() {
+    public Map<DataSourceID, FeedInfo> getFeedInfos() {
         return feedInfoMap;
     }
 
-    public void addFeedInfo(String name, FeedInfo feedInfo) {
+    public void addFeedInfo(DataSourceID name, FeedInfo feedInfo) {
         logger.info("Added " + feedInfo.toString());
         feedInfoMap.put(name, feedInfo);
     }

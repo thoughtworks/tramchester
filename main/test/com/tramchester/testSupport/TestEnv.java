@@ -60,7 +60,7 @@ public class TestEnv {
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
-    private static final Agency MET = new Agency("MET", "agencyName");
+    private static final Agency MET = new Agency(DataSourceID.TFGM(), "MET", "agencyName");
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 

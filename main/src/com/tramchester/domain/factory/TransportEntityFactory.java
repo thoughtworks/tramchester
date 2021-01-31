@@ -20,12 +20,12 @@ public class TransportEntityFactory {
         this.config = config;
     }
 
-    public Agency createAgency(AgencyData agencyData) {
-        return new Agency(agencyData.getId(), agencyData.getName());
+    public Agency createAgency(DataSourceID dataSourceID, AgencyData agencyData) {
+        return new Agency(dataSourceID, agencyData.getId(), agencyData.getName());
     }
 
-    public Agency createUnknownAgency(IdFor<Agency> agencyId) {
-        return new Agency(agencyId.getGraphId(), "UNKNOWN");
+    public Agency createUnknownAgency(DataSourceID dataSourceID, IdFor<Agency> agencyId) {
+        return new Agency(dataSourceID, agencyId.getGraphId(), "UNKNOWN");
     }
 
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {

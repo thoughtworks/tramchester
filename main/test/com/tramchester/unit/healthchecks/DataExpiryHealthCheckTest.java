@@ -2,6 +2,7 @@ package com.tramchester.unit.healthchecks;
 
 
 import com.codahale.metrics.health.HealthCheck;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.healthchecks.DataExpiryHealthCheck;
@@ -27,7 +28,8 @@ class DataExpiryHealthCheckTest extends EasyMockSupport {
         FeedInfo feedInfo = createFeedInfo(localDate.minusDays(30), localDate.plusDays(3));
         EasyMock.expect(providesLocalNow.getDate()).andStubReturn(localDate);
 
-        healthCheck = new DataExpiryHealthCheck(feedInfo, "feedName", providesLocalNow, TestEnv.GET());
+        DataSourceID name = new DataSourceID("feedName");
+        healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesLocalNow, TestEnv.GET());
     }
 
     @Test

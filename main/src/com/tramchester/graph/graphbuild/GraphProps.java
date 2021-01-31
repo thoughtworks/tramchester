@@ -11,16 +11,19 @@ import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 
-import javax.swing.*;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
 
     static void setProp(Node node, DataSourceInfo dataSourceInfo) {
-        node.setProperty(dataSourceInfo.getName(), dataSourceInfo.getVersion());
+        DataSourceID name = dataSourceInfo.getID();
+        node.setProperty(name.getName(), dataSourceInfo.getVersion());
     }
 
     public static <C extends GraphProperty>  void setProperty(Entity entity, HasId<C> item) {

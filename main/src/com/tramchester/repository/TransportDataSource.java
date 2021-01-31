@@ -50,7 +50,7 @@ public class TransportDataSource {
         agencies.close();
     }
 
-    public DataSourceInfo getNameAndVersion() {
+    public DataSourceInfo getDataSourceInfo() {
         return dataSourceInfo;
     }
 

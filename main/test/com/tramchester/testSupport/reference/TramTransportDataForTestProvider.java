@@ -57,7 +57,7 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         Route routeB = RoutesForTesting.createTramRoute(RochdaleManchesterEDidsbury);
         Route routeC = RoutesForTesting.createTramRoute(EDidsburyManchesterRochdale);
 
-        Agency agency = new Agency("MET", "agencyName");
+        Agency agency = new Agency(DataSourceID.TFGM(), "MET", "agencyName");
         agency.addRoute(routeA);
         agency.addRoute(routeB);
         agency.addRoute(routeC);
@@ -239,13 +239,13 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         }
 
         @Override
-        public Map<String, FeedInfo> getFeedInfos() {
+        public Map<DataSourceID, FeedInfo> getFeedInfos() {
             FeedInfo info = new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
                     LocalDate.of(2016, 5, 25),
                     LocalDate.of(2016, 6, 30), "version");
 
-            Map<String, FeedInfo> result = new HashMap<>();
-            result.put("TransportDataForTest", info);
+            Map<DataSourceID, FeedInfo> result = new HashMap<>();
+            result.put(new DataSourceID("TransportDataForTest"), info);
             return result;
         }
 

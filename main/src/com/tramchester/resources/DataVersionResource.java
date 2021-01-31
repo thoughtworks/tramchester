@@ -2,6 +2,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.presentation.DTO.DataVersionDTO;
 import com.tramchester.repository.ProvidesFeedInfo;
@@ -42,8 +43,8 @@ public class DataVersionResource {
             response = FeedInfo.class)
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
-        Map<String, FeedInfo> map = providesFeedInfo.getFeedInfos();
-        FeedInfo feedinfo = map.get("tfgm");
+        Map<DataSourceID, FeedInfo> map = providesFeedInfo.getFeedInfos();
+        FeedInfo feedinfo = map.get(DataSourceID.TFGM());
 
         if (feedinfo==null) {
             logger.error("No feedinfo found for tfgm");
