@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 @LazySingleton
@@ -33,12 +34,12 @@ public class CountsUploadedLiveData implements HasMetrics {
     }
 
     public Integer countNow() {
-        long count =  count(providesNow.getDateTime(), Duration.of(1, SECONDS));
+        long count =  count(providesNow.getDateTime(), Duration.of(1, MINUTES));
         return Math.toIntExact(count);
     }
 
     @Override
     public void registerMetrics(RegistersMetrics registersMetrics) {
-        registersMetrics.add(this, "liveData", "uploadsLastSecond", this::countNow);
+        registersMetrics.add(this, "liveData", "uploadsLastMinute", this::countNow);
     }
 }

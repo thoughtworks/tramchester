@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -78,7 +79,7 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
         Stream<StationDepartureInfoDTO> liveDataSteam = liveData.stream();
 
         EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(checkTime);
-        EasyMock.expect(downloadsLiveData.downloadFor(checkTime, Duration.of(1, SECONDS)))
+        EasyMock.expect(downloadsLiveData.downloadFor(checkTime, Duration.of(1, MINUTES)))
                 .andReturn(liveDataSteam);
 
         replayAll();
