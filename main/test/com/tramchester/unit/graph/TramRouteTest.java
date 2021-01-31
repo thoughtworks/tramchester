@@ -227,7 +227,7 @@ class TramRouteTest {
         TransportStage<?,?> vehicleStage = stages.get(0);
         Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
         Assertions.assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
-        Assertions.assertEquals(passedStops,  vehicleStage.getPassedStops());
+        Assertions.assertEquals(passedStops,  vehicleStage.getPassedStopsCount());
         Assertions.assertTrue(vehicleStage.hasBoardingPlatform());
 
         TramTime departTime = vehicleStage.getFirstDepartureTime();

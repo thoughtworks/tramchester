@@ -1,10 +1,14 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+
+import java.util.Collections;
+import java.util.List;
 
 public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
 
@@ -25,6 +29,11 @@ public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
     @Override
     public Location<?> getActionStation() {
         return getLastStation();
+    }
+
+    @Override
+    public List<StopCall> getCallingPoints() {
+        return Collections.emptyList();
     }
 
     @Override

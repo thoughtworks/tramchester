@@ -45,7 +45,7 @@ public class StopCalls { //implements Iterable<StopCall> {
 
     public boolean callsAt(HasId<Station> location) {
         return stops.values().stream().anyMatch(stopCall ->
-                stopCall.getStation().getId().equals(location.getId()));
+                stopCall.getStationId().equals(location.getId()));
     }
 
     public Stream<StopCall> stream() {

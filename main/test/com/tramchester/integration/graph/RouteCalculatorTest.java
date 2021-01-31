@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.VehicleStage;
@@ -101,11 +102,22 @@ public class RouteCalculatorTest {
         Set<Journey> results = checkJourneys(Altrincham, TramStations.Deansgate, journeyRequest.getTime(), journeyRequest.getDate(), journeys);
 
         results.forEach(journey -> {
-            List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(13, callingPoints.size());
-            assertEquals(Altrincham.getId(), callingPoints.get(0).getId());
-            assertEquals(LocationType.Station, callingPoints.get(0).getLocationType());
-            assertEquals(TramStations.Deansgate.getId(), callingPoints.get(12).getId());
+            List<Location<?>> pathCallingPoints = journey.getPath();
+
+            // TODO this is double counting start and end, should be 11
+            assertEquals(13, pathCallingPoints.size());
+            assertEquals(Altrincham.getId(), pathCallingPoints.get(0).getId());
+            assertEquals(LocationType.Station, pathCallingPoints.get(0).getLocationType());
+            assertEquals(TramStations.Deansgate.getId(), pathCallingPoints.get(12).getId());
+
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(1, stages.size());
+            TransportStage<?, ?> stage = stages.get(0);
+            assertEquals(9, stage.getPassedStopsCount());
+            List<StopCall> callingPoints = stage.getCallingPoints();
+            assertEquals(9, callingPoints.size());
+            assertEquals(NavigationRoad.getId(), callingPoints.get(0).getStationId());
+            assertEquals(Cornbrook.getId(), callingPoints.get(8).getStationId());
         });
     }
 
@@ -203,7 +215,7 @@ public class RouteCalculatorTest {
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
             assertEquals(TramStations.TraffordBar.getId(), firstStage.getLastStation().getId());
             assertEquals(TransportMode.Tram, firstStage.getMode());
-            assertEquals(7, firstStage.getPassedStops());
+            assertEquals(7, firstStage.getPassedStopsCount());
 
             VehicleStage finalStage = (VehicleStage) stages.get(stages.size()-1);
             //assertEquals(Stations.TraffordBar, secondStage.getFirstStation()); // THIS CAN CHANGE

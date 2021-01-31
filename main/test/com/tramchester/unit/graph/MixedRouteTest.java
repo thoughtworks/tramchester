@@ -145,7 +145,7 @@ class MixedRouteTest {
         TransportStage<?,?> vehicleStage = stages.get(0);
         assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
         assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
-        assertEquals(passedStops,  vehicleStage.getPassedStops());
+        assertEquals(passedStops,  vehicleStage.getPassedStopsCount());
         Assertions.assertFalse(vehicleStage.hasBoardingPlatform());
 
         TramTime departTime = vehicleStage.getFirstDepartureTime();

@@ -20,7 +20,8 @@ public enum GraphPropertyKey {
     TOWARDS_STATION_ID("towards_id"),
     LATITUDE("latitude"),
     LONGITUDE("longitude"),
-    WALK_ID("walk_id");
+    WALK_ID("walk_id"),
+    STOP_SEQ_NUM("stop_seq_number");
 
     private final String text;
 
@@ -33,28 +34,16 @@ public enum GraphPropertyKey {
     }
 
     public static GraphPropertyKey keyForLabel(GraphBuilder.Labels label) {
-        switch (label) {
-            case TRAIN_STATION:
-            case BUS_STATION:
-            case TRAM_STATION:
-            case FERRY_STATION:
-            case SUBWAY_STATION:
-                return STATION_ID;
-            case ROUTE_STATION:
-                return ROUTE_STATION_ID;
-            case SERVICE:
-                return SERVICE_ID;
-            case PLATFORM:
-                return PLATFORM_ID;
-            case QUERY_NODE:
-                return WALK_ID;
-            case HOUR:
-                return HOUR;
-            case MINUTE:
-                return TIME;
-            default:
-                throw new RuntimeException("Not Key for " + label);
-        }
+        return switch (label) {
+            case TRAIN_STATION, BUS_STATION, TRAM_STATION, FERRY_STATION, SUBWAY_STATION -> STATION_ID;
+            case ROUTE_STATION -> ROUTE_STATION_ID;
+            case SERVICE -> SERVICE_ID;
+            case PLATFORM -> PLATFORM_ID;
+            case QUERY_NODE -> WALK_ID;
+            case HOUR -> HOUR;
+            case MINUTE -> TIME;
+            default -> throw new RuntimeException("No Key for label" + label);
+        };
     }
 
 }

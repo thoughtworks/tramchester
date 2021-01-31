@@ -67,7 +67,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     }
 
     @Override
-    public int getPassedStops() {
+    public int getPassedStopsCount() {
         return 0;
     }
 

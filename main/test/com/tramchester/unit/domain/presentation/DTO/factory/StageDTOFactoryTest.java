@@ -4,25 +4,23 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
-import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestNoPlatformStation;
 import com.tramchester.testSupport.reference.TramStations;
-import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,10 +55,14 @@ class StageDTOFactoryTest extends EasyMockSupport {
     void shouldCreateStageDTOCorrectlyForTransportStage() {
         Route testRoute = TestEnv.getTestRoute();
         Service service = new Service("svcId", testRoute);
-
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
+
+        // TODO
+        List<Integer> passedStations = new ArrayList<>();
         VehicleStage vehicleStage = new VehicleStage(TramStations.of(MarketStreet), testRoute,
-                TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury), 23, true);
+                TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury),
+                passedStations,
+                true);
         vehicleStage.setCost(5);
 
         Platform platform = new Platform("platFormId", "platformName", new LatLong(1,1));
@@ -84,7 +86,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
         assertEquals(stage.getHeadSign(), dto.getHeadSign());
         assertEquals(stage.getRoute().getId().forDTO(), dto.getRoute().getId());
-        assertEquals(stage.getPassedStops(), dto.getPassedStops());
+        assertEquals(stage.getPassedStopsCount(), dto.getPassedStops());
         assertEquals(action.toString(), dto.getAction());
         assertEquals(hasPlatform, dto.getHasPlatform());
         assertEquals(when, dto.getQueryDate());

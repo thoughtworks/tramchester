@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -7,16 +8,19 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
-import java.util.Objects;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.tramchester.domain.HasId.asId;
 
 public class VehicleStage implements TransportStage<Station, Station> {
     private final Station firstStation;
     private final Station lastStation;
 
     protected final TransportMode mode;
+    private final List<Integer> stopSequenceNumbers;
     private final boolean hasPlatforms;
     private final Trip trip;
-    private final int passedStops;
     private final TramTime departFirstStationTime;
     private final Route route;
 
@@ -24,17 +28,18 @@ public class VehicleStage implements TransportStage<Station, Station> {
     private Platform platform;
 
     public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
-                        TramTime departFirstStationTime, Station lastStation, int passedStops,
+                        TramTime departFirstStationTime, Station lastStation,
+                        List<Integer> stopSequenceNumbers,
                         boolean hasPlatforms) {
         this.firstStation = firstStation;
         this.route = route;
         this.mode = mode;
+        this.stopSequenceNumbers = stopSequenceNumbers;
         this.hasPlatforms = hasPlatforms;
         this.platform = null;
         this.trip = trip;
         this.departFirstStationTime = departFirstStationTime;
         this.lastStation = lastStation;
-        this.passedStops = passedStops;
     }
 
     public Station getFirstStation() {
@@ -109,8 +114,15 @@ public class VehicleStage implements TransportStage<Station, Station> {
         return departFirstStationTime.plusMinutes(cost);
     }
 
-    public int getPassedStops() {
-        return passedStops;
+    public int getPassedStopsCount() {
+        return stopSequenceNumbers.size();
+    }
+
+    @Override
+    public List<StopCall> getCallingPoints() {
+        return stopSequenceNumbers.stream().
+                map(seqNum -> trip.getStops().getStopBySequenceNumber(seqNum)).
+                collect(Collectors.toList());
     }
 
     @Override
@@ -122,34 +134,48 @@ public class VehicleStage implements TransportStage<Station, Station> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         VehicleStage that = (VehicleStage) o;
-        return passedStops == that.passedStops &&
-                cost == that.cost &&
-                firstStation.equals(that.firstStation) &&
-                lastStation.equals(that.lastStation) &&
-                mode == that.mode &&
-                trip.equals(that.trip) &&
-                departFirstStationTime.equals(that.departFirstStationTime) &&
-                Objects.equals(platform, that.platform);
+
+        if (hasPlatforms != that.hasPlatforms) return false;
+        if (cost != that.cost) return false;
+        if (!firstStation.equals(that.firstStation)) return false;
+        if (!lastStation.equals(that.lastStation)) return false;
+        if (mode != that.mode) return false;
+        if (!stopSequenceNumbers.equals(that.stopSequenceNumbers)) return false;
+        if (!trip.equals(that.trip)) return false;
+        if (!departFirstStationTime.equals(that.departFirstStationTime)) return false;
+        if (!route.equals(that.route)) return false;
+        return platform.equals(that.platform);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstStation, lastStation, mode, trip, passedStops, departFirstStationTime, cost, platform);
+        int result = firstStation.hashCode();
+        result = 31 * result + lastStation.hashCode();
+        result = 31 * result + mode.hashCode();
+        result = 31 * result + stopSequenceNumbers.hashCode();
+        result = 31 * result + (hasPlatforms ? 1 : 0);
+        result = 31 * result + trip.hashCode();
+        result = 31 * result + departFirstStationTime.hashCode();
+        result = 31 * result + route.hashCode();
+        result = 31 * result + cost;
+        result = 31 * result + platform.hashCode();
+        return result;
     }
 
     @Override
     public String toString() {
         return "VehicleStage{" +
-                "firstStation=" + firstStation.getName() +
-                ", lastStation=" + lastStation.getName() +
+                "firstStation=" + asId(firstStation) +
+                ", lastStation=" + asId(lastStation) +
                 ", mode=" + mode +
-                ", routeId='" + route.getId() + '\'' +
-                ", tripId=" + trip.getId() +
-                ", passedStops=" + passedStops +
-                ", departTime=" + departFirstStationTime +
+                ", passedStations=" + stopSequenceNumbers +
+                ", hasPlatforms=" + hasPlatforms +
+                ", trip=" + asId(trip) +
+                ", departFirstStationTime=" + departFirstStationTime +
+                ", route=" + asId(route) +
                 ", cost=" + cost +
-                ", platform=" + platform +
                 '}';
     }
 }

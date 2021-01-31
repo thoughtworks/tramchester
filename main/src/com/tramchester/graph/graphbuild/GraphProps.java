@@ -10,6 +10,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -148,4 +149,11 @@ public class GraphProps {
     }
 
 
+    public static void setStopSequenceNumber(Relationship relationship, int stopSequenceNumber) {
+        relationship.setProperty(STOP_SEQ_NUM.getText(), stopSequenceNumber);
+    }
+
+    public static int getStopSequenceNumber(Relationship relationship) {
+        return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
+    }
 }

@@ -358,6 +358,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
+            // this is normal for trains, timetable lists all passed stations, whether train stops or not
             logger.warn("No pickup or dropoff for " + stopCall.toString());
         }
     }
@@ -496,6 +497,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setCostProp(goesToRelationship, cost);
         setProperty(goesToRelationship, service);
         setProperty(goesToRelationship, route);
+        setStopSequenceNumber(goesToRelationship, endStop.getGetSequenceNumber());
     }
 
     private Map<Pair<Station, TramTime>, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,

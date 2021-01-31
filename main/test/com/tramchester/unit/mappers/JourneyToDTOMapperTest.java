@@ -29,10 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static com.tramchester.testSupport.reference.BusStations.AltrinchamInterchange;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -248,8 +245,9 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         Trip validTrip = transportData.getTripById(IdFor.createId(TRIP_A_ID));
 
+        List<Integer> passedStations = new ArrayList<>();
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,
-                startTime.plusMinutes(1), finish, passedStops, hasPlatforms);
+                startTime.plusMinutes(1), finish, passedStations, hasPlatforms);
 
         vehicleStage.setCost(cost);
         Platform platform = new Platform(start.forDTO() + "1", "platform name", start.getLatLong());

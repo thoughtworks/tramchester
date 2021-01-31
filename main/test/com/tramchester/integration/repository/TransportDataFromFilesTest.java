@@ -448,7 +448,7 @@ class TransportDataFromFilesTest {
     }
 
     private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {
-        return trip.getStops().stream().filter(stopCall -> stopCall.getStation().getId().equals(stationId)).collect(Collectors.toList());
+        return trip.getStops().stream().filter(stopCall -> stopCall.getStationId().equals(stationId)).collect(Collectors.toList());
     }
 
 }

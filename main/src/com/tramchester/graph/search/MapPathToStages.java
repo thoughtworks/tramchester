@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -195,7 +197,7 @@ public class MapPathToStages {
         private Station boardingStation;
         private IdFor<Route> routeCode;
         private IdFor<Trip> tripId;
-        private int stopsSeen;
+        private final List<Integer> passedStopSequenceNumbers;
         private int tripCost;
         private Optional<Platform> boardingPlatform;
         private Route route;
@@ -207,6 +209,7 @@ public class MapPathToStages {
 
         private State(TransportData transportData, PlatformRepository platformRepository, TramTime queryTime) {
             this.transportData = transportData;
+            passedStopSequenceNumbers = new ArrayList<>();
             this.platformRepository = platformRepository;
             this.queryTime = queryTime;
             reset();
@@ -229,15 +232,22 @@ public class MapPathToStages {
             Station departStation = transportData.getStationById(stationId);
             Trip trip = transportData.getTripById(tripId);
 
-            int passedStops = stopsSeen - 1;
+            // if we counted destination for stage in the passedStations list then remove it
+            int index = passedStopSequenceNumbers.size()-1;
+            int lastStopSeqNum = passedStopSequenceNumbers.get(index);
+            StopCall lastStop = trip.getStops().getStopBySequenceNumber(lastStopSeqNum);
+            if (lastStop.getStationId().equals(stationId)) {
+                passedStopSequenceNumbers.remove(index);
+            } else {
+                logger.warn(format("Expected to see final stop call '%s' match the destination %s", lastStop, stationId));
+            }
+
             TransportMode transportMode = route.getTransportMode();
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
                     transportMode, trip, boardingTime,
-                    departStation, passedStops, boardingStation.hasPlatforms()); // TransportMode.isTram(transportMode));
-
-            if (stopsSeen == 0) {
-                logger.error("Zero passed stops " + vehicleStage);
-            }
+                    departStation,
+                    new LinkedList<>(passedStopSequenceNumbers),
+                    boardingStation.hasPlatforms());
 
             boardingPlatform.ifPresent(vehicleStage::setPlatform);
             vehicleStage.setCost(tripCost);
@@ -250,7 +260,7 @@ public class MapPathToStages {
         }
 
         private void reset() {
-            stopsSeen = 0; // don't count single stops
+            passedStopSequenceNumbers.clear();
             tripId = IdFor.invalid();
             routeCode = IdFor.invalid();
             tripCost = 0;
@@ -284,7 +294,8 @@ public class MapPathToStages {
 
         protected void passStop(Relationship relationship) {
             tripCost = tripCost + getCost(relationship);
-            stopsSeen = stopsSeen + 1;
+            int stopSequenceNumber = GraphProps.getStopSequenceNumber(relationship);
+            passedStopSequenceNumbers.add(stopSequenceNumber);
         }
 
         protected void walk(Relationship relationship) {

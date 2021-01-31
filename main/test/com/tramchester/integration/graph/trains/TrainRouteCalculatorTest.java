@@ -4,12 +4,14 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
@@ -25,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainRouteCalculatorTest {
@@ -34,16 +36,14 @@ class TrainRouteCalculatorTest {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private static TramchesterConfig testConfig;
     private RouteCalculatorTestFacade calculator;
 
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
-    private int maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationTrainTestConfig();
+        TramchesterConfig testConfig = new IntegrationTrainTestConfig();
         componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -57,7 +57,6 @@ class TrainRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        maxJourneyDuration = testConfig.getMaxJourneyDuration();
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
@@ -81,5 +80,23 @@ class TrainRouteCalculatorTest {
         // At least one direct
         List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
         assertFalse(direct.isEmpty());
+
+        List<TransportStage<?, ?>> stages = direct.get(1).getStages();
+        assertEquals(1, stages.size());
+
+        TransportStage<?, ?> trainStage = stages.get(0);
+
+        assertEquals(trainStage.getPassedStopsCount(), 21, trainStage.toString());
+        List<StopCall> callingPoints = trainStage.getCallingPoints();
+
+        List<StopCall> dropOffs = callingPoints.stream().
+                filter(stopCall -> stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular)).
+                collect(Collectors.toList());
+        assertEquals(4, dropOffs.size());
+        assertEquals("MKC", dropOffs.get(0).getStationId().forDTO());
+        assertEquals("SOT", dropOffs.get(1).getStationId().forDTO());
+        assertEquals("MAC", dropOffs.get(2).getStationId().forDTO());
+        assertEquals("SPT", dropOffs.get(3).getStationId().forDTO());
+
     }
 }
