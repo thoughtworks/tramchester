@@ -62,10 +62,10 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
 
         long number = countsUploadedLiveData.count(checkTime, checkDuration);
 
-        if (number==0) {
-            String msg = "No live data found in S3 at " + checkTime + " for " + checkDuration;
-            logger.error(msg);
-            return Result.unhealthy(msg);
+        if (number==0 && (!isLateNight(checkTime))) {
+                String msg = "No live data found in S3 at " + checkTime + " for " + checkDuration;
+                logger.error(msg);
+                return Result.unhealthy(msg);
         } else {
             String msg = "Found " + number + " records in S3 at " + checkTime + " and duration " + checkDuration;
             logger.info(msg);
