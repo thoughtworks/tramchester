@@ -39,4 +39,9 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
     public String getNeo4jPagecacheMemory() {
        return "1000m";
     }
+
+    @Override
+    public int getMaxJourneyDuration() {
+        return 8*60;
+    }
 }
