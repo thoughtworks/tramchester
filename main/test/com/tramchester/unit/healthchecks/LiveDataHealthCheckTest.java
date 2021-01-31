@@ -2,9 +2,9 @@ package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.healthchecks.LiveDataHealthCheck;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -31,8 +31,9 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
         stationRepository = createMock(StationRepository.class);
         providesNow = createMock(ProvidesNow.class);
         TramchesterConfig config = TestEnv.GET(new TestLiveDataConfig());
+        ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
 
-        healthCheck = new LiveDataHealthCheck(repository, providesNow, stationRepository, config);
+        healthCheck = new LiveDataHealthCheck(repository, providesNow, stationRepository, config, serviceTimeLimits);
     }
 
     @Test

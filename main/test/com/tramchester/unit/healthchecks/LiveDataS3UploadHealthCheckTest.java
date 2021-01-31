@@ -1,9 +1,8 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.cloud.data.DownloadsLiveData;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.healthchecks.LiveDataS3UploadHealthCheck;
 import com.tramchester.livedata.CountsUploadedLiveData;
@@ -17,9 +16,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,9 +34,10 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
         localNow = TestEnv.LocalNow();
         providesLocalNow = createMock(ProvidesLocalNow.class);
         countsUploadedLiveData = createMock(CountsUploadedLiveData.class);
+        ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
 
         healthCheck = new LiveDataS3UploadHealthCheck(providesLocalNow,
-                countsUploadedLiveData, configuration);
+                countsUploadedLiveData, configuration, serviceTimeLimits);
         expectedDuration = Duration.of(2 * configuration.getLiveDataConfig().getRefreshPeriodSeconds(), ChronoUnit.SECONDS);
     }
 

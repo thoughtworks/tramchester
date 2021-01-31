@@ -20,13 +20,13 @@ import java.util.Map;
 import static java.lang.String.format;
 
 @LazySingleton
-public class DiscoverInterchangeStations {
-    private static final Logger logger = LoggerFactory.getLogger(DiscoverInterchangeStations.class);
+public class FindStationsByNumberConnections {
+    private static final Logger logger = LoggerFactory.getLogger(FindStationsByNumberConnections.class);
 
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public DiscoverInterchangeStations(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken) {
+    public FindStationsByNumberConnections(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken) {
         this.graphDatabase = graphDatabase;
     }
 

@@ -94,12 +94,14 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     @Override
     public String toString() {
         return "Route{" +
-                "id='" + id + '\'' +
-                ", code='" + shortName + '\'' +
+                "id=" + id +
+                ", shortName='" + shortName + '\'' +
                 ", name='" + name + '\'' +
-                ", agency='" + HasId.asId(agency) + '\'' +
+                ", agency=" + agency.getName() +
                 ", transportMode=" + transportMode +
+                ", services=" + HasId.asIds(services) +
                 ", headsigns=" + headsigns +
+                ", routeDirection=" + routeDirection +
                 '}';
     }
 

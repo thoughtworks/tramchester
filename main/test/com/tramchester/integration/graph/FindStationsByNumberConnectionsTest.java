@@ -3,10 +3,9 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.IdSet;
-import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.DiscoverInterchangeStations;
+import com.tramchester.graph.FindStationsByNumberConnections;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -18,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DiscoverInterchangeStationsTest {
+class FindStationsByNumberConnectionsTest {
     private static ComponentContainer componentContainer;
-    private DiscoverInterchangeStations discoverer;
+    private FindStationsByNumberConnections discoverer;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -37,7 +36,7 @@ class DiscoverInterchangeStationsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        discoverer = componentContainer.get(DiscoverInterchangeStations.class);
+        discoverer = componentContainer.get(FindStationsByNumberConnections.class);
     }
 
     @Test

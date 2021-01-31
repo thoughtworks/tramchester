@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.graph.DiscoverInterchangeStations;
+import com.tramchester.graph.FindStationsByNumberConnections;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.NodeTypeRepository;
@@ -16,7 +16,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -60,8 +59,8 @@ class GraphBuildAndStartTest {
                 transportData, builderCache);
 
         StationsAndLinksGraphBuilder.Ready stationAndLinksBuilderReady = stationAndLinksBuilder.getReady();
-        DiscoverInterchangeStations discoverInterchangeStations = new DiscoverInterchangeStations(graphDatabase, stationAndLinksBuilderReady);
-        InterchangeRepository interchangeRepository = new InterchangeRepository(discoverInterchangeStations, transportData, config);
+        FindStationsByNumberConnections findStationsByNumberConnections = new FindStationsByNumberConnections(graphDatabase, stationAndLinksBuilderReady);
+        InterchangeRepository interchangeRepository = new InterchangeRepository(findStationsByNumberConnections, transportData, config);
 
         StagedTransportGraphBuilder stagedTransportGraphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, graphFilter,
                 nodeTypeRepository, transportData, interchangeRepository, builderCache, stationAndLinksBuilderReady);

@@ -3,7 +3,7 @@ package com.tramchester.healthchecks;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.livedata.CountsUploadedLiveData;
 import org.slf4j.Logger;
@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Stream;
 
 @LazySingleton
 public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
@@ -28,7 +27,8 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
 
     @Inject
     public LiveDataS3UploadHealthCheck(ProvidesLocalNow providesLocalNow, CountsUploadedLiveData countsUploadedLiveData,
-                                       TramchesterConfig config) {
+                                       TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
+        super(serviceTimeLimits);
         this.providesLocalNow = providesLocalNow;
         this.countsUploadedLiveData = countsUploadedLiveData;
         this.config = config.getLiveDataConfig();

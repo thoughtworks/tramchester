@@ -40,9 +40,10 @@ public class Agency implements HasId<Agency>, GraphProperty {
     @Override
     public String toString() {
         return "Agency{" +
-                "agencyId='" + agencyId + '\'' +
+                "routes=" + routes +
+                ", agencyId=" + agencyId +
                 ", agencyName='" + agencyName + '\'' +
-                ", routes=" + HasId.asIds(routes) +
+                ", dataSourceID=" + dataSourceID +
                 '}';
     }
 
@@ -70,5 +71,9 @@ public class Agency implements HasId<Agency>, GraphProperty {
     @Override
     public GraphPropertyKey getProp() {
         throw new RuntimeException("No ID property for agency");
+    }
+
+    public DataSourceID getDataSourceID() {
+        return dataSourceID;
     }
 }

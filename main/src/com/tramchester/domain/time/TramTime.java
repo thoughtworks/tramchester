@@ -227,10 +227,6 @@ public class  TramTime implements Comparable<TramTime> {
         return (this.equals(end) || isBefore(end));
     }
 
-//    public boolean between(ServiceTime start, ServiceTime end) {
-//        return between(start.asTramTime(), end.asTramTime());
-//    }
-
     public boolean isBefore(TramTime other) {
         if (this.equals(other)) {
             return false;

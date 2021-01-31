@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.domain.ServiceTimeLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,8 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private final FetchFileModTime fetchFileModTime;
 
     @Inject
-    public NewDataAvailableHealthCheck(DataSourceConfig config, URLDownloadAndModTime urlDownloader, FetchFileModTime fetchFileModTime) {
+    public NewDataAvailableHealthCheck(DataSourceConfig config, URLDownloadAndModTime urlDownloader, FetchFileModTime fetchFileModTime, ServiceTimeLimits serviceTimeLimits) {
+        super(serviceTimeLimits);
         this.config = config;
         this.urlDownloader = urlDownloader;
         this.fetchFileModTime = fetchFileModTime;

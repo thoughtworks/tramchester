@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
+import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,8 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     private final ProvidesLocalNow providesLocalNow;
 
     @Inject
-    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesLocalNow providesLocalNow, TramchesterConfig config) {
+    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesLocalNow providesLocalNow, TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
+        super(serviceTimeLimits);
         this.feedInfo = feedInfo;
         this.name = name;
         this.providesLocalNow = providesLocalNow;

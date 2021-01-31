@@ -4,6 +4,7 @@ import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
@@ -34,8 +34,9 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         urlDownloader = createMock(URLDownloadAndModTime.class);
         fetchFileModTime = createMock(FetchFileModTime.class);
         expectedURL = config.getTramDataCheckUrl();
+        ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
 
-        healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fetchFileModTime);
+        healthCheck = new NewDataAvailableHealthCheck(config, urlDownloader, fetchFileModTime, serviceTimeLimits);
         time = TestEnv.LocalNow();
     }
 

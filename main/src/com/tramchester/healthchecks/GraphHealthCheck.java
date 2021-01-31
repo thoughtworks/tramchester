@@ -1,12 +1,12 @@
 package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.graph.GraphDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @LazySingleton
 public class GraphHealthCheck extends TramchesterHealthCheck {
@@ -17,7 +17,8 @@ public class GraphHealthCheck extends TramchesterHealthCheck {
     private final GraphDatabase service;
 
     @Inject
-    public GraphHealthCheck(GraphDatabase service) {
+    public GraphHealthCheck(GraphDatabase service, ServiceTimeLimits serviceTimeLimits) {
+        super(serviceTimeLimits);
         this.service = service;
     }
 

@@ -2,6 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.repository.TransportData;
 
@@ -18,12 +19,15 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
     private final TransportData transportData;
     private final ProvidesLocalNow providesLocalNow;
     private final TramchesterConfig config;
+    private final ServiceTimeLimits serviceTimeLimits;
 
     @Inject
-    public DataExpiryHealthCheckFactory(TransportData transportData, ProvidesLocalNow providesLocalNow, TramchesterConfig config) {
+    public DataExpiryHealthCheckFactory(TransportData transportData, ProvidesLocalNow providesLocalNow,
+                                        TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
         this.transportData = transportData;
         this.providesLocalNow = providesLocalNow;
         this.config = config;
+        this.serviceTimeLimits = serviceTimeLimits;
         healthChecks = new ArrayList<>();
     }
 
@@ -40,7 +44,7 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
     @PostConstruct
     public void start() {
         transportData.getFeedInfos().forEach((name, feedInfo) -> {
-            TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesLocalNow, config);
+            TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesLocalNow, config, serviceTimeLimits);
             healthChecks.add(healthCheck);
         });
     }

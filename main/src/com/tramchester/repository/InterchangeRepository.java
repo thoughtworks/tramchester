@@ -7,7 +7,7 @@ import com.tramchester.domain.IdSet;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.DiscoverInterchangeStations;
+import com.tramchester.graph.FindStationsByNumberConnections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,15 +28,15 @@ public class InterchangeRepository  {
     // an interchange has at least this many links
     private static final int LINK_THRESHHOLD = 3;
 
-    private final DiscoverInterchangeStations discoverInterchangeStations;
+    private final FindStationsByNumberConnections findStationsByNumberConnections;
     private final TransportData dataSource;
     private final Set<TransportMode> enabledModes;
 
     private final Map<TransportMode, IdSet<Station>> interchanges;
 
     @Inject
-    public InterchangeRepository(DiscoverInterchangeStations discoverInterchangeStations, TransportData dataSource, TramchesterConfig config) {
-        this.discoverInterchangeStations = discoverInterchangeStations;
+    public InterchangeRepository(FindStationsByNumberConnections findStationsByNumberConnections, TransportData dataSource, TramchesterConfig config) {
+        this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.dataSource = dataSource;
         enabledModes = config.getTransportModes();
         interchanges = new HashMap<>();
@@ -51,7 +51,7 @@ public class InterchangeRepository  {
     public void start() {
         logger.info("Starting");
         enabledModes.forEach(mode -> {
-            IdSet<Station> found = discoverInterchangeStations.findFor(mode, LINK_THRESHHOLD, false);
+            IdSet<Station> found = findStationsByNumberConnections.findFor(mode, LINK_THRESHHOLD, false);
             interchanges.put(mode, found);
             logger.info(format("Added %s interchanges for %s", found.size(), mode));
         });
