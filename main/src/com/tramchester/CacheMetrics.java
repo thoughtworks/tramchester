@@ -20,9 +20,9 @@ public class CacheMetrics {
     private static final Logger logger = LoggerFactory.getLogger(CacheMetrics.class);
 
     private final Set<ReportsCacheStats> registered;
-    private final RegistersMetrics registry;
+    private final RegistersCacheMetrics registry;
 
-    public static class DropWizardMetrics implements RegistersMetrics {
+    public static class DropWizardMetrics implements RegistersCacheMetrics {
         private final MetricRegistry registry;
 
         public DropWizardMetrics(MetricRegistry registry) {
@@ -35,12 +35,12 @@ public class CacheMetrics {
         }
     }
 
-    public interface RegistersMetrics {
+    public interface RegistersCacheMetrics {
         <T> void register(String metricName, Gauge<T> Gauge);
     }
 
     @Inject
-    public CacheMetrics(RegistersMetrics registry) {
+    public CacheMetrics(RegistersCacheMetrics registry) {
         this.registry = registry;
         registered = new HashSet<>();
     }
@@ -51,20 +51,20 @@ public class CacheMetrics {
         registered.add(reportsCacheStats);
     }
 
-    private void register(RegistersMetrics registry, ReportsCacheStats reportsCacheStats) {
+    private void register(RegistersCacheMetrics registry, ReportsCacheStats reportsCacheStats) {
         List<Pair<String, CacheStats>> cacheStats = reportsCacheStats.stats();
         cacheStats.forEach(cacheStat -> register(reportsCacheStats, cacheStat, registry));
     }
 
-    private void register(ReportsCacheStats owningClass, Pair<String, CacheStats> cacheStat, RegistersMetrics registry) {
+    private void register(ReportsCacheStats owningClass, Pair<String, CacheStats> cacheStat, RegistersCacheMetrics registry) {
         registerNamedMetric(registry, owningClass, cacheStat, "hitRate", CacheStats::hitRate);
         registerNamedMetric(registry, owningClass, cacheStat, "missRate", CacheStats::missRate);
         registerNamedMetric(registry, owningClass, cacheStat, "hitCount", CacheStats::hitCount);
         registerNamedMetric(registry, owningClass, cacheStat, "missCount", CacheStats::missCount);
     }
 
-    private <T> void registerNamedMetric(RegistersMetrics registry, ReportsCacheStats owningClass, Pair<String, CacheStats> cacheStat,
-                                     String counterName, Function<CacheStats, T> function) {
+    private <T> void registerNamedMetric(RegistersCacheMetrics registry, ReportsCacheStats owningClass, Pair<String, CacheStats> cacheStat,
+                                         String counterName, Function<CacheStats, T> function) {
         String cacheName = cacheStat.getLeft();
         String metricName = MetricRegistry.name(owningClass.getClass(), cacheName, counterName);
         registry.register(metricName, () -> getStatFor(owningClass, cacheName, function));

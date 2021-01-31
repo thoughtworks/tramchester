@@ -218,8 +218,8 @@ public class TestEnv {
         assertEquals(itemA.getId(), itemB.getId());
     }
 
-    public static CacheMetrics.RegistersMetrics NoopRegisterMetrics() {
-        return new CacheMetrics.RegistersMetrics() {
+    public static CacheMetrics.RegistersCacheMetrics NoopRegisterMetrics() {
+        return new CacheMetrics.RegistersCacheMetrics() {
             @Override
             public <T> void register(String metricName, Gauge<T> Gauge) {
                 // noop

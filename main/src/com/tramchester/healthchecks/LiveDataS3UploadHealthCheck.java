@@ -1,11 +1,11 @@
 package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.cloud.data.DownloadsLiveData;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.livedata.CountsUploadedLiveData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,15 +21,16 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataS3UploadHealthCheck.class);
 
     private final ProvidesLocalNow providesLocalNow;
-    private final DownloadsLiveData downloadsLiveData;
+    private final CountsUploadedLiveData countsUploadedLiveData;
     private final LiveDataConfig config;
 
     private Duration checkDuration;
 
     @Inject
-    public LiveDataS3UploadHealthCheck(ProvidesLocalNow providesLocalNow, DownloadsLiveData downloadsLiveData, TramchesterConfig config) {
+    public LiveDataS3UploadHealthCheck(ProvidesLocalNow providesLocalNow, CountsUploadedLiveData countsUploadedLiveData,
+                                       TramchesterConfig config) {
         this.providesLocalNow = providesLocalNow;
-        this.downloadsLiveData = downloadsLiveData;
+        this.countsUploadedLiveData = countsUploadedLiveData;
         this.config = config.getLiveDataConfig();
     }
 
@@ -59,9 +60,7 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
         logger.info("Check for live data in S3");
         LocalDateTime checkTime = providesLocalNow.getDateTime().minus(checkDuration);
 
-        Stream<StationDepartureInfoDTO> results = downloadsLiveData.downloadFor(checkTime, checkDuration);
-        long number = results.count();
-        results.close();
+        long number = countsUploadedLiveData.count(checkTime, checkDuration);
 
         if (number==0) {
             String msg = "No live data found in S3 at " + checkTime + " for " + checkDuration;

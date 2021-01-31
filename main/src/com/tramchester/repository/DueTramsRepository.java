@@ -16,6 +16,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.DeparturesMapper;
+import com.tramchester.metrics.HasMetrics;
+import com.tramchester.metrics.RegistersMetrics;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -34,7 +36,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class DueTramsRepository implements DueTramsSource, ReportsCacheStats {
+public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, HasMetrics {
     private static final Logger logger = LoggerFactory.getLogger(DueTramsRepository.class);
 
     // TODO Correct limit here?
@@ -191,17 +193,6 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats {
                 map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }
 
-    // for metrics
-    public Integer getNumStationsWithDataNow() {
-        return getNumStationsWithData(providesNow.getDateTime());
-    }
-
-    // for metrics
-    public Integer getNumStationsWithTramsNow() {
-        LocalDateTime dateTime = providesNow.getDateTime();
-        return getNumStationsWithTrams(dateTime);
-    }
-
     public int getNumStationsWithTrams(LocalDateTime dateTime) {
         if (!dateTime.toLocalDate().equals(lastRefresh.toLocalDate())) {
             return 0;
@@ -215,5 +206,20 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats {
     private Stream<PlatformDueTrams> getEntryStream(TramTime queryTime) {
         return dueTramsCache.asMap().values().stream().
                 filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime()));
+    }
+
+    @Override
+    public void registerMetrics(RegistersMetrics registersMetrics) {
+        registersMetrics.add(this, "liveData", "number", this::upToDateEntries);
+        registersMetrics.add(this, "liveData", "stationsWithData", this::getNumStationsWithDataNow);
+        registersMetrics.add(this,"liveData", "stationsWithTrams", this::getNumStationsWithTramsNow);
+    }
+
+    private Integer getNumStationsWithDataNow() {
+        return getNumStationsWithData(providesNow.getDateTime());
+    }
+
+    private Integer getNumStationsWithTramsNow() {
+        return getNumStationsWithTrams(providesNow.getDateTime());
     }
 }

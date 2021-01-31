@@ -14,6 +14,8 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.metrics.HasMetrics;
+import com.tramchester.metrics.RegistersMetrics;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class PlatformMessageRepository implements PlatformMessageSource, ReportsCacheStats {
+public class PlatformMessageRepository implements PlatformMessageSource, ReportsCacheStats, HasMetrics {
     private static final Logger logger = LoggerFactory.getLogger(PlatformMessageRepository.class);
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
@@ -182,7 +184,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     // for metrics
-    public Integer numberStationsWithMessagesNow() {
+    private Integer numberStationsWithMessagesNow() {
         return numberStationsWithMessages(providesNow.getDateTime());
     }
 
@@ -194,4 +196,9 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
                 map(PlatformMessage::getStation).collect(Collectors.toSet());
     }
 
+    @Override
+    public void registerMetrics(RegistersMetrics registersMetrics) {
+        registersMetrics.add(this, "liveData", "messages", this::numberOfEntries);
+        registersMetrics.add(this, "liveData", "stationsWithMessages", this::numberStationsWithMessagesNow);
+    }
 }

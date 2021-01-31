@@ -10,9 +10,10 @@ import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.cloud.data.UploadsLiveData;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.LiveDataConfig;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
+import com.tramchester.livedata.CountsUploadedLiveData;
 import com.tramchester.livedata.LiveDataUpdater;
+import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
 import com.tramchester.repository.VersionRepository;
@@ -103,9 +104,9 @@ public class App extends Application<AppConfiguration>  {
         logger.info("App run");
 
         MetricRegistry metricRegistry = environment.metrics();
-        CacheMetrics.RegistersMetrics registersMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
+        CacheMetrics.RegistersCacheMetrics registersCacheMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
 
-        this.container = new ComponentsBuilder<>().create(configuration, registersMetrics);
+        this.container = new ComponentsBuilder<>().create(configuration, registersCacheMetrics);
 
         try {
             container.initialise();
@@ -185,22 +186,15 @@ public class App extends Application<AppConfiguration>  {
         UploadsLiveData observer = container.get(UploadsLiveData.class);
         updatesData.observeUpdates(observer);
 
-        // TODO
-        // custom metrics for live data and messages
         DueTramsRepository dueTramsRepository = container.get(DueTramsRepository.class);
-        metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "number"),
-                (Gauge<Integer>) dueTramsRepository::upToDateEntries);
-        metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithData"),
-                (Gauge<Integer>) dueTramsRepository::getNumStationsWithDataNow);
-        metricRegistry.register(MetricRegistry.name(DueTramsRepository.class, "liveData", "stationsWithTrams"),
-                (Gauge<Integer>) dueTramsRepository::getNumStationsWithTramsNow);
-
-        // TODO
         PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);
-        metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "messages"),
-                (Gauge<Integer>) messageRepository::numberOfEntries);
-        metricRegistry.register(MetricRegistry.name(PlatformMessageRepository.class, "liveData", "stationsWithMessages"),
-                (Gauge<Integer>) messageRepository::numberStationsWithMessagesNow);
+        CountsUploadedLiveData countsLiveDataUploads = container.get(CountsUploadedLiveData.class);
+
+        // TODO via DI
+        RegistersMetricsWithDropwizard registersMetricsWithDropwizard = new RegistersMetricsWithDropwizard(metricRegistry);
+        registersMetricsWithDropwizard.registerMetricsFor(dueTramsRepository);
+        registersMetricsWithDropwizard.registerMetricsFor(messageRepository);
+        registersMetricsWithDropwizard.registerMetricsFor(countsLiveDataUploads);
 
     }
 

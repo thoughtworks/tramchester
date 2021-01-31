@@ -66,11 +66,11 @@ public abstract class ComponentContainer {
     }
 
     protected void registerConfiguration(TramchesterConfig configuration, GraphFilter graphFilter,
-                                         CacheMetrics.RegistersMetrics registersMetrics) {
+                                         CacheMetrics.RegistersCacheMetrics registersCacheMetrics) {
         addComponent(ProvidesNow.class, ProvidesLocalNow.class);
         addComponent(TramchesterConfig.class, configuration);
         addComponent(GraphFilter.class, graphFilter);
-        addComponent(CacheMetrics.RegistersMetrics.class, registersMetrics);
+        addComponent(CacheMetrics.RegistersCacheMetrics.class, registersCacheMetrics);
     }
 
 }

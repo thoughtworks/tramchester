@@ -25,17 +25,17 @@ public class GuiceContainerDependencies extends ComponentContainer {
 
     public <T extends TransportDataProvider> GuiceContainerDependencies(GraphFilter graphFilter, TramchesterConfig config,
                                                                         Class<T> overrideType,
-                                                                        CacheMetrics.RegistersMetrics registerMetrics) {
+                                                                        CacheMetrics.RegistersCacheMetrics registerMetrics) {
         this(graphFilter, config, new AlternateProviderModule<>(overrideType), registerMetrics);
     }
 
-    public GuiceContainerDependencies(GraphFilter filter, TramchesterConfig config, CacheMetrics.RegistersMetrics registerMetrics) {
-        this(filter, config, new DefaultProviderModule(), registerMetrics);
+    public GuiceContainerDependencies(GraphFilter filter, TramchesterConfig config, CacheMetrics.RegistersCacheMetrics registerCacheMetrics) {
+        this(filter, config, new DefaultProviderModule(), registerCacheMetrics);
     }
 
     private GuiceContainerDependencies(GraphFilter filter, TramchesterConfig config, AbstractModule providerModule,
-                                       CacheMetrics.RegistersMetrics registerMetrics) {
-        module = new Module(this, filter, config, registerMetrics);
+                                       CacheMetrics.RegistersCacheMetrics registerCacheMetrics) {
+        module = new Module(this, filter, config, registerCacheMetrics);
         injector = LifecycleInjector.builder().
                 withModules(providerModule, module).
                 build().createInjector();
