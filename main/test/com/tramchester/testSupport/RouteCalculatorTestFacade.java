@@ -1,6 +1,6 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.JourneyRequest;

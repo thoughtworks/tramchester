@@ -2,11 +2,7 @@ package com.tramchester.integration.repository.trains;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.input.TramInterchanges;
-import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;

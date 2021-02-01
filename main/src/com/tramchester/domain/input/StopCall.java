@@ -2,7 +2,7 @@ package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.HasId;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;

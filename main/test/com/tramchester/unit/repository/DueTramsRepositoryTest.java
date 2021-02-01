@@ -1,7 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.CacheMetrics;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.*;
 import com.tramchester.domain.places.Station;

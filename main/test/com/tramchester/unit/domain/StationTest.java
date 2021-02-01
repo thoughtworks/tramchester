@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.domain.reference.RouteDirection;
@@ -13,8 +13,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.RoutesForTesting;
-import org.checkerframework.checker.units.qual.A;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
 

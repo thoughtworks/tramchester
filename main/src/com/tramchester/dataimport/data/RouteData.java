@@ -3,7 +3,7 @@ package com.tramchester.dataimport.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.RouteDirection;
 

@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.LatLong;
 

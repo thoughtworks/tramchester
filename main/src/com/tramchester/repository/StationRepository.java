@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;

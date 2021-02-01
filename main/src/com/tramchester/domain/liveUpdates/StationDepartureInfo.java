@@ -1,7 +1,7 @@
 package com.tramchester.domain.liveUpdates;
 
 import com.tramchester.domain.HasId;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 

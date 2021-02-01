@@ -1,7 +1,7 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.DueTram;

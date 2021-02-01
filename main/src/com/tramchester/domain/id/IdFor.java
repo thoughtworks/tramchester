@@ -1,5 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.id;
 
+import com.tramchester.domain.*;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;

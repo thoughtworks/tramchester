@@ -1,7 +1,7 @@
 package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.places.Station;
 import io.dropwizard.Configuration;

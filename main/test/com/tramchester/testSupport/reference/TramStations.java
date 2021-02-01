@@ -1,7 +1,7 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.HasId;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -11,7 +11,6 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import org.jetbrains.annotations.NotNull;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.Arrays;
 import java.util.HashSet;

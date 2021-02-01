@@ -1,7 +1,7 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdSet;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;

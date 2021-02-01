@@ -1,7 +1,7 @@
 package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

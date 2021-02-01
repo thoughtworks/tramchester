@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.*;

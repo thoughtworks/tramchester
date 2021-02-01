@@ -1,7 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.domain.input.Trip;

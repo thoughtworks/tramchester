@@ -2,7 +2,7 @@ package com.tramchester.router;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;

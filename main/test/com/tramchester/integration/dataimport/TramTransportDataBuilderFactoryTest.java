@@ -6,6 +6,7 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.GTFSTransportationType;

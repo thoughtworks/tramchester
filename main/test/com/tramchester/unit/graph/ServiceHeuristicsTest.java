@@ -2,7 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.CacheMetrics;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;

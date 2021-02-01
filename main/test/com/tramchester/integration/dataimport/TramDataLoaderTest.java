@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.IdForDTO;
 import org.jetbrains.annotations.NotNull;
 

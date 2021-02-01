@@ -3,7 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;

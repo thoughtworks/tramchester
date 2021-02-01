@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 
 public class ExistingTrip {

@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.HasId.asId;
-import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 
 public class VehicleStage implements TransportStage<Station, Station> {
     private final Station firstStation;
