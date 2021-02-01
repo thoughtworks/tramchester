@@ -6,10 +6,13 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
+import org.neo4j.graphdb.Entity;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.tramchester.graph.GraphPropertyKey.STATION_ID;
 
 public class Station extends MapIdToDTOId<Station> implements Location<Station> {
 

@@ -6,6 +6,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.ReachabilityRepository;
@@ -139,7 +140,7 @@ public class ServiceHeuristics {
 
 
     public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
-        IdFor<RouteStation> routeStationId = IdFor.getRouteStationIdFrom(node);
+        IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(node);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         Station associatedStation = routeStation.getStation();
@@ -157,7 +158,7 @@ public class ServiceHeuristics {
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
         if (journeyConstraints.getIsTramOnlyDestinations()) {
-            IdFor<RouteStation> routeStationId = IdFor.getRouteStationIdFrom(endNode);
+            IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
             RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
             if (routeStation==null) {

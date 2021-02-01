@@ -62,37 +62,9 @@ public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
         return !theId.isEmpty();
     }
 
-    // TODO push Node names into Domain objects or GraphQuery?
-    public boolean matchesStationNodePropery(Entity entity) {
-        return getTheId(entity, STATION_ID).equals(theId);
-    }
-
-    public static IdFor<Route> getRouteIdFrom(Entity entity) {
-        return new IdFor<>(getTheId(entity, ROUTE_ID));
-    }
-
-    public static IdFor<Station> getStationIdFrom(Entity entity) {
-        return new IdFor<>(getTheId(entity, STATION_ID));
-    }
-
-    public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
-        return new IdFor<>(getTheId(entity, TOWARDS_STATION_ID));
-    }
-    
-    public static IdFor<Service> getServiceIdFrom(Entity entity) {
-        return new IdFor<>(getTheId(entity, SERVICE_ID));
-    }
-
-    public static IdFor<Trip> getTripIdFrom(Entity entity) {
-        return new IdFor<>(getTheId(entity, TRIP_ID));
-    }
-
-    public static IdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
-        return new IdFor<>(getTheId(entity, ROUTE_STATION_ID));
-    }
-
-    public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
-        return new IdFor<>(getTheId(entity, PLATFORM_ID));
+    public static <Z extends GraphProperty> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
+        String value =  entity.getProperty(propertyKey.getText()).toString();
+        return new IdFor<>(value);
     }
 
     public static IdFor<RouteStation> createId(Station station, Route route) {
@@ -106,9 +78,7 @@ public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
         return createId(idAsString);
     }
 
-    private static String getTheId(Entity entity, GraphPropertyKey propertyKey) {
-        return entity.getProperty(propertyKey.getText()).toString();
-    }
+
 
     @Override
     public int compareTo(@NotNull IdFor<T> other) {

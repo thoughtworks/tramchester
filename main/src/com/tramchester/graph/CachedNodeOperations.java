@@ -97,7 +97,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
-        return svcIdCache.get(nodeId, id -> IdFor.getServiceIdFrom(node));
+        return svcIdCache.get(nodeId, id -> GraphProps.getServiceIdFrom(node));
     }
 
     public int getHour(Node node) {

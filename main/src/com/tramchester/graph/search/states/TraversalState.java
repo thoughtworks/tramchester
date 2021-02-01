@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
@@ -119,7 +120,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         List<Relationship> towardsDestination = new ArrayList<>();
         outgoing.forEach(depart ->
         {
-            if (destinationStationIds.contains(IdFor.getStationIdFrom(depart))) {
+            if (destinationStationIds.contains(GraphProps.getStationIdFrom(depart))) {
                 towardsDestination.add(depart);
             }
         });

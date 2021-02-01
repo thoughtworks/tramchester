@@ -37,11 +37,11 @@ public class MapPathToLocations {
 
     private void mapNode(List<Location<?>> results, Node node) {
         if (isStationNode(node)) {
-            IdFor<Station> stationId = IdFor.getStationIdFrom(node);
+            IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
             results.add(stationRepository.getStationById(stationId));
         }
         if (node.hasLabel(ROUTE_STATION)) {
-            IdFor<Station> stationId = IdFor.getStationIdFrom(node);
+            IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
             results.add(stationRepository.getStationById(stationId));
         } else if (node.hasLabel(QUERY_NODE)) {
             LatLong latLong = GraphProps.getLatLong(node);

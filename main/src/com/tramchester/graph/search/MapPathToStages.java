@@ -151,7 +151,7 @@ public class MapPathToStages {
         // position -> station
         int cost = getCost(relationship);
 
-        IdFor<Station> stationId = IdFor.getStationIdFrom(relationship);
+        IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
         Station destination = transportData.getStationById(stationId);
 
         Node startNode = relationship.getStartNode();
@@ -164,7 +164,7 @@ public class MapPathToStages {
         // station -> position
         int cost = getCost(relationship);
 
-        IdFor<Station> stationId = IdFor.getStationIdFrom(relationship);
+        IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
         Station start = transportData.getStationById(stationId);
 
         Node endNode = relationship.getEndNode();
@@ -178,10 +178,10 @@ public class MapPathToStages {
         // station -> station, neighbours...
         int cost = getCost(relationship);
 
-        IdFor<Station> startStationId = IdFor.getStationIdFrom(relationship.getStartNode());
+        IdFor<Station> startStationId = GraphProps.getStationIdFrom(relationship.getStartNode());
         Station start = transportData.getStationById(startStationId);
 
-        IdFor<Station> endStationId = IdFor.getStationIdFrom(relationship.getEndNode());
+        IdFor<Station> endStationId = GraphProps.getStationIdFrom(relationship.getEndNode());
         Station end = transportData.getStationById(endStationId);
 
         return new ConnectingStage(start, end, cost, walkStartTime);
@@ -218,18 +218,18 @@ public class MapPathToStages {
 
         protected void board(Relationship relationship) {
             boardCost = getCost(relationship);
-            boardingStation = transportData.getStationById(IdFor.getStationIdFrom(relationship));
-            routeCode = IdFor.getRouteIdFrom(relationship);
+            boardingStation = transportData.getStationById(GraphProps.getStationIdFrom(relationship));
+            routeCode = GraphProps.getRouteIdFrom(relationship);
             route = transportData.getRouteById(routeCode);
             if (boardingStation.hasPlatforms()) {
-                IdFor<Platform> platformId = IdFor.getPlatformIdFrom(relationship);
+                IdFor<Platform> platformId = GraphProps.getPlatformIdFrom(relationship);
                 boardingPlatform = platformRepository.getPlatformById(platformId);
             }
             departTime = null;
         }
 
         protected VehicleStage depart(Relationship relationship) {
-            IdFor<Station> stationId = IdFor.getStationIdFrom(relationship);
+            IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
             Station departStation = transportData.getStationById(stationId);
             Trip trip = transportData.getTripById(tripId);
 
@@ -269,7 +269,7 @@ public class MapPathToStages {
         }
 
         protected Optional<WalkingToStationStage> beginTrip(Relationship relationship) {
-            IdFor<Trip> newTripId = IdFor.getTripIdFrom(relationship);
+            IdFor<Trip> newTripId = GraphProps.getTripIdFrom(relationship);
 
             if (tripId.notValid()) {
                 this.tripId = newTripId;

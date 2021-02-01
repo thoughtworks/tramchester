@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.tramchester.domain.id.IdFor.getIdFromGraphEntity;
 import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
@@ -70,7 +71,7 @@ public class GraphProps {
     }
 
     public static IdFor<Station> getStationId(Entity entity) {
-        return IdFor.getStationIdFrom(entity);
+        return getStationIdFrom(entity);
     }
 
     public static void setRouteStationProp(Entity entity, IdFor<RouteStation> id) {
@@ -122,11 +123,11 @@ public class GraphProps {
     }
 
     public static IdFor<Trip> getTripId(Entity entity) {
-        return IdFor.getTripIdFrom(entity);
+        return getTripIdFrom(entity);
     }
 
     public static IdFor<Service> getServiceId(Entity entity) {
-        return IdFor.getServiceIdFrom(entity);
+        return getServiceIdFrom(entity);
     }
 
     static void setHourProp(Entity entity, Integer value) {
@@ -149,7 +150,7 @@ public class GraphProps {
     }
 
     public static IdFor<Route> getRouteId(Entity entity) {
-        return IdFor.getRouteIdFrom(entity);
+        return getRouteIdFrom(entity);
     }
 
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
@@ -163,5 +164,33 @@ public class GraphProps {
 
     public static int getStopSequenceNumber(Relationship relationship) {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
+    }
+
+    public static IdFor<Route> getRouteIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, ROUTE_ID);
+    }
+
+    public static IdFor<Station> getStationIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, STATION_ID);
+    }
+
+    public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, TOWARDS_STATION_ID);
+    }
+
+    public static IdFor<Service> getServiceIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, SERVICE_ID);
+    }
+
+    public static IdFor<Trip> getTripIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, TRIP_ID);
+    }
+
+    public static IdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, ROUTE_STATION_ID);
+    }
+
+    public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, PLATFORM_ID);
     }
 }

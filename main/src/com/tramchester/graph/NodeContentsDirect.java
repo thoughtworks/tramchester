@@ -13,7 +13,7 @@ public class NodeContentsDirect implements NodeContentsRepository{
 
     @Override
     public IdFor<Service> getServiceId(Node node) {
-        return IdFor.getServiceIdFrom(node);
+        return GraphProps.getServiceIdFrom(node);
     }
 
     @Override
