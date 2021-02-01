@@ -4,7 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
@@ -23,7 +23,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @Override
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        IdFor<Route> routeId = routeData.getId();
+        StringIdFor<Route> routeId = routeData.getId();
 
         String routeName = routeData.getLongName();
         if (config.getRemoveRouteNameSuffix()) {
@@ -39,7 +39,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
+    public Station createStation(StringIdFor<Station> stationId, StopData stopData, GridPosition position) {
         return new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
                 stopData.getLatLong(), position);
     }
@@ -52,7 +52,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, StringIdFor<Agency> agencyId) {
         // NOTE: this data issue has been reported to TFGM
         GTFSTransportationType routeType = routeData.getRouteType();
         if (Agency.IsMetrolink(agencyId) && routeType!=GTFSTransportationType.tram) {

@@ -3,7 +3,7 @@ package com.tramchester.integration.graph.trains;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.input.StopCall;
@@ -145,7 +145,7 @@ class TrainRouteCalculatorTest {
 
         IdSet<Station> endsOfLines = repository.getStations(TransportMode.Train);
 
-        List<Pair<IdFor<Station>, IdFor<Station>>> failed = queryForJourneys(request, endsOfLines);
+        List<Pair<StringIdFor<Station>, StringIdFor<Station>>> failed = queryForJourneys(request, endsOfLines);
 
         assertTrue(failed.isEmpty(), failed.toString());
     }
@@ -162,17 +162,17 @@ class TrainRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
                 8*60);
 
-        List<Pair<IdFor<Station>, IdFor<Station>>> failed = queryForJourneys(request, interchanges);
+        List<Pair<StringIdFor<Station>, StringIdFor<Station>>> failed = queryForJourneys(request, interchanges);
 
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
 
     @NotNull
-    private List<Pair<IdFor<Station>, IdFor<Station>>> queryForJourneys(JourneyRequest request, IdSet<Station> stationIds) {
-        List<Pair<IdFor<Station>, IdFor<Station>>> failed = new ArrayList<>();
-        for(IdFor<Station> begin : stationIds) {
-            for(IdFor<Station> end : stationIds) {
+    private List<Pair<StringIdFor<Station>, StringIdFor<Station>>> queryForJourneys(JourneyRequest request, IdSet<Station> stationIds) {
+        List<Pair<StringIdFor<Station>, StringIdFor<Station>>> failed = new ArrayList<>();
+        for(StringIdFor<Station> begin : stationIds) {
+            for(StringIdFor<Station> end : stationIds) {
                 if (!begin.equals(end)) {
                     Set<Journey> journeys = calculator.calculateRouteAsSet(begin, end, request, 1);
                     if (journeys.isEmpty()) {

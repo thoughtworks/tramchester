@@ -1,6 +1,6 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -45,7 +45,7 @@ public class ServiceHeuristics {
     public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
+        StringIdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
         if (journeyConstraints.isRunning(nodeServiceId)) {
             return valid(ServiceReason.ReasonCode.ServiceDateOk, howIGotHere, reasons);
@@ -57,7 +57,7 @@ public class ServiceHeuristics {
     public ServiceReason checkServiceTime(HowIGotHere howIGotHere, Node node, TramTime currentClock, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        IdFor<Service> serviceId = nodeOperations.getServiceId(node);
+        StringIdFor<Service> serviceId = nodeOperations.getServiceId(node);
 
         // prepared to wait up to max wait for start of a service...
         // TODO Push DOWN
@@ -140,7 +140,7 @@ public class ServiceHeuristics {
 
 
     public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
-        IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(node);
+        StringIdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(node);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         Station associatedStation = routeStation.getStation();
@@ -158,7 +158,7 @@ public class ServiceHeuristics {
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
         if (journeyConstraints.getIsTramOnlyDestinations()) {
-            IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
+            StringIdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
             RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
             if (routeStation==null) {

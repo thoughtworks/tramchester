@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.*;
@@ -145,7 +145,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
         IdSet<Service> missingCalendar = services.getIds();
         calendars.forEach(calendarData -> {
-            IdFor<Service> serviceId = calendarData.getServiceId();
+            StringIdFor<Service> serviceId = calendarData.getServiceId();
             Service service = buildable.getService(serviceId);
 
             if (service != null) {
@@ -170,7 +170,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
         AtomicInteger countCalendarDates = new AtomicInteger(0);
 
         calendarsDates.forEach(date -> {
-            IdFor<Service> serviceId = date.getServiceId();
+            StringIdFor<Service> serviceId = date.getServiceId();
             Service service = buildable.getService(serviceId);
             if (service != null) {
                 if (service.hasCalendar()) {
@@ -205,7 +205,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
     }
 
-    private void addException(CalendarDateData date, ServiceCalendar calendar, IdFor<Service> serviceId, Set<LocalDate> noServices) {
+    private void addException(CalendarDateData date, ServiceCalendar calendar, StringIdFor<Service> serviceId, Set<LocalDate> noServices) {
         int exceptionType = date.getExceptionType();
         LocalDate exceptionDate = date.getDate();
         if (exceptionType == CalendarDateData.ADDED) {
@@ -242,7 +242,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
         AtomicInteger count = new AtomicInteger();
         stopTimes.filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).forEach((stopTimeData) -> {
             String stopId = stopTimeData.getStopId();
-            IdFor<Station> stationId = Station.formId(stopId);
+            StringIdFor<Station> stationId = Station.formId(stopId);
 
             if (stations.hasId(stationId)) {
                 Trip trip = trips.get(stopTimeData.getTripId());
@@ -284,7 +284,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
                                     Route route, Station station, TransportEntityFactory factory,
                                     DataSourceConfig sourceConfig) {
-        IdFor<Platform> platformId = stopTimeData.getPlatformId();
+        StringIdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
 
         // TODO Should be HasPlatform
@@ -305,7 +305,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     private void addStation(TransportDataContainer buildable, Route route, Station station, TransportEntityFactory factory) {
         station.addRoute(route);
 
-        IdFor<Station> stationId = station.getId();
+        StringIdFor<Station> stationId = station.getId();
         if (!buildable.hasStationId(stationId)) {
             buildable.addStation(station);
             if (station.hasPlatforms()) {
@@ -328,9 +328,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
         AtomicInteger count = new AtomicInteger();
 
         tripDataStream.forEach((tripData) -> {
-            IdFor<Service> serviceId = tripData.getServiceId();
-            IdFor<Route> routeId = tripData.getRouteId();
-            IdFor<Trip> tripId = tripData.getTripId();
+            StringIdFor<Service> serviceId = tripData.getServiceId();
+            StringIdFor<Route> routeId = tripData.getRouteId();
+            StringIdFor<Trip> tripId = tripData.getTripId();
 
             if (transportData.hasRouteId(routeId)) {
                 Route route = transportData.getRouteById(routeId);
@@ -365,7 +365,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
         logger.info("Loading routes for transport modes " + transportModes.toString());
         IdSet<Route> excludedRoutes = new IdSet<>();
         routeDataStream.forEach(routeData -> {
-            IdFor<Agency> agencyId = routeData.getAgencyId();
+            StringIdFor<Agency> agencyId = routeData.getAgencyId();
             boolean missingAgency = !allAgencies.hasId(agencyId);
             if (missingAgency) {
                 logger.error("Missing agency " + agencyId);
@@ -386,7 +386,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 count.getAndIncrement();
 
             } else {
-                IdFor<Route> routeId = routeData.getId();
+                StringIdFor<Route> routeId = routeData.getId();
                 excludedRoutes.add(routeId);
             }
         });
@@ -403,7 +403,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 excludedRoutes);
     }
 
-    private Agency createMissingAgency(DataSourceID dataSourceID, IdMap<Agency> allAgencies, IdFor<Agency> agencyId, TransportEntityFactory factory) {
+    private Agency createMissingAgency(DataSourceID dataSourceID, IdMap<Agency> allAgencies, StringIdFor<Agency> agencyId, TransportEntityFactory factory) {
         Agency unknown = factory.createUnknownAgency(dataSourceID, agencyId);
         logger.error("Created agency" + unknown + " for " + dataSourceID);
         allAgencies.add(unknown);
@@ -435,7 +435,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
     private void preLoadStation(IdMap<Station> allStations, StopData stopData, GridPosition position, TransportEntityFactory factory) {
         String stopId = stopData.getId();
-        IdFor<Station> stationId = Station.formId(stopId);
+        StringIdFor<Station> stationId = Station.formId(stopId);
 
         // NOTE: Tram data has unique positions for each platform
         // TODO What is the right position to use for a tram station?

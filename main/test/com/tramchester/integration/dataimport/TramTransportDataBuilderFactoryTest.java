@@ -6,7 +6,7 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -60,18 +60,18 @@ class TramTransportDataBuilderFactoryTest {
 
         assertThat(transportData.getRoutes()).hasSize(2);
 
-        Route route = transportData.getRouteById(IdFor.createId("MET:MET1:I:"));
+        Route route = transportData.getRouteById(StringIdFor.createId("MET:MET1:I:"));
         assertThat(route.getName()).isEqualTo("Abraham Moss - Bury");
         assertThat(route.getServices()).hasSize(2);
 
         Service service = route.getServices().stream().findFirst().get();
-        assertThat(service.getId()).isEqualTo(IdFor.createId("Serv000001"));
+        assertThat(service.getId()).isEqualTo(StringIdFor.createId("Serv000001"));
         assertThat(service.getAllTrips()).hasSize(3);
         assertThat(service.getCalendar().operatesOn(LocalDate.of(2014,11,1)));
         assertThat(!service.getCalendar().operatesOn(LocalDate.of(2014,11,20)));
 
         Trip trip = service.getAllTrips().stream().findFirst().get();
-        assertThat(trip.getId()).isEqualTo(IdFor.createId("Trip000001"));
+        assertThat(trip.getId()).isEqualTo(StringIdFor.createId("Trip000001"));
         assertThat(trip.getStops().numberOfCallingPoints()).isEqualTo(9);
 
         StopCall stop = trip.getStops().getStopBySequenceNumber(1);

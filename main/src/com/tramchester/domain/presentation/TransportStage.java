@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -40,5 +40,5 @@ public interface TransportStage<FROM extends Location<?>, DEST extends Location<
      */
     List<StopCall> getCallingPoints();
 
-    IdFor<Trip> getTripId();
+    StringIdFor<Trip> getTripId();
 }

@@ -6,7 +6,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.CacheMetrics;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.PlatformMessage;
@@ -38,7 +38,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
-    private final Cache<IdFor<Platform>, PlatformMessage> messageCache;
+    private final Cache<StringIdFor<Platform>, PlatformMessage> messageCache;
     private final ProvidesNow providesNow;
     private LocalDate lastRefresh;
 
@@ -82,7 +82,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     private boolean updateCacheFor(StationDepartureInfo departureInfo, IdSet<Platform> platformsSeenForUpdate) {
-        IdFor<Platform> platformId = departureInfo.getStationPlatform();
+        StringIdFor<Platform> platformId = departureInfo.getStationPlatform();
         if (platformsSeenForUpdate.contains(platformId)) {
             if (!departureInfo.getMessage().isEmpty()) {
                 PlatformMessage current = messageCache.getIfPresent(platformId);
@@ -122,7 +122,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     @Override
-    public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
+    public Optional<PlatformMessage> messagesFor(StringIdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Optional.empty();
@@ -157,7 +157,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         return (int) messageCache.estimatedSize();
     }
 
-    private Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId) {
+    private Optional<PlatformMessage> messagesFor(StringIdFor<Platform> platformId) {
         @Nullable PlatformMessage ifPresent = messageCache.getIfPresent(platformId);
 
         if (ifPresent==null) {

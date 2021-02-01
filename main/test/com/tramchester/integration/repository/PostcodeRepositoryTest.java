@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
@@ -38,7 +38,7 @@ class PostcodeRepositoryTest {
 
         LatLong expected = TestEnv.nearWythenshaweHosp();
 
-        PostcodeLocation result = repository.getPostcode(IdFor.createId(TestEnv.postcodeForWythenshaweHosp()));
+        PostcodeLocation result = repository.getPostcode(StringIdFor.createId(TestEnv.postcodeForWythenshaweHosp()));
 
         assertNotNull(result);
         LatLong position = result.getLatLong();

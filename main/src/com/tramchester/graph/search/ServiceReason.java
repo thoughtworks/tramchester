@@ -1,6 +1,6 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -138,9 +138,9 @@ public abstract class ServiceReason {
 
     private static class DoesNotRunOnQueryDate extends ServiceReason
     {
-        private final IdFor<Service> nodeServiceId;
+        private final StringIdFor<Service> nodeServiceId;
 
-        protected DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
+        protected DoesNotRunOnQueryDate(HowIGotHere path, StringIdFor<Service> nodeServiceId) {
             super(ReasonCode.NotOnQueryDate, path);
             this.nodeServiceId = nodeServiceId;
         }
@@ -252,7 +252,7 @@ public abstract class ServiceReason {
 
     public static IsValid IsValid(ReasonCode code, HowIGotHere path) { return new IsValid( code, path);}
 
-    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
+    public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, StringIdFor<Service> nodeServiceId) {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);
     }
 

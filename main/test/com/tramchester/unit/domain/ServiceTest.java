@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.domain.input.Trip;
@@ -25,7 +25,7 @@ class ServiceTest {
 
         Service service = new Service("SVC002", TestEnv.getTestRoute());
         Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
-        IdFor<Trip> tripId = trip.getId();
+        StringIdFor<Trip> tripId = trip.getId();
         TramStations deansgate = TramStations.Deansgate;
         trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", deansgate,3, TramTime.of(9, 5), TramTime.of(9, 6)));
         trip.addStop(TestEnv.createTramStopCall(tripId, "stopId2", deansgate, 2, TramTime.of(8, 15), TramTime.of(8, 16)));
@@ -48,7 +48,7 @@ class ServiceTest {
 
     @Test
     void shouldNoticeNoDatesSet() {
-        Service service = new Service("svcXXX", TestEnv.getTestRoute(IdFor.createId("ROUTE66")));
+        Service service = new Service("svcXXX", TestEnv.getTestRoute(StringIdFor.createId("ROUTE66")));
         assertFalse(service.hasCalendar());
 
         LocalDate startDate = LocalDate.of(2014, 10, 5);

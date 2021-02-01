@@ -1,6 +1,6 @@
 package com.tramchester.testSupport.reference;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -37,7 +37,7 @@ public enum TrainStations implements TestStations {
     }
 
     @Override
-    public IdFor<Station> getId() {
+    public StringIdFor<Station> getId() {
         return station.getId();
     }
 

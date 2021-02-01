@@ -2,7 +2,7 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.CacheMetrics;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -48,8 +48,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private ReachabilityRepository reachabilityRepository;
     private StationRepository stationRepository;
     private ProvidesLocalNow providesLocalNow;
-    private IdFor<Service> serviceIdA;
-    private IdFor<Service> serviceIdB;
+    private StringIdFor<Service> serviceIdA;
+    private StringIdFor<Service> serviceIdB;
     private JourneyConstraints journeyConstraints;
     private int maxJourneyDuration;
     private final int numChanges = 3;
@@ -58,8 +58,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         maxJourneyDuration = config30MinsWait.getMaxJourneyDuration();
         providesLocalNow = new ProvidesLocalNow();
-        serviceIdA = IdFor.createId("serviceIdA");
-        serviceIdB = IdFor.createId("serviceIdB");
+        serviceIdA = StringIdFor.createId("serviceIdA");
+        serviceIdB = StringIdFor.createId("serviceIdB");
 
         nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()));
         path = createMock(HowIGotHere.class);
@@ -127,9 +127,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         Node node = createMock(Node.class);
         EasyMock.expect(node.getProperty("route_station_id")).andReturn("123");
-        EasyMock.expect(stationRepository.getRouteStationById(IdFor.createId("123"))).andReturn(routeStationA);
+        EasyMock.expect(stationRepository.getRouteStationById(StringIdFor.createId("123"))).andReturn(routeStationA);
         EasyMock.expect(node.getProperty("route_station_id")).andReturn("789");
-        EasyMock.expect(stationRepository.getRouteStationById(IdFor.createId("789"))).andReturn(routeStationB);
+        EasyMock.expect(stationRepository.getRouteStationById(StringIdFor.createId("789"))).andReturn(routeStationB);
 
         replayAll();
         ServiceReason result = serviceHeuristics.checkStationOpen(node, path, reasons);

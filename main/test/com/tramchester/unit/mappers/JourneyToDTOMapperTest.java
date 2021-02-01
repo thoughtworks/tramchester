@@ -2,7 +2,7 @@ package com.tramchester.unit.mappers;
 
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -244,7 +244,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
                                             int cost, int passedStops, boolean hasPlatforms) {
 
-        Trip validTrip = transportData.getTripById(IdFor.createId(TRIP_A_ID));
+        Trip validTrip = transportData.getTripById(StringIdFor.createId(TRIP_A_ID));
 
         List<Integer> passedStations = new ArrayList<>();
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,

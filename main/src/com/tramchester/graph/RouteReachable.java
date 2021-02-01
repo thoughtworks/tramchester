@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
@@ -12,7 +12,6 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
-import org.neo4j.util.Id;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +53,7 @@ public class RouteReachable {
     public List<Route> getRoutesFromStartToNeighbour(Station startStation, Station endStation) {
         List<Route> results = new ArrayList<>();
         Set<Route> firstRoutes = startStation.getRoutes();
-        IdFor<Station> endStationId = endStation.getId();
+        StringIdFor<Station> endStationId = endStation.getId();
 
         try (Transaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
@@ -65,7 +64,7 @@ public class RouteReachable {
                 } else {
                     Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
                     for (Relationship edge : edges) {
-                        IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
+                        StringIdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }
@@ -87,7 +86,7 @@ public class RouteReachable {
                     logger.warn("Cannot find node for station id " + routeStation);
                 }
             } else  {
-                IdFor<Station> endStationId = endStation.getId();
+                StringIdFor<Station> endStationId = endStation.getId();
                 Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId<>(endStationId, routeStation.getRoute().getId(),
                         interchangeRepository);
 
@@ -110,11 +109,11 @@ public class RouteReachable {
     }
 
     private static class FindRouteNodesForDesintationAndRouteId<STATE> implements PathEvaluator<STATE> {
-        private final IdFor<Station> endStationId;
-        private final IdFor<Route> routeId;
+        private final StringIdFor<Station> endStationId;
+        private final StringIdFor<Route> routeId;
         private final InterchangeRepository interchangeRepository;
 
-        public FindRouteNodesForDesintationAndRouteId(IdFor<Station> endStationId, IdFor<Route> routeId,
+        public FindRouteNodesForDesintationAndRouteId(StringIdFor<Station> endStationId, StringIdFor<Route> routeId,
                                                       InterchangeRepository interchangeRepository) {
             this.endStationId = endStationId;
             this.routeId = routeId;
@@ -131,7 +130,7 @@ public class RouteReachable {
             Node endNode = path.endNode();
 
             if (endNode.hasLabel(ROUTE_STATION)) {
-                IdFor<Station> currentStationId = GraphProps.getStationIdFrom(endNode);
+                StringIdFor<Station> currentStationId = GraphProps.getStationIdFrom(endNode);
                 if (endStationId.equals(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE; // finished, at dest
                 }

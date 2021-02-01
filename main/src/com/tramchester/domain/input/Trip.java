@@ -2,14 +2,14 @@ package com.tramchester.domain.input;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
 public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
-    private final IdFor<Trip> tripId;
+    private final StringIdFor<Trip> tripId;
     private final String headSign;
     private final Service service;
     private final Route route;
@@ -20,10 +20,10 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
     private int firstIndex;
 
     public Trip(String tripId, String headSign, Service service, Route route) {
-        this(IdFor.createId(tripId), headSign, service, route);
+        this(StringIdFor.createId(tripId), headSign, service, route);
     }
 
-    public Trip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
+    public Trip(StringIdFor<Trip> tripId, String headSign, Service service, Route route) {
         this.tripId = tripId;
         this.headSign = headSign.intern();
         this.service = service;
@@ -51,7 +51,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         return tripId != null ? tripId.hashCode() : 0;
     }
 
-    public IdFor<Trip> getId() {
+    public StringIdFor<Trip> getId() {
         return tripId;
     }
 

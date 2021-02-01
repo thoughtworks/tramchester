@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.google.common.collect.Sets;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.places.Station;
@@ -18,7 +18,7 @@ import java.util.Set;
 
 class UpdateRecentJourneysTest {
 
-    private final IdFor<Station> altyId = TramStations.Altrincham.getId();
+    private final StringIdFor<Station> altyId = TramStations.Altrincham.getId();
     private final UpdateRecentJourneys updater = new UpdateRecentJourneys(TestEnv.GET());
     private final ProvidesNow providesNow = new ProvidesLocalNow();
 

@@ -1,7 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
 
-    private final IdFor<Route> id;
+    private final StringIdFor<Route> id;
     private final String shortName;
     private final String name;
     private final Agency agency;
@@ -22,15 +22,15 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
 
     public static final Route Walking;
     static {
-            Walking = new Route(IdFor.createId("Walk"), "Walk", "Walk", Agency.Walking,
+            Walking = new Route(StringIdFor.createId("Walk"), "Walk", "Walk", Agency.Walking,
                     TransportMode.Walk, RouteDirection.Unknown);
     }
 
     public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode,  RouteDirection routeDirection) {
-        this(IdFor.createId(id), shortName, name, agency, transportMode, routeDirection);
+        this(StringIdFor.createId(id), shortName, name, agency, transportMode, routeDirection);
     }
 
-    public Route(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode, RouteDirection routeDirection) {
+    public Route(StringIdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode, RouteDirection routeDirection) {
         this.id = id;
         this.shortName = shortName.intern();
         this.name = name.intern();
@@ -42,7 +42,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         headsigns = new HashSet<>();
     }
 
-    public IdFor<Route> getId() {
+    public StringIdFor<Route> getId() {
         return id;
     }
 

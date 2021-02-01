@@ -1,7 +1,7 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -19,7 +19,7 @@ public class TestStation extends Station {
     private boolean routesAdded;
 
     public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode initialMode) {
-        super(IdFor.createId(id), area, stationName, latLong, gridPosition);
+        super(StringIdFor.createId(id), area, stationName, latLong, gridPosition);
         this.initialMode = initialMode;
         platformsAdded = false;
         routesAdded = false;

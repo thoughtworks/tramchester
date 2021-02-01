@@ -3,7 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -49,7 +49,7 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         return container;
     }
 
-    private static final Route FERRY_ROUTE = new Route(IdFor.createId("FER:42:C"), "42", "Lakes",
+    private static final Route FERRY_ROUTE = new Route(StringIdFor.createId("FER:42:C"), "42", "Lakes",
             new Agency(DataSourceID.GBRail(), "FER", "ferryAgency"), TransportMode.Ferry, RouteDirection.Inbound);
 
     private void populateTestData(TransportDataContainer container) {
@@ -219,27 +219,27 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         }
 
         public Station getFirst() {
-            return getStationById(IdFor.createId(FIRST_STATION));
+            return getStationById(StringIdFor.createId(FIRST_STATION));
         }
 
         public Station getSecond() {
-            return getStationById(IdFor.createId(SECOND_STATION));
+            return getStationById(StringIdFor.createId(SECOND_STATION));
         }
 
         public Station getInterchange() {
-            return getStationById(IdFor.createId(INTERCHANGE));
+            return getStationById(StringIdFor.createId(INTERCHANGE));
         }
 
         public Station getLast() {
-            return getStationById(IdFor.createId(LAST_STATION));
+            return getStationById(StringIdFor.createId(LAST_STATION));
         }
 
         public Station getFifthStation() {
-            return getStationById(IdFor.createId(STATION_FIVE));
+            return getStationById(StringIdFor.createId(STATION_FIVE));
         }
 
         public Station getFourthStation() {
-            return getStationById(IdFor.createId(STATION_FOUR));
+            return getStationById(StringIdFor.createId(STATION_FOUR));
         }
 
         @Override

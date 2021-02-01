@@ -10,7 +10,7 @@ import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -277,7 +277,7 @@ class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHavePlatform() {
-        IdFor<Platform> id = IdFor.createId(TramStations.StPetersSquare.forDTO() + "3");
+        StringIdFor<Platform> id = StringIdFor.createId(TramStations.StPetersSquare.forDTO() + "3");
 
         assertTrue(transportData.hasPlatformId(id));
         Platform platform = transportData.getPlatform(id);
@@ -450,7 +450,7 @@ class TransportDataFromFilesTramTest {
         System.out.println(String.format("Total: %s ms Average: %s ms", total, total/count));
     }
 
-    private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {
+    private List<StopCall> getStopsFor(Trip trip, StringIdFor<Station> stationId) {
         return trip.getStops().stream().filter(stopCall -> stopCall.getStationId().equals(stationId)).collect(Collectors.toList());
     }
 

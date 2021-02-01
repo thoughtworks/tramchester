@@ -1,7 +1,7 @@
 package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.places.Station;
 import io.dropwizard.Configuration;
@@ -12,11 +12,11 @@ import java.time.LocalDate;
 @Valid
 public class StationClosureConfig extends Configuration implements StationClosure {
 
-    private final IdFor<Station> station;
+    private final StringIdFor<Station> station;
     private final LocalDate begin;
     private final LocalDate end;
 
-    public StationClosureConfig(@JsonProperty(value = "station", required = true) IdFor<Station> station,
+    public StationClosureConfig(@JsonProperty(value = "station", required = true) StringIdFor<Station> station,
                                 @JsonProperty(value = "begin", required = true) LocalDate begin,
                                 @JsonProperty(value = "end", required = true) LocalDate end) {
         this.station = station;
@@ -26,7 +26,7 @@ public class StationClosureConfig extends Configuration implements StationClosur
 
 
     @Override
-    public IdFor<Station> getStation() {
+    public StringIdFor<Station> getStation() {
         return station;
     }
 

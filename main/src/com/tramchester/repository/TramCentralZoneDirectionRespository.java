@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -24,8 +24,8 @@ import static java.lang.String.format;
 public class TramCentralZoneDirectionRespository {
     private static final Logger logger = LoggerFactory.getLogger(TramCentralZoneDirectionRespository.class);
 
-    private final Map<IdFor<Route>, Integer> entered;
-    private final Map<IdFor<Route>, Integer> left;
+    private final Map<StringIdFor<Route>, Integer> entered;
+    private final Map<StringIdFor<Route>, Integer> left;
 
     private final RouteRepository routeRepository;
     private final RouteCallingStations routeCallingStations;
@@ -51,7 +51,7 @@ public class TramCentralZoneDirectionRespository {
 
     public Place getStationPlacement(RouteStation routeStation) {
         int index = getRouteIndexOfStation(routeStation);
-        IdFor<Route> routeId = routeStation.getRoute().getId();
+        StringIdFor<Route> routeId = routeStation.getRoute().getId();
 
         int enteredIndex = entered.get(routeId);
         if (index < enteredIndex) {
@@ -90,7 +90,7 @@ public class TramCentralZoneDirectionRespository {
                     leftCityZone = i-1;
                 }
             }
-            IdFor<Route> routeId = route.getId();
+            StringIdFor<Route> routeId = route.getId();
             if (enteredCityZone>=0) {
                 logger.info(format("Route %s entered central zone at %s(%s)", routeId,
                         asId(callingAt.get(enteredCityZone)), enteredCityZone));

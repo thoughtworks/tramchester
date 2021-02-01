@@ -2,7 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
@@ -15,19 +15,19 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
 
     private final Station station;
     private final Route route;
-    private final IdFor<RouteStation> id;
+    private final StringIdFor<RouteStation> id;
 
     public RouteStation(Station station, Route route) {
         this.station = station;
         this.route = route;
-        id = IdFor.createId(station, route);
+        id = StringIdFor.createId(station, route);
     }
 
-    public static IdFor<RouteStation> formId(IdFor<Station> station, IdFor<Route> route) {
-        return IdFor.createId(station, route);
+    public static StringIdFor<RouteStation> formId(StringIdFor<Station> station, StringIdFor<Route> route) {
+        return StringIdFor.createId(station, route);
     }
 
-    public IdFor<RouteStation> getId() {
+    public StringIdFor<RouteStation> getId() {
         return id;
     }
 
@@ -47,7 +47,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
         return route;
     }
 
-    public IdFor<Station> getStationId() {
+    public StringIdFor<Station> getStationId() {
         return station.getId();
     }
 

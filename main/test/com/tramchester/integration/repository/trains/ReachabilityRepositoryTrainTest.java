@@ -2,7 +2,7 @@ package com.tramchester.integration.repository.trains;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
@@ -44,7 +44,7 @@ class ReachabilityRepositoryTrainTest {
 
     @Test
     void shouldCreateReachabilityMatrix() {
-        Route route = routeRepo.getRouteById(IdFor.createId("7804")); // shortName='NT:CTR->MAN'
+        Route route = routeRepo.getRouteById(StringIdFor.createId("7804")); // shortName='NT:CTR->MAN'
 
         assertTrue(reachable(createRouteStation(route, Stockport), ManchesterPiccadilly));
         assertFalse(reachable(createRouteStation(route, Stockport), Stockport));

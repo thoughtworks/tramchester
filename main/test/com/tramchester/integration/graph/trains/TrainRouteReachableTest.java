@@ -3,7 +3,7 @@ package com.tramchester.integration.graph.trains;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -53,7 +53,7 @@ class TrainRouteReachableTest {
 
     @Test
     void shouldHaveCorrectReachabilityOrInterchanges() {
-        Route route = routeRepo.getRouteById(IdFor.createId("7685")); // NT:MAN->CTR
+        Route route = routeRepo.getRouteById(StringIdFor.createId("7685")); // NT:MAN->CTR
 
         assertTrue(reachable(route, Mobberley, Knutsford));
         assertFalse(reachable(route, Knutsford, Mobberley));

@@ -3,7 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -245,8 +245,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldSetCookieForRecentJourney() throws IOException {
-        IdFor<Station> start = TramStations.Bury.getId();
-        IdFor<Station> end = TramStations.ManAirport.getId();
+        StringIdFor<Station> start = TramStations.Bury.getId();
+        StringIdFor<Station> end = TramStations.ManAirport.getId();
 
         Response result = getResponseForJourney(appExtension, start, end, now.toLocalTime(), now.toLocalDate(), null,
                 false, 3);
@@ -262,8 +262,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldUdateCookieForRecentJourney() throws IOException {
-        IdFor<Station> start = TramStations.Bury.getId();
-        IdFor<Station> end = TramStations.ManAirport.getId();
+        StringIdFor<Station> start = TramStations.Bury.getId();
+        StringIdFor<Station> end = TramStations.ManAirport.getId();
         String time = now.toLocalTime().format(TestEnv.timeFormatter);
         String date = now.toLocalDate().format(dateFormatDashes);
 
@@ -293,7 +293,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         String start = MyLocation.MY_LOCATION_PLACEHOLDER_ID;
-        IdFor<Station> end = TramStations.ManAirport.getId();
+        StringIdFor<Station> end = TramStations.ManAirport.getId();
 
         Response response = getResponseForJourney(appExtension, start, end.forDTO(), now.toLocalTime(),  now.toLocalDate(),
                 latlong, false, 3);
@@ -308,8 +308,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
     @Test
     void shouldSpikeResultsAsStream() throws IOException {
-        IdFor<Station> start = TramStations.Bury.getId();
-        IdFor<Station> end = TramStations.ManAirport.getId();
+        StringIdFor<Station> start = TramStations.Bury.getId();
+        StringIdFor<Station> end = TramStations.ManAirport.getId();
         String time = TramTime.of(11,45).toPattern();
         String date = when.format(dateFormatDashes);
 
@@ -351,7 +351,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    static Response getResponseForJourney(IntegrationAppExtension rule, IdFor<Station> start, IdFor<Station> end,
+    static Response getResponseForJourney(IntegrationAppExtension rule, StringIdFor<Station> start, StringIdFor<Station> end,
                                           LocalTime time, LocalDate date, LatLong latlong, boolean arriveBy, int maxChanges) {
         return getResponseForJourney(rule, start.forDTO(), end.forDTO(), time, date, latlong, arriveBy, maxChanges);
 

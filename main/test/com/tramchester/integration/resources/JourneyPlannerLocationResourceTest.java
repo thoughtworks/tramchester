@@ -2,7 +2,7 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -239,7 +239,7 @@ class JourneyPlannerLocationResourceTest {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    private Set<JourneyDTO> validateJourneyFromLocation(LatLong location, IdFor<Station> destination, LocalTime queryTime, boolean arriveBy) {
+    private Set<JourneyDTO> validateJourneyFromLocation(LatLong location, StringIdFor<Station> destination, LocalTime queryTime, boolean arriveBy) {
         return validateJourneyFromLocation(location, destination.forDTO(), queryTime, arriveBy);
     }
 
@@ -252,7 +252,7 @@ class JourneyPlannerLocationResourceTest {
         return validateJourneyPresent(response);
     }
 
-    private Set<JourneyDTO> validateJourneyToLocation(IdFor<Station> start, LatLong destination, LocalTime queryTime, boolean arriveBy) {
+    private Set<JourneyDTO> validateJourneyToLocation(StringIdFor<Station> start, LatLong destination, LocalTime queryTime, boolean arriveBy) {
         return validateJourneyToLocation(start.forDTO(), destination, queryTime, arriveBy);
     }
 

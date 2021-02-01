@@ -3,7 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -117,7 +117,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 transportData.getStations();
 
         routes.forEach(route -> {
-            IdFor<Route> asId = route.getId();
+            StringIdFor<Route> asId = route.getId();
             logger.debug("Adding route " + asId);
 
             try(Transaction tx = graphDatabase.beginTx()) {

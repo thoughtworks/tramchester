@@ -4,7 +4,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramServiceDate;
@@ -102,7 +102,7 @@ public class DeparturesResource extends TransportResource {
                                            @DefaultValue("1") @QueryParam("notes") String notesParam,
                                            @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
 
-        IdFor<Station> stationId = IdFor.createId(stationIdText);
+        StringIdFor<Station> stationId = StringIdFor.createId(stationIdText);
         logger.info(format("Get departs for station %s at '%s' with notes enabled:'%s'", stationId, queryTimeRaw, notesParam));
         guardForStationNotExisting(stationRepository, stationId);
 

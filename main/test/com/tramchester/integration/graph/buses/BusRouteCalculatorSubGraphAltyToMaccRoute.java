@@ -3,7 +3,7 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
-    private static final IdFor<Route> ROUTE_ID = IdFor.createId("DGC:88:O:");
+    private static final StringIdFor<Route> ROUTE_ID = StringIdFor.createId("DGC:88:O:");
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static Config config;
@@ -114,8 +114,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @Test
     void shouldHaveSimpleRouteWithStationsAlongTheWay() {
 
-        List<IdFor<Station>> ids = routeStations.stream().map(Station::getId).collect(Collectors.toList());
-        int knutsfordIndex = ids.indexOf(IdFor.createId("0600MA6022")); // services beyond here are infrequent
+        List<StringIdFor<Station>> ids = routeStations.stream().map(Station::getId).collect(Collectors.toList());
+        int knutsfordIndex = ids.indexOf(StringIdFor.createId("0600MA6022")); // services beyond here are infrequent
         Station firstStation = routeStations.get(0);
 
         TramTime time = TramTime.of(9, 20);

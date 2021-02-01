@@ -2,7 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.tramchester.domain.id.IdFor.getIdFromGraphEntity;
+import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
 import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
@@ -71,15 +71,15 @@ public class GraphProps {
         entity.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
 
-    public static IdFor<Station> getStationId(Entity entity) {
+    public static StringIdFor<Station> getStationId(Entity entity) {
         return getStationIdFrom(entity);
     }
 
-    public static void setRouteStationProp(Entity entity, IdFor<RouteStation> id) {
+    public static void setRouteStationProp(Entity entity, StringIdFor<RouteStation> id) {
         entity.setProperty(ROUTE_STATION_ID.getText(), id.getGraphId());
     }
 
-    public static void setTowardsProp(Node node, IdFor<Station> id) {
+    public static void setTowardsProp(Node node, StringIdFor<Station> id) {
         node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
     }
 
@@ -123,11 +123,11 @@ public class GraphProps {
         return entity.hasProperty(key.getText());
     }
 
-    public static IdFor<Trip> getTripId(Entity entity) {
+    public static StringIdFor<Trip> getTripId(Entity entity) {
         return getTripIdFrom(entity);
     }
 
-    public static IdFor<Service> getServiceId(Entity entity) {
+    public static StringIdFor<Service> getServiceId(Entity entity) {
         return getServiceIdFrom(entity);
     }
 
@@ -150,7 +150,7 @@ public class GraphProps {
         return new LatLong(lat, lon);
     }
 
-    public static IdFor<Route> getRouteId(Entity entity) {
+    public static StringIdFor<Route> getRouteId(Entity entity) {
         return getRouteIdFrom(entity);
     }
 
@@ -167,31 +167,31 @@ public class GraphProps {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
 
-    public static IdFor<Route> getRouteIdFrom(Entity entity) {
+    public static StringIdFor<Route> getRouteIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, ROUTE_ID);
     }
 
-    public static IdFor<Station> getStationIdFrom(Entity entity) {
+    public static StringIdFor<Station> getStationIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, STATION_ID);
     }
 
-    public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
+    public static StringIdFor<Station> getTowardsStationIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, TOWARDS_STATION_ID);
     }
 
-    public static IdFor<Service> getServiceIdFrom(Entity entity) {
+    public static StringIdFor<Service> getServiceIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, SERVICE_ID);
     }
 
-    public static IdFor<Trip> getTripIdFrom(Entity entity) {
+    public static StringIdFor<Trip> getTripIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, TRIP_ID);
     }
 
-    public static IdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
+    public static StringIdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, ROUTE_STATION_ID);
     }
 
-    public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
+    public static StringIdFor<Platform> getPlatformIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, PLATFORM_ID);
     }
 }

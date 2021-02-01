@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
@@ -78,7 +78,7 @@ class GraphBuilderTrainTest {
         List<Relationship> list = Lists.newArrayList(outboundLinks);
         assertEquals(2, list.size(), list.toString());
 
-        Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
+        Set<StringIdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(Knutsford.getId()));
@@ -93,7 +93,7 @@ class GraphBuilderTrainTest {
         List<Relationship> list = Lists.newArrayList(outboundLinks);
         assertEquals(3, list.size());
 
-        Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
+        Set<StringIdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(Stockport.getId()));
@@ -137,7 +137,7 @@ class GraphBuilderTrainTest {
 
         assertTrue(graphOutbounds.size()>0);
 
-        List<IdFor<Service>> serviceRelatIds = graphOutbounds.stream().
+        List<StringIdFor<Service>> serviceRelatIds = graphOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 map(GraphProps::getServiceId).
                 collect(Collectors.toList());
@@ -149,7 +149,7 @@ class GraphBuilderTrainTest {
                 filter(trip -> trip.getStops().callsAt(station)).
                 collect(Collectors.toSet());
 
-        Set<IdFor<Service>> fileSvcIdFromTrips = fileCallingTrips.stream().
+        Set<StringIdFor<Service>> fileSvcIdFromTrips = fileCallingTrips.stream().
                 map(trip -> trip.getService().getId()).
                 collect(Collectors.toSet());
 
@@ -173,7 +173,7 @@ class GraphBuilderTrainTest {
                         || relationship.isType(TransportRelationshipTypes.INTERCHANGE_BOARD)).count();
         assertEquals(1, boardingCount);
 
-        SortedSet<IdFor<Service>> graphInboundSvcIds = graphTramsIntoStation.stream().
+        SortedSet<StringIdFor<Service>> graphInboundSvcIds = graphTramsIntoStation.stream().
                 map(GraphProps::getServiceId).collect(Collectors.toCollection(TreeSet::new));
 
         Set<Trip> callingTrips = transportData.getServices().stream().
@@ -184,18 +184,18 @@ class GraphBuilderTrainTest {
                 filter(trip -> !trip.getStops().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
                 collect(Collectors.toSet());
 
-        SortedSet<IdFor<Service>> svcIdsFromCallingTrips = callingTrips.stream().
+        SortedSet<StringIdFor<Service>> svcIdsFromCallingTrips = callingTrips.stream().
                 map(trip -> trip.getService().getId()).collect(Collectors.toCollection(TreeSet::new));
 
         assertEquals(svcIdsFromCallingTrips, graphInboundSvcIds);
 
-        Set<IdFor<Trip>> graphInboundTripIds = graphTramsIntoStation.stream().
+        Set<StringIdFor<Trip>> graphInboundTripIds = graphTramsIntoStation.stream().
                 map(GraphProps::getTripId).
                 collect(Collectors.toSet());
 
         assertEquals(graphTramsIntoStation.size(), graphInboundTripIds.size()); // should have an inbound link per trip
 
-        Set<IdFor<Trip>> tripIdsFromFile = callingTrips.stream().
+        Set<StringIdFor<Trip>> tripIdsFromFile = callingTrips.stream().
                 map(Trip::getId).
                 collect(Collectors.toSet());
 

@@ -9,7 +9,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -139,10 +139,10 @@ public class TestEnv {
     }
 
     public static Route getTestRoute() {
-        return getTestRoute(IdFor.createId("RouteId"));
+        return getTestRoute(StringIdFor.createId("RouteId"));
     }
 
-    public static Route getTestRoute(IdFor<Route> routeId) {
+    public static Route getTestRoute(StringIdFor<Route> routeId) {
         return new Route(routeId, "routeCode", "routeName", MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
     }
 
@@ -175,7 +175,7 @@ public class TestEnv {
         return System.getenv("CIRCLECI") != null;
     }
 
-    public static PlatformStopCall createTramStopCall(IdFor<Trip> tripId, String stopId, TramStations station, int seq,
+    public static PlatformStopCall createTramStopCall(StringIdFor<Trip> tripId, String stopId, TramStations station, int seq,
                                                       TramTime arrive, TramTime depart) {
         return createTramStopCall(tripId.forDTO(), stopId, station, seq, arrive, depart);
     }
@@ -213,7 +213,7 @@ public class TestEnv {
        return "M239LT";
     }
 
-    public static IdFor<RouteStation> formId(TramStations tramStations, KnownTramRoute knownRoute) {
+    public static StringIdFor<RouteStation> formId(TramStations tramStations, KnownTramRoute knownRoute) {
         return RouteStation.formId(tramStations.getId(), knownRoute.getId());
     }
 

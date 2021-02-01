@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.CacheMetrics;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
@@ -30,9 +30,9 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, String> tripsRelationshipCache;
-    private final Cache<Long, IdFor<Trip>> tripIdRelationshipCache;
+    private final Cache<Long, StringIdFor<Trip>> tripIdRelationshipCache;
 
-    private final Cache<Long, IdFor<Service>> svcIdCache;
+    private final Cache<Long, StringIdFor<Service>> svcIdCache;
     private final Cache<Long, Integer> hourNodeCache;
     private final Cache<Long, TramTime> times;
 
@@ -85,7 +85,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return tripsRelationshipCache.get(relationshipId, id -> GraphProps.getTrips(relationship));
     }
 
-    public IdFor<Trip> getTrip(Relationship relationship) {
+    public StringIdFor<Trip> getTrip(Relationship relationship) {
         long relationshipId = relationship.getId();
         return tripIdRelationshipCache.get(relationshipId, id -> GraphProps.getTripId(relationship));
     }
@@ -95,7 +95,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return times.get(nodeId, id -> GraphProps.getTime(node));
     }
 
-    public IdFor<Service> getServiceId(Node node) {
+    public StringIdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
         return svcIdCache.get(nodeId, id -> GraphProps.getServiceIdFrom(node));
     }

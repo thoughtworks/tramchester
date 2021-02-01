@@ -1,6 +1,6 @@
 package com.tramchester.graph.graphbuild;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -22,7 +22,7 @@ public class ActiveGraphFilter implements GraphFilter {
 //        routeCodes.add(routeId);
 //    }
 
-    public void addRoute(IdFor<Route> id) {
+    public void addRoute(StringIdFor<Route> id) {
         routeCodes.add(id);
     }
 
@@ -30,7 +30,7 @@ public class ActiveGraphFilter implements GraphFilter {
         serviceIds.add(service.getId());
     }
 
-    public void addStation(IdFor<Station> id) {
+    public void addStation(StringIdFor<Station> id) {
         stationsIds.add(id);
     }
 
@@ -57,7 +57,7 @@ public class ActiveGraphFilter implements GraphFilter {
     }
 
     @Override
-    public boolean shouldInclude(IdFor<Station> stationId) {
+    public boolean shouldInclude(StringIdFor<Station> stationId) {
         if (stationsIds.isEmpty()) {
             return true;
         }

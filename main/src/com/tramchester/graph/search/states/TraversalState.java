@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
@@ -144,7 +144,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 '}';
     }
 
-    public boolean hasDestinationRoute(IdFor<Route> routeId) {
+    public boolean hasDestinationRoute(StringIdFor<Route> routeId) {
         return destinationRouteIds.contains(routeId);
     }
 

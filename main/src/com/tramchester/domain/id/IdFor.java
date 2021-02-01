@@ -1,83 +1,13 @@
 package com.tramchester.domain.id;
 
 import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphPropertyKey;
-import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Entity;
 
-public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
-    private final String theId;
+public interface IdFor<T extends GraphProperty> {
+    String forDTO();
 
-    private IdFor(String theId) {
-        this.theId = theId;
-    }
+    String getGraphId();
 
-    public static <C extends HasId<C> & GraphProperty> IdFor<C> createId(String id) {
-        return new IdFor<>(id);
-    }
+    boolean notValid();
 
-    public static <CLASS extends GraphProperty> IdFor<CLASS> invalid() {
-        return new IdFor<>("");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        IdFor<?> idFor = (IdFor<?>) o;
-
-        // interned strings, so == is ok here
-        return theId.equals(idFor.theId);
-    }
-
-    @Override
-    public String toString() {
-        return "Id{'" + theId + "'}";
-    }
-
-    @Override
-    public int hashCode() {
-        return theId.hashCode();
-    }
-
-    public String forDTO() {
-        return theId;
-    }
-
-    public String getGraphId() {
-        return theId;
-    }
-
-    public boolean notValid() {
-        return theId.isEmpty();
-    }
-
-    public boolean isValid() {
-        return !theId.isEmpty();
-    }
-
-    public static <Z extends GraphProperty> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
-        String value =  entity.getProperty(propertyKey.getText()).toString();
-        return new IdFor<>(value);
-    }
-
-    public static IdFor<RouteStation> createId(Station station, Route route) {
-        // TODO remove replaceAll as route id now clear on initial import
-        String idAsString = station.getId().theId + route.getId().theId.replaceAll(" ", "");
-        return createId(idAsString);
-    }
-
-    public static IdFor<RouteStation> createId(IdFor<Station> station, IdFor<Route> route) {
-        String idAsString = station.theId + route.theId;
-        return createId(idAsString);
-    }
-
-    @Override
-    public int compareTo(@NotNull IdFor<T> other) {
-        return theId.compareTo(other.theId);
-    }
+    boolean isValid();
 }

@@ -1,7 +1,7 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.CacheMetrics;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.LineDirection;
 import com.tramchester.domain.liveUpdates.Lines;
@@ -59,7 +59,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
                 LineDirection.Incoming, platform.getId(), station,
                 "some message", lastUpdate);
         StationDepartureInfo departureInfoB = new StationDepartureInfo("yyy", Lines.Eccles,
-                LineDirection.Incoming, IdFor.createId("someOther"), TramStations.of(Altrincham),
+                LineDirection.Incoming, StringIdFor.createId("someOther"), TramStations.of(Altrincham),
                 "some different message", lastUpdate);
         infos.add(departureInfoA);
         infos.add(departureInfoB);
@@ -77,10 +77,10 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertTrue(platformMessage.isPresent());
         assertEquals("some message", platformMessage.get().getMessage());
 
-        Optional<PlatformMessage> noMessage = repository.messagesFor(IdFor.createId("XXXX"), lastUpdate.toLocalDate(), updateTime);
+        Optional<PlatformMessage> noMessage = repository.messagesFor(StringIdFor.createId("XXXX"), lastUpdate.toLocalDate(), updateTime);
         assertTrue(noMessage.isEmpty());
 
-        Optional<PlatformMessage> otherMessage = repository.messagesFor(IdFor.createId("someOther"), lastUpdate.toLocalDate(), updateTime);
+        Optional<PlatformMessage> otherMessage = repository.messagesFor(StringIdFor.createId("someOther"), lastUpdate.toLocalDate(), updateTime);
         assertTrue(otherMessage.isPresent());
         assertEquals("some different message", otherMessage.get().getMessage());
 

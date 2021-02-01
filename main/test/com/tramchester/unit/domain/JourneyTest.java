@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
@@ -81,8 +81,8 @@ class JourneyTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(2, result.size());
-        assertTrue(result.contains(IdFor.createId("platformId1")));
-        assertTrue(result.contains(IdFor.createId("platformId2")));
+        assertTrue(result.contains(StringIdFor.createId("platformId1")));
+        assertTrue(result.contains(StringIdFor.createId("platformId2")));
 
     }
 

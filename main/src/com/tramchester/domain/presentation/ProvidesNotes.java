@@ -2,7 +2,7 @@ package com.tramchester.domain.presentation;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.CallsAtPlatforms;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;
@@ -97,7 +97,7 @@ public class ProvidesNotes {
         return notes;
     }
 
-    private void addLiveNotesForPlatform(List<Note> notes, IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
+    private void addLiveNotesForPlatform(List<Note> notes, StringIdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
         Optional<PlatformMessage> maybe = platformMessageSource.messagesFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
             logger.warn("No messages found for " + platformId + " at " + queryDate +  " " + queryTime);

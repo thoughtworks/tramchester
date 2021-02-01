@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -91,8 +91,8 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     }
 
     @Override
-    public IdFor<Trip> getTripId() {
-        return IdFor.invalid();
+    public StringIdFor<Trip> getTripId() {
+        return StringIdFor.invalid();
     }
 
     @Override

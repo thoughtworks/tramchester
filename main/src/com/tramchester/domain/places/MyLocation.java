@@ -3,7 +3,7 @@ package com.tramchester.domain.places;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
@@ -14,7 +14,7 @@ import java.util.Set;
 public class MyLocation implements Location<MyLocation> {
 
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
-    private static final IdFor<MyLocation> LocationPlaceHolder = IdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
+    private static final StringIdFor<MyLocation> LocationPlaceHolder = StringIdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
 
     private final String area;
     private final LatLong latLong;
@@ -38,7 +38,7 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
-    public IdFor<MyLocation> getId() {
+    public StringIdFor<MyLocation> getId() {
         return LocationPlaceHolder;
     }
 

@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
@@ -90,7 +90,7 @@ public class InterchangeRepository  {
         return false;
     }
 
-    public boolean isInterchange(IdFor<Station> stationId) {
+    public boolean isInterchange(StringIdFor<Station> stationId) {
         for (TransportMode enabledMode : enabledModes) {
             if (interchanges.get(enabledMode).contains(stationId)) {
                 return true;

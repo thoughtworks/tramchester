@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.PostcodeDataImporter;
 import com.tramchester.dataimport.data.PostcodeData;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.CoordinateTransforms;
@@ -37,7 +37,7 @@ public class PostcodeRepository {
         postcodes = new IdMap<>();
     }
 
-    public PostcodeLocation getPostcode(IdFor<PostcodeLocation> postcodeId) {
+    public PostcodeLocation getPostcode(StringIdFor<PostcodeLocation> postcodeId) {
         return postcodes.get(postcodeId);
     }
 
@@ -66,7 +66,7 @@ public class PostcodeRepository {
         postcodes.clear();
     }
 
-    public boolean hasPostcode(IdFor<PostcodeLocation> postcode) {
+    public boolean hasPostcode(StringIdFor<PostcodeLocation> postcode) {
         return postcodes.hasId(postcode);
     }
 

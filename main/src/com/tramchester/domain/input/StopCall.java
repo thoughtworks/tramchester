@@ -2,7 +2,7 @@ package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
@@ -39,7 +39,7 @@ public abstract class StopCall {
         return station;
     }
 
-    public IdFor<Station> getStationId() {
+    public StringIdFor<Station> getStationId() {
         return station.getId();
     }
 

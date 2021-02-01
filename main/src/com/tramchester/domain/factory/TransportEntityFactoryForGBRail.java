@@ -3,7 +3,7 @@ package com.tramchester.domain.factory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
@@ -24,7 +24,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
 
     @Override
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        IdFor<Route> routeId = routeData.getId();
+        StringIdFor<Route> routeId = routeData.getId();
 
         String name = routeData.getLongName();
 
@@ -35,7 +35,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, StringIdFor<Agency> agencyId) {
         GTFSTransportationType routeType = routeData.getRouteType();
 
         if (routeType.equals(GTFSTransportationType.aerialLift) && routeData.getLongName().contains("replacement bus service")) {
@@ -68,8 +68,8 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
         if (indexOfFrom>0 && indexOfTo>0) {
             String from = target.substring(indexOfFrom + FROM.length(), indexOfTo);
             String to = target.substring(indexOfTo + TO.length());
-            IdFor<Station> fromId = IdFor.createId(from);
-            IdFor<Station> toId = IdFor.createId(to);
+            StringIdFor<Station> fromId = StringIdFor.createId(from);
+            StringIdFor<Station> toId = StringIdFor.createId(to);
 
             if (allStations.hasId(toId) && allStations.hasId(fromId)) {
                 String toName = allStations.get(toId).getName();

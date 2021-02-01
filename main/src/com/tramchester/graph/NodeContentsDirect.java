@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
@@ -12,7 +12,7 @@ import org.neo4j.graphdb.Relationship;
 public class NodeContentsDirect implements NodeContentsRepository{
 
     @Override
-    public IdFor<Service> getServiceId(Node node) {
+    public StringIdFor<Service> getServiceId(Node node) {
         return GraphProps.getServiceIdFrom(node);
     }
 
@@ -27,7 +27,7 @@ public class NodeContentsDirect implements NodeContentsRepository{
     }
 
     @Override
-    public IdFor<Trip> getTrip(Relationship relationship) {
+    public StringIdFor<Trip> getTrip(Relationship relationship) {
         return GraphProps.getTripId(relationship);
     }
 

@@ -10,7 +10,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
-    private final HashMap<IdFor<T>, T> theMap;
+    private final HashMap<StringIdFor<T>, T> theMap;
 
     public IdMap() {
         theMap = new HashMap<>();
@@ -24,11 +24,11 @@ public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
         theMap.clear();
     }
 
-    public boolean hasId(IdFor<T> id) {
+    public boolean hasId(StringIdFor<T> id) {
         return theMap.containsKey(id);
     }
 
-    public T get(IdFor<T> id) {
+    public T get(StringIdFor<T> id) {
         return theMap.get(id);
     }
 
@@ -55,7 +55,7 @@ public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
         theMap.values().forEach(action);
     }
 
-    public T getOrAdd(IdFor<T> id, Creates<T> constructor) {
+    public T getOrAdd(StringIdFor<T> id, Creates<T> constructor) {
         if (hasId(id)) {
             return get(id);
         }

@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -69,17 +69,17 @@ public class TransportDataContainer implements TransportData {
         logger.info(format("%s feedinfos", feedInfoMap.size()));
     }
 
-    public Service getService(IdFor<Service> serviceId) {
+    public Service getService(StringIdFor<Service> serviceId) {
         return services.get(serviceId);
     }
 
     @Override
-    public boolean hasStationId(IdFor<Station> stationId) {
+    public boolean hasStationId(StringIdFor<Station> stationId) {
         return stationsById.hasId(stationId);
     }
 
     @Override
-    public Station getStationById(IdFor<Station> stationId) {
+    public Station getStationById(StringIdFor<Station> stationId) {
         if (!stationsById.hasId(stationId)) {
             String msg = "Unable to find station from ID " + stationId;
             logger.error(msg);
@@ -89,7 +89,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public String getStationName(IdFor<Station> stationId) {
+    public String getStationName(StringIdFor<Station> stationId) {
         return getStationById(stationId).getName();
     }
 
@@ -114,13 +114,13 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public RouteStation getRouteStationById(IdFor<RouteStation> routeStationId) {
+    public RouteStation getRouteStationById(StringIdFor<RouteStation> routeStationId) {
         return routeStations.get(routeStationId);
     }
 
     @Override
     public RouteStation getRouteStation(Station station, Route route) {
-        return getRouteStationById(IdFor.createId(station, route));
+        return getRouteStationById(StringIdFor.createId(station, route));
     }
 
     @Override
@@ -133,7 +133,7 @@ public class TransportDataContainer implements TransportData {
         return trips.getValues();
     }
 
-    public boolean hasRouteStationId(IdFor<RouteStation> routeStationId) {
+    public boolean hasRouteStationId(StringIdFor<RouteStation> routeStationId) {
         return routeStations.hasId(routeStationId);
     }
 
@@ -141,11 +141,11 @@ public class TransportDataContainer implements TransportData {
        routeStations.add(routeStation);
     }
 
-    public boolean hasPlatformId(IdFor<Platform> platformId) {
+    public boolean hasPlatformId(StringIdFor<Platform> platformId) {
         return platforms.hasId(platformId);
     }
 
-    public Platform getPlatform(IdFor<Platform> platformId) {
+    public Platform getPlatform(StringIdFor<Platform> platformId) {
         return platforms.get(platformId);
     }
 
@@ -155,7 +155,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Route getRouteById(IdFor<Route> routeId) {
+    public Route getRouteById(StringIdFor<Route> routeId) {
         return routes.get(routeId);
     }
 
@@ -165,7 +165,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Service getServiceById(IdFor<Service> serviceId) {
+    public Service getServiceById(StringIdFor<Service> serviceId) {
         if (!services.hasId(serviceId)) {
             logger.warn("No such service " + serviceId);
         }
@@ -193,7 +193,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public boolean hasServiceId(IdFor<Service>  serviceId) {
+    public boolean hasServiceId(StringIdFor<Service> serviceId) {
         return services.hasId(serviceId);
     }
 
@@ -232,12 +232,12 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public boolean hasTripId(IdFor<Trip> tripId) {
+    public boolean hasTripId(StringIdFor<Trip> tripId) {
         return trips.hasId(tripId);
     }
 
     @Override
-    public Trip getTripById(IdFor<Trip> tripId) {
+    public Trip getTripById(StringIdFor<Trip> tripId) {
         return trips.get(tripId);
     }
 
@@ -251,7 +251,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Optional<Platform> getPlatformById(IdFor<Platform> platformId) {
+    public Optional<Platform> getPlatformById(StringIdFor<Platform> platformId) {
         if (platforms.hasId(platformId)) {
             return Optional.of(platforms.get(platformId));
         }
@@ -273,7 +273,7 @@ public class TransportDataContainer implements TransportData {
         return services.filter(item -> item.getCalendar().operatesOn(date.getDate()));
     }
 
-    public boolean hasRouteId(IdFor<Route>  routeId) {
+    public boolean hasRouteId(StringIdFor<Route> routeId) {
         return routes.hasId(routeId);
     }
 

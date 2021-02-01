@@ -3,7 +3,7 @@ package com.tramchester.domain.factory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.PlatformStopCall;
@@ -26,19 +26,19 @@ public class TransportEntityFactory {
         return new Agency(dataSourceID, agencyData.getId(), agencyData.getName());
     }
 
-    public Agency createUnknownAgency(DataSourceID dataSourceID, IdFor<Agency> agencyId) {
+    public Agency createUnknownAgency(DataSourceID dataSourceID, StringIdFor<Agency> agencyId) {
         return new Agency(dataSourceID, agencyId.getGraphId(), "UNKNOWN");
     }
 
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        IdFor<Route> routeId = routeData.getId();
+        StringIdFor<Route> routeId = routeData.getId();
 
         return new Route(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
                 TransportMode.fromGTFS(routeType), routeData.getRouteDirection());
 
     }
 
-    public Service createService(IdFor<Service> serviceId, Route route) {
+    public Service createService(StringIdFor<Service> serviceId, Route route) {
         return new Service(serviceId, route);
     }
 
@@ -46,7 +46,7 @@ public class TransportEntityFactory {
         return new Trip(tripData.getTripId(), tripData.getHeadsign(), service, route);
     }
 
-    public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
+    public Station createStation(StringIdFor<Station> stationId, StopData stopData, GridPosition position) {
 
         return new Station(stationId, stopData.getArea(), stopData.getName(), stopData.getLatLong(), position);
     }
@@ -71,7 +71,7 @@ public class TransportEntityFactory {
         return new ServiceCalendar(calendarData);
     }
 
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, StringIdFor<Agency> agencyId) {
         return routeData.getRouteType();
     }
 }

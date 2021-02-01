@@ -10,7 +10,7 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -79,7 +79,7 @@ class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = transportData.getRouteById(IdFor.createId("18085")); // ariva train man airport to chester
+        Route result = transportData.getRouteById(StringIdFor.createId("18085")); // ariva train man airport to chester
         assertEquals("AW train service from MIA to CTR", result.getName());
         assertEquals(ArrivaTrainsWales, result.getAgency());
         assertEquals("18085",result.getId().forDTO());

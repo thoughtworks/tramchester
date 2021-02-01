@@ -1,7 +1,7 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -85,7 +85,7 @@ public class SortsPositions {
     }
 
     public interface HasStationId<T> {
-        IdFor<Station> getStationId();
+        StringIdFor<Station> getStationId();
         T getContained();
     }
 }

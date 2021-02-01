@@ -1,6 +1,6 @@
 package com.tramchester.domain.reference;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,7 +28,7 @@ public enum KnownTramRoute {
     intuTraffordCentreCornbrook(7, Inbound),
     CornbrookintuTraffordCentre(7, Outbound);
 
-    private final IdFor<Route> id;
+    private final StringIdFor<Route> id;
     private final Integer number;
     private final RouteDirection direction;
 
@@ -38,12 +38,12 @@ public enum KnownTramRoute {
         this.direction = direction;
     }
 
-    public IdFor<Route> getId() {
+    public StringIdFor<Route> getId() {
         return id;
     }
 
     public static IdSet<Route> ids;
-    public static final Map<IdFor<Route>, KnownTramRoute> map;
+    public static final Map<StringIdFor<Route>, KnownTramRoute> map;
 
     static {
         ids = Arrays.stream(KnownTramRoute.values()).map(KnownTramRoute::getId).collect(IdSet.idCollector());
@@ -51,8 +51,8 @@ public enum KnownTramRoute {
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
-    private IdFor<Route> createId(String stationId) {
-        return IdFor.createId(stationId);
+    private StringIdFor<Route> createId(String stationId) {
+        return StringIdFor.createId(stationId);
     }
 
     public boolean matches(Route route) {

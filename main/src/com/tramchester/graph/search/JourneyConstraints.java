@@ -2,7 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -83,15 +83,15 @@ public class JourneyConstraints {
         }
     }
 
-    public boolean isRunning(IdFor<Service> serviceId) {
+    public boolean isRunning(StringIdFor<Service> serviceId) {
         return runningServices.isRunning(serviceId);
     }
 
-    public TramTime getServiceEarliest(IdFor<Service> serviceId) {
+    public TramTime getServiceEarliest(StringIdFor<Service> serviceId) {
         return runningServices.getServiceEarliest(serviceId);
     }
 
-    public TramTime getServiceLatest(IdFor<Service> serviceId) {
+    public TramTime getServiceLatest(StringIdFor<Service> serviceId) {
         return runningServices.getServiceLatest(serviceId);
     }
 

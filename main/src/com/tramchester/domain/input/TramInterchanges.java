@@ -1,6 +1,6 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 
@@ -35,7 +35,7 @@ public class TramInterchanges {
 
     static {
         ids = new IdSet<>();
-        Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(IdFor.createId(interchange.stationId)));
+        Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(StringIdFor.createId(interchange.stationId)));
     }
 
 //    public static boolean hasId(IdFor<Station> stationId) {

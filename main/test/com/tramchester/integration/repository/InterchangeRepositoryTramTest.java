@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
@@ -32,7 +32,7 @@ class InterchangeRepositoryTramTest {
 
     @Test
     void shouldHaveOfficialTramInterchanges() {
-        for (IdFor<Station> interchange : TramInterchanges.stations()) {
+        for (StringIdFor<Station> interchange : TramInterchanges.stations()) {
             Assertions.assertTrue(repository.isInterchange(interchange), interchange.toString());
         }
     }

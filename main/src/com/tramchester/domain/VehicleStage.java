@@ -1,6 +1,6 @@
 package com.tramchester.domain;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
@@ -128,7 +128,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
     }
 
     @Override
-    public IdFor<Trip> getTripId() {
+    public StringIdFor<Trip> getTripId() {
         return trip.getId();
     }
 

@@ -2,7 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.CentralZoneStation;
@@ -163,7 +163,7 @@ class TramCentralZoneDirectionRespositoryTest {
     }
 
     private RouteStation getRouteStation(TramStations station, KnownTramRoute route) {
-        IdFor<RouteStation> routeStationId = formId(station, route);
+        StringIdFor<RouteStation> routeStationId = formId(station, route);
         return stationRepository.getRouteStationById(routeStationId);
     }
 

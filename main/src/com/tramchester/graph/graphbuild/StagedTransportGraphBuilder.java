@@ -3,7 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -154,7 +154,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 transportData.getStations();
 
         routes.forEach(route -> {
-            IdFor<Route> asId = route.getId();
+            StringIdFor<Route> asId = route.getId();
             logger.debug("Adding route " + asId);
 
             try(Transaction tx = graphDatabase.beginTx()) {
@@ -339,7 +339,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // If bus we board to/from station, for trams its from the platform
         Node boardingNode = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stopCall.getPlatform().getId())
                 : routeBuilderCache.getStation(tx, station);
-        IdFor<RouteStation> routeStationId = IdFor.createId(station, route);
+        StringIdFor<RouteStation> routeStationId = StringIdFor.createId(station, route);
         Node routeStationNode = routeBuilderCache.getRouteStation(tx, route, stopCall.getStation());
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
@@ -359,7 +359,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createDeparts(GraphBuilderCache routeBuilderCache, Station station, boolean isInterchange,
-                               Node boardingNode, IdFor<RouteStation> routeStationId, Node routeStationNode) {
+                               Node boardingNode, StringIdFor<RouteStation> routeStationId, Node routeStationNode) {
         TransportRelationshipTypes departType = isInterchange ? INTERCHANGE_DEPART : DEPART;
         int departCost = isInterchange ? INTERCHANGE_DEPART_COST : DEPARTS_COST;
 
@@ -371,7 +371,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createBoarding(GraphBuilderCache routeBuilderCache, StopCall stop, Route route, Station station,
-                                boolean isInterchange, Node boardingNode, IdFor<RouteStation> routeStationId, Node routeStationNode) {
+                                boolean isInterchange, Node boardingNode, StringIdFor<RouteStation> routeStationId, Node routeStationNode) {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
         int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
         Relationship boardRelationship = createRelationship(boardingNode, routeStationNode, boardType);
@@ -446,7 +446,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                         GraphBuilderCache routeBuilderCache, Map<Pair<Station, TramTime>, Node> timeNodes) {
         Station startStation = beginStop.getStation();
 
-        IdFor<Trip> tripId = trip.getId();
+        StringIdFor<Trip> tripId = trip.getId();
         Node beginServiceNode = routeBuilderCache.getServiceNode(tx, service, startStation, endStop.getStation());
 
         beginServiceNode.getRelationships(INCOMING, TransportRelationshipTypes.TO_SERVICE).forEach(

@@ -13,18 +13,18 @@ import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
-    private final Set<IdFor<T>> theSet;
+public class IdSet<T extends GraphProperty> implements Iterable<StringIdFor<T>> {
+    private final Set<StringIdFor<T>> theSet;
 
     public IdSet() {
         theSet = new HashSet<>();
     }
 
-    public IdSet(Set<IdFor<T>> set) {
+    public IdSet(Set<StringIdFor<T>> set) {
         theSet = new HashSet<>(set);
     }
 
-    public static <T extends GraphProperty> IdSet<T> singleton(IdFor<T> id) {
+    public static <T extends GraphProperty> IdSet<T> singleton(StringIdFor<T> id) {
         IdSet<T> result = new IdSet<>();
         result.add(id);
         return result;
@@ -39,7 +39,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return this;
     }
 
-    public void add(IdFor<T> id) {
+    public void add(StringIdFor<T> id) {
         theSet.add(id);
     }
 
@@ -47,7 +47,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return theSet.size();
     }
 
-    public boolean contains(IdFor<T> id) {
+    public boolean contains(StringIdFor<T> id) {
         return theSet.contains(id);
     }
 
@@ -59,11 +59,11 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return theSet.isEmpty();
     }
 
-    public void remove(IdFor<T> id) {
+    public void remove(StringIdFor<T> id) {
         theSet.remove(id);
     }
 
-    public Stream<IdFor<T>> stream() {
+    public Stream<StringIdFor<T>> stream() {
         return theSet.stream();
     }
 
@@ -96,7 +96,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         };
     }
 
-    public static <T extends HasId<T> & GraphProperty> Collector<IdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
+    public static <T extends HasId<T> & GraphProperty> Collector<StringIdFor<T>, IdSet<T>, IdSet<T>> idCollector() {
         return new Collector<>() {
             @Override
             public Supplier<IdSet<T>> supplier() {
@@ -104,7 +104,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
             }
 
             @Override
-            public BiConsumer<IdSet<T>, IdFor<T>> accumulator() {
+            public BiConsumer<IdSet<T>, StringIdFor<T>> accumulator() {
                 return IdSet::add;
             }
 
@@ -127,12 +127,12 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
 
     @NotNull
     @Override
-    public Iterator<IdFor<T>> iterator() {
+    public Iterator<StringIdFor<T>> iterator() {
         return theSet.iterator();
     }
 
     @Override
-    public void forEach(Consumer<? super IdFor<T>> action) {
+    public void forEach(Consumer<? super StringIdFor<T>> action) {
         theSet.forEach(action);
     }
 

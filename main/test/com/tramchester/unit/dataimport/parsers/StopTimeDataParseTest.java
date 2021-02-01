@@ -1,7 +1,7 @@
 package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertThat(stopTimeData.getTripId()).isEqualTo(IdFor.createId("Trip000001"));
+        assertThat(stopTimeData.getTripId()).isEqualTo(StringIdFor.createId("Trip000001"));
         assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
         assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
         assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");

@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
@@ -64,7 +64,7 @@ public class StationResource extends UsesRecentCookie {
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response get(@PathParam("id") String text) {
         logger.info("Get station by id: " + text);
-        IdFor<Station> id = IdFor.createId(text);
+        StringIdFor<Station> id = StringIdFor.createId(text);
         guardForStationNotExisting(stationRepository, id);
 
         return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();
@@ -148,8 +148,8 @@ public class StationResource extends UsesRecentCookie {
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 
         Set<Station> recent = recentJourneys.stream().map(Timestamped::getId).
-                filter(id -> stationRepository.hasStationId(IdFor.createId(id))).
-                map(id -> stationRepository.getStationById(IdFor.createId(id))).
+                filter(id -> stationRepository.hasStationId(StringIdFor.createId(id))).
+                map(id -> stationRepository.getStationById(StringIdFor.createId(id))).
                 collect(Collectors.toSet());
 
         List<StationRefDTO> results = toStationRefDTOList(recent);
