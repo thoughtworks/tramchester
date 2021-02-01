@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.KnownTramRoute;
@@ -47,7 +47,7 @@ class KnownTramRouteTest {
         IdSet<Route> knownRouteIds = routes.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
 
         for (Route loaded: loadedRoutes) {
-            StringIdFor<Route> id = loaded.getId();
+            IdFor<Route> id = loaded.getId();
             assertTrue(knownRouteIds.contains(id), id.toString());
         }
 

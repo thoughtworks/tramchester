@@ -1,7 +1,7 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -81,7 +81,7 @@ public enum TramStations implements TestStations {
     }
 
     private static boolean containedIn(HasId<Station> station, Set<TramStations> theSet) {
-        Set<StringIdFor<Station>> ids = theSet.stream().map(TramStations::getId).collect(Collectors.toSet());
+        Set<IdFor<Station>> ids = theSet.stream().map(TramStations::getId).collect(Collectors.toSet());
         return ids.contains(station.getId());
     }
 
@@ -101,7 +101,7 @@ public enum TramStations implements TestStations {
     }
 
     @Override
-    public StringIdFor<Station> getId() {
+    public IdFor<Station> getId() {
         return station.getId();
     }
 

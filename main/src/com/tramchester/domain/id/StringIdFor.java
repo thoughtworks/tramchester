@@ -1,9 +1,6 @@
 package com.tramchester.domain.id;
 
 import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
@@ -64,22 +61,14 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
         return !theId.isEmpty();
     }
 
-    public static <Z extends GraphProperty> StringIdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
+    public static <Z extends GraphProperty> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
         String value =  entity.getProperty(propertyKey.getText()).toString();
         return new StringIdFor<>(value);
     }
 
-    @Deprecated
-    public static StringIdFor<RouteStation> createId(Station station, Route route) {
-        // TODO remove replaceAll as route id now clear on initial import
-        String idAsString = station.getId().theId + route.getId().theId.replaceAll(" ", "");
-        return createId(idAsString);
-    }
-
-    @Deprecated
-    public static StringIdFor<RouteStation> createId(StringIdFor<Station> station, StringIdFor<Route> route) {
-        String idAsString = station.theId + route.theId;
-        return createId(idAsString);
+    public static <Z extends GraphProperty> IdFor<Z> getCompositeIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
+        String value = entity.getProperty(propertyKey.getText()).toString();
+        return CompositeId.parse(value);
     }
 
     @Override

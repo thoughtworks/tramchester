@@ -2,6 +2,7 @@ package com.tramchester.integration.mappers;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.liveUpdates.LineAndDirection;
@@ -56,7 +57,7 @@ class RouteToLineMapperTest {
 
     @Test
     void shouldMapEcclesLineStation() {
-        StringIdFor<RouteStation> routeStationId = formId(SalfordQuay, AshtonunderLyneManchesterEccles);
+        IdFor<RouteStation> routeStationId = formId(SalfordQuay, AshtonunderLyneManchesterEccles);
         RouteStation routeStation = repository.getRouteStationById(routeStationId);
         LineAndDirection result = mapper.map(routeStation);
 
@@ -66,14 +67,14 @@ class RouteToLineMapperTest {
 
     @Test
     void shouldMapAirportLineStation() {
-        StringIdFor<RouteStation> routeStationIdA = formId(PeelHall, VictoriaManchesterAirport);
+        IdFor<RouteStation> routeStationIdA = formId(PeelHall, VictoriaManchesterAirport);
         RouteStation routeStationA = repository.getRouteStationById(routeStationIdA);
         LineAndDirection resultA = mapper.map(routeStationA);
 
         assertEquals(Lines.Airport, resultA.getLine());
         assertEquals(LineDirection.Outgoing, resultA.getDirection());
 
-        StringIdFor<RouteStation> routeStationIdB = formId(PeelHall, ManchesterAirportVictoria);
+        IdFor<RouteStation> routeStationIdB = formId(PeelHall, ManchesterAirportVictoria);
         RouteStation routeStationB = repository.getRouteStationById(routeStationIdB);
         LineAndDirection resultB = mapper.map(routeStationB);
 

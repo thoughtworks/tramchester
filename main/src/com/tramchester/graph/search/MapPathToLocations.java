@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
@@ -37,11 +38,11 @@ public class MapPathToLocations {
 
     private void mapNode(List<Location<?>> results, Node node) {
         if (isStationNode(node)) {
-            StringIdFor<Station> stationId = GraphProps.getStationIdFrom(node);
+            IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
             results.add(stationRepository.getStationById(stationId));
         }
         if (node.hasLabel(ROUTE_STATION)) {
-            StringIdFor<Station> stationId = GraphProps.getStationIdFrom(node);
+            IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
             results.add(stationRepository.getStationById(stationId));
         } else if (node.hasLabel(QUERY_NODE)) {
             LatLong latLong = GraphProps.getLatLong(node);

@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationClosure;
@@ -43,7 +44,7 @@ class RouteCalculatorCloseStationsTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         TramchesterConfig config = new ClosedStationsTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }
@@ -110,7 +111,7 @@ class RouteCalculatorCloseStationsTest {
         }
 
         @Override
-        public StringIdFor<Station> getStation() {
+        public IdFor<Station> getStation() {
             return station.getId();
         }
 

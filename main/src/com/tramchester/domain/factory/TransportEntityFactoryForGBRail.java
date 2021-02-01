@@ -3,6 +3,7 @@ package com.tramchester.domain.factory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.Route;
@@ -24,7 +25,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
 
     @Override
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        StringIdFor<Route> routeId = routeData.getId();
+        IdFor<Route> routeId = routeData.getId();
 
         String name = routeData.getLongName();
 
@@ -35,7 +36,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, StringIdFor<Agency> agencyId) {
+    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
         GTFSTransportationType routeType = routeData.getRouteType();
 
         if (routeType.equals(GTFSTransportationType.aerialLift) && routeData.getLongName().contains("replacement bus service")) {

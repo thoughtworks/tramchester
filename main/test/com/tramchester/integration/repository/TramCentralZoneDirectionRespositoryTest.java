@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -42,7 +43,7 @@ class TramCentralZoneDirectionRespositoryTest {
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
 
-        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -163,7 +164,7 @@ class TramCentralZoneDirectionRespositoryTest {
     }
 
     private RouteStation getRouteStation(TramStations station, KnownTramRoute route) {
-        StringIdFor<RouteStation> routeStationId = formId(station, route);
+        IdFor<RouteStation> routeStationId = formId(station, route);
         return stationRepository.getRouteStationById(routeStationId);
     }
 

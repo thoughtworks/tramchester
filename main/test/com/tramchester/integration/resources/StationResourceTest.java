@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
@@ -213,7 +214,7 @@ class StationResourceTest {
         private final List<StationClosure> closedStations = Collections.singletonList(
                 new StationClosure() {
                     @Override
-                    public StringIdFor<Station> getStation() {
+                    public IdFor<Station> getStation() {
                         return TramStations.StPetersSquare.getId();
                     }
 

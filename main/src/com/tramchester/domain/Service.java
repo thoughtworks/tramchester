@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
@@ -18,7 +19,8 @@ import static java.lang.String.format;
 public class Service implements HasId<Service>, GraphProperty {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
-    private final StringIdFor<Service> serviceId;
+    // TODO make a composite ID
+    private final IdFor<Service> serviceId;
     private final Route route;
     private final Set<Trip> trips;
     private final Agency initialAgency;
@@ -32,7 +34,7 @@ public class Service implements HasId<Service>, GraphProperty {
         this(StringIdFor.createId(serviceId), route);
     }
 
-    public Service(StringIdFor<Service> serviceId, Route route) {
+    public Service(IdFor<Service> serviceId, Route route) {
         this.serviceId = serviceId;
         this.route = route;
         this.trips = new LinkedHashSet<>();
@@ -43,7 +45,7 @@ public class Service implements HasId<Service>, GraphProperty {
         calendar = null;
     }
 
-    public StringIdFor<Service> getId() {
+    public IdFor<Service> getId() {
         return serviceId;
     }
 

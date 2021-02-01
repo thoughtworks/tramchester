@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.graph.GraphPropertyKey;
 
@@ -27,7 +28,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
         routes = new HashSet<>();
     }
 
-    public static boolean IsMetrolink(StringIdFor<Agency> agencyId) {
+    public static boolean IsMetrolink(IdFor<Agency> agencyId) {
         return Metrolink.getId().equals(agencyId);
     }
 

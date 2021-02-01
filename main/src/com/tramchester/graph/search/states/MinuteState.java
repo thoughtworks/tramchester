@@ -1,7 +1,8 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.NodeContentsRepository;
@@ -36,21 +37,21 @@ public class MinuteState extends TraversalState {
 
             boolean changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
             if (maybeExistingTrip.isOnTrip()) {
-                StringIdFor<Trip> existingTripId = maybeExistingTrip.getTripId();
+                IdFor<Trip> existingTripId = maybeExistingTrip.getTripId();
                 Iterable<Relationship> filterBySingleTripId = filterBySingleTripId(hourState.nodeOperations,
                         relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
                 // starting a brand new journey
-                StringIdFor<Trip> newTripId = getTrip(node);
+                IdFor<Trip> newTripId = getTrip(node);
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
             }
         }
     }
 
-    private final StringIdFor<Trip> tripId;
+    private final IdFor<Trip> tripId;
 
-    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, StringIdFor<Trip> tripId, int cost, boolean interchangesOnly) {
+    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, int cost, boolean interchangesOnly) {
         super(parent, relationships, cost);
         this.tripId = tripId;
         this.interchangesOnly = interchangesOnly;
@@ -64,9 +65,9 @@ public class MinuteState extends TraversalState {
                 "} " + super.toString();
     }
 
-    private static StringIdFor<Trip> getTrip(Node endNode) {
+    private static IdFor<Trip> getTrip(Node endNode) {
         if (!GraphProps.hasProperty(TRIP_ID, endNode)) {
-            return StringIdFor.invalid();
+            return new InvalidId<>();
         }
         return GraphProps.getTripId(endNode);
     }
@@ -111,7 +112,7 @@ public class MinuteState extends TraversalState {
         }
     }
 
-    private List<Relationship> filterByTripId(Iterable<Relationship> relationships, StringIdFor<Trip> tripId) {
+    private List<Relationship> filterByTripId(Iterable<Relationship> relationships, IdFor<Trip> tripId) {
         List<Relationship> results = new ArrayList<>();
         relationships.forEach(relationship -> {
             String trips = nodeOperations.getTrips(relationship);
@@ -123,10 +124,10 @@ public class MinuteState extends TraversalState {
     }
 
     private static List<Relationship> filterBySingleTripId(NodeContentsRepository nodeOperations,
-                                                           Iterable<Relationship> relationships, StringIdFor<Trip> tripId) {
+                                                           Iterable<Relationship> relationships, IdFor<Trip> tripId) {
         List<Relationship> results = new ArrayList<>();
         relationships.forEach(relationship -> {
-            StringIdFor<Trip> trip = nodeOperations.getTrip(relationship);
+            IdFor<Trip> trip = nodeOperations.getTrip(relationship);
             if (trip.equals(tripId)) {
                 results.add(relationship);
             }

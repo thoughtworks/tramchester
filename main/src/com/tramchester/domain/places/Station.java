@@ -2,6 +2,7 @@ package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -18,7 +19,7 @@ public class Station implements Location<Station> {
     public static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
 
     private final String area;
-    private final StringIdFor<Station> id; // id is the "atoc code" for the tfgm data set
+    private final IdFor<Station> id; // id is the "atoc code" for the tfgm data set
     private final String name;
     private final LatLong latLong;
     private final GridPosition gridPosition;
@@ -26,7 +27,7 @@ public class Station implements Location<Station> {
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
 
-    public Station(StringIdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
+    public Station(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
         this.gridPosition = gridPosition;
         platforms = new HashSet<>();
         servesRoutes = new HashSet<>();
@@ -39,7 +40,7 @@ public class Station implements Location<Station> {
     }
 
     @Override
-    public StringIdFor<Station> getId() {
+    public IdFor<Station> getId() {
         return id;
     }
 
@@ -54,7 +55,7 @@ public class Station implements Location<Station> {
     }
 
     // Metrolink stations ID the platform with a number on the end of the stationID
-    public static StringIdFor<Station> formId(String text) {
+    public static IdFor<Station> formId(String text) {
         if (text.startsWith(METROLINK_PREFIX)) {
             // metrolink platform ids include platform as final digit, remove to give id of station itself
             int index = text.length()-1;
@@ -96,7 +97,7 @@ public class Station implements Location<Station> {
         platforms.add(platform);
     }
 
-    public boolean hasPlatform(StringIdFor<Platform> platformId) {
+    public boolean hasPlatform(IdFor<Platform> platformId) {
         return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
     }
 

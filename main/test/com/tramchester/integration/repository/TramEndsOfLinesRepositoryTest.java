@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -48,7 +49,7 @@ class TramEndsOfLinesRepositoryTest {
         Set<TramStations> expected = TramStations.EndOfTheLine;
         assertEquals(expected.size(), result.size());
 
-        Set<StringIdFor<Station>> expectedIds = expected.stream().map(TramStations::getId).collect(Collectors.toSet());
+        Set<IdFor<Station>> expectedIds = expected.stream().map(TramStations::getId).collect(Collectors.toSet());
         result.forEach(found -> assertTrue(expectedIds.contains(found), found.toString()));
     }
 }

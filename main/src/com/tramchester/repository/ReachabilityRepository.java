@@ -2,7 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -90,8 +90,8 @@ public class ReachabilityRepository {
     }
 
     private static class Repository {
-        private final List<StringIdFor<Station>> stationIndex; // a list as we need ordering and IndexOf
-        private final Map<StringIdFor<RouteStation>, boolean[]> matrix; // stationId -> boolean[]
+        private final List<IdFor<Station>> stationIndex; // a list as we need ordering and IndexOf
+        private final Map<IdFor<RouteStation>, boolean[]> matrix; // stationId -> boolean[]
 
         private Repository() {
             stationIndex = new ArrayList<>();
@@ -111,9 +111,9 @@ public class ReachabilityRepository {
             int size = destinations.size();
             routeStations.forEach(start -> {
                 boolean[] flags = new boolean[size];
-                StringIdFor<Station> startStationId = start.getStationId();
+                IdFor<Station> startStationId = start.getStationId();
                 destinations.forEach(destinationStation -> {
-                    StringIdFor<Station> destinationStationId = destinationStation.getId();
+                    IdFor<Station> destinationStationId = destinationStation.getId();
                     boolean result;
                     if (destinationStationId.equals(startStationId)) {
                         result = true;
@@ -133,7 +133,7 @@ public class ReachabilityRepository {
             }
         }
 
-        private boolean stationReachable(StringIdFor<Station> destinationStationId, StringIdFor<RouteStation> routeStationId) {
+        private boolean stationReachable(IdFor<Station> destinationStationId, IdFor<RouteStation> routeStationId) {
             int index = stationIndex.indexOf(destinationStationId);
             if (index<0) {
                 throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStationId,

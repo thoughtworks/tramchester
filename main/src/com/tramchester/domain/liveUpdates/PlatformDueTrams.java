@@ -1,7 +1,7 @@
 package com.tramchester.domain.liveUpdates;
 
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
 import java.time.LocalDateTime;
@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PlatformDueTrams {
-    private final StringIdFor<Platform> stationPlatform;
+    private final IdFor<Platform> stationPlatform;
     private final List<DueTram> dueTrams;
     private final LocalDateTime lastUpdate;
-    private final StringIdFor<Station> stationId;
+    private final IdFor<Station> stationId;
 
-    private PlatformDueTrams(StringIdFor<Platform> stationPlatform, List<DueTram> dueTrams, LocalDateTime lastUpdate,
-                             StringIdFor<Station> stationId) {
+    private PlatformDueTrams(IdFor<Platform> stationPlatform, List<DueTram> dueTrams, LocalDateTime lastUpdate,
+                             IdFor<Station> stationId) {
         this.stationPlatform = stationPlatform;
         this.dueTrams = dueTrams;
         this.lastUpdate = lastUpdate;
@@ -47,7 +47,7 @@ public class PlatformDueTrams {
         return dueTrams.stream().filter(dueTram -> dueTram.getWait()<=minutes).collect(Collectors.toList());
     }
 
-    public StringIdFor<Station> getStation() {
+    public IdFor<Station> getStation() {
         return stationId;
     }
 

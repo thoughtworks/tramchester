@@ -2,6 +2,7 @@ package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
@@ -31,7 +32,7 @@ public class RouteData {
         return text.replaceAll(" ", "");
     }
 
-    public StringIdFor<Route> getId() {
+    public IdFor<Route> getId() {
         return StringIdFor.createId(removeSpaces(id));
     }
 
@@ -43,7 +44,7 @@ public class RouteData {
         return longName;
     }
 
-    public StringIdFor<Agency> getAgencyId() {
+    public IdFor<Agency> getAgencyId() {
         return StringIdFor.createId(agencyid);
     }
 

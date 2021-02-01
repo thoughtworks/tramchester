@@ -1,5 +1,6 @@
 package com.tramchester.domain.reference;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.liveUpdates.Lines;
@@ -29,7 +30,7 @@ public enum CentralZoneStation {
     Chorlton("9400ZZMACHO", SouthManchester),
     ExchangeSquare("9400ZZMAEXS", Eccles);
 
-    private final StringIdFor<Station> stationId;
+    private final IdFor<Station> stationId;
     private final Lines line;
 
     CentralZoneStation(String stationId, Lines line) {
@@ -45,12 +46,12 @@ public enum CentralZoneStation {
         return stationId.equals(station.getId());
     }
 
-    public StringIdFor<Station> getId() {
+    public IdFor<Station> getId() {
         return stationId;
     }
 
     public static IdSet<Station> ids;
-    public static final Map<StringIdFor<Station>, CentralZoneStation> map;
+    public static final Map<IdFor<Station>, CentralZoneStation> map;
 
     static {
         ids = Arrays.stream(CentralZoneStation.values()).map(CentralZoneStation::getId).collect(IdSet.idCollector());
@@ -58,7 +59,7 @@ public enum CentralZoneStation {
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
-    private StringIdFor<Station> createId(String stationId) {
+    private IdFor<Station> createId(String stationId) {
         return StringIdFor.createId(stationId);
     }
 

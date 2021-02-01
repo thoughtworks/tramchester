@@ -5,6 +5,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.DueTram;
@@ -218,7 +219,7 @@ public class LiveDataParser {
     }
 
     private Optional<Station> getStationByAtcoCode(String atcoCode) {
-        StringIdFor<Station> stationId = Station.formId(atcoCode);
+        IdFor<Station> stationId = Station.formId(atcoCode);
         if (stationRepository.hasStationId(stationId)) {
             return Optional.of(stationRepository.getStationById(stationId));
         } else {

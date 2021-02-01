@@ -1,5 +1,6 @@
 package com.tramchester.unit.geo;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -141,7 +142,7 @@ class SortsPositionsTest {
         }
 
         @Override
-        public StringIdFor<Station> getStationId() {
+        public IdFor<Station> getStationId() {
             return station.getId();
         }
 

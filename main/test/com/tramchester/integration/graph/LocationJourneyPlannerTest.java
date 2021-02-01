@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -222,7 +223,7 @@ class LocationJourneyPlannerTest {
 //        assertEquals(Stations.Shudehill, stages.get(0).getLastStation());
 //        assertEquals(Stations.Shudehill, stages.get(1).getFirstStation());
         int lastStageIndex = stages.size() - 1;
-        List<StringIdFor<Station>> nearStationIds = Arrays.asList(TramStations.Shudehill.getId(), TramStations.ExchangeSquare.getId());
+        List<IdFor<Station>> nearStationIds = Arrays.asList(TramStations.Shudehill.getId(), TramStations.ExchangeSquare.getId());
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex-1).getLastStation().getId()));
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
     }

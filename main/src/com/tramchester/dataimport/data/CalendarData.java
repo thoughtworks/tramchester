@@ -2,6 +2,7 @@ package com.tramchester.dataimport.data;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 
@@ -26,7 +27,7 @@ public class CalendarData extends ParsesDate {
         // CSV deserialization
     }
 
-    public StringIdFor<Service> getServiceId() {
+    public IdFor<Service> getServiceId() {
         return StringIdFor.createId(serviceId);
     }
 

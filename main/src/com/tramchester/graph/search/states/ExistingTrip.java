@@ -1,16 +1,17 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 
 public class ExistingTrip {
-    private final StringIdFor<Trip> tripId;
+    private final IdFor<Trip> tripId;
 
     private ExistingTrip() {
-        this.tripId = StringIdFor.invalid();
+        this.tripId = new InvalidId<>();
     }
 
-    private ExistingTrip(StringIdFor<Trip> tripId) {
+    private ExistingTrip(IdFor<Trip> tripId) {
         this.tripId = tripId;
     }
 
@@ -18,7 +19,7 @@ public class ExistingTrip {
         return new ExistingTrip();
     }
 
-    public static ExistingTrip onTrip(StringIdFor<Trip> tripId) {
+    public static ExistingTrip onTrip(IdFor<Trip> tripId) {
         return new ExistingTrip(tripId);
     }
 
@@ -26,7 +27,7 @@ public class ExistingTrip {
         return tripId.isValid();
     }
 
-    public StringIdFor<Trip> getTripId() {
+    public IdFor<Trip> getTripId() {
         return tripId;
     }
 

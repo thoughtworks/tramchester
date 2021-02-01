@@ -1,6 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -26,9 +27,9 @@ public class GraphBuilderCache {
     private static final Logger logger = LoggerFactory.getLogger(GraphBuilderCache.class);
 
     private boolean cleared;
-    private final Map<StringIdFor<RouteStation>, Long> routeStations;
+    private final Map<IdFor<RouteStation>, Long> routeStations;
     private final Map<Station, Long> stations;
-    private final Map<StringIdFor<Platform>, Long> platforms;
+    private final Map<IdFor<Platform>, Long> platforms;
     private final Map<String, Long> svcNodes;
     private final Map<String, Long> hourNodes;
     private final Set<Pair<Long, Long>> boardings;
@@ -67,7 +68,7 @@ public class GraphBuilderCache {
         logger.debug("Route Clear");
     }
 
-    public void putRouteStation(StringIdFor<RouteStation> id, Node routeStationNode) {
+    public void putRouteStation(IdFor<RouteStation> id, Node routeStationNode) {
         routeStations.put(id, routeStationNode.getId());
     }
 
@@ -76,7 +77,7 @@ public class GraphBuilderCache {
     }
 
     protected Node getRouteStation(Transaction txn, Route route, Station station) {
-        StringIdFor<RouteStation> id = StringIdFor.createId(station, route);
+        IdFor<RouteStation> id = RouteStation.createId(station.getId(), route.getId());
         if (!routeStations.containsKey(id)) {
             String message = "Cannot find routestation node in cache " + id + " station "
                     + station.getId() + " route " + route.getId();
@@ -90,11 +91,11 @@ public class GraphBuilderCache {
         return txn.getNodeById(stations.get(station));
     }
 
-    protected Node getPlatform(Transaction txn, StringIdFor<Platform> platformId) {
+    protected Node getPlatform(Transaction txn, IdFor<Platform> platformId) {
         return txn.getNodeById(platforms.get(platformId));
     }
 
-    protected void putPlatform(StringIdFor<Platform> platformId, Node platformNode) {
+    protected void putPlatform(IdFor<Platform> platformId, Node platformNode) {
         platforms.put(platformId, platformNode.getId());
     }
 

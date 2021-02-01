@@ -121,7 +121,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public RouteStation getRouteStation(Station station, Route route) {
-        return getRouteStationById(StringIdFor.createId(station, route));
+        return getRouteStationById(RouteStation.createId(station.getId(), route.getId()));
     }
 
     @Override

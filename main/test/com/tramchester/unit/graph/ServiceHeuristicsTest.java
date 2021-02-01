@@ -126,10 +126,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.isClosed(TramStations.of(Shudehill))).andReturn(true);
 
         Node node = createMock(Node.class);
-        EasyMock.expect(node.getProperty("route_station_id")).andReturn("123");
-        EasyMock.expect(stationRepository.getRouteStationById(StringIdFor.createId("123"))).andReturn(routeStationA);
-        EasyMock.expect(node.getProperty("route_station_id")).andReturn("789");
-        EasyMock.expect(stationRepository.getRouteStationById(StringIdFor.createId("789"))).andReturn(routeStationB);
+        EasyMock.expect(node.getProperty("route_station_id")).andReturn(routeStationA.getId().getGraphId());
+        EasyMock.expect(stationRepository.getRouteStationById(routeStationA.getId())).andReturn(routeStationA);
+        EasyMock.expect(node.getProperty("route_station_id")).andReturn(routeStationB.getId().getGraphId());
+        EasyMock.expect(stationRepository.getRouteStationById(routeStationB.getId())).andReturn(routeStationB);
 
         replayAll();
         ServiceReason result = serviceHeuristics.checkStationOpen(node, path, reasons);

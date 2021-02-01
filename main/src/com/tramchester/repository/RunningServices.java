@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramServiceDate;
@@ -16,8 +16,8 @@ public class RunningServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningServices.class);
 
     private final IdSet<Service> serviceIds;
-    private final Map<StringIdFor<Service>, TramTime> latestTimeMap;
-    private final Map<StringIdFor<Service>, TramTime> earliestTimeMap;
+    private final Map<IdFor<Service>, TramTime> latestTimeMap;
+    private final Map<IdFor<Service>, TramTime> earliestTimeMap;
 
     public RunningServices(TramServiceDate date, TransportData transportData, TramchesterConfig config) {
         serviceIds = new IdSet<>();
@@ -27,7 +27,7 @@ public class RunningServices {
         TramTime earliest = TramTime.of(0, 0).plusMinutes(config.getMaxWait());
 
         transportData.getServicesOnDate(date).forEach(svc -> {
-            StringIdFor<Service> serviceId = svc.getId();
+            IdFor<Service> serviceId = svc.getId();
             serviceIds.add(serviceId);
             latestTimeMap.put(serviceId, svc.latestDepartTime());
             TramTime earliestDepartTime = svc.earliestDepartTime();
@@ -45,15 +45,15 @@ public class RunningServices {
         }
     }
 
-    public boolean isRunning(StringIdFor<Service> serviceId) {
+    public boolean isRunning(IdFor<Service> serviceId) {
         return serviceIds.contains(serviceId);
     }
 
-    public TramTime getServiceLatest(StringIdFor<Service> svcId) {
+    public TramTime getServiceLatest(IdFor<Service> svcId) {
         return latestTimeMap.get(svcId);
     }
 
-    public TramTime getServiceEarliest(StringIdFor<Service> svcId) {
+    public TramTime getServiceEarliest(IdFor<Service> svcId) {
         return earliestTimeMap.get(svcId);
     }
 

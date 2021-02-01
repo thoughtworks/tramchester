@@ -1,11 +1,11 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
@@ -39,7 +39,7 @@ public abstract class StopCall {
         return station;
     }
 
-    public StringIdFor<Station> getStationId() {
+    public IdFor<Station> getStationId() {
         return station.getId();
     }
 

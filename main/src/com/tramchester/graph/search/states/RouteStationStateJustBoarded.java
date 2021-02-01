@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
@@ -55,7 +56,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             ArrayList<Relationship> lowPriority = new ArrayList<>();
 
             toServices.forEach(relationship -> {
-                StringIdFor<Route> routeId = GraphProps.getRouteIdFrom(relationship);
+                IdFor<Route> routeId = GraphProps.getRouteIdFrom(relationship);
                 if (state.hasDestinationRoute(routeId)) {
                     highPriority.add(relationship);
                 } else {
@@ -101,7 +102,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
         private final Relationship relationship;
         private final Long id;
-        private final StringIdFor<Station> stationId;
+        private final IdFor<Station> stationId;
 
         private RelationshipFacade(Relationship relationship) {
             id = relationship.getId();
@@ -125,7 +126,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
         }
 
         @Override
-        public StringIdFor<Station> getStationId() {
+        public IdFor<Station> getStationId() {
             return stationId;
         }
 
