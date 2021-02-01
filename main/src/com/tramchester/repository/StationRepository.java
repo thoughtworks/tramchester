@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
@@ -16,9 +16,9 @@ public interface StationRepository {
     Set<Station> getStationsForMode(TransportMode mode);
     int getNumberOfStations();
 
-    Station getStationById(StringIdFor<Station> stationId);
-    boolean hasStationId(StringIdFor<Station> stationId);
-    String getStationName(StringIdFor<Station> stationId);
+    Station getStationById(IdFor<Station> stationId);
+    boolean hasStationId(IdFor<Station> stationId);
+    String getStationName(IdFor<Station> stationId);
 
     // live data association
     Optional<Station> getTramStationByName(String name);
@@ -27,7 +27,7 @@ public interface StationRepository {
     // use RouteCallingStations instead if you want stations for a normally defined route
     Set<RouteStation> getRouteStations();
 
-    RouteStation getRouteStationById(StringIdFor<RouteStation> routeStationId);
+    RouteStation getRouteStationById(IdFor<RouteStation> routeStationId);
     RouteStation getRouteStation(Station startStation, Route route);
 
 }

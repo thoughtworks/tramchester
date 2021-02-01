@@ -69,12 +69,14 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
         return new StringIdFor<>(value);
     }
 
+    @Deprecated
     public static StringIdFor<RouteStation> createId(Station station, Route route) {
         // TODO remove replaceAll as route id now clear on initial import
         String idAsString = station.getId().theId + route.getId().theId.replaceAll(" ", "");
         return createId(idAsString);
     }
 
+    @Deprecated
     public static StringIdFor<RouteStation> createId(StringIdFor<Station> station, StringIdFor<Route> route) {
         String idAsString = station.theId + route.theId;
         return createId(idAsString);

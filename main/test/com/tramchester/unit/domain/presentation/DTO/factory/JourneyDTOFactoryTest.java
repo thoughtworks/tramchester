@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Platform;
@@ -145,7 +146,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
         IdSet<Platform> callingPlatformIds = journeyDTO.getCallingPlatformIds();
         assertEquals(2, callingPlatformIds.size());
-        Set<String> ids = callingPlatformIds.stream().map(StringIdFor::forDTO).collect(Collectors.toSet());
+        Set<String> ids = callingPlatformIds.stream().map(IdFor::forDTO).collect(Collectors.toSet());
         assertTrue(ids.contains(boardingPlatformA.getId()));
         assertTrue(ids.contains(boardingPlatformB.getId()));
     }
