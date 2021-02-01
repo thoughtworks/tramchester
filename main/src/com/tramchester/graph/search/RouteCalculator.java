@@ -11,7 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
-import com.tramchester.repository.TramReachabilityRepository;
+import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
@@ -41,7 +41,7 @@ public class RouteCalculator implements TramRouteCalculator {
     private final NodeTypeRepository nodeTypeRepository;
 
     private final TransportData transportData;
-    private final TramReachabilityRepository tramReachabilityRepository;
+    private final ReachabilityRepository reachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
     private final GraphDatabase graphDatabaseService;
     private final ProvidesLocalNow providesLocalNow;
@@ -51,7 +51,7 @@ public class RouteCalculator implements TramRouteCalculator {
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
-                           TramchesterConfig config, TramReachabilityRepository tramReachabilityRepository,
+                           TramchesterConfig config, ReachabilityRepository reachabilityRepository,
                            CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations) {
@@ -59,7 +59,7 @@ public class RouteCalculator implements TramRouteCalculator {
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
         this.config = config;
-        this.tramReachabilityRepository = tramReachabilityRepository;
+        this.reachabilityRepository = reachabilityRepository;
         this.createQueryTimes = createQueryTimes;
         this.graphDatabaseService = graphDatabaseService;
         this.providesLocalNow = providesLocalNow;
@@ -213,7 +213,7 @@ public class RouteCalculator implements TramRouteCalculator {
 
     @NotNull
     private ServiceHeuristics createHeuristics(TramTime time, JourneyConstraints journeyConstraints, int maxNumChanges) {
-        return new ServiceHeuristics(transportData, nodeOperations, tramReachabilityRepository,
+        return new ServiceHeuristics(transportData, nodeOperations, reachabilityRepository,
                 journeyConstraints, time, maxNumChanges);
     }
 

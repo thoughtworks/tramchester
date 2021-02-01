@@ -8,6 +8,8 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
+
 public abstract class StopCall {
     protected final Station station;
     private final TramTime arrivalTime;
@@ -68,4 +70,8 @@ public abstract class StopCall {
     }
 
     public abstract boolean hasPlatfrom();
+
+    public boolean callsAtStation() {
+        return (!getDropoffType().equals(None)) || (!getPickupType().equals(None));
+    }
 }

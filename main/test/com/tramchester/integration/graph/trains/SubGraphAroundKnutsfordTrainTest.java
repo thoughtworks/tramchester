@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph;
+package com.tramchester.integration.graph.trains;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
@@ -9,14 +9,19 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TestStations;
+import com.tramchester.testSupport.reference.TrainStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -25,22 +30,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.reference.TrainStations.Hale;
+import static com.tramchester.testSupport.reference.TrainStations.Knutsford;
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class RouteCalculatorSubGraphTest {
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+class SubGraphAroundKnutsfordTrainTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
 
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
-    private static final List<TramStations> stations = Arrays.asList(
-            Cornbrook,
-            TramStations.StPetersSquare,
-            TramStations.Deansgate,
-            TramStations.Pomona);
+    private static final List<TrainStations> stations = Arrays.asList(
+            Hale,
+            TrainStations.Ashley,
+            TrainStations.Mobberley,
+            Knutsford);
     private Transaction txn;
     private TramTime tramTime;
 
@@ -50,7 +58,6 @@ class RouteCalculatorSubGraphTest {
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-//        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
         stations.forEach(station -> graphFilter.addStation(station.getId()));
 
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
@@ -80,28 +87,15 @@ class RouteCalculatorSubGraphTest {
     }
 
     @Test
-    void reproduceIssueEdgePerTrip() {
-
-        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Deansgate, TramTime.of(19,51), when);
-        validateAtLeastOneJourney(Cornbrook, TramStations.Pomona, TramTime.of(19,51).plusMinutes(6), when);
-
-        validateAtLeastOneJourney(TramStations.Deansgate, Cornbrook, TramTime.of(19,51).plusMinutes(3), when);
-        validateAtLeastOneJourney(TramStations.Deansgate, TramStations.Pomona, TramTime.of(19,51).plusMinutes(3), when);
-
-        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, TramTime.of(19,51), when);
-        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, TramTime.of(19,56), when);
-    }
-
-    @Test
     void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(Cornbrook, TramStations.StPetersSquare, TramTime.of(23,55), when);
+        validateAtLeastOneJourney(Knutsford, Hale, TramTime.of(23,55), when);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveJourneysBetweenAllStations() {
-        for (TramStations start: stations) {
-            for (TramStations destination: stations) {
+        for (TrainStations start: stations) {
+            for (TrainStations destination: stations) {
                 if (!start.equals(destination)) {
                     validateAtLeastOneJourney(start, destination, tramTime, when);
                 }
@@ -110,50 +104,31 @@ class RouteCalculatorSubGraphTest {
     }
 
     @Test
-    void shouldHaveSimpleOneStopJourney() {
-        Set<Journey> results = getJourneys(Cornbrook, TramStations.Pomona, when);
-        Assertions.assertTrue(results.size()>0);
-    }
-
-    @Test
-    void shouldHaveSimpleOneStopJourneyAtWeekend() {
-        Set<Journey> results = getJourneys(Cornbrook, TramStations.Pomona, TestEnv.nextSaturday());
-        Assertions.assertTrue(results.size()>0);
-    }
-
-    @Test
-    void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        Set<Journey> results = getJourneys(TramStations.StPetersSquare, TramStations.Deansgate, when);
-        Assertions.assertTrue(results.size()>0);
-    }
-
-    @Test
     void shouldHaveSimpleJourney() {
-        Set<Journey> results = getJourneys(TramStations.StPetersSquare, Cornbrook, when);
+        Set<Journey> results = getJourneys(Hale, Knutsford, when);
         Assertions.assertTrue(results.size()>0);
     }
 
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        //DiagramCreator creator = new DiagramCreator(database);
-        creator.create(format("%s_trams.dot", "subgraph"), TramStations.of(Cornbrook), Integer.MAX_VALUE);
+        creator.create(format("%s_trains.dot", "around_hale"), TrainStations.of(Hale), Integer.MAX_VALUE);
     }
 
-    private static class SubgraphConfig extends IntegrationTramTestConfig {
+    private static class SubgraphConfig extends IntegrationTrainTestConfig {
         public SubgraphConfig() {
-            super("subgraph_tramchester.db");
+            super("subgraph_hale_trains_tramchester.db");
         }
     }
 
     @NotNull
-    private Set<Journey> getJourneys(TramStations start, TramStations destination, LocalDate when) {
+    private Set<Journey> getJourneys(TestStations start, TestStations destination, LocalDate when) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
                 config.getMaxJourneyDuration());
         return calculator.calculateRouteAsSet(start,destination, journeyRequest);
     }
 
-    private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, LocalDate date) {
+    private void validateAtLeastOneJourney(TestStations start, TestStations dest, TramTime time, LocalDate date) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 5,
                 config.getMaxJourneyDuration());
 

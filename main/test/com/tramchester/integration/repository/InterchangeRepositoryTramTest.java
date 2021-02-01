@@ -10,7 +10,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
-class TramInterchangeRepositoryTest {
+class InterchangeRepositoryTramTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository repository;
 

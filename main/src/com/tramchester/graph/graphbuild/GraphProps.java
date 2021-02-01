@@ -50,14 +50,21 @@ public class GraphProps {
     }
 
     public static void addTransportMode(Entity entity, TransportMode mode) {
+        short modeNumber = mode.getNumber();
         if (!(entity.hasProperty(TRANSPORT_MODES.getText()))) {
-            entity.setProperty(TRANSPORT_MODES.getText(), new short[]{mode.getNumber()});
+            entity.setProperty(TRANSPORT_MODES.getText(), new short[]{modeNumber});
             return;
         }
 
         short[] existing = (short[]) entity.getProperty(TRANSPORT_MODES.getText());
+        for (short value : existing) {
+            if (value == modeNumber) {
+                return;
+            }
+        }
+
         short[] replacement =  Arrays.copyOf(existing, existing.length+1);
-        replacement[existing.length] = mode.getNumber();
+        replacement[existing.length] = modeNumber;
         entity.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
 

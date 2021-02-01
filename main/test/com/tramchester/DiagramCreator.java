@@ -4,10 +4,10 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -31,18 +31,22 @@ public class DiagramCreator {
     private static final Logger logger = LoggerFactory.getLogger(DiagramCreator.class);
 
     private final GraphDatabase graphDatabase;
+    private final GraphQuery graphQuery;
 
     @Inject
-    public DiagramCreator(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready readyToken) {
+    public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
+        this.graphQuery = graphQuery;
     }
 
     public void create(String filename, Station station, int depthLimit) throws IOException {
         create(filename, Collections.singletonList(station), depthLimit);
     }
 
+    // TODO Path not String
     public void create(String fileName, List<Station> startPointsList, int depthLimit) throws IOException {
+        logger.info("Creating diagram " + fileName);
 
         Set<Long> nodeSeen = new HashSet<>();
         Set<Long> relationshipSeen = new HashSet<>();
@@ -57,13 +61,11 @@ public class DiagramCreator {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
-                Set<GraphBuilder.Labels> startLabels = forMode(startPoint.getTransportModes());
-                GraphBuilder.Labels first = startLabels.iterator().next();
 
-                Node startNode = graphDatabase.findNode(txn, first,
-                        startPoint.getProp().getText(), startPoint.getId().getGraphId());
+                Node startNode = graphQuery.getStationNode(txn, startPoint);
+
                 if (startNode==null) {
-                    logger.warn("Can't find start node for station " + startPoint.getId());
+                    logger.error("Can't find start node for station " + startPoint.getId());
                     builder.append("MISSING NODE\n");
                 } else {
                     visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen);
@@ -79,6 +81,8 @@ public class DiagramCreator {
         printStream.close();
         bufferedOutputStream.close();
         fileStream.close();
+
+        logger.info("Finished diagram");
     }
 
     private void visit(Node node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen) {
@@ -111,7 +115,7 @@ public class DiagramCreator {
     }
 
     private void visitOutbounds(Node startNode, DiagramBuild builder, int depth, Set<Long> seen, Set<Long> relationshipSeen) {
-        Map<Long,Relationship> tramGoesToRelationships = new HashMap<>();
+        Map<Long,Relationship> goesToRelationships = new HashMap<>();
 
         startNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.forPlanning()).forEach(awayFrom -> {
 
@@ -123,8 +127,8 @@ public class DiagramCreator {
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
 
             if (relationshipType==TRAM_GOES_TO || relationshipType==BUS_GOES_TO || relationshipType==TRAIN_GOES_TO) {
-                if (!tramGoesToRelationships.containsKey(awayFrom.getId())) {
-                    tramGoesToRelationships.put(awayFrom.getId(), awayFrom);
+                if (!goesToRelationships.containsKey(awayFrom.getId())) {
+                    goesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
             }
             visit(rawEndNode, builder, depth-1, seen, relationshipSeen);
@@ -132,7 +136,7 @@ public class DiagramCreator {
 
         // add services for this node
         // Node -> Service End Node
-        for (Relationship tramGoesToRelationship : tramGoesToRelationships.values()) {
+        for (Relationship tramGoesToRelationship : goesToRelationships.values()) {
             String id;
             if (GraphProps.hasProperty(TRIP_ID, tramGoesToRelationship)) {
                 id = GraphProps.getTripId(tramGoesToRelationship).getGraphId();
@@ -159,7 +163,10 @@ public class DiagramCreator {
 
         if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
             String routeId = GraphProps.getRouteId(edge).getGraphId();
-            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "ROUTE:"+routeId));
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "R:"+routeId));
+        } else if (relationshipType== LINKED) {
+            Set<TransportMode> modes = GraphProps.getTransportModes(edge);
+            addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes));
         } else {
             String shortForm = createShortForm(relationshipType);
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, shortForm));
@@ -220,9 +227,6 @@ public class DiagramCreator {
         }
         if (node.hasLabel(MINUTE)) {
             return GraphProps.getTime(node).toString();
-//            String fullTime = GraphProps.getTime(node).toString();
-//            int index = fullTime.indexOf(":");
-//            return fullTime.substring(index);
         }
 
         return "No_Label";
@@ -234,31 +238,30 @@ public class DiagramCreator {
     }
 
     private String createShortForm(TransportRelationshipTypes relationshipType) {
-        switch (relationshipType) {
-            case ENTER_PLATFORM: return "E";
-            case LEAVE_PLATFORM: return "L";
-            case WALKS_TO: return "W";
-            case BOARD: return "B";
-            case TO_SERVICE: return "Svc";
-            case TO_HOUR: return "H";
-            case TO_MINUTE: return "T";
-            case ON_ROUTE: return "R";
-            case INTERCHANGE_BOARD: return "IB";
-            case INTERCHANGE_DEPART: return "ID";
-            case TRAM_GOES_TO: return "TramGoesTo";
-            case DEPART: return "D";
-            case BUS_GOES_TO: return "BusGoesTo";
-            case TRAIN_GOES_TO: return "TrainGoesTo";
-            case LINKED: return "Link";
-            default: return "Unkn";
-        }
+        return switch (relationshipType) {
+            case ENTER_PLATFORM -> "E";
+            case LEAVE_PLATFORM -> "L";
+            case WALKS_TO -> "W";
+            case BOARD -> "B";
+            case TO_SERVICE -> "Svc";
+            case TO_HOUR -> "H";
+            case TO_MINUTE -> "T";
+            case ON_ROUTE -> "R";
+            case INTERCHANGE_BOARD -> "IB";
+            case INTERCHANGE_DEPART -> "ID";
+            case TRAM_GOES_TO -> "TramGoesTo";
+            case DEPART -> "D";
+            case BUS_GOES_TO -> "BusGoesTo";
+            case TRAIN_GOES_TO -> "TrainGoesTo";
+            case LINKED -> "Link";
+            default -> "Unkn";
+        };
     }
 
     private static class DiagramBuild {
         private final PrintStream printStream;
 
         public DiagramBuild(PrintStream printStream) {
-
             this.printStream = printStream;
         }
 

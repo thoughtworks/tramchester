@@ -39,7 +39,7 @@ import static com.tramchester.testSupport.reference.RoutesForTesting.createTramR
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TransportDataFromFilesTest {
+class TransportDataFromFilesTramTest {
 
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;

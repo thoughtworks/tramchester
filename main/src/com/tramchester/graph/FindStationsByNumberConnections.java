@@ -61,6 +61,7 @@ public class FindStationsByNumberConnections {
         }
         long duration = System.currentTimeMillis()-start;
         logger.info("Took " + duration);
+        logger.info("Found " + stationIds.size() + " matches");
         return stationIds;
     }
 }

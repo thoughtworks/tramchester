@@ -15,7 +15,7 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
         this("train_tramchester.db");
     }
 
-    private IntegrationTrainTestConfig(String dbName) {
+    protected IntegrationTrainTestConfig(String dbName) {
         super("integrationTrainTest", dbName);
         sourceConfig = new RailTestDataSourceConfig();
     }

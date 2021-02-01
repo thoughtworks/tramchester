@@ -59,8 +59,12 @@ public class StopCalls { //implements Iterable<StopCall> {
                 '}';
     }
 
+    /**
+     * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
+     */
     public List<StopLeg> getLegs() {
         // Assume sorted map
+        // TODO use stop sequence numbers instead?
         List<StopCall> calls = new ArrayList<>(stops.size());
         List<StopLeg> legs = new ArrayList<>(stops.size()-1);
         calls.addAll(stops.values());

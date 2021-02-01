@@ -202,7 +202,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
     }
 
-
     private void addException(CalendarDateData date, ServiceCalendar calendar, IdFor<Service> serviceId, Set<LocalDate> noServices) {
         int exceptionType = date.getExceptionType();
         LocalDate exceptionDate = date.getDate();
@@ -332,10 +331,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
             if (transportData.hasRouteId(routeId)) {
                 Route route = transportData.getRouteById(routeId);
-
+                // todo include routeid in service lookup
                 Service service = services.getOrAdd(serviceId, () -> factory.createService(serviceId, route));
                 trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
-                service.addRoute(route);
                 count.getAndIncrement();
             } else {
                 if (!excludedRoutes.contains(routeId)) {

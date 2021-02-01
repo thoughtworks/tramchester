@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.HasId.asId;
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 
 public class VehicleStage implements TransportStage<Station, Station> {
     private final Station firstStation;
@@ -122,6 +123,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
     public List<StopCall> getCallingPoints() {
         return stopSequenceNumbers.stream().
                 map(seqNum -> trip.getStops().getStopBySequenceNumber(seqNum)).
+                filter(stopCall -> stopCall.callsAtStation()).
                 collect(Collectors.toList());
     }
 

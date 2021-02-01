@@ -40,7 +40,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
     @Override
     public String toString() {
         return "Agency{" +
-                "routes=" + routes +
+                "routes=" + HasId.asIds(routes) +
                 ", agencyId=" + agencyId +
                 ", agencyName='" + agencyName + '\'' +
                 ", dataSourceID=" + dataSourceID +

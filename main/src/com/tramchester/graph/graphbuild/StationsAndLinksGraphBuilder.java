@@ -124,7 +124,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 filteredStations.stream().filter(station -> station.servesRoute(route)).
                         forEach(station -> createStationAndRouteStation(tx, route, station, builderCache));
 
-                // route relationships
                 createLinkRelationships(tx, filter, route, builderCache);
                 tx.commit();
             }
@@ -147,27 +146,21 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         createRouteStationNode(txn, routeStation, builderCache);
 
         Node stationNode = getStationNode(txn, station);
-        if (stationNode!=null) {
-            //builderCache.putStation(station, stationNode);
-//            for (Platform platform : station.getPlatforms()) {
-//                Node platformNode = getPlatformNode(txn, platform);
-//                builderCache.putPlatform(platform.getId(), platformNode);
-//            }
-        } else {
+        if (stationNode == null) {
             stationNode = createStationNode(txn, station);
             builderCache.putStation(station, stationNode);
-//            for (Platform platform : station.getPlatforms()) {
-//                Node platformNode = createPlatformNode(txn, platform);
-//                builderCache.putPlatform(platform.getId(), platformNode);
-//                createPlatformStationRelationships(station, stationNode, platform, platformNode);
-//            }
         }
     }
 
+    // NOTE: for services that skip some stations, but same stations not skipped by other services
+    // this will create multiple links
     private void createLinkRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
         Stream<Service> services = getServices(filter, route);
 
-        Map<Pair<Station, Station>, Integer> pairs = new HashMap<>();
+        // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
+        //  not give the correct results for buses and trains where time between station can vary depending upon the
+        //  service
+        Map<Pair<Station, Station>, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
         services.forEach(service -> service.getTripsFor(route).forEach(trip -> {
                 StopCalls stops = trip.getStops();
                 stops.getLegs().forEach(leg -> {

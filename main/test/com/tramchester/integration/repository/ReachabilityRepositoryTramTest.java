@@ -6,7 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.repository.TramReachabilityRepository;
+import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.reference.TramStations;
@@ -16,13 +16,13 @@ import org.junit.jupiter.api.*;
 import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 
-class TramReachabilityRepositoryTest {
-    private TramReachabilityRepository repository;
+class ReachabilityRepositoryTramTest {
+    private ReachabilityRepository repository;
     private static ComponentContainer componentContainer;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -33,7 +33,7 @@ class TramReachabilityRepositoryTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        repository = componentContainer.get(TramReachabilityRepository.class);
+        repository = componentContainer.get(ReachabilityRepository.class);
     }
 
     @Test

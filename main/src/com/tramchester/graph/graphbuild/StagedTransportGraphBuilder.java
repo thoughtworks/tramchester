@@ -162,7 +162,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         forEach(station -> createStationAndPlatforms(tx, station, builderCache));
 
                 // route relationships
-                createRouteAndLinkRelationships(tx, filter, route, builderCache);
+                createRouteRelationships(tx, filter, route, builderCache);
                 tx.commit();
             }
 
@@ -271,7 +271,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createRouteAndLinkRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
+    private void createRouteRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
         Stream<Service> services = getServices(filter, route);
 
         Map<Pair<Station, Station>, Integer> pairs = new HashMap<>();
@@ -292,12 +292,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getRight());
             createRouteRelationship(startNode, endNode, route, cost);
 
-        });
-
-        pairs.keySet().forEach(pair -> {
-            Node startNode = routeBuilderCache.getStation(tx, pair.getLeft());
-            Node endNode = routeBuilderCache.getStation(tx, pair.getRight());
-            createLinkRelationship(startNode, endNode, route.getTransportMode());
         });
 
     }
@@ -401,26 +395,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 updateTripRelationship(tx, route, service, trip, leg.getFirst(), leg.getSecond(), routeBuilderCache, timeNodes);
             }
         });
-    }
-
-    private void createLinkRelationship(Node from, Node to, TransportMode mode) {
-        if (from.hasRelationship(OUTGOING, LINKED)) {
-            Iterable<Relationship> existings = from.getRelationships(OUTGOING, LINKED);
-
-            // if there is an existing link between staions then update iff the transport mode not already present
-            for (Relationship existing : existings) {
-                if (existing.getEndNode().equals(to)) {
-                    Set<TransportMode> existingModes = getTransportModes(existing);
-                    if (!existingModes.contains(mode)) {
-                        addTransportMode(existing, mode);
-                    }
-                    return;
-                }
-            }
-        }
-
-        Relationship stationsLinked = from.createRelationshipTo(to, LINKED);
-        addTransportMode(stationsLinked, mode);
     }
 
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {

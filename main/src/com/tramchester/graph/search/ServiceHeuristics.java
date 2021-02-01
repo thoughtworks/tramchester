@@ -4,12 +4,11 @@ import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TramReachabilityRepository;
+import com.tramchester.repository.ReachabilityRepository;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,18 +23,18 @@ public class ServiceHeuristics {
 
     private final JourneyConstraints journeyConstraints;
     private final TramTime queryTime;
-    private final TramReachabilityRepository tramReachabilityRepository;
+    private final ReachabilityRepository reachabilityRepository;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
     private final int changesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
-                             TramReachabilityRepository tramReachabilityRepository,
+                             ReachabilityRepository reachabilityRepository,
                              JourneyConstraints journeyConstraints, TramTime queryTime,
                              int changesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
-        this.tramReachabilityRepository = tramReachabilityRepository;
+        this.reachabilityRepository = reachabilityRepository;
 
         this.journeyConstraints = journeyConstraints;
         this.queryTime = queryTime;
@@ -163,18 +162,18 @@ public class ServiceHeuristics {
 
             if (routeStation==null) {
                 String message = "Missing routestation " + routeStationId;
-                logger.warn(message);
+                logger.error(message);
                 throw new RuntimeException(message);
             }
 
-            if (TransportMode.isTram(routeStation)) {
+            //if (TransportMode.isTram(routeStation)) {
                 for(Station endStation : journeyConstraints.getEndTramStations()) {
-                    if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
+                    if (reachabilityRepository.stationReachable(routeStation, endStation)) {
                         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
                     }
                 }
                 return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
-            }
+            //}
         }
 
         // TODO can't exclude unless we know for sure not reachable, so include all for buses

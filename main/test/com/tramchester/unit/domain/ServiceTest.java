@@ -63,20 +63,20 @@ class ServiceTest {
     }
 
 
-    @Test
-    void shouldSetRouteIdAndServiceId() {
-        Route route66 = TestEnv.getTestRoute(IdFor.createId("ROUTE66"));
-        Service service = new Service("SRV001", route66);
-
-        assertThat(service.getRoutes().size()).isEqualTo(1);
-        assertTrue(service.getRoutes().contains(route66));
-        assertThat(service.getId()).isEqualTo(IdFor.createId("SRV001"));
-
-        Route another = TestEnv.getTestRoute(IdFor.createId("another"));
-        service.addRoute(another);
-
-        assertThat(service.getRoutes()).hasSize(2);
-    }
+//    @Test
+//    void shouldSetRouteIdAndServiceId() {
+//        Route route66 = TestEnv.getTestRoute(IdFor.createId("ROUTE66"));
+//        Service service = new Service("SRV001", route66);
+//
+//        assertThat(service.getRoutes().size()).isEqualTo(1);
+//        assertTrue(service.getRoutes().contains(route66));
+//        assertThat(service.getId()).isEqualTo(IdFor.createId("SRV001"));
+//
+//        Route another = TestEnv.getTestRoute(IdFor.createId("another"));
+//        service.addRoute(another);
+//
+//        assertThat(service.getRoutes()).hasSize(2);
+//    }
 
 
 
