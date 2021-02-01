@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.HasId.asId;
+import static com.tramchester.domain.id.HasId.asId;
 
 public class VehicleStage implements TransportStage<Station, Station> {
     private final Station firstStation;

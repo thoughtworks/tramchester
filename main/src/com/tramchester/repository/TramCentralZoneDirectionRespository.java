@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.tramchester.domain.HasId.asId;
+import static com.tramchester.domain.id.HasId.asId;
 import static java.lang.String.format;
 
 @LazySingleton

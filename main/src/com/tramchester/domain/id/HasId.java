@@ -1,6 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.id;
 
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.places.IdForDTO;
 import org.jetbrains.annotations.NotNull;
 

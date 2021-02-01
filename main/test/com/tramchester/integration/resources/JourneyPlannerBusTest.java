@@ -2,7 +2,7 @@ package com.tramchester.integration.resources;
 
 
 import com.tramchester.App;
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.MyLocation;

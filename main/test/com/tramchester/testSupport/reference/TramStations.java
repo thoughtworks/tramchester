@@ -1,6 +1,6 @@
 package com.tramchester.testSupport.reference;
 
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;

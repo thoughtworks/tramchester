@@ -1,7 +1,7 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;

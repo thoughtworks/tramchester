@@ -1,8 +1,8 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
 

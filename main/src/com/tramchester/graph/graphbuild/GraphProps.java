@@ -1,6 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;

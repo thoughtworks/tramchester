@@ -1,14 +1,12 @@
 package com.tramchester.domain.id;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
-
-import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
     private final String theId;
@@ -77,8 +75,6 @@ public class IdFor<T extends GraphProperty> implements Comparable<IdFor<T>> {
         String idAsString = station.theId + route.theId;
         return createId(idAsString);
     }
-
-
 
     @Override
     public int compareTo(@NotNull IdFor<T> other) {

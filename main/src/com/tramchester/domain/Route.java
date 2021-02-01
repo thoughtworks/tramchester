@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
