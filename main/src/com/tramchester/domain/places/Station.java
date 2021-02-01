@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Station extends MapIdToDTOId<Station> implements Location<Station> {
+public class Station implements Location<Station> {
 
     public static final String METROLINK_PREFIX = "9400ZZ";
     public static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
@@ -158,5 +158,9 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
 
     public boolean hasPlatformsForRoute(Route route) {
         return platforms.stream().anyMatch(platform -> platform.servesRoute(route));
+    }
+
+    public String forDTO()  {
+        return getId().forDTO();
     }
 }

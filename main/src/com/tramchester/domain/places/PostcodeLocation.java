@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements Location<PostcodeLocation> {
+public class PostcodeLocation implements Location<PostcodeLocation> {
 
     private final LatLong LatLong;
     private final IdFor<PostcodeLocation> id;
@@ -96,5 +96,9 @@ public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements 
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 "} " + super.toString();
+    }
+
+    public String forDTO()  {
+        return getId().forDTO();
     }
 }

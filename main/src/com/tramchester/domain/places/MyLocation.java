@@ -11,7 +11,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import java.util.Collections;
 import java.util.Set;
 
-public class MyLocation extends MapIdToDTOId<MyLocation> implements Location<MyLocation> {
+public class MyLocation implements Location<MyLocation> {
 
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
     private static final IdFor<MyLocation> LocationPlaceHolder = IdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
@@ -80,5 +80,9 @@ public class MyLocation extends MapIdToDTOId<MyLocation> implements Location<MyL
     @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.WALK_ID;
+    }
+
+    public String forDTO()  {
+        return getId().forDTO();
     }
 }
