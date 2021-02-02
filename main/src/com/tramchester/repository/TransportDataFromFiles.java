@@ -314,7 +314,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
             }
         }
 
-        if (!buildable.hasRouteStationId(RouteStation.formId(stationId, route.getId()))) {
+        if (!buildable.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
             RouteStation routeStation = factory.createRouteStation(station, route);
             buildable.addRouteStation(routeStation);
         }

@@ -1,5 +1,6 @@
 package com.tramchester.domain.reference;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
@@ -28,7 +29,16 @@ public enum KnownTramRoute {
     intuTraffordCentreCornbrook(7, Inbound),
     CornbrookintuTraffordCentre(7, Outbound);
 
-    private final StringIdFor<Route> id;
+    public static IdSet<Route> ids;
+    public static final Map<IdFor<Route>, KnownTramRoute> map;
+
+    static {
+        ids = Arrays.stream(KnownTramRoute.values()).map(KnownTramRoute::getId).collect(IdSet.idCollector());
+        map = Arrays.stream(KnownTramRoute.values()).map(element -> Pair.of(element.getId(),element)).
+                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    }
+
+    private final IdFor<Route> id;
     private final Integer number;
     private final RouteDirection direction;
 
@@ -38,17 +48,8 @@ public enum KnownTramRoute {
         this.direction = direction;
     }
 
-    public StringIdFor<Route> getId() {
+    public IdFor<Route> getId() {
         return id;
-    }
-
-    public static IdSet<Route> ids;
-    public static final Map<StringIdFor<Route>, KnownTramRoute> map;
-
-    static {
-        ids = Arrays.stream(KnownTramRoute.values()).map(KnownTramRoute::getId).collect(IdSet.idCollector());
-        map = Arrays.stream(KnownTramRoute.values()).map(element -> Pair.of(element.getId(),element)).
-                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
     private StringIdFor<Route> createId(String stationId) {

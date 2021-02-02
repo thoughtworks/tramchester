@@ -31,10 +31,6 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
         return CompositeId.createId(route, station);
     }
 
-    public static IdFor<RouteStation> formId(IdFor<Station> station, IdFor<Route> route) {
-        return CompositeId.createId(station, route);
-    }
-
     public IdFor<RouteStation> getId() {
         return id;
     }

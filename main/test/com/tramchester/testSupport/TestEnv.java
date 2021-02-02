@@ -215,7 +215,7 @@ public class TestEnv {
     }
 
     public static IdFor<RouteStation> formId(TramStations tramStations, KnownTramRoute knownRoute) {
-        return RouteStation.formId(tramStations.getId(), knownRoute.getId());
+        return RouteStation.createId(tramStations.getId(), knownRoute.getId());
     }
 
     public static <T extends GraphProperty> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {
