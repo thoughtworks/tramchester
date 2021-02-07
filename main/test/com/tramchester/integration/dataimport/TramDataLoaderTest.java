@@ -3,7 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.*;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +33,9 @@ class TramDataLoaderTest {
         assertThat(routeData).hasSize(2);
         RouteData theRoute = routeData.get(0);
         assertThat(theRoute.getShortName()).isEqualTo("MET1");
-        assertThat(theRoute.getId()).isEqualTo(IdFor.createId("MET:MET1:I:"));
+        assertThat(theRoute.getId()).isEqualTo(StringIdFor.createId("MET:MET1:I:"));
         assertThat(theRoute.getLongName()).isEqualTo("Abraham Moss - Bury");
-        assertThat(theRoute.getAgencyId()).isEqualTo(IdFor.createId("MET"));
+        assertThat(theRoute.getAgencyId()).isEqualTo(StringIdFor.createId("MET"));
     }
 
     @Test
@@ -45,7 +45,7 @@ class TramDataLoaderTest {
         List<CalendarData> calendarData = dataLoader.load().collect(Collectors.toList());
 
         assertThat(calendarData).hasSize(3);
-        assertThat(calendarData.get(0).getServiceId()).isEqualTo(IdFor.createId("Serv000001"));
+        assertThat(calendarData.get(0).getServiceId()).isEqualTo(StringIdFor.createId("Serv000001"));
         assertThat(calendarData.get(0).getStartDate().toString()).contains("2014-10-20");
         assertThat(calendarData.get(0).getEndDate().toString()).contains("2014-12-19");
     }
@@ -75,7 +75,7 @@ class TramDataLoaderTest {
         assertThat(stopTimeData).hasSize(40);
         StopTimeData stopTime = stopTimeData.get(0);
         assertThat(stopTime.getStopId()).isEqualTo("9400ZZMAABM1");
-        assertThat(stopTime.getTripId()).isEqualTo(IdFor.createId("Trip000001"));
+        assertThat(stopTime.getTripId()).isEqualTo(StringIdFor.createId("Trip000001"));
         assertThat(stopTime.getDropOffType()).isEqualTo(GTFSPickupDropoffType.None);
         assertThat(stopTime.getPickupType()).isEqualTo(GTFSPickupDropoffType.Regular);
         assertThat(stopTime.getStopSequence()).isEqualTo(1);
@@ -92,9 +92,9 @@ class TramDataLoaderTest {
         assertThat(tripData).hasSize(6);
         TripData theTrip = tripData.get(0);
         assertThat(theTrip.getHeadsign()).isEqualTo("Bury Interchange");
-        assertThat(theTrip.getTripId()).isEqualTo(IdFor.createId("Trip000001"));
-        assertThat(theTrip.getServiceId()).isEqualTo(IdFor.createId("Serv000001"));
-        assertThat(theTrip.getRouteId()).isEqualTo(IdFor.createId("MET:MET1:I:"));
+        assertThat(theTrip.getTripId()).isEqualTo(StringIdFor.createId("Trip000001"));
+        assertThat(theTrip.getServiceId()).isEqualTo(StringIdFor.createId("Serv000001"));
+        assertThat(theTrip.getRouteId()).isEqualTo(StringIdFor.createId("MET:MET1:I:"));
     }
 
 }

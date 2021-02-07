@@ -1,22 +1,29 @@
 package com.tramchester.domain;
 
 
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Service implements HasId<Service>, GraphProperty {
+import static java.lang.String.format;
 
+public class Service implements HasId<Service>, GraphProperty {
+    private static final Logger logger = LoggerFactory.getLogger(Service.class);
+
+    // TODO make a composite ID
     private final IdFor<Service> serviceId;
-    private final Set<Route> routes;
+    private final Route route;
     private final Set<Trip> trips;
+    private final Agency initialAgency;
 
     private ServiceCalendar calendar;
 
@@ -24,14 +31,15 @@ public class Service implements HasId<Service>, GraphProperty {
     private TramTime latestDepart;
 
     public Service(String serviceId, Route route) {
-        this(IdFor.createId(serviceId), route);
+        this(StringIdFor.createId(serviceId), route);
     }
 
     public Service(IdFor<Service> serviceId, Route route) {
         this.serviceId = serviceId;
-        this.routes = new HashSet<>();
-        this.routes.add(route);
+        this.route = route;
         this.trips = new LinkedHashSet<>();
+        this.initialAgency = route.getAgency();
+
         earliestDepart = null;
         latestDepart = null;
         calendar = null;
@@ -46,14 +54,12 @@ public class Service implements HasId<Service>, GraphProperty {
     }
 
     public void addTrip(Trip trip) {
-        if (!routes.contains(trip.getRoute())) {
-            throw new RuntimeException("Service does not contain route " + trip.getRoute());
+        if (!route.equals(trip.getRoute())) {
+            String message = "Service route " + route.getId() + " does not match trip route: " + trip.getRoute();
+            logger.error(message);
+            throw new RuntimeException(message);
         }
         trips.add(trip); // stop population not done at this stage, see updateTimings
-    }
-
-    public void addRoute(Route route) {
-        routes.add(route);
     }
 
     public void updateTimings() {
@@ -80,20 +86,37 @@ public class Service implements HasId<Service>, GraphProperty {
     public String toString() {
         return "Service{" +
                 "serviceId=" + serviceId +
-                ", routes=" + routes +
-                ", trips=" + trips +
+                ", route=" + route.getId() +
+                ", trips=" + HasId.asIds(trips) +
+                ", initialAgency=" + initialAgency +
                 ", calendar=" + calendar +
                 ", earliestDepart=" + earliestDepart +
                 ", latestDepart=" + latestDepart +
                 '}';
     }
 
+    /***
+     * use getRoute()
+     */
+    @Deprecated
     public Set<Route> getRoutes() {
-        return routes;
+        return Collections.singleton(route);
     }
 
+    public Route getRoute() {
+        return route;
+    }
+
+    /***
+     * use getTrips()
+     */
+    @Deprecated
     public Set<Trip> getTripsFor(Route route) {
         return trips.stream().filter(trip->trip.getRoute().equals(route)).collect(Collectors.toSet());
+    }
+
+    public Set<Trip> getTrips() {
+        return Collections.unmodifiableSet(trips);
     }
 
     @Override

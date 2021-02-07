@@ -1,9 +1,9 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.domain.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.repository.TransportData;
 import org.apache.commons.lang3.tuple.Pair;
@@ -101,7 +101,7 @@ public class ReasonsToGraphViz {
             }
             ids.append(value);
             if (GraphBuilder.Labels.isStation(graphLabel)) {
-                Station station = transportData.getStationById(IdFor.getStationIdFrom(node));
+                Station station = transportData.getStationById(GraphProps.getStationIdFrom(node));
                 ids.append(System.lineSeparator()).append(station.getName());
             }
         });

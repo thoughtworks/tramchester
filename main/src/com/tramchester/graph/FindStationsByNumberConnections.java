@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.IdSet;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -61,6 +61,7 @@ public class FindStationsByNumberConnections {
         }
         long duration = System.currentTimeMillis()-start;
         logger.info("Took " + duration);
+        logger.info("Found " + stationIds.size() + " matches");
         return stationIds;
     }
 }

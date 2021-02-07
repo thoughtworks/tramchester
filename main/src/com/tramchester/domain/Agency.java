@@ -1,12 +1,15 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.*;
 
 public class Agency implements HasId<Agency>, GraphProperty {
     private final Set<Route> routes;
-    private final IdFor<Agency> agencyId;
+    private final StringIdFor<Agency> agencyId;
     private final String agencyName;
     private final DataSourceID dataSourceID;
 
@@ -20,7 +23,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
 
     public Agency(DataSourceID dataSourceID, String agencyId, String agencyName) {
         this.dataSourceID = dataSourceID;
-        this.agencyId =  IdFor.createId(agencyId);
+        this.agencyId =  StringIdFor.createId(agencyId);
         this.agencyName = agencyName;
         routes = new HashSet<>();
     }
@@ -40,7 +43,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
     @Override
     public String toString() {
         return "Agency{" +
-                "routes=" + routes +
+                "routes=" + HasId.asIds(routes) +
                 ", agencyId=" + agencyId +
                 ", agencyName='" + agencyName + '\'' +
                 ", dataSourceID=" + dataSourceID +
@@ -60,7 +63,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
         return Objects.hash(agencyId);
     }
 
-    public IdFor<Agency> getId() {
+    public StringIdFor<Agency> getId() {
         return agencyId;
     }
 

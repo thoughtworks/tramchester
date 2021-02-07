@@ -9,6 +9,10 @@ import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -39,7 +43,7 @@ import static com.tramchester.testSupport.reference.RoutesForTesting.createTramR
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TransportDataFromFilesTest {
+class TransportDataFromFilesTramTest {
 
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
@@ -274,7 +278,7 @@ class TransportDataFromFilesTest {
 
     @Test
     void shouldHavePlatform() {
-        IdFor<Platform> id = IdFor.createId(TramStations.StPetersSquare.forDTO() + "3");
+        StringIdFor<Platform> id = StringIdFor.createId(TramStations.StPetersSquare.forDTO() + "3");
 
         assertTrue(transportData.hasPlatformId(id));
         Platform platform = transportData.getPlatform(id);
@@ -448,7 +452,7 @@ class TransportDataFromFilesTest {
     }
 
     private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {
-        return trip.getStops().stream().filter(stopCall -> stopCall.getStation().getId().equals(stationId)).collect(Collectors.toList());
+        return trip.getStops().stream().filter(stopCall -> stopCall.getStationId().equals(stationId)).collect(Collectors.toList());
     }
 
 }

@@ -84,7 +84,7 @@ class RouteCalculatorTestAllJourneys {
                 filter(Optional::isPresent).
                 map(Optional::get).
                 map(journey -> journey.getStages().stream().
-                        map(TransportStage::getPassedStops).
+                        map(TransportStage::getPassedStopsCount).
                         reduce(Integer::sum)).
                 filter(Optional::isPresent).
                 map(Optional::get).

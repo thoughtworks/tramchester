@@ -3,6 +3,9 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.MyLocationFactory;
@@ -23,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -148,7 +152,7 @@ public class MapPathToStages {
         // position -> station
         int cost = getCost(relationship);
 
-        IdFor<Station> stationId = IdFor.getStationIdFrom(relationship);
+        IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
         Station destination = transportData.getStationById(stationId);
 
         Node startNode = relationship.getStartNode();
@@ -161,7 +165,7 @@ public class MapPathToStages {
         // station -> position
         int cost = getCost(relationship);
 
-        IdFor<Station> stationId = IdFor.getStationIdFrom(relationship);
+        IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
         Station start = transportData.getStationById(stationId);
 
         Node endNode = relationship.getEndNode();
@@ -175,10 +179,10 @@ public class MapPathToStages {
         // station -> station, neighbours...
         int cost = getCost(relationship);
 
-        IdFor<Station> startStationId = IdFor.getStationIdFrom(relationship.getStartNode());
+        IdFor<Station> startStationId = GraphProps.getStationIdFrom(relationship.getStartNode());
         Station start = transportData.getStationById(startStationId);
 
-        IdFor<Station> endStationId = IdFor.getStationIdFrom(relationship.getEndNode());
+        IdFor<Station> endStationId = GraphProps.getStationIdFrom(relationship.getEndNode());
         Station end = transportData.getStationById(endStationId);
 
         return new ConnectingStage(start, end, cost, walkStartTime);
@@ -195,7 +199,7 @@ public class MapPathToStages {
         private Station boardingStation;
         private IdFor<Route> routeCode;
         private IdFor<Trip> tripId;
-        private int stopsSeen;
+        private final List<Integer> passedStopSequenceNumbers;
         private int tripCost;
         private Optional<Platform> boardingPlatform;
         private Route route;
@@ -207,6 +211,7 @@ public class MapPathToStages {
 
         private State(TransportData transportData, PlatformRepository platformRepository, TramTime queryTime) {
             this.transportData = transportData;
+            passedStopSequenceNumbers = new ArrayList<>();
             this.platformRepository = platformRepository;
             this.queryTime = queryTime;
             reset();
@@ -214,30 +219,37 @@ public class MapPathToStages {
 
         protected void board(Relationship relationship) {
             boardCost = getCost(relationship);
-            boardingStation = transportData.getStationById(IdFor.getStationIdFrom(relationship));
-            routeCode = IdFor.getRouteIdFrom(relationship);
+            boardingStation = transportData.getStationById(GraphProps.getStationIdFrom(relationship));
+            routeCode = GraphProps.getRouteIdFrom(relationship);
             route = transportData.getRouteById(routeCode);
             if (boardingStation.hasPlatforms()) {
-                IdFor<Platform> platformId = IdFor.getPlatformIdFrom(relationship);
+                IdFor<Platform> platformId = GraphProps.getPlatformIdFrom(relationship);
                 boardingPlatform = platformRepository.getPlatformById(platformId);
             }
             departTime = null;
         }
 
         protected VehicleStage depart(Relationship relationship) {
-            IdFor<Station> stationId = IdFor.getStationIdFrom(relationship);
+            IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
             Station departStation = transportData.getStationById(stationId);
             Trip trip = transportData.getTripById(tripId);
 
-            int passedStops = stopsSeen - 1;
+            // if we counted destination for stage in the passedStations list then remove it
+            int index = passedStopSequenceNumbers.size()-1;
+            int lastStopSeqNum = passedStopSequenceNumbers.get(index);
+            StopCall lastStop = trip.getStops().getStopBySequenceNumber(lastStopSeqNum);
+            if (lastStop.getStationId().equals(stationId)) {
+                passedStopSequenceNumbers.remove(index);
+            } else {
+                logger.warn(format("Expected to see final stop call '%s' match the destination %s", lastStop, stationId));
+            }
+
             TransportMode transportMode = route.getTransportMode();
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
                     transportMode, trip, boardingTime,
-                    departStation, passedStops, boardingStation.hasPlatforms()); // TransportMode.isTram(transportMode));
-
-            if (stopsSeen == 0) {
-                logger.error("Zero passed stops " + vehicleStage);
-            }
+                    departStation,
+                    new LinkedList<>(passedStopSequenceNumbers),
+                    boardingStation.hasPlatforms());
 
             boardingPlatform.ifPresent(vehicleStage::setPlatform);
             vehicleStage.setCost(tripCost);
@@ -250,7 +262,7 @@ public class MapPathToStages {
         }
 
         private void reset() {
-            stopsSeen = 0; // don't count single stops
+            passedStopSequenceNumbers.clear();
             tripId = IdFor.invalid();
             routeCode = IdFor.invalid();
             tripCost = 0;
@@ -258,7 +270,7 @@ public class MapPathToStages {
         }
 
         protected Optional<WalkingToStationStage> beginTrip(Relationship relationship) {
-            IdFor<Trip> newTripId = IdFor.getTripIdFrom(relationship);
+            IdFor<Trip> newTripId = GraphProps.getTripIdFrom(relationship);
 
             if (tripId.notValid()) {
                 this.tripId = newTripId;
@@ -284,7 +296,8 @@ public class MapPathToStages {
 
         protected void passStop(Relationship relationship) {
             tripCost = tripCost + getCost(relationship);
-            stopsSeen = stopsSeen + 1;
+            int stopSequenceNumber = GraphProps.getStopSequenceNumber(relationship);
+            passedStopSequenceNumbers.add(stopSequenceNumber);
         }
 
         protected void walk(Relationship relationship) {

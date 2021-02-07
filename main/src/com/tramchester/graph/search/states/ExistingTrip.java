@@ -1,13 +1,14 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 
 public class ExistingTrip {
     private final IdFor<Trip> tripId;
 
     private ExistingTrip() {
-        this.tripId = IdFor.invalid();
+        this.tripId = new InvalidId<>();
     }
 
     private ExistingTrip(IdFor<Trip> tripId) {

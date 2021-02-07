@@ -2,7 +2,8 @@ package com.tramchester.domain.presentation;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.CallsAtPlatforms;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.HasPlatformMessage;

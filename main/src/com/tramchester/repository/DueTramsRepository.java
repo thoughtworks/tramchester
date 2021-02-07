@@ -5,9 +5,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.CacheMetrics;
-import com.tramchester.domain.HasId;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdSet;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.PlatformDueTrams;
@@ -44,7 +44,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
     // platformId -> StationDepartureInfo
-    private final Cache<IdFor<Platform>, PlatformDueTrams> dueTramsCache;
+    private final Cache<StringIdFor<Platform>, PlatformDueTrams> dueTramsCache;
     private final ProvidesNow providesNow;
 
     private LocalDateTime lastRefresh;
@@ -83,7 +83,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     }
 
     private void updateCacheFor(StationDepartureInfo newDepartureInfo, IdSet<Platform> platformsSeen) {
-        IdFor<Platform> platformId = newDepartureInfo.getStationPlatform();
+        StringIdFor<Platform> platformId = newDepartureInfo.getStationPlatform();
         if (!platformsSeen.contains(platformId)) {
             platformsSeen.add(platformId);
             dueTramsCache.put(platformId, new PlatformDueTrams(newDepartureInfo));
@@ -129,7 +129,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     }
 
     @Override
-    public Optional<PlatformDueTrams> allTrams(IdFor<Platform> platform, LocalDate queryDate, TramTime queryTime) {
+    public Optional<PlatformDueTrams> allTrams(StringIdFor<Platform> platform, LocalDate queryDate, TramTime queryTime) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Optional.empty();
@@ -159,7 +159,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
         return queryTime.between(limitBefore, limitAfter);
     }
 
-    private Optional<PlatformDueTrams> departuresFor(IdFor<Platform> platformId) {
+    private Optional<PlatformDueTrams> departuresFor(StringIdFor<Platform> platformId) {
         @Nullable PlatformDueTrams ifPresent = dueTramsCache.getIfPresent(platformId);
 
         if (ifPresent==null) {

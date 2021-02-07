@@ -5,7 +5,8 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.LineDirection;
@@ -126,7 +127,7 @@ public class LiveDataParser {
         LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
 
-        IdFor<Platform> platformId = IdFor.createId(atcoCode);
+        StringIdFor<Platform> platformId = StringIdFor.createId(atcoCode);
         if (!station.hasPlatform(platformId)) {
             // info not warn as currently a permanent issue with the data
             logger.info(format("Display '%s' Platform '%s' not in timetable data for station %s and Json %s",

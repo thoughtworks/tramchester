@@ -1,7 +1,8 @@
 package com.tramchester.domain.reference;
 
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdSet;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.Station;
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,7 +60,7 @@ public enum CentralZoneStation {
     }
 
     private IdFor<Station> createId(String stationId) {
-        return IdFor.createId(stationId);
+        return StringIdFor.createId(stationId);
     }
 
     public Lines getLine() {

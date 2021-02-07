@@ -6,7 +6,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -72,8 +71,7 @@ class CreateDotDiagramTest {
     private void create(TramStations testPoint, int depthLimit) {
         Station startPoint = repository.getStationById(testPoint.getId());
 
-        // TODO Guice
-        DiagramCreator creator = new DiagramCreator(database, ready);
+        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
 
         try {
             creator.create(format("%s_trams.dot", startPoint.getName()), startPoint, depthLimit);

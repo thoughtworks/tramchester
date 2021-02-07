@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;

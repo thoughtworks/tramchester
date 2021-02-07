@@ -1,7 +1,8 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.NodeContentsRepository;
@@ -66,7 +67,7 @@ public class MinuteState extends TraversalState {
 
     private static IdFor<Trip> getTrip(Node endNode) {
         if (!GraphProps.hasProperty(TRIP_ID, endNode)) {
-            return IdFor.invalid();
+            return new InvalidId<>();
         }
         return GraphProps.getTripId(endNode);
     }

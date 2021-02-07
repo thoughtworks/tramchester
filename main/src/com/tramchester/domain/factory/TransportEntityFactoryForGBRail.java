@@ -3,8 +3,9 @@ package com.tramchester.domain.factory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdMap;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -68,8 +69,8 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
         if (indexOfFrom>0 && indexOfTo>0) {
             String from = target.substring(indexOfFrom + FROM.length(), indexOfTo);
             String to = target.substring(indexOfTo + TO.length());
-            IdFor<Station> fromId = IdFor.createId(from);
-            IdFor<Station> toId = IdFor.createId(to);
+            StringIdFor<Station> fromId = StringIdFor.createId(from);
+            StringIdFor<Station> toId = StringIdFor.createId(to);
 
             if (allStations.hasId(toId) && allStations.hasId(fromId)) {
                 String toName = allStations.get(toId).getName();

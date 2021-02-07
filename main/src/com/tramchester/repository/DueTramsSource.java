@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.PlatformDueTrams;
@@ -14,6 +14,6 @@ import java.util.Optional;
 
 @ImplementedBy(DueTramsRepository.class)
 public interface DueTramsSource extends LiveDataCache {
-    Optional<PlatformDueTrams> allTrams(IdFor<Platform> platform, LocalDate tramServiceDate, TramTime queryTime);
+    Optional<PlatformDueTrams> allTrams(StringIdFor<Platform> platform, LocalDate tramServiceDate, TramTime queryTime);
     List<DueTram> dueTramsFor(Station station, LocalDate date, TramTime queryTime);
 }

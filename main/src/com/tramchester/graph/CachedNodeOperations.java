@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.CacheMetrics;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
@@ -97,7 +97,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
-        return svcIdCache.get(nodeId, id -> IdFor.getServiceIdFrom(node));
+        return svcIdCache.get(nodeId, id -> GraphProps.getServiceIdFrom(node));
     }
 
     public int getHour(Node node) {

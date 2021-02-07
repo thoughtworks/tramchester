@@ -2,7 +2,7 @@ package com.tramchester.router;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
@@ -140,7 +140,7 @@ public class ProcessPlanRequest {
     private PostcodeLocation getPostcode(String text, String diagnostic) {
         String prefixRemovedText = text.replaceFirst(PostcodeDTO.PREFIX, "");
 
-        IdFor<PostcodeLocation> postcodeId = IdFor.createId(prefixRemovedText);
+        StringIdFor<PostcodeLocation> postcodeId = StringIdFor.createId(prefixRemovedText);
         if (!postcodeRepository.hasPostcode(postcodeId)) {
             String msg = "Unable to find " + diagnostic +" postcode from:  "+ prefixRemovedText;
             logger.warn(msg);
@@ -151,7 +151,7 @@ public class ProcessPlanRequest {
 
     private Station getStation(String locationIdText, String diagnostic) {
 
-        IdFor<Station> locationId = IdFor.createId(locationIdText);
+        StringIdFor<Station> locationId = StringIdFor.createId(locationIdText);
         if (!transportData.hasStationId(locationId)) {
             String msg = "Unable to find " + diagnostic + " station from id: "+ locationIdText;
             logger.warn(msg);

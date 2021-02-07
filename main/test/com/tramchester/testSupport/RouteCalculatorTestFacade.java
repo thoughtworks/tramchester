@@ -1,6 +1,7 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
@@ -42,15 +43,15 @@ public class RouteCalculatorTestFacade {
         return result;
     }
 
-    @NotNull
-    public Set<Journey> calculateRouteAsSet(int maxToReturn, JourneyRequest journeyRequest,
-                                            Station start, Station destination) {
-        Stream<Journey> journeyStream = theCalulcator.calculateRoute(txn,
-                repository.getStationById(start.getId()),
-                repository.getStationById(destination.getId()), journeyRequest);
-        Set<Journey> journeys = journeyStream.limit(maxToReturn).collect(Collectors.toSet());
-        journeyStream.close();
-        return journeys;
+    public Set<Journey> calculateRouteAsSet(IdFor<Station> start, IdFor<Station> dest, JourneyRequest request, int maxToReturn) {
+        Stream<Journey> stream = theCalulcator.calculateRoute(txn, get(start), get(dest), request);
+        Set<Journey> result = stream.limit(maxToReturn).collect(Collectors.toSet());
+        stream.close();
+        return result;
+    }
+
+    private Station get(IdFor<Station> id) {
+        return repository.getStationById(id);
     }
 
     private Station real(TestStations start) {

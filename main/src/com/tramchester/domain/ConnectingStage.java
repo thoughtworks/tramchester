@@ -1,11 +1,16 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ConnectingStage implements TransportStage<Station, Station>  {
     private final Station start;
@@ -76,13 +81,18 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     }
 
     @Override
-    public int getPassedStops() {
+    public int getPassedStopsCount() {
         return 0;
     }
 
     @Override
-    public IdFor<Trip> getTripId() {
-        return IdFor.invalid();
+    public List<StopCall> getCallingPoints() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public StringIdFor<Trip> getTripId() {
+        return StringIdFor.invalid();
     }
 
     @Override

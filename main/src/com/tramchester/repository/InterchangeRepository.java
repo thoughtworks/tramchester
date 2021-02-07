@@ -2,8 +2,8 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdSet;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static java.lang.String.format;
@@ -35,9 +36,9 @@ public class InterchangeRepository  {
     private final Map<TransportMode, IdSet<Station>> interchanges;
 
     @Inject
-    public InterchangeRepository(FindStationsByNumberConnections findStationsByNumberConnections, TransportData dataSource, TramchesterConfig config) {
+    public InterchangeRepository(FindStationsByNumberConnections findStationsByNumberConnections, TransportData transportData, TramchesterConfig config) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
-        this.dataSource = dataSource;
+        this.dataSource = transportData;
         enabledModes = config.getTransportModes();
         interchanges = new HashMap<>();
     }
@@ -68,11 +69,11 @@ public class InterchangeRepository  {
         }
     }
 
-
     private void addMultiModeStations() {
-        dataSource.getStations().stream().
-                filter(station -> station.getTransportModes().size()>1).
-                forEach(station -> station.getTransportModes().forEach(mode -> interchanges.get(mode).add(station.getId())));
+        Set<Station> multimodeStations = dataSource.getStations().stream().
+                filter(station -> station.getTransportModes().size() > 1).collect(Collectors.toSet());
+        logger.info("Adding " + multimodeStations.size() + " multimode stations");
+        multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> interchanges.get(mode).add(station.getId())));
     }
 
     public boolean isInterchange(Station station) {

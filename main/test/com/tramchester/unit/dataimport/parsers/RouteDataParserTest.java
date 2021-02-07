@@ -1,7 +1,7 @@
 package com.tramchester.unit.dataimport.parsers;
 
 import com.tramchester.dataimport.data.RouteData;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,10 +19,10 @@ class RouteDataParserTest extends ParserTestHelper<RouteData> {
     void shouldParseTramRoute() {
         RouteData result = parse("MET:MET4:O:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0");
 
-        assertThat(result.getId()).isEqualTo(IdFor.createId("MET:MET4:O:"));
+        assertThat(result.getId()).isEqualTo(StringIdFor.createId("MET:MET4:O:"));
         assertThat(result.getShortName()).isEqualTo("MET4");
         assertThat(result.getLongName()).isEqualTo("Ashton-Under-Lyne - Manchester - Eccles");
-        assertThat(result.getAgencyId()).isEqualTo(IdFor.createId("MET"));
+        assertThat(result.getAgencyId()).isEqualTo(StringIdFor.createId("MET"));
         assertThat(result.getRouteDirection()).isEqualTo(RouteDirection.Outbound);
     }
 
@@ -30,7 +30,7 @@ class RouteDataParserTest extends ParserTestHelper<RouteData> {
     void shouldParseTramRouteInbound() {
         RouteData result = parse("MET:MET4:I:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0");
 
-        assertThat(result.getId()).isEqualTo(IdFor.createId("MET:MET4:I:"));
+        assertThat(result.getId()).isEqualTo(StringIdFor.createId("MET:MET4:I:"));
         assertThat(result.getShortName()).isEqualTo("MET4");
         assertThat(result.getRouteDirection()).isEqualTo(RouteDirection.Inbound);
     }
@@ -39,10 +39,10 @@ class RouteDataParserTest extends ParserTestHelper<RouteData> {
     void shouldParseBusRoute() {
         RouteData result = parse("JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3");
 
-        assertThat(result.getId()).isEqualTo(IdFor.createId("JSC:588:C:"));
+        assertThat(result.getId()).isEqualTo(StringIdFor.createId("JSC:588:C:"));
         assertThat(result.getShortName().trim()).isEqualTo("588");
         assertThat(result.getLongName()).isEqualTo("Leigh - Lowton, Scott Road");
-        assertThat(result.getAgencyId()).isEqualTo(IdFor.createId("JSC"));
+        assertThat(result.getAgencyId()).isEqualTo(StringIdFor.createId("JSC"));
         assertThat(result.getRouteDirection()).isEqualTo(RouteDirection.Circular);
 
     }

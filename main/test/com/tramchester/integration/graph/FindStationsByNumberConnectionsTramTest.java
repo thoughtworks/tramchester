@@ -2,7 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.IdSet;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberConnections;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FindStationsByNumberConnectionsTest {
+class FindStationsByNumberConnectionsTramTest {
     private static ComponentContainer componentContainer;
     private FindStationsByNumberConnections discoverer;
 

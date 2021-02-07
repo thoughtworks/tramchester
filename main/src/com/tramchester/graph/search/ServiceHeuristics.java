@@ -1,15 +1,15 @@
 package com.tramchester.graph.search;
 
-import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeContentsRepository;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
+import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TramReachabilityRepository;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,18 +24,18 @@ public class ServiceHeuristics {
 
     private final JourneyConstraints journeyConstraints;
     private final TramTime queryTime;
-    private final TramReachabilityRepository tramReachabilityRepository;
+    private final ReachabilityRepository reachabilityRepository;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
     private final int changesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
-                             TramReachabilityRepository tramReachabilityRepository,
+                             ReachabilityRepository reachabilityRepository,
                              JourneyConstraints journeyConstraints, TramTime queryTime,
                              int changesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
-        this.tramReachabilityRepository = tramReachabilityRepository;
+        this.reachabilityRepository = reachabilityRepository;
 
         this.journeyConstraints = journeyConstraints;
         this.queryTime = queryTime;
@@ -140,7 +140,7 @@ public class ServiceHeuristics {
 
 
     public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
-        IdFor<RouteStation> routeStationId = IdFor.getRouteStationIdFrom(node);
+        IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(node);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         Station associatedStation = routeStation.getStation();
@@ -158,23 +158,23 @@ public class ServiceHeuristics {
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
         if (journeyConstraints.getIsTramOnlyDestinations()) {
-            IdFor<RouteStation> routeStationId = IdFor.getRouteStationIdFrom(endNode);
+            IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
             RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
             if (routeStation==null) {
                 String message = "Missing routestation " + routeStationId;
-                logger.warn(message);
+                logger.error(message);
                 throw new RuntimeException(message);
             }
 
-            if (TransportMode.isTram(routeStation)) {
+            //if (TransportMode.isTram(routeStation)) {
                 for(Station endStation : journeyConstraints.getEndTramStations()) {
-                    if (tramReachabilityRepository.stationReachable(routeStation, endStation)) {
+                    if (reachabilityRepository.stationReachable(routeStation, endStation)) {
                         return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
                     }
                 }
                 return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
-            }
+            //}
         }
 
         // TODO can't exclude unless we know for sure not reachable, so include all for buses

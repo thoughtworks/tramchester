@@ -3,7 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.CacheMetrics;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -23,7 +23,6 @@ import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestLiveDataConfig;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
@@ -36,7 +35,6 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -235,7 +233,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(nodeIdLabelMap.isService(node)).andStubReturn(true);
 
         EasyMock.expect(serviceHeuristics.checkServiceDate(node, howIGotHere, reasons)).
-                andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, IdFor.createId("nodeServiceId")));
+                andReturn(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, StringIdFor.createId("nodeServiceId")));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.NotOnQueryDate, node, TramTime.of(8,15));

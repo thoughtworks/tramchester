@@ -1,5 +1,7 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.GraphPropertyKey;
 
@@ -10,7 +12,7 @@ import static java.lang.String.format;
 
 public class Platform implements HasId<Platform>, GraphProperty {
 
-    private final IdFor<Platform> id;
+    private final StringIdFor<Platform> id;
     private final String name;
     private final Set<Route> servesRoutes;
     private final String platformNumber;
@@ -21,7 +23,7 @@ public class Platform implements HasId<Platform>, GraphProperty {
     }
 
     public Platform(String id, String name, LatLong latLong) {
-        this.id = IdFor.createId(id);
+        this.id = StringIdFor.createId(id);
         this.name = name.intern();
         platformNumber = id.substring(id.length()-1);
         this.latLong = latLong;
@@ -33,7 +35,7 @@ public class Platform implements HasId<Platform>, GraphProperty {
     }
 
     @Override
-    public IdFor<Platform> getId() {
+    public StringIdFor<Platform> getId() {
         return id;
     }
 

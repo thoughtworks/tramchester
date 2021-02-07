@@ -1,6 +1,6 @@
 package com.tramchester.repository;
 
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramServiceDate;
 

@@ -1,7 +1,8 @@
 package com.tramchester.graph.graphbuild;
 
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdSet;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
@@ -10,12 +11,12 @@ import com.tramchester.domain.places.Station;
 public class ActiveGraphFilter implements GraphFilter {
     private final IdSet<Route> routeCodes;
     private final IdSet<Service> serviceIds;
-    private final IdSet<Station> stations;
+    private final IdSet<Station> stationsIds;
 
     public ActiveGraphFilter() {
         routeCodes = new IdSet<>();
         serviceIds = new IdSet<>();
-        stations = new IdSet<>();
+        stationsIds = new IdSet<>();
     }
 
 //    public void addRoute(IdFor<Route> routeId) {
@@ -31,7 +32,7 @@ public class ActiveGraphFilter implements GraphFilter {
     }
 
     public void addStation(IdFor<Station> id) {
-        stations.add(id);
+        stationsIds.add(id);
     }
 
     public boolean shouldInclude(Route route) {
@@ -53,15 +54,15 @@ public class ActiveGraphFilter implements GraphFilter {
     }
 
     public boolean shouldInclude(StopCall call) {
-        return shouldInclude(call.getStation());
+        return shouldInclude(call.getStationId());
     }
 
     @Override
     public boolean shouldInclude(IdFor<Station> stationId) {
-        if (stations.isEmpty()) {
+        if (stationsIds.isEmpty()) {
             return true;
         }
-        return stations.contains(stationId);
+        return stationsIds.contains(stationId);
     }
 
     @Override

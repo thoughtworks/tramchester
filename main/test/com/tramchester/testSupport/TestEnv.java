@@ -8,6 +8,9 @@ import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -61,6 +64,7 @@ public class TestEnv {
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     private static final Agency MET = new Agency(DataSourceID.TFGM(), "MET", "agencyName");
+    public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(), "AW", "Arriva Trains Wales");
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
@@ -136,7 +140,7 @@ public class TestEnv {
     }
 
     public static Route getTestRoute() {
-        return getTestRoute(IdFor.createId("RouteId"));
+        return getTestRoute(StringIdFor.createId("RouteId"));
     }
 
     public static Route getTestRoute(IdFor<Route> routeId) {
@@ -211,7 +215,7 @@ public class TestEnv {
     }
 
     public static IdFor<RouteStation> formId(TramStations tramStations, KnownTramRoute knownRoute) {
-        return RouteStation.formId(tramStations.getId(), knownRoute.getId());
+        return RouteStation.createId(tramStations.getId(), knownRoute.getId());
     }
 
     public static <T extends GraphProperty> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {

@@ -51,7 +51,7 @@ class RouteCalculatorSubGraphTest {
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
-        stations.forEach(station->graphFilter.addStation(station.getId()));
+        stations.forEach(station -> graphFilter.addStation(station.getId()));
 
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -144,7 +144,6 @@ class RouteCalculatorSubGraphTest {
         public SubgraphConfig() {
             super("subgraph_tramchester.db");
         }
-
     }
 
     @NotNull

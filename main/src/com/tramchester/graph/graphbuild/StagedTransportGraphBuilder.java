@@ -3,6 +3,8 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -162,7 +164,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         forEach(station -> createStationAndPlatforms(tx, station, builderCache));
 
                 // route relationships
-                createRouteAndLinkRelationships(tx, filter, route, builderCache);
+                createRouteRelationships(tx, filter, route, builderCache);
                 tx.commit();
             }
 
@@ -271,7 +273,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createRouteAndLinkRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
+    private void createRouteRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
         Stream<Service> services = getServices(filter, route);
 
         Map<Pair<Station, Station>, Integer> pairs = new HashMap<>();
@@ -292,12 +294,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getRight());
             createRouteRelationship(startNode, endNode, route, cost);
 
-        });
-
-        pairs.keySet().forEach(pair -> {
-            Node startNode = routeBuilderCache.getStation(tx, pair.getLeft());
-            Node endNode = routeBuilderCache.getStation(tx, pair.getRight());
-            createLinkRelationship(startNode, endNode, route.getTransportMode());
         });
 
     }
@@ -344,7 +340,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // If bus we board to/from station, for trams its from the platform
         Node boardingNode = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stopCall.getPlatform().getId())
                 : routeBuilderCache.getStation(tx, station);
-        IdFor<RouteStation> routeStationId = IdFor.createId(station, route);
+        IdFor<RouteStation> routeStationId = RouteStation.createId(station.getId(), route.getId());
         Node routeStationNode = routeBuilderCache.getRouteStation(tx, route, stopCall.getStation());
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
@@ -358,6 +354,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
+            // this is normal for trains, timetable lists all passed stations, whether train stops or not
             logger.warn("No pickup or dropoff for " + stopCall.toString());
         }
     }
@@ -400,26 +397,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 updateTripRelationship(tx, route, service, trip, leg.getFirst(), leg.getSecond(), routeBuilderCache, timeNodes);
             }
         });
-    }
-
-    private void createLinkRelationship(Node from, Node to, TransportMode mode) {
-        if (from.hasRelationship(OUTGOING, LINKED)) {
-            Iterable<Relationship> existings = from.getRelationships(OUTGOING, LINKED);
-
-            // if there is an existing link between staions then update iff the transport mode not already present
-            for (Relationship existing : existings) {
-                if (existing.getEndNode().equals(to)) {
-                    Set<TransportMode> existingModes = getTransportModes(existing);
-                    if (!existingModes.contains(mode)) {
-                        addTransportMode(existing, mode);
-                    }
-                    return;
-                }
-            }
-        }
-
-        Relationship stationsLinked = from.createRelationshipTo(to, LINKED);
-        addTransportMode(stationsLinked, mode);
     }
 
     private void createRouteRelationship(Node from, Node to, Route route, int cost) {
@@ -470,7 +447,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                         GraphBuilderCache routeBuilderCache, Map<Pair<Station, TramTime>, Node> timeNodes) {
         Station startStation = beginStop.getStation();
 
-        IdFor<Trip> tripId = trip.getId();
+        StringIdFor<Trip> tripId = trip.getId();
         Node beginServiceNode = routeBuilderCache.getServiceNode(tx, service, startStation, endStop.getStation());
 
         beginServiceNode.getRelationships(INCOMING, TransportRelationshipTypes.TO_SERVICE).forEach(
@@ -496,6 +473,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setCostProp(goesToRelationship, cost);
         setProperty(goesToRelationship, service);
         setProperty(goesToRelationship, route);
+        setStopSequenceNumber(goesToRelationship, endStop.getGetSequenceNumber());
     }
 
     private Map<Pair<Station, TramTime>, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,

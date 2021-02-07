@@ -1,5 +1,6 @@
-package com.tramchester.domain;
+package com.tramchester.domain.id;
 
+import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.places.IdForDTO;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +26,7 @@ public interface HasId<DOMAINTYPE extends GraphProperty> extends GraphProperty {
         return ids.toString();
     }
 
-    static <T extends HasId<T> & GraphProperty> IdFor<T> asId(T item) {
+    static <T extends HasId<T>> IdFor<T> asId(T item) {
         return item.getId();
     }
 

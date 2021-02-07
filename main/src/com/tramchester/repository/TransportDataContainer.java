@@ -2,6 +2,9 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -118,7 +121,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public RouteStation getRouteStation(Station station, Route route) {
-        return getRouteStationById(IdFor.createId(station, route));
+        return getRouteStationById(RouteStation.createId(station.getId(), route.getId()));
     }
 
     @Override
@@ -191,7 +194,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public boolean hasServiceId(IdFor<Service>  serviceId) {
+    public boolean hasServiceId(IdFor<Service> serviceId) {
         return services.hasId(serviceId);
     }
 
@@ -271,7 +274,7 @@ public class TransportDataContainer implements TransportData {
         return services.filter(item -> item.getCalendar().operatesOn(date.getDate()));
     }
 
-    public boolean hasRouteId(IdFor<Route>  routeId) {
+    public boolean hasRouteId(IdFor<Route> routeId) {
         return routes.hasId(routeId);
     }
 

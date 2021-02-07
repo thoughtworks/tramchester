@@ -1,8 +1,8 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.CentralZoneStation;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.tramchester.domain.HasId.asId;
+import static com.tramchester.domain.id.HasId.asId;
 import static java.lang.String.format;
 
 @LazySingleton

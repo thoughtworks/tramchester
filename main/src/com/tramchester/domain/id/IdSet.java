@@ -1,7 +1,8 @@
-package com.tramchester.domain;
+package com.tramchester.domain.id;
 
 
 import com.google.common.collect.Sets;
+import com.tramchester.domain.GraphProperty;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

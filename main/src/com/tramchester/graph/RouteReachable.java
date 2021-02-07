@@ -1,12 +1,13 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.IdFor;
-import com.tramchester.domain.IdSet;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.*;
@@ -63,7 +64,8 @@ public class RouteReachable {
                 } else {
                     Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
                     for (Relationship edge : edges) {
-                        if (endStationId.matchesStationNodePropery(edge.getEndNode())) {
+                        IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
+                        if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }
                     }
@@ -128,7 +130,7 @@ public class RouteReachable {
             Node endNode = path.endNode();
 
             if (endNode.hasLabel(ROUTE_STATION)) {
-                IdFor<Station> currentStationId = IdFor.getStationIdFrom(endNode);
+                IdFor<Station> currentStationId = GraphProps.getStationIdFrom(endNode);
                 if (endStationId.equals(currentStationId)) {
                     return Evaluation.INCLUDE_AND_PRUNE; // finished, at dest
                 }
@@ -144,7 +146,7 @@ public class RouteReachable {
 //                }
                 Iterable<Relationship> routeRelat = endNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
                 IdSet<Route> routeIds = new IdSet<>();
-                routeRelat.forEach(relationship -> routeIds.add(IdFor.getRouteIdFrom(relationship)));
+                routeRelat.forEach(relationship -> routeIds.add(GraphProps.getRouteIdFrom(relationship)));
 
                 if (routeIds.contains(routeId)) {
                     return Evaluation.EXCLUDE_AND_CONTINUE; // if have routeId then only follow if on same route

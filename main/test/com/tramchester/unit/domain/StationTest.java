@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.domain.reference.RouteDirection;
@@ -13,8 +13,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.RoutesForTesting;
-import org.checkerframework.checker.units.qual.A;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.operation.TransformException;
 
@@ -29,7 +27,7 @@ class StationTest {
                 new LatLong(-2.0, 2.3), TransportMode.Tram);
 
         assertEquals("stopName", tramStation.getName());
-        assertEquals(IdFor.createId("id"), tramStation.getId());
+        assertEquals(StringIdFor.createId("id"), tramStation.getId());
         assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         assertEquals(2.3, tramStation.getLatLong().getLon(),0);
         assertEquals("area", tramStation.getArea());
@@ -42,7 +40,7 @@ class StationTest {
                 new LatLong(-2.0, 2.3), TransportMode.Bus);
 
         assertEquals("stopName", busStation.getName());
-        assertEquals(IdFor.createId("id"), busStation.getId());
+        assertEquals(StringIdFor.createId("id"), busStation.getId());
         assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         assertEquals(2.3, busStation.getLatLong().getLon(),0);
         assertEquals("area", busStation.getArea());
@@ -51,14 +49,14 @@ class StationTest {
 
     @Test
     void testShouldFormIdByRemovingPlatformForTramStop() {
-        assertEquals(IdFor.createId("9400ZZid"), Station.formId("9400ZZid1"));
-        assertEquals(IdFor.createId("9400XXid1"), Station.formId("9400XXid1"));
+        assertEquals(StringIdFor.createId("9400ZZid"), Station.formId("9400ZZid1"));
+        assertEquals(StringIdFor.createId("9400XXid1"), Station.formId("9400XXid1"));
 
     }
 
     @Test
     void shouldHaveCorrectTransportModes() {
-        Station station = new Station(IdFor.createId("stationId"), "area", "name", TestEnv.nearPiccGardens,
+        Station station = new Station(StringIdFor.createId("stationId"), "area", "name", TestEnv.nearPiccGardens,
                 CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens));
 
         assertTrue(station.getTransportModes().isEmpty());

@@ -1,6 +1,9 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
@@ -10,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Station extends MapIdToDTOId<Station> implements Location<Station> {
+public class Station implements Location<Station> {
 
     public static final String METROLINK_PREFIX = "9400ZZ";
     public static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
@@ -56,9 +59,9 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
         if (text.startsWith(METROLINK_PREFIX)) {
             // metrolink platform ids include platform as final digit, remove to give id of station itself
             int index = text.length()-1;
-            return IdFor.createId(text.substring(0,index));
+            return StringIdFor.createId(text.substring(0,index));
         }
-        return IdFor.createId(text);
+        return StringIdFor.createId(text);
     }
 
     @Override
@@ -156,5 +159,9 @@ public class Station extends MapIdToDTOId<Station> implements Location<Station> 
 
     public boolean hasPlatformsForRoute(Route route) {
         return platforms.stream().anyMatch(platform -> platform.servesRoute(route));
+    }
+
+    public String forDTO()  {
+        return getId().forDTO();
     }
 }

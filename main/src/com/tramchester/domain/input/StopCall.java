@@ -1,10 +1,14 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
+
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 
 public abstract class StopCall {
     protected final Station station;
@@ -35,6 +39,10 @@ public abstract class StopCall {
         return station;
     }
 
+    public IdFor<Station> getStationId() {
+        return station.getId();
+    }
+
     public int getGetSequenceNumber() {
         return sequenceNumber;
     }
@@ -52,7 +60,7 @@ public abstract class StopCall {
     @Override
     public String toString() {
         return "StopCall{" +
-                "station=" + station +
+                "station=" + HasId.asId(station) +
                 ", arrivalTime=" + arrivalTime +
                 ", departureTime=" + departureTime +
                 ", sequenceNumber=" + sequenceNumber +
@@ -62,4 +70,8 @@ public abstract class StopCall {
     }
 
     public abstract boolean hasPlatfrom();
+
+    public boolean callsAtStation() {
+        return (!getDropoffType().equals(None)) || (!getPickupType().equals(None));
+    }
 }

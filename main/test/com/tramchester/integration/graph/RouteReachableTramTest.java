@@ -25,7 +25,7 @@ import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TramRouteReachableTest {
+class RouteReachableTramTest {
     private static ComponentContainer componentContainer;
 
     private RouteReachable reachable;
@@ -34,7 +34,7 @@ class TramRouteReachableTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
         TramchesterConfig config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

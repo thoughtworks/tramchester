@@ -6,6 +6,10 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -202,7 +206,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
     }
 
-
     private void addException(CalendarDateData date, ServiceCalendar calendar, IdFor<Service> serviceId, Set<LocalDate> noServices) {
         int exceptionType = date.getExceptionType();
         LocalDate exceptionDate = date.getDate();
@@ -282,7 +285,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
     private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
                                     Route route, Station station, TransportEntityFactory factory,
                                     DataSourceConfig sourceConfig) {
-        IdFor<Platform> platformId = stopTimeData.getPlatformId();
+        StringIdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
 
         // TODO Should be HasPlatform
@@ -311,7 +314,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
             }
         }
 
-        if (!buildable.hasRouteStationId(RouteStation.formId(stationId, route.getId()))) {
+        if (!buildable.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
             RouteStation routeStation = factory.createRouteStation(station, route);
             buildable.addRouteStation(routeStation);
         }
@@ -332,10 +335,9 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
             if (transportData.hasRouteId(routeId)) {
                 Route route = transportData.getRouteById(routeId);
-
+                // todo include routeid in service lookup
                 Service service = services.getOrAdd(serviceId, () -> factory.createService(serviceId, route));
                 trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
-                service.addRoute(route);
                 count.getAndIncrement();
             } else {
                 if (!excludedRoutes.contains(routeId)) {

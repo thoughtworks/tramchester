@@ -3,7 +3,7 @@ package com.tramchester.domain.presentation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.places.Station;
 
@@ -51,7 +51,7 @@ public class RecentJourneys  {
     }
 
     @JsonIgnore
-    public boolean containsStationId(IdFor<Station> id) {
+    public boolean containsStationId(StringIdFor<Station> id) {
         for (Timestamped timestamp : timestamps) {
             if (timestamp.getId().equals(id.forDTO())) {
                 return true;

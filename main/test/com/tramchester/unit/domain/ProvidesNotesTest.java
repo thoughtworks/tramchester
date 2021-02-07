@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.MyLocation;
@@ -331,8 +332,11 @@ class ProvidesNotesTest extends EasyMockSupport {
         TramTime departTime = TramTime.of(11,22);
         Service service = new Service("serviceId", TestEnv.getTestRoute());
         Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
+
+        // TODO
+        List<Integer> passedStations = new ArrayList<>();
         VehicleStage vehicleStage = new VehicleStage(of(Ashton), TestEnv.getTestRoute(), Tram,
-                trip, departTime, of(PiccadillyGardens), 12, true);
+                trip, departTime, of(PiccadillyGardens), passedStations, true);
         Platform platform = new Platform(platformId, "platformName", latLong);
         vehicleStage.setPlatform(platform);
         return vehicleStage;

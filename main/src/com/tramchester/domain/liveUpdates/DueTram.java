@@ -1,6 +1,6 @@
 package com.tramchester.domain.liveUpdates;
 
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 

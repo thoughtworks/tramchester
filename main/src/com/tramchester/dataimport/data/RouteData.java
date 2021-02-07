@@ -2,8 +2,9 @@ package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.RouteDirection;
 
@@ -32,7 +33,7 @@ public class RouteData {
     }
 
     public IdFor<Route> getId() {
-        return IdFor.createId(removeSpaces(id));
+        return StringIdFor.createId(removeSpaces(id));
     }
 
     public String getShortName() {
@@ -44,7 +45,7 @@ public class RouteData {
     }
 
     public IdFor<Agency> getAgencyId() {
-        return IdFor.createId(agencyid);
+        return StringIdFor.createId(agencyid);
     }
 
     public GTFSTransportationType getRouteType() {

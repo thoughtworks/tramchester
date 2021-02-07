@@ -2,7 +2,8 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
@@ -10,7 +11,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
-class TramInterchangeRepositoryTest {
+class InterchangeRepositoryTramTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository repository;
 

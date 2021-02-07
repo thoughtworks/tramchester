@@ -1,6 +1,8 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -10,6 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -17,6 +20,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.tramchester.domain.id.StringIdFor.getCompositeIdFromGraphEntity;
+import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
 import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
@@ -49,19 +54,26 @@ public class GraphProps {
     }
 
     public static void addTransportMode(Entity entity, TransportMode mode) {
+        short modeNumber = mode.getNumber();
         if (!(entity.hasProperty(TRANSPORT_MODES.getText()))) {
-            entity.setProperty(TRANSPORT_MODES.getText(), new short[]{mode.getNumber()});
+            entity.setProperty(TRANSPORT_MODES.getText(), new short[]{modeNumber});
             return;
         }
 
         short[] existing = (short[]) entity.getProperty(TRANSPORT_MODES.getText());
+        for (short value : existing) {
+            if (value == modeNumber) {
+                return;
+            }
+        }
+
         short[] replacement =  Arrays.copyOf(existing, existing.length+1);
-        replacement[existing.length] = mode.getNumber();
+        replacement[existing.length] = modeNumber;
         entity.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
 
     public static IdFor<Station> getStationId(Entity entity) {
-        return IdFor.getStationIdFrom(entity);
+        return getStationIdFrom(entity);
     }
 
     public static void setRouteStationProp(Entity entity, IdFor<RouteStation> id) {
@@ -113,11 +125,11 @@ public class GraphProps {
     }
 
     public static IdFor<Trip> getTripId(Entity entity) {
-        return IdFor.getTripIdFrom(entity);
+        return getTripIdFrom(entity);
     }
 
     public static IdFor<Service> getServiceId(Entity entity) {
-        return IdFor.getServiceIdFrom(entity);
+        return getServiceIdFrom(entity);
     }
 
     static void setHourProp(Entity entity, Integer value) {
@@ -140,7 +152,7 @@ public class GraphProps {
     }
 
     public static IdFor<Route> getRouteId(Entity entity) {
-        return IdFor.getRouteIdFrom(entity);
+        return getRouteIdFrom(entity);
     }
 
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
@@ -148,4 +160,39 @@ public class GraphProps {
     }
 
 
+    public static void setStopSequenceNumber(Relationship relationship, int stopSequenceNumber) {
+        relationship.setProperty(STOP_SEQ_NUM.getText(), stopSequenceNumber);
+    }
+
+    public static int getStopSequenceNumber(Relationship relationship) {
+        return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
+    }
+
+    public static IdFor<Route> getRouteIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, ROUTE_ID);
+    }
+
+    public static IdFor<Station> getStationIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, STATION_ID);
+    }
+
+    public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, TOWARDS_STATION_ID);
+    }
+
+    public static IdFor<Service> getServiceIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, SERVICE_ID);
+    }
+
+    public static IdFor<Trip> getTripIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, TRIP_ID);
+    }
+
+    public static IdFor<RouteStation> getRouteStationIdFrom(Entity entity) {
+        return getCompositeIdFromGraphEntity(entity, ROUTE_STATION_ID);
+    }
+
+    public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
+        return getIdFromGraphEntity(entity, PLATFORM_ID);
+    }
 }

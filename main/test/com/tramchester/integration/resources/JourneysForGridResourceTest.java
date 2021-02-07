@@ -2,7 +2,8 @@ package com.tramchester.integration.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.LatLong;

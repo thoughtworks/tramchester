@@ -1,6 +1,6 @@
 package com.tramchester.testSupport.reference;
 
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -14,6 +14,11 @@ import org.jetbrains.annotations.NotNull;
 
 public enum TrainStations implements TestStations {
     ManchesterPiccadilly("MAN", "Manchester Piccadilly", new LatLong(53.47736,-2.23091)),
+    Stockport("SPT", "Stockport", new LatLong(53.40554,-2.16301)),
+    Hale("HAL", "Hale", new LatLong(53.37872,-2.34736)),
+    Ashley("ASY", "Ashley", new LatLong(53.35572,-2.34146)),
+    Knutsford("KNF", "Knutsford", new LatLong(53.30179,-2.37179)),
+    Mobberley("MOB", "Mobberley", new LatLong(53.32914,-2.33367)),
     LondonEuston("EUS", "London Euston", new LatLong(51.52814,-0.13392));
 
     private final TestStation station;
@@ -27,7 +32,7 @@ public enum TrainStations implements TestStations {
         return enumValue.station;
     }
 
-    public static Station real(StationRepository stationRepository, BusStations station) {
+    public static Station real(StationRepository stationRepository, TrainStations station) {
         return stationRepository.getStationById(station.getId());
     }
 

@@ -1,6 +1,6 @@
 package com.tramchester.resources;
 
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -47,7 +47,7 @@ public abstract class TransportResource {
         return forwardedHeader != null && forwardedHeader.equalsIgnoreCase("https");
     }
 
-    protected void guardForStationNotExisting(StationRepository repository, IdFor<Station> stationId) {
+    protected void guardForStationNotExisting(StationRepository repository, StringIdFor<Station> stationId) {
         if (!repository.hasStationId(stationId)) {
             String msg = "Unable to find station " + stationId;
             logger.warn(msg);

@@ -1,21 +1,13 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.IdFor;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.VehicleStage;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
-import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.repository.StationRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -53,7 +45,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), routeRefDTO, travelAction, queryDate, tripId);
+                    source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
         } else {
             return new StageDTO(firstStation,
                     lastStation,
@@ -61,7 +53,7 @@ public class StageDTOFactory {
                     firstDepartureTime, expectedArrivalTime,
                     source.getDuration(), source.getHeadSign(),
                     source.getMode(),
-                    source.getPassedStops(), routeRefDTO, travelAction, queryDate, tripId);
+                    source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
         }
     }
 

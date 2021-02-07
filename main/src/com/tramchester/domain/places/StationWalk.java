@@ -1,7 +1,7 @@
 package com.tramchester.domain.places;
 
 
-import com.tramchester.domain.HasId;
+import com.tramchester.domain.id.HasId;
 
 public class StationWalk {
     private final Station station;

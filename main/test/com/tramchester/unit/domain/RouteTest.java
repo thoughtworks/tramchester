@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
@@ -13,11 +14,11 @@ class RouteTest {
 
     @Test
     void shouldHaveTramRoute() {
-        Route route = new Route(IdFor.createId("idA"),"code","name", TestEnv.MetAgency(),
+        Route route = new Route(StringIdFor.createId("idA"),"code","name", TestEnv.MetAgency(),
                 TransportMode.Tram, RouteDirection.Inbound);
         Assertions.assertTrue(TransportMode.isTram(route));
 
-        route = new Route(IdFor.createId("idB"),"code","name",
+        route = new Route(StringIdFor.createId("idB"),"code","name",
                 new Agency(DataSourceID.TFGM(), "GMS", "agencyName"),
                 TransportMode.Bus, RouteDirection.Outbound);
         Assertions.assertFalse(TransportMode.isTram(route));
@@ -25,7 +26,7 @@ class RouteTest {
 
     @Test
     void shouldAddService() {
-        Route  route = new Route(IdFor.createId("routeId"),"code","name", TestEnv.MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
+        Route  route = new Route(StringIdFor.createId("routeId"),"code","name", TestEnv.MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
 
         route.addService(new Service("serviceId", TestEnv.getTestRoute()));
         route.addService(new Service("serviceId", TestEnv.getTestRoute()));
@@ -38,7 +39,7 @@ class RouteTest {
 
     @Test
     void shouldAddHeadsign() {
-        Route  route = new Route(IdFor.createId("id"),"code","name", TestEnv.MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
+        Route  route = new Route(StringIdFor.createId("id"),"code","name", TestEnv.MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
 
         route.addHeadsign("hs1");
         route.addHeadsign("hs2");

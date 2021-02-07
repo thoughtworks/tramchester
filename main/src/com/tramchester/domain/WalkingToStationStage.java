@@ -1,10 +1,15 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+
+import java.util.Collections;
+import java.util.List;
 
 public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
 
@@ -28,8 +33,13 @@ public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
     }
 
     @Override
-    public IdFor<Trip> getTripId() {
-        return IdFor.invalid();
+    public List<StopCall> getCallingPoints() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public StringIdFor<Trip> getTripId() {
+        return StringIdFor.invalid();
     }
 
     @Override

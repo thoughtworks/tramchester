@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tramchester.domain.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.LatLong;
 
@@ -10,7 +10,7 @@ public class PlatformDTO {
     private String id;
     private String name;
     private String platformNumber;
-    private IdFor<Platform> platformId;
+    private StringIdFor<Platform> platformId;
     private LatLong latLong;
 
     @SuppressWarnings("unused")
@@ -36,7 +36,7 @@ public class PlatformDTO {
     }
 
     @JsonIgnore
-    public IdFor<Platform> getPlatformId() {
+    public StringIdFor<Platform> getPlatformId() {
         return platformId;
     }
 

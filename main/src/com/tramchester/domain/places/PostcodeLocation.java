@@ -1,6 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
@@ -9,20 +10,20 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements Location<PostcodeLocation> {
+public class PostcodeLocation implements Location<PostcodeLocation> {
 
     private final LatLong LatLong;
-    private final IdFor<PostcodeLocation> id;
+    private final StringIdFor<PostcodeLocation> id;
     private final String name;
 
     public PostcodeLocation(com.tramchester.domain.presentation.LatLong latLong, String id) {
         LatLong = latLong;
-        this.id = IdFor.createId(id);
+        this.id = StringIdFor.createId(id);
         this.name = id;
     }
 
     @Override
-    public IdFor<PostcodeLocation> getId() {
+    public StringIdFor<PostcodeLocation> getId() {
         return id;
     }
 
@@ -95,5 +96,9 @@ public class PostcodeLocation extends MapIdToDTOId<PostcodeLocation> implements 
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 "} " + super.toString();
+    }
+
+    public String forDTO()  {
+        return getId().forDTO();
     }
 }
