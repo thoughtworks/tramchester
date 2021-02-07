@@ -55,7 +55,7 @@ public class Service implements HasId<Service>, GraphProperty {
 
     public void addTrip(Trip trip) {
         if (!route.equals(trip.getRoute())) {
-            String message = "Service route " + route+ " does not match trip route: " + trip.getRoute();
+            String message = "Service route " + route.getId() + " does not match trip route: " + trip.getRoute();
             logger.error(message);
             throw new RuntimeException(message);
         }
