@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -82,7 +83,8 @@ class LiveDataHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldReportUnhealthyIfGoodEntriesButNoEnoughStations() {
-        LocalDateTime now = TestEnv.LocalNow();
+        LocalDate date = TestEnv.LocalNow().toLocalDate();
+        LocalDateTime now = LocalDateTime.of(date, LocalTime.of(15,42));
         EasyMock.expect(providesNow.getDateTime()).andReturn(now);
 
         EasyMock.expect(repository.upToDateEntries()).andReturn(40);

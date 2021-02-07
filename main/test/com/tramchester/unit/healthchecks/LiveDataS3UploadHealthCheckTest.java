@@ -14,7 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -23,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
     private final TramchesterConfig configuration = TestEnv.GET(new TestLiveDataConfig());
-    private LocalDateTime localNow;
+    private LocalDateTime now;
     private ProvidesLocalNow providesLocalNow;
     private CountsUploadedLiveData countsUploadedLiveData;
     private LiveDataS3UploadHealthCheck healthCheck;
@@ -31,7 +33,8 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTest() {
-        localNow = TestEnv.LocalNow();
+        LocalDate date = TestEnv.LocalNow().toLocalDate();
+        now = LocalDateTime.of(date, LocalTime.of(15,42));
         providesLocalNow = createMock(ProvidesLocalNow.class);
         countsUploadedLiveData = createMock(CountsUploadedLiveData.class);
         ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
@@ -43,8 +46,8 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldReportHealthIfUpToDateDataIsInS3() throws Exception {
-        EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(localNow);
-        EasyMock.expect(countsUploadedLiveData.count(localNow.minus(expectedDuration), expectedDuration))
+        EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(now);
+        EasyMock.expect(countsUploadedLiveData.count(now.minus(expectedDuration), expectedDuration))
                 .andReturn(1L);
 
         replayAll();
@@ -58,8 +61,8 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
     @Test
     void shouldReportUnhealthIfNoDataFound() throws Exception {
-        EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(localNow);
-        EasyMock.expect(countsUploadedLiveData.count(localNow.minus(expectedDuration), expectedDuration))
+        EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(now);
+        EasyMock.expect(countsUploadedLiveData.count(now.minus(expectedDuration), expectedDuration))
                 .andReturn(0L);
 
         replayAll();
