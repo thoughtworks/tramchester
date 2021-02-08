@@ -1,4 +1,4 @@
-package com.tramchester.unit.graph;
+package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;

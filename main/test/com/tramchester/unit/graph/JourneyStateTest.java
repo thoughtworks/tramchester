@@ -36,7 +36,7 @@ class JourneyStateTest {
     // TODO ON BUS
 
     @BeforeEach
-    void onceBeforeEachTestRuns() throws TransformException {
+    void onceBeforeEachTestRuns() {
         LatLong latLongHint = TramStations.ManAirport.getLatLong();
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(42L);

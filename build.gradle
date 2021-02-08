@@ -210,9 +210,11 @@ task busTest(type: Test) {
 }
 
 task unit(type: Test, dependsOn: compileJava) {
+    //jvmArgs '-XX:ActiveProcessorCount=2'
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
+        excludeTestsMatching "com.tramchester.unit.graph.calculation.*"
     }
     testLogging {
         exceptionFormat "full" // default is "short"
