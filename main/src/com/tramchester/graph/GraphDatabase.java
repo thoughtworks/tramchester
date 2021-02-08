@@ -208,7 +208,10 @@ public class GraphDatabase {
 
     private GraphDatabaseService createGraphDatabaseService(Path graphFile, String neo4jPagecacheMemory) {
 
-        logger.info("Create graph database service");
+        logger.info("Create GraphDatabaseService");
+        long start = System.currentTimeMillis();
+
+        logger.info("GraphDatabaseService build");
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
                 setConfig(GraphDatabaseSettings.track_query_allocation, false).
                 setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
@@ -233,15 +236,19 @@ public class GraphDatabase {
                 build();
 
         // for community edition must be DEFAULT_DATABASE_NAME
+        logger.info("GraphDatabaseService start");
         GraphDatabaseService graphDatabaseService = managementService.database(DEFAULT_DATABASE_NAME);
 
+        logger.info("Wait for GraphDatabaseService available");
         int retries = 10;
         while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
             logger.error("DB Service is not available, name: " + DEFAULT_DATABASE_NAME +
                     " Path: " + graphFile.toAbsolutePath() + " check " + retries);
             retries--;
         }
-        logger.info("Service is available");
+
+        long duration = System.currentTimeMillis()-start;
+        logger.info("Service is available, took " + duration);
         return graphDatabaseService;
     }
 
@@ -255,6 +262,8 @@ public class GraphDatabase {
 
     public void createIndexs() {
         logger.info("Create DB indexes");
+        long start = System.currentTimeMillis();
+
         try ( Transaction tx = databaseService.beginTx() )
         {
             Schema schema = tx.schema();
@@ -274,6 +283,8 @@ public class GraphDatabase {
 
             tx.commit();
         }
+        long duration = System.currentTimeMillis()-start;
+        logger.info("Create DB indexes finished, took " +duration);
     }
 
     public void waitForIndexesReady(Transaction tx) {
