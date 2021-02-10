@@ -47,7 +47,7 @@ dependencies {
     // aws sdk
     implementation('software.amazon.awssdk:cloudwatch:2.15.73')
     implementation('software.amazon.awssdk:s3:2.15.73')
-    implementation('software.amazon.awssdk:cloudformation:2.15.73')
+    implementation('software.amazon.awssdk:cloudformation:2.15.79')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.78.0',
             'software.amazon.awscdk:s3:1.87.1',
@@ -59,7 +59,7 @@ dependencies {
     implementation('org.geotools:gt-main:24.1')
     implementation('org.geotools:gt-epsg-hsql:24.1')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1',
             'org.assertj:assertj-core:3.18.1',
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.2',
