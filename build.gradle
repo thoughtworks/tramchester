@@ -32,7 +32,7 @@ repositories {
 dependencies {
     implementation('io.dropwizard:dropwizard-core:' + dropwizardVersion)
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
-    implementation('com.netflix.governator:governator:1.17.10') { exclude group:'org.slf4j', module:'slf4j-api'}
+    implementation('com.netflix.governator:governator:1.17.11') { exclude group:'org.slf4j', module:'slf4j-api'}
     implementation 'com.google.inject:guice:5.0.0-BETA-1'
     implementation('org.neo4j:neo4j:4.2.1') { exclude group:'org.slf4j', module:'slf4j-nop' }
     implementation 'com.github.cliftonlabs:json-simple:3.1.1',
