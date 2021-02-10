@@ -4,12 +4,12 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.HttpClients;
+import org.neo4j.server.http.cypher.format.api.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,10 @@ public class FetchInstanceMetadata implements FetchMetadata {
     }
 
     private String getDataFrom(URL url) {
-        logger.info("Attempt to getPlatformById instance user data from " + url.toString());
+        String host = url.getHost();
+        int port = (url.getPort()==-1) ? 80 : url.getPort();
+        logger.info(format("Attempt to getPlatformById instance user data from host:%s port%s url:%s",
+                host, port, url.toString()));
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url.toString());
         RequestConfig config = RequestConfig.custom()
@@ -68,18 +71,35 @@ public class FetchInstanceMetadata implements FetchMetadata {
             return stream.toString();
         }
         catch (ConnectTimeoutException timeout) {
-            logger.info("Timed out getting meta data, not running in cloud");
+            logger.info("Timed out getting meta data for '"+url+"', not running in cloud");
         }
         catch (SocketException socketException) {
-            if ("Host is down".equals(socketException.getMessage())) {
-                logger.info("Host is down, likely not running in cloud");
-            } else {
-                logger.warn("Unable to getPlatformById instance user data, likely not running in cloud", socketException);
+            String connectFailedMsg = format("Connect to %s:%s [/%s] failed: Connection refused", host, port, host);
+            String exceptionMessage = socketException.getMessage();
+            String msg = createDiagnosticMessage("SocketException", url, exceptionMessage);
+            if ("Host is down".equals(exceptionMessage) || (connectFailedMsg.equals(exceptionMessage))) {
+                logger.info(msg);
             }
-        } catch (IOException exception) {
-            logger.error("Unable to getPlatformById instance user data, likely not running in cloud", exception);
+            else {
+                logger.warn(msg, socketException);
+            }
+        }
+        catch (ConnectionException connectionException) {
+            String exceptionMessage = connectionException.getMessage();
+            logger.warn(createDiagnosticMessage("ConnectionException", url, exceptionMessage),
+                    connectionException);
+        }
+        catch (IOException ioException) {
+            String exceptionMessage = ioException.getMessage();
+            logger.warn(createDiagnosticMessage("IOException", url, exceptionMessage), ioException);
         }
         return "";
 
+    }
+
+    private String createDiagnosticMessage(String exceptionName, URL url, String exceptionMessage) {
+        String msg = format("type:%s message:'%s' Diagnostic: Cannot connect to '%s' likely not running in the cloud",
+                exceptionName, exceptionMessage, url);
+        return msg;
     }
 }

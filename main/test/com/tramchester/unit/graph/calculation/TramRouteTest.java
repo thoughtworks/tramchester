@@ -51,6 +51,7 @@ class TramRouteTest {
     private TramTime queryTime;
     private Transaction txn;
 
+
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
         config = new SimpleGraphConfig();
