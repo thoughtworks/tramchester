@@ -28,6 +28,7 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.neo4j.logging.shaded.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +58,20 @@ public class App extends Application<AppConfiguration>  {
         return SERVICE_NAME;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         logEnvironmentalVars();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> logger.warn("Shutting down")));
-        new App().run(args);
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+            {
+                logger.warn("Shutting down");
+                LogManager.shutdown();
+            }));
+        try {
+            new App().run(args);
+        } catch (Exception e) {
+            logger.error("Exception, will shutdown ", e);
+            LogManager.shutdown();
+            System.exit(-1);
+        }
     }
 
     private static void logEnvironmentalVars() {

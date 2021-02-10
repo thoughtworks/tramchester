@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URL;
 
 import static java.lang.String.format;
@@ -67,11 +69,17 @@ public class FetchInstanceMetadata implements FetchMetadata {
         }
         catch (ConnectTimeoutException timeout) {
             logger.info("Timed out getting meta data, not running in cloud");
-            return "";
         }
-        catch (IOException e) {
-            logger.warn("Unable to getPlatformById instance user data, likely not running in cloud");
-            return "";
+        catch (SocketException socketException) {
+            if ("Host is down".equals(socketException.getMessage())) {
+                logger.info("Host is down, likely not running in cloud");
+            } else {
+                logger.warn("Unable to getPlatformById instance user data, likely not running in cloud", socketException);
+            }
+        } catch (IOException exception) {
+            logger.error("Unable to getPlatformById instance user data, likely not running in cloud", exception);
         }
+        return "";
+
     }
 }

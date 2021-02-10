@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.SdkClient;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -57,8 +59,8 @@ public class ClientForS3 {
             s3Client = S3Client.create();
             logger.info("Started");
         }
-        catch (AwsServiceException exception) {
-            logger.warn("Unable to init S3 client, no live data will be archived.");
+        catch (AwsServiceException | SdkClientException exception) {
+            logger.error("Unable to init S3 client, no live data will be archived.", exception);
         }
     }
 
@@ -72,6 +74,11 @@ public class ClientForS3 {
     }
 
     public boolean upload(String key, String json) {
+        if (!isStarted()) {
+            logger.error("not started");
+            return false;
+        }
+
         if (logger.isDebugEnabled()) {
             logger.debug(format("Uploading to bucket '%s' key '%s' contents '%s'", bucket, key, json));
         } else {
@@ -104,6 +111,11 @@ public class ClientForS3 {
     }
 
     public <T> Stream<T> download(Set<String> keys, ResponseMapper<T> responseMapper) {
+        if (!isStarted()) {
+            logger.error("not started");
+            return Stream.empty();
+        }
+
         logger.info("Downloading data for " + keys.size() + " keys");
         return keys.parallelStream().map(key -> download(key, responseMapper)).flatMap(Collection::stream);
     }
@@ -169,6 +181,10 @@ public class ClientForS3 {
     // so here do an op on the bucket and catch exception instead
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean bucketExists(String bucket) {
+        if (!isStarted()) {
+            logger.error("not started");
+            return false;
+        }
 
         try {
             GetBucketLocationRequest request = GetBucketLocationRequest.builder().bucket(bucket).build();
@@ -186,6 +202,11 @@ public class ClientForS3 {
     }
 
     public boolean keyExists(String prefix, String key) {
+        if (!isStarted()) {
+            logger.error("not started");
+            return false;
+        }
+
         List<S3Object> items = getSummaryForPrefix(prefix);
 
         for (S3Object item : items) {
@@ -197,6 +218,11 @@ public class ClientForS3 {
     }
 
     public Set<String> getKeysFor(String prefix) {
+        if (!isStarted()) {
+            logger.error("not started");
+            return Collections.emptySet();
+        }
+
         List<S3Object> items = getSummaryForPrefix(prefix);
         return items.stream().map(S3Object::key).collect(Collectors.toSet());
     }

@@ -8,6 +8,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
@@ -47,7 +48,7 @@ public class SendMetricsToCloudWatch {
         try {
             client = CloudWatchClient.create();
         }
-        catch (AwsServiceException exception) {
+        catch (AwsServiceException | SdkClientException exception) {
             logger.warn("Unable to init cloud watch client, no metrics will be sent", exception);
         }
     }
