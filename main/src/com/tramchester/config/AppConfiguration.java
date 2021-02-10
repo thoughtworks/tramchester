@@ -23,16 +23,8 @@ public class AppConfiguration extends TramchesterConfig {
     ////////
 
     @NotNull
-    @JsonProperty("graphName")
-    private String graphName;
-
-    @NotNull
     @JsonProperty("staticAssetCacheTimeSeconds")
     private Integer staticAssetCacheTimeSeconds;
-
-    @NotNull
-    @JsonProperty("neo4jPagecacheMemory")
-    private String neo4jPagecacheMemory;
 
     @NotNull
     @JsonProperty("instanceDataUrl")
@@ -126,6 +118,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("stationClosures")
     private List<StationClosure> stationClosures;
 
+    @NotNull
+    @JsonProperty("graphDBConfig")
+    private GraphDBConfig graphDBConfig;
+
     // TODO move live data config into the associated data source config section?
     //@NotNull
     @JsonProperty("liveData")
@@ -211,14 +207,6 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public String getGraphName() { return graphName; }
-
-    @Override
-    public String getNeo4jPagecacheMemory() {
-        return neo4jPagecacheMemory;
-    }
-
-    @Override
     public boolean getRemoveRouteNameSuffix() {
         return removeRouteNameSuffix;
     }
@@ -270,9 +258,16 @@ public class AppConfiguration extends TramchesterConfig {
         return stationClosures;
     }
 
+    // optional
     @Override
     public LiveDataConfig getLiveDataConfig() {
         return liveDataConfig;
+    }
+
+    @Valid
+    @Override
+    public GraphDBConfig getGraphDBConfig() {
+        return graphDBConfig;
     }
 
     @Valid

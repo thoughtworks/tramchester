@@ -1,12 +1,14 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.util.*;
 
 public class IntegrationBusTestConfig extends IntegrationTestConfig {
     private final DataSourceConfig dataSourceConfig;
+    private final GraphDBConfig graphDBConfig;
 
     public IntegrationBusTestConfig() {
         this("bus_tramchester.db");
@@ -16,6 +18,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         super("integrationBusTest", dbName);
         dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus),
                 Collections.emptySet());
+        graphDBConfig = new GraphDBIntegrationBusTestConfig("integrationBusTest", dbName);
     }
 
     @Override
@@ -62,7 +65,20 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public String getNeo4jPagecacheMemory() {
-        return "1300m";
+    public GraphDBConfig getGraphDBConfig() {
+        return graphDBConfig;
+    }
+
+    private static class GraphDBIntegrationBusTestConfig extends GraphDBTestConfig {
+
+        public GraphDBIntegrationBusTestConfig(String folder, String dbName) {
+            super(folder, dbName);
+        }
+
+        @Override
+        public String getNeo4jPagecacheMemory() {
+            return "1300m";
+        }
+
     }
 }

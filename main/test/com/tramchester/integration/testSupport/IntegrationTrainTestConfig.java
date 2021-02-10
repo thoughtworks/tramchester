@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestEnv;
 
@@ -10,6 +11,7 @@ import java.util.List;
 public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     private final RailTestDataSourceConfig sourceConfig;
+    private final GraphDBConfig graphDBConfig;
 
     public IntegrationTrainTestConfig() {
         this("train_tramchester.db");
@@ -18,6 +20,7 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
     protected IntegrationTrainTestConfig(String dbName) {
         super("integrationTrainTest", dbName);
         sourceConfig = new RailTestDataSourceConfig();
+        graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbName);
     }
 
     @Override
@@ -36,12 +39,24 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public String getNeo4jPagecacheMemory() {
-       return "1000m";
+    public GraphDBConfig getGraphDBConfig() {
+        return graphDBConfig;
     }
 
     @Override
     public int getMaxJourneyDuration() {
         return 8*60;
+    }
+
+    private static class GraphDBIntegrationTrainTestConfig extends GraphDBTestConfig {
+
+        public GraphDBIntegrationTrainTestConfig(String folder, String dbName) {
+            super(folder, dbName);
+        }
+
+        @Override
+        public String getNeo4jPagecacheMemory() {
+            return "1000m";
+        }
     }
 }

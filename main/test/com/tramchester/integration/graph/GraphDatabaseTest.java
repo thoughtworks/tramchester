@@ -8,8 +8,8 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
-import com.tramchester.testSupport.TestConfig;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -45,16 +45,26 @@ class GraphDatabaseTest {
     private List<DataSourceConfig> dataSourceConfigs;
     private Path dbFile;
     private GraphDatabase graphDatabase;
+    private String dbName;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
+        dbName = "graphDbTest.db";
+
+        config = new IntegrationTestConfig("graphDatabaseTest", dbName) {
+            @Override
+            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+                return dataSourceConfigs;
+            }
+        };
+
         graphDatabase = null;
-        Path dir = Paths.get("graphDbTest.db");
+        Path dir = Paths.get(config.getGraphDBConfig().getGraphName());
         if (Files.exists(dir)) {
             FileUtils.deleteDirectory(dir.toFile());
         }
 
-        dbFile = Files.createDirectory(dir);
+        dbFile = Files.createDirectories(dir);
         namesAndVersions = new HashSet<>();
         dataSourceConfigs = new ArrayList<>();
 
@@ -70,22 +80,23 @@ class GraphDatabaseTest {
             }
         };
 
-        config = new TestConfig() {
-            @Override
-            protected List<DataSourceConfig> getDataSourceFORTESTING() {
-                return dataSourceConfigs;
-            }
-
-            @Override
-            public String getGraphName() {
-                return dbFile.toAbsolutePath().toString();
-            }
-
-            @Override
-            public String getNeo4jPagecacheMemory() {
-                return "100m";
-            }
-        };
+//
+//        config = new TestConfig() {
+//            @Override
+//            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+//                return dataSourceConfigs;
+//            }
+//
+//            @Override
+//            public String getGraphName() {
+//                return dbFile.toAbsolutePath().toString();
+//            }
+//
+//            @Override
+//            public String getNeo4jPagecacheMemory() {
+//                return "100m";
+//            }
+//        };
     }
 
     @AfterEach

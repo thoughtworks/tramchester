@@ -1,6 +1,5 @@
 package com.tramchester.config;
 
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
@@ -10,7 +9,6 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,13 +18,6 @@ public abstract class TramchesterConfig extends Configuration {
     public static final ZoneId TimeZone = ZoneId.of("Europe/London");
 
     public abstract Integer getStaticAssetCacheTimeSeconds();
-
-    // name of the graph DB to use
-    public abstract String getGraphName();
-
-    // page cache memory for neo4j
-    // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
-    public abstract String getNeo4jPagecacheMemory();
 
     // URL to pull Cloud instance meta-data from
     public abstract String getInstanceDataUrl();
@@ -101,6 +92,9 @@ public abstract class TramchesterConfig extends Configuration {
 
     // live transport data config
     public abstract LiveDataConfig getLiveDataConfig();
+
+    // Graph DB Config
+    public abstract GraphDBConfig getGraphDBConfig();
 
     // bounding box for stations to include
     public abstract BoundingBox getBounds();

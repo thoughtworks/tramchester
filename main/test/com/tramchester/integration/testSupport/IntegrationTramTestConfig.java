@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,6 +14,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private final DataSourceConfig dataSourceConfig;
     private final boolean liveDataEnabled;
+    private final GraphDBConfig graphDBConfig;
 
     public IntegrationTramTestConfig() {
        this("int_test_tramchester.db", false);
@@ -28,6 +30,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled) {
         super("integrationTramTest", dbName);
+        graphDBConfig = new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName);
         this.liveDataEnabled = liveDataEnabled;
         dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", GTFSTransportationType.tram,
                 TransportMode.Tram);
@@ -47,8 +50,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public String getNeo4jPagecacheMemory() {
-        return "100m";
+    public GraphDBConfig getGraphDBConfig() {
+        return graphDBConfig;
     }
 
     @Override
@@ -57,6 +60,18 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
             return new TestLiveDataConfig();
         }
         return null;
+    }
+
+    private static class GraphDBIntegrationTramTestConfig extends GraphDBTestConfig {
+
+        public GraphDBIntegrationTramTestConfig(String folder, String dbName) {
+            super(folder, dbName);
+        }
+
+        @Override
+        public String getNeo4jPagecacheMemory() {
+            return "100m";
+        }
     }
 }
 

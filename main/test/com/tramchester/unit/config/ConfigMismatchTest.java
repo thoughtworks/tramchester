@@ -3,6 +3,7 @@ package com.tramchester.unit.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
@@ -38,7 +39,6 @@ class ConfigMismatchTest {
         for (Path config : configFiles) {
             factory.build(config.toFile());
         }
-
     }
 
     @Test
@@ -82,6 +82,10 @@ class ConfigMismatchTest {
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM());
         assertEquals(expected.getLoadPostcodes(), testConfig.getLoadPostcodes());
         assertEquals(expected.getTransportModes(), testConfig.getTransportModes());
+
+        GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
+        GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
+        assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory());
 
         LiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
         LiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();

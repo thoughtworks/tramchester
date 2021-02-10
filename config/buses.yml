@@ -15,8 +15,9 @@ server:
 
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
-graphName: buses.db
-neo4jPagecacheMemory: 1300m
+graphDBConfig:
+  graphName: buses.db
+  neo4jPagecacheMemory: 1300m
 stationClosures: []
 dataSources:
   -

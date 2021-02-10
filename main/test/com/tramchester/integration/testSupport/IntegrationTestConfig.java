@@ -1,23 +1,31 @@
 package com.tramchester.integration.testSupport;
 
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.testSupport.TestConfig;
 
 import java.nio.file.Path;
 
 public abstract class IntegrationTestConfig extends TestConfig {
-    private final Path dbPath;
+    private final GraphDBTestConfig dbConfig;
 
-    public IntegrationTestConfig(String folder, String dbName) {
-        this.dbPath = Path.of("databases", folder, dbName);
+    public IntegrationTestConfig(GraphDBTestConfig dbConfig) {
+        this.dbConfig = dbConfig;
     }
 
-    @Override
-    public String getGraphName() {
-        return dbPath.toAbsolutePath().toString();
+    /**
+     * Use version that takes GraphDBTestConfig
+     */
+    @Deprecated
+    public IntegrationTestConfig(String folder, String dbName) {
+        this(new GraphDBTestConfig(folder, dbName));
     }
 
     public Path getDBPath() {
-        return dbPath;
+        return dbConfig.getDbPath();
     }
 
+    @Override
+    public GraphDBConfig getGraphDBConfig() {
+        return dbConfig;
+    }
 }

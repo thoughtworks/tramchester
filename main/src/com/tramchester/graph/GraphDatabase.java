@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.DataSourceID;
@@ -66,7 +67,9 @@ public class GraphDatabase {
     public void start() {
         logger.info("start");
 
-        String graphName = configuration.getGraphName();
+        GraphDBConfig graphDBConfig = configuration.getGraphDBConfig();
+
+        String graphName = graphDBConfig.getGraphName();
         logger.info("Create or load graph " + graphName);
         Path graphFile = Path.of(graphName).toAbsolutePath();
         boolean existingFile = Files.exists(graphFile);
@@ -78,7 +81,7 @@ public class GraphDatabase {
             logger.info("No db file found at " + graphFile);
         }
 
-        databaseService = createGraphDatabaseService(graphFile, configuration.getNeo4jPagecacheMemory());
+        databaseService = createGraphDatabaseService(graphFile, graphDBConfig);
 
         if (existingFile && !upToDateVersionsAndNeighbourFlag()) {
             cleanDB = true;
@@ -99,7 +102,7 @@ public class GraphDatabase {
                 logger.error(message,e);
                 throw new RuntimeException(message,e);
             }
-            databaseService = createGraphDatabaseService(graphFile, configuration.getNeo4jPagecacheMemory());
+            databaseService = createGraphDatabaseService(graphFile, graphDBConfig);
         }
 
         logger.info("graph db started " + graphFile.toString());
@@ -206,7 +209,7 @@ public class GraphDatabase {
         return nodes;
     }
 
-    private GraphDatabaseService createGraphDatabaseService(Path graphFile, String neo4jPagecacheMemory) {
+    private GraphDatabaseService createGraphDatabaseService(Path graphFile, GraphDBConfig config) {
 
         logger.info("Create GraphDatabaseService");
         long start = System.currentTimeMillis();
@@ -218,7 +221,7 @@ public class GraphDatabase {
 
                 // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
 
-                setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory). // todo into config file
+                setConfig(GraphDatabaseSettings.pagecache_memory, config.getNeo4jPagecacheMemory()).
                 setConfig(ExternalSettings.initial_heap_size, "100m").
                 setConfig(ExternalSettings.max_heap_size, "200m").
                 setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
@@ -308,8 +311,12 @@ public class GraphDatabase {
         return tx.findNode(labels, idField, idValue);
     }
 
-    public boolean isAvailable(int timeoutMilli) {
-        return databaseService.isAvailable(timeoutMilli);
+//    public boolean isAvailable(int timeoutMilli) {
+//        return databaseService.isAvailable(timeoutMilli);
+//    }
+
+    public boolean isAvailable(long timeoutMillis) {
+        return databaseService.isAvailable(timeoutMillis);
     }
 
     public ResourceIterator<Node> findNodes(Transaction tx, GraphBuilder.Labels label) {
@@ -320,9 +327,6 @@ public class GraphDatabase {
         return tx.traversalDescription();
     }
 
-    public boolean isAvailable(long timeoutMillis) {
-        return databaseService.isAvailable(timeoutMillis);
-    }
 
     public EvaluationContext createContext(Transaction txn) {
         return new BasicEvaluationContext(txn, databaseService);
