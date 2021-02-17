@@ -19,12 +19,14 @@ public class RegistersHealthchecks {
                                  GraphHealthCheck graphHealthCheck,
                                  LiveDataHealthCheck liveDataHealthCheck,
                                  LiveDataMessagesHealthCheck liveDataMessagesHealthCheck,
-                                 LiveDataS3UploadHealthCheck liveDataS3UploadHealthCheck) {
+                                 LiveDataS3UploadHealthCheck liveDataS3UploadHealthCheck,
+                                 ClientForS3Healthcheck clientForS3Healthcheck) {
         this.healthChecks = new HashSet<>();
 
         addIfEnabled(dataExpiryHealthCheckFactory.getHealthChecks());
         addIfEnabled(newDataAvailableHealthCheckFactory.getHealthChecks());
         addIfEnabled(graphHealthCheck);
+        addIfEnabled(clientForS3Healthcheck);
 
         // live data healthchecks
         addIfEnabled(liveDataHealthCheck);
