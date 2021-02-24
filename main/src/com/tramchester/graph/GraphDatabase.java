@@ -116,9 +116,11 @@ public class GraphDatabase {
                 logger.error("Unable to obtain GraphDatabaseService for shutdown");
             } else {
                 if (databaseService.isAvailable(SHUTDOWN_TIMEOUT)) {
+                    long start = System.currentTimeMillis();
                     logger.info("Shutting down graphDB");
                     managementService.shutdown();
-                    logger.info("graphDB is shutdown");
+                    long duration = System.currentTimeMillis()-start;
+                    logger.info("graphDB is shutdown, took " + duration);
                 } else {
                     logger.warn("Graph reported unavailable, attempt shutdown anyway");
                     managementService.shutdown();
@@ -212,9 +214,9 @@ public class GraphDatabase {
     private GraphDatabaseService createGraphDatabaseService(Path graphFile, GraphDBConfig config) {
 
         logger.info("Create GraphDatabaseService");
-        long start = System.currentTimeMillis();
 
         logger.info("GraphDatabaseService build");
+        long start = System.currentTimeMillis();
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
                 setConfig(GraphDatabaseSettings.track_query_allocation, false).
                 setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
@@ -227,7 +229,7 @@ public class GraphDatabase {
                 setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
 
                 // txn logs, no need to save beyond current ones
-                setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
+                //setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
 
                 // operating in embedded mode
                 setConfig(HttpConnector.enabled, false).
@@ -238,11 +240,15 @@ public class GraphDatabase {
                 //setUserLogProvider(new Slf4jLogProvider()).
                 build();
 
+        long duration = System.currentTimeMillis()-start;
+        logger.info("GraphDatabaseService build took " + duration);
+
         // for community edition must be DEFAULT_DATABASE_NAME
         logger.info("GraphDatabaseService start");
         GraphDatabaseService graphDatabaseService = managementService.database(DEFAULT_DATABASE_NAME);
 
         logger.info("Wait for GraphDatabaseService available");
+        start = System.currentTimeMillis();
         int retries = 10;
         while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
             logger.error("DB Service is not available, name: " + DEFAULT_DATABASE_NAME +
@@ -250,7 +256,7 @@ public class GraphDatabase {
             retries--;
         }
 
-        long duration = System.currentTimeMillis()-start;
+        duration = System.currentTimeMillis()-start;
         logger.info("Service is available, took " + duration);
         return graphDatabaseService;
     }
@@ -310,10 +316,6 @@ public class GraphDatabase {
     public Node findNode(Transaction tx, GraphBuilder.Labels labels, String idField, String idValue) {
         return tx.findNode(labels, idField, idValue);
     }
-
-//    public boolean isAvailable(int timeoutMilli) {
-//        return databaseService.isAvailable(timeoutMilli);
-//    }
 
     public boolean isAvailable(long timeoutMillis) {
         return databaseService.isAvailable(timeoutMillis);

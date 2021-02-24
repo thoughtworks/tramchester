@@ -8,6 +8,7 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
@@ -36,8 +37,8 @@ class GraphDatabaseTest {
     private static final DataSourceID SRC_2_NAME = new DataSourceID("src2");
     private static final String VERSION_1_VALID = "version1";
     private static final String VERSION_2_VALID = "version21";
-    private static final int SHUTDOWN_TIMEOUT_MILLI = 200;
-    private static final int START_TIMEOUT_MILLI = 100;
+    private static final int SHUTDOWN_TIMEOUT_MILLI = 100;
+    private static final int START_TIMEOUT_MILLI = 50;
 
     private TramchesterConfig config;
     private DataSourceRepository repository;
@@ -50,21 +51,22 @@ class GraphDatabaseTest {
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
         dbName = "graphDbTest.db";
+        graphDatabase = null;
 
-        config = new IntegrationTestConfig("graphDatabaseTest", dbName) {
+        GraphDBTestConfig dbConfig = new GraphDBTestConfig("graphDatabaseTest", dbName);
+        config = new IntegrationTestConfig(dbConfig) {
             @Override
             protected List<DataSourceConfig> getDataSourceFORTESTING() {
                 return dataSourceConfigs;
             }
         };
 
-        graphDatabase = null;
-        Path dir = Paths.get(config.getGraphDBConfig().getGraphName());
-        if (Files.exists(dir)) {
-            FileUtils.deleteDirectory(dir.toFile());
+        //Path dir = Paths.get(dbConfig.getGraphName());
+        if (Files.exists(dbConfig.getDbPath())) {
+            FileUtils.deleteDirectory(dbConfig.getDbPath().toFile());
         }
+        dbFile = Files.createDirectories(dbConfig.getContainingFolder());
 
-        dbFile = Files.createDirectories(dir);
         namesAndVersions = new HashSet<>();
         dataSourceConfigs = new ArrayList<>();
 
@@ -80,35 +82,20 @@ class GraphDatabaseTest {
             }
         };
 
-//
-//        config = new TestConfig() {
-//            @Override
-//            protected List<DataSourceConfig> getDataSourceFORTESTING() {
-//                return dataSourceConfigs;
-//            }
-//
-//            @Override
-//            public String getGraphName() {
-//                return dbFile.toAbsolutePath().toString();
-//            }
-//
-//            @Override
-//            public String getNeo4jPagecacheMemory() {
-//                return "100m";
-//            }
-//        };
     }
 
     @AfterEach
-    void afterEachTestRuns() throws IOException {
+    void afterEachTestRuns() throws IOException, InterruptedException {
         if (graphDatabase!=null) {
-            if (isAvailable(200)) {
+            if (isAvailable(100)) {
                 graphDatabase.stop();
             }
             while (isAvailable(START_TIMEOUT_MILLI)) {
                 // wait for stop, immediate deletion does not work
+                Thread.sleep(100);
             }
         }
+        graphDatabase = null;
         FileUtils.deleteDirectory(dbFile.toFile());
     }
 

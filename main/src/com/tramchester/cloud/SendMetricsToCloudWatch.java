@@ -97,7 +97,7 @@ public class SendMetricsToCloudWatch {
 
     public <T extends Number> void putMetricData(String nameSpace, SortedMap<String, Timer> timers,
                               SortedMap<String, Gauge<T>> intGauges, SortedMap<String, Meter> metersToSend) {
-        if (client==null) {
+        if (!started()) {
             logger.warn("No cloud watch client available, will not send metrics");
             return;
         }
@@ -128,6 +128,10 @@ public class SendMetricsToCloudWatch {
             }
             batch = formBatch(metricDatum, batchSize);
         }
+    }
+
+    public boolean started() {
+        return client != null;
     }
 
     private List<MetricDatum> formBatch(List<MetricDatum> source, int batchSize) {
