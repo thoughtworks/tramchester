@@ -49,12 +49,12 @@ dependencies {
     implementation('software.amazon.awssdk:s3:2.16.5')
     implementation('software.amazon.awssdk:cloudformation:2.15.79')
     // aws cdk
-    implementation 'software.amazon.awscdk:core:1.91.0',
+    implementation 'software.amazon.awscdk:core:1.89.0',
             'software.amazon.awscdk:s3:1.91.0',
             'software.amazon.awscdk:ec2:1.82.0',
-            'software.amazon.awscdk:elasticloadbalancingv2:1.89.0',
+            'software.amazon.awscdk:elasticloadbalancingv2:1.91.0',
             'software.amazon.awscdk:autoscaling:1.82.0',
-            'software.amazon.awscdk:cdk-cx-api:1.91.0'
+            'software.amazon.awscdk:cdk-cx-api:1.89.0'
 
     implementation('org.geotools:gt-main:24.2')
     implementation('org.geotools:gt-epsg-hsql:24.1')
