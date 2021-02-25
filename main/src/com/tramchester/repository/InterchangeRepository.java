@@ -36,7 +36,8 @@ public class InterchangeRepository  {
     private final Map<TransportMode, IdSet<Station>> interchanges;
 
     @Inject
-    public InterchangeRepository(FindStationsByNumberConnections findStationsByNumberConnections, TransportData transportData, TramchesterConfig config) {
+    public InterchangeRepository(FindStationsByNumberConnections findStationsByNumberConnections, TransportData transportData,
+                                 TramchesterConfig config) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.dataSource = transportData;
         enabledModes = config.getTransportModes();
@@ -52,6 +53,7 @@ public class InterchangeRepository  {
     public void start() {
         logger.info("Starting");
         enabledModes.forEach(mode -> {
+            logger.info("Finding interchanges for " + mode);
             IdSet<Station> found = findStationsByNumberConnections.findFor(mode, LINK_THRESHHOLD, false);
             interchanges.put(mode, found);
             logger.info(format("Added %s interchanges for %s", found.size(), mode));

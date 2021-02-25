@@ -16,12 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
+import static java.lang.String.format;
 
 @LazySingleton
 public class RouteReachable {
@@ -46,7 +46,7 @@ public class RouteReachable {
 
     // supports building tram station reachability matrix
     public boolean getRouteReachableWithInterchange(RouteStation routeStation, Station endStation) {
-        return hasAnyPaths(routeStation, endStation);
+        return hasAnyPathsCypher(routeStation, endStation);
     }
 
     // supports position inference on live data
@@ -75,88 +75,42 @@ public class RouteReachable {
         return results;
     }
 
-    private boolean hasAnyPaths(RouteStation routeStation, Station endStation) {
+    private boolean hasAnyPathsCypher(RouteStation routeStation, Station endStation) {
+        logger.info(format("Check any paths %s threshhold %s", routeStation, endStation));
+        long start = System.currentTimeMillis();
 
-        boolean hasAny = false;
-        try (Transaction txn = graphDatabaseService.beginTx()) {
+        Map<String, Object> params = new HashMap<>();
 
-            Node found = graphQuery.getStationNode(txn, routeStation.getStation());
-            if (found==null) {
-                if (warnForMissing) {
-                    logger.warn("Cannot find node for station id " + routeStation);
-                }
-            } else  {
-                IdFor<Station> endStationId = endStation.getId();
-                Evaluator evaluator = new FindRouteNodesForDesintationAndRouteId<>(endStationId, routeStation.getRoute().getId(),
-                        interchangeRepository);
-
-                TraversalDescription traverserDesc = graphDatabaseService.traversalDescription(txn).
-                        order(BranchOrderingPolicies.PREORDER_DEPTH_FIRST).
-                        relationships(ON_ROUTE, Direction.OUTGOING).
-                        relationships(ENTER_PLATFORM, Direction.OUTGOING).
-                        relationships(BOARD, Direction.OUTGOING).
-                        relationships(INTERCHANGE_BOARD, Direction.OUTGOING).
-                        evaluator(evaluator);
-
-                Traverser traverser = traverserDesc.traverse(found);
-
-                for(Path ignored : traverser) {
-                    hasAny = true;
-                }
-            }
-        }
-        return hasAny;
-    }
-
-    private static class FindRouteNodesForDesintationAndRouteId<STATE> implements PathEvaluator<STATE> {
-        private final IdFor<Station> endStationId;
-        private final IdFor<Route> routeId;
-        private final InterchangeRepository interchangeRepository;
-
-        public FindRouteNodesForDesintationAndRouteId(IdFor<Station> endStationId, IdFor<Route> routeId,
-                                                      InterchangeRepository interchangeRepository) {
-            this.endStationId = endStationId;
-            this.routeId = routeId;
-            this.interchangeRepository = interchangeRepository;
+        // if no overlap in transport mode then no direct route exists
+        if (!endStation.getTransportModes().contains(routeStation.getTransportMode())) {
+            return false;
         }
 
-        @Override
-        public Evaluation evaluate( Path path ) {
-            return evaluate(path, BranchState.NO_STATE);
+        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(routeStation.getTransportMode());
+        List<String> interchangeIds = interchanges.stream().map(IdFor::getGraphId).collect(Collectors.toList());
+
+        params.put("route_station_id", routeStation.getId().getGraphId());
+        params.put("station_id", endStation.getId().getGraphId());
+        params.put("route_id", routeStation.getRoute().getId().getGraphId());
+        params.put("interchanges", interchangeIds);
+
+        String query = "MATCH (begin:ROUTE_STATION)-[:ON_ROUTE*0..]->(dest:ROUTE_STATION) " +
+                "WHERE (begin.route_station_id = $route_station_id) AND (dest.route_id = $route_id) " +
+                " AND ( (dest.station_id = $station_id) OR (dest.station_id IN $interchanges) ) " +
+                "RETURN DISTINCT dest";
+
+        logger.info("Query: '" + query + '"');
+
+        boolean foundRoute;
+        try (Transaction txn  = graphDatabaseService.beginTx()) {
+            // TODO Filtered graphs behaviours? Check for first node existing?
+            Result result = txn.execute(query, params);
+            foundRoute = result.hasNext();
         }
-
-        @Override
-        public Evaluation evaluate(Path path, BranchState state) {
-            Node endNode = path.endNode();
-
-            if (endNode.hasLabel(ROUTE_STATION)) {
-                IdFor<Station> currentStationId = GraphProps.getStationIdFrom(endNode);
-                if (endStationId.equals(currentStationId)) {
-                    return Evaluation.INCLUDE_AND_PRUNE; // finished, at dest
-                }
-                if (interchangeRepository.isInterchange(currentStationId)) {
-                    return Evaluation.INCLUDE_AND_PRUNE; // finished, at interchange
-                }
-            }
-
-            if (endNode.hasRelationship(Direction.OUTGOING, ON_ROUTE)) {
-                // TODO why was this needed?
-//                if (routeId.isEmpty()) {
-//                    return Evaluation.EXCLUDE_AND_CONTINUE;
-//                }
-                Iterable<Relationship> routeRelat = endNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
-                IdSet<Route> routeIds = new IdSet<>();
-                routeRelat.forEach(relationship -> routeIds.add(GraphProps.getRouteIdFrom(relationship)));
-
-                if (routeIds.contains(routeId)) {
-                    return Evaluation.EXCLUDE_AND_CONTINUE; // if have routeId then only follow if on same route
-                } else {
-                    return Evaluation.EXCLUDE_AND_PRUNE;
-                }
-            }
-
-            return Evaluation.EXCLUDE_AND_CONTINUE;
-        }
+        logger.info(foundRoute?"Found":"Not Found" + format(" route %s to %s", routeStation, endStation));
+        long duration = System.currentTimeMillis()-start;
+        logger.info("Took " + duration);
+        return foundRoute;
     }
 
 }

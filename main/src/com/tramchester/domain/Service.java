@@ -95,14 +95,6 @@ public class Service implements HasId<Service>, GraphProperty {
                 '}';
     }
 
-    /***
-     * use getRoute()
-     */
-    @Deprecated
-    public Set<Route> getRoutes() {
-        return Collections.singleton(route);
-    }
-
     public Route getRoute() {
         return route;
     }

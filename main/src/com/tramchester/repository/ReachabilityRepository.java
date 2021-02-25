@@ -27,8 +27,8 @@ import static java.lang.String.format;
 public class ReachabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(ReachabilityRepository.class);
 
-    private final TramchesterConfig config;
     private final TransportData transportData;
+    private final TramchesterConfig config;
     private final RouteReachable routeReachable;
     private final Map<TransportMode, Repository> repositorys;
 
@@ -49,8 +49,8 @@ public class ReachabilityRepository {
     @PostConstruct
     public void start() {
         logger.info("start");
-        //config.getTransportModes().forEach(this::buildRepository);
-        buildRepository(TransportMode.Tram);
+        config.getTransportModes().forEach(this::buildRepository);
+        //buildRepository(TransportMode.Tram);
         logger.info("started");
     }
 
@@ -66,7 +66,6 @@ public class ReachabilityRepository {
                 .stream().
                 filter(station -> station.getTransportModes().contains(mode)).
                 collect(Collectors.toSet());
-
 
         Repository repository = new Repository();
         repositorys.put(mode, repository);
@@ -90,11 +89,11 @@ public class ReachabilityRepository {
     }
 
     private static class Repository {
-        private final List<IdFor<Station>> stationIndex; // a list as we need ordering and IndexOf
+        private final Map<IdFor<Station>, Integer> stationIndex; // a list as we need ordering and IndexOf
         private final Map<IdFor<RouteStation>, boolean[]> matrix; // stationId -> boolean[]
 
         private Repository() {
-            stationIndex = new ArrayList<>();
+            stationIndex = new HashMap<>();
             matrix = new HashMap<>();
         }
 
@@ -106,9 +105,10 @@ public class ReachabilityRepository {
         public void populateFor(Set<RouteStation> routeStations, Set<Station> destinations, RouteReachable routeReachable) {
             logger.info(format("Build repository for %s routestations and %s stations", routeStations.size(), destinations.size()));
 
-            destinations.forEach(uniqueStation -> stationIndex.add(uniqueStation.getId()));
+            populateStationIndex(destinations);
 
             int size = destinations.size();
+            boolean indicateProgress = routeStations.size() > 1000;
             routeStations.forEach(start -> {
                 boolean[] flags = new boolean[size];
                 IdFor<Station> startStationId = start.getStationId();
@@ -120,9 +120,12 @@ public class ReachabilityRepository {
                     } else {
                         result = routeReachable.getRouteReachableWithInterchange(start, destinationStation);
                     }
-                    flags[stationIndex.indexOf(destinationStationId)] = result;
+                    flags[getStationIndex(destinationStationId)] = result;
                 });
                 matrix.put(start.getId(), flags);
+                if (indicateProgress) {
+                    logger.info("Done for " + start.getStationId());
+                }
             });
 
             String msg = format("Added %s entries", size);
@@ -133,8 +136,23 @@ public class ReachabilityRepository {
             }
         }
 
+        private void populateStationIndex(Set<Station> destinations) {
+            // Note: Lists work fine for trams, but performance of IndexOf too slow for bus data
+            int index = 0;
+            for (Station dest : destinations) {
+                stationIndex.put(dest.getId(), index);
+                index = index + 1;
+            }
+            //destinations.forEach(uniqueStation -> stationIndex.add(uniqueStation.getId()));
+        }
+
+        public int getStationIndex(IdFor<Station> destinationStationId) {
+            return stationIndex.get(destinationStationId);
+            //return stationIndex.indexOf(destinationStationId);
+        }
+
         private boolean stationReachable(IdFor<Station> destinationStationId, IdFor<RouteStation> routeStationId) {
-            int index = stationIndex.indexOf(destinationStationId);
+            int index = getStationIndex(destinationStationId);
             if (index<0) {
                 throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStationId,
                         routeStationId));

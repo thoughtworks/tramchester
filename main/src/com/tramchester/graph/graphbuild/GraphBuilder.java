@@ -102,8 +102,6 @@ public abstract class GraphBuilder  {
         numberRelationships = 0;
     }
 
-
-
     protected abstract void buildGraph(GraphDatabase graphDatabase, GraphBuilderCache builderCache);
 
     protected abstract void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache);

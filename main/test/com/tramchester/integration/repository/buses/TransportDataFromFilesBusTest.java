@@ -1,4 +1,4 @@
-package com.tramchester.integration.repository.trains;
+package com.tramchester.integration.repository.buses;
 
 
 import com.tramchester.ComponentContainer;
@@ -9,18 +9,22 @@ import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.domain.*;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.RoutesForTesting;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -29,12 +33,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.ArrivaTrainsWales;
+import static com.tramchester.testSupport.TestEnv.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class TransportDataFromFilesTrainTest {
+class TransportDataFromFilesBusTest {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -44,7 +48,7 @@ class TransportDataFromFilesTrainTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTrainTestConfig();
+        config = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -61,10 +65,10 @@ class TransportDataFromFilesTrainTest {
     }
 
     @Test
-    void shouldHaveExpectedNumbersForTrain() {
-        assertEquals(28, transportData.getAgencies().size());
-        assertEquals(2564,transportData.getStations().size());
-        assertEquals(3629, transportData.getRoutes().size());
+    void shouldHaveExpectedNumbersForBus() {
+        assertEquals(27, transportData.getAgencies().size());
+        assertEquals(13578, transportData.getStations().size());
+        assertEquals(647, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -73,36 +77,35 @@ class TransportDataFromFilesTrainTest {
     @Test
     void shouldGetAgencies() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
-        assertEquals(28, agencies.size());
-        assertTrue(agencies.contains(ArrivaTrainsWales));
+        assertEquals(27, agencies.size());
+        assertTrue(agencies.contains(StagecoachManchester));
     }
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = transportData.getRouteById(StringIdFor.createId("18085")); // ariva train man airport to chester
-        assertEquals("AW train service from MIA to CTR", result.getName());
-        assertEquals(ArrivaTrainsWales, result.getAgency());
-        assertEquals("18085",result.getId().forDTO());
-        assertTrue(TransportMode.isTrain(result));
+        Route result = transportData.getRouteById(RoutesForTesting.ALTY_TO_STOCKPORT_WBT.getId());
+        assertEquals("Altrincham - Lymm - Stockton Heath - Warrington", result.getName());
+        assertEquals(WarringtonsOwnBuses, result.getAgency());
+        assertEquals("WBT:5A:I:",result.getId().forDTO());
+        assertTrue(TransportMode.isBus(result));
 
         Set<Service> svcs = result.getServices();
         for (Service service : svcs) {
             assertEquals(result, service.getRoute(), "Service did not contain route");
         }
 
-        Set<String> headsigns = result.getHeadsigns();
-        assertEquals(2, headsigns.size(), "expected headsigns");
-        assertTrue(headsigns.contains("Eccles"));
-        assertTrue(headsigns.contains("Trafford Bar"));
+        List<String> headsigns = new ArrayList<>(result.getHeadsigns());
+        assertEquals(1, headsigns.size(), "expected headsigns");
+        assertEquals("Warrington, Bus Interchange", headsigns.get(0));
     }
 
     @Test
-    void shouldGetTrainRoutes() {
+    void shouldGetBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
-        long walesTrainRoutes = results.stream().filter(route -> route.getAgency().equals(ArrivaTrainsWales)).count();
+        long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
 
         // todo lockdown 14->12
-        assertEquals(12, walesTrainRoutes);
+        assertEquals(196, gmsRoutes);
     }
 
     @Test
@@ -115,20 +118,21 @@ class TransportDataFromFilesTrainTest {
         long onCorrectDate = results.stream().filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
-        LocalDate noTramsDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
-        results = transportData.getServicesOnDate(new TramServiceDate(noTramsDate));
+        LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
+        results = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
         assertTrue(results.isEmpty());
     }
 
     @Test
     void shouldGetStation() {
-        assertTrue(transportData.hasStationId(TrainStations.ManchesterPiccadilly.getId()));
-        Station station = transportData.getStationById(TrainStations.ManchesterPiccadilly.getId());
-        assertEquals("Manchester Piccadilly", station.getName());
+        assertTrue(transportData.hasStationId(BusStations.PiccadilyStationStopA.getId()));
+        Station station = transportData.getStationById(BusStations.PiccadilyStationStopA.getId());
+        assertEquals("Manchester City Centre, Piccadilly Station (Stop A)", station.getName());
 
         assertFalse(station.hasPlatforms());
     }
 
+    @Disabled("too slow currently for buses")
     @Test
     void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
         Collection<Route> allRoutes = transportData.getRoutes();
@@ -195,25 +199,4 @@ class TransportDataFromFilesTrainTest {
             }
         });
     }
-
-    @Disabled("Performance tests")
-    @Test
-    void shouldLoadData() {
-        TransportDataFromFilesBuilder builder = componentContainer.get(TransportDataFromFilesBuilder.class);
-
-        int count = 10;
-        //int count = 1;
-        long total = 0;
-        for (int i = 0; i < count; i++) {
-            long begin = System.currentTimeMillis();
-            TransportDataFromFiles fromFiles = builder.create();
-            fromFiles.getData();
-            long finish = System.currentTimeMillis();
-
-            total = total + (finish - begin);
-        }
-
-        System.out.println(String.format("Total: %s ms Average: %s ms", total, total/count));
-    }
-
 }

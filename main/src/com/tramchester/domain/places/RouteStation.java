@@ -84,9 +84,17 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
         return station.getPlatformsForRoute(route);
     }
 
+    /***
+     * The single transport mode, see also getTransportMode()
+     * @return Singleton containing the transport mode
+     */
     @Override
     public Set<TransportMode> getTransportModes() {
         return Collections.singleton(route.getTransportMode());
+    }
+
+    public TransportMode getTransportMode() {
+        return route.getTransportMode();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.tramchester.integration.repository;
+package com.tramchester.integration.repository.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
@@ -16,11 +16,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class BusInterchangeRepositoryTest {
+class InterchangeRepositoryBusTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository repository;
 
@@ -45,7 +46,12 @@ class BusInterchangeRepositoryTest {
     void shouldFindBusInterchanges() {
         IdSet<Station> interchanges = repository.getInterchangesFor(TransportMode.Bus);
         assertFalse(interchanges.isEmpty());
-        assertTrue(interchanges.contains(BusStations.AltrinchamInterchange.getId()));
+        assertTrue(interchanges.contains(AltrinchamInterchange.getId()));
+        assertTrue(interchanges.contains(StockportBusStation.getId()));
+
+        assertFalse(interchanges.contains(StockportAldi.getId()));
+        assertFalse(interchanges.contains(StockportNewbridgeLane.getId()));
     }
+
 
 }

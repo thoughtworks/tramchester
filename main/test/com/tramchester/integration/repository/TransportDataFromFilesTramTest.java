@@ -200,7 +200,7 @@ class TransportDataFromFilesTramTest {
         Collection<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
                 filter(svc -> !svc.getCalendar().operatesOn(queryDate)).collect(Collectors.toSet());
-        Set<Route> routes = expiringServices.stream().map(Service::getRoutes).flatMap(Collection::stream).collect(Collectors.toSet());
+        Set<Route> routes = expiringServices.stream().map(Service::getRoute).collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), expiringServices, HasId.asIds(routes) + " with expiring svcs " +HasId.asIds(expiringServices));
     }
@@ -402,7 +402,7 @@ class TransportDataFromFilesTramTest {
         // TODO Due to exception dates makes no sense to use getDays
         IdSet<Service> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.getCalendar().operatesOn(aMonday))
-                .filter(svc -> svc.getRoutes().contains(createTramRoute(AshtonunderLyneManchesterEccles)))
+                .filter(svc -> svc.getRoute().equals(createTramRoute(AshtonunderLyneManchesterEccles)))
                 .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID

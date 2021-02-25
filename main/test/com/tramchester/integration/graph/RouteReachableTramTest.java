@@ -59,6 +59,16 @@ class RouteReachableTramTest {
     }
 
     @Test
+    void shouldCorrectNotReachable() {
+        assertTrue(reachable(AltrinchamPiccadilly, NavigationRoad, OldTrafford));
+        assertFalse(reachable(PiccadillyAltrincham, NavigationRoad, OldTrafford));
+
+        assertTrue(reachable(PiccadillyAltrincham, OldTrafford, NavigationRoad));
+        // Old Trafford towards Piccadilly encouters an interchance
+        assertTrue(reachable(AltrinchamPiccadilly, OldTrafford, NavigationRoad));
+    }
+
+    @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
         assertTrue(reachable(RochdaleManchesterEDidsbury, RochdaleRail, Monsall));
         assertTrue(reachable(EDidsburyManchesterRochdale, Monsall, RochdaleRail));
