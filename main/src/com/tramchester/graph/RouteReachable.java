@@ -11,7 +11,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.*;
+import org.neo4j.internal.batchimport.stats.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +19,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.ROUTE_STATION;
+import static com.tramchester.graph.TransportRelationshipTypes.ON_ROUTE;
 import static java.lang.String.format;
 
 @LazySingleton
@@ -30,23 +29,70 @@ public class RouteReachable {
     private final GraphDatabase graphDatabaseService;
     private final InterchangeRepository interchangeRepository;
     private final StationRepository stationRepository;
-    private final boolean warnForMissing;
     private final GraphQuery graphQuery;
+    private final boolean debug;
 
     @Inject
     public RouteReachable(GraphDatabase graphDatabaseService,
-                          InterchangeRepository interchangeRepository, StationRepository stationRepository, GraphFilter filter,
+                          InterchangeRepository interchangeRepository, StationRepository stationRepository,
                           GraphQuery graphQuery) {
         this.graphDatabaseService = graphDatabaseService;
         this.interchangeRepository = interchangeRepository;
         this.stationRepository = stationRepository;
-        this.warnForMissing = !filter.isFiltered();
         this.graphQuery = graphQuery;
+        this.debug = logger.isDebugEnabled();
     }
 
     // supports building tram station reachability matrix
-    public boolean getRouteReachableWithInterchange(RouteStation routeStation, Station endStation) {
-        return hasAnyPathsCypher(routeStation, endStation);
+    public IdSet<Station> getRouteReachableWithInterchange(RouteStation start, IdSet<Station> destinations) {
+        logger.debug(format("Checking reachability from %s to %s stations", start.getStationId(), destinations.size()));
+        IdSet<Station> result;
+        try (Transaction txn = graphDatabaseService.beginTx()) {
+            // TODO Parallel?
+            result = destinations.stream().
+                    filter(dest -> hasAnyPaths(txn, start, dest)).
+                    collect(IdSet.idCollector());
+        }
+        logger.info(format("Found reachability from %s to %s of %s stations", start.getStationId(), result.size(), destinations.size()));
+        return result;
+    }
+
+    private boolean hasAnyPaths(Transaction txn, RouteStation start, IdFor<Station> destId) {
+        long startTime = System.currentTimeMillis();
+
+        if (debug) {
+            logger.debug(format("Check any paths %s threshhold %s", start, destId));
+        }
+
+        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(start.getTransportMode());
+        List<String> interchangeIds = interchanges.stream().map(IdFor::getGraphId).collect(Collectors.toList());
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("route_station_id", start.getId().getGraphId());
+        params.put("station_id", destId.getGraphId());
+        params.put("route_id", start.getRoute().getId().getGraphId());
+        params.put("interchanges", interchangeIds);
+
+        String query = "MATCH (begin:ROUTE_STATION)-[:ON_ROUTE*0..]->(dest:ROUTE_STATION) " +
+                "WHERE (begin.route_station_id = $route_station_id) AND (dest.route_id = $route_id) " +
+                " AND ( (dest.station_id = $station_id) OR (dest.station_id IN $interchanges) ) " +
+                "RETURN DISTINCT dest";
+
+        if (debug) {
+            logger.debug("Query: '" + query + '"');
+        }
+
+        boolean foundRoute;
+        Result result = txn.execute(query, params);
+        foundRoute = result.hasNext();
+        result.close();
+
+        if (debug) {
+            logger.debug(foundRoute ? "Found" : "Not Found" + format(" route %s to %s", start, destId));
+            long duration = System.currentTimeMillis() - startTime;
+            logger.debug("Took " + duration);
+        }
+        return foundRoute;
     }
 
     // supports position inference on live data
@@ -73,44 +119,6 @@ public class RouteReachable {
             });
         }
         return results;
-    }
-
-    private boolean hasAnyPathsCypher(RouteStation routeStation, Station endStation) {
-        logger.info(format("Check any paths %s threshhold %s", routeStation, endStation));
-        long start = System.currentTimeMillis();
-
-        Map<String, Object> params = new HashMap<>();
-
-        // if no overlap in transport mode then no direct route exists
-        if (!endStation.getTransportModes().contains(routeStation.getTransportMode())) {
-            return false;
-        }
-
-        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(routeStation.getTransportMode());
-        List<String> interchangeIds = interchanges.stream().map(IdFor::getGraphId).collect(Collectors.toList());
-
-        params.put("route_station_id", routeStation.getId().getGraphId());
-        params.put("station_id", endStation.getId().getGraphId());
-        params.put("route_id", routeStation.getRoute().getId().getGraphId());
-        params.put("interchanges", interchangeIds);
-
-        String query = "MATCH (begin:ROUTE_STATION)-[:ON_ROUTE*0..]->(dest:ROUTE_STATION) " +
-                "WHERE (begin.route_station_id = $route_station_id) AND (dest.route_id = $route_id) " +
-                " AND ( (dest.station_id = $station_id) OR (dest.station_id IN $interchanges) ) " +
-                "RETURN DISTINCT dest";
-
-        logger.info("Query: '" + query + '"');
-
-        boolean foundRoute;
-        try (Transaction txn  = graphDatabaseService.beginTx()) {
-            // TODO Filtered graphs behaviours? Check for first node existing?
-            Result result = txn.execute(query, params);
-            foundRoute = result.hasNext();
-        }
-        logger.info(foundRoute?"Found":"Not Found" + format(" route %s to %s", routeStation, endStation));
-        long duration = System.currentTimeMillis()-start;
-        logger.info("Took " + duration);
-        return foundRoute;
     }
 
 }

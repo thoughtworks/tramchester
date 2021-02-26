@@ -3,10 +3,12 @@ package com.tramchester.integration.graph.trains;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.repository.RouteRepository;
@@ -55,8 +57,11 @@ class TrainRouteReachableTest {
     void shouldHaveCorrectReachabilityOrInterchanges() {
         Route route = routeRepo.getRouteById(StringIdFor.createId("7685")); // NT:MAN->CTR
 
-        assertTrue(reachable(route, Mobberley, Knutsford));
-        assertFalse(reachable(route, Knutsford, Mobberley));
+        IdSet<Station> reachable = reachable(route, Mobberley, Knutsford);
+        assertEquals(1, reachable.size());
+        assertTrue(reachable.contains(Knutsford.getId()));
+
+        assertTrue(reachable(route, Knutsford, Mobberley).isEmpty());
     }
 
     @Test
@@ -73,8 +78,8 @@ class TrainRouteReachableTest {
         return TrainStations.real(stationRepository, stations);
     }
 
-    private boolean reachable(Route route, TrainStations start, TrainStations dest) {
-        return reachable.getRouteReachableWithInterchange(createRouteStation(route, getReal(start)), getReal(dest));
+    private IdSet<Station> reachable(Route route, TrainStations start, TrainStations dest) {
+        return reachable.getRouteReachableWithInterchange(createRouteStation(route, getReal(start)), IdSet.singleton(dest.getId()));
     }
 
     private RouteStation createRouteStation(Route route, Station station) {

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Route;
@@ -96,7 +97,10 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         RouteReachable routeReachable = componentContainer.get(RouteReachable.class);
 
-        assertTrue(routeReachable.getRouteReachableWithInterchange(routeStation, end));
+        IdSet<Station> result = routeReachable.getRouteReachableWithInterchange(routeStation, IdSet.singleton(end.getId()));
+        assertFalse(result.isEmpty());
+        assertTrue(result.contains(end.getId()));
+
         assertTrue(start.getRoutes().contains(route));
         assertTrue(end.getRoutes().contains(route));
     }

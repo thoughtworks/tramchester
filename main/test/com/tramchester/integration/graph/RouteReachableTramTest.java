@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.KnownTramRoute;
@@ -11,8 +12,9 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.TestStations;
+import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -101,9 +103,11 @@ class RouteReachableTramTest {
         return TestStation.real(stationRepository, stations);
     }
 
-    private boolean reachable(KnownTramRoute knownRoute, TramStations routeStation, TramStations dest) {
+    private boolean reachable(KnownTramRoute knownRoute, TramStations routeStation, TestStations dest) {
         Route route = RoutesForTesting.createTramRoute(knownRoute);
-        return reachable.getRouteReachableWithInterchange(createRouteStation(route, getReal(routeStation)), getReal(dest));
+        RouteStation start = createRouteStation(route, getReal(routeStation));
+        IdSet<Station> result = reachable.getRouteReachableWithInterchange(start, IdSet.singleton(dest.getId()));
+        return result.contains(dest.getId());
     }
 
     private RouteStation createRouteStation(Route route, Station station) {

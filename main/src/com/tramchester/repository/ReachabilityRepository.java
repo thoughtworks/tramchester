@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -62,10 +63,11 @@ public class ReachabilityRepository {
                 filter(routeStation -> routeStation.getTransportModes().contains(mode)).
                 collect(Collectors.toSet());
 
-        Set<Station> destinations = transportData.getStations()
+        IdSet<Station> destinations = transportData.getStations()
                 .stream().
                 filter(station -> station.getTransportModes().contains(mode)).
-                collect(Collectors.toSet());
+                map(Station::getId).
+                collect(IdSet.idCollector());
 
         Repository repository = new Repository();
         repositorys.put(mode, repository);
@@ -102,27 +104,20 @@ public class ReachabilityRepository {
             matrix.clear();
         }
 
-        public void populateFor(Set<RouteStation> routeStations, Set<Station> destinations, RouteReachable routeReachable) {
-            logger.info(format("Build repository for %s routestations and %s stations", routeStations.size(), destinations.size()));
+        public void populateFor(Set<RouteStation> startingPoints, IdSet<Station> destinations, RouteReachable routeReachable) {
+            logger.info(format("Build repository for %s routestations and %s stations", startingPoints.size(), destinations.size()));
 
             populateStationIndex(destinations);
 
             int size = destinations.size();
-            boolean indicateProgress = routeStations.size() > 1000;
-            routeStations.forEach(start -> {
-                boolean[] flags = new boolean[size];
-                IdFor<Station> startStationId = start.getStationId();
-                destinations.forEach(destinationStation -> {
-                    IdFor<Station> destinationStationId = destinationStation.getId();
-                    boolean result;
-                    if (destinationStationId.equals(startStationId)) {
-                        result = true;
-                    } else {
-                        result = routeReachable.getRouteReachableWithInterchange(start, destinationStation);
-                    }
-                    flags[getStationIndex(destinationStationId)] = result;
-                });
+            boolean indicateProgress = startingPoints.size() > 1000;
+            startingPoints.forEach(start -> {
+                boolean[] flags = new boolean[size]; // false to start with
+
+                IdSet<Station> reachables = routeReachable.getRouteReachableWithInterchange(start, destinations);
+                reachables.forEach(reachable -> flags[getStationIndex(reachable)] = true);
                 matrix.put(start.getId(), flags);
+
                 if (indicateProgress) {
                     logger.info("Done for " + start.getStationId());
                 }
@@ -136,11 +131,11 @@ public class ReachabilityRepository {
             }
         }
 
-        private void populateStationIndex(Set<Station> destinations) {
+        private void populateStationIndex(IdSet<Station> destinationsIds) {
             // Note: Lists work fine for trams, but performance of IndexOf too slow for bus data
             int index = 0;
-            for (Station dest : destinations) {
-                stationIndex.put(dest.getId(), index);
+            for (IdFor<Station> destId : destinationsIds) {
+                stationIndex.put(destId, index);
                 index = index + 1;
             }
             //destinations.forEach(uniqueStation -> stationIndex.add(uniqueStation.getId()));
