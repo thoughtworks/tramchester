@@ -7,6 +7,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,13 +19,15 @@ public interface StationRepository {
 
     Station getStationById(IdFor<Station> stationId);
     boolean hasStationId(IdFor<Station> stationId);
-    String getStationName(IdFor<Station> stationId);
 
     // live data association
     Optional<Station> getTramStationByName(String name);
 
-    // use with care, reports route stations due to rare circumstances such as return to deport
-    // use RouteCallingStations instead if you want stations for a normally defined route
+    /***
+     * Use with care, return includes stations due to rare circumstances, such as return to deport
+     * Nomrally use RouteCallingStations instead if you want stations for a 'normally' defined route
+     * @return all route stations
+     */
     Set<RouteStation> getRouteStations();
 
     RouteStation getRouteStationById(IdFor<RouteStation> routeStationId);

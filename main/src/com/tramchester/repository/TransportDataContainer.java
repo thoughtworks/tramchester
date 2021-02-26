@@ -3,7 +3,6 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -87,11 +86,6 @@ public class TransportDataContainer implements TransportData {
             throw new RuntimeException(msg);
         }
         return stationsById.get(stationId);
-    }
-
-    @Override
-    public String getStationName(IdFor<Station> stationId) {
-        return getStationById(stationId).getName();
     }
 
     @Override

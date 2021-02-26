@@ -119,7 +119,7 @@ public class ReachabilityRepository {
                 matrix.put(start.getId(), flags);
 
                 if (indicateProgress) {
-                    logger.info("Done for " + start.getStationId());
+                    logger.info("Done for " + start.getStationId() + " " + matrix.size() + " of " + startingPoints.size());
                 }
             });
 
