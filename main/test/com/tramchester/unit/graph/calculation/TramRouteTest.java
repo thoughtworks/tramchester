@@ -199,8 +199,8 @@ class TramRouteTest {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
-       Assertions.assertTrue(journeys.size()>=1);
-       checkForPlatforms(journeys);
+        Assertions.assertTrue(journeys.size()>=1);
+        checkForPlatforms(journeys);
         journeys.forEach(journey-> Assertions.assertEquals(2, journey.getStages().size()));
     }
 

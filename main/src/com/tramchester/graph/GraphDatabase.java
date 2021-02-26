@@ -276,19 +276,21 @@ public class GraphDatabase {
         try ( Transaction tx = databaseService.beginTx() )
         {
             Schema schema = tx.schema();
-            schema.indexFor(GraphBuilder.Labels.TRAM_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
-            schema.indexFor(GraphBuilder.Labels.BUS_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
-            schema.indexFor(GraphBuilder.Labels.TRAIN_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
-            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.ROUTE_STATION_ID.getText()).create();
+
+            schema.constraintFor(GraphBuilder.Labels.ROUTE_STATION).
+                    assertPropertyIsUnique(GraphPropertyKey.ROUTE_STATION_ID.getText()).create();
+            schema.constraintFor(GraphBuilder.Labels.TRAM_STATION).
+                    assertPropertyIsUnique(GraphPropertyKey.STATION_ID.getText()).create();
+            schema.constraintFor(GraphBuilder.Labels.BUS_STATION).
+                    assertPropertyIsUnique(GraphPropertyKey.STATION_ID.getText()).create();
+            schema.constraintFor(GraphBuilder.Labels.TRAIN_STATION).
+                    assertPropertyIsUnique(GraphPropertyKey.STATION_ID.getText()).create();
+
+            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
             schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
 
-            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphPropertyKey.SERVICE_ID.getText()).create();
-            schema.indexFor(GraphBuilder.Labels.HOUR).on(GraphPropertyKey.HOUR.getText()).create();
-            schema.indexFor(GraphBuilder.Labels.MINUTE).on(GraphPropertyKey.TIME.getText()).create();
-
-            // doesn't help graph build performance....
-//            schema.indexFor(TransportRelationshipTypes.TO_SERVICE).on(GraphStaticKeys.TRIPS).
-//                    withIndexType(IndexType.FULLTEXT).create();
+//            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphPropertyKey.SERVICE_ID.getText()).create();
 
             tx.commit();
         }

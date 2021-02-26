@@ -58,6 +58,7 @@ public class FindStationsByNumberConnections {
                 Node node = (Node) row.get("a");
                 stationIds.add(GraphProps.getStationId(node));
             }
+            result.close();
         }
         long duration = System.currentTimeMillis()-start;
         logger.info("Took " + duration);

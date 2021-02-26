@@ -20,9 +20,6 @@ public class TramInterchanges {
         VICTORIA("9400ZZMAVIC"),
         DEANSGATE("9400ZZMAGMX"),
         PICCADILLY("9400ZZMAPIC");
-        // additional route swap points, needed for journeys when restrict change-over points
-//        SHAW_AND_CROMPTON("9400ZZMASHA"),
-//        HARBOUR_CITY("9400ZZMAHCY");
 
         private final String stationId;
 
@@ -37,14 +34,6 @@ public class TramInterchanges {
         ids = new IdSet<>();
         Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(StringIdFor.createId(interchange.stationId)));
     }
-
-//    public static boolean hasId(IdFor<Station> stationId) {
-//        return ids.contains(stationId);
-//    }
-
-//    public static boolean has(Station station) {
-//        return hasId(station.getId());
-//    }
 
     public static IdSet<Station> stations() {
         return ids;
