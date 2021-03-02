@@ -63,96 +63,69 @@ public class ReachabilityRepository {
                 filter(routeStation -> routeStation.getTransportModes().contains(mode)).
                 collect(Collectors.toSet());
 
-        IdSet<Station> destinations = transportData.getStations()
-                .stream().
-                filter(station -> station.getTransportModes().contains(mode)).
-                map(Station::getId).
-                collect(IdSet.idCollector());
-
         Repository repository = new Repository();
         repositorys.put(mode, repository);
 
-        repository.populateFor(routeStations, destinations, routeReachable);
+        repository.populateFor(routeStations, routeReachable);
 
         logger.info("Done for " + mode);
     }
 
     public boolean stationReachable(RouteStation routeStation, Station destinationStation) {
         TransportMode transportMode = routeStation.getRoute().getTransportMode();
-        if (!destinationStation.getTransportModes().contains(transportMode)) {
-            return false;
-        }
+
         if (!repositorys.containsKey(transportMode)) {
             String msg = "Cannot find repository for " + transportMode;
             logger.error(msg);
             throw new RuntimeException(msg);
         }
-        return repositorys.get(transportMode).stationReachable(destinationStation.getId(), routeStation.getId());
+
+        return repositorys.get(transportMode).stationReachable(routeStation.getId(), destinationStation.getId());
     }
 
     private static class Repository {
-        private final Map<IdFor<Station>, Integer> stationIndex; // a list as we need ordering and IndexOf
-        private final Map<IdFor<RouteStation>, boolean[]> matrix; // stationId -> boolean[]
+        private final IdSet<RouteStation> canReachInterchange;
+        private final Map<IdFor<RouteStation>, IdSet<Station>> reachableFrom;
 
         private Repository() {
-            stationIndex = new HashMap<>();
-            matrix = new HashMap<>();
+            canReachInterchange = new IdSet<>();
+            reachableFrom = new HashMap<>();
         }
 
         public void dispose() {
-            stationIndex.clear();
-            matrix.clear();
+            canReachInterchange.clear();
+            reachableFrom.clear();
         }
 
-        public void populateFor(Set<RouteStation> startingPoints, IdSet<Station> destinations, RouteReachable routeReachable) {
-            logger.info(format("Build repository for %s routestations and %s stations", startingPoints.size(), destinations.size()));
+        public void populateFor(Set<RouteStation> startingPoints, RouteReachable routeReachable) {
+            logger.info(format("Build repository for %s routestations", startingPoints.size()));
 
-            populateStationIndex(destinations);
+            Set<RouteStation> cannotReachInterchange = new HashSet<>();
 
-            int size = destinations.size();
-            boolean indicateProgress = startingPoints.size() > 1000;
             startingPoints.forEach(start -> {
-                boolean[] flags = new boolean[size]; // false to start with
-
-                IdSet<Station> reachables = routeReachable.getRouteReachableWithInterchange(start, destinations);
-                reachables.forEach(reachable -> flags[getStationIndex(reachable)] = true);
-                matrix.put(start.getId(), flags);
-
-                if (indicateProgress) {
-                    logger.info("Done for " + start.getStationId() + " " + matrix.size() + " of " + startingPoints.size());
+                if (routeReachable.isInterchangeReachable(start))  {
+                    canReachInterchange.add(start.getId());
+                } else {
+                    cannotReachInterchange.add(start);
                 }
             });
 
-            String msg = format("Added %s entries", size);
-            if (size>0) {
-                logger.info(msg);
-            } else {
-                logger.warn(msg);
-            }
+            cannotReachInterchange.forEach(start -> {
+                IdSet<Station> reachableStations = routeReachable.getReachableStations(start);
+                reachableFrom.put(start.getId(), reachableStations);
+            });
+
+            cannotReachInterchange.clear();
         }
 
-        private void populateStationIndex(IdSet<Station> destinationsIds) {
-            // Note: Lists work fine for trams, but performance of IndexOf too slow for bus data
-            int index = 0;
-            for (IdFor<Station> destId : destinationsIds) {
-                stationIndex.put(destId, index);
-                index = index + 1;
+        private boolean stationReachable(IdFor<RouteStation> routeStationId, IdFor<Station> destinationStationId) {
+            if (canReachInterchange.contains(routeStationId)) {
+                return true;
             }
-            //destinations.forEach(uniqueStation -> stationIndex.add(uniqueStation.getId()));
-        }
-
-        public int getStationIndex(IdFor<Station> destinationStationId) {
-            return stationIndex.get(destinationStationId);
-            //return stationIndex.indexOf(destinationStationId);
-        }
-
-        private boolean stationReachable(IdFor<Station> destinationStationId, IdFor<RouteStation> routeStationId) {
-            int index = getStationIndex(destinationStationId);
-            if (index<0) {
-                throw new RuntimeException(format("Failed to find index for %s routeStation was %s", destinationStationId,
-                        routeStationId));
+            if (reachableFrom.containsKey(routeStationId)) {
+                return reachableFrom.get(routeStationId).contains(destinationStationId);
             }
-            return matrix.get(routeStationId)[index];
+            return false;
         }
     }
 

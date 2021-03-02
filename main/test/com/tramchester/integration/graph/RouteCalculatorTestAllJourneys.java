@@ -34,7 +34,6 @@ class RouteCalculatorTestAllJourneys {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
-    private static final boolean circleCi = TestEnv.isCircleci();
     private static IntegrationTramTestConfig testConfig;
 
     private RouteCalculator calculator;
@@ -61,8 +60,6 @@ class RouteCalculatorTestAllJourneys {
 
     @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
-        Assumptions.assumeFalse(circleCi);
-
         TransportData data = componentContainer.get(TransportData.class);
 
         Set<Station> allStations = data.getStations();

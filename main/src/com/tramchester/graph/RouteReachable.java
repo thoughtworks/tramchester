@@ -42,41 +42,71 @@ public class RouteReachable {
         this.routeCallingStations = routeCallingStations;
     }
 
-    // supports building tram station reachability matrix
-    public IdSet<Station> getRouteReachableWithInterchange(RouteStation start, IdSet<Station> destinations) {
-        logger.debug(format("Checking reachability from %s to %s stations", start.getStationId(), destinations.size()));
+    /***
+     * Returns true if start can reach an interchange on the same route
+     * @param start starting point
+     * @return true if an interchange is reachable
+     */
+    public boolean isInterchangeReachable(RouteStation start) {
+        logger.debug(format("Checking interchange reachability from %s", start.getStationId()));
 
-        // TODO cache the interchange list
+        // TODO cache the interchange list?
         IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(start.getTransportMode());
         List<String> interchangeIds = interchanges.stream().map(IdFor::getGraphId).collect(Collectors.toList());
 
+        boolean result;
+        try (Transaction txn = graphDatabaseService.beginTx()) {
+            result = interchangeReachable(txn, start, interchangeIds);
+        }
+
+        String verb = result? " Can " : " Cannot ";
+        logger.info(start.getId() + verb + "reach interchange");
+        return result;
+    }
+
+    /***
+     * Filters destinations based on whether reachable from start on same route, no interchanges
+     * @param start starting point
+     * @return destinations reachable from start via same route
+     */
+    public IdSet<Station> getReachableStations(RouteStation start) {
+        IdSet<Station> stationsOnRoute = routeCallingStations.getStationsFor(start.getRoute()).
+                stream().collect(IdSet.collector());
+
+        logger.debug(format("Checking reachability from %s to %s stations", start.getStationId(), stationsOnRoute.size()));
+
         IdSet<Station> result;
         try (Transaction txn = graphDatabaseService.beginTx()) {
-            if (interchangeReachable(txn, start, interchangeIds)) {
-                // all stations will be (assumed to be) reachable if we can reach an interchange from the starting point
-                logger.debug("Can reach interchange from " + start.getId());
-                result = destinations;
-            } else {
-                // no interchange access so only consider stations on the same route
-                // TODO Push this filtering and selection into the query?
-                IdSet<Station> stationsOnRoute = routeCallingStations.getStationsFor(start.getRoute()).
-                        stream().collect(IdSet.collector());
+
                 // TODO Parallel?
                 logger.debug("No reachable interchange from " + start.getId());
                 result = stationsOnRoute.stream().
-                        filter(dest -> hasAnyPaths(txn, start, dest)).
+                        filter(dest -> sameRouteReachable(txn, start, dest)).
                         collect(IdSet.idCollector());
-            }
         }
 
         int size = result.size();
-        String msg = format("Found reachability from %s to %s of %s stations", start.getStationId(), size, destinations.size());
+        String msg = format("Found reachability from %s to %s of %s stations", start.getStationId(), size, stationsOnRoute.size());
         if (size>0) {
             logger.info(msg);
         } else {
             logger.warn(msg);
         }
         return result;
+    }
+
+    /***
+     * Use getReachableStations() or isInterchangeReachable() instead
+     */
+    @Deprecated
+    public IdSet<Station> getRouteReachableWithInterchange(RouteStation start, IdSet<Station> destinations) {
+        logger.debug(format("Checking reachability from %s to %s stations", start.getStationId(), destinations.size()));
+
+        if (isInterchangeReachable(start)) {
+            return destinations;
+        }
+
+        return getReachableStations(start);
     }
 
     private boolean interchangeReachable(Transaction txn, RouteStation start, List<String> interchangeIds) {
@@ -99,7 +129,7 @@ public class RouteReachable {
         return foundRoute;
     }
 
-    private boolean hasAnyPaths(Transaction txn, RouteStation start, IdFor<Station> destId) {
+    private boolean sameRouteReachable(Transaction txn, RouteStation start, IdFor<Station> destId) {
         Map<String, Object> params = new HashMap<>();
         params.put("route_station_id", start.getId().getGraphId());
         params.put("route_id", start.getRoute().getId().getGraphId());

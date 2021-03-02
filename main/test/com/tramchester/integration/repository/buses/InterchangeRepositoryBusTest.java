@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,7 +48,7 @@ class InterchangeRepositoryBusTest {
         assertTrue(interchanges.contains(AltrinchamInterchange.getId()));
         assertTrue(interchanges.contains(StockportBusStation.getId()));
 
-        assertFalse(interchanges.contains(StockportAldi.getId()));
+        assertFalse(interchanges.contains(StockportAtAldi.getId()));
         assertFalse(interchanges.contains(StockportNewbridgeLane.getId()));
     }
 

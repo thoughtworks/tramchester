@@ -157,28 +157,27 @@ public class ServiceHeuristics {
 
         // can only safely does this if uniquely looking at tram journeys
         // TODO Build full reachability matrix??
-        if (journeyConstraints.getIsTramOnlyDestinations()) {
-            IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
-            RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
-            if (routeStation==null) {
-                String message = "Missing routestation " + routeStationId;
-                logger.error(message);
-                throw new RuntimeException(message);
-            }
+        IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
+        RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
-            //if (TransportMode.isTram(routeStation)) {
-                for(Station endStation : journeyConstraints.getEndTramStations()) {
-                    if (reachabilityRepository.stationReachable(routeStation, endStation)) {
-                        return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
-                    }
-                }
-                return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
-            //}
+        if (routeStation==null) {
+            String message = "Missing routestation " + routeStationId;
+            logger.error(message);
+            throw new RuntimeException(message);
         }
 
+        for(Station endStation : journeyConstraints.getEndStations()) {
+            // TODO Verison of below that takes the list of end stations
+            if (reachabilityRepository.stationReachable(routeStation, endStation)) {
+                return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
+            }
+        }
+        return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
+
+
         // TODO can't exclude unless we know for sure not reachable, so include all for buses
-        return valid(ServiceReason.ReasonCode.ReachableNoCheck, howIGotHere, reasons);
+        //return valid(ServiceReason.ReasonCode.ReachableNoCheck, howIGotHere, reasons);
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class JourneyConstraints {
 
@@ -30,9 +29,9 @@ public class JourneyConstraints {
     private final RunningServices runningServices;
     private final TramchesterConfig config;
     private final int maxPathLength;
-    private final Set<Station> endTramStations;
+    private final Set<Station> endStations;
     private final IdSet<Station> closedStations;
-    private final boolean tramOnlyDestinations;
+//    private final boolean tramOnlyDestinations;
     private final int maxJourneyDuration;
 
     public JourneyConstraints(TramchesterConfig config, TransportData transportData, JourneyRequest journeyRequest,
@@ -41,11 +40,12 @@ public class JourneyConstraints {
         this.runningServices = new RunningServices(journeyRequest.getDate(), transportData, config);
         this.maxPathLength = computeMaxPathLength();
 
-        endTramStations = endStations.stream().
-                filter(TransportMode::isTram).
-                collect(Collectors.toSet());
+        this.endStations = endStations;
+//        endTramStations = endStations.stream().
+//                filter(TransportMode::isTram).
+//                collect(Collectors.toSet());
 
-        tramOnlyDestinations = (endTramStations.size() == endStations.size());
+//        tramOnlyDestinations = (this.endStations.size() == endStations.size());
         this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
         LocalDate date = journeyRequest.getDate().getDate();
@@ -60,9 +60,9 @@ public class JourneyConstraints {
             logger.info("Have closed stationed " + closedStations);
         }
 
-        if (tramOnlyDestinations) {
-            logger.info("Checking only for tram destinations");
-        }
+//        if (tramOnlyDestinations) {
+//            logger.info("Checking only for tram destinations");
+//        }
     }
 
     private int computeMaxPathLength() {
@@ -70,17 +70,14 @@ public class JourneyConstraints {
     }
 
     private int getPathMaxFor(TransportMode mode) {
-        switch (mode) {
-            case Tram: return TRAMS_MAX_PATH_LENGTH;
-            case RailReplacementBus:
-            case Bus:
-                return BUSES_MAX_PATH_LENGTH;
-            case Train: return TRAINS_MAX_PATH_LENGTH;
-            case Subway: return SUBWAY_MAX_PATH_LENGTH;
-            case Ferry: return FERRY_MAX_PATH_LENGTH;
-            default:
-                throw new RuntimeException("Unexpected transport mode " + mode);
-        }
+        return switch (mode) {
+            case Tram -> TRAMS_MAX_PATH_LENGTH;
+            case RailReplacementBus, Bus -> BUSES_MAX_PATH_LENGTH;
+            case Train -> TRAINS_MAX_PATH_LENGTH;
+            case Subway -> SUBWAY_MAX_PATH_LENGTH;
+            case Ferry -> FERRY_MAX_PATH_LENGTH;
+            default -> throw new RuntimeException("Unexpected transport mode " + mode);
+        };
     }
 
     public boolean isRunning(IdFor<Service> serviceId) {
@@ -103,13 +100,13 @@ public class JourneyConstraints {
         return maxPathLength;
     }
 
-    public Set<Station> getEndTramStations() {
-        return endTramStations;
+    public Set<Station> getEndStations() {
+        return endStations;
     }
 
-    public boolean getIsTramOnlyDestinations() {
-        return tramOnlyDestinations;
-    }
+//    public boolean getIsTramOnlyDestinations() {
+//        return tramOnlyDestinations;
+//    }
 
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;

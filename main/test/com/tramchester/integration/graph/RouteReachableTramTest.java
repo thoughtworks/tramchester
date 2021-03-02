@@ -13,7 +13,6 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -53,27 +52,27 @@ class RouteReachableTramTest {
 
     @Test
     void shouldHaveCorrectReachabilityOrInterchanges() {
-        assertTrue(reachable(AltrinchamPiccadilly, NavigationRoad, ManAirport));
-        assertFalse(reachable(PiccadillyAltrincham, NavigationRoad, ManAirport));
+        assertTrue(reachableInterchange(AltrinchamPiccadilly, NavigationRoad));
+        assertFalse(reachableInterchange(PiccadillyAltrincham, NavigationRoad));
 
-        assertTrue(reachable(ManchesterAirportVictoria, ManAirport, StWerburghsRoad));
-        assertFalse(reachable(VictoriaManchesterAirport, ManAirport, StWerburghsRoad));
+        assertTrue(reachableStations(ManchesterAirportVictoria, ManAirport).contains(StWerburghsRoad.getId()));
+        assertFalse(reachableStations(VictoriaManchesterAirport, ManAirport).contains(StWerburghsRoad.getId()));
     }
 
     @Test
     void shouldCorrectNotReachable() {
-        assertTrue(reachable(AltrinchamPiccadilly, NavigationRoad, OldTrafford));
-        assertFalse(reachable(PiccadillyAltrincham, NavigationRoad, OldTrafford));
+        assertTrue(reachableStations(AltrinchamPiccadilly, NavigationRoad).contains(OldTrafford.getId()));
+        assertFalse(reachableStations(PiccadillyAltrincham, NavigationRoad).contains(OldTrafford.getId()));
 
-        assertTrue(reachable(PiccadillyAltrincham, OldTrafford, NavigationRoad));
+        assertTrue(reachableStations(PiccadillyAltrincham, OldTrafford).contains(NavigationRoad.getId()));
         // Old Trafford towards Piccadilly encouters an interchance
-        assertTrue(reachable(AltrinchamPiccadilly, OldTrafford, NavigationRoad));
+        assertTrue(reachableInterchange(AltrinchamPiccadilly, NavigationRoad));
     }
 
     @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachable(RochdaleManchesterEDidsbury, RochdaleRail, Monsall));
-        assertTrue(reachable(EDidsburyManchesterRochdale, Monsall, RochdaleRail));
+        assertTrue(reachableStations(RochdaleManchesterEDidsbury, RochdaleRail).contains(Monsall.getId()));
+        assertTrue(reachableStations(EDidsburyManchesterRochdale, Monsall).contains(RochdaleRail.getId()));
     }
 
     @Test
@@ -103,11 +102,16 @@ class RouteReachableTramTest {
         return TestStation.real(stationRepository, stations);
     }
 
-    private boolean reachable(KnownTramRoute knownRoute, TramStations routeStation, TestStations dest) {
+    private boolean reachableInterchange(KnownTramRoute knownRoute, TramStations routeStation) {
         Route route = RoutesForTesting.createTramRoute(knownRoute);
         RouteStation start = createRouteStation(route, getReal(routeStation));
-        IdSet<Station> result = reachable.getRouteReachableWithInterchange(start, IdSet.singleton(dest.getId()));
-        return result.contains(dest.getId());
+        return reachable.isInterchangeReachable(start);
+    }
+
+    private IdSet<Station> reachableStations(KnownTramRoute knownRoute, TramStations routeStation) {
+        Route route = RoutesForTesting.createTramRoute(knownRoute);
+        RouteStation start = createRouteStation(route, getReal(routeStation));
+        return reachable.getReachableStations(start);
     }
 
     private RouteStation createRouteStation(Route route, Station station) {

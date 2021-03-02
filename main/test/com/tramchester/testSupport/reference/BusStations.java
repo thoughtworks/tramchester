@@ -29,7 +29,7 @@ public enum BusStations implements TestStations {
             new LatLong(53.48017, -2.23723)),
     MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
             new LatLong(53.25831, -2.12502)),
-    StockportAldi("1800SG15721", "Stockport", "Stockport, at Aldi", new LatLong(53.41115, -2.15221)),
+    StockportAtAldi("1800SG15721", "Stockport", "Stockport, at Aldi", new LatLong(53.41115, -2.15221)),
     StockportNewbridgeLane("1800SG15561", "Stockport", "Stockport, Newbridge Lane (NW-bound)",
             new LatLong(53.41149, -2.15438));
 
