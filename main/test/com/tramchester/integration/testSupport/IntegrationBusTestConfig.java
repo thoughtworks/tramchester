@@ -8,17 +8,15 @@ import java.util.*;
 
 public class IntegrationBusTestConfig extends IntegrationTestConfig {
     private final DataSourceConfig dataSourceConfig;
-    private final GraphDBConfig graphDBConfig;
 
     public IntegrationBusTestConfig() {
         this("bus_tramchester.db");
     }
 
     public IntegrationBusTestConfig(String dbName) {
-        super("integrationBusTest", dbName);
+        super(new GraphDBIntegrationBusTestConfig("integrationBusTest", dbName));
         dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus),
                 Collections.emptySet());
-        graphDBConfig = new GraphDBIntegrationBusTestConfig("integrationBusTest", dbName);
     }
 
     @Override
@@ -62,11 +60,6 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     @Override
     public int getMaxJourneyDuration() {
         return 180;
-    }
-
-    @Override
-    public GraphDBConfig getGraphDBConfig() {
-        return graphDBConfig;
     }
 
     private static class GraphDBIntegrationBusTestConfig extends GraphDBTestConfig {

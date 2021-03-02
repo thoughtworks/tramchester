@@ -54,7 +54,7 @@ numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
-changeAtInterchangeOnly: false
+changeAtInterchangeOnly: true
 
 swagger:
   resourcePackage: com.tramchester.resources

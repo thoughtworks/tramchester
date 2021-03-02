@@ -8,7 +8,7 @@ import java.nio.file.Path;
 public abstract class IntegrationTestConfig extends TestConfig {
     private final GraphDBTestConfig dbConfig;
 
-    public IntegrationTestConfig(GraphDBTestConfig dbConfig) {
+    protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
         this.dbConfig = dbConfig;
     }
 

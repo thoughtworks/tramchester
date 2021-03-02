@@ -2,21 +2,31 @@ package com.tramchester.integration.repository.trains;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.Route;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.integration.repository.common.InterchangeRepositoryTestSupport.RoutesWithInterchanges;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class InterchangeRepositoryTrainTest {
     private static ComponentContainer componentContainer;
-    private InterchangeRepository repository;
+    private InterchangeRepository interchangeRepository;
+    private StationRepository stationRepository;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -31,21 +41,29 @@ class InterchangeRepositoryTrainTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        repository = componentContainer.get(InterchangeRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
+        interchangeRepository = componentContainer.get(InterchangeRepository.class);
     }
 
     @Test
     void shouldHaveExpectedInterchanges() {
 
-        assertTrue(repository.isInterchange(TrainStations.of(TrainStations.ManchesterPiccadilly)));
-        assertTrue(repository.isInterchange(TrainStations.of(TrainStations.Stockport)));
-        assertTrue(repository.isInterchange(TrainStations.of(TrainStations.LondonEuston)));
+        assertTrue(interchangeRepository.isInterchange(TrainStations.of(TrainStations.ManchesterPiccadilly)));
+        assertTrue(interchangeRepository.isInterchange(TrainStations.of(TrainStations.Stockport)));
+        assertTrue(interchangeRepository.isInterchange(TrainStations.of(TrainStations.LondonEuston)));
 
-        assertFalse(repository.isInterchange(TrainStations.of(TrainStations.Hale)));
-        assertFalse(repository.isInterchange(TrainStations.of(TrainStations.Knutsford)));
-        assertFalse(repository.isInterchange(TrainStations.of(TrainStations.Mobberley)));
+        assertFalse(interchangeRepository.isInterchange(TrainStations.of(TrainStations.Hale)));
+        assertFalse(interchangeRepository.isInterchange(TrainStations.of(TrainStations.Knutsford)));
+        assertFalse(interchangeRepository.isInterchange(TrainStations.of(TrainStations.Mobberley)));
+    }
 
+    @Test
+    void shouldHaveReachableInterchangeForEveryRoute() {
+        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, stationRepository, Train);
+        Set<Route> all = routeRepository.getRoutes();
 
+        assertEquals(all, routesWithInterchanges);
     }
 
 }

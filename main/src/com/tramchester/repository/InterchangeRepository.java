@@ -20,14 +20,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.isBus;
 import static java.lang.String.format;
 
 @LazySingleton
 public class InterchangeRepository  {
     private static final Logger logger = LoggerFactory.getLogger(InterchangeRepository.class);
-
-    // an interchange has at least this many links
-    private static final int LINK_THRESHHOLD = 3;
 
     private final FindStationsByNumberConnections findStationsByNumberConnections;
     private final TransportData dataSource;
@@ -53,14 +51,23 @@ public class InterchangeRepository  {
     public void start() {
         logger.info("Starting");
         enabledModes.forEach(mode -> {
-            logger.info("Finding interchanges for " + mode);
-            IdSet<Station> found = findStationsByNumberConnections.findFor(mode, LINK_THRESHHOLD, false);
+            logger.debug("Finding interchanges for " + mode);
+            int linkThreshhold = getLinkThreshhold(mode);
+            IdSet<Station> found = findStationsByNumberConnections.findFor(mode, linkThreshhold, false);
             interchanges.put(mode, found);
-            logger.info(format("Added %s interchanges for %s", found.size(), mode));
+            logger.info(format("Added %s interchanges for %s and link threshold %s", found.size(), mode, linkThreshhold));
         });
         addAdditionalTramInterchanges();
         addMultiModeStations();
         logger.info("started");
+    }
+
+    private int getLinkThreshhold(TransportMode mode) {
+        // todo into config? Per datasource & transport mode?
+        if (isBus(mode)) {
+            return 2;
+        }
+        return 3;
     }
 
     private void addAdditionalTramInterchanges() {
@@ -79,7 +86,6 @@ public class InterchangeRepository  {
     }
 
     public boolean isInterchange(Station station) {
-
         // only checking stations modes is small optimisation as station id's are unique
         Set<TransportMode> stationModes = station.getTransportModes();
 
