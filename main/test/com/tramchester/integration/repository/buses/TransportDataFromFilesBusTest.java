@@ -5,7 +5,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataReaderFactory;
 import com.tramchester.dataimport.data.CalendarDateData;
@@ -21,7 +20,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.RoutesForTesting;
@@ -33,6 +31,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.RouteDirection.Inbound;
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,6 +97,25 @@ class TransportDataFromFilesBusTest {
         List<String> headsigns = new ArrayList<>(result.getHeadsigns());
         assertEquals(1, headsigns.size(), "expected headsigns");
         assertEquals("Warrington, Bus Interchange", headsigns.get(0));
+    }
+
+    @Test
+    void shouldHaveExpectedEndOfLinesAndRoutes() {
+        Route inbound = transportData.getRouteById(StringIdFor.createId("RDT:464:I:"));
+        assertEquals("Rochdale - Whitworth - Rawtenstall - Accrington", inbound.getName());
+
+        Route outbound = transportData.getRouteById(StringIdFor.createId("RDT:464:O:"));
+        assertEquals("Accrington - Rawtenstall - Whitworth - Rochdale", outbound.getName());
+
+        Station firstStation = transportData.getStationById(StringIdFor.createId("2500ACC0009"));
+        assertEquals("Accrington, Bus Station (Stand 9)", firstStation.getName());
+        //assertTrue(firstStation.servesRoute(inbound));
+        assertTrue(firstStation.servesRoute(outbound));
+
+        Station secondStation = transportData.getStationById(StringIdFor.createId("2500LAA15791"));
+        assertEquals("Accrington, opp Infant Street", secondStation.getName());
+        //assertTrue(secondStation.servesRoute(inbound));
+        assertTrue(secondStation.servesRoute(outbound));
     }
 
     @Test

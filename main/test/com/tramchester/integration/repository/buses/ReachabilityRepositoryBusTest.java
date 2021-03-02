@@ -49,8 +49,7 @@ class ReachabilityRepositoryBusTest {
 
         assertTrue(reachable(createRouteStation(route, BusStations.StockportAtAldi), BusStations.StockportNewbridgeLane ));
 
-        // wrong direction for the route, but interchange reachable?
-        assertFalse(reachable(createRouteStation(route, BusStations.StockportNewbridgeLane), BusStations.StockportAtAldi));
+
     }
 
     private boolean reachable(RouteStation routeStation, BusStations destinationStation) {
