@@ -2,12 +2,14 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
@@ -28,7 +30,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
+import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -167,7 +170,10 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 StopCalls stops = trip.getStops();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
-                        if (!pairs.containsKey(Pair.of(leg.getFirstStation(), leg.getSecondStation()))) {
+                        GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
+                        GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
+                        if (pickup==Regular && dropOff==Regular &&
+                                !pairs.containsKey(Pair.of(leg.getFirstStation(), leg.getSecondStation()))) {
                             int cost = leg.getCost();
                             pairs.put(Pair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
                         }

@@ -3,6 +3,7 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.StationLink;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
@@ -20,10 +21,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.tramchester.domain.reference.TransportMode.Tram;
 
 @Api
 @Path("/links")
@@ -48,10 +52,10 @@ public class StationLinksResource {
     public Response getAll() {
         logger.info("Get station links");
 
-        ArrayList<FindStationLinks.StationLink> allLinks = new ArrayList<>();
+        ArrayList<StationLink> allLinks = new ArrayList<>();
 
         config.getTransportModes().forEach(transportMode -> {
-            Set<FindStationLinks.StationLink> links = findStationLinks.findFor(transportMode);
+            Set<StationLink> links = findStationLinks.findFor(transportMode);
             allLinks.addAll(links);
         });
 
@@ -60,8 +64,9 @@ public class StationLinksResource {
         return Response.ok(results).build();
     }
 
-    private StationLinkDTO create(FindStationLinks.StationLink link) {
-        return new StationLinkDTO(new StationRefWithPosition(link.getBegin()), new StationRefWithPosition(link.getEnd()));
+    private StationLinkDTO create(StationLink link) {
+        return new StationLinkDTO(new StationRefWithPosition(link.getBegin()),
+                new StationRefWithPosition(link.getEnd()), Collections.singleton(Tram));
     }
 
 }

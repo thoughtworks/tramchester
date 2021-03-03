@@ -89,13 +89,9 @@ var mapApp = new Vue({
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
 
                 var line = L.polyline(steps); 
-                // line.bindTooltip(route.routeName + "<br>" 
-                //     + "'" + route.id + "' (" + route.transportMode+")");
+                line.bindTooltip("Modes: " + link.transportModes); // + "<br>" + "'" + route.id + "' (" + route.transportMode+")");
                 // line.setStyle({className: this.classForRoute(route), weight: 6});
-                // line.on({
-                //     mouseover: this.highlightRoute,
-                //     mouseout: this.unhighlightRoute
-                // });
+
                 routeLayerGroup.addLayer(line);
             })
         

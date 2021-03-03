@@ -2,11 +2,10 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.StationLink;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -44,7 +44,7 @@ class FindStationLinksTest {
 
     @Test
     void shouldFindExpectedLinksBetweenStations() {
-        Set<FindStationLinks.StationLink> results = findStationLinks.findFor(Tram);
+        Set<StationLink> results = findStationLinks.findFor(Tram);
         assertEquals(202, results.size());
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
@@ -64,9 +64,9 @@ class FindStationLinksTest {
 
     }
 
-    @NotNull
-    private FindStationLinks.StationLink createLink(TramStations stPetersSquare, TramStations piccadillyGardens) {
-        return new FindStationLinks.StationLink(TramStations.of(stPetersSquare), TramStations.of(piccadillyGardens));
+    private StationLink createLink(TramStations stPetersSquare, TramStations piccadillyGardens) {
+        return new StationLink(TramStations.of(stPetersSquare), TramStations.of(piccadillyGardens),
+                Collections.singleton(Tram));
     }
 
 }

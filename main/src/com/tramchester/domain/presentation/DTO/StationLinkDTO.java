@@ -1,12 +1,18 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.reference.TransportMode;
+
+import java.util.Set;
+
 public class StationLinkDTO {
     private StationRefWithPosition begin;
     private StationRefWithPosition end;
+    private Set<TransportMode> transportModes;
 
-    public StationLinkDTO(StationRefWithPosition begin, StationRefWithPosition end) {
+    public StationLinkDTO(StationRefWithPosition begin, StationRefWithPosition end, Set<TransportMode> transportModes) {
         this.begin = begin;
         this.end = end;
+        this.transportModes = transportModes;
     }
 
     public StationLinkDTO() {
@@ -21,8 +27,8 @@ public class StationLinkDTO {
         return end;
     }
 
-    public void setEnd(StationRefWithPosition end) {
-        this.end = end;
+    public Set<TransportMode> getTransportModes() {
+        return transportModes;
     }
 
     @Override
@@ -42,4 +48,5 @@ public class StationLinkDTO {
         result = 31 * result + end.hashCode();
         return result;
     }
+
 }

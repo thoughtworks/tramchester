@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -32,7 +33,8 @@ public class FindStationLinks {
     private final StationRepository stationRepository;
 
     @Inject
-    public FindStationLinks(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken, StationRepository stationRepository) {
+    public FindStationLinks(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken,
+                            StationRepository stationRepository) {
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
     }
@@ -59,10 +61,11 @@ public class FindStationLinks {
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
                 Relationship relationship = (Relationship) row.get("r");
+
                 Node startNode = relationship.getStartNode();
                 Node endNode = relationship.getEndNode();
 
-                links.add(createLink(startNode, endNode));
+                links.add(createLink(startNode, endNode, relationship));
             }
             result.close();
         }
@@ -72,58 +75,16 @@ public class FindStationLinks {
         return links;
     }
 
-    private StationLink createLink(Node startNode, Node endNode) {
+    private StationLink createLink(Node startNode, Node endNode, Relationship relationship) {
         IdFor<Station> startId = GraphProps.getStationId(startNode);
         IdFor<Station> endId = GraphProps.getStationId(endNode);
 
         Station start = stationRepository.getStationById(startId);
         Station end = stationRepository.getStationById(endId);
 
-        return new StationLink(start, end);
-    }
+        Set<TransportMode> modes = GraphProps.getTransportModes(relationship);
 
-    public static class StationLink {
-        private final Station begin;
-        private final Station end;
-
-        public StationLink(Station begin, Station end) {
-            this.begin = begin;
-            this.end = end;
-        }
-
-        public Station getBegin() {
-            return begin;
-        }
-
-        public Station getEnd() {
-            return end;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            StationLink that = (StationLink) o;
-
-            if (!begin.equals(that.begin)) return false;
-            return end.equals(that.end);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = begin.hashCode();
-            result = 31 * result + end.hashCode();
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "StationLink{" +
-                    "begin=" + begin +
-                    ", end=" + end +
-                    '}';
-        }
+        return new StationLink(start, end, modes);
     }
 
 }

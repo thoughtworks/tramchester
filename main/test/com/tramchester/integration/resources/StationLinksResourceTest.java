@@ -13,8 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,11 +42,10 @@ class StationLinksResourceTest {
         assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
         assertTrue(results.contains(createLink(MarketStreet, StPetersSquare)));
         assertTrue(results.contains(createLink(Deansgate, StPetersSquare)));
-
     }
 
     private StationLinkDTO createLink(TramStations begin, TramStations end) {
         return new StationLinkDTO(new StationRefWithPosition(TramStations.of(begin)),
-                new StationRefWithPosition(TramStations.of(end)));
+                new StationRefWithPosition(TramStations.of(end)), Collections.singleton(Tram));
     }
 }
