@@ -1,8 +1,5 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-
 import java.util.Set;
 
 public class TramPositionDTO {

@@ -12,6 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
@@ -35,22 +36,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteTest {
 
     private static final String TMP_DB = "tmp.db";
 
-    private static TramTransportDataForTestProvider.TestTransportData transportData;
-    private static RouteCalculator calculator;
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
     private static LocationJourneyPlannerTestFacade locationJourneyPlanner;
     private static SimpleGraphConfig config;
+
+    private TramTransportDataForTestProvider.TestTransportData transportData;
+    private GraphDatabase database;
+    private RouteCalculator calculator;
 
     private TramServiceDate queryDate;
     private TramTime queryTime;
     private Transaction txn;
-
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -62,10 +64,6 @@ class TramRouteTest {
                 overrideProvider(TramTransportDataForTestProvider.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initContainer();
-
-        transportData = (TramTransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
-        database = componentContainer.get(GraphDatabase.class);
-        calculator = componentContainer.get(RouteCalculator.class);
     }
 
     @AfterAll
@@ -76,6 +74,10 @@ class TramRouteTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        transportData = (TramTransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
+        database = componentContainer.get(GraphDatabase.class);
+        calculator = componentContainer.get(RouteCalculator.class);
+
         txn = database.beginTx();
 
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
@@ -148,7 +150,7 @@ class TramRouteTest {
     }
 
     private void checkForPlatforms(Set<Journey> journeys) {
-        journeys.forEach(journey -> journey.getStages().forEach(stage -> Assertions.assertTrue(stage.hasBoardingPlatform())));
+        journeys.forEach(journey -> journey.getStages().forEach(stage -> assertTrue(stage.hasBoardingPlatform())));
     }
 
     @Test
@@ -189,7 +191,7 @@ class TramRouteTest {
         JourneyRequest journeyRequestB = createJourneyRequest(TramTime.of(8, 10), 3);
         journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequestB).collect(Collectors.toSet());
-        Assertions.assertTrue(journeys.size()>=1);
+        assertTrue(journeys.size()>=1);
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
     }
 
@@ -199,7 +201,7 @@ class TramRouteTest {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
-        Assertions.assertTrue(journeys.size()>=1);
+        assertTrue(journeys.size()>=1);
         checkForPlatforms(journeys);
         journeys.forEach(journey-> Assertions.assertEquals(2, journey.getStages().size()));
     }
@@ -210,7 +212,7 @@ class TramRouteTest {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
-        Assertions.assertTrue(journeys.size()>=1);
+        assertTrue(journeys.size()>=1);
         checkForPlatforms(journeys);
         journeys.forEach(journey-> Assertions.assertEquals(2, journey.getStages().size()));
     }
@@ -221,6 +223,22 @@ class TramRouteTest {
         Assertions.assertAll(() -> creator.create("test_network.dot", transportData.getFirst(), Integer.MAX_VALUE));
     }
 
+    @Test
+    void shouldHaveCorrectLinksBetweenStations() {
+        FindStationLinks findStationLinks = componentContainer.get(FindStationLinks.class);
+
+        Set<FindStationLinks.StationLink> links = findStationLinks.findFor(TransportMode.Tram);
+
+        assertEquals(5, links.size());
+
+        assertTrue(links.contains(new FindStationLinks.StationLink(transportData.getFirst(), transportData.getSecond())));
+        assertTrue(links.contains(new FindStationLinks.StationLink(transportData.getSecond(), transportData.getInterchange())));
+        assertTrue(links.contains(new FindStationLinks.StationLink(transportData.getInterchange(), transportData.getFourthStation())));
+        assertTrue(links.contains(new FindStationLinks.StationLink(transportData.getInterchange(), transportData.getFifthStation())));
+        assertTrue(links.contains(new FindStationLinks.StationLink(transportData.getInterchange(), transportData.getLast())));
+
+    }
+
     private static void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
                                           int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];
@@ -229,12 +247,12 @@ class TramRouteTest {
         Assertions.assertEquals(firstStation, vehicleStage.getFirstStation().forDTO());
         Assertions.assertEquals(secondStation, vehicleStage.getLastStation().forDTO());
         Assertions.assertEquals(passedStops,  vehicleStage.getPassedStopsCount());
-        Assertions.assertTrue(vehicleStage.hasBoardingPlatform());
+        assertTrue(vehicleStage.hasBoardingPlatform());
 
         TramTime departTime = vehicleStage.getFirstDepartureTime();
-        Assertions.assertTrue(departTime.isAfter(queryTime));
+        assertTrue(departTime.isAfter(queryTime));
 
-        Assertions.assertTrue(vehicleStage.getDuration()>0);
+        assertTrue(vehicleStage.getDuration()>0);
     }
 
     private static class SimpleGraphConfig extends IntegrationTestConfig {

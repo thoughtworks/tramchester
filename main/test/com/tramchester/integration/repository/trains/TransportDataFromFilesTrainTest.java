@@ -148,7 +148,7 @@ class TransportDataFromFilesTrainTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getAllTrips).
+        IdSet<Trip> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getTrips).
                 flatMap(Collection::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());

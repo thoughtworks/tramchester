@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GraphDatabaseTest {
+class GraphDatabaseTest {
 
     private static final String TMP_DB = "tmp.db";
     private static SimpleGraphConfig config;

@@ -11,14 +11,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServiceTest {
-
-
 
     @Test
     void shouldAddTripsToService() {
@@ -35,10 +34,9 @@ class ServiceTest {
 
         service.addTrip(trip);
 
-        assertThat(service.getAllTrips()).hasSize(1);
-        assertThat(service.getAllTrips()).contains(trip);
-        assertThat(service.getTripsFor(TestEnv.getTestRoute())).hasSize(1);
-        assertThat(service.getTripsFor(TestEnv.getTestRoute()).contains(trip));
+        Set<Trip> serviceTrips = service.getTrips();
+        assertThat(serviceTrips).hasSize(1);
+        assertThat(serviceTrips).contains(trip);
 
         service.updateTimings();
 
@@ -60,23 +58,5 @@ class ServiceTest {
 
         assertTrue(service.hasCalendar());
     }
-
-
-//    @Test
-//    void shouldSetRouteIdAndServiceId() {
-//        Route route66 = TestEnv.getTestRoute(IdFor.createId("ROUTE66"));
-//        Service service = new Service("SRV001", route66);
-//
-//        assertThat(service.getRoutes().size()).isEqualTo(1);
-//        assertTrue(service.getRoutes().contains(route66));
-//        assertThat(service.getId()).isEqualTo(IdFor.createId("SRV001"));
-//
-//        Route another = TestEnv.getTestRoute(IdFor.createId("another"));
-//        service.addRoute(another);
-//
-//        assertThat(service.getRoutes()).hasSize(2);
-//    }
-
-
 
 }

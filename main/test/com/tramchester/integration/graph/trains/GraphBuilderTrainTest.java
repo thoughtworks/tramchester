@@ -144,7 +144,7 @@ class GraphBuilderTrainTest {
 
         Set<Trip> fileCallingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRoute().equals(route)).
-                map(Service::getAllTrips).
+                map(Service::getTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.getStops().callsAt(station)).
                 collect(Collectors.toSet());
@@ -178,7 +178,7 @@ class GraphBuilderTrainTest {
 
         Set<Trip> callingTrips = transportData.getServices().stream().
                 filter(svc -> svc.getRoute().equals(route)).
-                map(Service::getAllTrips).
+                map(Service::getTrips).
                 flatMap(Collection::stream).
                 filter(trip -> trip.getStops().callsAt(station)). // calls at , but not starts at because no inbound for these
                 filter(trip -> !trip.getStops().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).

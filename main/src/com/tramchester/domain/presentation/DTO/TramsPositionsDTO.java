@@ -4,6 +4,8 @@ import java.util.List;
 
 public class TramsPositionsDTO {
     private List<TramPositionDTO> positionsList;
+
+    // TODO Remove this
     private boolean buses;
 
     public TramsPositionsDTO() {
@@ -19,6 +21,7 @@ public class TramsPositionsDTO {
         return positionsList;
     }
 
+    @Deprecated
     public boolean getBuses() {
         return buses;
     }

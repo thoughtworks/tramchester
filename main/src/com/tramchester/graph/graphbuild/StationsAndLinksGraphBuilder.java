@@ -163,7 +163,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
         Map<Pair<Station, Station>, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
-        services.forEach(service -> service.getTripsFor(route).forEach(trip -> {
+        services.forEach(service -> service.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStops();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {

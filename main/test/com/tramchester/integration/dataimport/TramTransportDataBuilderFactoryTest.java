@@ -66,11 +66,11 @@ class TramTransportDataBuilderFactoryTest {
 
         Service service = route.getServices().stream().findFirst().get();
         assertThat(service.getId()).isEqualTo(StringIdFor.createId("Serv000001"));
-        assertThat(service.getAllTrips()).hasSize(3);
+        assertThat(service.getTrips()).hasSize(3);
         assertThat(service.getCalendar().operatesOn(LocalDate.of(2014,11,1)));
         assertThat(!service.getCalendar().operatesOn(LocalDate.of(2014,11,20)));
 
-        Trip trip = service.getAllTrips().stream().findFirst().get();
+        Trip trip = service.getTrips().stream().findFirst().get();
         assertThat(trip.getId()).isEqualTo(StringIdFor.createId("Trip000001"));
         assertThat(trip.getStops().numberOfCallingPoints()).isEqualTo(9);
 
@@ -80,7 +80,6 @@ class TramTransportDataBuilderFactoryTest {
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);
 
         Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
-        //Set<NameAndVersion> versions = dataSourceInfo.getVersions();
         assertEquals(1, dataSourceInfo.size());
         DataSourceInfo result = dataSourceInfo.iterator().next();
         assertThat(result.getVersion()).isEqualTo("20150617");

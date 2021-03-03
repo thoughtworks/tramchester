@@ -5,8 +5,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -26,9 +24,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class CreateDotDiagramTest {
     private static ComponentContainer componentContainer;
-    private GraphDatabase database;
     private StationRepository repository;
-    private StagedTransportGraphBuilder.Ready ready;
+    private DiagramCreator diagramCreator;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -37,18 +34,15 @@ class CreateDotDiagramTest {
         componentContainer.initialise();
     }
 
-    @BeforeEach
-    void beforeEachOfTheTestsRun() {
-        repository = componentContainer.get(StationRepository.class);
-        database = componentContainer.get(GraphDatabase.class);
-        StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
-        ready = builder.getReady();
-
-    }
-
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
         componentContainer.close();
+    }
+
+    @BeforeEach
+    void beforeEachOfTheTestsRun() {
+        repository = componentContainer.get(StationRepository.class);
+        diagramCreator = componentContainer.get(DiagramCreator.class);
     }
 
     @Test
@@ -71,10 +65,8 @@ class CreateDotDiagramTest {
     private void create(TramStations testPoint, int depthLimit) {
         Station startPoint = repository.getStationById(testPoint.getId());
 
-        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-
         try {
-            creator.create(format("%s_trams.dot", startPoint.getName()), startPoint, depthLimit);
+            diagramCreator.create(format("%s_trams.dot", startPoint.getName()), startPoint, depthLimit);
         } catch (IOException e) {
             fail(e);
         }

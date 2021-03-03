@@ -49,8 +49,8 @@ public class Service implements HasId<Service>, GraphProperty {
         return serviceId;
     }
 
-    public Set<Trip> getAllTrips() {
-        return trips;
+    public Set<Trip> getTrips() {
+        return Collections.unmodifiableSet(trips);
     }
 
     public void addTrip(Trip trip) {
@@ -107,9 +107,6 @@ public class Service implements HasId<Service>, GraphProperty {
         return trips.stream().filter(trip->trip.getRoute().equals(route)).collect(Collectors.toSet());
     }
 
-    public Set<Trip> getTrips() {
-        return Collections.unmodifiableSet(trips);
-    }
 
     @Override
     public boolean equals(Object o) {
