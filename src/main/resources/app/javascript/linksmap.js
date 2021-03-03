@@ -47,7 +47,7 @@ function addStationToMap(station, stationLayerGroup, displayed) {
     var lat = station.latLong.lat;
     var lon = station.latLong.lon;
     var marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 1 });
-    marker.bindTooltip(station.name + "<br> '" + station.id + "' (" + station.transportMode + ")");
+    marker.bindTooltip(station.name + "<br> '" + station.id + "' (" + station.transportModes + ")");
     displayed.push(station.id);
     stationLayerGroup.addLayer(marker);
 }
@@ -140,7 +140,7 @@ var mapApp = new Vue({
                 console.log(error);
             });
 
-        axios.get("/api/links/mode/Tram")
+        axios.get("/api/links/all")
             .then(function (response) {
                 mapApp.networkError = false;
                 mapApp.links = response.data;

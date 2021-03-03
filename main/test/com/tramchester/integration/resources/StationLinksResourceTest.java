@@ -25,7 +25,7 @@ class StationLinksResourceTest {
 
     @Test
     void shouldGetStationLinks() {
-        String endPoint = "links/mode/Tram";
+        String endPoint = "links/all";
 
         Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, response.getStatus(), "status");

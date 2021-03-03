@@ -92,8 +92,6 @@ function addTrams() {
                 circle.bindTooltip(getTramTitle(tram, position));
                 mapApp.tramLayerGroup.addLayer(circle);
             }
-
-            
         })
         mapApp.tramLayerGroup.addTo(mapApp.map);
     });
