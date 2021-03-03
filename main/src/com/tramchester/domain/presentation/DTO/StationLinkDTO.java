@@ -12,7 +12,7 @@ public class StationLinkDTO {
     public StationLinkDTO() {
         // deserialisation
     }
-    
+
     public StationRefWithPosition getBegin() {
         return begin;
     }

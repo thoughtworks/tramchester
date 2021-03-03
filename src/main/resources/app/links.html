@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Tramchester Links</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+
+<body>
+<div id="linksMap" ><h1>Experimental Links map</h1>
+    <div id="leafletMap" style="height: 1000px" class="w-75"></div>
+    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
+    </app-footer>
+</div>
+
+<script src="/app/linksmap.js"></script>
+
+</body>
+</html>

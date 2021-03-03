@@ -17,12 +17,17 @@ export default {
     addStationsForRoute: function(map, route) {
         var stationLayerGroup = L.layerGroup();
     
+        var added = []; // stations on mutliple routes
+
         route.stations.forEach(station => {
-            var lat = station.latLong.lat;
-            var lon = station.latLong.lon;
-            var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 1 })
-            marker.bindTooltip(station.name + "<br> '" +station.id+ "' (" + station.transportMode+")");
-            stationLayerGroup.addLayer(marker);
+            if (!added.includes(station.id)) {
+                var lat = station.latLong.lat;
+                var lon = station.latLong.lon;
+                var marker = new L.circleMarker(L.latLng(lat,lon), { title: station.name, radius: 1 })
+                marker.bindTooltip(station.name + "<br> '" +station.id+ "' (" + station.transportMode+")");
+                added.push(station.id);
+                stationLayerGroup.addLayer(marker);
+            }
         });
     
         stationLayerGroup.addTo(map);

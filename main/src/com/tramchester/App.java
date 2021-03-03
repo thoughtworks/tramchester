@@ -212,7 +212,6 @@ public class App extends Application<AppConfiguration>  {
     private void filtersForStaticContent(Environment environment, Integer staticAssetCacheTimeSecond) {
         StaticAssetFilter filter = new StaticAssetFilter(staticAssetCacheTimeSecond);
         setFilterFor(environment, filter, "dist", "/app/*");
-        //setFilterFor(environment, filter, "html", "/app/index.html");
     }
 
     private void setFilterFor(Environment environment, StaticAssetFilter filter, String name, String pattern) {
