@@ -20,34 +20,31 @@ import java.util.Map;
 import static java.lang.String.format;
 
 @LazySingleton
-public class FindStationsByNumberConnections {
-    private static final Logger logger = LoggerFactory.getLogger(FindStationsByNumberConnections.class);
+public class FindStationsByNumberLinks {
+    private static final Logger logger = LoggerFactory.getLogger(FindStationsByNumberLinks.class);
 
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public FindStationsByNumberConnections(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken) {
+    public FindStationsByNumberLinks(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken) {
         this.graphDatabase = graphDatabase;
     }
 
-    public IdSet<Station> findFor(TransportMode mode, int threshhold, boolean exact) {
-        logger.info(format("Find for %s threshhold %s", mode, threshhold));
+    public IdSet<Station> findAtLeastNConnectionsFrom(TransportMode mode, int threshhold) {
+        logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
         long start = System.currentTimeMillis();
         Map<String, Object> params = new HashMap<>();
         String stationLabel = GraphBuilder.Labels.forMode(mode).name();
         String modesProps = GraphPropertyKey.TRANSPORT_MODES.getText();
-        String predicate = exact ? "=" : ">=";
 
         params.put("count", threshhold);
         params.put("mode", mode.getNumber());
-
         String query = format("MATCH (a:%s)-[r:LINKED]->(b) " +
                         "WHERE $mode in r.%s " +
                         "WITH a, count(r) as num " +
-                        "WHERE num%s$count " +
+                        "WHERE num>=$count " +
                         "RETURN a",
-                stationLabel, modesProps, predicate);
-
+                stationLabel, modesProps);
         logger.info("Query: '" + query + '"');
 
         IdSet<Station> stationIds = new IdSet<>();
@@ -65,4 +62,5 @@ public class FindStationsByNumberConnections {
         logger.info("Found " + stationIds.size() + " matches");
         return stationIds;
     }
+
 }

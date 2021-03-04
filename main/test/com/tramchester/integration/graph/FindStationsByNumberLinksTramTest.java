@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.FindStationsByNumberConnections;
+import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FindStationsByNumberConnectionsTramTest {
+class FindStationsByNumberLinksTramTest {
     private static ComponentContainer componentContainer;
-    private FindStationsByNumberConnections discoverer;
+    private FindStationsByNumberLinks finder;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -36,13 +36,13 @@ class FindStationsByNumberConnectionsTramTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        discoverer = componentContainer.get(FindStationsByNumberConnections.class);
+        finder = componentContainer.get(FindStationsByNumberLinks.class);
     }
 
     @Test
     void shouldIdForkPointsFromTramNetwork() {
         int threshhold = 3;
-        IdSet<Station> found = discoverer.findFor(TransportMode.Tram, threshhold, false);
+        IdSet<Station> found = finder.findAtLeastNConnectionsFrom(TransportMode.Tram, threshhold);
         assertEquals(10, found.size());
         assertTrue(found.contains(TramStations.StPetersSquare.getId()));
         assertTrue(found.contains(TramStations.Broadway.getId()));
@@ -57,20 +57,5 @@ class FindStationsByNumberConnectionsTramTest {
 
     }
 
-    @Test
-    void shouldFineEndsOfLines() {
-        int threshhold = 1;
-        IdSet<Station> found = discoverer.findFor(TransportMode.Tram, threshhold, true);
-
-        IdSet<Station> expected = TramStations.EndOfTheLine.stream().map(TramStations::getId).collect(IdSet.idCollector());
-        assertEquals(expected, found);
-    }
-
-    @Test
-    void shouldGetZeroMatchForBuses() {
-        int threshhold = 1;
-        IdSet<Station> found = discoverer.findFor(TransportMode.Bus, threshhold, false);
-        assertEquals(0, found.size());
-    }
 
 }

@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.graph.FindStationsByNumberConnections;
+import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.NodeTypeRepository;
@@ -59,7 +59,7 @@ class GraphBuildAndStartTest {
                 transportData, builderCache);
 
         StationsAndLinksGraphBuilder.Ready stationAndLinksBuilderReady = stationAndLinksBuilder.getReady();
-        FindStationsByNumberConnections findStationsByNumberConnections = new FindStationsByNumberConnections(graphDatabase, stationAndLinksBuilderReady);
+        FindStationsByNumberLinks findStationsByNumberConnections = new FindStationsByNumberLinks(graphDatabase, stationAndLinksBuilderReady);
         InterchangeRepository interchangeRepository = new InterchangeRepository(findStationsByNumberConnections, transportData, config);
 
         StagedTransportGraphBuilder stagedTransportGraphBuilder = new StagedTransportGraphBuilder(graphDatabase, config, graphFilter,

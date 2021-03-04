@@ -8,8 +8,8 @@ public class GraphDBTestConfig implements GraphDBConfig {
     private final Path containingFolder;
     private final Path dbPath;
 
-    public GraphDBTestConfig(String folder, String dbName) {
-        this.containingFolder = Path.of("databases", folder);
+    public GraphDBTestConfig(String subFolderForDB, String dbName) {
+        this.containingFolder = Path.of("databases", subFolderForDB);
         this.dbPath = containingFolder.resolve(dbName);
     }
 

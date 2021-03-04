@@ -3,12 +3,10 @@ package com.tramchester.unit.graph.calculation;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
-import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -16,8 +14,6 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -41,8 +37,6 @@ import static com.tramchester.testSupport.reference.TramTransportDataForTestProv
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteTest {
-
-    private static final String TMP_DB = "tmp.db";
 
     private static ComponentContainer componentContainer;
     private static LocationJourneyPlannerTestFacade locationJourneyPlanner;
@@ -224,23 +218,6 @@ class TramRouteTest {
         Assertions.assertAll(() -> creator.create("test_network.dot", transportData.getFirst(), Integer.MAX_VALUE));
     }
 
-    @Test
-    void shouldHaveCorrectLinksBetweenStations() {
-        FindStationLinks findStationLinks = componentContainer.get(FindStationLinks.class);
-
-        Set<StationLink> links = findStationLinks.findFor(Tram);
-
-        assertEquals(5, links.size());
-
-        Set<TransportMode> modes = Collections.singleton(Tram);
-        assertTrue(links.contains(new StationLink(transportData.getFirst(), transportData.getSecond(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getSecond(), transportData.getInterchange(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getFourthStation(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getFifthStation(), modes)));
-        assertTrue(links.contains(new StationLink(transportData.getInterchange(), transportData.getLast(), modes)));
-
-    }
-
     private static void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,
                                           int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];
@@ -257,25 +234,4 @@ class TramRouteTest {
         assertTrue(vehicleStage.getDuration()>0);
     }
 
-    private static class SimpleGraphConfig extends IntegrationTestConfig {
-
-        public SimpleGraphConfig() {
-            super("unitTest", TMP_DB);
-        }
-
-        @Override
-        protected List<DataSourceConfig> getDataSourceFORTESTING() {
-            TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("data/tram",
-                    GTFSTransportationType.tram, Tram);
-            return Collections.singletonList(tfgmTestDataSourceConfig);
-        }
-
-        @Override
-        public int getNumberQueries() { return 1; }
-
-        @Override
-        public int getQueryInterval() {
-            return 6;
-        }
-    }
 }

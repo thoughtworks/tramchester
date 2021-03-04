@@ -7,7 +7,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
-import com.tramchester.repository.EndsOfLinesRepository;
+import com.tramchester.repository.EndsOfRoutesRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,9 +18,9 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class EndsOfLinesRepositoryBusTest {
+class EndsOfRoutesRepositoryBusTest {
     private static ComponentContainer componentContainer;
-    private EndsOfLinesRepository repository;
+    private EndsOfRoutesRepository repository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -35,7 +35,7 @@ class EndsOfLinesRepositoryBusTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        repository = componentContainer.get(EndsOfLinesRepository.class);
+        repository = componentContainer.get(EndsOfRoutesRepository.class);
     }
 
     @Test

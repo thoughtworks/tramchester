@@ -3,12 +3,11 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.repository.EndsOfLinesRepository;
+import com.tramchester.repository.EndsOfRoutesRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -22,9 +21,9 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class EndsOfLinesRepositoryTramTest {
+class EndsOfRoutesRepositoryTramTest {
     private static ComponentContainer componentContainer;
-    private EndsOfLinesRepository repository;
+    private EndsOfRoutesRepository repository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -39,7 +38,7 @@ class EndsOfLinesRepositoryTramTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        repository = componentContainer.get(EndsOfLinesRepository.class);
+        repository = componentContainer.get(EndsOfRoutesRepository.class);
     }
 
     @Test

@@ -16,8 +16,8 @@ public abstract class IntegrationTestConfig extends TestConfig {
      * Use version that takes GraphDBTestConfig
      */
     @Deprecated
-    public IntegrationTestConfig(String folder, String dbName) {
-        this(new GraphDBTestConfig(folder, dbName));
+    public IntegrationTestConfig(String subFolderForDB, String dbName) {
+        this(new GraphDBTestConfig(subFolderForDB, dbName));
     }
 
     public Path getDBPath() {
