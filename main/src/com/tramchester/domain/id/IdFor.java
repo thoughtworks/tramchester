@@ -12,12 +12,5 @@ public interface IdFor<T extends GraphProperty> {
 
     String getGraphId();
 
-    /***
-     * use !isValid()
-     * @return
-     */
-    @Deprecated
-    boolean notValid();
-
     boolean isValid();
 }

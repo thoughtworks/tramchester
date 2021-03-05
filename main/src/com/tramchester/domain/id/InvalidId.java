@@ -19,11 +19,6 @@ public class InvalidId<T extends GraphProperty> implements IdFor<T> {
     }
 
     @Override
-    public boolean notValid() {
-        return true;
-    }
-
-    @Override
     public boolean isValid() {
         return false;
     }

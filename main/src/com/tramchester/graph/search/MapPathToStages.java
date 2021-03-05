@@ -272,7 +272,7 @@ public class MapPathToStages {
         protected Optional<WalkingToStationStage> beginTrip(Relationship relationship) {
             IdFor<Trip> newTripId = GraphProps.getTripIdFrom(relationship);
 
-            if (tripId.notValid()) {
+            if (!tripId.isValid()) {
                 this.tripId = newTripId;
                 boardingTime = GraphProps.getTime(relationship);
             } else if (!tripId.equals(newTripId)){

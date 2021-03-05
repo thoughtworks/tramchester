@@ -49,21 +49,14 @@ public abstract class GraphBuilder  {
         NEIGHBOURS_ENABLED;
 
         public static Labels forMode(TransportMode mode) {
-            switch (mode) {
-                case Tram:
-                    return TRAM_STATION;
-                case Bus:
-                    return BUS_STATION;
-                case Train:
-                case RailReplacementBus:
-                    return TRAIN_STATION;
-                case Ferry:
-                    return FERRY_STATION;
-                case Subway:
-                    return SUBWAY_STATION;
-                default:
-                    throw new RuntimeException("Unsupported mode " + mode);
-            }
+            return switch (mode) {
+                case Tram -> TRAM_STATION;
+                case Bus -> BUS_STATION;
+                case Train, RailReplacementBus -> TRAIN_STATION;
+                case Ferry -> FERRY_STATION;
+                case Subway -> SUBWAY_STATION;
+                default -> throw new RuntimeException("Unsupported mode " + mode);
+            };
         }
 
         public static Set<Labels> forMode(Set<TransportMode> modes) {

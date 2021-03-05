@@ -35,11 +35,6 @@ public class CompositeId<DOMAINTYPE extends GraphProperty, A extends GraphProper
     }
 
     @Override
-    public boolean notValid() {
-        return !isValid();
-    }
-
-    @Override
     public boolean isValid() {
         return idA.isValid() && idB.isValid();
     }

@@ -34,7 +34,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return new IdSet<>(Collections.emptySet());
     }
 
-    private IdSet<T> addAll(IdSet<T> other) {
+    public IdSet<T> addAll(IdSet<T> other) {
         theSet.addAll(other.theSet);
         return this;
     }
@@ -154,5 +154,9 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
     @Override
     public int hashCode() {
         return theSet.hashCode();
+    }
+
+    public boolean containsAll(IdSet<T> other) {
+        return theSet.containsAll(other.theSet);
     }
 }

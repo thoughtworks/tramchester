@@ -52,11 +52,6 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
     }
 
     @Override
-    public boolean notValid() {
-        return theId.isEmpty();
-    }
-
-    @Override
     public boolean isValid() {
         return !theId.isEmpty();
     }

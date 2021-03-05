@@ -418,6 +418,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
             setProperty(onRoute, route);
             setCostProp(onRoute, cost);
+            setProperty(onRoute, route.getTransportMode());
         }
     }
 
