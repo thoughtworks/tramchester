@@ -6,16 +6,12 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.StationPair;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
@@ -29,20 +25,16 @@ import static java.lang.String.format;
 class RouteCalculatorTestAllJourneys {
 
     private static ComponentContainer componentContainer;
-    private static GraphDatabase database;
-
     private static IntegrationTramTestConfig testConfig;
 
     private final LocalDate when = TestEnv.testDay();
-    private RouteCalculationCombinations routeCalculationCombinations;
+    private RouteCalculationCombinations combinations;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -52,9 +44,7 @@ class RouteCalculatorTestAllJourneys {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteCalculator calculator = componentContainer.get(RouteCalculator.class);
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        routeCalculationCombinations = new RouteCalculationCombinations(database, calculator, stationRepository, testConfig);
+        combinations = new RouteCalculationCombinations(componentContainer, testConfig);
     }
 
     @Test
@@ -64,15 +54,15 @@ class RouteCalculatorTestAllJourneys {
         Set<Station> allStations = data.getStations();
 
         // pairs of stations to check
-        Set<StationPair> combinations = allStations.stream().flatMap(start -> allStations.stream().
+        Set<StationPair> stationPairs = allStations.stream().flatMap(start -> allStations.stream().
                 map(dest -> StationPair.of(start, dest))).
                 filter(pair -> !pair.same()).
-                filter(pair -> !interchanes(pair)).
-                filter(pair -> !endsOfLine(pair)).
+                filter(pair -> !combinations.betweenInterchange(pair)).
+                filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
 
-        Map<StationPair, Optional<Journey>> results = routeCalculationCombinations.validateAllHaveAtLeastOneJourney(when,
-                combinations, TramTime.of(8, 5));
+        Map<StationPair, Optional<Journey>> results = combinations.validateAllHaveAtLeastOneJourney(when,
+                stationPairs, TramTime.of(8, 5));
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().
@@ -88,14 +78,5 @@ class RouteCalculatorTestAllJourneys {
         Assertions.assertTrue(maxNumberStops.isPresent());
         Assertions.assertEquals(39, maxNumberStops.get().intValue());
     }
-
-    private boolean endsOfLine(StationPair pair) {
-        return TramStations.isEndOfLine(pair.getBegin()) && TramStations.isEndOfLine(pair.getEnd());
-    }
-
-    private boolean interchanes(StationPair pair) {
-        return TramStations.isInterchange(pair.getBegin()) && TramStations.isInterchange(pair.getEnd());
-    }
-
 
 }

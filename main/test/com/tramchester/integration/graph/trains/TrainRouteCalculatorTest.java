@@ -16,7 +16,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
-import com.tramchester.repository.RouteEndStationsRepository;
+import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -138,7 +138,7 @@ class TrainRouteCalculatorTest {
     void shouldHaveEndsOfLinesToEndsOfLines() {
         TramTime travelTime = TramTime.of(8, 0);
 
-        RouteEndStationsRepository repository = componentContainer.get(RouteEndStationsRepository.class);
+        RouteEndRepository repository = componentContainer.get(RouteEndRepository.class);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
                 8*60);

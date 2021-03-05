@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -20,27 +21,26 @@ import java.util.Set;
 import static com.tramchester.domain.reference.TransportMode.isBus;
 
 @LazySingleton
-public class RouteEndStationsRepository {
-    private static final Logger logger = LoggerFactory.getLogger(RouteEndStationsRepository.class);
+public class RouteEndRepository {
+    private static final Logger logger = LoggerFactory.getLogger(RouteEndRepository.class);
 
     private final FindRouteEndPoints findRouteEndPoints;
     private final StationRepository stationRepository;
-    private final TramchesterConfig config;
     private final Map<TransportMode,IdSet<Station>> endsOfRoutes;
+    private final Set<TransportMode> enabledModes;
 
     @Inject
-    public RouteEndStationsRepository(FindRouteEndPoints findRouteEndPoints, StationRepository stationRepository, TramchesterConfig config) {
+    public RouteEndRepository(FindRouteEndPoints findRouteEndPoints, StationRepository stationRepository, TramchesterConfig config) {
         this.findRouteEndPoints = findRouteEndPoints;
         this.stationRepository = stationRepository;
-        this.config = config;
         endsOfRoutes = new HashMap<>();
+        enabledModes = config.getTransportModes();
     }
 
     @PostConstruct
     public void start() {
         logger.info("start");
-        Set<TransportMode> enabled = config.getTransportModes();
-        for(TransportMode mode : enabled) {
+        for(TransportMode mode : enabledModes) {
             IdSet<RouteStation> starts = findRouteEndPoints.searchForStarts(mode);
             logger.info("Found " + starts.size() + " route start points");
             IdSet<RouteStation> ends = findRouteEndPoints.searchForEnds(mode);
@@ -72,5 +72,14 @@ public class RouteEndStationsRepository {
 
     public IdSet<Station> getStations(TransportMode mode) {
         return endsOfRoutes.get(mode);
+    }
+
+    public boolean isEndRoute(IdFor<Station> stationId) {
+        for (TransportMode enabledMode : enabledModes) {
+            if (endsOfRoutes.get(enabledMode).contains(stationId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

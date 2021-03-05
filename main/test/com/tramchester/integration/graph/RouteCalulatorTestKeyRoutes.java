@@ -8,10 +8,8 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.StationPair;
 import com.tramchester.testSupport.TestEnv;
@@ -24,6 +22,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
@@ -45,7 +44,6 @@ class RouteCalulatorTestKeyRoutes {
         testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        database = componentContainer.get(GraphDatabase.class);
     }
 
     @AfterAll
@@ -55,17 +53,9 @@ class RouteCalulatorTestKeyRoutes {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        RouteCalculator calculator = componentContainer.get(RouteCalculator.class);
-        combinations = new RouteCalculationCombinations(database, calculator, stationRepository, testConfig);
+        combinations = new RouteCalculationCombinations(componentContainer, testConfig);
     }
 
-    @Test
-    void shouldFindInterchangesToEndOfLines() {
-        Set<StationPair> combinations = createJourneyPairs(TramStations.Interchanges, TramStations.EndOfTheLine );
-
-        validateAllHaveAtLeastOneJourney(when, combinations, TramTime.of(8,0));
-    }
 
     @Disabled("used for diagnosing specific issue")
     @Test
@@ -94,33 +84,38 @@ class RouteCalulatorTestKeyRoutes {
     }
 
     @Test
-    void shouldFindEndOfLinesToInterchanges() {
-        Set<StationPair> combinations = createJourneyPairs(TramStations.EndOfTheLine, TramStations.Interchanges);
-        validateAllHaveAtLeastOneJourney(when, combinations, TramTime.of(8,0));
+    void shouldFindEndOfRoutesToInterchanges() {
+        validateAllHaveAtLeastOneJourney(when, combinations.EndOfRoutesToInterchanges(Tram), TramTime.of(8,0));
+    }
+
+    @Test
+    void shouldFindEndOfRoutesToEndOfRoute() {
+        validateAllHaveAtLeastOneJourney(when, combinations.EndOfRoutesToEndOfRoutes(Tram), TramTime.of(8,0));
+    }
+
+    @Test
+    void shouldFindInterchangesToEndOfRoutes() {
+        validateAllHaveAtLeastOneJourney(when, combinations.InterchangeToEndRoutes(Tram), TramTime.of(8,0));
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        Set<StationPair> combinations = createJourneyPairs(TramStations.Interchanges, TramStations.Interchanges);
-        validateAllHaveAtLeastOneJourney(when, combinations, TramTime.of(8,0));
+        validateAllHaveAtLeastOneJourney(when, combinations.InterchangeToInterchange(Tram), TramTime.of(8,0));
     }
 
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
         // todo: lockdown, changed from 9 to 10.15 as airport to eccles fails for 10.15am
-        Set<StationPair> combinations = createJourneyPairs(TramStations.EndOfTheLine, TramStations.EndOfTheLine);
-        checkRouteNextNDays(combinations, when, TramTime.of(10,15));
+        checkRouteNextNDays(combinations.EndOfRoutesToEndOfRoutes(Tram), when, TramTime.of(10,15));
     }
 
     @Test
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
-        Set<StationPair> combinations = createJourneyPairs(TramStations.EndOfTheLine, TramStations.EndOfTheLine);
-
         List<Journey> allResults = new ArrayList<>();
 
         Map<StationPair, RouteCalculationCombinations.JourneyOrNot> results = validateAllHaveAtLeastOneJourney(when,
-                combinations, TramTime.of(9,0));
+                combinations.EndOfRoutesToEndOfRoutes(Tram), TramTime.of(9,0));
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
         double longest = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare).get();
@@ -151,6 +146,7 @@ class RouteCalulatorTestKeyRoutes {
         return results;
     }
 
+    @Deprecated
     private Set<StationPair> createJourneyPairs(Set<TramStations> starts, Set<TramStations> ends) {
         Set<StationPair> combinations = new HashSet<>();
         for (TramStations start : starts) {

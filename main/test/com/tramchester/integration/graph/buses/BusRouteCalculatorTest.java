@@ -12,7 +12,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
-import com.tramchester.repository.RouteEndStationsRepository;
+import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -146,7 +146,7 @@ class BusRouteCalculatorTest {
     @BusTest
     @Test
     void shouldHaveEndsOfRoutesToEndsOfRoutes() {
-        RouteEndStationsRepository routeEndRepository = componentContainer.get(RouteEndStationsRepository.class);
+        RouteEndRepository routeEndRepository = componentContainer.get(RouteEndRepository.class);
         IdSet<Station> stations = routeEndRepository.getStations(TransportMode.Bus);
 
 

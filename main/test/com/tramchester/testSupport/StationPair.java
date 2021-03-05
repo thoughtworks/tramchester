@@ -1,13 +1,19 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
 public class StationPair {
-    private final HasId<Station> begin;
-    private final HasId<Station> end;
+    private final IdFor<Station> begin;
+    private final IdFor<Station> end;
 
     public StationPair(HasId<Station> begin, HasId<Station> end) {
+        this.begin = begin.getId();
+        this.end = end.getId();
+    }
+
+    public StationPair(IdFor<Station> begin, IdFor<Station> end) {
         this.begin = begin;
         this.end = end;
     }
@@ -34,15 +40,15 @@ public class StationPair {
         return result;
     }
 
-    public HasId<Station> getBegin() {
+    public IdFor<Station> getBegin() {
         return begin;
     }
 
-    public HasId<Station> getEnd() {
+    public IdFor<Station> getEnd() {
         return end;
     }
 
     public boolean same() {
-        return begin.getId().equals(end.getId());
+        return begin.equals(end);
     }
 }

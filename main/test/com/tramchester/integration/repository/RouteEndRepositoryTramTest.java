@@ -2,13 +2,11 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteEndStationsRepository;
-import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -16,16 +14,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class RouteEndStationsRepositoryTramTest {
+class RouteEndRepositoryTramTest {
     private static ComponentContainer componentContainer;
-    private RouteEndStationsRepository endStationsRepository;
+    private RouteEndRepository endStationsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -40,7 +35,7 @@ class RouteEndStationsRepositoryTramTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        endStationsRepository = componentContainer.get(RouteEndStationsRepository.class);
+        endStationsRepository = componentContainer.get(RouteEndRepository.class);
     }
 
     @Test
