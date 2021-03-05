@@ -18,17 +18,15 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.StationPair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RouteCalculationCombinations {
 
@@ -48,15 +46,37 @@ public class RouteCalculationCombinations {
         routeEndRepository = componentContainer.get(RouteEndRepository.class);
     }
 
+    public Optional<Journey> findJourneys(Transaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
+        return calculator.calculateRoute(txn, stationRepository.getStationById(start),
+                stationRepository.getStationById(dest), journeyRequest).limit(1).findAny();
+    }
+
+    public Map<StationPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(
+            LocalDate queryDate, Set<StationPair> stationPairs, TramTime queryTime) {
+
+        Map<StationPair, JourneyOrNot> results = computeJourneys(queryDate, stationPairs, queryTime);
+        assertEquals(stationPairs.size(), results.size(), "Not enough results");
+
+        // check all results present, collect failures into a list
+        List<RouteCalculationCombinations.JourneyOrNot> failed = results.values().stream().
+                filter(RouteCalculationCombinations.JourneyOrNot::missing).
+                collect(Collectors.toList());
+
+        assertEquals(0L, failed.size(), format("Failed some of %s (finished %s) combinations %s",
+                        results.size(), stationPairs.size(), displayFailed(failed)));
+
+        return results;
+    }
+
     @NotNull
-    public Map<StationPair, JourneyOrNot> computeJourneys(LocalDate queryDate, Set<StationPair> combinations, TramTime queryTime) {
+    private Map<StationPair, JourneyOrNot> computeJourneys(LocalDate queryDate, Set<StationPair> combinations, TramTime queryTime) {
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
+                config.getMaxJourneyDuration());
+
         return combinations.parallelStream().
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
-                        JourneyRequest request = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
-                                config.getMaxJourneyDuration()); //.setDiag(diag);
                         Optional<Journey> optionalJourney = findJourneys(txn, requested.getBegin(), requested.getEnd(), request);
-
                         JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
                     }
@@ -64,57 +84,12 @@ public class RouteCalculationCombinations {
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
-    public Optional<Journey> findJourneys(Transaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
-        return calculator.calculateRoute(txn, stationRepository.getStationById(start),
-                stationRepository.getStationById(dest), journeyRequest).limit(1).findAny();
-    }
-
-    public Map<StationPair, Optional<Journey>> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<StationPair> combinations, TramTime queryTime) {
-
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
-                3, config.getMaxJourneyDuration());
-
-        final ConcurrentMap<StationPair, Optional<Journey>> results = new ConcurrentHashMap<>(combinations.size());
-        combinations.forEach(pair -> results.put(pair, Optional.empty()));
-
-        combinations.parallelStream().
-                map(journey -> {
-                    try(Transaction txn=database.beginTx()) {
-                        Station start = stationRepository.getStationById(journey.getBegin());
-                        Station dest = stationRepository.getStationById(journey.getEnd());
-                        return Pair.of(journey,
-                                calculator.calculateRoute(txn, start, dest, journeyRequest)
-                                        .limit(1).findAny());
-                    }
-                }).
-                forEach(stationsJourneyPair -> results.put(stationsJourneyPair.getLeft(), stationsJourneyPair.getRight()));
-
-        Assertions.assertEquals(combinations.size(), results.size(), "Not enough results");
-
-        // check all results present, collect failures into a list
-        List<StationPair> failed = results.
-                entrySet().stream().
-                filter(journey -> journey.getValue().isEmpty()).
-                map(Map.Entry::getKey).
-                //map(pair -> Pair.of(pair.getLeft(), pair.getRight())).
-                collect(Collectors.toList());
-
-        Assertions.assertEquals(
-                0L, failed.size(), format("Failed some of %s (finished %s) combinations %s",
-                        results.size(), combinations.size(), displayFailed(failed)));
-
-        return results;
-    }
-    
-    private String displayFailed(List<StationPair> pairs) {
+    private String displayFailed(List<JourneyOrNot> pairs) {
         StringBuilder stringBuilder = new StringBuilder();
-        pairs.forEach(pair -> {
-            stringBuilder.append("[").
-                    append(pair.getBegin()).
-                    append(" to ").append(pair.getEnd()).
-                    //append(" id=").append(dest.getId())
-                    append("] "); });
+        pairs.forEach(pair -> stringBuilder.append("[").
+                append(pair.requested.getEnd()).
+                append(" to ").append(pair.requested.getEnd()).
+                append("] "));
         return stringBuilder.toString();
     }
 
@@ -192,6 +167,10 @@ public class RouteCalculationCombinations {
                     ", from=" + requested.getBegin() +
                     ", to=" + requested.getEnd() +
                     '}';
+        }
+
+        public Journey get() {
+            return journey;
         }
     }
 }

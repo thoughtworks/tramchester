@@ -2,7 +2,6 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
@@ -11,7 +10,6 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.StationPair;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
@@ -19,8 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 class RouteCalculatorTestAllJourneys {
 
@@ -61,13 +57,13 @@ class RouteCalculatorTestAllJourneys {
                 filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
 
-        Map<StationPair, Optional<Journey>> results = combinations.validateAllHaveAtLeastOneJourney(when,
+        Map<StationPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(when,
                 stationPairs, TramTime.of(8, 5));
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().
-                filter(Optional::isPresent).
-                map(Optional::get).
+                filter(journeyOrNot -> !journeyOrNot.missing()).
+                map(RouteCalculationCombinations.JourneyOrNot::get).
                 map(journey -> journey.getStages().stream().
                         map(TransportStage::getPassedStopsCount).
                         reduce(Integer::sum)).

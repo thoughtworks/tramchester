@@ -1,10 +1,10 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.DataSourceConfig;
-import com.tramchester.config.GraphDBConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class IntegrationBusTestConfig extends IntegrationTestConfig {
     private final DataSourceConfig dataSourceConfig;
