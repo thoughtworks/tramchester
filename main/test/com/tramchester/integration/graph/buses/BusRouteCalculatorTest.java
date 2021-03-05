@@ -100,11 +100,11 @@ class BusRouteCalculatorTest {
     @BusTest
     @Test
     void shouldFindAltyToKnutfordAtExpectedTime() {
-        TramTime travelTime = TramTime.of(9, 55);
+        TramTime travelTime = TramTime.of(10, 20);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 8,
                 maxJourneyDuration);
-        Set<Journey> journeys =  calculator.calculateRouteAsSet(AltrinchamInterchange, KnutsfordStationStand3, request);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(AltrinchamInterchange, KnutsfordStationStand3, request);
 
         assertFalse(journeys.isEmpty());
     }
@@ -112,13 +112,13 @@ class BusRouteCalculatorTest {
     @BusTest
     @Test
     void shouldNotRevisitSameBusStationAltyToKnutsford() {
-        TramTime travelTime = TramTime.of(15, 25);
+        TramTime travelTime = TramTime.of(15, 55);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 8,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
                 maxJourneyDuration);
         Set<Journey> journeys = calculator.calculateRouteAsSet(AltrinchamInterchange, KnutsfordStationStand3, request);
 
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "no journeys");
 
         journeys.forEach(journey -> {
             List<String> seenId = new ArrayList<>();
@@ -143,14 +143,6 @@ class BusRouteCalculatorTest {
         assertFalse(threeStagesOrLess.isEmpty());
     }
 
-    @BusTest
-    @Test
-    void shouldHaveEndsOfRoutesToEndsOfRoutes() {
-        RouteEndRepository routeEndRepository = componentContainer.get(RouteEndRepository.class);
-        IdSet<Station> stations = routeEndRepository.getStations(TransportMode.Bus);
-
-
-    }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Disabled("not loading tram stations")

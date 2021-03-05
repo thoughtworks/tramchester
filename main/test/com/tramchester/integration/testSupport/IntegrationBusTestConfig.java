@@ -39,7 +39,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getMaxWait() {
-        return 45;
+        return 25;
     }
 
     @Override

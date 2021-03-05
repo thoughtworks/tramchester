@@ -60,7 +60,7 @@ public class RouteReachable {
         }
 
         String verb = result? " Can " : " Cannot ";
-        logger.info(start.getId() + verb + "reach interchange");
+        logger.debug(start.getId() + verb + "reach interchange");
         return result;
     }
 
@@ -77,9 +77,6 @@ public class RouteReachable {
 
         IdSet<Station> result;
         try (Transaction txn = graphDatabaseService.beginTx()) {
-
-                // TODO Parallel?
-                logger.debug("No reachable interchange from " + start.getId());
                 result = stationsOnRoute.stream().
                         filter(dest -> sameRouteReachable(txn, start, dest)).
                         collect(IdSet.idCollector());
@@ -88,7 +85,7 @@ public class RouteReachable {
         int size = result.size();
         String msg = format("Found reachability from %s to %s of %s stations", start.getStationId(), size, stationsOnRoute.size());
         if (size>0) {
-            logger.info(msg);
+            logger.debug(msg);
         } else {
             logger.warn(msg);
         }
