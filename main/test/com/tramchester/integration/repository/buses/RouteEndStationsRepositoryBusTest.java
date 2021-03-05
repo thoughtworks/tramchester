@@ -39,14 +39,14 @@ class RouteEndStationsRepositoryBusTest {
     }
 
     @Test
-    void shouldFindEndsOfLinesForBus() {
+    void shouldFindEndsOfRoutesForBuses() {
         IdSet<Station> result = repository.getStations(TransportMode.Bus);
 
         assertTrue(result.contains(StringIdFor.createId("2500ACC0009"))); // Accrington, Bus Station (Stand 9)
 
         assertFalse(result.contains(StringIdFor.createId("2500LAA15791"))); // Accrington, opp Infant Street
 
-        assertEquals(122, result.size());
+        assertEquals(313, result.size());
 
     }
 }

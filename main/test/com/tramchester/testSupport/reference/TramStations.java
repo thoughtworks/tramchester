@@ -76,7 +76,7 @@ public enum TramStations implements TestStations {
     public static boolean isInterchange(HasId<Station> station) {
         return containedIn(station, Interchanges);
     }
-    public static boolean isEndOfLine(Station station) {
+    public static boolean isEndOfLine(HasId<Station> station) {
         return containedIn(station, EndOfTheLine);
     }
 
@@ -126,39 +126,4 @@ public enum TramStations implements TestStations {
         return station.getArea();
     }
 
-    public static class Pair {
-        private final TramStations start;
-        private final TramStations dest;
-
-        public Pair(TramStations start, TramStations dest) {
-            this.start = start;
-            this.dest = dest;
-        }
-
-        public TramStations getStart() {
-            return start;
-        }
-
-        public TramStations getDest() {
-            return dest;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Pair pair = (Pair) o;
-
-            if (getStart() != pair.getStart()) return false;
-            return getDest() == pair.getDest();
-        }
-
-        @Override
-        public int hashCode() {
-            int result = getStart().hashCode();
-            result = 31 * result + getDest().hashCode();
-            return result;
-        }
-    }
 }

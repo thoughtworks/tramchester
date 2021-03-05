@@ -10,14 +10,11 @@ import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.TrainStations;
-import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -32,7 +29,6 @@ import java.util.Set;
 
 import static com.tramchester.testSupport.reference.TrainStations.Hale;
 import static com.tramchester.testSupport.reference.TrainStations.Knutsford;
-import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

@@ -3,15 +3,19 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
+import com.tramchester.repository.RouteEndStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusTest;
-import com.tramchester.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
@@ -30,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorTest {
-    // TODO this needs to be > time for whole test fixture, see note below in @After
+
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
@@ -137,6 +141,15 @@ class BusRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
         List<Journey> threeStagesOrLess = journeys.stream().filter(journey -> journey.getStages().size() <= (maxChanges + 1)).collect(Collectors.toList());
         assertFalse(threeStagesOrLess.isEmpty());
+    }
+
+    @BusTest
+    @Test
+    void shouldHaveEndsOfRoutesToEndsOfRoutes() {
+        RouteEndStationsRepository routeEndRepository = componentContainer.get(RouteEndStationsRepository.class);
+        IdSet<Station> stations = routeEndRepository.getStations(TransportMode.Bus);
+
+
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")

@@ -19,7 +19,7 @@ import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.repository.RouteEndStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
 import org.apache.commons.lang3.tuple.Pair;
