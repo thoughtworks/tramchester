@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -32,7 +33,7 @@ public class NodeContentsDirect implements NodeContentsRepository{
     }
 
     @Override
-    public String getTrips(Relationship relationship) {
+    public IdSet<Trip> getTrips(Relationship relationship) {
         return GraphProps.getTrips(relationship);
     }
 

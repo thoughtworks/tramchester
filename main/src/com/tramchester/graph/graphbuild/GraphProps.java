@@ -3,6 +3,8 @@ package com.tramchester.graph.graphbuild;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -19,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.id.StringIdFor.getCompositeIdFromGraphEntity;
 import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
@@ -44,6 +47,7 @@ public class GraphProps {
         return TransportMode.fromNumber(number);
     }
 
+    // TODO - auto conversation to/from ENUM arrays now available?
     public static Set<TransportMode> getTransportModes(Entity entity) {
         if (!entity.hasProperty(TRANSPORT_MODES.getText())) {
             return Collections.emptySet();
@@ -84,24 +88,38 @@ public class GraphProps {
         node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
     }
 
-    private static Object getProperty(Entity node, GraphPropertyKey graphPropertyKey) {
-        return node.getProperty(graphPropertyKey.getText());
+    private static Object getProperty(Entity entity, GraphPropertyKey graphPropertyKey) {
+        return entity.getProperty(graphPropertyKey.getText());
     }
 
-    public static String getTrips(Entity relationship) {
-        return getProperty(relationship, TRIPS).toString();
+    public static IdSet<Trip> getTrips(Entity entity) {
+        String[] ids = (String[]) getProperty(entity, TRIPS);
+        IdSet<Trip> tripIds = new IdSet<>(ids.length);
+        for (String id : ids) {
+            tripIds.add(StringIdFor.createId(id));
+        }
+        return tripIds;
     }
 
-    static void setTripsProp(Entity relationship, String value) {
-        relationship.setProperty(TRIPS.getText(), value);
+    static void setTripsProp(Entity entiy, IdSet<Trip> tripIds) {
+        String[] ids = new String[tripIds.size()];
+        int i = 0;
+        for (IdFor<Trip> tripId : tripIds) {
+            ids[i++] = tripId.getGraphId();
+        }
+        entiy.setProperty(TRIPS.getText(), ids);
     }
 
-    public static int getCost(Entity relationship) {
-        return (int) getProperty(relationship, COST);
+    static void setTripsProp(Entity entity, String[] value) {
+        entity.setProperty(TRIPS.getText(), value);
     }
 
-    public static void setCostProp(Entity relationship, int value) {
-        relationship.setProperty(COST.getText(), value);
+    public static int getCost(Entity entity) {
+        return (int) getProperty(entity, COST);
+    }
+
+    public static void setCostProp(Entity entity, int value) {
+        entity.setProperty(COST.getText(), value);
     }
 
     public static TramTime getTime(Entity entity) {
@@ -195,4 +213,5 @@ public class GraphProps {
     public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, PLATFORM_ID);
     }
+
 }

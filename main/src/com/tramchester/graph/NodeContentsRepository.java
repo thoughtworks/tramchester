@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Node;
@@ -16,7 +17,7 @@ public interface NodeContentsRepository  {
     int getHour(Node node);
 
     IdFor<Trip> getTrip(Relationship relationship);
-    String getTrips(Relationship relationship);
+    IdSet<Trip> getTrips(Relationship relationship);
 
     int getCost(Relationship lastRelationship);
     void deleteFromCostCache(Relationship relationship);

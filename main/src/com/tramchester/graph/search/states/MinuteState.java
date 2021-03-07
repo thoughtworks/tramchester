@@ -2,6 +2,7 @@ package com.tramchester.graph.search.states;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
@@ -120,8 +121,9 @@ public class MinuteState extends TraversalState {
 
         List<Relationship> results = new ArrayList<>();
         svcRelationships.forEach(relationship -> {
-            String trips = nodeOperations.getTrips(relationship); /// <=== EXPENSIVE TODO
-            if (trips.contains(tripIdGraphId)) {
+            //String trips = nodeOperations.getTrips(relationship); /// <=== EXPENSIVE TODO
+            IdSet<Trip> trips = nodeOperations.getTrips(relationship);
+            if (trips.contains(tripId)) {
                 results.add(relationship);
             }
         });

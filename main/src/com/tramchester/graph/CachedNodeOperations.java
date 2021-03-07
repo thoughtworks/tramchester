@@ -7,6 +7,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.CacheMetrics;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -29,7 +30,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
     private final Cache<Long, Integer> relationshipCostCache;
-    private final Cache<Long, String> tripsRelationshipCache;
+    private final Cache<Long, IdSet<Trip>> tripsRelationshipCache;
     private final Cache<Long, IdFor<Trip>> tripIdRelationshipCache;
 
     private final Cache<Long, IdFor<Service>> svcIdCache;
@@ -83,7 +84,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return result;
     }
 
-    public String getTrips(Relationship relationship) {
+    public IdSet<Trip> getTrips(Relationship relationship) {
         long relationshipId = relationship.getId();
         return tripsRelationshipCache.get(relationshipId, id -> GraphProps.getTrips(relationship));
     }

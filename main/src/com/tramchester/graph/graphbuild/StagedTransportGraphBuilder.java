@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
@@ -238,7 +239,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProperty(svcRelationship, service);
         setCostProp(svcRelationship, 0);
         setProperty(svcRelationship, route);
-        setTripsProp(svcRelationship, "");
+        setTripsProp(svcRelationship, new String[0]);
 
     }
 
@@ -453,9 +454,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         beginServiceNode.getRelationships(INCOMING, TransportRelationshipTypes.TO_SERVICE).forEach(
                 relationship -> {
-                    String tripIds = GraphProps.getTrips(relationship);
-                    if (!tripIds.contains(tripId.getGraphId())) {
-                        setTripsProp(relationship, tripId.getGraphId() + tripIds);
+                    IdSet<Trip> tripIds = getTrips(relationship);
+                    if (!tripIds.contains(tripId)) {
+                        tripIds.add(tripId);
+                        setTripsProp(relationship, tripIds);
+                        //setTripsProp(relationship, tripId.getGraphId() + tripIds);
                     }
                 });
 
