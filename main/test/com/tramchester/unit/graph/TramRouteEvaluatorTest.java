@@ -13,10 +13,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.graph.NodeContentsRepository;
-import com.tramchester.graph.NodeIdLabelMap;
-import com.tramchester.graph.PreviousSuccessfulVisits;
+import com.tramchester.graph.*;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
@@ -70,7 +67,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         previousSuccessfulVisit = createMock(PreviousSuccessfulVisits.class);
-        nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()));
+        HourNodeCache hourNodeCache = createMock(HourNodeCache.class);
+        nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()), hourNodeCache);
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
 
         config = new TestConfig() {

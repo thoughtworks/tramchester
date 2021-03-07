@@ -112,11 +112,16 @@ public class MinuteState extends TraversalState {
         }
     }
 
-    private List<Relationship> filterByTripId(Iterable<Relationship> relationships, IdFor<Trip> tripId) {
+    private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, IdFor<Trip> tripId) {
+
+        // can we filter by service ID here if we know svc that current trip is associated with
+
+        String tripIdGraphId = tripId.getGraphId();
+
         List<Relationship> results = new ArrayList<>();
-        relationships.forEach(relationship -> {
-            String trips = nodeOperations.getTrips(relationship);
-            if (trips.contains(tripId.getGraphId())) {
+        svcRelationships.forEach(relationship -> {
+            String trips = nodeOperations.getTrips(relationship); /// <=== EXPENSIVE TODO
+            if (trips.contains(tripIdGraphId)) {
                 results.add(relationship);
             }
         });

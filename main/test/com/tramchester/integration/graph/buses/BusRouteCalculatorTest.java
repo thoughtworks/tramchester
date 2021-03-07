@@ -102,7 +102,7 @@ class BusRouteCalculatorTest {
     void shouldFindAltyToKnutfordAtExpectedTime() {
         TramTime travelTime = TramTime.of(10, 20);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 8,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
                 maxJourneyDuration);
         Set<Journey> journeys = calculator.calculateRouteAsSet(AltrinchamInterchange, KnutsfordStationStand3, request);
 
@@ -128,7 +128,6 @@ class BusRouteCalculatorTest {
                 seenId.add(actionStation);
             });
         });
-
     }
 
     @BusTest

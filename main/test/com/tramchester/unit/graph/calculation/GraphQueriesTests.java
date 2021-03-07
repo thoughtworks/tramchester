@@ -7,7 +7,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.FindRouteEndPoints;
+import com.tramchester.graph.*;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
@@ -18,13 +18,16 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.graphdb.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.graph.TransportRelationshipTypes.TO_HOUR;
+import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -102,7 +105,44 @@ class GraphQueriesTests {
         IdSet<Station> expectedStationIds = createSet(transportData.getFifthStation(), transportData.getLast(),
                 transportData.getFourthStation());
         assertEquals(expectedStationIds, stationIds);
+    }
 
+    @Test
+    void shouldFindHourRelationships() {
+        HourNodeCache hourNodeCache = componentContainer.get(HourNodeCache.class);
+        GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+
+        Set<Long> foundFor8am = hourNodeCache.getRelationshipsFor(8);
+        assertEquals(5, foundFor8am.size());
+
+        Set<Long> foundFor9am = hourNodeCache.getRelationshipsFor(9);
+        assertEquals(1, foundFor9am.size());
+
+        List<Integer> hours = IntStream.rangeClosed(0,23).boxed().collect(Collectors.toList());
+        hours.remove((Integer) 8);
+        hours.remove((Integer) 9);
+        hours.forEach(hour -> assertTrue(hourNodeCache.getRelationshipsFor(hour).isEmpty(), "unexpected " + hour));
+
+        Set<Integer> found = new HashSet<>();
+        Set<RouteStation> routeStations = transportData.getRouteStations();
+        try (Transaction txn = graphDatabase.beginTx()) {
+            routeStations.forEach(routeStation -> {
+                Node routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
+                if (routeStationNode.hasRelationship(Direction.OUTGOING, TO_SERVICE)) {
+                    Relationship toService = routeStationNode.getSingleRelationship(TO_SERVICE, Direction.OUTGOING);
+                    Node serviceNode = toService.getEndNode();
+                    Iterable<Relationship> hourRelationships = serviceNode.getRelationships(Direction.OUTGOING, TO_HOUR);
+                    hourRelationships.forEach(hourRelationship -> {
+                        int result = hourNodeCache.getHourFor(hourRelationship.getEndNodeId());
+                        found.add(result);
+                    });
+                }
+            });
+        }
+        assertEquals(2, found.size());
+        assertTrue(found.contains(8));
+        assertTrue(found.contains(9));
     }
 
     IdSet<Station> createSet(Station...stations) {

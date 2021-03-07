@@ -35,13 +35,16 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<Long, IdFor<Service>> svcIdCache;
     private final Cache<Long, Integer> hourNodeCache;
     private final Cache<Long, TramTime> times;
+    private final HourNodeCache prebuildHourCache;
 
     @Inject
-    public CachedNodeOperations(CacheMetrics cacheMetrics) {
+    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache) {
+        this.prebuildHourCache = prebuildHourCache;
+
         // size tuned from stats
         relationshipCostCache = createCache(85000);
         svcIdCache = createCache(3000);
-        hourNodeCache = createCache(38000);
+        this.hourNodeCache = createCache(38000);
         tripsRelationshipCache = createCache(32500);
         tripIdRelationshipCache = createCache(32500);
         times = createCache(40000);
@@ -102,8 +105,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     public int getHour(Node node) {
         long nodeId = node.getId();
-        //noinspection ConstantConditions
-        return hourNodeCache.get(nodeId, id -> GraphProps.getHour(node));
+        return prebuildHourCache.getHourFor(nodeId);
+//        return hourNodeCache.get(nodeId, id -> GraphProps.getHour(node));
     }
 
     public int getCost(Relationship relationship) {

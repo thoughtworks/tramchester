@@ -10,6 +10,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.CachedNodeOperations;
+import com.tramchester.graph.HourNodeCache;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
@@ -49,7 +50,9 @@ class JourneyStateTest {
         StationRepository repository = new TramTransportDataForTestProvider(providesNow).getData();
         SortsPositions sortsPositions = new SortsPositions(repository);
 
-        traversalState = new NotStartedState(sortsPositions, new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics())),
+        HourNodeCache hourNodeCache = null;
+        traversalState = new NotStartedState(sortsPositions,
+                new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()), hourNodeCache),
                 destinationNodeIds, destinations, latLongHint, TestEnv.GET());
         queryTime = TramTime.of(9, 15);
     }

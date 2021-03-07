@@ -12,12 +12,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteCalculatorKeyRoutesBusTest {
 
     private static ComponentContainer componentContainer;
