@@ -6,18 +6,11 @@ import com.tramchester.testSupport.TestConfig;
 import java.nio.file.Path;
 
 public abstract class IntegrationTestConfig extends TestConfig {
+
     private final GraphDBTestConfig dbConfig;
 
     protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
         this.dbConfig = dbConfig;
-    }
-
-    /**
-     * Use version that takes GraphDBTestConfig
-     */
-    @Deprecated
-    public IntegrationTestConfig(String subFolderForDB, String dbName) {
-        this(new GraphDBTestConfig(subFolderForDB, dbName));
     }
 
     public Path getDBPath() {

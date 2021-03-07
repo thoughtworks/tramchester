@@ -6,20 +6,15 @@ import java.nio.file.Path;
 
 public class GraphDBTestConfig implements GraphDBConfig {
     private final Path containingFolder;
-    private final Path dbPath;
+    private final Path fullpath;
 
-    public GraphDBTestConfig(String subFolderForDB, String dbName) {
+    public GraphDBTestConfig(String subFolderForDB, String dbFilename) {
         this.containingFolder = Path.of("databases", subFolderForDB);
-        this.dbPath = containingFolder.resolve(dbName);
-    }
-
-    @Override
-    public String getGraphName() {
-        return dbPath.toString();
+        this.fullpath = containingFolder.resolve(dbFilename);
     }
 
     public Path getDbPath() {
-        return dbPath;
+        return fullpath;
     }
 
     public Path getContainingFolder() {

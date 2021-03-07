@@ -13,6 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportData;
@@ -33,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MixedRouteTest {
-    private static final String TMP_DB = "tmp2.db";
 
     private static MixedTransportDataProvider.TestMixedTransportData transportData;
     private static RouteCalculator calculator;
@@ -157,7 +157,7 @@ class MixedRouteTest {
     private static class SimpleGraphConfig extends IntegrationTestConfig {
 
         public SimpleGraphConfig() {
-            super("unitTest", TMP_DB);
+            super(new GraphDBTestConfig("unitTest", "MixedRouteTest.db"));
         }
 
         @Override

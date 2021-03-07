@@ -54,10 +54,10 @@ public class RouteCallingStations {
         Set<Trip> allTrips = services.stream().map(Service::getTrips).flatMap(Collection::stream).collect(Collectors.toSet());
 
         // ASSUME: longest trips correspond to full end to end journeys on the whole route
-        Optional<Trip> longest = allTrips.stream().max(Comparator.comparingInt(a -> a.getStops().numberOfCallingPoints()));
+        Optional<Trip> longest = allTrips.stream().max(Comparator.comparingInt(a -> a.getStopCalls().numberOfCallingPoints()));
 
         longest.ifPresent(longestTrip -> {
-            StopCalls stops = longestTrip.getStops();
+            StopCalls stops = longestTrip.getStopCalls();
             List<Station> inOrderStations = stops.stream().map(StopCall::getStation).collect(Collectors.toList());
             int size = inOrderStations.size();
             logger.debug("Adding " + size + " stations for route " + HasId.asId(route) +

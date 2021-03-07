@@ -4,14 +4,12 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.StationLink;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
@@ -27,12 +25,10 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,7 +47,7 @@ class TramRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig();
+        config = new SimpleGraphConfig("tramroutetest.db");
 
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 
@@ -73,11 +69,12 @@ class TramRouteTest {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
 
-        txn = database.beginTx();
-
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
         StationRepository stationRepo = componentContainer.get(StationRepository.class);
+
+        txn = database.beginTx();
+
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepo, txn);
     }
 

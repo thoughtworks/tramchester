@@ -23,6 +23,7 @@ import com.tramchester.geo.GridPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.List;
@@ -50,6 +51,14 @@ public class TransportDataFromFiles implements TransportDataProvider {
         this.config = config;
         this.providesNow = providesNow;
         dataContainer = new TransportDataContainer(providesNow);
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stopping");
+        dataContainer.dispose();
+        loaded = false;
+        logger.info("stopped");
     }
 
     public TransportData getData() {

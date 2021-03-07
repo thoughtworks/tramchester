@@ -4,7 +4,6 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
@@ -237,7 +236,7 @@ public class MapPathToStages {
             // if we counted destination for stage in the passedStations list then remove it
             int index = passedStopSequenceNumbers.size()-1;
             int lastStopSeqNum = passedStopSequenceNumbers.get(index);
-            StopCall lastStop = trip.getStops().getStopBySequenceNumber(lastStopSeqNum);
+            StopCall lastStop = trip.getStopCalls().getStopBySequenceNumber(lastStopSeqNum);
             if (lastStop.getStationId().equals(stationId)) {
                 passedStopSequenceNumbers.remove(index);
             } else {

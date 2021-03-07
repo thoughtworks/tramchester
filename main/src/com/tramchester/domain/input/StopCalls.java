@@ -1,6 +1,7 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -12,27 +13,29 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-public class StopCalls { //implements Iterable<StopCall> {
+public class StopCalls {
     private static final Logger logger = LoggerFactory.getLogger(StopCalls.class);
 
     private final SortedMap<Integer, StopCall> stops;
+    private final StringIdFor<Trip> parent;
 
-    public StopCalls() {
+    public StopCalls(StringIdFor<Trip> parent) {
+        this.parent = parent;
         stops = new TreeMap<>();
     }
 
     public void dispose() {
+        logger.info("dispose for " + parent);
         stops.clear();
     }
 
     public void add(StopCall stop) {
         Station station = stop.getStation();
         if (station==null) {
-            logger.error("Stop is missing station");
+            logger.error("Stop is missing station " + parent);
         } else {
             stops.put(stop.getGetSequenceNumber(), stop);
         }
-
     }
 
     public int numberOfCallingPoints() {
@@ -63,6 +66,9 @@ public class StopCalls { //implements Iterable<StopCall> {
      * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
      */
     public List<StopLeg> getLegs() {
+        if (stops.isEmpty()) {
+            logger.error("Missing stops, parent " + parent);
+        }
         // Assume sorted map
         // TODO use stop sequence numbers instead?
         List<StopCall> calls = new ArrayList<>(stops.size());

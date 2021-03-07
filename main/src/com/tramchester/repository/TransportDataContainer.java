@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
@@ -13,13 +12,11 @@ import com.tramchester.domain.time.TramServiceDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.lang.String.format;
 
-@LazySingleton
 public class TransportDataContainer implements TransportData {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataContainer.class);
 
@@ -39,13 +36,16 @@ public class TransportDataContainer implements TransportData {
     // data source name -> feedinfo (if present)
     private final Map<DataSourceID, FeedInfo> feedInfoMap = new HashMap<>();
 
+    /**
+     * Not container managed due to test life cycle
+     * @param providesNow
+     */
     public TransportDataContainer(ProvidesNow providesNow) {
         this.providesNow = providesNow;
     }
 
-    @PreDestroy
     public void dispose() {
-        logger.info("Dispose");
+        logger.info("Stopping");
         trips.forEach(Trip::dispose);
         trips.clear();
         stationsById.clear();
@@ -56,6 +56,7 @@ public class TransportDataContainer implements TransportData {
         routeStations.clear();
         agencies.clear();
         feedInfoMap.clear();
+        logger.info("stopped");
     }
 
     public void reportNumbers() {

@@ -40,7 +40,7 @@ class GraphQueriesTests {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig();
+        config = new SimpleGraphConfig("graphquerytests.db");
 
         FileUtils.deleteDirectory(config.getDBPath().toFile());
 

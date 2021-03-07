@@ -30,7 +30,7 @@ class GraphBuildAndStartTest {
     @Test
     void shouldBuildGraphAndStart() throws IOException {
         TramchesterConfig config =new SubgraphConfig();
-        File graphFile = new File(config.getGraphDBConfig().getGraphName());
+        File graphFile = config.getGraphDBConfig().getDbPath().toFile();
         if (graphFile.exists()) {
             FileUtils.deleteDirectory(graphFile);
         }

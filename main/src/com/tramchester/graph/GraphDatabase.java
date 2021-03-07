@@ -23,6 +23,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.event.DatabaseEventContext;
+import org.neo4j.graphdb.event.DatabaseEventListener;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.logging.Level;
@@ -46,13 +48,16 @@ import static java.lang.String.format;
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
 @LazySingleton
-public class GraphDatabase {
+public class GraphDatabase implements DatabaseEventListener {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
     private static final int SHUTDOWN_TIMEOUT = 200;
     private static final int STARTUP_TIMEOUT = 200;
 
     private final TramchesterConfig configuration;
     private final DataSourceRepository transportData;
+    private final GraphDBConfig graphDBConfig;
+    private final String dbName;
+
     private boolean cleanDB;
     private GraphDatabaseService databaseService;
     private DatabaseManagementService managementService;
@@ -61,17 +66,16 @@ public class GraphDatabase {
     public GraphDatabase(TramchesterConfig configuration, DataSourceRepository transportData) {
         this.configuration = configuration;
         this.transportData = transportData;
+        this.graphDBConfig = configuration.getGraphDBConfig();
+        dbName = DEFAULT_DATABASE_NAME; // neo4j community edition default DB
     }
 
     @PostConstruct
     public void start() {
         logger.info("start");
+        Path graphFile = graphDBConfig.getDbPath().toAbsolutePath();
 
-        GraphDBConfig graphDBConfig = configuration.getGraphDBConfig();
-
-        String graphName = graphDBConfig.getGraphName();
-        logger.info("Create or load graph " + graphName);
-        Path graphFile = Path.of(graphName).toAbsolutePath();
+        logger.info("Create or load graph " + graphFile);
         boolean existingFile = Files.exists(graphFile);
 
         cleanDB = !existingFile;
@@ -110,26 +114,29 @@ public class GraphDatabase {
 
     @PreDestroy
     public void stop() {
-        logger.info("Attempt stop");
+        logger.info("stopping");
+        stopManagementService();
+        logger.info("stopped");
+    }
+
+    private void stopManagementService() {
+        logger.info("DatabaseManagementService stopping");
         try {
-            if (databaseService ==null) {
-                logger.error("Unable to obtain GraphDatabaseService for shutdown");
+            if (managementService==null) {
+                logger.error("Already stopped? Unable to obtain DatabaseManagementService for shutdown");
             } else {
-                if (databaseService.isAvailable(SHUTDOWN_TIMEOUT)) {
-                    long start = System.currentTimeMillis();
-                    logger.info("Shutting down graphDB");
-                    managementService.shutdown();
-                    long duration = System.currentTimeMillis()-start;
-                    logger.info("graphDB is shutdown, took " + duration);
-                } else {
-                    logger.warn("Graph reported unavailable, attempt shutdown anyway");
-                    managementService.shutdown();
-                }
+                long begin = System.currentTimeMillis();
+                logger.info("Shutting down DatabaseManagementService");
+                managementService.shutdown();
+                long duration = System.currentTimeMillis() - begin;
+                managementService = null;
+                databaseService = null;
+                logger.info("DatabaseManagementService is shutdown, took " + duration);
             }
         } catch (Exception exceptionInClose) {
-            logger.error("Exception during close down", exceptionInClose);
+            logger.error("DatabaseManagementService Exception during close down " + graphDBConfig.getDbPath(), exceptionInClose);
         }
-        logger.info("Stopped");
+        logger.info("DatabaseManagementService Stopped");
     }
 
     public boolean isCleanDB() {
@@ -215,8 +222,8 @@ public class GraphDatabase {
 
         logger.info("Create GraphDatabaseService");
 
-        logger.info("GraphDatabaseService build");
-        long start = System.currentTimeMillis();
+        logger.info("DatabaseManagementService build");
+        long begin = System.currentTimeMillis();
         managementService = new DatabaseManagementServiceBuilder( graphFile ).
                 setConfig(GraphDatabaseSettings.track_query_allocation, false).
                 setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
@@ -240,24 +247,30 @@ public class GraphDatabase {
                 //setUserLogProvider(new Slf4jLogProvider()).
                 build();
 
-        long duration = System.currentTimeMillis()-start;
-        logger.info("GraphDatabaseService build took " + duration);
+        managementService.registerDatabaseEventListener(this);
+
+        long duration = System.currentTimeMillis()-begin;
+        logger.info("DatabaseManagementService build took " + duration);
 
         // for community edition must be DEFAULT_DATABASE_NAME
-        logger.info("GraphDatabaseService start");
-        GraphDatabaseService graphDatabaseService = managementService.database(DEFAULT_DATABASE_NAME);
+        logger.info("GraphDatabaseService start for " + dbName + " at " + graphDBConfig.getDbPath());
+        GraphDatabaseService graphDatabaseService = managementService.database(dbName);
 
         logger.info("Wait for GraphDatabaseService available");
-        start = System.currentTimeMillis();
+        begin = System.currentTimeMillis();
         int retries = 10;
         while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
-            logger.error("DB Service is not available, name: " + DEFAULT_DATABASE_NAME +
+            logger.error("GraphDatabaseService is not available, name: " + dbName +
                     " Path: " + graphFile.toAbsolutePath() + " check " + retries);
             retries--;
         }
 
-        duration = System.currentTimeMillis()-start;
-        logger.info("Service is available, took " + duration);
+        if (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
+            throw new RuntimeException("Could not start " + graphDBConfig.getDbPath());
+        }
+
+        duration = System.currentTimeMillis()-begin;
+        logger.info("GraphDatabaseService is available, took " + duration);
         return graphDatabaseService;
     }
 
@@ -320,6 +333,9 @@ public class GraphDatabase {
     }
 
     public boolean isAvailable(long timeoutMillis) {
+        if (databaseService == null) {
+            return false;
+        }
         return databaseService.isAvailable(timeoutMillis);
     }
 
@@ -337,4 +353,22 @@ public class GraphDatabase {
     }
 
 
+    @Override
+    public void databaseStart(DatabaseEventContext eventContext) {
+        logger.info("database event: start " + eventContext.getDatabaseName());
+    }
+
+    @Override
+    public void databaseShutdown(DatabaseEventContext eventContext) {
+        logger.warn("database event: shutdown " + eventContext.getDatabaseName());
+    }
+
+    @Override
+    public void databasePanic(DatabaseEventContext eventContext) {
+        logger.error("database event: panic " + eventContext.getDatabaseName());
+    }
+
+    public String getDbPath() {
+        return graphDBConfig.getDbPath().toAbsolutePath().toString();
+    }
 }

@@ -14,7 +14,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private final DataSourceConfig dataSourceConfig;
     private final boolean liveDataEnabled;
-    private final GraphDBConfig graphDBConfig;
 
     public IntegrationTramTestConfig() {
        this("int_test_tramchester.db", false);
@@ -29,8 +28,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled) {
-        super("integrationTramTest", dbName);
-        graphDBConfig = new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName);
+        super(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName));
         this.liveDataEnabled = liveDataEnabled;
         dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", GTFSTransportationType.tram,
                 TransportMode.Tram);
@@ -50,11 +48,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public GraphDBConfig getGraphDBConfig() {
-        return graphDBConfig;
-    }
-
-    @Override
     public LiveDataConfig getLiveDataConfig() {
         if (liveDataEnabled) {
             return new TestLiveDataConfig();
@@ -63,9 +56,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     private static class GraphDBIntegrationTramTestConfig extends GraphDBTestConfig {
-
-        public GraphDBIntegrationTramTestConfig(String folder, String dbName) {
-            super(folder, dbName);
+        public GraphDBIntegrationTramTestConfig(String folder, String dbFilename) {
+            super(folder, dbFilename);
         }
 
         @Override

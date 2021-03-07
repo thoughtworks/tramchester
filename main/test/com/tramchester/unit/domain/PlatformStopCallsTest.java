@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.time.TramTime;
@@ -25,11 +26,7 @@ class PlatformStopCallsTest {
     private StopCalls stops;
 
     @BeforeEach
-    void beforeEachTestRuns() throws TransformException {
-//        stationA = TestStation.forTest("statA", "areaA", "nameA", new LatLong(-1,1), TransportMode.Bus);
-//        stationB = TestStation.forTest("statB", "areaB", "nameB", new LatLong(-2,2), TransportMode.Bus);
-//        stationC = TestStation.forTest("statC", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
-//        stationD = TestStation.forTest("statD", "areaC", "nameC", new LatLong(-3,3), TransportMode.Bus);
+    void beforeEachTestRuns() {
 
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
@@ -41,7 +38,7 @@ class PlatformStopCallsTest {
         stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 1, TramTime.of(10, 0), TramTime.of(10, 1));
 
 
-        stops = new StopCalls();
+        stops = new StopCalls(StringIdFor.createId("parentTripId"));
 
         stops.add(stopA);
         stops.add(stopB);

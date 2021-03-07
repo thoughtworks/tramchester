@@ -122,7 +122,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
     @Override
     public List<StopCall> getCallingPoints() {
         return stopSequenceNumbers.stream().
-                map(seqNum -> trip.getStops().getStopBySequenceNumber(seqNum)).
+                map(seqNum -> trip.getStopCalls().getStopBySequenceNumber(seqNum)).
                 filter(stopCall -> stopCall.callsAtStation()).
                 collect(Collectors.toList());
     }

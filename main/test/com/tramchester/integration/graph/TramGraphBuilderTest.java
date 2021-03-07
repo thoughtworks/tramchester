@@ -224,7 +224,7 @@ class TramGraphBuilderTest {
                 filter(svc -> svc.getRoute().equals(route)).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
-                filter(trip -> trip.getStops().callsAt(station)).
+                filter(trip -> trip.getStopCalls().callsAt(station)).
                 collect(Collectors.toSet());
 
         Set<IdFor<Service>> fileSvcIdFromTrips = fileCallingTrips.stream().
@@ -259,8 +259,8 @@ class TramGraphBuilderTest {
                 filter(svc -> svc.getRoute().equals(route)).
                 map(Service::getTrips).
                 flatMap(Collection::stream).
-                filter(trip -> trip.getStops().callsAt(station)). // calls at , but not starts at because no inbound for these
-                filter(trip -> !trip.getStops().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
+                filter(trip -> trip.getStopCalls().callsAt(station)). // calls at , but not starts at because no inbound for these
+                filter(trip -> !trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
                 collect(Collectors.toSet());
 
         SortedSet<IdFor<Service>> svcIdsFromCallingTrips = callingTrips.stream().

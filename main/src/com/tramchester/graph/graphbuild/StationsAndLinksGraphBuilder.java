@@ -63,13 +63,13 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     public void start() {
         logger.info("start");
         if (graphDatabase.isCleanDB()) {
-            logger.info("Rebuild of Stations, RouteStations and Links graph DB for " + config.getGraphName());
+            logger.info("Rebuild of Stations, RouteStations and Links graph DB for " + config.getDbPath());
             if (graphFilter.isFiltered()) {
                 buildGraphwithFilter(graphFilter, graphDatabase, builderCache);
             } else {
                 buildGraph(graphDatabase, builderCache);
             }
-            logger.info("Graph rebuild is finished for " + config.getGraphName());
+            logger.info("Graph rebuild is finished for " + config.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
         }
@@ -107,7 +107,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
-            throw new RuntimeException("Unable to build graph", except);
+            throw new RuntimeException("Unable to build graph " + graphDatabase.getDbPath(), except);
         }
         reportStats();
         logMemory("After graph build");
@@ -167,7 +167,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         //  service
         Map<Pair<Station, Station>, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
         services.forEach(service -> service.getTrips().forEach(trip -> {
-                StopCalls stops = trip.getStops();
+                StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
                         GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();

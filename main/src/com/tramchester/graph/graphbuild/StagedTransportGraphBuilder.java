@@ -81,13 +81,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     public void start() {
         logger.info("start");
         if (graphDatabase.isCleanDB()) {
-            logger.info("Rebuild of TimeTable graph DB for " + config.getGraphName());
+            logger.info("Rebuild of TimeTable graph DB for " + config.getDbPath());
             if (graphFilter.isFiltered()) {
                 buildGraphwithFilter(graphFilter, graphDatabase, builderCache);
             } else {
                 buildGraph(graphDatabase, builderCache);
             }
-            logger.info("Graph rebuild is finished for " + config.getGraphName());
+            logger.info("Graph rebuild is finished for " + config.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
             nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
@@ -181,7 +181,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        GraphBuilderCache routeBuilderCache, Stream<Service> services) {
         services.forEach(service -> {
             try(Transaction tx = graphDatabase.beginTx()) {
-                Set<Trip> serviceTrips = service.getTripsFor(route);
+                Set<Trip> serviceTrips = service.getTrips();
                 // nodes for services and hours
                 createServiceAndHourNodesForServices(tx, filter, route, service, serviceTrips, routeBuilderCache);
 
@@ -204,7 +204,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Set<Triple<Station, Station, Integer>> hours = new HashSet<>();
 
         trips.forEach(trip -> {
-                StopCalls stops = trip.getStops();
+                StopCalls stops = trip.getStopCalls();
                 List<StopCalls.StopLeg> legs = stops.getLegs();
                 legs.forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
@@ -276,8 +276,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Stream<Service> services = getServices(filter, route);
 
         Map<Pair<Station, Station>, Integer> pairs = new HashMap<>();
-        services.forEach(service -> service.getTripsFor(route).forEach(trip -> {
-                StopCalls stops = trip.getStops();
+        services.forEach(service -> service.getTrips().forEach(trip -> {
+                StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
                         if (!pairs.containsKey(Pair.of(leg.getFirstStation(), leg.getSecondStation()))) {
@@ -307,7 +307,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createBoardingAndDeparts(Transaction tx, GraphFilter filter, Route route, Trip trip, GraphBuilderCache routeBuilderCache) {
-        StopCalls stops = trip.getStops();
+        StopCalls stops = trip.getStopCalls();
 
         stops.stream().filter(filter::shouldInclude).forEach(stopCall ->
                 createBoardingAndDepart(tx, routeBuilderCache, stopCall, route, trip));
@@ -337,19 +337,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boolean isInterchange = interchangeRepository.isInterchange(station);
 
         // If bus we board to/from station, for trams its from the platform
-        Node boardingNode = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stopCall.getPlatform().getId())
+        Node platformOrStation = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stopCall.getPlatform().getId())
                 : routeBuilderCache.getStation(tx, station);
         IdFor<RouteStation> routeStationId = RouteStation.createId(station.getId(), route.getId());
         Node routeStationNode = routeBuilderCache.getRouteStation(tx, route, stopCall.getStation());
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
-        if (pickup && !routeBuilderCache.hasBoarding(boardingNode.getId(), routeStationNode.getId())) {
-            createBoarding(routeBuilderCache, stopCall, route, station, isInterchange, boardingNode, routeStationId, routeStationNode);
+        if (pickup && !routeBuilderCache.hasBoarding(platformOrStation.getId(), routeStationNode.getId())) {
+            createBoarding(routeBuilderCache, stopCall, route, station, isInterchange, platformOrStation, routeStationId, routeStationNode);
         }
 
         // leave: route station -> platform/station , NOTE: no towardsStation at first stop of a trip
-        if (dropoff && !routeBuilderCache.hasDeparts(routeStationNode.getId(), boardingNode.getId()) ) {
-            createDeparts(routeBuilderCache, station, isInterchange, boardingNode, routeStationId, routeStationNode);
+        if (dropoff && !routeBuilderCache.hasDeparts(platformOrStation.getId(), routeStationNode.getId()) ) {
+            createDeparts(routeBuilderCache, station, isInterchange, platformOrStation, routeStationId, routeStationNode);
         }
 
         if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
@@ -371,10 +371,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createBoarding(GraphBuilderCache routeBuilderCache, StopCall stop, Route route, Station station,
-                                boolean isInterchange, Node boardingNode, IdFor<RouteStation> routeStationId, Node routeStationNode) {
+                                boolean isInterchange, Node platformOrStation, IdFor<RouteStation> routeStationId, Node routeStationNode) {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
         int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
-        Relationship boardRelationship = createRelationship(boardingNode, routeStationNode, boardType);
+        Relationship boardRelationship = createRelationship(platformOrStation, routeStationNode, boardType);
         setCostProp(boardRelationship, boardCost);
         setRouteStationProp(boardRelationship, routeStationId);
         setProperty(boardRelationship, route);
@@ -383,13 +383,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (stop.hasPlatfrom()) {
             setProperty(boardRelationship, stop.getPlatform());
         }
-        routeBuilderCache.putBoarding(boardingNode.getId(), routeStationNode.getId());
+        routeBuilderCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
     private void createTripRelationships(Transaction tx, GraphFilter filter, Route route, Service service, Trip trip,
                                          GraphBuilderCache routeBuilderCache,
                                          Map<Pair<Station, TramTime>, Node> timeNodes) {
-        StopCalls stops = trip.getStops();
+        StopCalls stops = trip.getStopCalls();
 
         stops.getLegs().forEach(leg -> {
             if (includeBothStops(filter, leg)) {
@@ -482,7 +482,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         Map<Pair<Station, TramTime>, Node> timeNodes = new HashMap<>();
 
-        StopCalls stops = trip.getStops();
+        StopCalls stops = trip.getStopCalls();
         stops.getLegs().forEach(leg -> {
             if (includeBothStops(filter, leg)) {
                 Station start = leg.getFirstStation();

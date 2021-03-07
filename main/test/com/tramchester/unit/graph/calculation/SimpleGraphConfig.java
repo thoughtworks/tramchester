@@ -13,10 +13,8 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 
 class SimpleGraphConfig extends IntegrationTestConfig {
 
-    private static final String TMP_DB = "tmp.db";
-
-    public SimpleGraphConfig() {
-        super(new GraphDBTestConfig("unitTest", TMP_DB));
+    public SimpleGraphConfig(String dbFilename) {
+        super(new GraphDBTestConfig("unitTest", dbFilename));
     }
 
     @Override

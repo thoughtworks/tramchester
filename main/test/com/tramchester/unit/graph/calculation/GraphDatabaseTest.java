@@ -5,6 +5,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.DataSourceRepository;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GraphDatabaseTest {
 
-    private static final String TMP_DB = "tmp.db";
     private static SimpleGraphConfig config;
 
     @BeforeEach
@@ -50,7 +50,7 @@ class GraphDatabaseTest {
     private static class SimpleGraphConfig extends IntegrationTestConfig {
 
         public SimpleGraphConfig() {
-            super("unitTest", TMP_DB);
+            super(new GraphDBTestConfig("unitTest", "graphDatabaseTest.db"));
         }
 
         @Override

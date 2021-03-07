@@ -2,7 +2,6 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -32,8 +31,8 @@ public class GraphBuilderCache {
     private final Map<IdFor<Platform>, Long> platforms;
     private final Map<String, Long> svcNodes;
     private final Map<String, Long> hourNodes;
-    private final Set<Pair<Long, Long>> boardings;
-    private final Set<Pair<Long, Long>> departs;
+    private final Map<Long, Set<Long>> boardings;
+    private final Map<Long, Set<Long>> departs;
 
     @Inject
     public GraphBuilderCache() {
@@ -43,8 +42,8 @@ public class GraphBuilderCache {
         platforms = new HashMap<>();
         svcNodes = new HashMap<>();
         hourNodes = new HashMap<>();
-        boardings = new HashSet<>();
-        departs = new HashSet<>();
+        boardings = new HashMap<>();
+        departs = new HashMap<>();
     }
 
     protected void fullClear() {
@@ -121,20 +120,43 @@ public class GraphBuilderCache {
         return txn.getNodeById(hourNodes.get(key));
     }
 
-    protected boolean hasBoarding(long boardingNodeId, long routeStationNodeId) {
-        return boardings.contains(Pair.of(boardingNodeId, routeStationNodeId));
+    protected void putBoarding(long platformOrStation, long routeStationNodeId) {
+        putRelationship(boardings, platformOrStation, routeStationNodeId);
+        //boardings.add(Pair.of(boardingNodeId, routeStationNodeId));
     }
 
-    protected void putBoarding(long boardingNodeId, long routeStationNodeId) {
-        boardings.add(Pair.of(boardingNodeId, routeStationNodeId));
+    protected boolean hasBoarding(long platformOrStation, long routeStationNodeId) {
+        return hasRelationship(boardings, platformOrStation, routeStationNodeId);
+//        return boardings.contains(Pair.of(boardingNodeId, routeStationNodeId));
     }
 
-    protected boolean hasDeparts(long routeStationNodeId, long boardingNodeId) {
-        return departs.contains(Pair.of(routeStationNodeId, boardingNodeId));
+    protected boolean hasDeparts(long platformOrStation, long routeStationNodeId) {
+        // depart routeStationNodeId -> platformOrStation
+        return hasRelationship(departs, platformOrStation, routeStationNodeId);
+//        return departs.contains(Pair.of(routeStationNodeId, boardingNodeId));
     }
 
     protected void putDepart(long boardingNodeId, long routeStationNodeId) {
-        departs.add(Pair.of(routeStationNodeId, boardingNodeId));
+        // depart routeStationNodeId -> platformOrStation
+        putRelationship(departs, boardingNodeId, routeStationNodeId);
+//        departs.add(Pair.of(routeStationNodeId, boardingNodeId));
+    }
+
+    private void putRelationship(Map<Long, Set<Long>> relationshipCache, long boardingNodeId, long routeStationNodeId) {
+        if (relationshipCache.containsKey(boardingNodeId)) {
+            relationshipCache.get(boardingNodeId).add(routeStationNodeId);
+        } else {
+            HashSet<Long> set = new HashSet<>();
+            set.add(routeStationNodeId);
+            relationshipCache.put(boardingNodeId, set);
+        }
+    }
+
+    private boolean hasRelationship(Map<Long, Set<Long>> relationshipCache,  long boardingNodeId, long routeStationNodeId) {
+        if (relationshipCache.containsKey(boardingNodeId)) {
+            return relationshipCache.get(boardingNodeId).contains(routeStationNodeId);
+        }
+        return false;
     }
 
     private static class CreateKeys {

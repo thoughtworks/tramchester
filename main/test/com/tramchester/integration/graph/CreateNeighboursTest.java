@@ -19,6 +19,7 @@ import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.StationRepository;
@@ -47,7 +48,7 @@ class CreateNeighboursTest {
 
     static class NeighboursTestConfig extends IntegrationTestConfig {
         public NeighboursTestConfig() {
-            super("integrationNeighboursTest", "busAndTram.db");
+            super(new GraphDBTestConfig("integrationNeighboursTest", "busAndTram.db"));
         }
 
         @Override

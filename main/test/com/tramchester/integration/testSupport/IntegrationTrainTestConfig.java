@@ -17,10 +17,10 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
         this("train_tramchester.db");
     }
 
-    protected IntegrationTrainTestConfig(String dbName) {
-        super("integrationTrainTest", dbName);
+    protected IntegrationTrainTestConfig(String dbFilename) {
+        super(new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename));
+        graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename);
         sourceConfig = new RailTestDataSourceConfig();
-        graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbName);
     }
 
     @Override

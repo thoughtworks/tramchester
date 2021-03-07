@@ -13,7 +13,7 @@ public class TransportDataFilter {
     public static Set<Trip> getTripsFor(Collection<Trip> trips, HasId<Station> station) {
         Set<Trip> callingTrips = new HashSet<>();
         trips.forEach(trip -> {
-            if (trip.getStops().callsAt(station)) {
+            if (trip.getStopCalls().callsAt(station)) {
                 callingTrips.add(trip);
             }
         });

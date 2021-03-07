@@ -13,7 +13,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
     private final String headSign;
     private final Service service;
     private final Route route;
-    private final StopCalls stops;
+    private final StopCalls stopCalls;
     private TramTime earliestDepart = null;
     private TramTime latestDepart = null;
     private int lastIndex;
@@ -28,14 +28,14 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         this.headSign = headSign.intern();
         this.service = service;
         this.route = route;
-        stops = new StopCalls();
+        stopCalls = new StopCalls(tripId);
         lastIndex = Integer.MIN_VALUE;
         firstIndex = Integer.MAX_VALUE;
     }
 
     // test memory support
     public void dispose() {
-        stops.dispose();
+        stopCalls.dispose();
     }
 
     @Override
@@ -55,12 +55,12 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         return tripId;
     }
 
-    public StopCalls getStops() {
-        return stops;
+    public StopCalls getStopCalls() {
+        return stopCalls;
     }
 
     public void addStop(StopCall stop) {
-        stops.add(stop);
+        stopCalls.add(stop);
 
         // use stop index as avoids issues with crossing day boundaries
         int stopIndex = stop.getGetSequenceNumber();
@@ -83,7 +83,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
                 ", headSign='" + headSign + '\'' +
                 ", service=" + HasId.asId(service) +
                 ", route=" + HasId.asId(route) +
-                ", stops=" + stops +
+                ", stops=" + stopCalls +
                 ", earliestDepart=" + earliestDepart +
                 ", latestDepart=" + latestDepart +
                 ", lastIndex=" + lastIndex +

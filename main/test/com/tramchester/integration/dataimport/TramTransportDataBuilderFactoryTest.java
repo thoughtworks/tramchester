@@ -72,9 +72,9 @@ class TramTransportDataBuilderFactoryTest {
 
         Trip trip = service.getTrips().stream().findFirst().get();
         assertThat(trip.getId()).isEqualTo(StringIdFor.createId("Trip000001"));
-        assertThat(trip.getStops().numberOfCallingPoints()).isEqualTo(9);
+        assertThat(trip.getStopCalls().numberOfCallingPoints()).isEqualTo(9);
 
-        StopCall stop = trip.getStops().getStopBySequenceNumber(1);
+        StopCall stop = trip.getStopCalls().getStopBySequenceNumber(1);
         assertThat(stop.getStation().getName()).isEqualTo("Abraham Moss");
         assertThat(stop.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
         assertThat(stop.getGetSequenceNumber()).isEqualTo(1);

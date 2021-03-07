@@ -183,7 +183,7 @@ class TransportDataFromFilesTramTest {
         IdSet<Service> sundayServiceIds = sundayServices.stream().collect(IdSet.collector());
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
-                filter(trip -> trip.getStops().callsAt(Cornbrook)).collect(Collectors.toSet());
+                filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).collect(Collectors.toSet());
 
         Set<Trip> sundayTrips = cornbrookTrips.stream().filter(trip -> sundayServiceIds.
                 contains(trip.getService().getId())).collect(Collectors.toSet());
@@ -223,7 +223,7 @@ class TransportDataFromFilesTramTest {
             IdSet<Service> servicesOnDateIds = servicesOnDate.stream().collect(IdSet.collector());
             transportData.getStations().forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
-                        filter(trip -> trip.getStops().callsAt(station)).
+                        filter(trip -> trip.getStopCalls().callsAt(station)).
                         filter(trip -> servicesOnDateIds.contains(trip.getService().getId())).
                         collect(Collectors.toSet());
                 assertFalse(callingTripsOnDate.isEmpty(), String.format("%s %s", date, station));
@@ -240,7 +240,7 @@ class TransportDataFromFilesTramTest {
 
                     Set<StopCall> calling = new HashSet<>();
                     callingTripsOnDate.forEach(trip -> {
-                        Set<StopCall> onTime = trip.getStops().stream().
+                        Set<StopCall> onTime = trip.getStopCalls().stream().
                                 filter(stop -> stop.getStation().equals(station)).
                                 filter(stop -> tramTime.plusMinutes(maxwait).
                                         between(stop.getArrivalTime(), stop.getArrivalTime().plusMinutes(maxwait))).
@@ -368,8 +368,8 @@ class TransportDataFromFilesTramTest {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
         IdSet<Service> toMediaCity = allTrips.stream().
-                filter(trip -> trip.getStops().callsAt(Cornbrook)).
-                filter(trip -> trip.getStops().callsAt(TramStations.MediaCityUK)).
+                filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).
+                filter(trip -> trip.getStopCalls().callsAt(TramStations.MediaCityUK)).
                 filter(trip -> trip.getRoute().getId().equals(AshtonunderLyneManchesterEccles.getId())).
                 map(trip -> trip.getService().getId()).collect(IdSet.idCollector());
 
@@ -452,7 +452,7 @@ class TransportDataFromFilesTramTest {
     }
 
     private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {
-        return trip.getStops().stream().filter(stopCall -> stopCall.getStationId().equals(stationId)).collect(Collectors.toList());
+        return trip.getStopCalls().stream().filter(stopCall -> stopCall.getStationId().equals(stationId)).collect(Collectors.toList());
     }
 
 }

@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
+import java.nio.file.Path;
 
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
 
+    // TODO Make a path, rename config name
     private final String graphName;
     private final String neo4jPagecacheMemory;
 
@@ -19,10 +21,9 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
         this.neo4jPagecacheMemory = neo4jPagecacheMemory;
     }
 
-    // name of the graph DB to use
     @Override
-    public String getGraphName() {
-        return graphName;
+    public Path getDbPath() {
+        return Path.of(graphName);
     }
 
     // page cache memory for neo4j

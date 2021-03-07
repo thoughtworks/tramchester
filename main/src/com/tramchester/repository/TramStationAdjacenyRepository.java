@@ -38,7 +38,7 @@ public class TramStationAdjacenyRepository  {
         logger.info("Build adjacency matrix");
         Collection<Trip> trips = transportData.getTrips();
         trips.stream().filter(TransportMode::isTram).forEach(trip -> {
-            StopCalls stops = trip.getStops();
+            StopCalls stops = trip.getStopCalls();
             stops.getLegs().forEach(leg -> {
                 Pair<Station, Station> pair = Pair.of(leg.getFirstStation(), leg.getSecondStation());
                 if (!matrix.containsKey(pair)) {

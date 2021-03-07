@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GraphDatabaseTest {
+class GraphDatabaseLifecycleTest {
 
     private static final DataSourceID SRC_1_NAME = new DataSourceID("src1");
     private static final DataSourceID SRC_2_NAME = new DataSourceID("src2");
@@ -46,11 +46,10 @@ class GraphDatabaseTest {
     private List<DataSourceConfig> dataSourceConfigs;
     private Path dbFile;
     private GraphDatabase graphDatabase;
-    private String dbName;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
-        dbName = "graphDbTest.db";
+        String dbName = "graphDbTest.db";
         graphDatabase = null;
 
         GraphDBTestConfig dbConfig = new GraphDBTestConfig("graphDatabaseTest", dbName);
@@ -61,7 +60,6 @@ class GraphDatabaseTest {
             }
         };
 
-        //Path dir = Paths.get(dbConfig.getGraphName());
         if (Files.exists(dbConfig.getDbPath())) {
             FileUtils.deleteDirectory(dbConfig.getDbPath().toFile());
         }
