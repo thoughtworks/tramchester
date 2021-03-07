@@ -34,7 +34,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<Long, IdFor<Trip>> tripIdRelationshipCache;
 
     private final Cache<Long, IdFor<Service>> svcIdCache;
-    private final Cache<Long, Integer> hourNodeCache;
     private final Cache<Long, TramTime> times;
     private final HourNodeCache prebuildHourCache;
 
@@ -45,7 +44,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         // size tuned from stats
         relationshipCostCache = createCache(85000);
         svcIdCache = createCache(3000);
-        this.hourNodeCache = createCache(38000);
         tripsRelationshipCache = createCache(32500);
         tripIdRelationshipCache = createCache(32500);
         times = createCache(40000);
@@ -58,7 +56,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         logger.info("dispose");
         relationshipCostCache.invalidateAll();
         svcIdCache.invalidateAll();
-        hourNodeCache.invalidateAll();
         tripsRelationshipCache.invalidateAll();
         tripIdRelationshipCache.invalidateAll();
         times.invalidateAll();
@@ -75,7 +72,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("svcIdCache",svcIdCache.stats()));
-        result.add(Pair.of("hourNodeCache",hourNodeCache.stats()));
         result.add(Pair.of("tripsRelationshipCache", tripsRelationshipCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
 

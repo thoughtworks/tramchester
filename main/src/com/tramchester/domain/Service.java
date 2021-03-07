@@ -11,10 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 public class Service implements HasId<Service>, GraphProperty {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
@@ -52,6 +53,15 @@ public class Service implements HasId<Service>, GraphProperty {
     public Set<Trip> getTrips() {
         return Collections.unmodifiableSet(trips);
     }
+
+    /***
+     * use getTrips()
+     */
+    @Deprecated
+    public Set<Trip> getTripsFor(Route route) {
+        return trips.stream().filter(trip->trip.getRoute().equals(route)).collect(Collectors.toSet());
+    }
+
 
     public void addTrip(Trip trip) {
         if (!route.equals(trip.getRoute())) {
@@ -99,13 +109,6 @@ public class Service implements HasId<Service>, GraphProperty {
         return route;
     }
 
-    /***
-     * use getTrips()
-     */
-    @Deprecated
-    public Set<Trip> getTripsFor(Route route) {
-        return trips.stream().filter(trip->trip.getRoute().equals(route)).collect(Collectors.toSet());
-    }
 
 
     @Override

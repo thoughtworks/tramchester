@@ -93,6 +93,10 @@ public class GraphProps {
     }
 
     public static IdSet<Trip> getTrips(Entity entity) {
+        if (!hasProperty(TRIPS, entity)) {
+            return IdSet.emptySet(); // ok during graph build when property not set initiall
+        }
+
         String[] ids = (String[]) getProperty(entity, TRIPS);
         IdSet<Trip> tripIds = new IdSet<>(ids.length);
         for (String id : ids) {
@@ -109,11 +113,7 @@ public class GraphProps {
         }
         entiy.setProperty(TRIPS.getText(), ids);
     }
-
-    static void setTripsProp(Entity entity, String[] value) {
-        entity.setProperty(TRIPS.getText(), value);
-    }
-
+    
     public static int getCost(Entity entity) {
         return (int) getProperty(entity, COST);
     }

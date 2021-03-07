@@ -239,8 +239,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProperty(svcRelationship, service);
         setCostProp(svcRelationship, 0);
         setProperty(svcRelationship, route);
-        setTripsProp(svcRelationship, new String[0]);
-
     }
 
     private Node getPlatformNode(Transaction txn, Platform platform) {
@@ -458,7 +456,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     if (!tripIds.contains(tripId)) {
                         tripIds.add(tripId);
                         setTripsProp(relationship, tripIds);
-                        //setTripsProp(relationship, tripId.getGraphId() + tripIds);
                     }
                 });
 
