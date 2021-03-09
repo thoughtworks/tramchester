@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
@@ -14,7 +15,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.repository.TransportData;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -153,7 +153,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         Node stationNode = getStationNode(txn, station);
         if (stationNode == null) {
             stationNode = createStationNode(txn, station);
-            builderCache.putStation(station, stationNode);
+            builderCache.putStation(station.getId(), stationNode);
         }
     }
 
@@ -165,25 +165,26 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
-        Map<Pair<Station, Station>, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
+        Map<StationPair, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
         services.forEach(service -> service.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
                         GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
                         GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
+                        StationPair legStations = StationPair.of(leg.getFirstStation(), leg.getSecondStation());
                         if (pickup==Regular && dropOff==Regular &&
-                                !pairs.containsKey(Pair.of(leg.getFirstStation(), leg.getSecondStation()))) {
+                                !pairs.containsKey(legStations)) {
                             int cost = leg.getCost();
-                            pairs.put(Pair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
+                            pairs.put(legStations, cost);
                         }
                     }
                 });
             }));
 
         pairs.keySet().forEach(pair -> {
-            Node startNode = routeBuilderCache.getStation(tx, pair.getLeft());
-            Node endNode = routeBuilderCache.getStation(tx, pair.getRight());
+            Node startNode = routeBuilderCache.getStation(tx, pair.getBegin());
+            Node endNode = routeBuilderCache.getStation(tx, pair.getEnd());
             createLinkRelationship(startNode, endNode, route.getTransportMode());
         });
 

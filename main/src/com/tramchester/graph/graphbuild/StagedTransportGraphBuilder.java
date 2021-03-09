@@ -262,7 +262,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         Node stationNode = getStationNode(txn, station);
         if (stationNode!=null) {
-            routeBuilderCache.putStation(station, stationNode);
+            routeBuilderCache.putStation(station.getId(), stationNode);
             for (Platform platform : station.getPlatforms()) {
                 Node platformNode = getPlatformNode(txn, platform);
                 if (platformNode==null) {
@@ -326,15 +326,16 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boolean pickup = stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular);
         boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
 
+        Station station = stopCall.getStation();
+        TramTime departureTime = stopCall.getDepartureTime();
+
         if (isFirstStop && dropoff) {
-            String msg = "Drop off at first station for stop " + stopCall.getStation().getId() + " dep time " + stopCall.getDepartureTime();
+            String msg = "Drop off at first station for stop " + station.getId() + " dep time " + departureTime;
             logger.info(msg);
         }
 
-        Station station = stopCall.getStation();
-
         if (isLastStop && pickup) {
-            String msg = "Pick up at last station for stop " + station.getId() + " dep time " + stopCall.getDepartureTime();
+            String msg = "Pick up at last station for stop " + station.getId() + " dep time " + departureTime;
             logger.info(msg);
         }
 
@@ -342,7 +343,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         // If bus we board to/from station, for trams its from the platform
         Node platformOrStation = station.hasPlatforms() ? routeBuilderCache.getPlatform(tx, stopCall.getPlatform().getId())
-                : routeBuilderCache.getStation(tx, station);
+                : routeBuilderCache.getStation(tx, station.getId());
         IdFor<RouteStation> routeStationId = RouteStation.createId(station.getId(), route.getId());
         Node routeStationNode = routeBuilderCache.getRouteStation(tx, routeStationId);
 

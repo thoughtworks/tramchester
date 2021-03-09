@@ -27,7 +27,7 @@ public class GraphBuilderCache {
 
     private boolean cleared;
     private final Map<IdFor<RouteStation>, Long> routeStations;
-    private final Map<Station, Long> stations;
+    private final Map<IdFor<Station>, Long> stations;
     private final Map<IdFor<Platform>, Long> platforms;
     private final Map<String, Long> svcNodes;
     private final Map<String, Long> hourNodes;
@@ -71,7 +71,7 @@ public class GraphBuilderCache {
         routeStations.put(id, routeStationNode.getId());
     }
 
-    protected void putStation(Station station, Node stationNode) {
+    protected void putStation(IdFor<Station> station, Node stationNode) {
         stations.put(station, stationNode.getId());
     }
 
@@ -95,7 +95,7 @@ public class GraphBuilderCache {
         return txn.getNodeById(routeStations.get(id));
     }
 
-    protected Node getStation(Transaction txn, Station station) {
+    protected Node getStation(Transaction txn, IdFor<Station> station) {
         return txn.getNodeById(stations.get(station));
     }
 
