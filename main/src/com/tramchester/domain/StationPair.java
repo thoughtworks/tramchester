@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;

@@ -11,7 +11,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.DataExpiryCategory;
-import com.tramchester.testSupport.StationPair;
+import com.tramchester.domain.StationPair;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;

@@ -15,7 +15,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.StationPair;
+import com.tramchester.domain.StationPair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;

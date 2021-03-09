@@ -75,11 +75,20 @@ public class GraphBuilderCache {
         stations.put(station, stationNode.getId());
     }
 
-    protected Node getRouteStation(Transaction txn, Route route, Station station) {
-        IdFor<RouteStation> id = RouteStation.createId(station.getId(), route.getId());
+    protected Node getRouteStation(Transaction txn, Route route, IdFor<Station> stationId) {
+        IdFor<RouteStation> id = RouteStation.createId(stationId, route.getId());
         if (!routeStations.containsKey(id)) {
             String message = "Cannot find routestation node in cache " + id + " station "
-                    + station.getId() + " route " + route.getId();
+                    + stationId + " route " + route.getId();
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+        return txn.getNodeById(routeStations.get(id));
+    }
+
+    protected Node getRouteStation(Transaction txn, IdFor<RouteStation> id) {
+        if (!routeStations.containsKey(id)) {
+            String message = "Cannot find routestation node in cache " + id;
             logger.error(message);
             throw new RuntimeException(message);
         }
@@ -98,48 +107,42 @@ public class GraphBuilderCache {
         platforms.put(platformId, platformNode.getId());
     }
 
-    protected Node getServiceNode(Transaction txn, Service service, Station startStation, Station endStation) {
-        String id = CreateKeys.getServiceKey(service, startStation, endStation);
+    protected Node getServiceNode(Transaction txn, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
+        String id = CreateKeys.getServiceKey(service.getId(), startStation, endStation);
         return txn.getNodeById(svcNodes.get(id));
     }
 
-    protected void putService(Service service, Station begin, Station end, Node svcNode) {
-        svcNodes.put(CreateKeys.getServiceKey(service, begin, end), svcNode.getId());
+    protected void putService(Service service, IdFor<Station> begin, IdFor<Station>  end, Node svcNode) {
+        svcNodes.put(CreateKeys.getServiceKey(service.getId(), begin, end), svcNode.getId());
     }
 
-    protected void putHour(Service service, Station station, Integer hour, Node node) {
-        hourNodes.put(CreateKeys.getHourKey(service, station, hour), node.getId());
+    protected void putHour(Service service, IdFor<Station>  station, Integer hour, Node node) {
+        hourNodes.put(CreateKeys.getHourKey(service.getId(), station, hour), node.getId());
     }
 
-    protected Node getHourNode(Transaction txn, Service service, Station station, Integer hour) {
-        String key = CreateKeys.getHourKey(service, station, hour);
+    protected Node getHourNode(Transaction txn, Service service, IdFor<Station>  station, Integer hour) {
+        String key = CreateKeys.getHourKey(service.getId(), station, hour);
         if (!hourNodes.containsKey(key)) {
             throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",
-                    key, service.getId(), station.getId(), hour.toString()));
+                    key, service.getId(), station, hour.toString()));
         }
         return txn.getNodeById(hourNodes.get(key));
     }
 
     protected void putBoarding(long platformOrStation, long routeStationNodeId) {
         putRelationship(boardings, platformOrStation, routeStationNodeId);
-        //boardings.add(Pair.of(boardingNodeId, routeStationNodeId));
     }
 
     protected boolean hasBoarding(long platformOrStation, long routeStationNodeId) {
         return hasRelationship(boardings, platformOrStation, routeStationNodeId);
-//        return boardings.contains(Pair.of(boardingNodeId, routeStationNodeId));
     }
 
     protected boolean hasDeparts(long platformOrStation, long routeStationNodeId) {
-        // depart routeStationNodeId -> platformOrStation
         return hasRelationship(departs, platformOrStation, routeStationNodeId);
-//        return departs.contains(Pair.of(routeStationNodeId, boardingNodeId));
     }
 
     protected void putDepart(long boardingNodeId, long routeStationNodeId) {
-        // depart routeStationNodeId -> platformOrStation
         putRelationship(departs, boardingNodeId, routeStationNodeId);
-//        departs.add(Pair.of(routeStationNodeId, boardingNodeId));
     }
 
     private void putRelationship(Map<Long, Set<Long>> relationshipCache, long boardingNodeId, long routeStationNodeId) {
@@ -160,12 +163,12 @@ public class GraphBuilderCache {
     }
 
     private static class CreateKeys {
-        protected static String getServiceKey(Service service, Station startStation, Station endStation) {
-            return startStation.getId().getGraphId()+"_"+endStation.getId().getGraphId()+"_"+ service.getId().getGraphId();
+        protected static String getServiceKey(IdFor<Service> service, IdFor<Station> startStation, IdFor<Station> endStation) {
+            return startStation.getGraphId()+"_"+endStation.getGraphId()+"_"+ service.getGraphId();
         }
 
-        protected static String getHourKey(Service service, Station station, Integer hour) {
-            return service.getId().getGraphId()+"_"+station.getId().getGraphId()+"_"+hour.toString();
+        protected static String getHourKey(IdFor<Service> service, IdFor<Station> station, Integer hour) {
+            return service.getGraphId()+"_"+station.getGraphId()+"_"+hour.toString();
         }
 
     }
