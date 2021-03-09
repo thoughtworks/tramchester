@@ -8,7 +8,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.domain.StationPair;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
@@ -50,15 +50,15 @@ class RouteCalculatorTestAllJourneys {
         Set<Station> allStations = data.getStations();
 
         // pairs of stations to check
-        Set<StationPair> stationPairs = allStations.stream().flatMap(start -> allStations.stream().
-                map(dest -> StationPair.of(start, dest))).
+        Set<StationIdPair> stationIdPairs = allStations.stream().flatMap(start -> allStations.stream().
+                map(dest -> StationIdPair.of(start, dest))).
                 filter(pair -> !pair.same()).
                 filter(pair -> !combinations.betweenInterchange(pair)).
                 filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
 
-        Map<StationPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(when,
-                stationPairs, TramTime.of(8, 5));
+        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(when,
+                stationIdPairs, TramTime.of(8, 5));
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().

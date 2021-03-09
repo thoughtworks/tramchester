@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.StationPair;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.RouteStation;
@@ -165,14 +165,14 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
-        Map<StationPair, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
+        Map<StationIdPair, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
         services.forEach(service -> service.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
                         GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
                         GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
-                        StationPair legStations = StationPair.of(leg.getFirstStation(), leg.getSecondStation());
+                        StationIdPair legStations = StationIdPair.of(leg.getFirstStation(), leg.getSecondStation());
                         if (pickup==Regular && dropOff==Regular &&
                                 !pairs.containsKey(legStations)) {
                             int cost = leg.getCost();
@@ -183,8 +183,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             }));
 
         pairs.keySet().forEach(pair -> {
-            Node startNode = routeBuilderCache.getStation(tx, pair.getBegin());
-            Node endNode = routeBuilderCache.getStation(tx, pair.getEnd());
+            Node startNode = routeBuilderCache.getStation(tx, pair.getBeginId());
+            Node endNode = routeBuilderCache.getStation(tx, pair.getEndId());
             createLinkRelationship(startNode, endNode, route.getTransportMode());
         });
 

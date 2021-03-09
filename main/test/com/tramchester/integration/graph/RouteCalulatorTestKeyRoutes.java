@@ -11,7 +11,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.DataExpiryCategory;
-import com.tramchester.domain.StationPair;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -84,7 +84,7 @@ class RouteCalulatorTestKeyRoutes {
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
         List<Journey> allResults = new ArrayList<>();
 
-        Map<StationPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(when,
+        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(when,
                 combinations.EndOfRoutesToEndOfRoutes(Tram), TramTime.of(9,0));
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
@@ -98,21 +98,21 @@ class RouteCalulatorTestKeyRoutes {
     void shouldRepoServiceTimeIssueForConcurrency() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        List<StationPair> stationPairs = new ArrayList<>();
+        List<StationIdPair> stationIdPairs = new ArrayList<>();
         for (int i = 0; i < 99; i++) {
-            stationPairs.add(new StationPair(ShawAndCrompton, Ashton));
+            stationIdPairs.add(new StationIdPair(ShawAndCrompton, Ashton));
         }
 
         LocalDate queryDate = when;
         TramTime queryTime = TramTime.of(8,0);
 
-        Optional<Pair<StationPair, RouteCalculationCombinations.JourneyOrNot>> failed = stationPairs.parallelStream().
+        Optional<Pair<StationIdPair, RouteCalculationCombinations.JourneyOrNot>> failed = stationIdPairs.parallelStream().
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
                                 3, testConfig.getMaxJourneyDuration());
                         //journeyRequest.setDiag(diag);
-                        Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBegin(), requested.getEnd(), journeyRequest);
+                        Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(), journeyRequest);
                         RouteCalculationCombinations.JourneyOrNot journeyOrNot = new RouteCalculationCombinations.JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
                     }
@@ -121,10 +121,10 @@ class RouteCalulatorTestKeyRoutes {
         assertFalse(failed.isPresent());
     }
 
-    private void checkRouteNextNDays(Set<StationPair> stationPairs, LocalDate date, TramTime time) {
+    private void checkRouteNextNDays(Set<StationIdPair> stationIdPairs, LocalDate date, TramTime time) {
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             LocalDate testDate = avoidChristmasDate(date.plusDays(day));
-            combinations.validateAllHaveAtLeastOneJourney(testDate, stationPairs, time);
+            combinations.validateAllHaveAtLeastOneJourney(testDate, stationIdPairs, time);
         }
     }
 

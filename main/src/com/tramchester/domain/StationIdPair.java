@@ -4,22 +4,22 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
-public class StationPair {
+public class StationIdPair {
     private final IdFor<Station> begin;
     private final IdFor<Station> end;
 
-    public StationPair(HasId<Station> begin, HasId<Station> end) {
+    public StationIdPair(HasId<Station> begin, HasId<Station> end) {
         this.begin = begin.getId();
         this.end = end.getId();
     }
 
-    public StationPair(IdFor<Station> begin, IdFor<Station> end) {
+    public StationIdPair(IdFor<Station> begin, IdFor<Station> end) {
         this.begin = begin;
         this.end = end;
     }
 
-    public static StationPair of(HasId<Station> begin, HasId<Station> end) {
-        return new StationPair(begin, end);
+    public static StationIdPair of(HasId<Station> begin, HasId<Station> end) {
+        return new StationIdPair(begin, end);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class StationPair {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        StationPair that = (StationPair) o;
+        StationIdPair that = (StationIdPair) o;
 
         if (!begin.equals(that.begin)) return false;
         return end.equals(that.end);
@@ -40,11 +40,11 @@ public class StationPair {
         return result;
     }
 
-    public IdFor<Station> getBegin() {
+    public IdFor<Station> getBeginId() {
         return begin;
     }
 
-    public IdFor<Station> getEnd() {
+    public IdFor<Station> getEndId() {
         return end;
     }
 

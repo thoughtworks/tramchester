@@ -205,22 +205,22 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createServiceAndHourNodesForServices(Transaction tx, GraphFilter filter, Route route, Service service, Set<Trip> trips,
                                                       GraphBuilderCache stationCache) {
-        Set<StationPair> services = new HashSet<>();
-        Set<Pair<StationPair, Integer>> hours = new HashSet<>();
+        Set<StationIdPair> services = new HashSet<>();
+        Set<Pair<StationIdPair, Integer>> hours = new HashSet<>();
 
         trips.forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 List<StopCalls.StopLeg> legs = stops.getLegs();
                 legs.forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
-                        StationPair stationPair = StationPair.of(leg.getFirstStation(), leg.getSecondStation());
-                        services.add(stationPair);
-                        hours.add(Pair.of(stationPair, leg.getDepartureTime().getHourOfDay()));
+                        StationIdPair stationIdPair = StationIdPair.of(leg.getFirstStation(), leg.getSecondStation());
+                        services.add(stationIdPair);
+                        hours.add(Pair.of(stationIdPair, leg.getDepartureTime().getHourOfDay()));
                     }
                 });
         });
-        services.forEach(pair -> createServiceNodeAndRelationship(tx, route, service, pair.getBegin(), pair.getEnd(), stationCache));
-        hours.forEach(pair -> createHourNode(tx, service, pair.getLeft().getBegin(), pair.getLeft().getEnd(), pair.getRight(), stationCache));
+        services.forEach(pair -> createServiceNodeAndRelationship(tx, route, service, pair.getBeginId(), pair.getEndId(), stationCache));
+        hours.forEach(pair -> createHourNode(tx, service, pair.getLeft().getBeginId(), pair.getLeft().getEndId(), pair.getRight(), stationCache));
     }
 
     private void createServiceNodeAndRelationship(Transaction tx, Route route, Service service, IdFor<Station> begin, IdFor<Station> end,
@@ -280,22 +280,22 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createRouteRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
         Stream<Service> services = getServices(filter, route);
 
-        Map<StationPair, Integer> pairs = new HashMap<>();
+        Map<StationIdPair, Integer> pairs = new HashMap<>();
         services.forEach(service -> service.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
-                        if (!pairs.containsKey(StationPair.of(leg.getFirstStation(), leg.getSecondStation()))) {
+                        if (!pairs.containsKey(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()))) {
                             int cost = leg.getCost();
-                            pairs.put(StationPair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
+                            pairs.put(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
                         }
                     }
                 });
             }));
 
         pairs.forEach((pair, cost) -> {
-            Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getBegin());
-            Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getEnd());
+            Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getBeginId());
+            Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getEndId());
             createRouteRelationship(startNode, endNode, route, cost);
         });
     }
