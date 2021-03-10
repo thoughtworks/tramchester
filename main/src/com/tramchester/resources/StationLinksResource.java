@@ -4,6 +4,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
@@ -47,7 +48,8 @@ public class StationLinksResource {
     @GET
     @Timed
     @Path("/all")
-    @ApiOperation(value = "Get all pairs of station links for given transport mode", response = StationRefDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all pairs of station links for given transport mode", response = StationRefDTO.class,
+            responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
         logger.info("Get station links");
@@ -65,8 +67,9 @@ public class StationLinksResource {
     }
 
     private StationLinkDTO create(StationLink link) {
-        return new StationLinkDTO(new StationRefWithPosition(link.getBegin()),
-                new StationRefWithPosition(link.getEnd()), Collections.singleton(Tram));
+        StationPair stationPair = link.getStations();
+        return new StationLinkDTO(new StationRefWithPosition(stationPair.getBegin()),
+                new StationRefWithPosition(stationPair.getEnd()), Collections.singleton(Tram));
     }
 
 }

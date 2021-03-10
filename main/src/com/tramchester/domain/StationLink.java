@@ -6,22 +6,24 @@ import com.tramchester.domain.reference.TransportMode;
 import java.util.Set;
 
 public class StationLink {
-    private final Station begin;
-    private final Station end;
+    private final StationPair pair;
     private final Set<TransportMode> modes;
 
     public StationLink(Station begin, Station end, Set<TransportMode> modes) {
-        this.begin = begin;
-        this.end = end;
+        this.pair = StationPair.of(begin, end);
         this.modes = modes;
     }
 
-    public Station getBegin() {
-        return begin;
+    public StationPair getStations() {
+        return pair;
     }
 
-    public Station getEnd() {
-        return end;
+    @Override
+    public String toString() {
+        return "StationLink{" +
+                "pair=" + pair +
+                ", modes=" + modes +
+                '}';
     }
 
     @Override
@@ -31,28 +33,22 @@ public class StationLink {
 
         StationLink that = (StationLink) o;
 
-        if (!begin.equals(that.begin)) return false;
-        if (!end.equals(that.end)) return false;
+        if (!pair.equals(that.pair)) return false;
         return modes.equals(that.modes);
     }
 
     @Override
     public int hashCode() {
-        int result = begin.hashCode();
-        result = 31 * result + end.hashCode();
+        int result = pair.hashCode();
         result = 31 * result + modes.hashCode();
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "StationLink{" +
-                "begin=" + begin +
-                ", end=" + end +
-                ", modes=" + modes +
-                '}';
-    }
-
+    /***
+     * The transport modes that link these two stations
+     * NOT the modes of the stations themselves which might be subset of linking modes
+     * @return The transport modes that link these two stations
+     */
     public Set<TransportMode> getModes() {
         return modes;
     }
