@@ -13,6 +13,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
@@ -192,7 +193,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             try(Transaction tx = graphDatabase.beginTx()) {
                 // time nodes and relationships for trips
                 for (Trip trip : serviceTrips) {
-                    Map<Pair<Station, TramTime>, Node> timeNodes = createMinuteNodes(tx, filter, service, trip, routeBuilderCache);
+                    Map<StationTime, Node> timeNodes = createMinuteNodes(tx, filter, service, trip, routeBuilderCache);
                     createBoardingAndDeparts(tx, filter, route, trip, routeBuilderCache);
                     createTripRelationships(tx, filter, route, service, trip, routeBuilderCache, timeNodes);
                     timeNodes.clear();
@@ -393,7 +394,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createTripRelationships(Transaction tx, GraphFilter filter, Route route, Service service, Trip trip,
                                          GraphBuilderCache routeBuilderCache,
-                                         Map<Pair<Station, TramTime>, Node> timeNodes) {
+                                         Map<StationTime, Node> timeNodes) {
         StopCalls stops = trip.getStopCalls();
 
         stops.getLegs().forEach(leg -> {
@@ -449,7 +450,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void updateTripRelationship(Transaction tx, Route route, Service service, Trip trip, StopCall beginStop, StopCall endStop,
-                                        GraphBuilderCache routeBuilderCache, Map<Pair<Station, TramTime>, Node> timeNodes) {
+                                        GraphBuilderCache routeBuilderCache, Map<StationTime, Node> timeNodes) {
         Station startStation = beginStop.getStation();
 
         StringIdFor<Trip> tripId = trip.getId();
@@ -472,7 +473,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Node routeStationEnd = routeBuilderCache.getRouteStation(tx, route, endStop.getStation().getId());
 
         // time node -> end route station
-        Node timeNode = timeNodes.get(Pair.of(startStation, beginStop.getDepartureTime()));
+        Node timeNode = timeNodes.get(StationTime.of(startStation, beginStop.getDepartureTime()));
         Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
         setProperty(goesToRelationship, trip);
 
@@ -483,10 +484,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setStopSequenceNumber(goesToRelationship, endStop.getGetSequenceNumber());
     }
 
-    private Map<Pair<Station, TramTime>, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,
+    private Map<StationTime, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,
                                                                     Trip trip, GraphBuilderCache routeBuilderCache) {
 
-        Map<Pair<Station, TramTime>, Node> timeNodes = new HashMap<>();
+        Map<StationTime, Node> timeNodes = new HashMap<>();
 
         StopCalls stops = trip.getStopCalls();
         stops.getLegs().forEach(leg -> {
@@ -494,7 +495,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 Station start = leg.getFirstStation();
                 TramTime departureTime = leg.getDepartureTime();
                 Node timeNode = createMinuteNode(tx, service, trip, start.getId(), departureTime, routeBuilderCache);
-                timeNodes.put(Pair.of(start, departureTime), timeNode);
+                timeNodes.put(StationTime.of(start, departureTime), timeNode);
             }
         });
 
