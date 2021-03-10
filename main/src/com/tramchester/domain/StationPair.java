@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 
 public class StationPair {
@@ -13,6 +14,10 @@ public class StationPair {
 
     public static StationPair of(Station begin, Station end) {
         return new StationPair(begin, end);
+    }
+
+    public static StationPair of(StopCalls.StopLeg leg) {
+        return new StationPair(leg.getFirstStation(), leg.getSecondStation());
     }
 
     @Override

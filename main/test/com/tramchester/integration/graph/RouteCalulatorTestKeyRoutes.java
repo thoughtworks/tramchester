@@ -111,7 +111,6 @@ class RouteCalulatorTestKeyRoutes {
                     try (Transaction txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
                                 3, testConfig.getMaxJourneyDuration());
-                        //journeyRequest.setDiag(diag);
                         Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(), journeyRequest);
                         RouteCalculationCombinations.JourneyOrNot journeyOrNot = new RouteCalculationCombinations.JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);

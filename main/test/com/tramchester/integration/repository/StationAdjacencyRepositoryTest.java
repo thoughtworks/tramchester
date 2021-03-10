@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -52,12 +53,12 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldHavePairsOfStations() {
-        Set<Pair<Station, Station>> pairs = repository.getTramStationParis();
+        Set<StationPair> pairs = repository.getTramStationParis();
         IdFor<Station> stationId = TramStations.NavigationRoad.getId();
 
-        List<Pair<Station, Station>> results = pairs.stream().
-                filter(pair -> pair.getLeft().getId().equals(stationId) ||
-                        pair.getRight().getId().equals(stationId)).
+        List<StationPair> results = pairs.stream().
+                filter(pair -> pair.getBegin().getId().equals(stationId) ||
+                        pair.getEnd().getId().equals(stationId)).
                 collect(Collectors.toList());
         Assertions.assertEquals(4, results.size(), pairs.toString());
     }

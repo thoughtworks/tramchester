@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -24,7 +25,7 @@ public class TramStationAdjacenyRepository  {
 
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 
-    private final Map<Pair<Station,Station>, Integer> matrix;
+    private final Map<StationPair, Integer> matrix;
     private final TransportData transportData;
 
     @Inject
@@ -40,7 +41,7 @@ public class TramStationAdjacenyRepository  {
         trips.stream().filter(TransportMode::isTram).forEach(trip -> {
             StopCalls stops = trip.getStopCalls();
             stops.getLegs().forEach(leg -> {
-                Pair<Station, Station> pair = Pair.of(leg.getFirstStation(), leg.getSecondStation());
+                StationPair pair = StationPair.of(leg);
                 if (!matrix.containsKey(pair)) {
                     matrix.put(pair, leg.getCost());
                 }
@@ -58,14 +59,14 @@ public class TramStationAdjacenyRepository  {
     // Distance between two adjacent stations, or -1 if not next to each other
     //
     public int getAdjacent(Station firstStation, Station secondStation) {
-        Pair<Station, Station> id = Pair.of(firstStation, secondStation);
+        StationPair id = StationPair.of(firstStation, secondStation);
         if (matrix.containsKey(id)) {
             return matrix.get(id);
         }
         return -1;
     }
 
-    public Set<Pair<Station, Station>> getTramStationParis() {
+    public Set<StationPair> getTramStationParis() {
         return matrix.keySet();
     }
 

@@ -3,6 +3,7 @@ package com.tramchester.livedata;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.liveUpdates.DueTram;
 import com.tramchester.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.domain.places.Station;
@@ -12,7 +13,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.repository.DueTramsSource;
 import com.tramchester.repository.TramStationAdjacenyRepository;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +44,9 @@ public class TramPositionInference {
     public List<TramPosition> inferWholeNetwork(TramServiceDate date, TramTime time) {
         logger.info("Infer tram positions for whole network");
         List<TramPosition> results = new ArrayList<>();
-        Set<Pair<Station, Station>> pairs = adjacenyRepository.getTramStationParis();
+        Set<StationPair> pairs = adjacenyRepository.getTramStationParis();
         pairs.forEach(pair -> {
-            TramPosition result = findBetween(pair.getLeft(), pair.getRight(), date, time);
+            TramPosition result = findBetween(pair.getBegin(), pair.getEnd(), date, time);
             results.add(result);
         });
         logger.info(format("Found %s pairs with trams", results.size()));
