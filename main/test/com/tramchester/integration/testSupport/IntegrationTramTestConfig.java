@@ -12,18 +12,20 @@ import java.util.List;
 
 public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
+    private static final String DB_NAME = "int_test_tram.db";
+
     private final DataSourceConfig dataSourceConfig;
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
-       this("int_test_tramchester.db", false);
+       this(DB_NAME, false);
     }
 
     public IntegrationTramTestConfig(boolean liveDataEnabled) {
-        this("int_test_tramchester.db", liveDataEnabled);
+        this(DB_NAME, liveDataEnabled);
     }
 
-    public IntegrationTramTestConfig(String dbName) {
+    protected IntegrationTramTestConfig(String dbName) {
         this(dbName, false);
     }
 

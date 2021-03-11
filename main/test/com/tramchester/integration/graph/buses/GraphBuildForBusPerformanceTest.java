@@ -2,8 +2,6 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
@@ -13,25 +11,31 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.io.IOException;
+
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class GraphBuildForBusPerformanceTest {
 
     private static ComponentContainer componentContainer;
+    private static IntegrationBusTestConfig testConfig;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addAgency(StringIdFor.createId("GMS"));
+    static void onceBeforeAnyTestsRun() throws IOException {
+        testConfig = new IntegrationBusTestConfig("GraphBuildForBusPerformanceTest.db");
+        TestEnv.deleteDBIfPresent(testConfig);
 
-        TramchesterConfig testConfig = new IntegrationBusTestConfig();
+        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
+        graphFilter.addAgency(TestEnv.StagecoachManchester.getId());
+
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
+    static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
+        TestEnv.deleteDBIfPresent(testConfig);
     }
 
     @Test

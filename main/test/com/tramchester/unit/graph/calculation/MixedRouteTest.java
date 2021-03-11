@@ -19,7 +19,6 @@ import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.MixedTransportDataProvider;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -48,8 +47,7 @@ class MixedRouteTest {
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
         config = new MixedRouteTest.SimpleGraphConfig();
-
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder<MixedTransportDataProvider>().
                 overrideProvider(MixedTransportDataProvider.class).
@@ -64,7 +62,7 @@ class MixedRouteTest {
     @AfterAll
     static void onceAfterAllTestsRun() throws IOException {
         componentContainer.close();
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach

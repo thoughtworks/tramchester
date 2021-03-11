@@ -7,18 +7,23 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.*;
+import com.tramchester.graph.FindRouteEndPoints;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.HourNodeCache;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,8 +46,7 @@ class GraphQueriesTests {
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
         config = new SimpleGraphConfig("graphquerytests.db");
-
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder<TramTransportDataForTestProvider>().
                 overrideProvider(TramTransportDataForTestProvider.class).
@@ -53,7 +57,7 @@ class GraphQueriesTests {
     @AfterAll
     static void onceAfterAllTestsRun() throws IOException {
         componentContainer.close();
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach

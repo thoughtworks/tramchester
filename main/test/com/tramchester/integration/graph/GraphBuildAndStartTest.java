@@ -14,6 +14,7 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,10 +31,8 @@ class GraphBuildAndStartTest {
     @Test
     void shouldBuildGraphAndStart() throws IOException {
         TramchesterConfig config =new SubgraphConfig();
-        File graphFile = config.getGraphDBConfig().getDbPath().toFile();
-        if (graphFile.exists()) {
-            FileUtils.deleteDirectory(graphFile);
-        }
+
+        TestEnv.deleteDBIfPresent(config);
 
         FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloadAndModTime(), config);
         Unzipper unzipper = new Unzipper();
@@ -79,6 +78,8 @@ class GraphBuildAndStartTest {
 
         graphDatabase.stop();
         interchangeRepository.dispose();
+
+        TestEnv.deleteDBIfPresent(config);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

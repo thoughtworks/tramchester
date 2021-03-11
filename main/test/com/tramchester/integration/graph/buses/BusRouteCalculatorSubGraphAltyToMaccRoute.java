@@ -3,11 +3,11 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
@@ -17,13 +17,12 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import org.apache.commons.io.FileUtils;
+import com.tramchester.testSupport.reference.BusStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -51,11 +50,13 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     private TransportData transportData;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
+    static void onceBeforeAnyTestsRun() throws IOException {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
         graphFilter.addRoute(ROUTE_ID);
 
-        config = new Config("altyMacRoute");
+        config = new Config("altyMacRoute.db");
+        TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -65,7 +66,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach

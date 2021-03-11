@@ -18,7 +18,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -30,7 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TramRouteTest {
 
@@ -48,8 +47,7 @@ class TramRouteTest {
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
         config = new SimpleGraphConfig("tramroutetest.db");
-
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder<TramTransportDataForTestProvider>().
                 overrideProvider(TramTransportDataForTestProvider.class).
@@ -60,7 +58,7 @@ class TramRouteTest {
     @AfterAll
     static void onceAfterAllTestsRun() throws IOException {
         componentContainer.close();
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach

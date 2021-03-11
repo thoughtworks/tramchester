@@ -9,12 +9,11 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -47,7 +46,7 @@ class RouteCalculatorSubGraphTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
 //        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
@@ -62,7 +61,7 @@ class RouteCalculatorSubGraphTest {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        FileUtils.deleteDirectory(config.getDBPath().toFile());
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach

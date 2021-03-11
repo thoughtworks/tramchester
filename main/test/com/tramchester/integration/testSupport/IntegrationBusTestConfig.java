@@ -10,7 +10,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     private final DataSourceConfig dataSourceConfig;
 
     public IntegrationBusTestConfig() {
-        this("bus_tramchester.db");
+        this("int_test_bus.db");
     }
 
     public IntegrationBusTestConfig(String dbName) {

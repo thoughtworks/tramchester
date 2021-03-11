@@ -3,15 +3,15 @@ package com.tramchester.integration.graph;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
-import org.apache.commons.io.FileUtils;
+import com.tramchester.testSupport.TestEnv;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +21,7 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -44,7 +42,6 @@ class GraphDatabaseLifecycleTest {
     private DataSourceRepository repository;
     private Set<DataSourceInfo> namesAndVersions;
     private List<DataSourceConfig> dataSourceConfigs;
-    private Path dbFile;
     private GraphDatabase graphDatabase;
 
     @BeforeEach
@@ -60,10 +57,7 @@ class GraphDatabaseLifecycleTest {
             }
         };
 
-        if (Files.exists(dbConfig.getDbPath())) {
-            FileUtils.deleteDirectory(dbConfig.getDbPath().toFile());
-        }
-        dbFile = Files.createDirectories(dbConfig.getContainingFolder());
+        TestEnv.deleteDBIfPresent(config);
 
         namesAndVersions = new HashSet<>();
         dataSourceConfigs = new ArrayList<>();
@@ -94,7 +88,7 @@ class GraphDatabaseLifecycleTest {
             }
         }
         graphDatabase = null;
-        FileUtils.deleteDirectory(dbFile.toFile());
+        TestEnv.deleteDBIfPresent(config);
     }
 
     private boolean isAvailable(int timeoutMilli) {

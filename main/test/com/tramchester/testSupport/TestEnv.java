@@ -22,8 +22,10 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.testSupport.reference.TramStations;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -239,5 +241,10 @@ public class TestEnv {
                 DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY));
     }
 
-
+    public static void deleteDBIfPresent(TramchesterConfig config) throws IOException {
+        Path dbPath = config.getGraphDBConfig().getDbPath();
+        if (Files.exists(dbPath)) {
+            FileUtils.deleteDirectory(dbPath.toFile());
+        }
+    }
 }
