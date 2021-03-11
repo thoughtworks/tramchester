@@ -3,6 +3,7 @@ package com.tramchester;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.IncludeAllFilter;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.TransportDataProvider;
 
 public class ComponentsBuilder<C extends TransportDataProvider> {

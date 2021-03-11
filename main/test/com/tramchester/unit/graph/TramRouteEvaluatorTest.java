@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.CacheMetrics;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.StringIdFor;

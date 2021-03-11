@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.CacheMetrics;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;

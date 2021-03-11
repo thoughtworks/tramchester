@@ -1,4 +1,4 @@
-package com.tramchester;
+package com.tramchester.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;

@@ -14,6 +14,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
@@ -80,11 +81,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     protected void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
         logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
-        long start = System.currentTimeMillis();
 
-        try {
-            logger.info("Rebuilding the graph...");
-
+        try (Timing timing = new Timing(logger, "graph rebuild")) {
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldInclude(agency)) {
                     logger.info("Adding agency " + agency.getId());
@@ -95,17 +93,14 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     logger.warn("Filter out: " + agency);
                 }
             }
-
-            long duration = System.currentTimeMillis()-start;
-            logger.info("Graph rebuild finished, took " + duration);
-
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
             throw new RuntimeException("Unable to build graph " + graphDatabase.getDbPath(), except);
         }
+
         reportStats();
-        logMemory("After graph build");
         System.gc();
+        logMemory("After graph build");
     }
 
     private void buildGraphForRoutes(GraphDatabase graphDatabase, final GraphFilter filter, Stream<Route> routes,

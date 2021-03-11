@@ -6,6 +6,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.metrics.TimedTransaction;
+import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -120,8 +122,7 @@ public class GraphDatabase implements DatabaseEventListener {
     }
 
     private void stopManagementService() {
-        logger.info("DatabaseManagementService stopping");
-        try {
+        try (Timing timing = new Timing(logger, "DatabaseManagementService stopping")){
             if (managementService==null) {
                 logger.error("Already stopped? Unable to obtain DatabaseManagementService for shutdown");
             } else {
@@ -219,45 +220,40 @@ public class GraphDatabase implements DatabaseEventListener {
     }
 
     private GraphDatabaseService createGraphDatabaseService(Path graphFile, GraphDBConfig config) {
-
         logger.info("Create GraphDatabaseService");
 
-        logger.info("DatabaseManagementService build");
-        long begin = System.currentTimeMillis();
-        managementService = new DatabaseManagementServiceBuilder( graphFile ).
-                setConfig(GraphDatabaseSettings.track_query_allocation, false).
-                setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
+        try (Timing timing = new Timing(logger, "DatabaseManagementService build")) {
+            managementService = new DatabaseManagementServiceBuilder( graphFile ).
+            setConfig(GraphDatabaseSettings.track_query_allocation, false).
+            setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
 
-                // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
+            // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
 
-                setConfig(GraphDatabaseSettings.pagecache_memory, config.getNeo4jPagecacheMemory()).
-                setConfig(ExternalSettings.initial_heap_size, "100m").
-                setConfig(ExternalSettings.max_heap_size, "200m").
-                setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
+            setConfig(GraphDatabaseSettings.pagecache_memory, config.getNeo4jPagecacheMemory()).
+            setConfig(ExternalSettings.initial_heap_size, "100m").
+            setConfig(ExternalSettings.max_heap_size, "200m").
+            setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
 
-                // txn logs, no need to save beyond current ones
-                //setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
+            // txn logs, no need to save beyond current ones
+            //setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
 
-                // operating in embedded mode
-                setConfig(HttpConnector.enabled, false).
-                setConfig(HttpsConnector.enabled, false).
-                setConfig(BoltConnector.enabled, false).
+            // operating in embedded mode
+            setConfig(HttpConnector.enabled, false).
+            setConfig(HttpsConnector.enabled, false).
+            setConfig(BoltConnector.enabled, false).
 
-                // TODO no 4.2 version available?
-                //setUserLogProvider(new Slf4jLogProvider()).
-                build();
+            // TODO no 4.2 version available?
+            //setUserLogProvider(new Slf4jLogProvider()).
+            build();
+        }
 
         managementService.registerDatabaseEventListener(this);
-
-        long duration = System.currentTimeMillis()-begin;
-        logger.info("DatabaseManagementService build took " + duration);
 
         // for community edition must be DEFAULT_DATABASE_NAME
         logger.info("GraphDatabaseService start for " + dbName + " at " + graphDBConfig.getDbPath());
         GraphDatabaseService graphDatabaseService = managementService.database(dbName);
 
         logger.info("Wait for GraphDatabaseService available");
-        begin = System.currentTimeMillis();
         int retries = 10;
         while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
             logger.error("GraphDatabaseService is not available, name: " + dbName +
@@ -269,8 +265,7 @@ public class GraphDatabase implements DatabaseEventListener {
             throw new RuntimeException("Could not start " + graphDBConfig.getDbPath());
         }
 
-        duration = System.currentTimeMillis()-begin;
-        logger.info("GraphDatabaseService is available, took " + duration);
+        logger.info("GraphDatabaseService is available");
         return graphDatabaseService;
     }
 
@@ -283,11 +278,10 @@ public class GraphDatabase implements DatabaseEventListener {
     }
 
     public void createIndexs() {
-        logger.info("Create DB indexes");
-        long start = System.currentTimeMillis();
 
-        try ( Transaction tx = databaseService.beginTx() )
+        try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Indexes"))
         {
+            Transaction tx = timed.transaction();
             Schema schema = tx.schema();
 
             schema.constraintFor(GraphBuilder.Labels.ROUTE_STATION).
@@ -307,8 +301,6 @@ public class GraphDatabase implements DatabaseEventListener {
 
             tx.commit();
         }
-        long duration = System.currentTimeMillis()-start;
-        logger.info("Create DB indexes finished, took " +duration);
     }
 
     public void waitForIndexesReady(Transaction tx) {

@@ -1,6 +1,6 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.CacheMetrics;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.LineDirection;

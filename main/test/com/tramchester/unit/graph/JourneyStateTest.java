@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.CacheMetrics;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -21,7 +21,6 @@ import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.Collections;
 import java.util.HashSet;

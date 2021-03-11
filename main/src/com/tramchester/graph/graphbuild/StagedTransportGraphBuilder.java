@@ -18,6 +18,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import org.apache.commons.lang3.tuple.Pair;
@@ -94,25 +95,23 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     protected void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
         logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
-        long start = System.currentTimeMillis();
 
         graphDatabase.createIndexs();
 
-
-        try {
-            logger.info("Rebuilding the graph...");
-
+        try(Timing graphTiming = new Timing(logger, "Graph rebuild")) {
             // TODO Agencies could be done in parallel as should be no overlap except at route station level?
             // Performance only really an issue for buses currently.
             for(Agency agency : transportData.getAgencies()) {
-                if (graphFilter.shouldInclude(agency)) {
-                    logger.info("Adding agency " + agency.getId());
-                    Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
-                    buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
-                    logger.info("Finished agency " + agency.getId());
-                } else {
-                    logger.warn("Filter out: " + agency);
-                }
+                    if (graphFilter.shouldInclude(agency)) {
+                        try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId())) {
+                            logger.info("Adding agency " + agency.getId());
+                            Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
+                            buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
+                            logger.info("Finished agency " + agency.getId());
+                        }
+                    } else {
+                        logger.warn("Filter out: " + agency);
+                    }
             }
 
             // only add version node if we manage to build graph, so partial builds that fail we cause a rebuild
@@ -123,9 +122,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 graphDatabase.waitForIndexesReady(tx);
             }
 
-            long duration = System.currentTimeMillis()-start;
-            logger.info("Graph rebuild finished, took " + duration);
-
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
             throw new RuntimeException("Unable to build graph", except);
@@ -133,8 +129,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         builderCache.fullClear();
         reportStats();
-        logMemory("After graph build");
         System.gc();
+        logMemory("After graph build");
     }
 
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {

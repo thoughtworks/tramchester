@@ -1,6 +1,5 @@
 package com.tramchester;
 
-import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.tramchester.cloud.CloudWatchReporter;
@@ -13,6 +12,7 @@ import com.tramchester.config.LiveDataConfig;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.CountsUploadedLiveData;
 import com.tramchester.livedata.LiveDataUpdater;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;

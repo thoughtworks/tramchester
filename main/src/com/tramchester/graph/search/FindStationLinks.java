@@ -10,6 +10,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -41,7 +42,6 @@ public class FindStationLinks {
 
     public Set<StationLink> findFor(TransportMode mode) {
         logger.info(format("Find links for %s", mode));
-        long start = System.currentTimeMillis();
         Map<String, Object> params = new HashMap<>();
         String stationLabel = GraphBuilder.Labels.forMode(mode).name();
         String modesProps = GraphPropertyKey.TRANSPORT_MODES.getText();
@@ -56,7 +56,8 @@ public class FindStationLinks {
         logger.info("Query: '" + query + '"');
 
         Set<StationLink> links = new HashSet<>();
-        try (Transaction txn  = graphDatabase.beginTx()) {
+        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "query for links " + mode)) {
+            Transaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
@@ -69,8 +70,7 @@ public class FindStationLinks {
             }
             result.close();
         }
-        long duration = System.currentTimeMillis()-start;
-        logger.info("Took " + duration);
+
         logger.info("Found " + links.size() + " links");
         return links;
     }

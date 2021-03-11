@@ -7,6 +7,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.metrics.TimedTransaction;
+import com.tramchester.metrics.Timing;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -32,7 +34,6 @@ public class FindStationsByNumberLinks {
 
     public IdSet<Station> findAtLeastNConnectionsFrom(TransportMode mode, int threshhold) {
         logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
-        long start = System.currentTimeMillis();
         Map<String, Object> params = new HashMap<>();
         String stationLabel = GraphBuilder.Labels.forMode(mode).name();
         String modesProps = GraphPropertyKey.TRANSPORT_MODES.getText();
@@ -48,7 +49,9 @@ public class FindStationsByNumberLinks {
         logger.info("Query: '" + query + '"');
 
         IdSet<Station> stationIds = new IdSet<>();
-        try (Transaction txn  = graphDatabase.beginTx()) {
+
+        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Outbounds for " + mode) ) {
+            Transaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
@@ -57,8 +60,7 @@ public class FindStationsByNumberLinks {
             }
             result.close();
         }
-        long duration = System.currentTimeMillis()-start;
-        logger.info("Took " + duration);
+
         logger.info("Found " + stationIds.size() + " matches");
         return stationIds;
     }

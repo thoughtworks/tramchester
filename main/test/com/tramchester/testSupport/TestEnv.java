@@ -1,7 +1,7 @@
 package com.tramchester.testSupport;
 
 import com.codahale.metrics.Gauge;
-import com.tramchester.CacheMetrics;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.LiveDataConfig;

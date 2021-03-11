@@ -1,6 +1,5 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.CacheMetrics;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
@@ -10,7 +9,6 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
@@ -30,8 +28,6 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.tramchester.graph.GraphPropertyKey.HOUR;
-import static com.tramchester.graph.GraphPropertyKey.SERVICE_ID;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;

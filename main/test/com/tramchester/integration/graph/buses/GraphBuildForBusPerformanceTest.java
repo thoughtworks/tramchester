@@ -19,7 +19,6 @@ class GraphBuildForBusPerformanceTest {
 
     private static ComponentContainer componentContainer;
 
-
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();

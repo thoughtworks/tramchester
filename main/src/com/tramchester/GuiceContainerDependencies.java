@@ -13,6 +13,7 @@ import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.TransportDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

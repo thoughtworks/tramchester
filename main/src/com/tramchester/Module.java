@@ -9,6 +9,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataProvider;
 

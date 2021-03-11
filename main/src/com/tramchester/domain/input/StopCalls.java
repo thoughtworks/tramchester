@@ -25,7 +25,7 @@ public class StopCalls {
     }
 
     public void dispose() {
-        logger.info("dispose for " + parent);
+        //logger.info("dispose for " + parent);
         stops.clear();
     }
 

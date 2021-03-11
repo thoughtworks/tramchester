@@ -6,6 +6,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.healthchecks.RegistersHealthchecks;
+import com.tramchester.metrics.CacheMetrics;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
