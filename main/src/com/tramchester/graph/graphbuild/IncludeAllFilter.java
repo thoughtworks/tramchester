@@ -1,5 +1,6 @@
 package com.tramchester.graph.graphbuild;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
@@ -8,6 +9,7 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 
 public class IncludeAllFilter implements GraphFilter {
+
     @Override
     public boolean isFiltered() {
         return false;
@@ -35,6 +37,11 @@ public class IncludeAllFilter implements GraphFilter {
 
     @Override
     public boolean shouldInclude(IdFor<Station> stationId) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldInclude(Agency agency) {
         return true;
     }
 

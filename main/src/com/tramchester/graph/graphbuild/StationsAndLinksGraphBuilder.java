@@ -48,6 +48,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private final TransportData transportData;
 
+    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
         return new Ready();
     }
@@ -60,30 +61,19 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         this.transportData = transportData;
     }
 
+    @PostConstruct
     public void start() {
         logger.info("start");
         if (graphDatabase.isCleanDB()) {
             logger.info("Rebuild of Stations, RouteStations and Links graph DB for " + config.getDbPath());
             if (graphFilter.isFiltered()) {
-                buildGraphwithFilter(graphFilter, graphDatabase, builderCache);
-            } else {
-                buildGraph(graphDatabase, builderCache);
+                logger.warn("Graph is filtered " + graphFilter);
             }
+            buildGraphwithFilter(graphFilter, graphDatabase, builderCache);
             logger.info("Graph rebuild is finished for " + config.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
         }
-    }
-
-    @PostConstruct
-    public void run() {
-        start();
-    }
-
-    @Deprecated
-    @Override
-    protected void buildGraph(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
-        buildGraphwithFilter(new IncludeAllFilter(), graphDatabase, builderCache);
     }
 
     @Override
@@ -96,10 +86,14 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             logger.info("Rebuilding the graph...");
 
             for(Agency agency : transportData.getAgencies()) {
-                logger.info("Adding agency " + agency.getId());
-                Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
-                buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
-                logger.info("Finished agency " + agency.getId());
+                if (graphFilter.shouldInclude(agency)) {
+                    logger.info("Adding agency " + agency.getId());
+                    Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
+                    buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
+                    logger.info("Finished agency " + agency.getId());
+                } else {
+                    logger.warn("Filter out: " + agency);
+                }
             }
 
             long duration = System.currentTimeMillis()-start;

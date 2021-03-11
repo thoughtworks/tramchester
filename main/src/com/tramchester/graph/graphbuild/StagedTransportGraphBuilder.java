@@ -59,6 +59,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final TransportData transportData;
     private final InterchangeRepository interchangeRepository;
 
+    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
         return new Ready();
     }
@@ -74,30 +75,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     @PostConstruct
-    public void run() {
-        start();
-    }
-
     public void start() {
         logger.info("start");
         if (graphDatabase.isCleanDB()) {
             logger.info("Rebuild of TimeTable graph DB for " + config.getDbPath());
             if (graphFilter.isFiltered()) {
-                buildGraphwithFilter(graphFilter, graphDatabase, builderCache);
-            } else {
-                buildGraph(graphDatabase, builderCache);
+                logger.warn("Graph is filtered " + graphFilter);
             }
+            buildGraphwithFilter(graphFilter, graphDatabase, builderCache);
             logger.info("Graph rebuild is finished for " + config.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
             nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
         }
-    }
-
-    @Deprecated
-    @Override
-    protected void buildGraph(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
-        buildGraphwithFilter(new IncludeAllFilter(), graphDatabase, builderCache);
     }
 
     @Override
@@ -108,7 +98,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         graphDatabase.createIndexs();
 
-        addVersionNode(graphDatabase, transportData.getDataSourceInfo());
 
         try {
             logger.info("Rebuilding the graph...");
@@ -116,11 +105,18 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             // TODO Agencies could be done in parallel as should be no overlap except at route station level?
             // Performance only really an issue for buses currently.
             for(Agency agency : transportData.getAgencies()) {
-                logger.info("Adding agency " + agency.getId());
-                Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
-                buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
-                logger.info("Finished agency " + agency.getId());
+                if (graphFilter.shouldInclude(agency)) {
+                    logger.info("Adding agency " + agency.getId());
+                    Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
+                    buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
+                    logger.info("Finished agency " + agency.getId());
+                } else {
+                    logger.warn("Filter out: " + agency);
+                }
             }
+
+            // only add version node if we manage to build graph, so partial builds that fail we cause a rebuild
+            addVersionNode(graphDatabase, transportData.getDataSourceInfo());
 
             try(Transaction tx = graphDatabase.beginTx()) {
                 logger.info("Wait for indexes online");

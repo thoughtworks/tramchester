@@ -1,5 +1,6 @@
 package com.tramchester.graph.graphbuild;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
@@ -14,4 +15,5 @@ public interface GraphFilter {
     boolean shouldInclude(Station station);
     boolean shouldInclude(StopCall stopCall);
     boolean shouldInclude(IdFor<Station> stationId);
+    boolean shouldInclude(Agency agency);
 }

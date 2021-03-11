@@ -66,7 +66,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         graphFilter.addRoute(EDidsburyManchesterRochdale.getId());
         stations.forEach(TramStations::getId);
 
-
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
