@@ -58,8 +58,8 @@ public class TramStationAdjacenyRepository  {
     //
     // Distance between two adjacent stations, or -1 if not next to each other
     //
-    public int getAdjacent(Station firstStation, Station secondStation) {
-        StationPair id = StationPair.of(firstStation, secondStation);
+    public int getAdjacent(StationPair id) {
+        //StationPair id = StationPair.of(firstStation, secondStation);
         if (matrix.containsKey(id)) {
             return matrix.get(id);
         }

@@ -68,8 +68,9 @@ public class StationLinksResource {
 
     private StationLinkDTO create(StationLink link) {
         StationPair stationPair = link.getStations();
-        return new StationLinkDTO(new StationRefWithPosition(stationPair.getBegin()),
-                new StationRefWithPosition(stationPair.getEnd()), Collections.singleton(Tram));
+        StationRefWithPosition begin = new StationRefWithPosition(stationPair.getBegin());
+        StationRefWithPosition end = new StationRefWithPosition(stationPair.getEnd());
+        return new StationLinkDTO(begin, end, Collections.singleton(Tram));
     }
 
 }

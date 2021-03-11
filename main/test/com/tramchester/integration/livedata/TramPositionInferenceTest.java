@@ -2,6 +2,7 @@ package com.tramchester.integration.livedata;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
@@ -73,14 +74,15 @@ class TramPositionInferenceTest {
         Station first = stationRepository.getStationById(TramStations.Deansgate.getId());
         Station second = stationRepository.getStationById(TramStations.Cornbrook.getId());
 
-        TramPosition between = positionInference.findBetween(first, second, date, time);
+        StationPair pair = StationPair.of(first, second);
+        TramPosition between = positionInference.findBetween(pair, date, time);
         assertEquals(first, between.getFirst());
         assertEquals(second, between.getSecond());
         assertTrue(between.getTrams().size()>=1, "trams between");
         assertEquals(cost, between.getCost());
         between.getTrams().forEach(dueTram -> assertFalse((dueTram.getWait())> cost, Integer.toString(dueTram.getWait())));
 
-        TramPosition otherDirection = positionInference.findBetween(second, first, date, time);
+        TramPosition otherDirection = positionInference.findBetween(pair, date, time);
         assertTrue(otherDirection.getTrams().size()>=1, "no trams in other direction");
         assertEquals(cost, between.getCost());
         otherDirection.getTrams().forEach(dueTram -> assertFalse((dueTram.getWait())> cost, Integer.toString(dueTram.getWait())));

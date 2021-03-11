@@ -45,34 +45,33 @@ public class TramPositionInference {
         logger.info("Infer tram positions for whole network");
         List<TramPosition> results = new ArrayList<>();
         Set<StationPair> pairs = adjacenyRepository.getTramStationParis();
-        pairs.forEach(pair -> {
-            TramPosition result = findBetween(pair.getBegin(), pair.getEnd(), date, time);
-            results.add(result);
-        });
+        pairs.forEach(pair -> results.add(findBetween(pair, date, time)));
         logger.info(format("Found %s pairs with trams", results.size()));
         return results;
     }
 
-    public TramPosition findBetween(Station start, Station neighbour, TramServiceDate date, TramTime time) {
-        int cost = adjacenyRepository.getAdjacent(start, neighbour);
+    public TramPosition findBetween(StationPair pair, TramServiceDate date, TramTime time) {
+        int cost = adjacenyRepository.getAdjacent(pair);
         if (cost<0) {
-            logger.info(format("Not adjacent %s to %s", start, neighbour));
-            return new TramPosition(start, neighbour, Collections.emptySet(), cost);
+            logger.info(format("Not adjacent %s", pair));
+            return new TramPosition(pair, Collections.emptySet(), cost);
         }
 
-        Set<DueTram> dueTrams = getDueTrams(start, neighbour, date.getDate(), time, cost);
+        Set<DueTram> dueTrams = getDueTrams(pair, date.getDate(), time, cost);
 
-        logger.info(format("Found %s trams between %s and %s", dueTrams.size(), start, neighbour));
+        logger.info(format("Found %s trams between %s", dueTrams.size(), pair));
 
-        return new TramPosition(start, neighbour, dueTrams, cost);
+        return new TramPosition(pair, dueTrams, cost);
     }
 
-    private Set<DueTram> getDueTrams(Station start, Station neighbour, LocalDate date, TramTime time, int cost) {
-        if (! (TransportMode.isTram(start) && TransportMode.isTram(neighbour)) ) {
-            logger.info(format("Not both tram stations %s and %s", start, neighbour));
+    private Set<DueTram> getDueTrams(StationPair pair, LocalDate date, TramTime time, int cost) {
+        Station neighbour = pair.getEnd();
+
+        if (!pair.both(TransportMode.Tram) ) {
+            logger.info(format("Not both tram stations %s", pair));
             return Collections.emptySet();
         }
-        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(start, neighbour);
+        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair);
 
         // get departure info at neighbouring station for relevant routes
         Set<PlatformDueTrams> platformDueTrams = new HashSet<>();

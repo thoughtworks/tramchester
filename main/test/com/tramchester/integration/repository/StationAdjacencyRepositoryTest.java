@@ -4,19 +4,19 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 class StationAdjacencyRepositoryTest {
     private static ComponentContainer componentContainer;
@@ -43,18 +43,18 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldGiveCorrectCostForAdjaceny() {
-        Assertions.assertEquals(3, getAdjacent(TramStations.Altrincham, TramStations.NavigationRoad));
-        Assertions.assertEquals(3, getAdjacent(TramStations.Altrincham, TramStations.NavigationRoad));
-        Assertions.assertEquals(3, getAdjacent(TramStations.Cornbrook, TramStations.Deansgate));
-        Assertions.assertEquals(3, getAdjacent(TramStations.Deansgate, TramStations.Cornbrook));
+        Assertions.assertEquals(3, getAdjacent(Altrincham, NavigationRoad));
+        Assertions.assertEquals(3, getAdjacent(Altrincham, NavigationRoad));
+        Assertions.assertEquals(3, getAdjacent(Cornbrook, Deansgate));
+        Assertions.assertEquals(3, getAdjacent(Deansgate, Cornbrook));
 
-        Assertions.assertEquals(-1, getAdjacent(TramStations.NavigationRoad, TramStations.Cornbrook));
+        Assertions.assertEquals(-1, getAdjacent(NavigationRoad, Cornbrook));
     }
 
     @Test
     void shouldHavePairsOfStations() {
         Set<StationPair> pairs = repository.getTramStationParis();
-        IdFor<Station> stationId = TramStations.NavigationRoad.getId();
+        IdFor<Station> stationId = NavigationRoad.getId();
 
         List<StationPair> results = pairs.stream().
                 filter(pair -> pair.getBegin().getId().equals(stationId) ||
@@ -64,7 +64,8 @@ class StationAdjacencyRepositoryTest {
     }
 
     private int getAdjacent(TramStations first, TramStations second) {
-        return repository.getAdjacent(transportDataSource.getStationById(first.getId()),
+        StationPair pair = StationPair.of(transportDataSource.getStationById(first.getId()),
                 transportDataSource.getStationById(second.getId()));
+        return repository.getAdjacent(pair);
     }
 }

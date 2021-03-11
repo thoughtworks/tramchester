@@ -332,7 +332,7 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestC = standardJourneyRequest(when, TramTime.of(19,56));
         assertGetAndCheckJourneys(journeyRequestC, TramStations.StPetersSquare, TramStations.Pomona);
 
-        JourneyRequest journeyRequestD = standardJourneyRequest(when, TramTime.of(6,10));
+        JourneyRequest journeyRequestD = standardJourneyRequest(when, TramTime.of(6,40));
         assertGetAndCheckJourneys(journeyRequestD, TramStations.Cornbrook, TramStations.Eccles);
     }
 
@@ -435,7 +435,7 @@ public class RouteCalculatorTest {
         int minsOffset = 10;
         List<TramTime> missing = new LinkedList<>();
         int latestHour = 23;
-        for (int hour = 6; hour < latestHour; hour++) {
+        for (int hour = 7; hour < latestHour; hour++) {
             for (int minutes = minsOffset; minutes < 59; minutes=minutes+ maxChanges) {
                 TramTime time = TramTime.of(hour, minutes);
                 JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), time, false, maxChanges,

@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 
 public class StationPair {
     private final Station begin;
@@ -52,5 +53,9 @@ public class StationPair {
 
     public Station getEnd() {
         return end;
+    }
+
+    public boolean both(TransportMode mode) {
+        return begin.getTransportModes().contains(mode) && end.getTransportModes().contains(mode);
     }
 }

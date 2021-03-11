@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
@@ -10,6 +11,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.StationRepository;
+import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,11 +148,17 @@ public class RouteReachable {
         return foundRoute;
     }
 
-    // supports position inference on live data
+    @Deprecated
     public List<Route> getRoutesFromStartToNeighbour(Station startStation, Station endStation) {
+        return getRoutesFromStartToNeighbour(StationPair.of(startStation, endStation));
+    }
+
+    // supports position inference on live data
+    public List<Route> getRoutesFromStartToNeighbour(StationPair pair) {
         List<Route> results = new ArrayList<>();
+        Station startStation = pair.getBegin();
         Set<Route> firstRoutes = startStation.getRoutes();
-        IdFor<Station> endStationId = endStation.getId();
+        IdFor<Station> endStationId = pair.getEnd().getId();
 
         try (Transaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
