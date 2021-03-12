@@ -21,7 +21,8 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private final FetchFileModTime fetchFileModTime;
 
     @Inject
-    public NewDataAvailableHealthCheck(DataSourceConfig config, URLDownloadAndModTime urlDownloader, FetchFileModTime fetchFileModTime, ServiceTimeLimits serviceTimeLimits) {
+    public NewDataAvailableHealthCheck(DataSourceConfig config, URLDownloadAndModTime urlDownloader,
+                                       FetchFileModTime fetchFileModTime, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.config = config;
         this.urlDownloader = urlDownloader;
@@ -30,9 +31,11 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
     @Override
     protected Result check() {
+        String dataCheckUrl = config.getTramDataCheckUrl();
+
         try {
 
-            LocalDateTime serverModTime = urlDownloader.getModTime(config.getTramDataCheckUrl());
+            LocalDateTime serverModTime = urlDownloader.getModTime(dataCheckUrl);
             LocalDateTime zipModTime = fetchFileModTime.getFor(config);
 
             String diag = String.format("Local zip mod time: %s Server mod time: %s", zipModTime, serverModTime);
@@ -40,14 +43,20 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
                 String msg = "Newer timetable is available " + diag;
                 logger.warn(msg);
                 return Result.unhealthy(msg);
-            } else {
+            } else if (serverModTime.equals(LocalDateTime.MIN)) {
+                String msg = "Source is missing, cannot check for new timetable data at " + config.getTramDataUrl();
+                logger.error(msg);
+                return Result.unhealthy(msg);
+            }
+            else {
                 String msg = "No newer timetable is available " + diag;
                 logger.info(msg);
                 return Result.healthy(msg);
             }
         } catch (IOException ioException) {
-            logger.warn("Unable to check for newer timetable data", ioException);
-            return Result.unhealthy("Unable to check for newer data " + ioException.getMessage());
+            String msg = "Unable to check for newer timetable data at " + dataCheckUrl;
+            logger.error(msg, ioException);
+            return Result.unhealthy(msg + ioException.getMessage());
         }
     }
 

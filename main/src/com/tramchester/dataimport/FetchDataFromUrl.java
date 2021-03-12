@@ -18,6 +18,8 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +42,6 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         this.downloader = downloader;
         this.configs = configs;
     }
-
 
     // TODO Need to pass in unzip path and zip filename from CLI ags
     // used during build to download latest tram data from tfgm site during deployment
@@ -151,8 +152,10 @@ public class FetchDataFromUrl implements TransportDataFetcher {
                 logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
 
                 if (serverMod.isAfter(localMod)) {
-                    logger.warn(name + ": server time is after local, downing new data");
+                    logger.warn(name + ": server time is after local, downloading new data");
                     downloader.downloadTo(destination, url);
+                } else if (serverMod.equals(LocalDateTime.MIN)) {
+                    logger.error("Missing source: " + url);
                 } else {
                     logger.info(name + ": no newer data");
                 }

@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 class FetchDataFromUrlTest extends EasyMockSupport {
 
     private final Path path = Paths.get(Files.temporaryFolderPath());
@@ -95,6 +97,19 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         LocalDateTime time = TestEnv.LocalNow();
         EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(time.minusDays(1));
+        EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
+
+        replayAll();
+        Assertions.assertAll(() -> fetchDataFromUrl.fetchData(unzipper));
+        verifyAll();
+    }
+
+    @Test
+    void shouldHandlerUnexpectedServerUpdateTime() throws IOException {
+        Files.newFile(zipFilename.toAbsolutePath().toString());
+        LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
+        EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(fileIsMissingTime);
+
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();

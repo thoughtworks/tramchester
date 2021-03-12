@@ -26,10 +26,17 @@ public class URLDownloadAndModTime {
         HttpURLConnection connection = createConnection(url);
         connection.connect();
         long serverModMillis = connection.getLastModified();
+        boolean missing = connection.getResponseCode() != 200;
+        if (missing) {
+            logger.error("Response code " + connection.getResponseCode());
+        }
         connection.disconnect();
 
-        LocalDateTime modTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
+        if (missing) {
+            return LocalDateTime.MIN;
+        }
 
+        LocalDateTime modTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
         logger.info(format("Mod time for %s is %s", url, modTime));
         return modTime;
     }
