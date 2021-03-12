@@ -14,6 +14,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
@@ -85,10 +86,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         try (Timing timing = new Timing(logger, "graph rebuild")) {
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldInclude(agency)) {
-                    logger.info("Adding agency " + agency.getId());
-                    Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
-                    buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
-                    logger.info("Finished agency " + agency.getId());
+                    try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding agency " + agency.getId())) {
+                        Transaction tx = timedTransaction.transaction();
+                        Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
+                        buildGraphForRoutes(tx, graphFilter, routes, builderCache);
+                        timedTransaction.commit();
+                    }
                 } else {
                     logger.warn("Filter out: " + agency);
                 }
@@ -103,7 +106,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logMemory("After graph build");
     }
 
-    private void buildGraphForRoutes(GraphDatabase graphDatabase, final GraphFilter filter, Stream<Route> routes,
+    private void buildGraphForRoutes(Transaction tx, final GraphFilter filter, Stream<Route> routes,
                                      GraphBuilderCache builderCache) {
         Set<Station> filteredStations = filter.isFiltered() ?
                 transportData.getStations().stream().filter(filter::shouldInclude).collect(Collectors.toSet()) :
@@ -112,15 +115,11 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         routes.forEach(route -> {
             IdFor<Route> asId = route.getId();
             logger.debug("Adding route " + asId);
+            // create or cache stations and platforms for route, create route stations
+            filteredStations.stream().filter(station -> station.servesRoute(route)).
+                    forEach(station -> createStationAndRouteStation(tx, route, station, builderCache));
 
-            try(Transaction tx = graphDatabase.beginTx()) {
-                // create or cache stations and platforms for route, create route stations
-                filteredStations.stream().filter(station -> station.servesRoute(route)).
-                        forEach(station -> createStationAndRouteStation(tx, route, station, builderCache));
-
-                createLinkRelationships(tx, filter, route, builderCache);
-                tx.commit();
-            }
+            createLinkRelationships(tx, filter, route, builderCache);
 
             logger.debug("Route " + asId + " added ");
         });

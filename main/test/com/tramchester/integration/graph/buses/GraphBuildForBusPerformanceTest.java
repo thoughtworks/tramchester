@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.graphbuild.ActiveGraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
@@ -26,7 +27,7 @@ class GraphBuildForBusPerformanceTest {
         TestEnv.deleteDBIfPresent(testConfig);
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addAgency(TestEnv.StagecoachManchester.getId());
+        graphFilter.addAgency(TestEnv.WarringtonsOwnBuses.getId());
 
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -39,8 +40,13 @@ class GraphBuildForBusPerformanceTest {
     }
 
     @Test
-    void shouldTriggerBuild() {
+    void shouldTriggerMainGraphBuild() {
         StagedTransportGraphBuilder.Ready ready = componentContainer.get(StagedTransportGraphBuilder.Ready.class);
+    }
+
+    @Test
+    void shouldTriggerLinksBuild() {
+        StationsAndLinksGraphBuilder.Ready ready = componentContainer.get(StationsAndLinksGraphBuilder.Ready.class);
     }
 }
 

@@ -70,7 +70,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
         @Override
         public String getNeo4jPagecacheMemory() {
-            return "1300m";
+            return "300m";
         }
 
     }

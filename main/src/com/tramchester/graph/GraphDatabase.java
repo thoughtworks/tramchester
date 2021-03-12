@@ -232,7 +232,9 @@ public class GraphDatabase implements DatabaseEventListener {
             setConfig(GraphDatabaseSettings.pagecache_memory, config.getNeo4jPagecacheMemory()).
             setConfig(ExternalSettings.initial_heap_size, "100m").
             setConfig(ExternalSettings.max_heap_size, "200m").
-            setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
+            // TODO This one into config?
+            //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
+            setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
 
             // txn logs, no need to save beyond current ones
             //setConfig(GraphDatabaseSettings.keep_logical_logs, "false").

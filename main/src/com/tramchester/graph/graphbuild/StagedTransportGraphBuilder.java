@@ -18,6 +18,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
@@ -98,16 +99,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         graphDatabase.createIndexs();
 
-        try(Timing graphTiming = new Timing(logger, "Graph rebuild")) {
+        try(Timing ignored = new Timing(logger, "Graph rebuild")) {
             // TODO Agencies could be done in parallel as should be no overlap except at route station level?
             // Performance only really an issue for buses currently.
             for(Agency agency : transportData.getAgencies()) {
                     if (graphFilter.shouldInclude(agency)) {
                         try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId())) {
-                            logger.info("Adding agency " + agency.getId());
                             Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
                             buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
-                            logger.info("Finished agency " + agency.getId());
                         }
                     } else {
                         logger.warn("Filter out: " + agency);
@@ -149,50 +148,39 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         routes.forEach(route -> {
             IdFor<Route> asId = route.getId();
-            logger.debug("Adding route " + asId);
-
-            try(Transaction tx = graphDatabase.beginTx()) {
+            try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger,"routes " +asId)) {
+                Transaction tx = timedTransaction.transaction();
                 // create or cache stations and platforms for route, create route stations
                 filteredStations.stream().filter(station -> station.servesRoute(route)).
                         forEach(station -> createStationAndPlatforms(tx, station, builderCache));
 
                 // route relationships
                 createRouteRelationships(tx, filter, route, builderCache);
-                tx.commit();
+
+                Stream<Service> services = getServices(filter, route);
+                buildGraphForServices(filter, route, builderCache, services, tx);
+
+                timedTransaction.commit();
             }
-
-            Stream<Service> services = getServices(filter, route);
-            buildGraphForServices(graphDatabase, filter, route, builderCache, services);
-
             builderCache.routeClear();
             logger.debug("Route " + asId + " added ");
         });
     }
 
-    private void buildGraphForServices(GraphDatabase graphDatabase, GraphFilter filter, Route route,
-                                       GraphBuilderCache routeBuilderCache, Stream<Service> services) {
+    private void buildGraphForServices(GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache,
+                                       Stream<Service> services, Transaction tx) {
         services.forEach(service -> {
             Set<Trip> serviceTrips = service.getTrips();
 
-            // NOTE: 2 transaction for performance when loading bus data
-
-            try(Transaction tx = graphDatabase.beginTx()) {
-                // nodes for services and hours
-                createServiceAndHourNodesForServices(tx, filter, route, service, serviceTrips, routeBuilderCache);
-                tx.commit();
+            // nodes for services and hours
+            createServiceAndHourNodesForServices(tx, filter, route, service, serviceTrips, routeBuilderCache);
+            // time nodes and relationships for trips
+            for (Trip trip : serviceTrips) {
+                Map<StationTime, Node> timeNodes = createMinuteNodes(tx, filter, service, trip, routeBuilderCache);
+                createBoardingAndDeparts(tx, filter, route, trip, routeBuilderCache);
+                createTripRelationships(tx, filter, route, service, trip, routeBuilderCache, timeNodes);
+                timeNodes.clear();
             }
-
-            try(Transaction tx = graphDatabase.beginTx()) {
-                // time nodes and relationships for trips
-                for (Trip trip : serviceTrips) {
-                    Map<StationTime, Node> timeNodes = createMinuteNodes(tx, filter, service, trip, routeBuilderCache);
-                    createBoardingAndDeparts(tx, filter, route, trip, routeBuilderCache);
-                    createTripRelationships(tx, filter, route, service, trip, routeBuilderCache, timeNodes);
-                    timeNodes.clear();
-                }
-                tx.commit();
-            }
-
         });
     }
 
@@ -275,23 +263,23 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         Map<StationIdPair, Integer> pairs = new HashMap<>();
         services.forEach(service -> service.getTrips().forEach(trip -> {
-                StopCalls stops = trip.getStopCalls();
-                stops.getLegs().forEach(leg -> {
-                    if (includeBothStops(filter, leg)) {
-                        if (!pairs.containsKey(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()))) {
-                            int cost = leg.getCost();
-                            pairs.put(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
-                        }
+            StopCalls stops = trip.getStopCalls();
+            stops.getLegs().forEach(leg -> {
+                if (includeBothStops(filter, leg)) {
+                    if (!pairs.containsKey(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()))) {
+                        int cost = leg.getCost();
+                        pairs.put(StationIdPair.of(leg.getFirstStation(), leg.getSecondStation()), cost);
                     }
-                });
-            }));
+                }
+            });
+        }));
 
         pairs.forEach((pair, cost) -> {
             Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getBeginId());
             Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getEndId());
             createRouteRelationship(startNode, endNode, route, cost);
         });
-    }
+}
 
     private boolean includeBothStops(GraphFilter filter, StopCalls.StopLeg leg) {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());

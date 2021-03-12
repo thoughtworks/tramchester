@@ -13,12 +13,11 @@ public class Timing implements AutoCloseable {
         this.logger = logger;
         this.start = Instant.now();
 
-        logger.info("start " + name);
+        logger.info("Start " + name);
     }
 
     @Override
     public void close() {
-        logger.info("finished " + name);
         Instant finish = Instant.now();
         logger.info("TIMING: " + name + " TOOK: " + Duration.between(start, finish).toMillis() +" ms");
     }
