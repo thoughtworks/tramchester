@@ -65,7 +65,7 @@ class StationTest {
         assertTrue(station.getTransportModes().contains(TransportMode.Tram));
 
         Agency agency = Agency.Walking;
-        station.addRoute(new Route("routeId", "shortName", "name", agency, TransportMode.Train, RouteDirection.Inbound));
+        station.addRoute(new Route("routeId", "shortName", "name", agency, TransportMode.Train));
         assertTrue(station.getTransportModes().contains(TransportMode.Train));
 
         assertEquals(2, station.getTransportModes().size());

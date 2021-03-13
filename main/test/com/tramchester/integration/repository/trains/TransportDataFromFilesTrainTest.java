@@ -87,7 +87,8 @@ class TransportDataFromFilesTrainTest {
 
         Set<Service> svcs = result.getServices();
         for (Service service : svcs) {
-            assertEquals(result, service.getRoute(), "Service did not contain route");
+//            assertEquals(result, service.getRoute(), "Service did not contain route");
+            assertTrue(service.getRoutes().contains(result), "Service did not contain route");
         }
 
         Set<String> headsigns = result.getHeadsigns();

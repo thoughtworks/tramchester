@@ -5,6 +5,7 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.StopCall;
@@ -34,7 +35,7 @@ public class TransportEntityFactory {
         IdFor<Route> routeId = routeData.getId();
 
         return new Route(routeId, routeData.getShortName().trim(), routeData.getLongName(), agency,
-                TransportMode.fromGTFS(routeType), routeData.getRouteDirection());
+                TransportMode.fromGTFS(routeType));
 
     }
 
@@ -73,5 +74,9 @@ public class TransportEntityFactory {
 
     public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
         return routeData.getRouteType();
+    }
+
+    public IdFor<Route> createRouteId(IdFor<Route> routeId) {
+        return routeId;
     }
 }

@@ -76,29 +76,29 @@ class TransportDataFromFilesTramTest {
         assertEquals(12, transportData.getRoutes().size());
 
         // deansgate-castlefield platform 2 (9400ZZMAGMX2) seems to missing from data as of 12/8/2020
-        assertEquals(194, transportData.getPlatforms().size());
+        assertEquals(198, transportData.getPlatforms().size());
     }
 
     @Test
     void shouldGetFeedInfo() {
         FeedInfo result = transportData.getFeedInfos().get(DataSourceID.TFGM());
-        assertEquals("http://www.tfgm.com", result.getPublisherUrl());
+        assertEquals("https://www.tfgm.com", result.getPublisherUrl());
     }
 
     @Test
     void shouldGetAgenciesWithNames() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
         assertEquals(1, agencies.size()); // just MET for trams
-        assertEquals("MET", agencies.get(0).getId().forDTO());
+        assertEquals("METL", agencies.get(0).getId().forDTO());
         assertEquals("Metrolink", agencies.get(0).getName());
     }
 
     @Test
     void shouldGetRouteWithHeadsigns() {
         Route result = transportData.getRouteById(AshtonunderLyneManchesterEccles.getId());
-        assertEquals("Ashton-under-Lyne - Manchester - Eccles", result.getName());
+        assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
-        assertEquals("MET:3:I:",result.getId().forDTO());
+        assertEquals("METLBLUE:I:",result.getId().forDTO());
         assertTrue(TransportMode.isTram(result));
 
         Set<String> headsigns = result.getHeadsigns();
@@ -200,7 +200,7 @@ class TransportDataFromFilesTramTest {
         Collection<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
                 filter(svc -> !svc.getCalendar().operatesOn(queryDate)).collect(Collectors.toSet());
-        Set<Route> routes = expiringServices.stream().map(Service::getRoute).collect(Collectors.toSet());
+        Set<Route> routes = expiringServices.stream().map(Service::getRoutes).flatMap(Collection::stream).collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), expiringServices, HasId.asIds(routes) + " with expiring svcs " +HasId.asIds(expiringServices));
     }
@@ -299,13 +299,10 @@ class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveConsistencyOfRouteAndTripAndServiceIds() {
         Collection<Route> allRoutes = transportData.getRoutes();
-        List<Integer> svcSizes = new LinkedList<>();
 
-        allRoutes.forEach(route -> svcSizes.add(route.getServices().size()));
+        Set<Service> uniqueSvcs = allRoutes.stream().map(Route::getServices).flatMap(Collection::stream).collect(Collectors.toSet());
 
-        int allSvcs = svcSizes.stream().reduce(0, Integer::sum);
-
-        assertEquals(allSvcs, allServices.size());
+        assertEquals(uniqueSvcs.size(), allServices.size());
 
         Set<Station> allsStations = transportData.getStations();
 
@@ -322,7 +319,7 @@ class TransportDataFromFilesTramTest {
 
         IdSet<Service> tripServicesId = new IdSet<>();
         allTrips.forEach(trip -> tripServicesId.add(trip.getService().getId()));
-        assertEquals(allSvcs, tripServicesId.size());
+        assertEquals(uniqueSvcs.size(), tripServicesId.size());
     }
 
     @Test
@@ -402,7 +399,7 @@ class TransportDataFromFilesTramTest {
         // TODO Due to exception dates makes no sense to use getDays
         IdSet<Service> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.getCalendar().operatesOn(aMonday))
-                .filter(svc -> svc.getRoute().equals(createTramRoute(AshtonunderLyneManchesterEccles)))
+                .filter(svc -> svc.getRoutes().contains(createTramRoute(AshtonunderLyneManchesterEccles)))
                 .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID

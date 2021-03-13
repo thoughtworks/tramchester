@@ -33,11 +33,13 @@ class SortsPositionsTest {
     private Station alsoNearAlty;
 
     @BeforeEach
-    void beforeEachTestRuns() throws TransformException {
+    void beforeEachTestRuns() {
         //StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
 
-        dataForTest = new TramTransportDataForTestProvider(providesNow).getTestData();
+        TramTransportDataForTestProvider dataForTestProvider = new TramTransportDataForTestProvider(providesNow);
+        dataForTestProvider.start();
+        dataForTest = dataForTestProvider.getTestData();
 
         nearPiccGardens = dataForTest.getSecond(); // near PiccGardens
         nearShudehill = dataForTest.getInterchange();   // near Shudehill

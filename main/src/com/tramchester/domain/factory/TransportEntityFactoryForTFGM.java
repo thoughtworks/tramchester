@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,10 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @Override
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
-        IdFor<Route> routeId = routeData.getId();
 
+        IdFor<Route> routeId = createRouteId(routeData.getId());
+
+        // TODO No longer needed?
         String routeName = routeData.getLongName();
         if (config.getRemoveRouteNameSuffix()) {
             int indexOf = routeName.indexOf("(");
@@ -34,9 +37,17 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             }
         }
 
-        return new Route(routeId, routeData.getShortName().trim(), routeName, agency,
-                TransportMode.fromGTFS(routeType), routeData.getRouteDirection());
+        return new Route(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
+    }
 
+    @Override
+    public IdFor<Route> createRouteId(IdFor<Route> routeId) {
+        // tfgm has date suffix at end of route ID i.e. METLPURP:O:2021-03-08
+        String originalId = routeId.forDTO();
+        int endId = originalId.lastIndexOf(':')+1;
+        int index = Math.min(endId, originalId.length());
+        String idWithoutDateSuffix = originalId.substring(0, index);
+        return StringIdFor.createId(idWithoutDateSuffix);
     }
 
     @Override
@@ -56,12 +67,20 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
         // NOTE: this data issue has been reported to TFGM
         GTFSTransportationType routeType = routeData.getRouteType();
-        if (Agency.IsMetrolink(agencyId) && routeType!=GTFSTransportationType.tram) {
+        boolean isMetrolink = Agency.IsMetrolink(agencyId);
+        if (isMetrolink && routeType!=GTFSTransportationType.tram) {
             logger.error("METROLINK Agency seen with transport type " + routeType.name() + " for " + routeData);
             logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
             return GTFSTransportationType.tram;
-        } else {
-            return routeType;
         }
+
+        if ( (routeType==GTFSTransportationType.tram) && (!isMetrolink) ) {
+            logger.error("Tram transport type seen for non-metrolink agency for " + routeData);
+            logger.warn("Setting transport type to " + GTFSTransportationType.bus.name() + " for " + routeData);
+            return GTFSTransportationType.bus;
+        }
+
+        return routeType;
+
     }
 }

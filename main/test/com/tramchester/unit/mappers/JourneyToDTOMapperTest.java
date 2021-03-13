@@ -12,15 +12,14 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.*;
-import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.JourneyToDTOMapper;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
 import org.easymock.EasyMock;
@@ -52,9 +51,10 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        //StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
-        transportData = new TramTransportDataForTestProvider(providesNow).getTestData();
+        TramTransportDataForTestProvider dataForTestProvider = new TramTransportDataForTestProvider(providesNow);
+        dataForTestProvider.start();
+        transportData = dataForTestProvider.getTestData();
     }
 
     @BeforeEach
@@ -72,7 +72,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private Route createRoute(String name) {
-        return new Route("routeId", "shortName", name, TestEnv.MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
+        return new Route("routeId", "shortName", name, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
     @Test

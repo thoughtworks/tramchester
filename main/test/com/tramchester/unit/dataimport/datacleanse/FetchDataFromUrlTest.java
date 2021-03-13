@@ -34,7 +34,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     private FetchDataFromUrl fetchDataFromUrl;
     private Path zipFilename;
     private Unzipper unzipper;
-    private final String expectedDownloadURL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
+    private final String expectedDownloadURL = TestEnv.TFGM_TIMETABLE_URL;
 
     @BeforeEach
     void beforeEachTestRuns() {

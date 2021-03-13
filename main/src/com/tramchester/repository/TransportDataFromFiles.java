@@ -6,10 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -303,7 +300,8 @@ public class TransportDataFromFiles implements TransportDataProvider {
                 Platform platform = buildable.getPlatform(platformId);
                 platform.addRoute(route);
             } else {
-                logger.error("Missing platform " + platformId);
+                IdFor<Route> routeId = route.getId();
+                logger.warn("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
             }
             Platform platform = buildable.getPlatform(platformId);
             return factory.createPlatformStopCall(platform, station, stopTimeData);
@@ -339,7 +337,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
         tripDataStream.forEach((tripData) -> {
             IdFor<Service> serviceId = tripData.getServiceId();
-            IdFor<Route> routeId = tripData.getRouteId();
+            IdFor<Route> routeId = factory.createRouteId(tripData.getRouteId());
             IdFor<Trip> tripId = tripData.getTripId();
 
             if (transportData.hasRouteId(routeId)) {
@@ -397,7 +395,7 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
             } else {
                 IdFor<Route> routeId = routeData.getId();
-                excludedRoutes.add(routeId);
+                excludedRoutes.add(factory.createRouteId(routeId));
             }
         });
         logExcludedRoutes(transportModes, excludedRoutes);

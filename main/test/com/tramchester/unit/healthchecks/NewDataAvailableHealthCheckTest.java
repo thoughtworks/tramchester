@@ -64,4 +64,16 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         verifyAll();
     }
 
+    @Test
+    void shouldReportUnHealthyWhenDataMissing() throws IOException {
+
+        EasyMock.expect(urlDownloader.getModTime(expectedURL)).andReturn(LocalDateTime.MIN);
+        EasyMock.expect(fetchFileModTime.getFor(config)).andReturn(time);
+
+        replayAll();
+        HealthCheck.Result result = healthCheck.execute();
+        Assertions.assertFalse(result.isHealthy());
+        verifyAll();
+    }
+
 }

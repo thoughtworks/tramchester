@@ -31,6 +31,19 @@ class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
     }
 
     @Test
+    void shouldParseStopSingleDigitHour() {
+        String stop = "Trip000001,6:41:00,6:42:00,9400ZZMAABM1,0001,0,1";
+
+        StopTimeData stopTimeData = parse(stop);
+
+        assertThat(stopTimeData.getTripId()).isEqualTo(StringIdFor.createId("Trip000001"));
+        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
+        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
+        assertThat(stopTimeData.getStopId()).isEqualTo("9400ZZMAABM1");
+        assertThat(stopTimeData.getStopSequence()).isEqualTo(1);
+    }
+
+    @Test
     void shouldCopeWith24TimeFormatInData() {
         String stop = "Trip000001,24:00:00,24:00:00,9400ZZMAABM1,0001,0,1";
 

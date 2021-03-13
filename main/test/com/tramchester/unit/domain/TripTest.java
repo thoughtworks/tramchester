@@ -4,10 +4,9 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.reference.RouteDirection;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -47,7 +46,7 @@ class TripTest {
         assertTrue(TransportMode.isTram(tripA));
         Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName",
                 new Agency(DataSourceID.TFGM(), "BUS", "agencyName"),
-                TransportMode.Bus, RouteDirection.Circular);
+                TransportMode.Bus);
         Trip tripB = new Trip("tripId", "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));
     }

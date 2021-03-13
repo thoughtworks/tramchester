@@ -65,10 +65,13 @@ public class TestEnv {
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
-    private static final Agency MET = new Agency(DataSourceID.TFGM(), "MET", "agencyName");
+
+    private static final Agency MET = new Agency(DataSourceID.TFGM(), "METL", "Metrolink");
     public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(), "AW", "Arriva Trains Wales");
     public static final Agency StagecoachManchester = new Agency(DataSourceID.TFGM(), "GMS", "Stagecoach Manchester");
     public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(), "WBT", "Warrington's Own Buses");
+
+    public static final String TFGM_TIMETABLE_URL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
@@ -149,7 +152,7 @@ public class TestEnv {
     }
 
     public static Route getTestRoute(IdFor<Route> routeId) {
-        return new Route(routeId, "routeCode", "routeName", MetAgency(), TransportMode.Tram, RouteDirection.Inbound);
+        return new Route(routeId, "routeCode", "routeName", MetAgency(), TransportMode.Tram);
     }
 
     public static Agency MetAgency() {

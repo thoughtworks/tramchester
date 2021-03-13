@@ -6,6 +6,7 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,8 @@ class TramDataLoaderTest {
         assertThat(theRoute.getShortName()).isEqualTo("MET1");
         assertThat(theRoute.getId()).isEqualTo(StringIdFor.createId("MET:MET1:I:"));
         assertThat(theRoute.getLongName()).isEqualTo("Abraham Moss - Bury");
-        assertThat(theRoute.getAgencyId()).isEqualTo(StringIdFor.createId("MET"));
+        //assertThat(theRoute.getAgencyId()).isEqualTo(StringIdFor.createId("MET"));
+        assertThat(theRoute.getAgencyId()).isEqualTo(TestEnv.MetAgency().getId());
     }
 
     @Test

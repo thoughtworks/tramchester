@@ -11,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Service implements HasId<Service>, GraphProperty {
@@ -22,8 +19,8 @@ public class Service implements HasId<Service>, GraphProperty {
 
     // TODO make a composite ID
     private final IdFor<Service> serviceId;
-    private final Route route;
     private final Set<Trip> trips;
+    private final Set<Route> tripRoutes;
     private final Agency initialAgency;
 
     private ServiceCalendar calendar;
@@ -31,15 +28,31 @@ public class Service implements HasId<Service>, GraphProperty {
     private TramTime earliestDepart;
     private TramTime latestDepart;
 
+    /***
+     * Use version with agency
+     */
+    @Deprecated
     public Service(String serviceId, Route route) {
         this(StringIdFor.createId(serviceId), route);
     }
 
+    public Service(String serviceId, Agency agency) {
+        this(StringIdFor.createId(serviceId), agency);
+    }
+
+    /***
+     * Use version with agency
+     */
+    @Deprecated
     public Service(IdFor<Service> serviceId, Route route) {
+        this(serviceId, route.getAgency());
+    }
+
+    public Service(IdFor<Service> serviceId, Agency initialAgency) {
         this.serviceId = serviceId;
-        this.route = route;
         this.trips = new LinkedHashSet<>();
-        this.initialAgency = route.getAgency();
+        this.tripRoutes = new HashSet<>();
+        this.initialAgency = initialAgency;
 
         earliestDepart = null;
         latestDepart = null;
@@ -50,24 +63,21 @@ public class Service implements HasId<Service>, GraphProperty {
         return serviceId;
     }
 
+    @Deprecated
     public Set<Trip> getTrips() {
         return Collections.unmodifiableSet(trips);
     }
 
-    /***
-     * use getTrips()
-     */
     @Deprecated
-    public Set<Trip> getTripsFor(Route route) {
-        return trips.stream().filter(trip->trip.getRoute().equals(route)).collect(Collectors.toSet());
-    }
-
     public void addTrip(Trip trip) {
-        if (!route.equals(trip.getRoute())) {
-            String message = "Service route " + route.getId() + " does not match trip route: " + trip.getRoute();
+        Route tripRoute = trip.getRoute();
+        Agency tripAgency = tripRoute.getAgency();
+        if (!tripAgency.equals(initialAgency)) {
+            String message = "TripId: " + trip.getId() + " Trip Agency " + tripAgency.getId() + " does not match route: " + initialAgency;
             logger.error(message);
             throw new RuntimeException(message);
         }
+        tripRoutes.add(tripRoute);
         trips.add(trip); // stop population not done at this stage, see updateTimings
     }
 
@@ -95,7 +105,7 @@ public class Service implements HasId<Service>, GraphProperty {
     public String toString() {
         return "Service{" +
                 "serviceId=" + serviceId +
-                ", route=" + route.getId() +
+                ", tripRoutes=" + HasId.asIds(tripRoutes) +
                 ", trips=" + HasId.asIds(trips) +
                 ", initialAgency=" + initialAgency +
                 ", calendar=" + calendar +
@@ -104,11 +114,9 @@ public class Service implements HasId<Service>, GraphProperty {
                 '}';
     }
 
-    public Route getRoute() {
-        return route;
+    public Set<Route> getRoutes() {
+        return tripRoutes;
     }
-
-
 
     @Override
     public boolean equals(Object o) {

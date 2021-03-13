@@ -7,7 +7,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ public class GraphBuilderCache {
 
     private boolean cleared;
     private final Map<IdFor<RouteStation>, Long> routeStations;
-    private final Map<IdFor<Station>, Long> stations;
+    private final Map<IdFor<Station>, Long> stationsToNodeId;
     private final Map<IdFor<Platform>, Long> platforms;
     private final Map<String, Long> svcNodes;
     private final Map<String, Long> hourNodes;
@@ -37,7 +36,7 @@ public class GraphBuilderCache {
     @Inject
     public GraphBuilderCache() {
         cleared = false;
-        stations = new HashMap<>();
+        stationsToNodeId = new HashMap<>();
         routeStations = new HashMap<>();
         platforms = new HashMap<>();
         svcNodes = new HashMap<>();
@@ -51,7 +50,7 @@ public class GraphBuilderCache {
             throw new RuntimeException("Already cleared");
         }
         routeStations.clear();
-        stations.clear();
+        stationsToNodeId.clear();
         platforms.clear();
         svcNodes.clear();
         hourNodes.clear();
@@ -72,7 +71,7 @@ public class GraphBuilderCache {
     }
 
     protected void putStation(IdFor<Station> station, Node stationNode) {
-        stations.put(station, stationNode.getId());
+        stationsToNodeId.put(station, stationNode.getId());
     }
 
     protected Node getRouteStation(Transaction txn, Route route, IdFor<Station> stationId) {
@@ -95,8 +94,14 @@ public class GraphBuilderCache {
         return txn.getNodeById(routeStations.get(id));
     }
 
-    protected Node getStation(Transaction txn, IdFor<Station> station) {
-        return txn.getNodeById(stations.get(station));
+    protected Node getStation(Transaction txn, IdFor<Station> stationId) {
+        if (!stationsToNodeId.containsKey(stationId)) {
+            String message = "Missing station in cache, station: " + stationId + " Cache: " + stationsToNodeId;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+        Long id = stationsToNodeId.get(stationId);
+        return txn.getNodeById(id);
     }
 
     protected Node getPlatform(Transaction txn, IdFor<Platform> platformId) {
@@ -107,6 +112,8 @@ public class GraphBuilderCache {
         platforms.put(platformId, platformNode.getId());
     }
 
+    // TODO This has to be route station to route Station
+    @Deprecated
     protected Node getServiceNode(Transaction txn, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
         String id = CreateKeys.getServiceKey(service.getId(), startStation, endStation);
         return txn.getNodeById(svcNodes.get(id));
@@ -162,11 +169,18 @@ public class GraphBuilderCache {
         return false;
     }
 
+    public boolean stationEmpty() {
+        return stationsToNodeId.isEmpty();
+    }
+
     private static class CreateKeys {
+
+        @Deprecated
         protected static String getServiceKey(IdFor<Service> service, IdFor<Station> startStation, IdFor<Station> endStation) {
             return startStation.getGraphId()+"_"+endStation.getGraphId()+"_"+ service.getGraphId();
         }
 
+        @Deprecated
         protected static String getHourKey(IdFor<Service> service, IdFor<Station> station, Integer hour) {
             return service.getGraphId()+"_"+station.getGraphId()+"_"+hour.toString();
         }

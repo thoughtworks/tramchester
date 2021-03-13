@@ -18,7 +18,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
 
     static {
         Walking = new Agency(DataSourceID.Internal(), "Walking", "Walking");
-        Metrolink = new Agency(DataSourceID.TFGM(), "MET", "Metrolink");
+        Metrolink = new Agency(DataSourceID.TFGM(), "METL", "Metrolink");
     }
 
     public Agency(DataSourceID dataSourceID, String agencyId, String agencyName) {

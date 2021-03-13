@@ -1,10 +1,8 @@
 package com.tramchester;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import com.netflix.governator.guice.LifecycleInjector;
+import com.netflix.governator.guice.lazy.LazySingletonScope;
 import com.netflix.governator.lifecycle.LifecycleManager;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DefaultDataLoadStrategy;
@@ -117,7 +115,7 @@ public class GuiceContainerDependencies extends ComponentContainer {
 
         @Override
         protected void configure() {
-            bind(TransportDataProvider.class).to(type); //.in(Scopes.SINGLETON);
+            bind(TransportDataProvider.class).to(type).in(LazySingletonScope.get());
         }
     }
 

@@ -73,15 +73,15 @@ class MixedRouteTest {
         queryTime = TramTime.of(7, 57);
     }
 
-    @NotNull
-    private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
-        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration());
-    }
-
     @AfterEach
     void afterEachTestRuns()
     {
         txn.close();
+    }
+
+    @NotNull
+    private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
+        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration());
     }
 
     @Test

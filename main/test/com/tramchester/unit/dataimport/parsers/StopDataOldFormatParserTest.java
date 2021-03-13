@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class StopDataParserTest extends ParserTestHelper<StopData> {
+class StopDataOldFormatParserTest extends ParserTestHelper<StopData> {
 
 
     @BeforeEach
@@ -19,41 +19,44 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
     @Test
     void shouldParseTramStop() {
 
-        String tramStop = "9400ZZMAWYT1,mantwjdw,Wythenshawe Town Centre (Manchester Metrolink),53.38001047220,-2.26370992844";
+        String tramStop = "9400ZZMAWYT2,mantwjdt,\"Wythenshawe, Wythenshawe Town Centre (Manchester Metrolink)\",53.38003," +
+                "-2.26381,http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=9400ZZMAWYT2";
         StopData stopData = parse(tramStop);
 
-        assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT1");
-        assertThat(stopData.getCode()).isEqualTo("mantwjdw");
+        assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT2");
+        assertThat(stopData.getCode()).isEqualTo("mantwjdt");
         assertThat(stopData.getName()).isEqualTo("Wythenshawe Town Centre");
-        assertThat(stopData.getArea()).isEqualTo("");
-        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38001047220);
-        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26370992844);
+        assertThat(stopData.getArea()).isEqualTo("Wythenshawe");
+        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38003);
+        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26381);
         assertThat(stopData.hasPlatforms()).isEqualTo(true);
     }
 
     @Test
     void shouldParseTFGMBusStop() {
-        String tfgmBusStop = "1800NEH0341,,Evesham Road,53.53488245121,-2.18746922864";
+        String tfgmBusStop = "800NEH0341,missing,\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\",53.53509,-2.19333" +
+                ",http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341";
         StopData stopData = parse(tfgmBusStop);
 
-        assertThat(stopData.getId()).isEqualTo("1800NEH0341");
-        assertThat(stopData.getCode()).isEqualTo("");
-        assertThat(stopData.getArea()).isEqualTo("");
-        assertThat(stopData.getName()).isEqualTo("Evesham Road");
-        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53488245121);
-        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.18746922864);
+        assertThat(stopData.getId()).isEqualTo("800NEH0341");
+        assertThat(stopData.getCode()).isEqualTo("missing");
+        assertThat(stopData.getArea()).isEqualTo("Alkrington Garden Village");
+        assertThat(stopData.getName()).isEqualTo("Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)");
+        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53509);
+        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.19333);
         assertTrue(stopData.getLatLong().isValid());
         assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 
     @Test
     void shouldParseTFGMBusStopInvalidPosition() {
-        StopData stopData = parse("1800NEH0341,missing,Evesham Road,0.0,0.0");
+        StopData stopData = parse("800NEH0341,missing,\"Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)\",0.0,0.0"+
+                ",http://www.transportdirect.info/web2/journeyplanning/StopInformationLandingPage.aspx?et=si&id=GTDF&ef=m&st=n&sd=1800NEH0341");
 
-        assertThat(stopData.getId()).isEqualTo("1800NEH0341");
+        assertThat(stopData.getId()).isEqualTo("800NEH0341");
         assertThat(stopData.getCode()).isEqualTo("missing");
-        assertThat(stopData.getArea()).isEqualTo("");
-        assertThat(stopData.getName()).isEqualTo("Evesham Road");
+        assertThat(stopData.getArea()).isEqualTo("Alkrington Garden Village");
+        assertThat(stopData.getName()).isEqualTo("Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)");
         assertFalse(stopData.getLatLong().isValid());
         assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }

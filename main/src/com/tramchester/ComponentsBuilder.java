@@ -16,7 +16,7 @@ public class ComponentsBuilder<C extends TransportDataProvider> {
     }
 
     public ComponentContainer create(TramchesterConfig config, CacheMetrics.RegistersCacheMetrics registerCacheMetrics) {
-        if (overrideTransportData ==null) {
+        if (overrideTransportData == null) {
             return new GuiceContainerDependencies(graphFilter, config, registerCacheMetrics);
         } else {
             return new GuiceContainerDependencies(graphFilter, config, overrideTransportData, registerCacheMetrics);

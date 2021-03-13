@@ -16,18 +16,18 @@ import static java.lang.String.format;
 
 // Note: these are validated against tfgm data as part of Integration tests
 public enum KnownTramRoute {
-    AltrinchamPiccadilly(2, Inbound),
-    PiccadillyAltrincham(2, Outbound),
-    AshtonunderLyneManchesterEccles(3, Inbound),
-    EcclesManchesterAshtonunderLyne(3, Outbound),
-    BuryPiccadilly(4, Inbound),
-    PiccadillyBury(4, Outbound),
-    EDidsburyManchesterRochdale(5, Inbound),
-    RochdaleManchesterEDidsbury(5, Outbound),
-    VictoriaManchesterAirport(6, Inbound),
-    ManchesterAirportVictoria(6, Outbound),
-    intuTraffordCentreCornbrook(7, Inbound),
-    CornbrookintuTraffordCentre(7, Outbound);
+    AltrinchamPiccadilly("Purple", Inbound),
+    PiccadillyAltrincham("Purple", Outbound),
+    AshtonunderLyneManchesterEccles("Blue", Inbound),
+    EcclesManchesterAshtonunderLyne("Blue", Outbound),
+    BuryPiccadilly("Yellow", Inbound),
+    PiccadillyBury("Yellow", Outbound),
+    EDidsburyManchesterRochdale("Pink", Inbound),
+    RochdaleManchesterEDidsbury("Pink", Outbound),
+    VictoriaManchesterAirport("Navy", Inbound),
+    ManchesterAirportVictoria("Navy", Outbound),
+    intuTraffordCentreCornbrook("Red", Inbound),
+    CornbrookintuTraffordCentre("Red", Outbound);
 
     public static IdSet<Route> ids;
     public static final Map<IdFor<Route>, KnownTramRoute> map;
@@ -39,13 +39,16 @@ public enum KnownTramRoute {
     }
 
     private final IdFor<Route> id;
-    private final Integer number;
     private final RouteDirection direction;
+    private final String shortName;
 
-    KnownTramRoute(int number, RouteDirection direction) {
-        this.id = createId(format("MET:%s%s", number, direction.getSuffix()));
-        this.number = number;
+    KnownTramRoute(String shortName, RouteDirection direction) {
+        // new format for IDs METLRED:I:
+        int endIndex = Math.min(shortName.length(), 4);
+        String idSuffix = shortName.toUpperCase().substring(0, endIndex);
+        this.id = createId(format("METL%s%s", idSuffix, direction.getSuffix()));
         this.direction = direction;
+        this.shortName = shortName + " Line";
     }
 
     public IdFor<Route> getId() {
@@ -60,14 +63,13 @@ public enum KnownTramRoute {
         return id.equals(route.getId());
     }
 
-    public String number() {
-        return number.toString();
-    }
-
     public RouteDirection direction() {
         return direction;
     }
 
     public TransportMode mode() { return TransportMode.Tram; }
 
+    public String shortName() {
+        return shortName;
+    }
 }

@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,12 +33,12 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
 
     @Override
     public String getTramDataUrl() {
-        return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
+        return TestEnv.TFGM_TIMETABLE_URL;
     }
 
     @Override
     public String getTramDataCheckUrl() {
-        return "http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip";
+        return TestEnv.TFGM_TIMETABLE_URL;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
 
     @Override
     public Path getUnzipPath() {
-        return  Paths.get("gtdf-out");
+        return  Paths.get("./");
     }
 
     @Override

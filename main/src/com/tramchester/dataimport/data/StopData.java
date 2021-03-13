@@ -50,9 +50,14 @@ public class StopData {
 
     private void setMetrolinkNameAndArea(String text) {
         int indexOfDivider = text.indexOf(',');
-        this.area = text.substring(0, indexOfDivider);
-        this.name = text.substring(indexOfDivider+1, text.length());
-        this.name = name.replace(TRAM_STATION_POSTFIX, "").trim();
+        if (indexOfDivider>0) {
+            this.area = text.substring(0, indexOfDivider);
+            this.name = text.substring(indexOfDivider + 1);
+            this.name = name.replace(TRAM_STATION_POSTFIX, "").trim();
+        } else {
+            this.area = "";
+            this.name = text.replace(TRAM_STATION_POSTFIX, "").trim();
+        }
     }
 
     public String getId() {

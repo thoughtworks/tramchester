@@ -31,8 +31,7 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
 
         name = expandRouteNameFor(name, allStations, agency);
 
-        return new Route(routeId, routeData.getShortName().trim(), name, agency,
-                TransportMode.fromGTFS(routeType), routeData.getRouteDirection());
+        return new Route(routeId, routeData.getShortName().trim(), name, agency, TransportMode.fromGTFS(routeType));
     }
 
     @Override

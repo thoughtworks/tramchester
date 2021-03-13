@@ -76,19 +76,4 @@ public class RouteData {
         return Objects.hash(id);
     }
 
-    public RouteDirection getRouteDirection() {
-        return mapDirection();
-    }
-
-    private RouteDirection mapDirection() {
-        if (id.endsWith(RouteDirection.Inbound.getSuffix())) {
-            return RouteDirection.Inbound;
-        } else if (id.endsWith(RouteDirection.Outbound.getSuffix())) {
-            return RouteDirection.Outbound;
-        } else if (id.endsWith(RouteDirection.Circular.getSuffix())) {
-            return RouteDirection.Circular;
-        } else {
-            return RouteDirection.Unknown;
-        }
-    }
 }

@@ -19,26 +19,24 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     private final TransportMode transportMode;
     private final Set<Service> services;
     private final Set<String> headsigns;
-    private final RouteDirection routeDirection;
 
     public static final Route Walking;
     static {
             Walking = new Route(StringIdFor.createId("Walk"), "Walk", "Walk", Agency.Walking,
-                    TransportMode.Walk, RouteDirection.Unknown);
+                    TransportMode.Walk);
     }
 
-    public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode,  RouteDirection routeDirection) {
-        this(StringIdFor.createId(id), shortName, name, agency, transportMode, routeDirection);
+    public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode) {
+        this(StringIdFor.createId(id), shortName, name, agency, transportMode);
     }
 
-    public Route(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode, RouteDirection routeDirection) {
+    public Route(IdFor<Route> id, String shortName, String name, Agency agency, TransportMode transportMode) {
         this.id = id;
         this.shortName = shortName.intern();
         this.name = name.intern();
 
         this.agency = agency;
         this.transportMode = transportMode;
-        this.routeDirection = routeDirection;
         services = new HashSet<>();
         headsigns = new HashSet<>();
     }
@@ -104,7 +102,6 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
                 ", headsigns=" + headsigns +
-                ", routeDirection=" + routeDirection +
                 '}';
     }
 
@@ -113,7 +110,4 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         return GraphPropertyKey.ROUTE_ID;
     }
 
-    public RouteDirection getRouteDirection() {
-        return routeDirection;
-    }
 }

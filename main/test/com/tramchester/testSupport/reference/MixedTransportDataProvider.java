@@ -9,7 +9,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
-import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -18,7 +17,11 @@ import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.TransportDataProvider;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestNoPlatformStation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -28,36 +31,42 @@ import java.util.Map;
 
 @LazySingleton
 public class MixedTransportDataProvider implements TransportDataProvider {
+    private static final Logger logger = LoggerFactory.getLogger(MixedTransportDataProvider.class);
+
     private final TestMixedTransportData container;
-    private boolean populated;
 
     @Inject
     public MixedTransportDataProvider(ProvidesNow providesNow) {
         container = new TestMixedTransportData(providesNow);
-        populated = false;
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.info("start");
+        populateTestData(container);
+        logger.info("started");
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stop");
+        container.dispose();
+        logger.info("stopped");
     }
 
     public TransportData getData() {
-        return getTestData();
-    }
-
-    private TestMixedTransportData getTestData() {
-        if (!populated) {
-            populateTestData(container);
-            populated = true;
-        }
         return container;
     }
 
     private static final Route FERRY_ROUTE = new Route(StringIdFor.createId("FER:42:C"), "42", "Lakes",
-            new Agency(DataSourceID.GBRail(), "FER", "ferryAgency"), TransportMode.Ferry, RouteDirection.Inbound);
+            new Agency(DataSourceID.GBRail(), "FER", "ferryAgency"), TransportMode.Ferry);
 
     private void populateTestData(TransportDataContainer container) {
-        Route routeA = RoutesForTesting.AIR_TO_BUXTON; // TODO This route not present during lockdown
+        Route routeA = RoutesForTesting.AIR_TO_BUXTON;
         Route ferryRoute = FERRY_ROUTE; //RoutesForTesting.ALTY_TO_STOCKPORT;
         Route routeC = RoutesForTesting.ALTY_TO_STOCKPORT_WBT;
 
-        Agency agency = new Agency(DataSourceID.TFGM(), "MET", "agencyName");
+        Agency agency = TestEnv.MetAgency();
         agency.addRoute(routeA);
         agency.addRoute(ferryRoute);
         agency.addRoute(routeC);
@@ -85,7 +94,6 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         serviceA.setCalendar(serviceCalendarA);
         serviceB.setCalendar(serviceCalendarB);
         serviceC.setCalendar(serviceCalendarC);
-
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
         Trip tripA = new Trip(TestMixedTransportData.TRIP_A_ID, "headSign", serviceA, routeA);

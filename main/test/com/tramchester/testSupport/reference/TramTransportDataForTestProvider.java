@@ -17,7 +17,11 @@ import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.TransportDataProvider;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -26,39 +30,50 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
-import static com.tramchester.domain.reference.KnownTramRoute.EDidsburyManchesterRochdale;
-import static com.tramchester.domain.reference.KnownTramRoute.RochdaleManchesterEDidsbury;
+import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static java.lang.String.format;
 
 @LazySingleton
 public class TramTransportDataForTestProvider implements TransportDataProvider {
+    private static final Logger logger = LoggerFactory.getLogger(TramTransportDataForTestProvider.class);
+
     private final TestTransportData container;
-    private boolean populated;
 
     @Inject
     public TramTransportDataForTestProvider(ProvidesNow providesNow) {
         container = new TestTransportData(providesNow);
-        populated = false;
     }
 
-    public TransportData getData() {
-        return getTestData();
+    @PostConstruct
+    public void start() {
+        logger.info("starting");
+        populateTestData(container);
+        logger.info("started");
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stop");
+        container.dispose();
+        logger.info("stopped");
     }
 
     public TestTransportData getTestData() {
-        if (!populated) {
-            populateTestData(container);
-            populated = true;
-        }
+        return container;
+    }
+
+    public TransportData getData() {
         return container;
     }
 
     private void populateTestData(TransportDataContainer container) {
-        Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
+
+        //Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
+        Route routeA = RoutesForTesting.createTramRoute(CornbrookintuTraffordCentre);
         Route routeB = RoutesForTesting.createTramRoute(RochdaleManchesterEDidsbury);
         Route routeC = RoutesForTesting.createTramRoute(EDidsburyManchesterRochdale);
 
-        Agency agency = new Agency(DataSourceID.TFGM(), "MET", "agencyName");
+        Agency agency = TestEnv.MetAgency();
         agency.addRoute(routeA);
         agency.addRoute(routeB);
         agency.addRoute(routeC);

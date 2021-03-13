@@ -17,7 +17,6 @@ import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -114,7 +113,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         routes.forEach(route -> {
             IdFor<Route> asId = route.getId();
-            logger.debug("Adding route " + asId);
+            logger.info("Adding route " + asId);
             // create or cache stations and platforms for route, create route stations
             filteredStations.stream().filter(station -> station.servesRoute(route)).
                     forEach(station -> createStationAndRouteStation(tx, route, station, builderCache));
@@ -135,6 +134,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createStationAndRouteStation(Transaction txn, Route route, Station station, GraphBuilderCache builderCache) {
 
+        logger.info("Add station " + station.getId());
+
         RouteStation routeStation = transportData.getRouteStation(station, route);
         createRouteStationNode(txn, routeStation, builderCache);
 
@@ -148,7 +149,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
     private void createLinkRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
-        Stream<Service> services = getServices(filter, route);
+        Stream<Service> services = route.getServices().stream().filter(filter::shouldInclude);
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
@@ -170,6 +171,10 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 });
             }));
 
+        if (routeBuilderCache.stationEmpty()) {
+            throw new RuntimeException("No cached station after station build");
+        }
+
         pairs.keySet().forEach(pair -> {
             Node startNode = routeBuilderCache.getStation(tx, pair.getBeginId());
             Node endNode = routeBuilderCache.getStation(tx, pair.getEndId());
@@ -180,11 +185,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private boolean includeBothStops(GraphFilter filter, StopCalls.StopLeg leg) {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
-    }
-
-    @NotNull
-    private Stream<Service> getServices(GraphFilter filter, Route route) {
-        return route.getServices().stream().filter(filter::shouldInclude);
     }
 
     private void createLinkRelationship(Node from, Node to, TransportMode mode) {

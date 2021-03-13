@@ -56,7 +56,9 @@ public class  TramTime implements Comparable<TramTime> {
 
         // Note: indexed parse faster than using String.split
 
-        int hour = Integer.parseUnsignedInt(text,0,2 ,10);
+        int firstDivider = text.indexOf(':');
+
+        int hour = Integer.parseUnsignedInt(text,0, firstDivider ,10);
         // gtfs standard represents service next day by time > 24:00:00
         if (hour>=24) {
             hour = hour - 24;
@@ -67,7 +69,7 @@ public class  TramTime implements Comparable<TramTime> {
             return Optional.empty();
         }
 
-        int minutes = Integer.parseUnsignedInt(text, 3, 5, 10);
+        int minutes = Integer.parseUnsignedInt(text, firstDivider+1, firstDivider+3, 10);
         if (minutes > 59) {
             return Optional.empty();
         }
