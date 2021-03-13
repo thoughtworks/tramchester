@@ -63,7 +63,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     void onceBeforeEachTestRuns() {
         Station forTest = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1, 1), TransportMode.Tram);
         destinationStations = Collections.singleton(forTest);
-        forTest.addRoute(TestEnv.getTestRoute());
+        forTest.addRoute(TestEnv.getTramTestRoute());
 
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         previousSuccessfulVisit = createMock(PreviousSuccessfulVisits.class);

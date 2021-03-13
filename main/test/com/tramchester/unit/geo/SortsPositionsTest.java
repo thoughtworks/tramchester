@@ -1,7 +1,6 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -11,10 +10,9 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SortsPositionsTest {
 
-    private TramTransportDataForTestProvider.TestTransportData dataForTest;
+    private TramTransportDataForTestFactory.TramTransportDataForTest dataForTest;
     private Station nearPiccGardens;
     private Station nearShudehill;
     private Station nearAltrincham;
@@ -37,7 +35,7 @@ class SortsPositionsTest {
         //StationLocations stationLocations = new StationLocations();
         ProvidesNow providesNow = new ProvidesLocalNow();
 
-        TramTransportDataForTestProvider dataForTestProvider = new TramTransportDataForTestProvider(providesNow);
+        TramTransportDataForTestFactory dataForTestProvider = new TramTransportDataForTestFactory(providesNow);
         dataForTestProvider.start();
         dataForTest = dataForTestProvider.getTestData();
 

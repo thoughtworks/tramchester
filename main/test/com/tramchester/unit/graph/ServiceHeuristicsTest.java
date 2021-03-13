@@ -109,8 +109,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
 
-        RouteStation routeStationA = new RouteStation(TramStations.of(Bury), TestEnv.getTestRoute());
-        RouteStation routeStationB = new RouteStation(TramStations.of(Shudehill), TestEnv.getTestRoute());
+        RouteStation routeStationA = new RouteStation(TramStations.of(Bury), TestEnv.getTramTestRoute());
+        RouteStation routeStationB = new RouteStation(TramStations.of(Shudehill), TestEnv.getTramTestRoute());
 
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeOperations,
                 reachabilityRepository,

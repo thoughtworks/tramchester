@@ -14,7 +14,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.repository.TransportDataProvider;
+import com.tramchester.repository.TransportDataFactory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import org.slf4j.Logger;
@@ -34,20 +34,21 @@ import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TramTransportDataForTestProvider implements TransportDataProvider {
-    private static final Logger logger = LoggerFactory.getLogger(TramTransportDataForTestProvider.class);
+public class TramTransportDataForTestFactory implements TransportDataFactory {
+    private static final Logger logger = LoggerFactory.getLogger(TramTransportDataForTestFactory.class);
 
-    private final TestTransportData container;
+    private final TramTransportDataForTest container;
 
     @Inject
-    public TramTransportDataForTestProvider(ProvidesNow providesNow) {
-        container = new TestTransportData(providesNow);
+    public TramTransportDataForTestFactory(ProvidesNow providesNow) {
+        container = new TramTransportDataForTest(providesNow);
     }
 
     @PostConstruct
     public void start() {
         logger.info("starting");
         populateTestData(container);
+        logger.info(container.toString());
         logger.info("started");
     }
 
@@ -58,30 +59,31 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         logger.info("stopped");
     }
 
-    public TestTransportData getTestData() {
+    public TramTransportDataForTest getTestData() {
         return container;
     }
 
     public TransportData getData() {
-        return container;
+        return getTestData();
     }
 
     private void populateTestData(TransportDataContainer container) {
+        Agency agency = TestEnv.MetAgency();
 
         //Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
         Route routeA = RoutesForTesting.createTramRoute(CornbrookintuTraffordCentre);
         Route routeB = RoutesForTesting.createTramRoute(RochdaleManchesterEDidsbury);
         Route routeC = RoutesForTesting.createTramRoute(EDidsburyManchesterRochdale);
 
-        Agency agency = TestEnv.MetAgency();
         agency.addRoute(routeA);
         agency.addRoute(routeB);
         agency.addRoute(routeC);
+
         container.addAgency(agency);
 
-        Service serviceA = new Service(TestTransportData.serviceAId, routeA);
-        Service serviceB = new Service(TestTransportData.serviceBId, routeB);
-        Service serviceC = new Service(TestTransportData.serviceCId, routeC);
+        Service serviceA = new Service(TramTransportDataForTest.serviceAId, routeA);
+        Service serviceB = new Service(TramTransportDataForTest.serviceBId, routeB);
+        Service serviceC = new Service(TramTransportDataForTest.serviceCId, routeC);
 
         routeA.addService(serviceA);
         routeB.addService(serviceB);
@@ -103,31 +105,31 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         serviceC.setCalendar(serviceCalendarC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip(TestTransportData.TRIP_A_ID, "headSign", serviceA, routeA);
+        Trip tripA = new Trip(TramTransportDataForTest.TRIP_A_ID, "headSign", serviceA, routeA);
 
         //LatLong latLong = new LatLong(latitude, longitude);
-        Station first = new TestStation(TestTransportData.FIRST_STATION, "area1", "startStation",
+        Station first = new TestStation(TramTransportDataForTest.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Tram);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
         PlatformStopCall stopA = createStop(container, tripA, first, TramTime.of(8, 0), TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
-        Station second = new TestStation(TestTransportData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
+        Station second = new TestStation(TramTransportDataForTest.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid, TransportMode.Tram);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         PlatformStopCall stopB = createStop(container, tripA, second, TramTime.of(8, 11), TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
-        Station interchangeStation = new TestStation(TestTransportData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
+        Station interchangeStation = new TestStation(TramTransportDataForTest.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
                 TestEnv.nearShudehillGrid, TransportMode.Tram);
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
         PlatformStopCall stopC = createStop(container, tripA, interchangeStation, TramTime.of(8, 20), TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
-        Station last = new TestStation(TestTransportData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
+        Station last = new TestStation(TramTransportDataForTest.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
@@ -137,11 +139,11 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         // service A
         serviceA.addTrip(tripA);
 
-        Station stationFour = new TestStation(TestTransportData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
+        Station stationFour = new TestStation(TramTransportDataForTest.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
         addAStation(container, stationFour);
 
-        Station stationFive = new TestStation(TestTransportData.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus,
+        Station stationFive = new TestStation(TramTransportDataForTest.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus,
                 TestEnv.nearStockportBusGrid,  TransportMode.Tram);
         addAStation(container, stationFive);
 
@@ -169,8 +171,8 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         container.addService(serviceA);
         container.addService(serviceB);
         container.addService(serviceC);
-        container.updateTimesForServices();
 
+        container.updateTimesForServices();
     }
 
     private void addAStation(TransportDataContainer container, Station station) {
@@ -206,8 +208,7 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         return new PlatformStopCall(platform, station, stopTimeData);
     }
 
-
-    public static class TestTransportData extends TransportDataContainer {
+    public static class TramTransportDataForTest extends TransportDataContainer {
 
         private static final String serviceAId = "serviceAId";
         private static final String serviceBId = "serviceBId";
@@ -221,13 +222,8 @@ public class TramTransportDataForTestProvider implements TransportDataProvider {
         private static final String STATION_FOUR = METROLINK_PREFIX + "_ST_FOUR";
         private static final String STATION_FIVE = METROLINK_PREFIX + "_ST_FIVE";
 
-        public TestTransportData(ProvidesNow providesNow) {
-            super(providesNow);
-        }
-
-        @Override
-        public void addStation(Station station) {
-            super.addStation(station);
+        public TramTransportDataForTest(ProvidesNow providesNow) {
+            super(providesNow, "TramTransportDataForTest");
         }
 
         public Station getFirst() {

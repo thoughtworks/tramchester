@@ -3,6 +3,7 @@ package com.tramchester.integration.graph;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
+import com.tramchester.dataimport.data.TransportDataStreams;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.FindStationsByNumberLinks;
@@ -44,11 +45,12 @@ class GraphBuildAndStartTest {
         CsvMapper mapper = CsvMapper.builder().build();
 
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
-        TransportDataFromFilesBuilder fileFactory = new TransportDataFromFilesBuilder(new TransportDataReaderFactory(config, fetchFileModTime, mapper),
-                providesNow, config);
-        TransportDataFromFiles builder = fileFactory.create();
 
-        TransportData transportData = builder.getData();
+        TransportDataLoader dataLoader = new TransportDataLoaderFiles(config, fetchFileModTime, mapper);
+        TransportDataStreams dataStreams = new TransportDataStreams(dataLoader, config);
+        TransportDataFromFiles dataFromFiles = new TransportDataFromFiles(dataStreams, config, providesNow);
+
+        TransportData transportData = dataFromFiles.getData();
         GraphDatabase graphDatabase = new GraphDatabase(config, transportData);
 
         IncludeAllFilter graphFilter = new IncludeAllFilter();

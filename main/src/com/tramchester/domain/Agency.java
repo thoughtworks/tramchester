@@ -9,27 +9,31 @@ import java.util.*;
 
 public class Agency implements HasId<Agency>, GraphProperty {
     private final Set<Route> routes;
-    private final StringIdFor<Agency> agencyId;
+    private final IdFor<Agency> agencyId;
     private final String agencyName;
     private final DataSourceID dataSourceID;
 
     public static final Agency Walking;
-    private static final Agency Metrolink;
+
+    public static final IdFor<Agency> METL = StringIdFor.createId("METL");
 
     static {
         Walking = new Agency(DataSourceID.Internal(), "Walking", "Walking");
-        Metrolink = new Agency(DataSourceID.TFGM(), "METL", "Metrolink");
     }
 
     public Agency(DataSourceID dataSourceID, String agencyId, String agencyName) {
+        this(dataSourceID, StringIdFor.createId(agencyId), agencyName);
+    }
+
+    public Agency(DataSourceID dataSourceID, IdFor<Agency> agencyId, String agencyName) {
         this.dataSourceID = dataSourceID;
-        this.agencyId =  StringIdFor.createId(agencyId);
+        this.agencyId =  agencyId;
         this.agencyName = agencyName;
         routes = new HashSet<>();
     }
 
     public static boolean IsMetrolink(IdFor<Agency> agencyId) {
-        return Metrolink.getId().equals(agencyId);
+        return METL.equals(agencyId);
     }
 
     public void addRoute(Route route) {
@@ -63,7 +67,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
         return Objects.hash(agencyId);
     }
 
-    public StringIdFor<Agency> getId() {
+    public IdFor<Agency> getId() {
         return agencyId;
     }
 
@@ -76,7 +80,4 @@ public class Agency implements HasId<Agency>, GraphProperty {
         throw new RuntimeException("No ID property for agency");
     }
 
-    public DataSourceID getDataSourceID() {
-        return dataSourceID;
-    }
 }

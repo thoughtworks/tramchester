@@ -30,8 +30,8 @@ class LocationDTOTest {
 
         Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham", new LatLong(1,1), TransportMode.Tram);
 
-        testStation.addRoute(TestEnv.getTestRoute(StringIdFor.createId("routeIdA")));
-        testStation.addRoute(TestEnv.getTestRoute(StringIdFor.createId("routeIdB")));
+        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA")));
+        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB")));
 
         testStation.addPlatform(new Platform("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
         testStation.addPlatform(new Platform("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));

@@ -16,17 +16,18 @@ import java.util.stream.Stream;
 public class StopCalls {
     private static final Logger logger = LoggerFactory.getLogger(StopCalls.class);
 
-    private final SortedMap<Integer, StopCall> stops;
+    private final SortedMap<Integer, StopCall> orderedStopCalls;
     private final StringIdFor<Trip> parent;
 
     public StopCalls(StringIdFor<Trip> parent) {
         this.parent = parent;
-        stops = new TreeMap<>();
+        orderedStopCalls = new TreeMap<>();
     }
 
     public void dispose() {
-        //logger.info("dispose for " + parent);
-        stops.clear();
+        //throw new RuntimeException("dispose");
+        logger.warn("dispose");
+        orderedStopCalls.clear();
     }
 
     public void add(StopCall stop) {
@@ -34,31 +35,31 @@ public class StopCalls {
         if (station==null) {
             logger.error("Stop is missing station " + parent);
         } else {
-            stops.put(stop.getGetSequenceNumber(), stop);
+            orderedStopCalls.put(stop.getGetSequenceNumber(), stop);
         }
     }
 
     public int numberOfCallingPoints() {
-        return stops.size();
+        return orderedStopCalls.size();
     }
 
     public StopCall getStopBySequenceNumber(int callingNumber) {
-        return stops.get(callingNumber);
+        return orderedStopCalls.get(callingNumber);
     }
 
     public boolean callsAt(HasId<Station> location) {
-        return stops.values().stream().anyMatch(stopCall ->
+        return orderedStopCalls.values().stream().anyMatch(stopCall ->
                 stopCall.getStationId().equals(location.getId()));
     }
 
     public Stream<StopCall> stream() {
-        return stops.values().stream();
+        return orderedStopCalls.values().stream();
     }
 
     @Override
     public String toString() {
-        return "Stops{" +
-                "stops=" + stops +
+        return "StopCalls{" +
+                "stops=" + orderedStopCalls +
                 '}';
     }
 
@@ -66,14 +67,20 @@ public class StopCalls {
      * Create StopLeg for each pair of stopcall (a,b,c,d,e) -> (a,b), (b,c), (c,d), (d,e)
      */
     public List<StopLeg> getLegs() {
-        if (stops.isEmpty()) {
-            logger.error("Missing stops, parent " + parent);
+        if (orderedStopCalls.isEmpty()) {
+            String msg = "Missing stops, parent trip " + parent;
+            logger.error(msg);
+            throw new RuntimeException(msg);
         }
+
         // Assume sorted map
         // TODO use stop sequence numbers instead?
-        List<StopCall> calls = new ArrayList<>(stops.size());
-        List<StopLeg> legs = new ArrayList<>(stops.size()-1);
-        calls.addAll(stops.values());
+        int size = orderedStopCalls.size();
+        List<StopCall> calls = new ArrayList<>(size);
+
+        int numberOfLegs = Math.max(1, size - 1);
+        List<StopLeg> legs = new ArrayList<>(numberOfLegs);
+        calls.addAll(orderedStopCalls.values());
         for (int i = 0; i < calls.size()-1; i++) {
             legs.add(new StopLeg(calls.get(i), calls.get(i+1)));
         }

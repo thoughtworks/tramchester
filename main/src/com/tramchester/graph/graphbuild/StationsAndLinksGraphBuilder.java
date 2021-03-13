@@ -65,6 +65,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     @PostConstruct
     public void start() {
         logger.info("start");
+        logger.info("Data source name " + transportData.getSourceName());
         if (graphDatabase.isCleanDB()) {
             logger.info("Rebuild of Stations, RouteStations and Links graph DB for " + config.getDbPath());
             if (graphFilter.isFiltered()) {
@@ -171,6 +172,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 });
             }));
 
+        // TODO Was diagnosing issue with Guice DI
         if (routeBuilderCache.stationEmpty()) {
             throw new RuntimeException("No cached station after station build");
         }

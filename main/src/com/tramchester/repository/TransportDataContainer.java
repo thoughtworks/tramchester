@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.input.Trip;
@@ -35,13 +36,15 @@ public class TransportDataContainer implements TransportData {
 
     // data source name -> feedinfo (if present)
     private final Map<DataSourceID, FeedInfo> feedInfoMap = new HashMap<>();
+    private final String sourceName;
 
     /**
      * Not container managed due to test life cycle
-     * @param providesNow
      */
-    public TransportDataContainer(ProvidesNow providesNow) {
+    public TransportDataContainer(ProvidesNow providesNow, String sourceName) {
+        logger.info("Created for " + sourceName);
         this.providesNow = providesNow;
+        this.sourceName = sourceName;
     }
 
     public void dispose() {
@@ -156,6 +159,11 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    @Override
     public Set<Agency> getAgencies() {
         return agencies.getValues();
     }
@@ -194,6 +202,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     public void addAgency(Agency agency) {
+        logger.info("Added " + agency.getId());
         agencies.add(agency);
     }
 
@@ -287,4 +296,21 @@ public class TransportDataContainer implements TransportData {
         feedInfoMap.put(name, feedInfo);
     }
 
+    @Override
+    public String toString() {
+        return "TransportDataContainer{" +
+                "providesNow=" + providesNow +
+                ",\n trips=" + trips +
+                ",\n stationsById=" + stationsById +
+                ",\n services=" + services +
+                ",\n routes=" + routes +
+                ",\n platforms=" + platforms +
+                ",\n routeStations=" + routeStations +
+                ",\n agencies=" + agencies +
+                ",\n tramStationsByName=" + tramStationsByName +
+                ",\n dataSourceInfos=" + dataSourceInfos +
+                ",\n feedInfoMap=" + feedInfoMap +
+                ",\n sourceName='" + sourceName + '\'' +
+                '}';
+    }
 }

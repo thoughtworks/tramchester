@@ -18,7 +18,7 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.MixedTransportDataProvider;
+import com.tramchester.testSupport.reference.MixedTransportTestDataFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -28,13 +28,13 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.MixedTransportDataProvider.TestMixedTransportData.*;
+import static com.tramchester.testSupport.reference.MixedTransportTestDataFactory.MixedTransportTestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MixedRouteTest {
 
-    private static MixedTransportDataProvider.TestMixedTransportData transportData;
+    private static MixedTransportTestDataFactory.MixedTransportTestData transportData;
     private static RouteCalculator calculator;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
@@ -49,12 +49,12 @@ class MixedRouteTest {
         config = new MixedRouteTest.SimpleGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<MixedTransportDataProvider>().
-                overrideProvider(MixedTransportDataProvider.class).
+        componentContainer = new ComponentsBuilder<MixedTransportTestDataFactory>().
+                overrideProvider(MixedTransportTestDataFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        transportData = (MixedTransportDataProvider.TestMixedTransportData) componentContainer.get(TransportData.class);
+        transportData = (MixedTransportTestDataFactory.MixedTransportTestData) componentContainer.get(TransportData.class);
         database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
     }

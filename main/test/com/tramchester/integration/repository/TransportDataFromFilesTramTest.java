@@ -4,9 +4,8 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.DataSourceConfig;
-import com.tramchester.dataimport.TransportDataFromFilesBuilder;
 import com.tramchester.dataimport.TransportDataReader;
-import com.tramchester.dataimport.TransportDataReaderFactory;
+import com.tramchester.dataimport.TransportDataLoaderFiles;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
@@ -325,7 +324,7 @@ class TransportDataFromFilesTramTest {
     @Test
     void shouldBeApplyingExceptionalDatesCorrectly() {
 
-        TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
+        TransportDataLoaderFiles dataReaderFactory = componentContainer.get(TransportDataLoaderFiles.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
         TransportDataReader transportDataReader = transportDataReaders.get(0); // yuk
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
@@ -431,21 +430,22 @@ class TransportDataFromFilesTramTest {
     @Disabled("Performance tests")
     @Test
     void shouldLoadData() {
-        TransportDataFromFilesBuilder builder = componentContainer.get(TransportDataFromFilesBuilder.class);
+        TransportDataFromFiles transportDataFromFiles = componentContainer.get(TransportDataFromFiles.class);
 
         int count = 10;
         //int count = 1;
         long total = 0;
         for (int i = 0; i < count; i++) {
             long begin = System.currentTimeMillis();
-            TransportDataFromFiles fromFiles = builder.create();
-            fromFiles.getData();
+            //TransportDataFromFiles fromFiles = builder.create();
+
+            transportDataFromFiles.getData();
             long finish = System.currentTimeMillis();
 
             total = total + (finish - begin);
         }
 
-        System.out.println(String.format("Total: %s ms Average: %s ms", total, total/count));
+        System.out.printf("Total: %s ms Average: %s ms%n", total, total/count);
     }
 
     private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {

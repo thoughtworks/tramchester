@@ -330,12 +330,12 @@ class ProvidesNotesTest extends EasyMockSupport {
 
     private VehicleStage createStageWithBoardingPlatform(String platformId, LatLong latLong) {
         TramTime departTime = TramTime.of(11,22);
-        Service service = new Service("serviceId", TestEnv.getTestRoute());
-        Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
+        Service service = new Service("serviceId", TestEnv.getTramTestRoute());
+        Trip trip = new Trip("tripId", "headSign", service, TestEnv.getTramTestRoute());
 
         // TODO
         List<Integer> passedStations = new ArrayList<>();
-        VehicleStage vehicleStage = new VehicleStage(of(Ashton), TestEnv.getTestRoute(), Tram,
+        VehicleStage vehicleStage = new VehicleStage(of(Ashton), TestEnv.getTramTestRoute(), Tram,
                 trip, departTime, of(PiccadillyGardens), passedStations, true);
         Platform platform = new Platform(platformId, "platformName", latLong);
         vehicleStage.setPlatform(platform);

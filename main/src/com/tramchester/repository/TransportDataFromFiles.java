@@ -20,6 +20,7 @@ import com.tramchester.geo.GridPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -31,56 +32,62 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TransportDataFromFiles implements TransportDataProvider {
+public class TransportDataFromFiles implements TransportDataFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromFiles.class);
 
-    private final List<TransportDataSource> transportDataStreams;
+    private final TransportDataStreams transportDataStreams;
     private final TramchesterConfig config;
-    private boolean loaded = false;
     private final ProvidesNow providesNow;
 
     private final TransportDataContainer dataContainer;
 
     @Inject
-    public TransportDataFromFiles(List<TransportDataSource> transportDataStreams,
+    public TransportDataFromFiles(TransportDataStreams transportDataStreams,
                                   TramchesterConfig config, ProvidesNow providesNow) {
         this.transportDataStreams = transportDataStreams;
         this.config = config;
         this.providesNow = providesNow;
-        dataContainer = new TransportDataContainer(providesNow);
+        dataContainer = new TransportDataContainer(providesNow, "TransportDataFromFiles");
     }
 
     @PreDestroy
     public void stop() {
         logger.info("stopping");
         dataContainer.dispose();
-        loaded = false;
         logger.info("stopped");
     }
 
+    @PostConstruct
+    public void start() {
+        logger.info("start");
+        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, dataContainer));
+        logger.info("started");
+    }
+
     public TransportData getData() {
-        if (!loaded) {
-            load();
-        }
+//        if (!loaded) {
+//            load();
+//        }
         return dataContainer;
     }
 
-    private void load() {
-        if (loaded) {
-            logger.warn("Data already loaded");
-            return;
-        }
-        logger.info("Loading transport data from files");
-        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, dataContainer));
-        logger.info("Finished loading transport data");
-        loaded = true;
-    }
+//    private void load() {
+//        if (loaded) {
+//            logger.warn("Data already loaded");
+//            return;
+//        }
+//        logger.info("Loading transport data from files");
+//        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, dataContainer));
+//        logger.info("Finished loading transport data");
+//        loaded = true;
+//    }
 
     private void load(TransportDataSource dataSource, TransportDataContainer buildable) {
         DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
 
         DataSourceID sourceName = dataSourceInfo.getID();
         DataSourceConfig sourceConfig = dataSource.getConfig();
+
         logger.info("Loading data for " + sourceName);
 
         if(sourceConfig.getHasFeedInfo()) {
@@ -125,7 +132,6 @@ public class TransportDataFromFiles implements TransportDataProvider {
 
         dataSource.closeAll();
 
-        loaded = true;
         logger.info("Finishing Loading data for " + sourceName);
     }
 

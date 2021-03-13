@@ -29,9 +29,9 @@ class TripTest {
 
     @BeforeEach
     void beforeEachTestRuns() throws TransformException {
-        Service service = new Service("svcId", TestEnv.getTestRoute());
+        Service service = new Service("svcId", TestEnv.getTramTestRoute());
 
-        trip = new Trip("tripId","headSign", service, TestEnv.getTestRoute());
+        trip = new Trip("tripId","headSign", service, TestEnv.getTramTestRoute());
 
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
@@ -40,9 +40,9 @@ class TripTest {
 
     @Test
     void shouldKnowIfTramTrip() {
-        Service service = new Service("svcId", TestEnv.getTestRoute());
+        Service service = new Service("svcId", TestEnv.getTramTestRoute());
 
-        Trip tripA = new Trip("tripId", "headSign", service, TestEnv.getTestRoute());
+        Trip tripA = new Trip("tripId", "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
         Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName",
                 new Agency(DataSourceID.TFGM(), "BUS", "agencyName"),

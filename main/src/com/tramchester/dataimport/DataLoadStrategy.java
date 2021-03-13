@@ -1,7 +1,7 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.repository.TransportDataProvider;
+import com.tramchester.repository.TransportDataFactory;
 
 public interface DataLoadStrategy {
-    TransportDataProvider getProvider();
+    TransportDataFactory getTransportDataFactory();
 }

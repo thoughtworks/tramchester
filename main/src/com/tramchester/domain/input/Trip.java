@@ -6,8 +6,11 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
+    private static final Logger logger = LoggerFactory.getLogger(Trip.class);
 
     private final StringIdFor<Trip> tripId;
     private final String headSign;
@@ -35,6 +38,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
     // test memory support
     public void dispose() {
+        logger.info("dispose");
         stopCalls.dispose();
     }
 

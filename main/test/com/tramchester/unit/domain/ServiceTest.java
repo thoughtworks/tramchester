@@ -22,8 +22,8 @@ class ServiceTest {
     @Test
     void shouldAddTripsToService() {
 
-        Service service = new Service("SVC002", TestEnv.getTestRoute());
-        Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTestRoute());
+        Service service = new Service("SVC002", TestEnv.getTramTestRoute());
+        Trip trip = new Trip("001", "Deansgate", service, TestEnv.getTramTestRoute());
         StringIdFor<Trip> tripId = trip.getId();
         TramStations deansgate = TramStations.Deansgate;
         trip.addStop(TestEnv.createTramStopCall(tripId, "stopId1", deansgate,3, TramTime.of(9, 5), TramTime.of(9, 6)));
@@ -46,7 +46,7 @@ class ServiceTest {
 
     @Test
     void shouldNoticeNoDatesSet() {
-        Service service = new Service("svcXXX", TestEnv.getTestRoute(StringIdFor.createId("ROUTE66")));
+        Service service = new Service("svcXXX", TestEnv.getTramTestRoute(StringIdFor.createId("ROUTE66")));
         assertFalse(service.hasCalendar());
 
         LocalDate startDate = LocalDate.of(2014, 10, 5);

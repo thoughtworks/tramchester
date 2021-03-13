@@ -15,7 +15,7 @@ import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ class GraphQueriesTests {
 
     private static ComponentContainer componentContainer;
     private static SimpleGraphConfig config;
-    private TramTransportDataForTestProvider.TestTransportData transportData;
+    private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationRepository stationRepository;
 
     @BeforeAll
@@ -48,8 +48,8 @@ class GraphQueriesTests {
         config = new SimpleGraphConfig("graphquerytests.db");
         TestEnv.deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<TramTransportDataForTestProvider>().
-                overrideProvider(TramTransportDataForTestProvider.class).
+        componentContainer = new ComponentsBuilder<TramTransportDataForTestFactory>().
+                overrideProvider(TramTransportDataForTestFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -63,7 +63,7 @@ class GraphQueriesTests {
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        transportData = (TramTransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
+        transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
     }
 
     @Test

@@ -6,7 +6,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
-import com.tramchester.dataimport.TransportDataReaderFactory;
+import com.tramchester.dataimport.TransportDataLoaderFiles;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
@@ -31,8 +31,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.RouteDirection.Inbound;
-import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
@@ -185,7 +183,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldBeApplyingExceptionalDatesCorrectly() {
 
-        TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
+        TransportDataLoaderFiles dataReaderFactory = componentContainer.get(TransportDataLoaderFiles.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
         TransportDataReader transportDataReader = transportDataReaders.get(0); // yuk
         Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();

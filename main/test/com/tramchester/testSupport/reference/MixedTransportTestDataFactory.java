@@ -14,7 +14,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.repository.TransportDataProvider;
+import com.tramchester.repository.TransportDataFactory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestNoPlatformStation;
 import org.slf4j.Logger;
@@ -30,14 +30,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @LazySingleton
-public class MixedTransportDataProvider implements TransportDataProvider {
-    private static final Logger logger = LoggerFactory.getLogger(MixedTransportDataProvider.class);
+public class MixedTransportTestDataFactory implements TransportDataFactory {
+    private static final Logger logger = LoggerFactory.getLogger(MixedTransportTestDataFactory.class);
 
-    private final TestMixedTransportData container;
+    private final MixedTransportTestData container;
 
     @Inject
-    public MixedTransportDataProvider(ProvidesNow providesNow) {
-        container = new TestMixedTransportData(providesNow);
+    public MixedTransportTestDataFactory(ProvidesNow providesNow) {
+        container = new MixedTransportTestData(providesNow);
     }
 
     @PostConstruct
@@ -63,18 +63,24 @@ public class MixedTransportDataProvider implements TransportDataProvider {
 
     private void populateTestData(TransportDataContainer container) {
         Route routeA = RoutesForTesting.AIR_TO_BUXTON;
-        Route ferryRoute = FERRY_ROUTE; //RoutesForTesting.ALTY_TO_STOCKPORT;
+        Route ferryRoute = FERRY_ROUTE;
         Route routeC = RoutesForTesting.ALTY_TO_STOCKPORT_WBT;
 
-        Agency agency = TestEnv.MetAgency();
-        agency.addRoute(routeA);
-        agency.addRoute(ferryRoute);
-        agency.addRoute(routeC);
-        container.addAgency(agency);
+        Agency agencyA = routeA.getAgency();
+        Agency agencyB = routeA.getAgency();
+        Agency agencyC = routeA.getAgency();
 
-        Service serviceA = new Service(TestMixedTransportData.serviceAId, routeA);
-        Service serviceB = new Service(TestMixedTransportData.serviceBId, ferryRoute);
-        Service serviceC = new Service(TestMixedTransportData.serviceCId, routeC);
+        agencyA.addRoute(routeA);
+        agencyB.addRoute(ferryRoute);
+        agencyC.addRoute(routeC);
+
+        container.addAgency(agencyA);
+        container.addAgency(agencyB);
+        container.addAgency(agencyC);
+
+        Service serviceA = new Service(MixedTransportTestData.serviceAId, routeA);
+        Service serviceB = new Service(MixedTransportTestData.serviceBId, ferryRoute);
+        Service serviceC = new Service(MixedTransportTestData.serviceCId, routeC);
 
         routeA.addService(serviceA);
         ferryRoute.addService(serviceB);
@@ -96,9 +102,9 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         serviceC.setCalendar(serviceCalendarC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip(TestMixedTransportData.TRIP_A_ID, "headSign", serviceA, routeA);
+        Trip tripA = new Trip(MixedTransportTestData.TRIP_A_ID, "headSign", serviceA, routeA);
 
-        Station first = new TestNoPlatformStation(TestMixedTransportData.FIRST_STATION, "area1", "startStation",
+        Station first = new TestNoPlatformStation(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Bus);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
@@ -106,7 +112,7 @@ public class MixedTransportDataProvider implements TransportDataProvider {
                 TramTime.of(8, 0), 1, TransportMode.Bus);
         tripA.addStop(stopA);
 
-        Station second = new TestNoPlatformStation(TestMixedTransportData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
+        Station second = new TestNoPlatformStation(MixedTransportTestData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid, TransportMode.Bus);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
@@ -114,7 +120,7 @@ public class MixedTransportDataProvider implements TransportDataProvider {
                 TramTime.of(8, 11), 2, TransportMode.Bus);
         tripA.addStop(stopB);
 
-        Station interchangeStation = new TestNoPlatformStation(TestMixedTransportData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
+        Station interchangeStation = new TestNoPlatformStation(MixedTransportTestData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
                 TestEnv.nearShudehillGrid, TransportMode.Bus);
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
@@ -122,7 +128,7 @@ public class MixedTransportDataProvider implements TransportDataProvider {
                 TramTime.of(8, 20), 3, TransportMode.Bus);
         tripA.addStop(stopC);
 
-        Station last = new TestNoPlatformStation(TestMixedTransportData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
+        Station last = new TestNoPlatformStation(MixedTransportTestData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Bus);
         addAStation(container, last);
         addRouteStation(container, last, routeA);
@@ -133,11 +139,11 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         // service A
         serviceA.addTrip(tripA);
 
-        Station stationFour = new TestNoPlatformStation(TestMixedTransportData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
+        Station stationFour = new TestNoPlatformStation(MixedTransportTestData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Bus);
         addAStation(container, stationFour);
 
-        Station stationFive = new TestNoPlatformStation(TestMixedTransportData.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus,
+        Station stationFive = new TestNoPlatformStation(MixedTransportTestData.STATION_FIVE, "area5", "Station5", TestEnv.nearStockportBus,
                 TestEnv.nearStockportBusGrid,  TransportMode.Bus);
         addAStation(container, stationFive);
 
@@ -202,7 +208,7 @@ public class MixedTransportDataProvider implements TransportDataProvider {
     }
 
 
-    public static class TestMixedTransportData extends TransportDataContainer {
+    public static class MixedTransportTestData extends TransportDataContainer {
 
         private static final String serviceAId = "serviceAId";
         private static final String serviceBId = "serviceBId";
@@ -217,8 +223,8 @@ public class MixedTransportDataProvider implements TransportDataProvider {
         public static final String STATION_FOUR = PREFIX + "_ST_FOUR";
         public static final String STATION_FIVE = PREFIX + "_ST_FIVE";
 
-        public TestMixedTransportData(ProvidesNow providesNow) {
-            super(providesNow);
+        public MixedTransportTestData(ProvidesNow providesNow) {
+            super(providesNow, "MixedTransportTestData");
         }
 
         @Override

@@ -16,6 +16,7 @@ import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
+import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -47,7 +48,7 @@ public class App extends Application<AppConfiguration>  {
 
     private static final String SERVICE_NAME = "tramchester";
 
-    private GuiceContainerDependencies container;
+    private GuiceContainerDependencies<TransportDataFromFiles> container;
 
     public App() {
 
@@ -117,7 +118,7 @@ public class App extends Application<AppConfiguration>  {
         MetricRegistry metricRegistry = environment.metrics();
         CacheMetrics.RegistersCacheMetrics registersCacheMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
 
-        this.container = new ComponentsBuilder<>().create(configuration, registersCacheMetrics);
+        this.container = new ComponentsBuilder<TransportDataFromFiles>().create(configuration, registersCacheMetrics);
 
         try {
             container.initialise();
@@ -219,7 +220,7 @@ public class App extends Application<AppConfiguration>  {
                 addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST),true, pattern);
     }
 
-    public GuiceContainerDependencies getDependencies() {
+    public GuiceContainerDependencies<TransportDataFromFiles> getDependencies() {
         return container;
     }
 

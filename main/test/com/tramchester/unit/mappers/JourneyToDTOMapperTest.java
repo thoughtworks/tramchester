@@ -21,7 +21,7 @@ import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,11 +33,11 @@ import java.util.*;
 
 import static com.tramchester.testSupport.reference.BusStations.AltrinchamInterchange;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.TRIP_A_ID;
+import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JourneyToDTOMapperTest extends EasyMockSupport {
-    private static TramTransportDataForTestProvider.TestTransportData transportData;
+    private static TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private final LocalDate when = TestEnv.testDay();
 
     private JourneyToDTOMapper mapper;
@@ -52,7 +52,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         ProvidesNow providesNow = new ProvidesLocalNow();
-        TramTransportDataForTestProvider dataForTestProvider = new TramTransportDataForTestProvider(providesNow);
+        TramTransportDataForTestFactory dataForTestProvider = new TramTransportDataForTestFactory(providesNow);
         dataForTestProvider.start();
         transportData = dataForTestProvider.getTestData();
     }

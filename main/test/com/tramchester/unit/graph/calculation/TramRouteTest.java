@@ -17,7 +17,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramTransportDataForTestProvider.TestTransportData.*;
+import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TramRouteTest {
@@ -37,7 +37,7 @@ class TramRouteTest {
     private static LocationJourneyPlannerTestFacade locationJourneyPlanner;
     private static SimpleGraphConfig config;
 
-    private TramTransportDataForTestProvider.TestTransportData transportData;
+    private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private RouteCalculator calculator;
 
     private TramServiceDate queryDate;
@@ -49,8 +49,8 @@ class TramRouteTest {
         config = new SimpleGraphConfig("tramroutetest.db");
         TestEnv.deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<TramTransportDataForTestProvider>().
-                overrideProvider(TramTransportDataForTestProvider.class).
+        componentContainer = new ComponentsBuilder<TramTransportDataForTestFactory>().
+                overrideProvider(TramTransportDataForTestFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -63,7 +63,7 @@ class TramRouteTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = (TramTransportDataForTestProvider.TestTransportData) componentContainer.get(TransportData.class);
+        transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
 

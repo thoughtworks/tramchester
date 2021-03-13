@@ -17,7 +17,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,11 +42,11 @@ class JourneyStateTest {
         destinationNodeIds.add(42L);
 
         Station station = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1,1), TransportMode.Tram);
-        station.addRoute(TestEnv.getTestRoute());
+        station.addRoute(TestEnv.getTramTestRoute());
         
         Set<Station> destinations = Collections.singleton(station);
         ProvidesNow providesNow = new ProvidesLocalNow();
-        StationRepository repository = new TramTransportDataForTestProvider(providesNow).getData();
+        StationRepository repository = new TramTransportDataForTestFactory(providesNow).getData();
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         HourNodeCache hourNodeCache = null;

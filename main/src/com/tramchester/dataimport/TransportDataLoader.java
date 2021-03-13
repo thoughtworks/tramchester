@@ -4,7 +4,7 @@ import com.google.inject.ImplementedBy;
 
 import java.util.List;
 
-@ImplementedBy(TransportDataReaderFactory.class)
+@ImplementedBy(TransportDataLoaderFiles.class)
 public interface TransportDataLoader {
     List<TransportDataReader> getReaders();
 }

@@ -1,5 +1,5 @@
 package com.tramchester.repository;
 
-public interface TransportDataProvider {
+public interface TransportDataFactory {
     TransportData getData();
 }

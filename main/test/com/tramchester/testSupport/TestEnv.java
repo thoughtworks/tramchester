@@ -66,7 +66,7 @@ public class TestEnv {
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
 
-    private static final Agency MET = new Agency(DataSourceID.TFGM(), "METL", "Metrolink");
+    private static final Agency MET = new Agency(DataSourceID.TFGM(), Agency.METL, "Metrolink");
     public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(), "AW", "Arriva Trains Wales");
     public static final Agency StagecoachManchester = new Agency(DataSourceID.TFGM(), "GMS", "Stagecoach Manchester");
     public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(), "WBT", "Warrington's Own Buses");
@@ -147,12 +147,12 @@ public class TestEnv {
         return date;
     }
 
-    public static Route getTestRoute() {
-        return getTestRoute(StringIdFor.createId("RouteId"));
+    public static Route getTramTestRoute() {
+        return getTramTestRoute(StringIdFor.createId("RouteId"));
     }
 
-    public static Route getTestRoute(IdFor<Route> routeId) {
-        return new Route(routeId, "routeCode", "routeName", MetAgency(), TransportMode.Tram);
+    public static Route getTramTestRoute(IdFor<Route> routeId) {
+        return new Route(routeId, "routeCode", "routeName", TestEnv.MetAgency(), TransportMode.Tram);
     }
 
     public static Agency MetAgency() {

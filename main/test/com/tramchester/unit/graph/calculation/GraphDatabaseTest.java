@@ -10,8 +10,7 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramTransportDataForTestProvider;
-import org.apache.commons.io.FileUtils;
+import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ class GraphDatabaseTest {
     @Test
     void shouldStartDatabase() {
         ProvidesLocalNow providesNow = new ProvidesLocalNow();
-        DataSourceRepository transportData = new TramTransportDataForTestProvider.TestTransportData(providesNow);
+        DataSourceRepository transportData = new TramTransportDataForTestFactory.TramTransportDataForTest(providesNow);
         GraphDatabase graphDatabase = new GraphDatabase(config, transportData);
 
         graphDatabase.start();

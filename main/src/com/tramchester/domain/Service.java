@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Service implements HasId<Service>, GraphProperty {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
@@ -50,7 +49,7 @@ public class Service implements HasId<Service>, GraphProperty {
 
     public Service(IdFor<Service> serviceId, Agency initialAgency) {
         this.serviceId = serviceId;
-        this.trips = new LinkedHashSet<>();
+        this.trips = new HashSet<>();
         this.tripRoutes = new HashSet<>();
         this.initialAgency = initialAgency;
 
@@ -65,11 +64,13 @@ public class Service implements HasId<Service>, GraphProperty {
 
     @Deprecated
     public Set<Trip> getTrips() {
+        logger.info("Get trips " + trips);
         return Collections.unmodifiableSet(trips);
     }
 
     @Deprecated
     public void addTrip(Trip trip) {
+        logger.info("Add trip" + trip);
         Route tripRoute = trip.getRoute();
         Agency tripAgency = tripRoute.getAgency();
         if (!tripAgency.equals(initialAgency)) {
@@ -78,10 +79,11 @@ public class Service implements HasId<Service>, GraphProperty {
             throw new RuntimeException(message);
         }
         tripRoutes.add(tripRoute);
-        trips.add(trip); // stop population not done at this stage, see updateTimings
+        trips.add(trip); // earliest and latest not populated until updateTimings is called
     }
 
     public void updateTimings() {
+        logger.info("Updating timings for " + trips.size() + " trips service " + serviceId );
         trips.forEach(this::updateEarliestAndLatest);
     }
 
