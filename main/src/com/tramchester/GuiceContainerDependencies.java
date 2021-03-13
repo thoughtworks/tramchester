@@ -1,24 +1,34 @@
 package com.tramchester;
 
+import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.inject.*;
 import com.netflix.governator.guice.LifecycleInjector;
 import com.netflix.governator.guice.lazy.LazySingletonScope;
 import com.netflix.governator.lifecycle.LifecycleManager;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DefaultDataLoadStrategy;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.healthchecks.RegistersHealthchecks;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.TransportDataProvider;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GuiceContainerDependencies extends ComponentContainer {
+import javax.ws.rs.Path;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class GuiceContainerDependencies implements ComponentContainer { 
     private static final Logger logger = LoggerFactory.getLogger(GuiceContainerDependencies.class);
 
+    private final Reflections reflections;
     private final Module module;
     private final Injector injector;
 
@@ -34,14 +44,14 @@ public class GuiceContainerDependencies extends ComponentContainer {
 
     private GuiceContainerDependencies(GraphFilter filter, TramchesterConfig config, AbstractModule providerModule,
                                        CacheMetrics.RegistersCacheMetrics registerCacheMetrics) {
+        reflections = new Reflections(App.class.getPackageName());
         module = new Module(this, filter, config, registerCacheMetrics);
         injector = LifecycleInjector.builder().
                 withModules(providerModule, module).
                 build().createInjector();
     }
 
-    @Override
-    public void initContainer() {
+    public void initialise() {
         logger.info("initialise");
 
         if (logger.isDebugEnabled()) {
@@ -66,7 +76,39 @@ public class GuiceContainerDependencies extends ComponentContainer {
         logger.info("Done");
     }
 
-    @Override
+    public Set<?> getResources() {
+        Set<Class<?>> types = reflections.getTypesAnnotatedWith(Path.class);
+        return types.stream().map(this::get).collect(Collectors.toSet());
+    }
+
+    public void registerHealthchecksInto(HealthCheckRegistry healthChecks) {
+        RegistersHealthchecks instance = get(RegistersHealthchecks.class);
+        instance.registerAllInto(healthChecks);
+    }
+
+    public void close() {
+        logger.info("Dependencies close");
+
+        logger.info("Begin cache stats");
+        CacheMetrics cacheMetrics = get(CacheMetrics.class);
+        cacheMetrics.report();
+        logger.info("End cache stats");
+
+        logger.info("Stop components");
+        stop();
+
+        logger.info("Dependencies closed");
+        System.gc(); // for tests which accumulate/free a lot of memory
+    }
+
+    protected void registerConfiguration(TramchesterConfig configuration, GraphFilter graphFilter,
+                                         CacheMetrics.RegistersCacheMetrics registersCacheMetrics) {
+        addComponent(ProvidesNow.class, ProvidesLocalNow.class);
+        addComponent(TramchesterConfig.class, configuration);
+        addComponent(GraphFilter.class, graphFilter);
+        addComponent(CacheMetrics.RegistersCacheMetrics.class, registersCacheMetrics);
+    }
+
     protected void stop() {
         LifecycleManager manager = injector.getInstance(LifecycleManager.class);
         if (manager==null) {
@@ -83,18 +125,15 @@ public class GuiceContainerDependencies extends ComponentContainer {
         module.bindClass(NodeTypeRepository.class, NodeIdLabelMap.class);
     }
 
-    @Override
     public <C> C get(Class<C> klass) {
         return injector.getInstance(klass);
     }
 
-    @Override
-    protected <C> void addComponent(Class<C> klass, C instance) {
+    private <C> void addComponent(Class<C> klass, C instance) {
         module.bindInstance(klass, instance);
     }
 
-    @Override
-    protected <I,C extends I> void addComponent(Class<I> face, Class<C> concrete) {
+    private <I,C extends I> void addComponent(Class<I> face, Class<C> concrete) {
         module.bindClass(face, concrete);
     }
 

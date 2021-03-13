@@ -52,7 +52,7 @@ class MixedRouteTest {
         componentContainer = new ComponentsBuilder<MixedTransportDataProvider>().
                 overrideProvider(MixedTransportDataProvider.class).
                 create(config, TestEnv.NoopRegisterMetrics());
-        componentContainer.initContainer();
+        componentContainer.initialise();
 
         transportData = (MixedTransportDataProvider.TestMixedTransportData) componentContainer.get(TransportData.class);
         database = componentContainer.get(GraphDatabase.class);

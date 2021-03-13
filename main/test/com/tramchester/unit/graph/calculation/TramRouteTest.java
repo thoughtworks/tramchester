@@ -52,7 +52,7 @@ class TramRouteTest {
         componentContainer = new ComponentsBuilder<TramTransportDataForTestProvider>().
                 overrideProvider(TramTransportDataForTestProvider.class).
                 create(config, TestEnv.NoopRegisterMetrics());
-        componentContainer.initContainer();
+        componentContainer.initialise();
     }
 
     @AfterAll

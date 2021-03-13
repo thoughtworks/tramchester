@@ -47,7 +47,7 @@ public class App extends Application<AppConfiguration>  {
 
     private static final String SERVICE_NAME = "tramchester";
 
-    private ComponentContainer container;
+    private GuiceContainerDependencies container;
 
     public App() {
 
@@ -219,7 +219,7 @@ public class App extends Application<AppConfiguration>  {
                 addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST),true, pattern);
     }
 
-    public ComponentContainer getDependencies() {
+    public GuiceContainerDependencies getDependencies() {
         return container;
     }
 
