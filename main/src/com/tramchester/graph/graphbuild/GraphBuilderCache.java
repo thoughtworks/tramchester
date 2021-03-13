@@ -77,8 +77,7 @@ public class GraphBuilderCache {
     protected Node getRouteStation(Transaction txn, Route route, IdFor<Station> stationId) {
         IdFor<RouteStation> id = RouteStation.createId(stationId, route.getId());
         if (!routeStations.containsKey(id)) {
-            String message = "Cannot find routestation node in cache " + id + " station "
-                    + stationId + " route " + route.getId();
+            String message = "Cannot find routestation node in cache " + id + " cache " + routeStations;
             logger.error(message);
             throw new RuntimeException(message);
         }
@@ -112,23 +111,22 @@ public class GraphBuilderCache {
         platforms.put(platformId, platformNode.getId());
     }
 
+    protected void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, Node svcNode) {
+        svcNodes.put(CreateKeys.getServiceKey(routeId, service.getId(), begin, end), svcNode.getId());
+    }
+
     // TODO This has to be route station to route Station
-    @Deprecated
-    protected Node getServiceNode(Transaction txn, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
-        String id = CreateKeys.getServiceKey(service.getId(), startStation, endStation);
+    protected Node getServiceNode(Transaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
+        String id = CreateKeys.getServiceKey(routeId, service.getId(), startStation, endStation);
         return txn.getNodeById(svcNodes.get(id));
     }
 
-    protected void putService(Service service, IdFor<Station> begin, IdFor<Station>  end, Node svcNode) {
-        svcNodes.put(CreateKeys.getServiceKey(service.getId(), begin, end), svcNode.getId());
+    protected void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, Node node) {
+        hourNodes.put(CreateKeys.getHourKey(routeId, service.getId(), station, hour), node.getId());
     }
 
-    protected void putHour(Service service, IdFor<Station>  station, Integer hour, Node node) {
-        hourNodes.put(CreateKeys.getHourKey(service.getId(), station, hour), node.getId());
-    }
-
-    protected Node getHourNode(Transaction txn, Service service, IdFor<Station>  station, Integer hour) {
-        String key = CreateKeys.getHourKey(service.getId(), station, hour);
+    protected Node getHourNode(Transaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {
+        String key = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
         if (!hourNodes.containsKey(key)) {
             throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",
                     key, service.getId(), station, hour.toString()));
@@ -173,16 +171,24 @@ public class GraphBuilderCache {
         return stationsToNodeId.isEmpty();
     }
 
+    public boolean hasServiceNode(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end) {
+        return svcNodes.containsKey(CreateKeys.getServiceKey(routeId, service.getId(), begin,end));
+    }
+
+    public boolean hasHourNode(IdFor<Route> routeId, Service service, IdFor<Station> startId, Integer hour) {
+        return hourNodes.containsKey(CreateKeys.getHourKey(routeId, service.getId(), startId, hour));
+    }
+
     private static class CreateKeys {
 
-        @Deprecated
-        protected static String getServiceKey(IdFor<Service> service, IdFor<Station> startStation, IdFor<Station> endStation) {
-            return startStation.getGraphId()+"_"+endStation.getGraphId()+"_"+ service.getGraphId();
+        protected static String getServiceKey(IdFor<Route> routeId, IdFor<Service> service,
+                                              IdFor<Station> startStation, IdFor<Station> endStation) {
+            return routeId.getGraphId()+"_"+startStation.getGraphId()+"_"+endStation.getGraphId()+"_"+ service.getGraphId();
         }
 
         @Deprecated
-        protected static String getHourKey(IdFor<Service> service, IdFor<Station> station, Integer hour) {
-            return service.getGraphId()+"_"+station.getGraphId()+"_"+hour.toString();
+        protected static String getHourKey(IdFor<Route> routeId, IdFor<Service> service, IdFor<Station> station, Integer hour) {
+            return routeId.getGraphId()+"_"+service.getGraphId()+"_"+station.getGraphId()+"_"+hour.toString();
         }
 
     }

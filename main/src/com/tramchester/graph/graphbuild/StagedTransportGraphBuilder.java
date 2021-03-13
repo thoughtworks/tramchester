@@ -22,7 +22,6 @@ import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -158,7 +157,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 createRouteRelationships(tx, filter, route, builderCache);
 
                 Stream<Service> services = getServices(filter, route);
-                buildGraphForServices(filter, route, builderCache, services, tx);
+                buildGraphForServiceHourAndMinutes(filter, route, builderCache, services, tx);
 
                 timedTransaction.commit();
             }
@@ -167,41 +166,38 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         });
     }
 
-    private void buildGraphForServices(GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache,
-                                       Stream<Service> services, Transaction tx) {
-        services.forEach(service -> {
-            Set<Trip> serviceTrips = service.getTrips();
+    private void buildGraphForServiceHourAndMinutes(GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache,
+                                                    Stream<Service> services, Transaction tx) {
 
             // nodes for services and hours
-            createServiceAndHourNodesForServices(tx, filter, route, service, serviceTrips, routeBuilderCache);
+            createServiceAndHourNodesForServices(tx, filter, route, route.getTrips(), routeBuilderCache);
             // time nodes and relationships for trips
-            for (Trip trip : serviceTrips) {
-                Map<StationTime, Node> timeNodes = createMinuteNodes(tx, filter, service, trip, routeBuilderCache);
+            for (Trip trip : route.getTrips()) {
+                Map<StationTime, Node> timeNodes = createMinuteNodes(tx, filter, trip, routeBuilderCache);
                 createBoardingAndDeparts(tx, filter, route, trip, routeBuilderCache);
-                createTripRelationships(tx, filter, route, service, trip, routeBuilderCache, timeNodes);
+                createTripRelationships(tx, filter, route, trip, routeBuilderCache, timeNodes);
                 timeNodes.clear();
             }
-        });
     }
 
-    private void createServiceAndHourNodesForServices(Transaction tx, GraphFilter filter, Route route, Service service, Set<Trip> trips,
+    private void createServiceAndHourNodesForServices(Transaction tx, GraphFilter filter, Route route, Set<Trip> trips,
                                                       GraphBuilderCache stationCache) {
-        Set<StationIdPair> services = new HashSet<>();
-        Set<Pair<StationIdPair, Integer>> hours = new HashSet<>();
-
         trips.forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 List<StopCalls.StopLeg> legs = stops.getLegs();
                 legs.forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
-                        StationIdPair stationIdPair = StationIdPair.of(leg.getFirstStation(), leg.getSecondStation());
-                        services.add(stationIdPair);
-                        hours.add(Pair.of(stationIdPair, leg.getDepartureTime().getHourOfDay()));
+                        IdFor<Station> beginId = leg.getFirstStation().getId();
+                        IdFor<Station> endId = leg.getSecondStation().getId();
+
+                        createServiceNodeAndRelationship(tx, route, trip.getService(),
+                                beginId, endId, stationCache);
+
+                        createHourNode(tx, route.getId(), trip.getService(), beginId,
+                                endId, leg.getDepartureTime().getHourOfDay(), stationCache);
                     }
                 });
         });
-        services.forEach(pair -> createServiceNodeAndRelationship(tx, route, service, pair.getBeginId(), pair.getEndId(), stationCache));
-        hours.forEach(pair -> createHourNode(tx, service, pair.getLeft().getBeginId(), pair.getLeft().getEndId(), pair.getRight(), stationCache));
     }
 
     private void createServiceNodeAndRelationship(Transaction tx, Route route, Service service, IdFor<Station> begin, IdFor<Station> end,
@@ -211,20 +207,20 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
 
-        Node routeStationStart = routeBuilderCache.getRouteStation(tx, route, begin);
+        if (!routeBuilderCache.hasServiceNode(route.getId(), service, begin, end)) {
+            Node svcNode = createGraphNode(tx, Labels.SERVICE);
+            setProperty(svcNode, service);
+            setProperty(svcNode, route);
+            setTowardsProp(svcNode, end);
+            routeBuilderCache.putService(route.getId(), service, begin, end, svcNode);
 
-        Node svcNode = createGraphNode(tx, Labels.SERVICE);
-        setProperty(svcNode, service);
-        setProperty(svcNode, route);
-        setTowardsProp(svcNode, end);
-
-        routeBuilderCache.putService(service, begin, end, svcNode);
-
-        // start route station -> svc node
-        Relationship svcRelationship = createRelationship(routeStationStart, svcNode, TransportRelationshipTypes.TO_SERVICE);
-        setProperty(svcRelationship, service);
-        setCostProp(svcRelationship, 0);
-        setProperty(svcRelationship, route);
+            // start route station -> svc node
+            Node routeStationStart = routeBuilderCache.getRouteStation(tx, route, begin);
+            Relationship svcRelationship = createRelationship(routeStationStart, svcNode, TransportRelationshipTypes.TO_SERVICE);
+            setProperty(svcRelationship, service);
+            setCostProp(svcRelationship, 0);
+            setProperty(svcRelationship, route);
+        }
     }
 
     private Node getPlatformNode(Transaction txn, Platform platform) {
@@ -259,10 +255,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createRouteRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
-        Stream<Service> services = getServices(filter, route);
+        //Stream<Service> services = getServices(filter, route);
 
         Map<StationIdPair, Integer> pairs = new HashMap<>();
-        services.forEach(service -> service.getTrips().forEach(trip -> {
+        //services.forEach(service -> service.getTrips().forEach(trip -> {
+        route.getTrips().forEach(trip -> {
             StopCalls stops = trip.getStopCalls();
             stops.getLegs().forEach(leg -> {
                 if (includeBothStops(filter, leg)) {
@@ -272,7 +269,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     }
                 }
             });
-        }));
+        });
 
         pairs.forEach((pair, cost) -> {
             Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getBeginId());
@@ -372,14 +369,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         routeBuilderCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
-    private void createTripRelationships(Transaction tx, GraphFilter filter, Route route, Service service, Trip trip,
+    private void createTripRelationships(Transaction tx, GraphFilter filter, Route route, Trip trip,
                                          GraphBuilderCache routeBuilderCache,
                                          Map<StationTime, Node> timeNodes) {
         StopCalls stops = trip.getStopCalls();
 
         stops.getLegs().forEach(leg -> {
             if (includeBothStops(filter, leg)) {
-                updateTripRelationship(tx, route, service, trip, leg.getFirst(), leg.getSecond(), routeBuilderCache, timeNodes);
+                updateTripRelationship(tx, route, trip, leg.getFirst(), leg.getSecond(), routeBuilderCache, timeNodes);
             }
         });
     }
@@ -429,12 +426,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProperty(crossFromPlatform, station);
     }
 
-    private void updateTripRelationship(Transaction tx, Route route, Service service, Trip trip, StopCall beginStop, StopCall endStop,
+    private void updateTripRelationship(Transaction tx, Route route, Trip trip, StopCall beginStop, StopCall endStop,
                                         GraphBuilderCache routeBuilderCache, Map<StationTime, Node> timeNodes) {
         Station startStation = beginStop.getStation();
 
         StringIdFor<Trip> tripId = trip.getId();
-        Node beginServiceNode = routeBuilderCache.getServiceNode(tx, service, startStation.getId(),
+        Node beginServiceNode = routeBuilderCache.getServiceNode(tx, route.getId(), trip.getService(), startStation.getId(),
                 endStop.getStation().getId());
 
         beginServiceNode.getRelationships(INCOMING, TransportRelationshipTypes.TO_SERVICE).forEach(
@@ -454,18 +451,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         // time node -> end route station
         Node timeNode = timeNodes.get(StationTime.of(startStation, beginStop.getDepartureTime()));
+
         Relationship goesToRelationship = createRelationship(timeNode, routeStationEnd, transportRelationshipType);
         setProperty(goesToRelationship, trip);
 
         int cost = TramTime.diffenceAsMinutes(endStop.getArrivalTime(), departureTime);
         setCostProp(goesToRelationship, cost);
-        setProperty(goesToRelationship, service);
+        setProperty(goesToRelationship, trip.getService()); // TODO Still useful?
         setProperty(goesToRelationship, route);
         setStopSequenceNumber(goesToRelationship, endStop.getGetSequenceNumber());
     }
 
-    private Map<StationTime, Node> createMinuteNodes(Transaction tx, GraphFilter filter, Service service,
-                                                                    Trip trip, GraphBuilderCache routeBuilderCache) {
+    private Map<StationTime, Node> createMinuteNodes(Transaction tx, GraphFilter filter,
+                                                     Trip trip, GraphBuilderCache builderCache) {
 
         Map<StationTime, Node> timeNodes = new HashMap<>();
 
@@ -474,7 +472,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             if (includeBothStops(filter, leg)) {
                 Station start = leg.getFirstStation();
                 TramTime departureTime = leg.getDepartureTime();
-                Node timeNode = createMinuteNode(tx, service, trip, start.getId(), departureTime, routeBuilderCache);
+                Node timeNode = createMinuteNode(tx, trip, start.getId(), departureTime, builderCache);
                 timeNodes.put(StationTime.of(start, departureTime), timeNode);
             }
         });
@@ -482,8 +480,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNodes;
     }
 
-    private Node createMinuteNode(Transaction tx, Service service, Trip trip, IdFor<Station> startId, TramTime departureTime,
-                                  GraphBuilderCache stationCache) {
+    private Node createMinuteNode(Transaction tx, Trip trip, IdFor<Station> startId, TramTime departureTime,
+                                  GraphBuilderCache builderCache) {
         //LocalTime time = departureTime.asLocalTime();
 
         Node timeNode = createGraphNode(tx, Labels.MINUTE);
@@ -491,7 +489,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProperty(timeNode, trip);
 
         // hour node -> time node
-        Node hourNode = stationCache.getHourNode(tx, service, startId, departureTime.getHourOfDay());
+        Node hourNode = builderCache.getHourNode(tx, trip.getRoute().getId(), trip.getService(), startId, departureTime.getHourOfDay());
         Relationship fromPrevious = createRelationship(hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
         setCostProp(fromPrevious, 0);
         setTimeProp(fromPrevious, departureTime);
@@ -500,18 +498,21 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNode;
     }
 
-    private void createHourNode(Transaction tx, Service service, IdFor<Station> startId, IdFor<Station> endId, Integer hour, GraphBuilderCache stationCache) {
-        Node hourNode = createGraphNode(tx, Labels.HOUR);
+    private void createHourNode(Transaction tx, IdFor<Route> routeId, Service service, IdFor<Station> startId, IdFor<Station> endId,
+                                Integer hour, GraphBuilderCache stationCache) {
 
-        setHourProp(hourNode, hour);
+        if (!stationCache.hasHourNode(routeId, service, startId, hour)) {
+            Node hourNode = createGraphNode(tx, Labels.HOUR);
+            setHourProp(hourNode, hour);
+            stationCache.putHour(routeId, service, startId, hour, hourNode);
 
-        stationCache.putHour(service, startId, hour, hourNode);
+            // service node -> time node
+            Node serviceNode = stationCache.getServiceNode(tx, routeId, service, startId, endId);
+            Relationship serviceNodeToHour = createRelationship(serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
+            setCostProp(serviceNodeToHour, 0);
+            setHourProp(serviceNodeToHour, hour);
+        }
 
-        // service node -> time node
-        Node serviceNode = stationCache.getServiceNode(tx, service, startId, endId);
-        Relationship fromServiceNode = createRelationship(serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
-        setCostProp(fromServiceNode, 0);
-        setHourProp(fromServiceNode, hour);
     }
 
     public static class Ready {

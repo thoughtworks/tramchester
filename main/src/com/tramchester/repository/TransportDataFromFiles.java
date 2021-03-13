@@ -6,8 +6,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.*;
-import com.tramchester.domain.input.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -24,7 +28,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -65,22 +68,8 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     public TransportData getData() {
-//        if (!loaded) {
-//            load();
-//        }
         return dataContainer;
     }
-
-//    private void load() {
-//        if (loaded) {
-//            logger.warn("Data already loaded");
-//            return;
-//        }
-//        logger.info("Loading transport data from files");
-//        transportDataStreams.forEach(transportDataStream -> load(transportDataStream, dataContainer));
-//        logger.info("Finished loading transport data");
-//        loaded = true;
-//    }
 
     private void load(TransportDataSource dataSource, TransportDataContainer buildable) {
         DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
@@ -276,8 +265,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 Service service = trip.getService();
                 service.addTrip(trip);
 
-                route.addService(service);
+                route.addTrip(trip);
                 route.addHeadsign(trip.getHeadsign());
+                route.addService(service);
 
                 addedServices.add(service);
                 buildable.addService(service);
@@ -394,7 +384,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 Route route = factory.createRoute(routeType, routeData, agency, allStations);
 
                 agency.addRoute(route);
-                buildable.addAgency(agency);
+                if (!buildable.hasAgency(agencyId)) {
+                    buildable.addAgency(agency);
+                }
                 buildable.addRoute(route);
 
                 count.getAndIncrement();

@@ -59,9 +59,6 @@ public class CompositeId<DOMAINTYPE extends GraphProperty, A extends GraphProper
 
     @Override
     public String toString() {
-        return "CompositeId{" +
-                "idA=" + idA +
-                ", idB=" + idB +
-                '}';
+        return "CompositeId{" + idA + "," + idB + '}';
     }
 }

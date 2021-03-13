@@ -64,13 +64,13 @@ public class Service implements HasId<Service>, GraphProperty {
 
     @Deprecated
     public Set<Trip> getTrips() {
-        logger.info("Get trips " + trips);
+        //logger.debug("Get trips " + trips);
         return Collections.unmodifiableSet(trips);
     }
 
     @Deprecated
     public void addTrip(Trip trip) {
-        logger.info("Add trip" + trip);
+        //logger.debug("Add trip" + trip);
         Route tripRoute = trip.getRoute();
         Agency tripAgency = tripRoute.getAgency();
         if (!tripAgency.equals(initialAgency)) {

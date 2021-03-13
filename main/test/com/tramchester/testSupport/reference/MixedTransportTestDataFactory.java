@@ -138,6 +138,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
         // service A
         serviceA.addTrip(tripA);
+        routeA.addTrip(tripA);
 
         Station stationFour = new TestNoPlatformStation(MixedTransportTestData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Bus);
@@ -158,6 +159,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         serviceC.addTrip(tripC);
+        routeC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
         addRouteStation(container, stationFour, ferryRoute);
@@ -197,6 +199,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                 TramTime.of(startTime.plusMinutes(8)), 2, TransportMode.Bus);
         trip.addStop(stop2);
         service.addTrip(trip);
+        route.addTrip(trip);
         container.addTrip(trip);
     }
 

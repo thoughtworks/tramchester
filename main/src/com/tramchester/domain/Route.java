@@ -3,11 +3,13 @@ package com.tramchester.domain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
@@ -18,6 +20,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     private final Agency agency;
     private final TransportMode transportMode;
     private final Set<Service> services;
+    private final Set<Trip> trips;
     private final Set<String> headsigns;
 
     public static final Route Walking;
@@ -39,6 +42,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         this.transportMode = transportMode;
         services = new HashSet<>();
         headsigns = new HashSet<>();
+        trips  = new HashSet<>();
     }
 
     public IdFor<Route> getId() {
@@ -51,6 +55,10 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
 
     public Set<Service> getServices() {
         return services;
+    }
+
+    public void addTrip(Trip trip) {
+        trips.add(trip);
     }
 
     public void addService(Service service) {
@@ -101,6 +109,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
                 ", agency=" + agency.getName() +
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
+                ", trips=" + HasId.asIds(trips) +
                 ", headsigns=" + headsigns +
                 '}';
     }
@@ -110,4 +119,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         return GraphPropertyKey.ROUTE_ID;
     }
 
+    public Set<Trip> getTrips() {
+        return trips;
+    }
 }

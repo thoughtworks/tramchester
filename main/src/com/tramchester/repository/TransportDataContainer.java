@@ -206,6 +206,10 @@ public class TransportDataContainer implements TransportData {
         agencies.add(agency);
     }
 
+    public boolean hasAgency(IdFor<Agency> agencyId) {
+        return agencies.hasId(agencyId);
+    }
+
     public void addRoute(Route route) {
         routes.add(route);
     }
@@ -313,4 +317,5 @@ public class TransportDataContainer implements TransportData {
                 ",\n sourceName='" + sourceName + '\'' +
                 '}';
     }
+
 }

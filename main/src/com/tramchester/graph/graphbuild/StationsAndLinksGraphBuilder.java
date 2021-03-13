@@ -135,8 +135,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createStationAndRouteStation(Transaction txn, Route route, Station station, GraphBuilderCache builderCache) {
 
-        logger.info("Add station " + station.getId());
-
         RouteStation routeStation = transportData.getRouteStation(station, route);
         createRouteStationNode(txn, routeStation, builderCache);
 
@@ -156,7 +154,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
         Map<StationIdPair, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
-        services.forEach(service -> service.getTrips().forEach(trip -> {
+        //services.forEach(service -> service.getTrips().forEach(trip -> {
+        route.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
@@ -170,7 +169,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         }
                     }
                 });
-            }));
+            });
 
         // TODO Was diagnosing issue with Guice DI
         if (routeBuilderCache.stationEmpty()) {

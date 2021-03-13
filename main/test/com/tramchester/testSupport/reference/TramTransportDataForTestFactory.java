@@ -138,6 +138,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         // service A
         serviceA.addTrip(tripA);
+        routeA.addTrip(tripA);
 
         Station stationFour = new TestStation(TramTransportDataForTest.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
                 TestEnv.nearPiccGardensGrid,  TransportMode.Tram);
@@ -156,6 +157,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         tripC.addStop(stopG);
         tripC.addStop(stopH);
         serviceC.addTrip(tripC);
+        routeC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
         addRouteStation(container, stationFour, routeB);
@@ -195,6 +197,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 TramTime.of(startTime.plusMinutes(8)), 2);
         trip.addStop(stop2);
         service.addTrip(trip);
+        route.addTrip(trip);
         container.addTrip(trip);
     }
 
