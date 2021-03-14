@@ -1,6 +1,5 @@
 package com.tramchester.healthchecks;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
@@ -9,12 +8,10 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 
 import static java.lang.String.format;
 
-@LazySingleton
 public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(DataExpiryHealthCheck.class);
 
@@ -23,8 +20,8 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     private final DataSourceID name;
     private final ProvidesLocalNow providesLocalNow;
 
-    @Inject
-    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesLocalNow providesLocalNow, TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
+    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesLocalNow providesLocalNow, TramchesterConfig config,
+                                 ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.feedInfo = feedInfo;
         this.name = name;
@@ -41,6 +38,12 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
         int days = config.getDataExpiryThreadhold();
 
         LocalDate validUntil = feedInfo.validUntil();
+
+        if (validUntil==null) {
+            String msg = "Cannot check data expiry, no 'valid until' present in feedinfo";
+            logger.warn(msg);
+            return Result.unhealthy(msg);
+        }
 
         logger.info(format("Checking if %s data is expired or will expire with %d days of %s", name, days, validUntil));
 
