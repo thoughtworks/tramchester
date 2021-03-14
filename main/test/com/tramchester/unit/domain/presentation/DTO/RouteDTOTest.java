@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tramchester.domain.reference.KnownTramRoute.intuTraffordCentreCornbrook;
+import static com.tramchester.domain.reference.KnownTramRoute.TheTraffordCentreCornbrook;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.reference.TramStations.Intu;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,10 +21,10 @@ class RouteDTOTest {
 
         List<StationRefWithPosition> stations = new ArrayList<>();
         stations.add(new StationRefWithPosition(TramStations.of(Intu)));
-        RouteDTO routeDTO = new RouteDTO(createTramRoute(intuTraffordCentreCornbrook), stations);
+        RouteDTO routeDTO = new RouteDTO(createTramRoute(TheTraffordCentreCornbrook), stations);
 
         assertEquals("METLRED:I:", routeDTO.getId());
-        assertEquals("intuTraffordCentreCornbrook", routeDTO.getRouteName());
+        assertEquals("TheTraffordCentreCornbrook", routeDTO.getRouteName());
         assertEquals("Red Line", routeDTO.getShortName());
         assertEquals(TransportMode.Tram, routeDTO.getTransportMode());
 

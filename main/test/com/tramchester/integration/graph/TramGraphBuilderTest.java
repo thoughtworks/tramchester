@@ -57,8 +57,8 @@ class TramGraphBuilderTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tramRouteAshtonEccles = createTramRoute(AshtonunderLyneManchesterEccles);
-        tramRouteEcclesAshton = createTramRoute(EcclesManchesterAshtonunderLyne);
+        tramRouteAshtonEccles = createTramRoute(AshtonUnderLyneManchesterEccles);
+        tramRouteEcclesAshton = createTramRoute(EcclesManchesterAshtonUnderLyne);
         tramRouteAltPicc = createTramRoute(AltrinchamPiccadilly);
 
         graphQuery = componentContainer.get(GraphQuery.class);
@@ -168,14 +168,14 @@ class TramGraphBuilderTest {
 
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
-        checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonunderLyne);
-        checkInboundConsistency(MediaCityUK, AshtonunderLyneManchesterEccles);
+        checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
 
-        checkInboundConsistency(HarbourCity, EcclesManchesterAshtonunderLyne);
-        checkInboundConsistency(HarbourCity, AshtonunderLyneManchesterEccles);
+        checkInboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(HarbourCity, AshtonUnderLyneManchesterEccles);
 
-        checkInboundConsistency(Broadway, EcclesManchesterAshtonunderLyne);
-        checkInboundConsistency(Broadway, AshtonunderLyneManchesterEccles);
+        checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
     }
 
     @Test
@@ -188,15 +188,15 @@ class TramGraphBuilderTest {
 //        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.BURY_TO_ALTY);
 //        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.ALTY_TO_BURY);
 
-        checkOutboundConsistency(StPetersSquare, AshtonunderLyneManchesterEccles);
-        checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonunderLyne);
+        checkOutboundConsistency(StPetersSquare, AshtonUnderLyneManchesterEccles);
+        checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonUnderLyne);
 
-        checkOutboundConsistency(MediaCityUK, AshtonunderLyneManchesterEccles);
-        checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonunderLyne);
+        checkOutboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
+        checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
 
         // consistent heading away from Media City ONLY, see below
-        checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonunderLyne);
-        checkOutboundConsistency(Broadway, AshtonunderLyneManchesterEccles);
+        checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
+        checkOutboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
@@ -220,10 +220,9 @@ class TramGraphBuilderTest {
                 map(GraphProps::getServiceId).
                 collect(Collectors.toList());
 
-        Set<Trip> fileCallingTrips = transportData.getServices().stream().
-                filter(svc -> svc.getRoutes().contains(route)).
-                map(Service::getTrips).
-                flatMap(Collection::stream).
+        Set<Trip> fileCallingTrips =
+                transportData.getRouteById(route.getId()).getTrips().stream().
+
                 filter(trip -> trip.getStopCalls().callsAt(station)).
                 collect(Collectors.toSet());
 
@@ -255,10 +254,8 @@ class TramGraphBuilderTest {
         SortedSet<IdFor<Service>> graphInboundSvcIds = graphTramsIntoStation.stream().
                 map(GraphProps::getServiceId).collect(Collectors.toCollection(TreeSet::new));
 
-        Set<Trip> callingTrips = transportData.getServices().stream().
-                filter(svc -> svc.getRoutes().contains(route)).
-                map(Service::getTrips).
-                flatMap(Collection::stream).
+        Set<Trip> callingTrips =
+                transportData.getRouteById(route.getId()).getTrips().stream().
                 filter(trip -> trip.getStopCalls().callsAt(station)). // calls at , but not starts at because no inbound for these
                 filter(trip -> !trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfFirstStop()).getStation().equals(station)).
                 collect(Collectors.toSet());

@@ -2,7 +2,6 @@ package com.tramchester.unit.domain.presentation.DTO.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -273,7 +272,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
     }
 
     private StageDTO createStage(TramStations firstStation, TravelAction travelAction, TramStations lastStation, int passedStops) {
-        RouteRefDTO routeRefDto = new RouteRefDTO( createTramRoute(KnownTramRoute.ManchesterAirportVictoria));
+        RouteRefDTO routeRefDto = new RouteRefDTO( createTramRoute(KnownTramRoute.ManchesterAirportWythenshaweVictoria));
         return new StageDTO(createStationRef(firstStation), createStationRef(lastStation), createStationRef(firstStation),
                 timeToday(10, 8), timeToday(10, 20), 20-8,
                 "headSign", TransportMode.Tram,

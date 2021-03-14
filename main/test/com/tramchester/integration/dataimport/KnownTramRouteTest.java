@@ -40,22 +40,30 @@ class KnownTramRouteTest {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
         Set<Route> loadedRoutes = routeRepository.getRoutes();
-        List<KnownTramRoute> routes = Arrays.asList(KnownTramRoute.values());
+        List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
 
-        assertEquals(routes.size(), loadedRoutes.size());
+        assertEquals(knownRoutes.size(), loadedRoutes.size());
 
-        IdSet<Route> knownRouteIds = routes.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
+        IdSet<Route> knownRouteIds = knownRoutes.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
 
         for (Route loaded: loadedRoutes) {
             IdFor<Route> id = loaded.getId();
             assertTrue(knownRouteIds.contains(id), id.toString());
         }
 
-        Set<String> knownRouteNames = routes.stream().map(Enum::name).collect(Collectors.toSet());
+        Set<String> knownRouteNames = knownRoutes.stream().map(Enum::name).collect(Collectors.toSet());
 
         for (Route loaded: loadedRoutes) {
             String name = loaded.getName().replace(" ","").replace("-","");
             assertTrue(knownRouteNames.contains(name), name);
         }
+
+        for(KnownTramRoute known : knownRoutes) {
+            Route found = routeRepository.getRouteById(known.getId());
+            String name = found.getName().replace(" ","").replace("-","");
+            assertEquals(name, known.name(), known.getId().toString());
+        }
+
+
     }
 }

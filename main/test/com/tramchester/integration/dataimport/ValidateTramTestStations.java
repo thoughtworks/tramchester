@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.tramchester.testSupport.TestEnv.assertLatLongEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ValidateTramTestStations {
@@ -50,11 +52,14 @@ class ValidateTramTestStations {
 
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
-            assertEquals(realStation.getArea(), testStation.getArea(), "area wrong for " + testStationName);
+
+            // area no longer in tfgm data
+            //assertEquals(realStation.getArea(), testStation.getArea(), "area wrong for " + testStationName);
             assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
-            assertEquals(realStation.getLatLong(), testStation.getLatLong(), "latlong wrong for " + testStationName);
+            assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.00001, "latlong wrong for " + testStationName);
 
         });
-
     }
+
+
 }

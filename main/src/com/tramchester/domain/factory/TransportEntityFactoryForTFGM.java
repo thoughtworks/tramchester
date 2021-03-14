@@ -42,7 +42,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @Override
     public IdFor<Route> createRouteId(IdFor<Route> routeId) {
-        // tfgm has date suffix at end of route ID i.e. METLPURP:O:2021-03-08
+        // NOTE: tfgm has date suffix at end of route ID i.e. METLPURP:O:2021-03-08
+        // remove that so route IDs do not change for each release of data
         String originalId = routeId.forDTO();
         int endId = originalId.lastIndexOf(':')+1;
         int index = Math.min(endId, originalId.length());

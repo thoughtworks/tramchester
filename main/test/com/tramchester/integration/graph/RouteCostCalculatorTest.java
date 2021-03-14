@@ -53,7 +53,7 @@ class RouteCostCalculatorTest {
 
         try(Transaction txn = database.beginTx()) {
             assertEquals(64, getApproxCostBetween(txn, TramStations.Bury, TramStations.Altrincham));
-            assertEquals(62, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
+            assertEquals(65, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
         }
     }
 

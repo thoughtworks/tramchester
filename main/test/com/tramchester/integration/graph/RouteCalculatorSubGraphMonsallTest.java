@@ -39,7 +39,7 @@ class RouteCalculatorSubGraphMonsallTest {
         TestEnv.deleteDBIfPresent(config);
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(KnownTramRoute.EDidsburyManchesterRochdale.getId());
+        graphFilter.addRoute(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale.getId());
 
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

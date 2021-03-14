@@ -18,16 +18,16 @@ import static java.lang.String.format;
 public enum KnownTramRoute {
     AltrinchamPiccadilly("Purple", Inbound),
     PiccadillyAltrincham("Purple", Outbound),
-    AshtonunderLyneManchesterEccles("Blue", Inbound),
-    EcclesManchesterAshtonunderLyne("Blue", Outbound),
+    AshtonUnderLyneManchesterEccles("Blue", Inbound),
+    EcclesManchesterAshtonUnderLyne("Blue", Outbound),
     BuryPiccadilly("Yellow", Inbound),
     PiccadillyBury("Yellow", Outbound),
-    EDidsburyManchesterRochdale("Pink", Inbound),
-    RochdaleManchesterEDidsbury("Pink", Outbound),
-    VictoriaManchesterAirport("Navy", Inbound),
-    ManchesterAirportVictoria("Navy", Outbound),
-    intuTraffordCentreCornbrook("Red", Inbound),
-    CornbrookintuTraffordCentre("Red", Outbound);
+    EastDidisburyManchesterShawandCromptonRochdale("Pink", Inbound),
+    RochdaleShawandCromptonManchesterEastDidisbury("Pink", Outbound),
+    VictoriaWythenshaweManchesterAirport("Navy", Outbound),
+    ManchesterAirportWythenshaweVictoria("Navy", Inbound),
+    TheTraffordCentreCornbrook("Red", Inbound),
+    CornbrookTheTraffordCentre("Red", Outbound);
 
     public static IdSet<Route> ids;
     public static final Map<IdFor<Route>, KnownTramRoute> map;

@@ -250,4 +250,9 @@ public class TestEnv {
             FileUtils.deleteDirectory(dbPath.toFile());
         }
     }
+
+    public static void assertLatLongEquals(LatLong a, LatLong b, double delta, String message) {
+        assertEquals(a.getLat(), b.getLat(), delta, "lat:" + message);
+        assertEquals(a.getLon(), b.getLon(), delta, "lon: " +message);
+    }
 }

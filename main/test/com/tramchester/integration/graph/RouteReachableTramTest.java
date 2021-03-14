@@ -55,8 +55,8 @@ class RouteReachableTramTest {
         assertTrue(reachableInterchange(AltrinchamPiccadilly, NavigationRoad));
         assertFalse(reachableInterchange(PiccadillyAltrincham, NavigationRoad));
 
-        assertTrue(reachableStations(ManchesterAirportVictoria, ManAirport).contains(StWerburghsRoad.getId()));
-        assertFalse(reachableStations(VictoriaManchesterAirport, ManAirport).contains(StWerburghsRoad.getId()));
+        assertTrue(reachableStations(ManchesterAirportWythenshaweVictoria, ManAirport).contains(StWerburghsRoad.getId()));
+        assertFalse(reachableStations(VictoriaWythenshaweManchesterAirport, ManAirport).contains(StWerburghsRoad.getId()));
     }
 
     @Test
@@ -71,8 +71,8 @@ class RouteReachableTramTest {
 
     @Test
     void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachableStations(RochdaleManchesterEDidsbury, RochdaleRail).contains(Monsall.getId()));
-        assertTrue(reachableStations(EDidsburyManchesterRochdale, Monsall).contains(RochdaleRail.getId()));
+        assertTrue(reachableStations(RochdaleShawandCromptonManchesterEastDidisbury, RochdaleRail).contains(Monsall.getId()));
+        assertTrue(reachableStations(EastDidisburyManchesterShawandCromptonRochdale, Monsall).contains(RochdaleRail.getId()));
     }
 
     @Test

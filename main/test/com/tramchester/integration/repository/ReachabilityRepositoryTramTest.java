@@ -51,11 +51,11 @@ class ReachabilityRepositoryTramTest {
         Assertions.assertTrue(reachable(createRouteStation(NavigationRoad, AltrinchamPiccadilly), NavigationRoad));
 
         // right direction
-        Assertions.assertTrue(reachable(createRouteStation(RochdaleRail, RochdaleManchesterEDidsbury), Monsall));
+        Assertions.assertTrue(reachable(createRouteStation(RochdaleRail, RochdaleShawandCromptonManchesterEastDidisbury), Monsall));
         // wrong direction
-        Assertions.assertFalse(reachable(createRouteStation(RochdaleRail, EDidsburyManchesterRochdale), Monsall));
+        Assertions.assertFalse(reachable(createRouteStation(RochdaleRail, EastDidisburyManchesterShawandCromptonRochdale), Monsall));
         // towards victoria, so find an interchange
-        Assertions.assertTrue(reachable(createRouteStation(Monsall, RochdaleManchesterEDidsbury), RochdaleRail));
+        Assertions.assertTrue(reachable(createRouteStation(Monsall, RochdaleShawandCromptonManchesterEastDidisbury), RochdaleRail));
     }
     
     @Test

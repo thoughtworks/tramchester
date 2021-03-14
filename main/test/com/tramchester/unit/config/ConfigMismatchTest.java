@@ -49,8 +49,6 @@ class ConfigMismatchTest {
 
         validateCoreParameters(appConfig, testConfig);
 
-//        assertEquals(appConfig.getQueryInterval(), testConfig.getQueryInterval());
-//        assertEquals(appConfig.getNumberQueries(), testConfig.getNumberQueries());
     }
 
     @Test

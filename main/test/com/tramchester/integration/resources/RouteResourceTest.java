@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownTramRoute.AshtonunderLyneManchesterEccles;
-import static com.tramchester.domain.reference.KnownTramRoute.ManchesterAirportVictoria;
+import static com.tramchester.domain.reference.KnownTramRoute.AshtonUnderLyneManchesterEccles;
+import static com.tramchester.domain.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
 import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,7 +39,7 @@ class RouteResourceTest {
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        RouteDTO query = new RouteDTO(createTramRoute(AshtonunderLyneManchesterEccles), new LinkedList<>());
+        RouteDTO query = new RouteDTO(createTramRoute(AshtonUnderLyneManchesterEccles), new LinkedList<>());
         int index = routes.indexOf(query);
         assertTrue(index>0);
 
@@ -46,7 +47,7 @@ class RouteResourceTest {
         assertTrue(ashtonRoute.isTram());
         List<StationRefWithPosition> ashtonRouteStations = ashtonRoute.getStations();
 
-        assertEquals("3", ashtonRoute.getShortName().trim());
+        assertEquals("Blue Line", ashtonRoute.getShortName().trim());
         List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
         assertTrue(ids.contains(TramStations.Ashton.forDTO()));
         assertTrue(ids.contains(TramStations.Eccles.forDTO()));
@@ -56,14 +57,14 @@ class RouteResourceTest {
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
-        RouteDTO query = new RouteDTO(createTramRoute(ManchesterAirportVictoria), new LinkedList<>());
+        RouteDTO query = new RouteDTO(createTramRoute(ManchesterAirportWythenshaweVictoria), new LinkedList<>());
         int index = routes.indexOf(query);
         assertTrue(index>0);
 
         List<StationRefWithPosition> stations = routes.get(index).getStations();
         StationRefWithPosition first = stations.get(0);
         assertEquals(TramStations.ManAirport.forDTO(), first.getId());
-        assertEquals(TramStations.ManAirport.getLatLong(), first.getLatLong());
+        TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), first.getLatLong(), 0.00001, "lat long");
         assertTrue(first.getTransportModes().contains(TransportMode.Tram));
 
         assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());

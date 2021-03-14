@@ -42,7 +42,7 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldHaveVictoriaToAirportCorrectStopsCityZone() {
-        List<Station> stations = getStationsFor(VictoriaManchesterAirport);
+        List<Station> stations = getStationsFor(VictoriaWythenshaweManchesterAirport);
         assertIdEquals(Victoria, stations.get(0));
         assertIdEquals(Shudehill, stations.get(1));
         assertIdEquals(MarketStreet, stations.get(2));
@@ -60,7 +60,7 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldGetCorrectStationsForARouteEcclesToAsh() {
-        List<Station> stations = getStationsFor(EcclesManchesterAshtonunderLyne);
+        List<Station> stations = getStationsFor(EcclesManchesterAshtonUnderLyne);
         assertIdEquals(Eccles, stations.get(0));
         assertIdEquals(MediaCityUK, stations.get(5));
         assertIdEquals(Deansgate, stations.get(12));
@@ -69,7 +69,7 @@ class RouteCallingStationsTest {
 
     @Test
     void shouldGetCorrectStationsForARouteAshToEccles() {
-        List<Station> stations = getStationsFor(AshtonunderLyneManchesterEccles);
+        List<Station> stations = getStationsFor(AshtonUnderLyneManchesterEccles);
         assertIdEquals(Ashton, stations.get(0));
         assertIdEquals(Eccles, stations.get(27));
         assertIdEquals(MediaCityUK, stations.get(22));
@@ -92,17 +92,17 @@ class RouteCallingStationsTest {
         assertEquals(14, getStationsFor(PiccadillyAltrincham).size());
 
         // not 27, some journeys skip mediacity UK
-        assertEquals(28, getStationsFor(AshtonunderLyneManchesterEccles).size());
-        assertEquals(28, getStationsFor(EcclesManchesterAshtonunderLyne).size());
+        assertEquals(28, getStationsFor(AshtonUnderLyneManchesterEccles).size());
+        assertEquals(28, getStationsFor(EcclesManchesterAshtonUnderLyne).size());
 
-        assertEquals(33, getStationsFor(EDidsburyManchesterRochdale).size());
-        assertEquals(33, getStationsFor(RochdaleManchesterEDidsbury).size());
+        assertEquals(33, getStationsFor(EastDidisburyManchesterShawandCromptonRochdale).size());
+        assertEquals(33, getStationsFor(RochdaleShawandCromptonManchesterEastDidisbury).size());
 
-        assertEquals(25, getStationsFor(ManchesterAirportVictoria).size());
-        assertEquals(25, getStationsFor(VictoriaManchesterAirport).size());
+        assertEquals(25, getStationsFor(ManchesterAirportWythenshaweVictoria).size());
+        assertEquals(25, getStationsFor(VictoriaWythenshaweManchesterAirport).size());
 
-        assertEquals(8, getStationsFor(intuTraffordCentreCornbrook).size());
-        assertEquals(8, getStationsFor(CornbrookintuTraffordCentre).size());
+        assertEquals(8, getStationsFor(TheTraffordCentreCornbrook).size());
+        assertEquals(8, getStationsFor(CornbrookTheTraffordCentre).size());
 
         assertEquals(15, getStationsFor(PiccadillyBury).size());
         assertEquals(15, getStationsFor(BuryPiccadilly).size());

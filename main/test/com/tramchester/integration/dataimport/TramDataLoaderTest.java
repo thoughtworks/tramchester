@@ -16,8 +16,11 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Deprecated
 class TramDataLoaderTest {
     private CsvMapper mapper;
+
+    // TODO OUT OF DATE, Worth keeping??
 
     @BeforeEach
     void beforeEach() {
@@ -36,8 +39,8 @@ class TramDataLoaderTest {
         assertThat(theRoute.getShortName()).isEqualTo("MET1");
         assertThat(theRoute.getId()).isEqualTo(StringIdFor.createId("MET:MET1:I:"));
         assertThat(theRoute.getLongName()).isEqualTo("Abraham Moss - Bury");
-        //assertThat(theRoute.getAgencyId()).isEqualTo(StringIdFor.createId("MET"));
-        assertThat(theRoute.getAgencyId()).isEqualTo(TestEnv.MetAgency().getId());
+        assertThat(theRoute.getAgencyId()).isEqualTo(StringIdFor.createId("MET"));
+        //assertThat(theRoute.getAgencyId()).isEqualTo(TestEnv.MetAgency().getId());
     }
 
     @Test

@@ -64,6 +64,11 @@ public class Station implements Location<Station> {
         return StringIdFor.createId(text);
     }
 
+    /***
+     * Was specific to old TFGM data set
+     * @return an area in Greater Manchester
+     */
+    @Deprecated
     @Override
     public String getArea() {
         return area;

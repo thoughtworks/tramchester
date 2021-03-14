@@ -60,10 +60,10 @@ class RouteCalculatorSubGraphMediaCityTest {
         TestEnv.deleteDBIfPresent(config);
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(AshtonunderLyneManchesterEccles.getId());
-        graphFilter.addRoute(RochdaleManchesterEDidsbury.getId());
-        graphFilter.addRoute(EcclesManchesterAshtonunderLyne.getId());
-        graphFilter.addRoute(EDidsburyManchesterRochdale.getId());
+        graphFilter.addRoute(AshtonUnderLyneManchesterEccles.getId());
+        graphFilter.addRoute(RochdaleShawandCromptonManchesterEastDidisbury.getId());
+        graphFilter.addRoute(EcclesManchesterAshtonUnderLyne.getId());
+        graphFilter.addRoute(EastDidisburyManchesterShawandCromptonRochdale.getId());
         stations.forEach(TramStations::getId);
 
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());

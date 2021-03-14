@@ -50,8 +50,8 @@ public class RouteCallingStations {
 
     private void populateFromServices(Route route) {
         logger.debug("Populate calling stations for route " + HasId.asId(route));
-        Set<Service> services = route.getServices();
-        Set<Trip> allTrips = services.stream().map(Service::getTrips).flatMap(Collection::stream).collect(Collectors.toSet());
+
+        Set<Trip> allTrips = route.getTrips();
 
         // ASSUME: longest trips correspond to full end to end journeys on the whole route
         Optional<Trip> longest = allTrips.stream().max(Comparator.comparingInt(a -> a.getStopCalls().numberOfCallingPoints()));

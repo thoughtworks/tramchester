@@ -71,9 +71,9 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         Agency agency = TestEnv.MetAgency();
 
         //Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
-        Route routeA = RoutesForTesting.createTramRoute(CornbrookintuTraffordCentre);
-        Route routeB = RoutesForTesting.createTramRoute(RochdaleManchesterEDidsbury);
-        Route routeC = RoutesForTesting.createTramRoute(EDidsburyManchesterRochdale);
+        Route routeA = RoutesForTesting.createTramRoute(CornbrookTheTraffordCentre);
+        Route routeB = RoutesForTesting.createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
+        Route routeC = RoutesForTesting.createTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);

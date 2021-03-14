@@ -94,7 +94,7 @@ class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Route result = transportData.getRouteById(AshtonunderLyneManchesterEccles.getId());
+        Route result = transportData.getRouteById(AshtonUnderLyneManchesterEccles.getId());
         assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertEquals("METLBLUE:I:",result.getId().forDTO());
@@ -119,13 +119,13 @@ class TransportDataFromFilesTramTest {
         assertEquals(8, traffordBarRoutes.size());
         assertTrue(traffordBarRoutes.contains(AltrinchamPiccadilly.getId()));
         assertTrue(traffordBarRoutes.contains(PiccadillyAltrincham.getId()));
-        assertTrue(traffordBarRoutes.contains(EDidsburyManchesterRochdale.getId()));
-        assertTrue(traffordBarRoutes.contains(RochdaleManchesterEDidsbury.getId()));
-        assertTrue(traffordBarRoutes.contains(VictoriaManchesterAirport.getId()));
-        assertTrue(traffordBarRoutes.contains(ManchesterAirportVictoria.getId()));
+        assertTrue(traffordBarRoutes.contains(EastDidisburyManchesterShawandCromptonRochdale.getId()));
+        assertTrue(traffordBarRoutes.contains(RochdaleShawandCromptonManchesterEastDidisbury.getId()));
+        assertTrue(traffordBarRoutes.contains(VictoriaWythenshaweManchesterAirport.getId()));
+        assertTrue(traffordBarRoutes.contains(ManchesterAirportWythenshaweVictoria.getId()));
 
-        assertTrue(traffordBarRoutes.contains(EcclesManchesterAshtonunderLyne.getId()));
-        assertTrue(traffordBarRoutes.contains(AshtonunderLyneManchesterEccles.getId()));
+        assertTrue(traffordBarRoutes.contains(EcclesManchesterAshtonUnderLyne.getId()));
+        assertTrue(traffordBarRoutes.contains(AshtonUnderLyneManchesterEccles.getId()));
     }
 
     @Test
@@ -366,7 +366,7 @@ class TransportDataFromFilesTramTest {
         IdSet<Service> toMediaCity = allTrips.stream().
                 filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).
                 filter(trip -> trip.getStopCalls().callsAt(TramStations.MediaCityUK)).
-                filter(trip -> trip.getRoute().getId().equals(AshtonunderLyneManchesterEccles.getId())).
+                filter(trip -> trip.getRoute().getId().equals(AshtonUnderLyneManchesterEccles.getId())).
                 map(trip -> trip.getService().getId()).collect(IdSet.idCollector());
 
         Set<Service> services = toMediaCity.stream().
@@ -398,7 +398,7 @@ class TransportDataFromFilesTramTest {
         // TODO Due to exception dates makes no sense to use getDays
         IdSet<Service> mondayAshToManServices = allServices.stream()
                 .filter(svc -> svc.getCalendar().operatesOn(aMonday))
-                .filter(svc -> svc.getRoutes().contains(createTramRoute(AshtonunderLyneManchesterEccles)))
+                .filter(svc -> svc.getRoutes().contains(createTramRoute(AshtonUnderLyneManchesterEccles)))
                 .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID
