@@ -63,14 +63,7 @@ public class Service implements HasId<Service>, GraphProperty {
     }
 
     @Deprecated
-    public Set<Trip> getTrips() {
-        //logger.debug("Get trips " + trips);
-        return Collections.unmodifiableSet(trips);
-    }
-
-    @Deprecated
     public void addTrip(Trip trip) {
-        //logger.debug("Add trip" + trip);
         Route tripRoute = trip.getRoute();
         Agency tripAgency = tripRoute.getAgency();
         if (!tripAgency.equals(initialAgency)) {
@@ -133,10 +126,12 @@ public class Service implements HasId<Service>, GraphProperty {
         return Objects.hash(serviceId);
     }
 
+    // TODO should a broad range of times, worth it?
     public TramTime earliestDepartTime() {
         return earliestDepart;
     }
 
+    // TODO should a broad range of times, worth it?
     public TramTime latestDepartTime() {
         return latestDepart;
     }

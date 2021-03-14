@@ -311,14 +311,11 @@ class TransportDataFromFilesTramTest {
         int tripsSize = transportData.getTrips().size();
         assertEquals(tripsSize, allTrips.size());
 
-        IdSet<Trip> tripIdsFromSvcs = transportData.getServices().stream().map(Service::getTrips).
+        IdSet<Trip> tripIdsFromSvcs = transportData.getRoutes().stream().map(Route::getTrips).
                 flatMap(Collection::stream).
                 map(Trip::getId).collect(IdSet.idCollector());
         assertEquals(tripsSize, tripIdsFromSvcs.size());
 
-        IdSet<Service> tripServicesId = new IdSet<>();
-        allTrips.forEach(trip -> tripServicesId.add(trip.getService().getId()));
-        assertEquals(uniqueSvcs.size(), tripServicesId.size());
     }
 
     @Test

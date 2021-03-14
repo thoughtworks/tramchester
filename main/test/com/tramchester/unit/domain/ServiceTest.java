@@ -34,10 +34,6 @@ class ServiceTest {
 
         service.addTrip(trip);
 
-        Set<Trip> serviceTrips = service.getTrips();
-        assertThat(serviceTrips).hasSize(1);
-        assertThat(serviceTrips).contains(trip);
-
         service.updateTimings();
 
         Assertions.assertEquals(TramTime.of(6, 30), service.earliestDepartTime());
