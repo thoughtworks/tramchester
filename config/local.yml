@@ -26,7 +26,7 @@ dataSources:
     URL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     checkURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
-    unzipPath: gtdf-out
+    unzipPath: ./
     hasFeedInfo: true
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
@@ -54,7 +54,7 @@ maxWait: 25
 numberQueries: 3
 queryInterval: 12
 maxNumberResults: 5
-maxJourneyDuration: 122
+maxJourneyDuration: 124
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer: 5

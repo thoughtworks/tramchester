@@ -54,7 +54,8 @@ public class LiveDataParser {
         BessesOThBarns("Besses O’ Th’ Barn","Besses o'th'barn"),
         NewtonHeathAndMoston("Newton Heath and Moston","Newton Heath & Moston"),
         StWerburgsRoad("St Werburgh’s Road","St Werburgh's Road"),
-        Rochdale("Rochdale Stn", "Rochdale Railway Station");
+        Rochdale("Rochdale Stn", "Rochdale Railway Station"),
+        TraffordCentre("intu Trafford Centre", "The Trafford Centre");
 
         private final String from;
         private final String too;
