@@ -54,7 +54,6 @@ class ValidateTramTestStations {
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
 
             // area no longer in tfgm data
-            //assertEquals(realStation.getArea(), testStation.getArea(), "area wrong for " + testStationName);
             assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
             assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.00001, "latlong wrong for " + testStationName);
 

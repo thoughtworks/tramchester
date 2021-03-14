@@ -35,9 +35,10 @@ class GraphBuildAndStartTest {
 
         TestEnv.deleteDBIfPresent(config);
 
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloadAndModTime(), config);
         Unzipper unzipper = new Unzipper();
-        fetcher.fetchData(unzipper);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(unzipper, new URLDownloadAndModTime(), config);
+        fetcher.start();
+
         ProvidesNow providesNow = new ProvidesLocalNow();
 
         NodeTypeRepository nodeTypeRepository = new NodeIdLabelMap();
@@ -47,7 +48,7 @@ class GraphBuildAndStartTest {
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
 
         TransportDataLoader dataLoader = new TransportDataLoaderFiles(config, fetchFileModTime, mapper);
-        TransportDataStreams dataStreams = new TransportDataStreams(dataLoader, config);
+        TransportDataStreams dataStreams = new TransportDataStreams(dataLoader, config, fetcher.getReady());
         TransportDataFromFiles dataFromFiles = new TransportDataFromFiles(dataStreams, config, providesNow);
 
         TransportData transportData = dataFromFiles.getData();

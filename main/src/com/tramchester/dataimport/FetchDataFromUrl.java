@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -18,8 +19,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -30,100 +29,36 @@ import static java.lang.String.format;
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
+    private final Unzipper unzipper;
     private final URLDownloadAndModTime downloader;
     private final List<DataSourceConfig> configs;
 
     @Inject
-    public FetchDataFromUrl(URLDownloadAndModTime downloader, TramchesterConfig config) {
-        this(downloader, config.getDataSourceConfig());
+    public FetchDataFromUrl(Unzipper unzipper, URLDownloadAndModTime downloader, TramchesterConfig config) {
+        this(unzipper, downloader, config.getDataSourceConfig());
     }
 
-    private FetchDataFromUrl(URLDownloadAndModTime downloader, List<DataSourceConfig> configs) {
+    private FetchDataFromUrl(Unzipper unzipper, URLDownloadAndModTime downloader, List<DataSourceConfig> configs) {
+        this.unzipper = unzipper;
         this.downloader = downloader;
         this.configs = configs;
     }
 
-    // TODO Need to pass in unzip path and zip filename from CLI ags
-    // used during build to download latest tram data from tfgm site during deployment
-    // which is subsequently uploaded into S3
-    @Deprecated
-    public static void main(String[] args) throws Exception {
-        if (args.length!=3) {
-            throw new Exception("Expected 2 arguments, path and url");
-        }
-        String theUrl = args[0];
-        Path folder = Paths.get(args[1]);
-        String zipFilename = args[2];
-        logger.info(format("Loading %s to path %s file %s", theUrl, folder, zipFilename));
-        DataSourceConfig dataSourceConfig = new DataSourceConfig() {
-            @Override
-            public String getTramDataUrl() {
-                return theUrl;
-            }
-
-            @Override
-            public String getTramDataCheckUrl() {
-                return null;
-            }
-
-            @Override
-            public Path getDataPath() {
-                return folder;
-            }
-
-            @Override
-            public Path getUnzipPath() {
-                return Paths.get("gtdf-out");
-            }
-
-            @Override
-            public String getZipFilename() {
-                return zipFilename;
-            }
-
-            @Override
-            public String getName() {
-                return "commandLine";
-            }
-
-            @Override
-            public boolean getHasFeedInfo() {
-                return true;
-            }
-
-            @Override
-            public Set<GTFSTransportationType> getTransportModes() {
-                return Collections.singleton(GTFSTransportationType.tram);
-            }
-
-            @Override
-            public Set<TransportMode> getTransportModesWithPlatforms() {
-                return Collections.singleton(TransportMode.Tram);
-            }
-
-            @Override
-            public Set<LocalDate> getNoServices() {
-                return Collections.emptySet();
-            }
-        };
-        URLDownloadAndModTime downloader = new URLDownloadAndModTime();
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(downloader, Collections.singletonList(dataSourceConfig));
-        fetcher.downloadAll();
+    @PostConstruct
+    public void start() {
+        logger.info("start");
+        fetchData();
+        logger.info("started");
     }
 
-    private void downloadAll() {
-        configs.forEach(config -> {
-            try {
-                refreshDataIfNewerAvailable(config);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to refresh data for config " + config);
-            }
-        });
+    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
+    public Ready getReady() {
+        return new Ready();
     }
 
     // TODO Unzipper into cons
     @Override
-    public void fetchData(Unzipper unzipper) {
+    public void fetchData() {
         configs.forEach(config -> {
             try {
                 Path zipFile = refreshDataIfNewerAvailable(config);
@@ -132,6 +67,16 @@ public class FetchDataFromUrl implements TransportDataFetcher {
                 }
             } catch (IOException e) {
                 logger.info("Unable to refresh data for config " + config);
+            }
+        });
+    }
+
+    private void downloadAll() {
+        configs.forEach(config -> {
+            try {
+                refreshDataIfNewerAvailable(config);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to refresh data for config " + config);
             }
         });
     }
@@ -174,6 +119,81 @@ public class FetchDataFromUrl implements TransportDataFetcher {
     private LocalDateTime getFileModLocalTime(Path destination) {
         long localModMillis = destination.toFile().lastModified();
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
+    }
+
+    // TODO Need to pass in unzip path and zip filename from CLI ags
+    // used during build to download latest tram data from tfgm site during deployment
+    // which is subsequently uploaded into S3
+    @Deprecated
+    public static void main(String[] args) throws Exception {
+        if (args.length!=3) {
+            throw new Exception("Expected 2 arguments, path and url");
+        }
+        String theUrl = args[0];
+        Path folder = Paths.get(args[1]);
+        String zipFilename = args[2];
+        logger.info(format("Loading %s to path %s file %s", theUrl, folder, zipFilename));
+        DataSourceConfig dataSourceConfig = new DataSourceConfig() {
+            @Override
+            public String getTramDataUrl() {
+                return theUrl;
+            }
+
+            @Override
+            public String getTramDataCheckUrl() {
+                return null;
+            }
+
+            @Override
+            public Path getDataPath() {
+                return folder;
+            }
+
+            @Override
+            public Path getUnzipPath() {
+                return Paths.get("./");
+            }
+
+            @Override
+            public String getZipFilename() {
+                return zipFilename;
+            }
+
+            @Override
+            public String getName() {
+                return "commandLine";
+            }
+
+            @Override
+            public boolean getHasFeedInfo() {
+                return true;
+            }
+
+            @Override
+            public Set<GTFSTransportationType> getTransportModes() {
+                return Collections.singleton(GTFSTransportationType.tram);
+            }
+
+            @Override
+            public Set<TransportMode> getTransportModesWithPlatforms() {
+                return Collections.singleton(TransportMode.Tram);
+            }
+
+            @Override
+            public Set<LocalDate> getNoServices() {
+                return Collections.emptySet();
+            }
+        };
+        URLDownloadAndModTime downloader = new URLDownloadAndModTime();
+        Unzipper unzipper = new Unzipper();
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(unzipper, downloader, Collections.singletonList(dataSourceConfig));
+        fetcher.downloadAll();
+    }
+
+    public static class Ready {
+        private Ready() {
+
+        }
     }
 
 }

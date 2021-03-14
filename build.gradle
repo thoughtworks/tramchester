@@ -122,21 +122,12 @@ clean {
     delete fileTree('data/tram') {
         include '*.txt'
     }
-    delete fileTree('data/tram/gtdf-out') {
-        include '*.txt'
-    }
-    delete 'data/tram/gtdf-out'
     delete fileTree('data/bus') {
         include '*.txt'
     }
-    delete fileTree('data/bus/gtdf-out') {
+    delete fileTree('data/neighbours') {
         include '*.txt'
     }
-    delete 'data/bus/gtdf-out'
-    delete fileTree('data/neighbours/gtdf-out') {
-        include '*.txt'
-    }
-    delete 'data/neighbours/gtdf-out'
     delete fileTree('data/train') {
         include '*.txt'
     }

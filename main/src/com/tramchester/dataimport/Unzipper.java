@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
 
+@LazySingleton
 public class Unzipper {
     private static final Logger logger = LoggerFactory.getLogger(Unzipper.class);
 

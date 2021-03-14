@@ -3,6 +3,7 @@ package com.tramchester.dataimport.data;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.TransportDataLoader;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.domain.DataSourceID;
@@ -27,14 +28,13 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataStreams.class);
 
     private final List<TransportDataSource> theList;
-
+    private final TransportDataLoader dataLoader;
     private final TramchesterConfig config;
-    private final List<TransportDataReader> transportDataReaders;
 
     @Inject
-    public TransportDataStreams(TransportDataLoader dataLoader, TramchesterConfig config) {
-        // TODO getReaders() into create()
-        this.transportDataReaders = dataLoader.getReaders();
+    public TransportDataStreams(TransportDataLoader dataLoader, TramchesterConfig config,
+                                FetchDataFromUrl.Ready dataIsDownloadedAndUnzipped) {
+        this.dataLoader = dataLoader;
         this.config = config;
         theList = new ArrayList<>();
     }
@@ -43,6 +43,9 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     @PostConstruct
     public void start() {
         logger.info("start");
+
+        List<TransportDataReader> transportDataReaders = dataLoader.getReaders();
+
         // streams, so no data read yet
 
         transportDataReaders.forEach(transportDataReader -> {
@@ -70,6 +73,7 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
 
             theList.add(transportDataSource);
         });
+
         logger.info("started");
     }
 

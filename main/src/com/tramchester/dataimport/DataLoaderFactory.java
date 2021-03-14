@@ -6,12 +6,11 @@ import java.nio.file.Path;
 
 public class DataLoaderFactory {
     private final Path path;
-    private final String extension;
+    private final String extension = ".txt";
     private final CsvMapper mapper;
 
-    public DataLoaderFactory(Path path, String extension, CsvMapper mapper) {
+    public DataLoaderFactory(Path path, CsvMapper mapper) {
         this.path = path;
-        this.extension = extension;
         this.mapper = mapper;
     }
 

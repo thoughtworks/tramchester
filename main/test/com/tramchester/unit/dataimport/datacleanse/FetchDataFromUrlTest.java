@@ -52,7 +52,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
             }
         };
 
-        fetchDataFromUrl = new FetchDataFromUrl(downloader, config);
+        fetchDataFromUrl = new FetchDataFromUrl(unzipper, downloader, config);
         removeTmpFile();
     }
 
@@ -77,7 +77,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData(unzipper));
+        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
     }
 
@@ -88,7 +88,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData(unzipper));
+        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
     }
 
@@ -100,7 +100,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData(unzipper));
+        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
     }
 
@@ -113,7 +113,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData(unzipper));
+        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
     }
 
