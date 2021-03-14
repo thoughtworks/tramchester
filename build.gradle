@@ -47,7 +47,7 @@ dependencies {
     // aws sdk
     implementation('software.amazon.awssdk:cloudwatch:2.16.5')
     implementation('software.amazon.awssdk:s3:2.16.5')
-    implementation('software.amazon.awssdk:cloudformation:2.16.5')
+    implementation('software.amazon.awssdk:cloudformation:2.16.18')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.89.0',
             'software.amazon.awscdk:s3:1.91.0',
@@ -158,7 +158,7 @@ test {
 task pullData(type:JavaExec, dependsOn:classes) {
     main = 'com.tramchester.dataimport.FetchDataFromUrl'
     classpath = sourceSets.main.runtimeClasspath
-    args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfs.zip', 'data', 'tramData-1.0.zip'
+    args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip', 'data', 'tramData-1.0.zip'
 }
 
 task cdkApp(type:JavaExec, dependsOn:classes) {
