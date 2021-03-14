@@ -45,15 +45,15 @@ dependencies {
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:cloudwatch:2.16.5')
+    implementation('software.amazon.awssdk:cloudwatch:2.16.18')
     implementation('software.amazon.awssdk:s3:2.16.5')
-    implementation('software.amazon.awssdk:cloudformation:2.16.5')
+    implementation('software.amazon.awssdk:cloudformation:2.16.18')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.89.0',
-            'software.amazon.awscdk:s3:1.91.0',
+            'software.amazon.awscdk:s3:1.93.0',
             'software.amazon.awscdk:ec2:1.91.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.91.0',
-            'software.amazon.awscdk:autoscaling:1.82.0',
+            'software.amazon.awscdk:autoscaling:1.93.0',
             'software.amazon.awscdk:cdk-cx-api:1.89.0'
 
     implementation('org.geotools:gt-main:24.2')
