@@ -19,7 +19,7 @@ dataSources:
     URL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     checkURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
-    unzipPath: gtdf-out
+    unzipPath: ./
     hasFeedInfo: true
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]

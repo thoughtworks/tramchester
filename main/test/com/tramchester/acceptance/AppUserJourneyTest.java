@@ -6,11 +6,13 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,7 +28,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
+import static com.tramchester.domain.reference.KnownTramRoute.AltrinchamPiccadilly;
+import static com.tramchester.domain.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
 import static com.tramchester.testSupport.reference.TramStations.Intu;
 import static com.tramchester.testSupport.reference.TramStations.TraffordBar;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -48,9 +51,12 @@ class AppUserJourneyTest extends UserJourneyTest {
     private final String deansgate = TramStations.Deansgate.getName();
 
     // useful consts, keep around as can swap when timetable changes
-    private static final String altyToBuryClass = "RouteClass1";
-    public static final String altyToPiccClass = "RouteClass2";
-    private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
+
+    // No longer running
+//    private static final String altyToBuryClass = "RouteClassGreenLine";
+//    private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
+
+    public static final String altyToPiccClass = getClassFor(AltrinchamPiccadilly);
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private LocalDate when;
@@ -374,8 +380,9 @@ class AppUserJourneyTest extends UserJourneyTest {
                 TramStations.Piccadilly.getName(), 7);
 
         // Too timetable dependent?
+        String lineClass = getClassFor(VictoriaWythenshaweManchesterAirport);
         validateAStage(secondStage, TramTime.of(10,32), "Change Tram", TraffordBar.getName(),
-                2, "RouteClass6", "Victoria - Manchester Airport",
+                2, lineClass, "Victoria - Wythenshawe - Manchester Airport",
                 TramStations.ManAirport.getName(), 17);
 
         assertEquals(TraffordBar.getName(), secondStage.getActionStation());
@@ -419,11 +426,9 @@ class AppUserJourneyTest extends UserJourneyTest {
         String result = appPage.getBuild();
         assertEquals("2."+build, result);
 
-        String dataBegin = appPage.getValidFrom();
-        assertEquals(DataVersionResourceTest.validFrom.format(dateFormatDashes), dataBegin, "valid from");
+        String version = appPage.getVersion();
+        assertEquals(DataVersionResourceTest.version, version);
 
-        String dataEnd = appPage.getValidUntil();
-        assertEquals(DataVersionResourceTest.validUntil.format(dateFormatDashes), dataEnd, "valid until");
 
     }
 
@@ -495,6 +500,11 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(lineName, stage.getLine(lineClass), "lineName");
         assertEquals(headsign, stage.getHeadsign(), "headsign");
         assertEquals(passedStops, stage.getPassedStops(), "passedStops");
+    }
+
+    @NotNull
+    private static String getClassFor(KnownTramRoute knownTramRoute) {
+        return "RouteClass"+ knownTramRoute.shortName().replaceAll(" ","");
     }
 
 }

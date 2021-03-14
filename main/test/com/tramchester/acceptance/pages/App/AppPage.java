@@ -303,12 +303,8 @@ public class AppPage extends Page {
         return waitForAndGet(By.id("buildNumber"));
     }
 
-    public String getValidFrom() {
-        return waitForAndGet(By.id("validFrom"));
-    }
-
-    public String getValidUntil() {
-        return waitForAndGet(By.id("validUntil"));
+    public String getVersion() {
+        return waitForAndGet(By.id("dataVersion"));
     }
 
     private String waitForAndGet(By locator) {

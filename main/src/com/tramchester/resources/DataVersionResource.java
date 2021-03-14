@@ -50,7 +50,7 @@ public class DataVersionResource {
             logger.error("No feedinfo found for tfgm");
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        DataVersionDTO dataVersionDTO = new DataVersionDTO(feedinfo, config);
+        DataVersionDTO dataVersionDTO = new DataVersionDTO(feedinfo);
         return Response.ok(dataVersionDTO).build();
     }
 }

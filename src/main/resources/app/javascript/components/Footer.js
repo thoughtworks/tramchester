@@ -47,11 +47,8 @@ export default {
                 <b-col cols="3">Build
                     <div id="buildNumber">{{buildnumber}}</div>
                 </b-col>
-                <b-col cols="3">From:
-                    <div id="validFrom">{{feedinfo.validFrom}}</div>
-                </b-col>
-                <b-col cols="3">Until:
-                    <div id="validUntil">{{feedinfo.validUntil}}</div>
+                <b-col cols="3">Data Version:
+                    <div id="dataVersion">{{feedinfo.version}}</div>
                 </b-col>
                 <b-col cols="3">Geo:
                     <div id="havepos">{{havepos}}</div>

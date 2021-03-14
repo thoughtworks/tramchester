@@ -2,7 +2,6 @@ package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
@@ -18,7 +17,7 @@ public class DataVersionDTO {
         // for JSON deserialisation
     }
 
-    public DataVersionDTO(FeedInfo feedInfo, TramchesterConfig config) {
+    public DataVersionDTO(FeedInfo feedInfo) {
         this.validFrom = feedInfo.validFrom();
         this.validUntil = feedInfo.validUntil();
         this.version = feedInfo.getVersion();

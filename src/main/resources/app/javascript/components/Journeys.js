@@ -103,7 +103,7 @@ function actionFormatter(value, key, row) {
 function lineClass(value, key, row) {
     const prefix = 'RouteClass'
     if (row.mode=='Tram') {
-        return prefix + row.route.shortName;
+        return prefix + row.route.shortName.replace(/\s+/g, '');
     }
     return prefix + row.mode;
 }
