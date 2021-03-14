@@ -14,7 +14,7 @@ class ServiceTest {
 
     @Test
     void shouldNoticeNoDatesSet() {
-        Service service = new Service("svcXXX", TestEnv.MetAgency());
+        Service service = new Service("svcXXX");
         assertFalse(service.hasCalendar());
 
         LocalDate startDate = LocalDate.of(2014, 10, 5);

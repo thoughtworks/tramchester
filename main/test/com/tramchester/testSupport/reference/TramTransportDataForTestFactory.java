@@ -81,9 +81,9 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         container.addAgency(agency);
 
-        Service serviceA = new Service(TramTransportDataForTest.serviceAId, routeA);
-        Service serviceB = new Service(TramTransportDataForTest.serviceBId, routeB);
-        Service serviceC = new Service(TramTransportDataForTest.serviceCId, routeC);
+        Service serviceA = new Service(TramTransportDataForTest.serviceAId);
+        Service serviceB = new Service(TramTransportDataForTest.serviceBId);
+        Service serviceC = new Service(TramTransportDataForTest.serviceCId);
 
         routeA.addService(serviceA);
         routeB.addService(serviceB);
@@ -137,7 +137,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         tripA.addStop(stopD);
 
         // service A
-        serviceA.addTrip(tripA);
         routeA.addTrip(tripA);
 
         Station stationFour = new TestStation(TramTransportDataForTest.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
@@ -156,7 +155,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         addRouteStation(container, stationFive, routeC);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
-        serviceC.addTrip(tripC);
         routeC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
@@ -194,7 +192,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         PlatformStopCall stop2 = createStop(container,trip, station, TramTime.of(startTime.plusMinutes(5)),
                 TramTime.of(startTime.plusMinutes(8)), 2);
         trip.addStop(stop2);
-        service.addTrip(trip);
         route.addTrip(trip);
         container.addTrip(trip);
     }

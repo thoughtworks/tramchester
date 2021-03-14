@@ -64,7 +64,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     private void populateTestData(TransportDataContainer container) {
         Route routeA = RoutesForTesting.AIR_TO_BUXTON;
         Route ferryRoute = FERRY_ROUTE;
-        Route routeC = RoutesForTesting.ALTY_TO_STOCKPORT_WBT;
+        Route routeC = RoutesForTesting.ALTY_TO_WARRINGTON;
 
         Agency agencyA = routeA.getAgency();
         Agency agencyB = routeA.getAgency();
@@ -78,9 +78,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addAgency(agencyB);
         container.addAgency(agencyC);
 
-        Service serviceA = new Service(MixedTransportTestData.serviceAId, routeA);
-        Service serviceB = new Service(MixedTransportTestData.serviceBId, ferryRoute);
-        Service serviceC = new Service(MixedTransportTestData.serviceCId, routeC);
+        Service serviceA = new Service(MixedTransportTestData.serviceAId);
+        Service serviceB = new Service(MixedTransportTestData.serviceBId);
+        Service serviceC = new Service(MixedTransportTestData.serviceCId);
 
         routeA.addService(serviceA);
         ferryRoute.addService(serviceB);
@@ -137,7 +137,6 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         tripA.addStop(stopD);
 
         // service A
-        serviceA.addTrip(tripA);
         routeA.addTrip(tripA);
 
         Station stationFour = new TestNoPlatformStation(MixedTransportTestData.STATION_FOUR, "area4", "Station4", TestEnv.nearPiccGardens,
@@ -158,7 +157,6 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addRouteStation(container, stationFive, routeC);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
-        serviceC.addTrip(tripC);
         routeC.addTrip(tripC);
 
         // INTERCHANGE -> STATION_FOUR
@@ -196,7 +194,6 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         NoPlatformStopCall stop2 = createStop(trip, station, TramTime.of(startTime.plusMinutes(5)),
                 TramTime.of(startTime.plusMinutes(8)), 2, TransportMode.Bus);
         trip.addStop(stop2);
-        service.addTrip(trip);
         route.addTrip(trip);
         container.addTrip(trip);
     }

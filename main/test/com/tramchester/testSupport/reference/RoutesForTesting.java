@@ -20,9 +20,8 @@ public class RoutesForTesting {
 
     // BUS
 
-    public static final Route ALTY_TO_STOCKPORT_WBT = new Route(StringIdFor.createId("WBT:5A:I:"), "5A",
-            "Alty to Stockport", WarringtonsOwnBuses,
-            Bus);
+    public static final Route ALTY_TO_WARRINGTON = new Route(StringIdFor.createId("WBTR05A:I:"), "5A",
+            "Alty to Stockport", WarringtonsOwnBuses, Bus);
 
     public static final Route AIR_TO_BUXTON = new Route(StringIdFor.createId("HGP:199:I:"), "199",
             "Manchester Airport - Stockport - Buxton Skyline",  new Agency(DataSourceID.TFGM(), "HGP", "High Peak Buses"),

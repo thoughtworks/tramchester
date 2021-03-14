@@ -199,9 +199,8 @@ class TransportDataFromFilesTramTest {
         Collection<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
                 filter(svc -> !svc.getCalendar().operatesOn(queryDate)).collect(Collectors.toSet());
-        Set<Route> routes = expiringServices.stream().map(Service::getRoutes).flatMap(Collection::stream).collect(Collectors.toSet());
 
-        assertEquals(Collections.emptySet(), expiringServices, HasId.asIds(routes) + " with expiring svcs " +HasId.asIds(expiringServices));
+        assertEquals(Collections.emptySet(), expiringServices, "Expiring svcs " +HasId.asIds(expiringServices));
     }
 
     @DataExpiryCategory
@@ -390,20 +389,19 @@ class TransportDataFromFilesTramTest {
         assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
 
         // TODO Due to exception dates makes no sense to use getDays
-        IdSet<Service> mondayAshToManServices = allServices.stream()
+        IdSet<Service> mondayServices = allServices.stream()
                 .filter(svc -> svc.getCalendar().operatesOn(aMonday))
-                .filter(svc -> svc.getRoutes().contains(createTramRoute(AshtonUnderLyneManchesterEccles)))
                 .collect(IdSet.collector());
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID
-        List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayAshToManServices.contains(trip.getService().getId())).
+        List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayServices.contains(trip.getService().getId())).
                 collect(Collectors.toList());
 
         assertTrue(filteredTrips.size()>0);
 
         // find the stops, invariant is now that each trip ought to contain a velopark stop
         List<StopCall> stoppingAtVelopark = filteredTrips.stream()
-                .filter(trip -> mondayAshToManServices.contains(trip.getService().getId()))
+                .filter(trip -> mondayServices.contains(trip.getService().getId()))
                 .map(trip -> getStopsFor(trip, TramStations.VeloPark.getId()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());

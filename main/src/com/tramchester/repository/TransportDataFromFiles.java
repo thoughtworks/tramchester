@@ -262,7 +262,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 }
 
                 Service service = trip.getService();
-                service.addTrip(trip);
 
                 route.addTrip(trip);
                 route.addHeadsign(trip.getHeadsign());

@@ -84,12 +84,6 @@ class TransportDataFromFilesTrainTest {
         assertEquals("18085",result.getId().forDTO());
         assertTrue(TransportMode.isTrain(result));
 
-        Set<Service> svcs = result.getServices();
-        for (Service service : svcs) {
-//            assertEquals(result, service.getRoute(), "Service did not contain route");
-            assertTrue(service.getRoutes().contains(result), "Service did not contain route");
-        }
-
         Set<String> headsigns = result.getHeadsigns();
         assertEquals(2, headsigns.size(), "expected headsigns");
         assertTrue(headsigns.contains("Eccles"));

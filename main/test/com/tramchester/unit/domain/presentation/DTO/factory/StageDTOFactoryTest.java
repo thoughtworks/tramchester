@@ -50,7 +50,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateStageDTOCorrectlyForTransportStage() {
         Route testRoute = TestEnv.getTramTestRoute();
-        Service service = new Service("svcId", testRoute);
+        Service service = new Service("svcId");
         Trip trip = new Trip("tripId", "headSign", service, testRoute);
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);

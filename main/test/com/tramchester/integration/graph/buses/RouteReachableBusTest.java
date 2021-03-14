@@ -55,7 +55,7 @@ class RouteReachableBusTest {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        altyToStockportRoute = RoutesForTesting.ALTY_TO_STOCKPORT_WBT;
+        altyToStockportRoute = RoutesForTesting.ALTY_TO_WARRINGTON;
     }
 
     @Test

@@ -4,50 +4,22 @@ package com.tramchester.domain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.GraphPropertyKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 public class Service implements HasId<Service>, GraphProperty {
-    private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
     private final IdFor<Service> serviceId;
-    private final Set<Route> tripRoutes;
-    private final Agency initialAgency;
-
     private ServiceCalendar calendar;
 
-    /***
-     * Use version with agency
-     */
-    @Deprecated
-    public Service(String serviceId, Route route) {
-        this(StringIdFor.createId(serviceId), route);
+    public Service(String serviceId) {
+        this(StringIdFor.createId(serviceId));
     }
 
-    public Service(String serviceId, Agency agency) {
-        this(StringIdFor.createId(serviceId), agency);
-    }
-
-    /***
-     * Use version with agency
-     */
-    @Deprecated
-    public Service(IdFor<Service> serviceId, Route route) {
-        this(serviceId, route.getAgency());
-    }
-
-    public Service(IdFor<Service> serviceId, Agency initialAgency) {
+    public Service(IdFor<Service> serviceId) {
         this.serviceId = serviceId;
-        this.tripRoutes = new HashSet<>();
-        this.initialAgency = initialAgency;
-
         calendar = null;
     }
 
@@ -55,30 +27,12 @@ public class Service implements HasId<Service>, GraphProperty {
         return serviceId;
     }
 
-    @Deprecated
-    public void addTrip(Trip trip) {
-        Route tripRoute = trip.getRoute();
-        Agency tripAgency = tripRoute.getAgency();
-        if (!tripAgency.equals(initialAgency)) {
-            String message = "TripId: " + trip.getId() + " Trip Agency " + tripAgency.getId() + " does not match route: " + initialAgency;
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
-        tripRoutes.add(tripRoute);
-    }
-
     @Override
     public String toString() {
         return "Service{" +
                 "serviceId=" + serviceId +
-                ", tripRoutes=" + HasId.asIds(tripRoutes) +
-                ", initialAgency=" + initialAgency +
                 ", calendar=" + calendar +
                 '}';
-    }
-
-    public Set<Route> getRoutes() {
-        return tripRoutes;
     }
 
     @Override
