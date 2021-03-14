@@ -3,7 +3,7 @@ export default {
     classForRoute: function(route) {
         const prefix = 'RouteClass';
         if (route.transportMode=='Tram') {
-            return prefix + route.shortName;
+            return prefix + route.shortName.replace(/\s+/g, '');
         }
         return prefix + route.transportMode;
     },
