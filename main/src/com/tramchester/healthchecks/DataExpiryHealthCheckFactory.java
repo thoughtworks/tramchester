@@ -5,6 +5,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.repository.TransportData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -15,6 +17,8 @@ import java.util.List;
 
 @LazySingleton
 public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
+    private static final Logger logger = LoggerFactory.getLogger(DataExpiryHealthCheckFactory.class);
+
     private final List<TramchesterHealthCheck> healthChecks;
     private final TransportData transportData;
     private final ProvidesLocalNow providesLocalNow;
@@ -44,8 +48,12 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
     @PostConstruct
     public void start() {
         transportData.getFeedInfos().forEach((name, feedInfo) -> {
-            TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesLocalNow, config, serviceTimeLimits);
-            healthChecks.add(healthCheck);
+            if (feedInfo.validUntil()!=null) {
+                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesLocalNow, config, serviceTimeLimits);
+                healthChecks.add(healthCheck);
+            } else {
+                logger.warn("Cannot add healthcheck for " + feedInfo + " since 'valid until' is missing");
+            }
         });
     }
 

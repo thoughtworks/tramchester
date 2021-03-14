@@ -23,7 +23,7 @@ dataSources:
     hasFeedInfo: true
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
-    noServices: [ 2020-12-25 ]
+    noServices: []
 bounds:
   minEastings: 333211
   minNorthings: 373264
