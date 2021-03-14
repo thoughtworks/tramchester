@@ -78,6 +78,6 @@ public class TFGMTestDataSourceConfig implements DataSourceConfig {
 
     @Override
     public Set<LocalDate> getNoServices() {
-        return Collections.singleton(LocalDate.of(2020,12,25));
+        return Collections.emptySet();
     }
 }

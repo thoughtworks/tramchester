@@ -13,10 +13,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
         this.dbConfig = dbConfig;
     }
 
-    public Path getDBPath() {
-        return dbConfig.getDbPath();
-    }
-
     @Override
     public GraphDBConfig getGraphDBConfig() {
         return dbConfig;

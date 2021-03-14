@@ -2,7 +2,6 @@ package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.DataSourceConfig;
-import com.tramchester.config.LiveDataAppConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
