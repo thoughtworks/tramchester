@@ -218,12 +218,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         TramTime visitingTime = journeyState.getJourneyClock();
 
-        // service available to catch?
-        if (isService) {
-            if (!serviceHeuristics.checkServiceTime(howIGotHere, nextNode, visitingTime, reasons).isValid()) {
-                return ServiceReason.ReasonCode.ServiceNotRunningAtTime;
-            }
-        }
+        // NOTE: was not making any significant difference to performance
+        // If re-instate ought to use route and not service
+//        if (isService) {
+//            if (!serviceHeuristics.checkServiceTime(howIGotHere, nextNode, visitingTime, reasons).isValid()) {
+//                return ServiceReason.ReasonCode.ServiceNotRunningAtTime;
+//            }
+//        }
 
         // check time, just hour first
         if (nodeTypeRepository.isHour(nextNode)) {

@@ -173,8 +173,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.addService(serviceA);
         container.addService(serviceB);
         container.addService(serviceC);
-
-        container.updateTimesForServices();
     }
 
     private void addAStation(TransportDataContainer container, Station station) {

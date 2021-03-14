@@ -109,7 +109,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
         populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services, sourceConfig, entityFactory);
         tripsAndServices.clear();
 
-        buildable.updateTimesForServices();
         buildable.reportNumbers();
 
         // update svcs where calendar data is missing

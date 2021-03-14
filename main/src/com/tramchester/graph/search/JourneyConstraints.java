@@ -1,12 +1,12 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.TransportData;
 import org.slf4j.Logger;
@@ -31,21 +31,15 @@ public class JourneyConstraints {
     private final int maxPathLength;
     private final Set<Station> endStations;
     private final IdSet<Station> closedStations;
-//    private final boolean tramOnlyDestinations;
     private final int maxJourneyDuration;
 
     public JourneyConstraints(TramchesterConfig config, TransportData transportData, JourneyRequest journeyRequest,
                               Set<Station> endStations) {
         this.config = config;
-        this.runningServices = new RunningServices(journeyRequest.getDate(), transportData, config);
+        this.runningServices = new RunningServices(journeyRequest.getDate(), transportData);
         this.maxPathLength = computeMaxPathLength();
 
         this.endStations = endStations;
-//        endTramStations = endStations.stream().
-//                filter(TransportMode::isTram).
-//                collect(Collectors.toSet());
-
-//        tramOnlyDestinations = (this.endStations.size() == endStations.size());
         this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
         LocalDate date = journeyRequest.getDate().getDate();
@@ -60,9 +54,6 @@ public class JourneyConstraints {
             logger.info("Have closed stationed " + closedStations);
         }
 
-//        if (tramOnlyDestinations) {
-//            logger.info("Checking only for tram destinations");
-//        }
     }
 
     private int computeMaxPathLength() {
@@ -84,14 +75,6 @@ public class JourneyConstraints {
         return runningServices.isRunning(serviceId);
     }
 
-    public TramTime getServiceEarliest(IdFor<Service> serviceId) {
-        return runningServices.getServiceEarliest(serviceId);
-    }
-
-    public TramTime getServiceLatest(IdFor<Service> serviceId) {
-        return runningServices.getServiceLatest(serviceId);
-    }
-
     public int getMaxWait() {
         return config.getMaxWait();
     }
@@ -103,10 +86,6 @@ public class JourneyConstraints {
     public Set<Station> getEndStations() {
         return endStations;
     }
-
-//    public boolean getIsTramOnlyDestinations() {
-//        return tramOnlyDestinations;
-//    }
 
     public int getMaxJourneyDuration() {
         return maxJourneyDuration;

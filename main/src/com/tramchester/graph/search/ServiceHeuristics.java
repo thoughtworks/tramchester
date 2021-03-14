@@ -54,25 +54,6 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, nodeServiceId));
     }
 
-    public ServiceReason checkServiceTime(HowIGotHere howIGotHere, Node node, TramTime currentClock, ServiceReasons reasons) {
-        reasons.incrementTotalChecked();
-
-        IdFor<Service> serviceId = nodeOperations.getServiceId(node);
-
-        // prepared to wait up to max wait for start of a service...
-        // TODO Push DOWN
-        TramTime serviceStart = journeyConstraints.getServiceEarliest(serviceId).minusMinutes(journeyConstraints.getMaxWait());
-
-        // BUT if arrive after service finished there is nothing to be done...
-        TramTime serviceEnd = journeyConstraints.getServiceLatest(serviceId);
-
-        if (!currentClock.between(serviceStart, serviceEnd)) {
-            return reasons.recordReason(ServiceReason.ServiceNotRunningAtTime(currentClock, howIGotHere));
-        }
-
-        return valid(ServiceReason.ReasonCode.ServiceTimeOk, howIGotHere, reasons);
-    }
-
     public ServiceReason checkNumberChanges(int currentNumChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
        reasons.incrementTotalChecked();
 

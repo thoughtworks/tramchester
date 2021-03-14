@@ -220,6 +220,7 @@ class TransportDataFromFilesTramTest {
             Set<Service> servicesOnDate = transportData.getServicesOnDate(tramServiceDate);
 
             IdSet<Service> servicesOnDateIds = servicesOnDate.stream().collect(IdSet.collector());
+
             transportData.getStations().forEach(station -> {
                 Set<Trip> callingTripsOnDate = transportData.getTrips().stream().
                         filter(trip -> trip.getStopCalls().callsAt(station)).
@@ -227,15 +228,8 @@ class TransportDataFromFilesTramTest {
                         collect(Collectors.toSet());
                 assertFalse(callingTripsOnDate.isEmpty(), String.format("%s %s", date, station));
 
-                IdSet<Service> callingServicesIds = callingTripsOnDate.stream().map(Trip::getService).collect(IdSet.collector());
-
                 for (int hour = earlistHour; hour < latestHour; hour++) {
                     TramTime tramTime = TramTime.of(hour,0);
-                    Set<Service> runningAtTime = servicesOnDate.stream().
-                            filter(svc -> callingServicesIds.contains(svc.getId())).
-                            filter(svc -> tramTime.between(svc.earliestDepartTime(), svc.latestDepartTime())).collect(Collectors.toSet());
-
-                    assertFalse(runningAtTime.isEmpty(), String.format("%s %s %s", date, tramTime, station.getName()));
 
                     Set<StopCall> calling = new HashSet<>();
                     callingTripsOnDate.forEach(trip -> {
@@ -248,7 +242,6 @@ class TransportDataFromFilesTramTest {
                     });
                     assertFalse(calling.isEmpty(), String.format("Stops %s %s %s %s", date.getDayOfWeek(), date, tramTime, station.getName()));
                 }
-
             });
         }
     }
@@ -360,14 +353,14 @@ class TransportDataFromFilesTramTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
-        IdSet<Service> toMediaCity = allTrips.stream().
+        Set<Trip> toMediaCity = allTrips.stream().
                 filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).
                 filter(trip -> trip.getStopCalls().callsAt(TramStations.MediaCityUK)).
                 filter(trip -> trip.getRoute().getId().equals(AshtonUnderLyneManchesterEccles.getId())).
-                map(trip -> trip.getService().getId()).collect(IdSet.idCollector());
+                collect(Collectors.toSet());
 
         Set<Service> services = toMediaCity.stream().
-                map(svc->transportData.getServiceById(svc)).collect(Collectors.toSet());
+                map(Trip::getService).collect(Collectors.toSet());
 
         LocalDate nextTuesday = TestEnv.testDay();
 
@@ -375,13 +368,17 @@ class TransportDataFromFilesTramTest {
                 filter(service -> service.getCalendar().operatesOn(nextTuesday)).
                 collect(Collectors.toSet());
 
+        assertFalse(onDay.isEmpty());
+
         TramTime time = TramTime.of(12, 0);
 
-        Set<Service> onTime = onDay.stream().
-                filter(svc -> svc.latestDepartTime().isAfter(time) && svc.earliestDepartTime().isBefore(time)).
-                collect(Collectors.toSet());
+        long onTimeTrips = toMediaCity.stream().
+                filter(trip -> trip.earliestDepartTime().isBefore(time)).
+                filter(trip -> trip.latestDepartTime().isAfter(time)).
+                count();
 
-        assertFalse(onTime.isEmpty(), "next tuesday at 12 missing"); // at least one service (likely is just one)
+        assertTrue(onTimeTrips>0);
+
     }
 
     @DataExpiryCategory
