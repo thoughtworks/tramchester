@@ -57,7 +57,8 @@ class InterchangeRepositoryBusTest {
     void shouldFindBusInterchanges() {
         IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(Bus);
         assertFalse(interchanges.isEmpty());
-        //assertTrue(interchanges.contains(AltrinchamInterchange.getId()));
+
+        assertTrue(interchanges.contains(AltrinchamInterchange.getId()));
         assertTrue(interchanges.contains(StockportBusStation.getId()));
 
         assertFalse(interchanges.contains(StockportAtAldi.getId()));

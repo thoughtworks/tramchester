@@ -17,8 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class ReachabilityRepositoryBusTest {
@@ -47,9 +46,9 @@ class ReachabilityRepositoryBusTest {
     void shouldCreateReachabilityMatrix() {
         Route route = routeRepo.getRouteById(RoutesForTesting.StockportMarpleRomileyCircular.getId());
 
+        assertNotNull(route);
+
         assertTrue(reachable(createRouteStation(route, BusStations.StockportAtAldi), BusStations.StockportNewbridgeLane ));
-
-
     }
 
     private boolean reachable(RouteStation routeStation, BusStations destinationStation) {

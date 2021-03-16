@@ -128,8 +128,8 @@ class TransportDataFromFilesBusTest {
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
-        results = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
-        assertTrue(results.isEmpty());
+        Set<Service> futureServices = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
+        assertTrue(results.size() > futureServices.size());
     }
 
     @Test

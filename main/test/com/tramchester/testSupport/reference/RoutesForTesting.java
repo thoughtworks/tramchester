@@ -23,17 +23,17 @@ public class RoutesForTesting {
     public static final Route ALTY_TO_WARRINGTON = new Route(StringIdFor.createId("WBTR05A:I:"), "5A",
             "Alty to Stockport", WarringtonsOwnBuses, Bus);
 
+    public static final Agency HIGH_PEAK_BUSES = new Agency(DataSourceID.TFGM(), "HGP",
+    "High Peak Buses");
+
     public static final Route AIR_TO_BUXTON = new Route(StringIdFor.createId("HGP:199:I:"), "199",
-            "Manchester Airport - Stockport - Buxton Skyline",  new Agency(DataSourceID.TFGM(), "HGP", "High Peak Buses"),
-            Bus);
+            "Manchester Airport - Stockport - Buxton Skyline", HIGH_PEAK_BUSES, Bus);
 
-    public static final Route StockportMarpleRomileyCircular = new Route(StringIdFor.createId("GMS:383:C:"), "383",
-            "Stockport - Marple - Romiley Circular", StagecoachManchester,
-            Bus);
+    public static final Route StockportMarpleRomileyCircular = new Route(StringIdFor.createId("SCMN383:O:"), "383",
+            "Stockport - Marple/Romiley Circular", StagecoachManchester, Bus);
 
-    public static final Route ALTY_TO_STOCKPORT = new Route(StringIdFor.createId("GMS:11A:I:"), "11A",
-            "Altrincham - Sharston - Cheadle - Stockport", new Agency(DataSourceID.TFGM(), "GMS", "agencyName"),
-            Bus);
+    public static final Route ALTY_TO_STOCKPORT = new Route(StringIdFor.createId("SCMN11A:I:"), "11A",
+            "Altrincham - Stockport", StagecoachManchester, Bus);
 
     public static Route createTramRoute(KnownTramRoute knownRoute) {
         return new Route(knownRoute.getId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
