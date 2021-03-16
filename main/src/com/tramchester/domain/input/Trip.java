@@ -38,7 +38,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
     // test memory support
     public void dispose() {
-        logger.info("dispose");
+        //logger.debug("dispose");
         stopCalls.dispose();
     }
 

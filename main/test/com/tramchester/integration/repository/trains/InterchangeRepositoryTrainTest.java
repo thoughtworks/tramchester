@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class InterchangeRepositoryTrainTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository interchangeRepository;
-    private StationRepository stationRepository;
-    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -41,8 +39,6 @@ class InterchangeRepositoryTrainTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        stationRepository = componentContainer.get(StationRepository.class);
-        routeRepository = componentContainer.get(RouteRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
     }
 
@@ -58,12 +54,5 @@ class InterchangeRepositoryTrainTest {
         assertFalse(interchangeRepository.isInterchange(TrainStations.of(TrainStations.Mobberley)));
     }
 
-    @Test
-    void shouldHaveReachableInterchangeForEveryRoute() {
-        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, stationRepository, Train);
-        Set<Route> all = routeRepository.getRoutes();
-
-        assertEquals(all, routesWithInterchanges);
-    }
 
 }
