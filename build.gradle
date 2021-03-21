@@ -40,7 +40,7 @@ dependencies {
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
             'com.github.ben-manes.caffeine:caffeine:2.8.1'
-    implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.1')
+    implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.2')
     implementation('com.fasterxml.jackson.module:jackson-module-afterburner:2.12.2')
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
@@ -50,10 +50,10 @@ dependencies {
     implementation('software.amazon.awssdk:cloudformation:2.16.22')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.93.0',
-            'software.amazon.awscdk:s3:1.93.0',
+            'software.amazon.awscdk:s3:1.94.1',
             'software.amazon.awscdk:ec2:1.93.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.93.0',
-            'software.amazon.awscdk:autoscaling:1.93.0',
+            'software.amazon.awscdk:autoscaling:1.94.1',
             'software.amazon.awscdk:cdk-cx-api:1.94.1'
 
     implementation('org.geotools:gt-main:24.2')
