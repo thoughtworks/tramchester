@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
@@ -14,6 +15,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +26,7 @@ import java.util.List;
 
 import static com.tramchester.testSupport.reference.TrainStations.Knutsford;
 import static com.tramchester.testSupport.reference.TrainStations.Mobberley;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainRouteReachableTest {
@@ -33,7 +34,7 @@ class TrainRouteReachableTest {
 
     private RouteReachable reachable;
     private StationRepository stationRepository;
-    private RouteRepository routeRepo;
+    private Route route;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -49,41 +50,34 @@ class TrainRouteReachableTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        routeRepo = componentContainer.get(RouteRepository.class);
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
+
+        route = routeRepository.findRouteByShortName(StringIdFor.createId("NT"), "NT:MAN->CTR");
     }
 
     @Test
-    void shouldHaveCorrectReachabilityOrInterchanges() {
-        Route route = routeRepo.getRouteById(StringIdFor.createId("7685")); // NT:MAN->CTR
-
-        IdSet<Station> reachable = reachable(route, Mobberley, Knutsford);
-        assertEquals(1, reachable.size());
-        assertTrue(reachable.contains(Knutsford.getId()));
-
-        assertTrue(reachable(route, Knutsford, Mobberley).isEmpty());
+    void shouldFindRouteCorrectly() {
+        assertNotNull(route);
     }
 
     @Test
-    void shouldHaveAdjacentRoutesCorrectly() {
-        assertEquals(2, getRoutes(Mobberley, Knutsford).size()); // stock to chester, man to chester
-        assertEquals(1, getRoutes(Knutsford, Mobberley).size()); // chester to manchester
+    void shouldHaveCorrectReachability() {
+        IdSet<Station> fromMobberley = reachable.getReachableStations(createRouteStation(route, Mobberley));
+        assertTrue(fromMobberley.contains(Knutsford.getId()));
+
+        IdSet<Station> fromKnutsford = reachable.getReachableStations(createRouteStation(route, Knutsford));
+        assertFalse(fromKnutsford.contains(Mobberley.getId())); // wrong direction
     }
 
-    private List<Route> getRoutes(TrainStations start, TrainStations neighbour) {
-        return reachable.getRoutesFromStartToNeighbour(getReal(start), getReal(neighbour));
+    @Test
+    void shouldHaveInterchangeReachable() {
+        assertTrue(reachable.isInterchangeReachable(createRouteStation(route, Knutsford)));
+        assertTrue(reachable.isInterchangeReachable(createRouteStation(route, Mobberley)));
     }
 
-    private Station getReal(TrainStations stations) {
-        return TrainStations.real(stationRepository, stations);
-    }
-
-    private IdSet<Station> reachable(Route route, TrainStations start, TrainStations dest) {
-        return reachable.getRouteReachableWithInterchange(createRouteStation(route, getReal(start)), IdSet.singleton(dest.getId()));
-    }
-
-    private RouteStation createRouteStation(Route route, Station station) {
-        return new RouteStation(station, route);
+    private RouteStation createRouteStation(Route route, TrainStations station) {
+        return new RouteStation(stationRepository.getStationById(station.getId()), route);
     }
 }

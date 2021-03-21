@@ -48,6 +48,11 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
         return 8*60;
     }
 
+    @Override
+    public int getMaxWait() {
+        return 60;
+    }
+
     private static class GraphDBIntegrationTrainTestConfig extends GraphDBTestConfig {
 
         public GraphDBIntegrationTrainTestConfig(String folder, String dbName) {

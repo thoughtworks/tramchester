@@ -42,10 +42,11 @@ class FindStationsByNumberLinksTrainTest {
     }
 
     @Test
-    void shouldIdForkPointsFromTramNetwork() {
+    void shouldIdForkPointsFromTrainNetwork() {
         int threshhold = 3;
         IdSet<Station> found = discoverer.findAtLeastNConnectionsFrom(TransportMode.Train, threshhold);
-        assertEquals(1095, found.size());
+        assertEquals(913, found.size());
+
         assertTrue(found.contains(TrainStations.ManchesterPiccadilly.getId()));
         assertTrue(found.contains(TrainStations.LondonEuston.getId()));
         assertTrue(found.contains(TrainStations.Stockport.getId()));

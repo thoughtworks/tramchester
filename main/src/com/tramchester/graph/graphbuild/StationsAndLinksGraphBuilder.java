@@ -148,13 +148,11 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
     private void createLinkRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
-        Stream<Service> services = route.getServices().stream().filter(filter::shouldInclude);
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
         Map<StationIdPair, Integer> pairs = new HashMap<>(); // (start, dest) -> cost
-        //services.forEach(service -> service.getTrips().forEach(trip -> {
         route.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
@@ -172,9 +170,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             });
 
         // TODO Was diagnosing issue with Guice DI
-        if (routeBuilderCache.stationEmpty()) {
-            throw new RuntimeException("No cached station after station build");
-        }
+//        if (routeBuilderCache.stationEmpty()) {
+//            throw new RuntimeException("No cached station after station build");
+//        }
 
         pairs.keySet().forEach(pair -> {
             Node startNode = routeBuilderCache.getStation(tx, pair.getBeginId());

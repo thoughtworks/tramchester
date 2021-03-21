@@ -280,6 +280,15 @@ public class TransportDataContainer implements TransportData {
         return routes.hasId(routeId);
     }
 
+    @Override
+    public Route findRouteByShortName(IdFor<Agency> agencyId, String name) {
+        Optional<Route> searchResults = routes.getValues().stream().
+                filter(route -> route.getAgency().getId().equals(agencyId)).
+                filter(route -> route.getShortName().equals(name)).
+                findAny();
+        return searchResults.orElse(null);
+    }
+
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {
         dataSourceInfos.add(dataSourceInfo);
     }

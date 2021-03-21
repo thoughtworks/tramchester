@@ -87,13 +87,12 @@ class GraphBuilderTrainTest {
         Iterable<Relationship> outboundLinks = manPiccNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
-        assertEquals(3, list.size());
+        assertEquals(16, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(Stockport.getId()));
     }
-
 
 }

@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.reference.TrainStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -44,7 +45,7 @@ class TrainRouteCalculatorTest {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private RouteCalculatorTestFacade calculator;
+    private RouteCalculatorTestFacade testFacade;
 
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
@@ -67,7 +68,7 @@ class TrainRouteCalculatorTest {
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
     }
 
     @AfterEach
@@ -81,7 +82,7 @@ class TrainRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
                 3*60);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TrainStations.LondonEuston, TrainStations.ManchesterPiccadilly,
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(TrainStations.LondonEuston, ManchesterPiccadilly,
                 request, 3);
         assertFalse(journeys.isEmpty());
 
@@ -110,13 +111,8 @@ class TrainRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
                 30);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TrainStations.Stockport, TrainStations.ManchesterPiccadilly,
-                request, 1);
-        assertFalse(journeys.isEmpty());
 
-        // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
-        assertFalse(direct.isEmpty());
+        atLeastOneDirect(request, Stockport, ManchesterPiccadilly);
     }
 
     @Test
@@ -125,13 +121,16 @@ class TrainRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
                 30);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TrainStations.Hale, TrainStations.Knutsford,
-                request, 1);
-        assertFalse(journeys.isEmpty());
+        atLeastOneDirect(request, Hale, Knutsford);
+    }
 
-        // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
-        assertFalse(direct.isEmpty());
+    @Test
+    void shouldHaveKnutsfordToHale() {
+        TramTime travelTime = TramTime.of(9, 0);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
+                30);
+        atLeastOneDirect(request, Knutsford, Hale);
     }
 
     @Test
@@ -174,7 +173,7 @@ class TrainRouteCalculatorTest {
         for(IdFor<Station> begin : stationIds) {
             for(IdFor<Station> end : stationIds) {
                 if (!begin.equals(end)) {
-                    Set<Journey> journeys = calculator.calculateRouteAsSet(begin, end, request, 1);
+                    Set<Journey> journeys = testFacade.calculateRouteAsSet(begin, end, request, 1);
                     if (journeys.isEmpty()) {
                         failed.add(Pair.of(begin,end));
                     }
@@ -182,5 +181,14 @@ class TrainRouteCalculatorTest {
             }
         }
         return failed;
+    }
+
+    private void atLeastOneDirect(JourneyRequest request, TrainStations start, TrainStations dest) {
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request, 1);
+        assertFalse(journeys.isEmpty());
+
+        // At least one direct
+        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
     }
 }

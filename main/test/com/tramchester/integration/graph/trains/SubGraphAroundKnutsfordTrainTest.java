@@ -26,10 +26,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.reference.TrainStations.Hale;
-import static com.tramchester.testSupport.reference.TrainStations.Knutsford;
+import static com.tramchester.testSupport.reference.TrainStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class SubGraphAroundKnutsfordTrainTest {
@@ -37,15 +37,14 @@ class SubGraphAroundKnutsfordTrainTest {
     private static GraphDatabase database;
     private static SubgraphConfig config;
 
-    private RouteCalculatorTestFacade calculator;
+    private RouteCalculatorTestFacade testFacade;
     private final LocalDate when = TestEnv.testDay();
-    private static final List<TrainStations> stations = Arrays.asList(
-            Hale,
-            TrainStations.Ashley,
-            TrainStations.Mobberley,
-            Knutsford);
+
+    private static final List<TrainStations> stations = Arrays.asList(Hale, Ashley, Mobberley, Knutsford);
+
     private Transaction txn;
     private TramTime tramTime;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -69,11 +68,13 @@ class SubGraphAroundKnutsfordTrainTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        txn = database.beginTx();
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        stationRepository = componentContainer.get(StationRepository.class);
+        RouteCalculator routeCalculator = componentContainer.get(RouteCalculator.class);
 
-        tramTime = TramTime.of(8, 0);
+        txn = database.beginTx();
+        testFacade = new RouteCalculatorTestFacade(routeCalculator, stationRepository, txn);
+
+        tramTime = TramTime.of(9, 0);
     }
 
     @AfterEach
@@ -82,8 +83,16 @@ class SubGraphAroundKnutsfordTrainTest {
     }
 
     @Test
-    void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(Knutsford, Hale, TramTime.of(23,55), when);
+    void shouldValidateFilterStationsAreValid() {
+        stations.forEach(station -> {
+            assertNotNull(stationRepository.getStationById(station.getId()));
+        });
+    }
+
+    @Test
+    void shouldHaveKnutsfordToAndFromHale() {
+        validateAtLeastOneJourney(Hale, Knutsford);
+        validateAtLeastOneJourney(Knutsford, Hale);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -92,7 +101,7 @@ class SubGraphAroundKnutsfordTrainTest {
         for (TrainStations start: stations) {
             for (TrainStations destination: stations) {
                 if (!start.equals(destination)) {
-                    validateAtLeastOneJourney(start, destination, tramTime, when);
+                    validateAtLeastOneJourney(start, destination);
                 }
             }
         }
@@ -110,24 +119,24 @@ class SubGraphAroundKnutsfordTrainTest {
         creator.create(format("%s_trains.dot", "around_hale"), TrainStations.of(Hale), Integer.MAX_VALUE);
     }
 
+    @NotNull
+    private Set<Journey> getJourneys(TestStations start, TestStations destination, LocalDate when) {
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
+                30);
+        return testFacade.calculateRouteAsSet(start,destination, journeyRequest);
+    }
+
+    private void validateAtLeastOneJourney(TestStations start, TestStations dest) {
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
+                30);
+
+        Set<Journey> results = testFacade.calculateRouteAsSet(start, dest, journeyRequest, 1);
+        assertFalse(results.isEmpty(), "No results from " + start + " to " + dest);
+    }
+
     private static class SubgraphConfig extends IntegrationTrainTestConfig {
         public SubgraphConfig() {
             super("subgraph_hale_trains_tramchester.db");
         }
-    }
-
-    @NotNull
-    private Set<Journey> getJourneys(TestStations start, TestStations destination, LocalDate when) {
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
-                config.getMaxJourneyDuration());
-        return calculator.calculateRouteAsSet(start,destination, journeyRequest);
-    }
-
-    private void validateAtLeastOneJourney(TestStations start, TestStations dest, TramTime time, LocalDate date) {
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 5,
-                config.getMaxJourneyDuration());
-
-        Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest, 1);
-        assertFalse(results.isEmpty());
     }
 }
