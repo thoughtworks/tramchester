@@ -51,6 +51,7 @@ postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
 maxWait: 25
+maxInitialWait: 25
 numberQueries: 3
 queryInterval: 12
 maxNumberResults: 5

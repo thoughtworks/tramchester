@@ -43,6 +43,9 @@ public abstract class TramchesterConfig extends Configuration {
     // max time to wait for tram/connection
     public abstract int getMaxWait();
 
+    // max initial time to wait for service
+    public abstract int getMaxInitialWait();
+
     // max number of results to return via the API
     public abstract int getMaxNumResults();
 

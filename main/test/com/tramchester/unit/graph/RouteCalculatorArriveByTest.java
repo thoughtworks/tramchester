@@ -52,14 +52,12 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         Stream<Journey> journeyStream = Stream.empty();
 
-        //EasyMock.expect(config.getTransportModes()).andReturn(Arrays.asList(GTFSTransportationType.tram));
-
         EasyMock.expect(costCalculator.getApproxCostBetween(txn, start, destinationId)).andReturn(costBetweenStartDest);
         TramTime requiredDepartTime = arriveBy.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(serviceDate, requiredDepartTime, true,
                 5, 120);
         EasyMock.expect(routeCalculator.calculateRoute(txn, start, destinationId, updatedWithComputedDepartTime)).andReturn(journeyStream);
-        EasyMock.expect(config.getMaxWait()).andReturn(34);
+        EasyMock.expect(config.getMaxInitialWait()).andReturn(34);
 
         replayAll();
         JourneyRequest originalRequest = new JourneyRequest(serviceDate, arriveBy, false, 5, 120);

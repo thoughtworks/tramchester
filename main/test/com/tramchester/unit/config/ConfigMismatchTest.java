@@ -68,6 +68,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds());
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration());
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait());
+        assertEquals(expected.getMaxInitialWait(), testConfig.getMaxInitialWait());
         assertEquals(expected.getChangeAtInterchangeOnly(), testConfig.getChangeAtInterchangeOnly());
         assertEquals(expected.getWalkingMPH(), testConfig.getWalkingMPH());
         assertEquals(expected.getNearestStopRangeKM(), testConfig.getNearestStopRangeKM());
