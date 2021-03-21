@@ -94,20 +94,6 @@ public class RouteReachable {
         return result;
     }
 
-    /***
-     * Use getReachableStations() or isInterchangeReachable() instead
-     */
-    @Deprecated
-    public IdSet<Station> getRouteReachableWithInterchange(RouteStation start, IdSet<Station> destinations) {
-        logger.debug(format("Checking reachability from %s to %s stations", start.getStationId(), destinations.size()));
-
-        if (isInterchangeReachable(start)) {
-            return destinations;
-        }
-
-        return getReachableStations(start);
-    }
-
     private boolean interchangeReachable(Transaction txn, RouteStation start, List<String> interchangeIds) {
         Map<String, Object> params = new HashMap<>();
         params.put("route_station_id", start.getId().getGraphId());

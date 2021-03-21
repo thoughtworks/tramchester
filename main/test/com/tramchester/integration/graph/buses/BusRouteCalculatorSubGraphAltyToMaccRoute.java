@@ -42,6 +42,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static Config config;
+    private static RouteReachable routeReachable;
 
     private RouteCalculatorTestFacade calculator;
     private Transaction txn;
@@ -61,6 +62,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
+        routeReachable = componentContainer.get(RouteReachable.class);
+
     }
 
     @AfterAll
@@ -97,14 +100,22 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         RouteStation routeStation = transportData.getRouteStation(start, route);
 
-        RouteReachable routeReachable = componentContainer.get(RouteReachable.class);
-
-        IdSet<Station> result = routeReachable.getRouteReachableWithInterchange(routeStation, IdSet.singleton(end.getId()));
+        // TODO Rework this test
+        IdSet<Station> result = getRouteReachableWithInterchange(routeStation, IdSet.singleton(end.getId()));
         assertFalse(result.isEmpty());
         assertTrue(result.contains(end.getId()));
 
         assertTrue(start.getRoutes().contains(route));
         assertTrue(end.getRoutes().contains(route));
+    }
+
+    private IdSet<Station> getRouteReachableWithInterchange(RouteStation start, IdSet<Station> destinations) {
+
+        if (routeReachable.isInterchangeReachable(start)) {
+            return destinations;
+        }
+
+        return routeReachable.getReachableStations(start);
     }
 
     @Test
