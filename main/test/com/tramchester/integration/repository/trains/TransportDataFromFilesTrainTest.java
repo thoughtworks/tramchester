@@ -63,7 +63,7 @@ class TransportDataFromFilesTrainTest {
     void shouldHaveExpectedNumbersForTrain() {
         assertEquals(28, transportData.getAgencies().size());
         assertEquals(2578,transportData.getStations().size());
-        assertEquals(3635, transportData.getRoutes().size());
+        assertEquals(3770, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -78,7 +78,7 @@ class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        String routeId = "17071";
+        String routeId = "16989";
         Route result = transportData.getRouteById(StringIdFor.createId(routeId)); // ariva train man airport to chester
 
         assertNotNull(result);
@@ -88,7 +88,7 @@ class TransportDataFromFilesTrainTest {
         assertTrue(TransportMode.isTrain(result));
 
         Set<String> headsigns = result.getHeadsigns();
-        assertEquals(69, headsigns.size(), "expected headsigns");
+        assertEquals(68, headsigns.size(), "expected headsigns");
     }
 
     @Test
@@ -96,7 +96,7 @@ class TransportDataFromFilesTrainTest {
         Collection<Route> results = transportData.getRoutes();
         long walesTrainRoutes = results.stream().filter(route -> route.getAgency().equals(ArrivaTrainsWales)).count();
 
-        assertEquals(256, walesTrainRoutes);
+        assertEquals(262, walesTrainRoutes);
     }
 
     @Test

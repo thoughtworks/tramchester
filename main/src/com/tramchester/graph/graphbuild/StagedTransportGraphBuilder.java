@@ -328,7 +328,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
         if (pickup && !routeBuilderCache.hasBoarding(platformOrStation.getId(), routeStationNode.getId())) {
-            createBoarding(routeBuilderCache, stopCall, route, station, isInterchange, platformOrStation, routeStationId, routeStationNode);
+            createBoarding(routeBuilderCache, stopCall, route, station, isInterchange, platformOrStation, routeStationId,
+                    routeStationNode);
         }
 
         // leave: route station -> platform/station , NOTE: no towardsStation at first stop of a trip

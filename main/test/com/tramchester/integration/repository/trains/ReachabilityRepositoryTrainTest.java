@@ -43,7 +43,7 @@ class ReachabilityRepositoryTrainTest {
 
     @Test
     void shouldCreateReachabilityMatrix() {
-        Route route = routeRepo.getRouteById(StringIdFor.createId("7362")); // shortName='NT:CTR->MAN'
+        Route route = routeRepo.getRouteById(StringIdFor.createId("7382")); // shortName='NT:CTR->MAN'
 
         assertNotNull(route);
 
