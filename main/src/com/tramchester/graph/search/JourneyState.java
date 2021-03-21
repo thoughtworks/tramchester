@@ -41,6 +41,7 @@ public class JourneyState implements ImmutableJourneyState {
             this.boardingTime = previousState.boardingTime;
         }
         this.numberOfBoardings = previousState.numberOfBoardings;
+        this.numberOfConnections = previousState.numberOfConnections;
     }
 
     public static InitialBranchState<JourneyState> initialState(TramTime queryTime,
@@ -94,6 +95,9 @@ public class JourneyState implements ImmutableJourneyState {
     }
 
     private void leave(int currentTotalCost) {
+        if (currentTotalCost<journeyOffset) {
+            throw new RuntimeException("Invalid total cost "+currentTotalCost+" less that current total offset " +journeyOffset);
+        }
 
         int tripCost = currentTotalCost - journeyOffset;
         journeyClock = boardingTime.plusMinutes(tripCost);
@@ -166,6 +170,6 @@ public class JourneyState implements ImmutableJourneyState {
     }
 
     public void connection() {
-        numberOfBoardings = numberOfConnections + 1;
+        numberOfConnections = numberOfConnections + 1;
     }
 }
