@@ -64,9 +64,9 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedNumbersForBus() {
-        assertEquals(27, transportData.getAgencies().size());
-        assertEquals(13578, transportData.getStations().size());
-        assertEquals(647, transportData.getRoutes().size());
+        assertEquals(35, transportData.getAgencies().size());
+        assertEquals(15449, transportData.getStations().size());
+        assertEquals(1188, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -75,45 +75,37 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldGetAgencies() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
-        assertEquals(27, agencies.size());
+        assertEquals(35, agencies.size());
         assertTrue(agencies.contains(StagecoachManchester));
     }
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = transportData.getRouteById(RoutesForTesting.ALTY_TO_STOCKPORT_WBT.getId());
-        assertEquals("Altrincham - Lymm - Stockton Heath - Warrington", result.getName());
+        Route result = transportData.getRouteById(RoutesForTesting.ALTY_TO_WARRINGTON.getId());
+        assertEquals("Altrincham - Partington - Thelwall - Warrington", result.getName());
         assertEquals(WarringtonsOwnBuses, result.getAgency());
-        assertEquals("WBT:5A:I:",result.getId().forDTO());
+        assertEquals("WBTR05A:I:",result.getId().forDTO());
         assertTrue(TransportMode.isBus(result));
-
-        Set<Service> svcs = result.getServices();
-        for (Service service : svcs) {
-            //assertEquals(result, service.getRoute(), "Service did not contain route");
-            assertTrue(service.getRoutes().contains(result), "Service did not contain route");
-        }
 
         List<String> headsigns = new ArrayList<>(result.getHeadsigns());
         assertEquals(1, headsigns.size(), "expected headsigns");
-        assertEquals("Warrington, Bus Interchange", headsigns.get(0));
+        assertEquals("Warrington", headsigns.get(0));
     }
 
     @Test
     void shouldHaveExpectedEndOfLinesAndRoutes() {
-        Route inbound = transportData.getRouteById(StringIdFor.createId("RDT:464:I:"));
-        assertEquals("Rochdale - Whitworth - Rawtenstall - Accrington", inbound.getName());
+        Route inbound = transportData.getRouteById(StringIdFor.createId("ROST464:I:"));
+        assertEquals("Rochdale - Bacup - Rawtenstall - Accrington", inbound.getName());
 
-        Route outbound = transportData.getRouteById(StringIdFor.createId("RDT:464:O:"));
-        assertEquals("Accrington - Rawtenstall - Whitworth - Rochdale", outbound.getName());
+        Route outbound = transportData.getRouteById(StringIdFor.createId("ROST464:O:"));
+        assertEquals("Accrington - Rawtenstall - Bacup - Rochdale", outbound.getName());
 
         Station firstStation = transportData.getStationById(StringIdFor.createId("2500ACC0009"));
-        assertEquals("Accrington, Bus Station (Stand 9)", firstStation.getName());
-        //assertTrue(firstStation.servesRoute(inbound));
+        assertEquals("Bus Station", firstStation.getName());
         assertTrue(firstStation.servesRoute(outbound));
 
         Station secondStation = transportData.getStationById(StringIdFor.createId("2500LAA15791"));
-        assertEquals("Accrington, opp Infant Street", secondStation.getName());
-        //assertTrue(secondStation.servesRoute(inbound));
+        assertEquals("Infant Street", secondStation.getName());
         assertTrue(secondStation.servesRoute(outbound));
     }
 
@@ -122,8 +114,7 @@ class TransportDataFromFilesBusTest {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
 
-        // todo lockdown 14->12
-        assertEquals(196, gmsRoutes);
+        assertEquals(314, gmsRoutes);
     }
 
     @Test
@@ -137,15 +128,15 @@ class TransportDataFromFilesBusTest {
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
-        results = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
-        assertTrue(results.isEmpty());
+        Set<Service> futureServices = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
+        assertTrue(results.size() > futureServices.size());
     }
 
     @Test
     void shouldGetStation() {
         assertTrue(transportData.hasStationId(BusStations.PiccadilyStationStopA.getId()));
         Station station = transportData.getStationById(BusStations.PiccadilyStationStopA.getId());
-        assertEquals("Manchester City Centre, Piccadilly Station (Stop A)", station.getName());
+        assertEquals("Piccadilly Station", station.getName());
 
         assertFalse(station.hasPlatforms());
     }

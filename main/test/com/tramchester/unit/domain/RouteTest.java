@@ -27,9 +27,9 @@ class RouteTest {
     void shouldAddService() {
         Route  route = new Route(StringIdFor.createId("routeId"),"code","name", TestEnv.MetAgency(), TransportMode.Tram);
 
-        route.addService(new Service("serviceId", TestEnv.getTramTestRoute()));
-        route.addService(new Service("serviceId", TestEnv.getTramTestRoute()));
-        route.addService(new Service("serviceId2", TestEnv.getTramTestRoute()));
+        route.addService(new Service("serviceId"));
+        route.addService(new Service("serviceId"));
+        route.addService(new Service("serviceId2"));
 
         Set<Service> services = route.getServices();
 

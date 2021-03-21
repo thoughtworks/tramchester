@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
-    private static final IdFor<Route> ROUTE_ID = StringIdFor.createId("DGC:88:O:");
+    private static final IdFor<Route> ROUTE_ID = StringIdFor.createId("DAGC088C:O:");
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static Config config;
@@ -94,6 +94,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         Station start = transportData.getStationById(BusStations.AltrinchamInterchange.getId());
         Station end = transportData.getStationById(BusStations.MacclefieldBusStationBay1.getId());
+
         RouteStation routeStation = transportData.getRouteStation(start, route);
 
         RouteReachable routeReachable = componentContainer.get(RouteReachable.class);

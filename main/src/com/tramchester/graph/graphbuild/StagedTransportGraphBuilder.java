@@ -133,6 +133,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
+            logger.info("Adding version node to the DB");
             Node node = graphDatabase.createNode(tx, Labels.VERSION);
             infos.forEach(nameAndVersion -> setProp(node, nameAndVersion));
             tx.commit();

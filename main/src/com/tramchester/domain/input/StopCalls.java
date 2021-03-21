@@ -25,7 +25,7 @@ public class StopCalls {
     }
 
     public void dispose() {
-        logger.debug("dispose");
+        //logger.debug("dispose");
         orderedStopCalls.clear();
     }
 

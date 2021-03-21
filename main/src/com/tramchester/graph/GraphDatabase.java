@@ -69,7 +69,7 @@ public class GraphDatabase implements DatabaseEventListener {
         this.configuration = configuration;
         this.transportData = transportData;
         this.graphDBConfig = configuration.getGraphDBConfig();
-        dbName = DEFAULT_DATABASE_NAME; // neo4j community edition default DB
+        dbName = DEFAULT_DATABASE_NAME; // must be this for neo4j community edition default DB
     }
 
     @PostConstruct
@@ -147,8 +147,6 @@ public class GraphDatabase implements DatabaseEventListener {
     private boolean upToDateVersionsAndNeighbourFlag() {
         Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
         logger.info("Checking graph version information ");
-
-        //Set<NameAndVersion> versions = info.getVersions();
 
         // version -> flag
         Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();

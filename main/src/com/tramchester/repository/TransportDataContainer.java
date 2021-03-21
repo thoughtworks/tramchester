@@ -230,12 +230,6 @@ public class TransportDataContainer implements TransportData {
         platforms.add(platform);
     }
 
-    public void updateTimesForServices() {
-        // Cannot do this until after all stops loaded into trips
-        logger.info("Updating timings for services");
-        services.forEach(Service::updateTimings);
-    }
-
     public void addService(Service service) {
         services.add(service);
     }

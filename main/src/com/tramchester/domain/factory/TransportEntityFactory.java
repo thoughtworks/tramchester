@@ -5,7 +5,6 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.NoPlatformStopCall;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.StopCall;
@@ -40,7 +39,7 @@ public class TransportEntityFactory {
     }
 
     public Service createService(IdFor<Service> serviceId, Route route) {
-        return new Service(serviceId, route);
+        return new Service(serviceId);
     }
 
     public Trip createTrip(TripData tripData, Service service, Route route) {

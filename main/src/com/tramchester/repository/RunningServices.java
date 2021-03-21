@@ -16,26 +16,10 @@ public class RunningServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningServices.class);
 
     private final IdSet<Service> serviceIds;
-    private final Map<IdFor<Service>, TramTime> latestTimeMap;
-    private final Map<IdFor<Service>, TramTime> earliestTimeMap;
 
-    public RunningServices(TramServiceDate date, TransportData transportData, TramchesterConfig config) {
-        serviceIds = new IdSet<>();
-        latestTimeMap = new HashMap<>();
-        earliestTimeMap = new HashMap<>();
+    public RunningServices(TramServiceDate date, TransportData transportData) {
 
-        TramTime earliest = TramTime.of(0, 0).plusMinutes(config.getMaxWait());
-
-        transportData.getServicesOnDate(date).forEach(svc -> {
-            IdFor<Service> serviceId = svc.getId();
-            serviceIds.add(serviceId);
-            latestTimeMap.put(serviceId, svc.latestDepartTime());
-            TramTime earliestDepartTime = svc.earliestDepartTime();
-            if (earliestDepartTime.isBefore(earliest)) {
-                earliestDepartTime = earliest;
-            }
-            earliestTimeMap.put(serviceId, earliestDepartTime);
-        });
+        serviceIds = transportData.getServicesOnDate(date).stream().collect(IdSet.collector());
 
         if (serviceIds.size()>0) {
             logger.info("Found " + serviceIds.size() + " running services for " + date);
@@ -47,14 +31,6 @@ public class RunningServices {
 
     public boolean isRunning(IdFor<Service> serviceId) {
         return serviceIds.contains(serviceId);
-    }
-
-    public TramTime getServiceLatest(IdFor<Service> svcId) {
-        return latestTimeMap.get(svcId);
-    }
-
-    public TramTime getServiceEarliest(IdFor<Service> svcId) {
-        return earliestTimeMap.get(svcId);
     }
 
     public long count() {

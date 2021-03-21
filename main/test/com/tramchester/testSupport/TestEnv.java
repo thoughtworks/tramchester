@@ -68,8 +68,9 @@ public class TestEnv {
 
     private static final Agency MET = new Agency(DataSourceID.TFGM(), Agency.METL, "Metrolink");
     public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(), "AW", "Arriva Trains Wales");
-    public static final Agency StagecoachManchester = new Agency(DataSourceID.TFGM(), "GMS", "Stagecoach Manchester");
-    public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(), "WBT", "Warrington's Own Buses");
+
+    public static final Agency StagecoachManchester = new Agency(DataSourceID.TFGM(), "SCMN", "Stagecoach Manchester");
+    public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(), "WBTR", "Warrington's Own Buses");
 
     public static final String TFGM_TIMETABLE_URL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
