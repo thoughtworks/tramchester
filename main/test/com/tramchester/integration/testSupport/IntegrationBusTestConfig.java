@@ -15,7 +15,8 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     public IntegrationBusTestConfig(String dbName) {
         super(new GraphDBIntegrationBusTestConfig("integrationBusTest", dbName));
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus", Collections.singleton(GTFSTransportationType.bus),
+        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus",
+                Collections.singleton(GTFSTransportationType.bus),
                 Collections.emptySet());
     }
 
