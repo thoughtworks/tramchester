@@ -94,7 +94,7 @@ class TrainRouteCalculatorTest {
 
         TransportStage<?, ?> trainStage = stages.get(0);
 
-        assertEquals(trainStage.getPassedStopsCount(), 21, trainStage.toString());
+        assertEquals(19, trainStage.getPassedStopsCount(), trainStage.toString());
         List<StopCall> callingPoints = trainStage.getCallingPoints();
 
         assertEquals(4, callingPoints.size());
