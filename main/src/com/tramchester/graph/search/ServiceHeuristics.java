@@ -80,16 +80,11 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.AlreadyDeparted(currentElapsed, howIGotHere));
         }
 
-        if (operatesWithinTime(nodeTime, currentElapsed)) {
+        int maxWait = journeyConstraints.getMaxWait();
+        if (currentElapsed.withinInterval(maxWait, nodeTime)) {
             return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
         }
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, howIGotHere));
-    }
-
-    private boolean operatesWithinTime(TramTime nodeTime, TramTime elapsedTimed) {
-        int maxWait = journeyConstraints.getMaxWait();
-        TramTime earliest = (nodeTime.getMinuteOfDay()>maxWait) ? nodeTime.minusMinutes(maxWait) : TramTime.of(0,0);
-        return elapsedTimed.between(earliest, nodeTime);
     }
 
     public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime, ServiceReasons reasons) {
@@ -103,14 +98,15 @@ public class ServiceHeuristics {
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-        // this only works if maxWaitMinutes<60
+        int maxWait = journeyConstraints.getMaxWait();
+        // TODO make more robust
         int previousHour = hour - 1;
         if (previousHour==-1) {
             previousHour = 23;
         }
         if (queryTimeHour == previousHour) {
             // TODO Breaks if max wait > 60
-            int timeUntilNextHour = 60 - journeyConstraints.getMaxWait();
+            int timeUntilNextHour = 60 - maxWait;
             if (journeyClockTime.getMinuteOfHour() >= timeUntilNextHour) {
                 return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
             }

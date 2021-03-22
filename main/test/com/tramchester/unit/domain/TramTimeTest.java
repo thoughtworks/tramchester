@@ -1,6 +1,5 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.time.TimeWindow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
@@ -136,62 +135,6 @@ class TramTimeTest {
         set.add(timeB);
 
         assertEquals(timeB,set.first());
-    }
-
-    @Test
-    void shouldTestTimeWindowsIntervalNearMidnight() {
-        TimeWindow timeWindow = new TimeWindow(of(0,1),60);
-        TramTime firstStopDepart = of(23,9);
-        TramTime secondStopArrival = of(23, 27);
-        Assertions.assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
-    }
-
-    @Test
-    void shouldTestTimeWindowsIntervalAfterMidnight() {
-        TimeWindow timeWindow = new TimeWindow(of(0,1),60);
-        TramTime firstStopDepart = of(0,9);
-        TramTime secondStopArrival = of(0, 27);
-        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
-    }
-
-    @Test
-    void shouldTestTimeWindowsEarlyMorning() {
-        TimeWindow timeWindow = new TimeWindow(of(1,1),60);
-        TramTime firstStopDepart = of(1,9);
-        TramTime secondStopArrival = of(1, 27);
-        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
-    }
-
-    @Test
-    void shouldTestTimeWindowsIntervalBeforeMidnight() {
-        TimeWindow timeWindow = new TimeWindow(of(23,10),60);
-        TramTime firstStopDepart = of(23,20);
-        TramTime secondStopArrival = of(23, 55);
-        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
-    }
-
-    @Test
-    void shouldTestTimeWindowsIntervalOverMidnight() {
-        TimeWindow timeWindow = new TimeWindow(of(23,45),60);
-        TramTime firstStopDepart = of(23,55);
-        TramTime secondStopArrival = of(0, 15);
-        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
-    }
-
-    @Test
-    void shouldTestTimeWindows() {
-        TimeWindow timeWindow = new TimeWindow(of(10, 1), 60);
-        TramTime firstStopDepart = of(10, 30);
-        TramTime secondStopArrival = of(10, 35);
-        assertTrue(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
-    }
-
-    @Test
-    void shouldTestTimeWindowsNoMatch() {
-        TimeWindow timeWindow = new TimeWindow(of(10,1),60);
-        TramTime firstStopDepart = of(9,9);
-        TramTime secondStopArrival = of(9, 27);
-        Assertions.assertFalse(TramTime.checkTimingOfStops(timeWindow, firstStopDepart, secondStopArrival));
     }
 
     @Test
@@ -374,20 +317,47 @@ class TramTimeTest {
 
         assertEquals(10, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
+    }
 
-        reference = nextDay(0, 4);
-        result = reference.minusMinutes(30);
+    @Test
+    void shouldFindTimesWithinInterval() {
+        TramTime reference = of(15, 24);
+        assertTrue(of(15, 15).withinInterval(10, reference));
+        assertTrue(of(15, 15).withinInterval(9, reference));
+        assertFalse(of(15, 15).withinInterval(8, reference));
 
-        assertTrue(reference.isNextDay());
+        assertTrue(of(14, 25).withinInterval(60, reference));
+    }
+
+    @Test
+    void shouldFindTimesWithinIntervalOrMidight() {
+        TramTime reference = of(0, 45);
+        assertTrue(of(0, 15).withinInterval(30, reference));
+        assertTrue(of(0, 15).withinInterval(90, reference));
+        assertFalse(of(0, 5).withinInterval(30, reference));
+    }
+
+    @Test
+    void shouldFindTimesWithinIntervalCrossingDayBoundary() {
+        TramTime reference = nextDay(1,30);
+        assertTrue(nextDay(1, 15).withinInterval(30, reference));
+        assertTrue(of(23, 45).withinInterval(120, reference));
+        assertFalse(of(22, 45).withinInterval(120, reference));
+    }
+
+    @Test
+    void shouldSubtractWithResultInPreviousDay() {
+        TramTime reference = nextDay(0, 4);
+
+        TramTime result = reference.minusMinutes(30);
+
         assertFalse(result.isNextDay());
         assertEquals(23, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());
 
-        // day boundry
         reference = nextDay(0, 4);
         result = reference.minusMinutes(90);
 
-        assertTrue(reference.isNextDay());
         assertFalse(result.isNextDay());
         assertEquals(22, result.getHourOfDay());
         assertEquals(34, result.getMinuteOfHour());

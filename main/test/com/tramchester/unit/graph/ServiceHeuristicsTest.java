@@ -351,15 +351,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         resetAll();
 
         Node node = createMock(Node.class);
-//        EasyMock.expect(node.getId()).andStubReturn(42L); // ok IFF node time always same
-//        EasyMock.expect(node.getProperty(GraphPropertyKey.TIME.getText())).andStubReturn(nodeTime);
 
         TramTime tramTime = nextDay ? TramTime.nextDay(nodeTime.getHour(), nodeTime.getMinute()) : TramTime.of(nodeTime);
 
         EasyMock.expect(nodeOperations.getTime(node)).andReturn(tramTime);
-
-        //EasyMock.expect(node.hasProperty(GraphPropertyKey.DAY_OFFSET.getText())).andStubReturn(nextDay);
-
         EasyMock.expect(journeyConstraints.getMaxWait()).andStubReturn(MAX_WAIT);
 
         replayAll();
