@@ -88,9 +88,9 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime, ServiceReasons reasons) {
-        int hour = nodeOperations.getHour(node);
-
         reasons.incrementTotalChecked();
+
+        int hour = nodeOperations.getHour(node);
 
         int queryTimeHour = journeyClockTime.getHourOfDay();
         if (hour == queryTimeHour) {
@@ -99,17 +99,10 @@ public class ServiceHeuristics {
         }
 
         int maxWait = journeyConstraints.getMaxWait();
-        // TODO make more robust
-        int previousHour = hour - 1;
-        if (previousHour==-1) {
-            previousHour = 23;
-        }
-        if (queryTimeHour == previousHour) {
-            // TODO Breaks if max wait > 60
-            int timeUntilNextHour = 60 - maxWait;
-            if (journeyClockTime.getMinuteOfHour() >= timeUntilNextHour) {
-                return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
-            }
+
+        TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
+        if (journeyClockTime.withinInterval(maxWait, currentHour)) {
+            return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
@@ -131,10 +124,7 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason canReachDestination(Node endNode, HowIGotHere howIGotHere, ServiceReasons reasons) {
-
-        // can only safely does this if uniquely looking at tram journeys
-        // TODO Build full reachability matrix??
-
+        
         IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
@@ -152,9 +142,6 @@ public class ServiceHeuristics {
         }
         return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
 
-
-        // TODO can't exclude unless we know for sure not reachable, so include all for buses
-        //return valid(ServiceReason.ReasonCode.ReachableNoCheck, howIGotHere, reasons);
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
