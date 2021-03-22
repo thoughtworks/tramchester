@@ -1,7 +1,6 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NodeTypeRepository;
@@ -84,40 +83,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
-        switch (code) {
-            case ServiceDateOk:
-            case ServiceTimeOk:
-            case NumChangesOK:
-            case NumConnectionsOk:
-            case TimeOk:
-            case HourOk:
-            case Reachable:
-            case ReachableNoCheck:
-            case DurationOk:
-            case WalkOk:
-            case StationOpen:
-            case Continue:
-                return Evaluation.INCLUDE_AND_CONTINUE;
-            case Arrived:
-                return Evaluation.INCLUDE_AND_PRUNE;
-            case LongerPath:
-            case SeenBusStationBefore:
-            case PathTooLong:
-            case TooManyChanges:
-            case TooManyConnections:
-            case NotReachable:
-            case TookTooLong:
-            case ServiceNotRunningAtTime:
-            case NotAtHour:
-            case NotAtQueryTime:
-            case NotOnQueryDate:
-            case AlreadyDeparted:
-            case StationClosed:
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            default:
-                throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
-
-        }
+        return switch (code) {
+            case ServiceDateOk, ServiceTimeOk, NumChangesOK, NumConnectionsOk, TimeOk, HourOk, Reachable, ReachableNoCheck,
+                    DurationOk, WalkOk, StationOpen, Continue -> Evaluation.INCLUDE_AND_CONTINUE;
+            case Arrived -> Evaluation.INCLUDE_AND_PRUNE;
+            case LongerPath, SeenBusStationBefore, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
+                    TookTooLong, ServiceNotRunningAtTime, NotAtHour, NotAtQueryTime, NotOnQueryDate,
+                    AlreadyDeparted, StationClosed -> Evaluation.EXCLUDE_AND_PRUNE;
+            default -> throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
+        };
     }
 
     private ServiceReason.ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode) {
@@ -168,8 +142,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // number of connections
-        if (!serviceHeuristics.checkNumberConnections(journeyState.getNumberConnections(), howIGotHere, reasons).isValid()) {
-            return ServiceReason.ReasonCode.TooManyConnections;
+        if (!serviceHeuristics.checkNumberWalkingConnections(journeyState.getNumberWalkingConnections(), howIGotHere, reasons).isValid()) {
+            return ServiceReason.ReasonCode.TooManyWalkingConnections;
         }
 
         // journey too long?
@@ -217,14 +191,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         TramTime visitingTime = journeyState.getJourneyClock();
-
-        // NOTE: was not making any significant difference to performance
-        // If re-instate ought to use route and not service
-//        if (isService) {
-//            if (!serviceHeuristics.checkServiceTime(howIGotHere, nextNode, visitingTime, reasons).isValid()) {
-//                return ServiceReason.ReasonCode.ServiceNotRunningAtTime;
-//            }
-//        }
 
         // check time, just hour first
         if (nodeTypeRepository.isHour(nextNode)) {

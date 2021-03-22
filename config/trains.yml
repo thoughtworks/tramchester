@@ -43,6 +43,7 @@ postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
 maxWait: 35
+maxWalkingConnections: 3
 numberQueries: 8
 queryInterval: 15
 maxNumberResults: 5

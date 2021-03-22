@@ -66,7 +66,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         journeyConstraints = createMock(JourneyConstraints.class);
         EasyMock.expect(journeyConstraints.getMaxWait()).andStubReturn(MAX_WAIT);
         EasyMock.expect(journeyConstraints.getMaxPathLength()).andStubReturn(maxPathLength);
-        //EasyMock.expect(journeyConstraints.getIsTramOnlyDestinations()).andStubReturn(true);
         EasyMock.expect(journeyConstraints.getEndStations()).andStubReturn(endStations);
         EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(maxJourneyDuration);
     }
@@ -420,10 +419,12 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 journeyConstraints, queryTime,
                 2);
 
+        replayAll();
         assertTrue(serviceHeuristics.checkNumberChanges(0, path, reasons).isValid());
         assertTrue(serviceHeuristics.checkNumberChanges(1, path, reasons).isValid());
         assertTrue(serviceHeuristics.checkNumberChanges(2, path, reasons).isValid());
         assertFalse(serviceHeuristics.checkNumberChanges(3, path, reasons).isValid());
+        verifyAll();
     }
 
     @Test

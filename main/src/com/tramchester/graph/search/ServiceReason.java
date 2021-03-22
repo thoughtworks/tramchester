@@ -1,7 +1,6 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -35,7 +34,7 @@ public abstract class ServiceReason {
         NotOnVehicle,
         SeenBusStationBefore,
         TooManyChanges,
-        TooManyConnections,
+        TooManyWalkingConnections,
         StationClosed,
 
         Arrived
@@ -179,10 +178,10 @@ public abstract class ServiceReason {
 
     //////////////
 
-    private static class TooManyConnections extends ServiceReason {
+    private static class TooManyWalkingConnections extends ServiceReason {
 
-        protected TooManyConnections(HowIGotHere path) {
-            super(ReasonCode.TooManyConnections, path);
+        protected TooManyWalkingConnections(HowIGotHere path) {
+            super(ReasonCode.TooManyWalkingConnections, path);
         }
 
         @Override
@@ -193,7 +192,7 @@ public abstract class ServiceReason {
 
         @Override
         public String textForGraph() {
-            return ReasonCode.TooManyConnections.name();
+            return ReasonCode.TooManyWalkingConnections.name();
         }
     }
 
@@ -265,16 +264,12 @@ public abstract class ServiceReason {
         return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, path);
     }
 
-    public static ServiceReason ServiceNotRunningAtTime(TramTime currentElapsed, HowIGotHere path) {
-        return new DoesNotOperateOnTime(ReasonCode.ServiceNotRunningAtTime, currentElapsed, path) ;
-    }
-
     public static ServiceReason TooManyChanges(HowIGotHere path) {
         return new TooManyChanges(path);
     }
 
-    public static ServiceReason TooManyConnections(HowIGotHere path) {
-        return new TooManyConnections(path);
+    public static ServiceReason TooManyWalkingConnections(HowIGotHere path) {
+        return new TooManyWalkingConnections(path);
     }
 
     public static ServiceReason TookTooLong(TramTime currentElapsed, HowIGotHere path) {

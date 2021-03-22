@@ -27,19 +27,19 @@ public class ServiceHeuristics {
     private final ReachabilityRepository reachabilityRepository;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
-    private final int changesLimit;
+    private final int currentChangesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              ReachabilityRepository reachabilityRepository,
                              JourneyConstraints journeyConstraints, TramTime queryTime,
-                             int changesLimit) {
+                             int currentChangesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
         this.reachabilityRepository = reachabilityRepository;
 
         this.journeyConstraints = journeyConstraints;
         this.queryTime = queryTime;
-        this.changesLimit = changesLimit;
+        this.currentChangesLimit = currentChangesLimit; // NOTE: this changes from 1->num , which is set in journeyConstraints
     }
     
     public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -57,17 +57,17 @@ public class ServiceHeuristics {
     public ServiceReason checkNumberChanges(int currentNumChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
        reasons.incrementTotalChecked();
 
-       if (currentNumChanges>changesLimit) {
+       if (currentNumChanges> currentChangesLimit) {
          return reasons.recordReason(ServiceReason.TooManyChanges(howIGotHere));
        }
        return valid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere, reasons);
     }
 
-    public ServiceReason checkNumberConnections(int currentNumConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public ServiceReason checkNumberWalkingConnections(int currentNumConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        if (currentNumConnections>changesLimit) {
-            return reasons.recordReason(ServiceReason.TooManyConnections(howIGotHere));
+        if (currentNumConnections > journeyConstraints.getMaxWalkingConnections()) {
+            return reasons.recordReason(ServiceReason.TooManyWalkingConnections(howIGotHere));
         }
         return valid(ServiceReason.ReasonCode.NumConnectionsOk, howIGotHere, reasons);
     }
@@ -124,7 +124,7 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason canReachDestination(Node endNode, HowIGotHere howIGotHere, ServiceReasons reasons) {
-        
+
         IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 

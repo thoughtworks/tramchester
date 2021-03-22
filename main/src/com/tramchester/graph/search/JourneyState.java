@@ -17,15 +17,16 @@ public class JourneyState implements ImmutableJourneyState {
     private TramTime boardingTime;
     private TraversalState traversalState;
     private int numberOfBoardings;
-    private int numberOfConnections;
+    private int numberOfWalkingConnections;
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
+        this.traversalState = traversalState;
+
         journeyOffset = 0;
         transportMode = TransportMode.NotSet;
-        this.traversalState = traversalState;
         numberOfBoardings = 0;
-        numberOfConnections = 0;
+        numberOfWalkingConnections = 0;
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
@@ -41,7 +42,7 @@ public class JourneyState implements ImmutableJourneyState {
             this.boardingTime = previousState.boardingTime;
         }
         this.numberOfBoardings = previousState.numberOfBoardings;
-        this.numberOfConnections = previousState.numberOfConnections;
+        this.numberOfWalkingConnections = previousState.numberOfWalkingConnections;
     }
 
     public static InitialBranchState<JourneyState> initialState(TramTime queryTime,
@@ -115,14 +116,18 @@ public class JourneyState implements ImmutableJourneyState {
     }
 
     @Override
-    public int getNumberConnections() {
-        return numberOfConnections;
+    public int getNumberWalkingConnections() {
+        return numberOfWalkingConnections;
     }
 
     public void board(TransportMode mode) throws TramchesterException {
         guardAlreadyOnboard();
         numberOfBoardings = numberOfBoardings + 1;
         transportMode = mode;
+    }
+
+    public void walkingConnection() {
+        numberOfWalkingConnections = numberOfWalkingConnections + 1;
     }
 
     private void guardAlreadyOnboard() throws TramchesterException {
@@ -169,7 +174,4 @@ public class JourneyState implements ImmutableJourneyState {
         return transportMode;
     }
 
-    public void connection() {
-        numberOfConnections = numberOfConnections + 1;
-    }
 }

@@ -61,7 +61,7 @@ public class TramStationState extends TraversalState {
             case PLATFORM:
                 return builders.platform.from(this, node, cost);
             case QUERY_NODE:
-                journeyState.connection();
+                journeyState.walkingConnection();
                 return builders.walking.fromTramStation(this, node, cost);
             case BUS_STATION:
             case TRAIN_STATION:

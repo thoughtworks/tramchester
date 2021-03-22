@@ -32,6 +32,8 @@ public class JourneyConstraints {
     private final Set<Station> endStations;
     private final IdSet<Station> closedStations;
     private final int maxJourneyDuration;
+    private final int maxWalkingConnections;
+    private final int maxNumberChanges;
 
     public JourneyConstraints(TramchesterConfig config, TransportData transportData, JourneyRequest journeyRequest,
                               Set<Station> endStations) {
@@ -41,6 +43,8 @@ public class JourneyConstraints {
 
         this.endStations = endStations;
         this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+        this.maxWalkingConnections = config.getMaxWalkingConnections();
+        this.maxNumberChanges = journeyRequest.getMaxChanges();
 
         LocalDate date = journeyRequest.getDate().getDate();
 
@@ -93,5 +97,13 @@ public class JourneyConstraints {
 
     public boolean isClosed(Station station) {
         return closedStations.contains(station.getId());
+    }
+
+    public int getMaxWalkingConnections() {
+        return maxWalkingConnections;
+    }
+
+    public int getMaxNumberChanges() {
+        return maxNumberChanges;
     }
 }

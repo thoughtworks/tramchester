@@ -180,5 +180,10 @@ class MixedRouteTest {
         public int getQueryInterval() {
             return 6;
         }
+
+        @Override
+        public int getMaxWalkingConnections() {
+            return 4;
+        }
     }
 }

@@ -39,6 +39,7 @@ class LocationJourneyPlannerBusTest {
     private final LocalDate nextMonday = TestEnv.nextMonday();
     private Transaction txn;
     private LocationJourneyPlannerTestFacade planner;
+    private int maxWalkingConnections = 3;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

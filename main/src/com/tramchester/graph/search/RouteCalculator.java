@@ -223,7 +223,6 @@ public class RouteCalculator implements TramRouteCalculator {
         protected final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
 
-
         private PathRequest(Node startNode, TramTime queryTime, int numChanges, JourneyConstraints journeyConstraints) {
             this.startNode = startNode;
             this.queryTime = queryTime;

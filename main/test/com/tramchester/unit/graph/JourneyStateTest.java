@@ -92,11 +92,11 @@ class JourneyStateTest {
         JourneyState state = new JourneyState(queryTime, traversalState);
         Assertions.assertFalse(TransportMode.isTram(state));
 
-        state.connection();
-        assertEquals(1, state.getNumberConnections());
+        state.walkingConnection();
+        assertEquals(1, state.getNumberWalkingConnections());
 
-        state.connection();
-        assertEquals(2, state.getNumberConnections());
+        state.walkingConnection();
+        assertEquals(2, state.getNumberWalkingConnections());
     }
 
     @Test
@@ -174,25 +174,25 @@ class JourneyStateTest {
     @Test
     void shouldCreateNewState() throws TramchesterException {
         JourneyState journeyState = new JourneyState(TramTime.of(7,55), traversalState);
-        journeyState.connection();
+        journeyState.walkingConnection();
 
         JourneyState newStateA = JourneyState.fromPrevious(journeyState);
         Assertions.assertEquals(TramTime.of(7,55), journeyState.getJourneyClock());
         Assertions.assertFalse(TransportMode.isTram(newStateA));
         assertEquals(0, newStateA.getNumberChanges());
-        assertEquals(1, newStateA.getNumberConnections());
+        assertEquals(1, newStateA.getNumberWalkingConnections());
 
         newStateA.board(TransportMode.Tram);
         newStateA.recordVehicleDetails(TramTime.of(8,15), 15);
         Assertions.assertEquals(TramTime.of(8,15), newStateA.getJourneyClock());
-        newStateA.connection();
+        newStateA.walkingConnection();
 
         JourneyState newStateB = JourneyState.fromPrevious(newStateA);
         Assertions.assertEquals(TramTime.of(8,15), newStateB.getJourneyClock());
         Assertions.assertTrue(TransportMode.isTram(newStateB));
         newStateB.leave(TransportMode.Tram, 20);
         newStateB.board(TransportMode.Tram);
-        assertEquals(2, newStateB.getNumberConnections());
+        assertEquals(2, newStateB.getNumberWalkingConnections());
         assertEquals(1, newStateB.getNumberChanges());
     }
 

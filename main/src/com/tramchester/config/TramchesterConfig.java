@@ -110,4 +110,6 @@ public abstract class TramchesterConfig extends Configuration {
                 collect(Collectors.toSet());
     }
 
+    // number of connections to make by walking
+    public abstract int getMaxWalkingConnections();
 }

@@ -42,13 +42,15 @@ public class WalkingState extends TraversalState {
         }
 
         switch (nodeLabel) {
-            case TRAM_STATION:
+            case TRAM_STATION -> {
+                journeyState.walkingConnection();
                 return builders.tramStation.fromWalking(this, node, cost);
-            case BUS_STATION:
-            case TRAIN_STATION:
+            }
+            case BUS_STATION, TRAIN_STATION -> {
+                journeyState.walkingConnection();
                 return builders.noPlatformStation.from(this, node, cost);
-            default:
-                throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
+            }
+            default -> throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
         }
 
     }

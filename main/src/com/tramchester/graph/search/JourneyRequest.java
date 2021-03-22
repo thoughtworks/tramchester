@@ -12,8 +12,9 @@ public class JourneyRequest {
     private final boolean arriveBy;
     private final int maxChanges;
     private final UUID uid;
-    private boolean diagnostics;
     private final int maxJourneyDuration;
+
+    private boolean diagnostics;
     private boolean warnIfNoResults;
 
     public JourneyRequest(LocalDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration) {
@@ -109,4 +110,5 @@ public class JourneyRequest {
     public UUID getUid() {
         return uid;
     }
+
 }

@@ -8,5 +8,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
     TraversalState getTraversalState();
     TramTime getJourneyClock();
     int getNumberChanges();
-    int getNumberConnections();
+    int getNumberWalkingConnections();
 }

@@ -160,4 +160,10 @@ public abstract class TestConfig extends AppConfiguration {
     public LiveDataConfig getLiveDataConfig() {
         return null;
     }
+
+    @Override
+    public int getMaxWalkingConnections() {
+        return 3;
+    }
+
 }

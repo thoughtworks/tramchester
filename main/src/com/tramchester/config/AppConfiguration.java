@@ -103,8 +103,13 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("maxNumberResults")
     private Integer maxNumberResults;
 
+    @NotNull
     @JsonProperty("numberQueries")
     private Integer numberQueries;
+
+    @NotNull
+    @JsonProperty("maxWalkingConnections")
+    private Integer maxWalkingConnections;
 
     @NotNull
     @JsonProperty("createNeighbours")
@@ -283,6 +288,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public BoundingBox getBounds() {
         return bounds;
+    }
+
+    @Override
+    public int getMaxWalkingConnections() {
+        return maxWalkingConnections;
     }
 
 }
