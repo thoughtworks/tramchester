@@ -72,7 +72,7 @@ public class ServiceHeuristics {
         return valid(ServiceReason.ReasonCode.NumConnectionsOk, howIGotHere, reasons);
     }
 
-    public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentElapsed, ServiceReasons reasons) {
+    public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentElapsed, ServiceReasons reasons, int maxWait) {
         reasons.incrementTotalChecked();
 
         TramTime nodeTime = nodeOperations.getTime(node);
@@ -80,14 +80,13 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.AlreadyDeparted(currentElapsed, howIGotHere));
         }
 
-        int maxWait = journeyConstraints.getMaxWait();
         if (currentElapsed.withinInterval(maxWait, nodeTime)) {
             return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
         }
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, howIGotHere));
     }
 
-    public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime, ServiceReasons reasons) {
+    public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime, ServiceReasons reasons, int maxWait) {
         reasons.incrementTotalChecked();
 
         int hour = nodeOperations.getHour(node);
@@ -98,7 +97,6 @@ public class ServiceHeuristics {
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-        int maxWait = journeyConstraints.getMaxWait();
 
         TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
         if (journeyClockTime.withinInterval(maxWait, currentHour)) {

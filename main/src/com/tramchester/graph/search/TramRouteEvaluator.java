@@ -30,13 +30,18 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final NodeTypeRepository nodeTypeRepository;
     private final ServiceReasons reasons;
     private final PreviousSuccessfulVisits previousSuccessfulVisit;
-    private int success;
-    private int currentLowestCost;
+
     private final Set<Long> stationNodes;
     private final boolean loopDetection;
+    private final int maxWait;
+    private final int maxInitialWait;
+
+    private int success;
+    private int currentLowestCost;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
-                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit,
+                              NodeTypeRepository nodeTypeRepository, ServiceReasons reasons,
+                              PreviousSuccessfulVisits previousSuccessfulVisit,
                               TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
@@ -44,6 +49,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
         Set<TransportMode> transportModes = config.getTransportModes();
+        maxWait = config.getMaxWait();
+        maxInitialWait = config.getMaxInitialWait();
 
         // TODO Should be by TransportMode AND Datasource
         loopDetection =  (transportModes.size()>1) || !transportModes.contains(Tram);
@@ -191,17 +198,18 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         TramTime visitingTime = journeyState.getJourneyClock();
+        int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
 
         // check time, just hour first
         if (nodeTypeRepository.isHour(nextNode)) {
-            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons).isValid()) {
+            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
             }
         }
 
         // check time
         if (nodeTypeRepository.isTime(nextNode)) {
-            ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons);
+            ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
             return serviceReason.getReasonCode(); // valid, or not at time
         }
 

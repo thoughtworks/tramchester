@@ -33,7 +33,6 @@ public class JourneyConstraints {
     private final IdSet<Station> closedStations;
     private final int maxJourneyDuration;
     private final int maxWalkingConnections;
-    private final int maxNumberChanges;
 
     public JourneyConstraints(TramchesterConfig config, TransportData transportData, JourneyRequest journeyRequest,
                               Set<Station> endStations) {
@@ -44,7 +43,6 @@ public class JourneyConstraints {
         this.endStations = endStations;
         this.maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         this.maxWalkingConnections = config.getMaxWalkingConnections();
-        this.maxNumberChanges = journeyRequest.getMaxChanges();
 
         LocalDate date = journeyRequest.getDate().getDate();
 
@@ -79,10 +77,6 @@ public class JourneyConstraints {
         return runningServices.isRunning(serviceId);
     }
 
-    public int getMaxWait() {
-        return config.getMaxWait();
-    }
-
     public int getMaxPathLength() {
         return maxPathLength;
     }
@@ -103,7 +97,4 @@ public class JourneyConstraints {
         return maxWalkingConnections;
     }
 
-    public int getMaxNumberChanges() {
-        return maxNumberChanges;
-    }
 }

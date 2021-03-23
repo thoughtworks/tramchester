@@ -18,6 +18,7 @@ public class JourneyState implements ImmutableJourneyState {
     private TraversalState traversalState;
     private int numberOfBoardings;
     private int numberOfWalkingConnections;
+    private boolean hasBegun;
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         this.journeyClock = queryTime;
@@ -27,6 +28,7 @@ public class JourneyState implements ImmutableJourneyState {
         transportMode = TransportMode.NotSet;
         numberOfBoardings = 0;
         numberOfWalkingConnections = 0;
+        hasBegun = false;
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
@@ -43,6 +45,7 @@ public class JourneyState implements ImmutableJourneyState {
         }
         this.numberOfBoardings = previousState.numberOfBoardings;
         this.numberOfWalkingConnections = previousState.numberOfWalkingConnections;
+        this.hasBegun = previousState.hasBegun;
     }
 
     public static InitialBranchState<JourneyState> initialState(TramTime queryTime,
@@ -120,10 +123,16 @@ public class JourneyState implements ImmutableJourneyState {
         return numberOfWalkingConnections;
     }
 
+    @Override
+    public boolean hasBegunJourney() {
+        return hasBegun;
+    }
+
     public void board(TransportMode mode) throws TramchesterException {
         guardAlreadyOnboard();
         numberOfBoardings = numberOfBoardings + 1;
         transportMode = mode;
+        hasBegun = true;
     }
 
     public void walkingConnection() {

@@ -9,4 +9,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
     TramTime getJourneyClock();
     int getNumberChanges();
     int getNumberWalkingConnections();
+    boolean hasBegunJourney();
 }

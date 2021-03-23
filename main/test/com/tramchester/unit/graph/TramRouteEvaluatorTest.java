@@ -460,7 +460,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         state.setState(new JourneyState(time, traversalState));
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0,howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
-        EasyMock.expect(serviceHeuristics.interestedInHour(howIGotHere, node, time, reasons)).
+        EasyMock.expect(serviceHeuristics.interestedInHour(howIGotHere, node, time, reasons, config.getMaxInitialWait())).
                 andReturn(ServiceReason.DoesNotOperateOnTime(time, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
@@ -474,7 +474,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldExcludeIfServiceNotCorrectMinute() {
+    void shouldExcludeIfServiceNotCorrectMinute() throws TramchesterException {
         TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
         BranchState<JourneyState> state = new TestBranchState();
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
@@ -493,12 +493,13 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         NotStartedState traversalState = getNotStartedState();
         TramTime time = TramTime.of(8, 15);
-        state.setState(new JourneyState(time, traversalState));
+        JourneyState journeyState = new JourneyState(time, traversalState);
+        journeyState.board(TransportMode.Tram); // So uses non-initial wait time
+        state.setState(journeyState);
 
-        //TramTime tramTime = TramTime.of(time);
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0 ,howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
-        EasyMock.expect(serviceHeuristics.checkTime(howIGotHere, node, time, reasons)).
+        EasyMock.expect(serviceHeuristics.checkTime(howIGotHere, node, time, reasons, config.getMaxWait())).
                 andReturn(ServiceReason.DoesNotOperateOnTime(time, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.hasUsableResult(node, TramTime.of(8,15))).andStubReturn(false);
