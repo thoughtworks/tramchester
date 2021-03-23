@@ -57,17 +57,12 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
-        switch (nodeLabel) {
-            case PLATFORM:
-                return toPlatform(nextNode, journeyState, cost);
-            case SERVICE:
-                return builders.service.fromRouteStation(this, tripId, nextNode, cost);
-            case BUS_STATION:
-            case TRAIN_STATION:
-                return toStation(nextNode, journeyState, cost);
-            default:
-                throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
-        }
+        return switch (nodeLabel) {
+            case PLATFORM -> toPlatform(nextNode, journeyState, cost);
+            case SERVICE -> builders.service.fromRouteStation(this, tripId, nextNode, cost);
+            case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
+            default -> throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
+        };
     }
 
     private TraversalState toStation(Node stationNode, JourneyState journeyState, int cost) {

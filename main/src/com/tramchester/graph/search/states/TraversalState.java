@@ -11,6 +11,7 @@ import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -21,18 +22,21 @@ import static java.lang.String.format;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
+    protected final NodeContentsRepository nodeOperations;
+    protected final TripRepository tripRepository;
+
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
-    private TraversalState child;
     private final TraversalState parent;
 
     private final IdSet<Station> destinationStationIds;
     private final IdSet<Route> destinationRouteIds;
 
-    protected final NodeContentsRepository nodeOperations;
     protected final Set<Long> destinationNodeIds;
     protected final Builders builders;
+
+    private TraversalState child;
 
     @Override
     public int hashCode() {
@@ -40,9 +44,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     // initial only
-    protected TraversalState(SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
+    protected TraversalState(TripRepository tripRepository, SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
                              Set<Long> destinationNodeIds, Set<Station> destinationStations,
                              LatLong destinationLatLonHint, TramchesterConfig config) {
+        this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
@@ -59,6 +64,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.nodeOperations = parent.nodeOperations;
+        this.tripRepository = parent.tripRepository;
         this.destinationNodeIds = parent.destinationNodeIds;
         this.destinationStationIds = parent.destinationStationIds;
         this.destinationRouteIds = parent.destinationRouteIds;

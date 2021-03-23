@@ -139,8 +139,8 @@ class TrainRouteCalculatorTest {
 
         RouteEndRepository repository = componentContainer.get(RouteEndRepository.class);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                8*60);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
+                10, 8*60);
 
         IdSet<Station> endsOfLines = repository.getStations(TransportMode.Train);
 
@@ -158,8 +158,8 @@ class TrainRouteCalculatorTest {
 
         IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(TransportMode.Train);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                8*60);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
+                10, 8*60);
 
         List<Pair<IdFor<Station>, IdFor<Station>>> failed = queryForJourneys(request, interchanges);
 

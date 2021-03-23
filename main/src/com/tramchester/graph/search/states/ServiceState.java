@@ -21,12 +21,12 @@ public class ServiceState extends TraversalState {
 
         public TraversalState fromRouteStation(RouteStationStateJustBoarded justBoarded, Node node, int cost) {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
-            return new ServiceState(justBoarded, serviceRelationships, ExistingTrip.none(), cost);
+            return new ServiceState(justBoarded, serviceRelationships, cost);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, Node node, int cost) {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
-            return new ServiceState(endTrip, serviceRelationships, ExistingTrip.none(), cost);
+            return new ServiceState(endTrip, serviceRelationships, cost);
         }
     }
 
@@ -36,6 +36,11 @@ public class ServiceState extends TraversalState {
                          int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
+    }
+
+    private ServiceState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
+        super(parent, relationships, cost);
+        this.maybeExistingTrip = ExistingTrip.none();
     }
 
     @Override

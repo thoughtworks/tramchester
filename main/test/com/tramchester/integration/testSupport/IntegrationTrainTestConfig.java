@@ -49,9 +49,20 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
     }
 
     @Override
+    public int getMaxInitialWait() {
+        return 15;
+    }
+
+    @Override
     public int getMaxWait() {
         return 60;
     }
+
+    @Override
+    public int getNumberQueries() { return 4; }
+
+    @Override
+    public int getQueryInterval() { return 15; }
 
     private static class GraphDBIntegrationTrainTestConfig extends GraphDBTestConfig {
 

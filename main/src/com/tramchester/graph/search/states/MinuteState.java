@@ -1,6 +1,8 @@
 package com.tramchester.graph.search.states;
 
+import com.google.common.collect.Streams;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.InvalidId;
@@ -13,8 +15,8 @@ import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -81,25 +83,25 @@ public class MinuteState extends TraversalState {
         throw new RuntimeException("Unexpected node type: "+nodeLabel);
     }
 
-    private TraversalState toRouteStation(Node node, int cost) {
-        Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
+    private TraversalState toRouteStation(Node routeStationNode, int cost) {
+        Iterable<Relationship> allDeparts = routeStationNode.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
 
-        TransportMode transportMode = GraphProps.getTransportMode(node);
+        TransportMode transportMode = GraphProps.getTransportMode(routeStationNode);
 
         // if towards dest then always follow whether interchange-only enabled or not
         List<Relationship> towardsDestination = getTowardsDestination(allDeparts);
         if (!towardsDestination.isEmpty()) {
             // we've nearly arrived
-            return builders.routeStation.fromMinuteState(this, node, cost, towardsDestination, tripId, transportMode);
+            return builders.routeStation.fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
         }
 
         // outbound service relationships that continue the current trip
-        List<Relationship> routeStationOutbounds = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), tripId);
+        List<Relationship> routeStationOutbounds = filterByTripId(routeStationNode.getRelationships(OUTGOING, TO_SERVICE));
         boolean tripFinishedHere = routeStationOutbounds.isEmpty(); // i.e. no outbound from RS for this tripId
 
         // now add outgoing to platforms
         if (interchangesOnly) {
-            Iterable<Relationship> interchanges = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
+            Iterable<Relationship> interchanges = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
             interchanges.forEach(routeStationOutbounds::add);
         } else {
             allDeparts.forEach(routeStationOutbounds::add);
@@ -109,37 +111,45 @@ public class MinuteState extends TraversalState {
             // for a change of trip id we need to get off vehicle, then back on to another service
             return builders.routeStationEndTrip.fromMinuteState(this, cost, routeStationOutbounds, transportMode);
         } else {
-            return builders.routeStation.fromMinuteState(this, node, cost, routeStationOutbounds, tripId, transportMode);
+            return builders.routeStation.fromMinuteState(this, routeStationNode, cost, routeStationOutbounds, tripId, transportMode);
         }
     }
 
-    private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, IdFor<Trip> tripId) {
+    private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships) {
 
-        // can we filter by service ID here if we know svc that current trip is associated with
+//        return Streams.stream(svcRelationships).
+//                filter(this::svcRelationshipMatches).
+//                collect(Collectors.toList());
 
-        String tripIdGraphId = tripId.getGraphId();
+        // can we filter by service ID here if we know svc that current trip is associated with?
+        // TODO Performance testing
 
-        List<Relationship> results = new ArrayList<>();
-        svcRelationships.forEach(relationship -> {
-            //String trips = nodeOperations.getTrips(relationship); /// <=== EXPENSIVE TODO
-            IdSet<Trip> trips = nodeOperations.getTrips(relationship);
-            if (trips.contains(tripId)) {
-                results.add(relationship);
-            }
-        });
-        return results;
+        IdFor<Service> currentSvcId = tripRepository.getTripById(tripId).getService().getId();
+        tripRepository.getTripById(tripId).getService().getId();
+
+        return Streams.stream(svcRelationships).
+                filter(relationship -> serviceNodeMatches(relationship, currentSvcId)).
+                collect(Collectors.toList());
+
+    }
+
+    private boolean svcRelationshipMatches(Relationship relationship) {
+        IdSet<Trip> trips = nodeOperations.getTrips(relationship);
+        return trips.contains(tripId);
+    }
+
+    private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {
+        Node svcNode = relationship.getEndNode();
+        IdFor<Service> svcId = nodeOperations.getServiceId(svcNode);
+        return  currentSvcId.equals(svcId);
     }
 
     private static List<Relationship> filterBySingleTripId(NodeContentsRepository nodeOperations,
-                                                           Iterable<Relationship> relationships, IdFor<Trip> tripId) {
-        List<Relationship> results = new ArrayList<>();
-        relationships.forEach(relationship -> {
-            IdFor<Trip> trip = nodeOperations.getTrip(relationship);
-            if (trip.equals(tripId)) {
-                results.add(relationship);
-            }
-        });
-        return results;
+                                                           Iterable<Relationship> relationships, IdFor<Trip> tripIdToMatch) {
+        return Streams.stream(relationships).
+                filter(relationship -> nodeOperations.getTrip(relationship).equals(tripIdToMatch)).
+                collect(Collectors.toList());
+
     }
 
 

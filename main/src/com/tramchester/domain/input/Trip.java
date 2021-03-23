@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
-    private static final Logger logger = LoggerFactory.getLogger(Trip.class);
 
     private final StringIdFor<Trip> tripId;
     private final String headSign;
@@ -38,7 +37,6 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
     // test memory support
     public void dispose() {
-        //logger.debug("dispose");
         stopCalls.dispose();
     }
 

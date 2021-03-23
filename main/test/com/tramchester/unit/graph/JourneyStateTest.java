@@ -14,6 +14,7 @@ import com.tramchester.graph.HourNodeCache;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
@@ -50,7 +51,8 @@ class JourneyStateTest {
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         HourNodeCache hourNodeCache = null;
-        traversalState = new NotStartedState(sortsPositions,
+        TripRepository tripRepository = null;
+        traversalState = new NotStartedState(tripRepository, sortsPositions,
                 new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()), hourNodeCache),
                 destinationNodeIds, destinations, latLongHint, TestEnv.GET());
         queryTime = TramTime.of(9, 15);

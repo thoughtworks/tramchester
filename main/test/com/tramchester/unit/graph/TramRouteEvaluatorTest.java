@@ -18,6 +18,7 @@ import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
+import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
@@ -58,6 +59,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private LatLong latLongHint;
     private Long destinationNodeId;
     private Relationship lastRelationship;
+    private TripRepository tripRepository;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -68,6 +70,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         previousSuccessfulVisit = createMock(PreviousSuccessfulVisits.class);
         HourNodeCache hourNodeCache = createMock(HourNodeCache.class);
+        tripRepository = createMock(TripRepository.class);
+
         nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()), hourNodeCache);
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
 
@@ -107,7 +111,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NotStartedState getNotStartedState() {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
-        return new NotStartedState(sortsPositions, nodeOperations, destinationNodeIds, destinationStations, latLongHint, config);
+        return new NotStartedState(tripRepository, sortsPositions, nodeOperations, destinationNodeIds, destinationStations, latLongHint, config);
     }
 
     @NotNull
