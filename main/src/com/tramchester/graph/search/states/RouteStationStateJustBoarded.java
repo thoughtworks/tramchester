@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.states;
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
@@ -40,17 +39,19 @@ public class RouteStationStateJustBoarded extends TraversalState {
         public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost, TransportMode mode) {
             List<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART),
                     noPlatformStation);
-            if (TransportMode.isBus(mode)) {
-                // TODO What about Train, Ferry, etc/
-                outbounds.addAll(orderByDistance(node));
+            if (TransportMode.isTram(mode)) {
+                outbounds.addAll(priortiseByDestinationRoutes(noPlatformStation, node));
             } else {
-                outbounds.addAll(orderByRoute(noPlatformStation, node));
+                outbounds.addAll(orderByDistance(node));
             }
 
             return new RouteStationStateJustBoarded(noPlatformStation, outbounds, cost);
         }
 
-        private Collection<Relationship> orderByRoute(TraversalState state, Node node) {
+        /***
+         * follow those links that include a matching destination route first
+         */
+        private Collection<Relationship> priortiseByDestinationRoutes(TraversalState state, Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
             ArrayList<Relationship> highPriority = new ArrayList<>();
             ArrayList<Relationship> lowPriority = new ArrayList<>();
@@ -67,7 +68,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             return highPriority;
         }
 
-        // significant overall performance increase
+        // significant overall performance increase for non-trival gregraphically diverse networks
         private Collection<Relationship> orderByDistance(Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
 

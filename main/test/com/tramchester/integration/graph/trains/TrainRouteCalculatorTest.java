@@ -3,23 +3,20 @@ package com.tramchester.integration.graph.trains;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.Journey;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
-import com.tramchester.repository.RouteEndRepository;
-import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,7 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TrainStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainRouteCalculatorTest {
@@ -133,37 +131,6 @@ class TrainRouteCalculatorTest {
         atLeastOneDirect(request, Knutsford, Hale);
     }
 
-    @Test
-    void shouldHaveEndsOfLinesToEndsOfLines() {
-        TramTime travelTime = TramTime.of(8, 0);
-
-        RouteEndRepository repository = componentContainer.get(RouteEndRepository.class);
-
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, 8*60);
-
-        IdSet<Station> endsOfLines = repository.getStations(TransportMode.Train);
-
-        List<Pair<IdFor<Station>, IdFor<Station>>> failed = queryForJourneys(request, endsOfLines);
-
-        assertTrue(failed.isEmpty(), failed.toString());
-    }
-
-    @Test
-    void shouldHaveInterchangesToInterchanges() {
-        TramTime travelTime = TramTime.of(10, 0);
-
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-
-        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(TransportMode.Train);
-
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, 8*60);
-
-        List<Pair<IdFor<Station>, IdFor<Station>>> failed = queryForJourneys(request, interchanges);
-
-        assertTrue(failed.isEmpty(), failed.toString());
-    }
 
     @NotNull
     private List<Pair<IdFor<Station>, IdFor<Station>>> queryForJourneys(JourneyRequest request, IdSet<Station> stationIds) {

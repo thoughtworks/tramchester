@@ -68,11 +68,39 @@ public class RouteCalculationCombinations {
         return results;
     }
 
+    public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
+                                                                             JourneyRequest journeyRequest) {
+
+        Map<StationIdPair, JourneyOrNot> results = computeJourneys(stationIdPairs, journeyRequest);
+        assertEquals(stationIdPairs.size(), results.size(), "Not enough results");
+
+        // check all results present, collect failures into a list
+        List<RouteCalculationCombinations.JourneyOrNot> failed = results.values().stream().
+                filter(RouteCalculationCombinations.JourneyOrNot::missing).
+                collect(Collectors.toList());
+
+        assertEquals(0L, failed.size(), format("Failed some of %s (finished %s) combinations %s",
+                results.size(), stationIdPairs.size(), displayFailed(failed)));
+
+        return results;
+    }
+
+    /***
+     * use the version that takes journey request instead
+     */
+    @Deprecated
     @NotNull
     private Map<StationIdPair, JourneyOrNot> computeJourneys(LocalDate queryDate, Set<StationIdPair> combinations, TramTime queryTime) {
         JourneyRequest request = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
                 config.getMaxJourneyDuration());
 
+        return computeJourneys(combinations, request);
+    }
+
+    @NotNull
+    private Map<StationIdPair, JourneyOrNot> computeJourneys(Set<StationIdPair> combinations, JourneyRequest request) {
+        LocalDate queryDate = request.getDate().getDate();
+        TramTime queryTime = request.getTime();
         return combinations.parallelStream().
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {

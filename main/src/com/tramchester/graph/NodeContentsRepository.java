@@ -17,7 +17,6 @@ public interface NodeContentsRepository  {
     int getHour(Node node);
 
     IdFor<Trip> getTrip(Relationship relationship);
-    IdSet<Trip> getTrips(Relationship relationship);
 
     int getCost(Relationship lastRelationship);
     void deleteFromCostCache(Relationship relationship);

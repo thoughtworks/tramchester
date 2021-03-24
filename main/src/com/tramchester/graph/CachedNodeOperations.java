@@ -4,11 +4,9 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.search.ServiceNodeCache;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -31,23 +29,19 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
     private final Cache<Long, Integer> relationshipCostCache;
-    private final Cache<Long, IdSet<Trip>> tripsRelationshipCache;
     private final Cache<Long, IdFor<Trip>> tripIdRelationshipCache;
 
     private final Cache<Long, IdFor<Service>> svcIdCache;
     private final Cache<Long, TramTime> times;
     private final HourNodeCache prebuildHourCache;
-    private final ServiceNodeCache preBuildServiceCache;
 
     @Inject
-    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache, ServiceNodeCache preBuildServiceCache) {
+    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache) {
         this.prebuildHourCache = prebuildHourCache;
-        this.preBuildServiceCache = preBuildServiceCache;
 
         // size tuned from stats
         relationshipCostCache = createCache(85000);
-        svcIdCache = createCache(300000);
-        tripsRelationshipCache = createCache(32500);
+        svcIdCache = createCache(425350);
         tripIdRelationshipCache = createCache(32500);
         times = createCache(40000);
 
@@ -59,7 +53,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         logger.info("dispose");
         relationshipCostCache.invalidateAll();
         svcIdCache.invalidateAll();
-        tripsRelationshipCache.invalidateAll();
         tripIdRelationshipCache.invalidateAll();
         times.invalidateAll();
     }
@@ -75,17 +68,10 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("svcIdCache",svcIdCache.stats()));
-        result.add(Pair.of("tripsRelationshipCache", tripsRelationshipCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
-
         result.add(Pair.of("times", times.stats()));
 
         return result;
-    }
-
-    public IdSet<Trip> getTrips(Relationship relationship) {
-        long relationshipId = relationship.getId();
-        return tripsRelationshipCache.get(relationshipId, id -> GraphProps.getTrips(relationship));
     }
 
     public IdFor<Trip> getTrip(Relationship relationship) {
@@ -100,7 +86,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
-        return svcIdCache.get(nodeId, preBuildServiceCache::getServiceIdFor);
+        return svcIdCache.get(nodeId, id -> GraphProps.getServiceId(node));
     }
 
     public int getHour(Node node) {

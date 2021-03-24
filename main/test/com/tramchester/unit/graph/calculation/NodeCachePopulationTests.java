@@ -2,13 +2,9 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.Service;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.HourNodeCache;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.search.ServiceNodeCache;
-import com.tramchester.repository.ServiceRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.*;
@@ -27,7 +23,6 @@ class NodeCachePopulationTests {
     private static SimpleGraphConfig config;
 
     private Transaction txn;
-    private ServiceRepository serviceRepository;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -49,27 +44,12 @@ class NodeCachePopulationTests {
     @BeforeEach
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        serviceRepository = componentContainer.get(ServiceRepository.class);
         txn = database.beginTx();
     }
 
     @AfterEach
     void afterEachTestRuns() {
         txn.close();
-    }
-
-    @Test
-    void shouldPopulateCacheForSevices() {
-        ServiceNodeCache serviceNodeCache = componentContainer.get(ServiceNodeCache.class);
-
-        ResourceIterator<Node> serviceNodes = txn.findNodes(GraphBuilder.Labels.SERVICE);
-
-        while (serviceNodes.hasNext()) {
-            Node svcNode = serviceNodes.next();
-            IdFor<Service> foundId = serviceNodeCache.getServiceIdFor(svcNode.getId());
-            assertTrue(serviceRepository.hasServiceId(foundId));
-        }
-
     }
 
     @Test

@@ -33,11 +33,6 @@ public class NodeContentsDirect implements NodeContentsRepository{
     }
 
     @Override
-    public IdSet<Trip> getTrips(Relationship relationship) {
-        return GraphProps.getTrips(relationship);
-    }
-
-    @Override
     public int getCost(Relationship relationship) {
         return GraphProps.getCost(relationship);
     }

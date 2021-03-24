@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.states;
 
+import com.google.common.collect.Streams;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -17,6 +18,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -51,8 +53,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.nodeOperations = nodeOperations;
         this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
-        this.destinationRouteIds = destinationStations.stream().map(Station::getRoutes).flatMap(Collection::stream).
-                collect(IdSet.collector());
+        this.destinationRouteIds = getDestinationRoutes(destinationStations);
 
         this.costForLastEdge = 0;
         this.parentCost = 0;
@@ -74,6 +75,11 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
         this.parentCost = parent.getTotalCost();
+    }
+
+    private IdSet<Route> getDestinationRoutes(Set<Station> destinationStations) {
+        return destinationStations.stream().map(Station::getRoutes).flatMap(Collection::stream).
+                collect(IdSet.collector());
     }
 
     protected abstract TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
@@ -108,29 +114,19 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         return outbounds;
     }
 
-    // TODO Return iterable instead?
     protected static List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, NodeId hasNodeId) {
         long nodeId = hasNodeId.nodeId();
-        ArrayList<Relationship> results = new ArrayList<>();
-        for (Relationship relationship: relationships) {
-            if (relationship.getEndNode().getId() != nodeId) {
-                results.add(relationship);
-            }
-        }
-        return results;
+        return Streams.stream(relationships).
+                filter(relationship -> relationship.getEndNode().getId() != nodeId).
+                collect(Collectors.toList());
     }
 
     @NotNull
     protected List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
         // towards final destination, just follow this one
-        List<Relationship> towardsDestination = new ArrayList<>();
-        outgoing.forEach(depart ->
-        {
-            if (destinationStationIds.contains(GraphProps.getStationIdFrom(depart))) {
-                towardsDestination.add(depart);
-            }
-        });
-        return towardsDestination;
+        return Streams.stream(outgoing).
+                filter(depart -> destinationStationIds.contains(GraphProps.getStationIdFrom(depart))).
+                collect(Collectors.toList());
     }
 
     public int getTotalCost() {
