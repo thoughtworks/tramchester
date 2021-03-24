@@ -1,5 +1,6 @@
 package com.tramchester.unit.graph;
 
+import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
@@ -19,6 +20,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JourneyStateTest {
+class JourneyStateTest extends EasyMockSupport {
 
     private TramTime queryTime;
     private NotStartedState traversalState;
@@ -50,11 +52,11 @@ class JourneyStateTest {
         StationRepository repository = new TramTransportDataForTestFactory(providesNow).getData();
         SortsPositions sortsPositions = new SortsPositions(repository);
 
-        HourNodeCache hourNodeCache = null;
-        TripRepository tripRepository = null;
+        TripRepository tripRepository = createMock(TripRepository.class);
+        NodeContentsRepository cachedNodeOperations = createMock(NodeContentsRepository.class);
+
         traversalState = new NotStartedState(tripRepository, sortsPositions,
-                new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()), hourNodeCache),
-                destinationNodeIds, destinations, latLongHint, TestEnv.GET());
+                cachedNodeOperations, destinationNodeIds, destinations, latLongHint, TestEnv.GET());
         queryTime = TramTime.of(9, 15);
     }
 

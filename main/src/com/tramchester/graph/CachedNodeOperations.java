@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.graph.search.ServiceNodeCache;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
@@ -36,14 +37,16 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<Long, IdFor<Service>> svcIdCache;
     private final Cache<Long, TramTime> times;
     private final HourNodeCache prebuildHourCache;
+    private final ServiceNodeCache preBuildServiceCache;
 
     @Inject
-    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache) {
+    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache, ServiceNodeCache preBuildServiceCache) {
         this.prebuildHourCache = prebuildHourCache;
+        this.preBuildServiceCache = preBuildServiceCache;
 
         // size tuned from stats
         relationshipCostCache = createCache(85000);
-        svcIdCache = createCache(3000);
+        svcIdCache = createCache(300000);
         tripsRelationshipCache = createCache(32500);
         tripIdRelationshipCache = createCache(32500);
         times = createCache(40000);
@@ -97,13 +100,12 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
-        return svcIdCache.get(nodeId, id -> GraphProps.getServiceIdFrom(node));
+        return svcIdCache.get(nodeId, preBuildServiceCache::getServiceIdFor);
     }
 
     public int getHour(Node node) {
         long nodeId = node.getId();
         return prebuildHourCache.getHourFor(nodeId);
-//        return hourNodeCache.get(nodeId, id -> GraphProps.getHour(node));
     }
 
     public int getCost(Relationship relationship) {

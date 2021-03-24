@@ -149,7 +149,6 @@ class TrainRouteCalculatorTest {
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
-
     @Test
     void shouldHaveInterchangesToInterchanges() {
         TramTime travelTime = TramTime.of(10, 0);
@@ -165,7 +164,6 @@ class TrainRouteCalculatorTest {
 
         assertTrue(failed.isEmpty(), failed.toString());
     }
-
 
     @NotNull
     private List<Pair<IdFor<Station>, IdFor<Station>>> queryForJourneys(JourneyRequest request, IdSet<Station> stationIds) {

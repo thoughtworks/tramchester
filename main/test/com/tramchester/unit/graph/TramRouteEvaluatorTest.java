@@ -69,10 +69,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         nodeIdLabelMap = createMock(NodeIdLabelMap.class);
         previousSuccessfulVisit = createMock(PreviousSuccessfulVisits.class);
-        HourNodeCache hourNodeCache = createMock(HourNodeCache.class);
         tripRepository = createMock(TripRepository.class);
 
-        nodeOperations = new CachedNodeOperations(new CacheMetrics(TestEnv.NoopRegisterMetrics()), hourNodeCache);
+        nodeOperations = createMock(NodeContentsRepository.class);
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
 
         config = new TestConfig() {

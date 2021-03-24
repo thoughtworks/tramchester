@@ -117,25 +117,12 @@ public class MinuteState extends TraversalState {
 
     private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships) {
 
-//        return Streams.stream(svcRelationships).
-//                filter(this::svcRelationshipMatches).
-//                collect(Collectors.toList());
-
-        // can we filter by service ID here if we know svc that current trip is associated with?
-        // TODO Performance testing
-
         IdFor<Service> currentSvcId = tripRepository.getTripById(tripId).getService().getId();
         tripRepository.getTripById(tripId).getService().getId();
 
         return Streams.stream(svcRelationships).
                 filter(relationship -> serviceNodeMatches(relationship, currentSvcId)).
                 collect(Collectors.toList());
-
-    }
-
-    private boolean svcRelationshipMatches(Relationship relationship) {
-        IdSet<Trip> trips = nodeOperations.getTrips(relationship);
-        return trips.contains(tripId);
     }
 
     private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {

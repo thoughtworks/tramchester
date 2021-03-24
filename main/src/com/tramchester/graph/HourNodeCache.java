@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.search.PopulateNodeIdsFromQuery;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -15,16 +16,15 @@ import java.util.*;
 
 
 @LazySingleton
-public class HourNodeCache {
+public class HourNodeCache extends PopulateNodeIdsFromQuery {
     private static final Logger logger = LoggerFactory.getLogger(HourNodeCache.class);
     private static final int HOURS = 24;
 
-    private final GraphDatabase graphDatabaseService;
     private final ArrayList<Set<Long>> forEachHour;
 
     @Inject
     public HourNodeCache(GraphDatabase graphDatabaseService, StagedTransportGraphBuilder.Ready ready) {
-        this.graphDatabaseService = graphDatabaseService;
+        super(graphDatabaseService);
         forEachHour = new ArrayList<>(HOURS);
     }
 
@@ -32,7 +32,7 @@ public class HourNodeCache {
     public void start() {
         logger.info("Starting");
         for (int hour = 0; hour < HOURS; hour++) {
-            forEachHour.add(getRelationshipsFor(hour));
+            forEachHour.add(getNodeIdsFor(hour));
             logger.info("Added " + forEachHour.get(hour).size() + " nodes for hour " + hour);
         }
         logger.info("Started");
@@ -48,25 +48,18 @@ public class HourNodeCache {
         logger.info("Stopped");
     }
 
-    public Set<Long> getRelationshipsFor(int hour) {
+    /***
+     * public for test support
+     */
+    public Set<Long> getNodeIdsFor(int hour) {
 
         Map<String, Object> params = new HashMap<>();
         params.put("hour", hour);
         String query = "MATCH (node:HOUR) " +
                 "WHERE node.hour=$hour " +
-                "RETURN node";
+                "RETURN ID(node) as id";
 
-        Set<Long> results = new HashSet<>();
-        try (Transaction txn = graphDatabaseService.beginTx()) {
-            Result result = txn.execute(query, params);
-            while(result.hasNext()) {
-                Map<String, Object> row = result.next();
-                Node node = (Node) row.get("node");
-                results.add(node.getId());
-            }
-            result.close();
-        }
-        return results;
+        return getNodeIdsForQuery(params, query);
     }
 
     public int getHourFor(long relationshipId) {

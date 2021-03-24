@@ -117,16 +117,16 @@ class GraphQueriesTests {
         GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
-        Set<Long> foundFor8am = hourNodeCache.getRelationshipsFor(8);
+        Set<Long> foundFor8am = hourNodeCache.getNodeIdsFor(8);
         assertEquals(5, foundFor8am.size());
 
-        Set<Long> foundFor9am = hourNodeCache.getRelationshipsFor(9);
+        Set<Long> foundFor9am = hourNodeCache.getNodeIdsFor(9);
         assertEquals(1, foundFor9am.size());
 
         List<Integer> hours = IntStream.rangeClosed(0,23).boxed().collect(Collectors.toList());
         hours.remove((Integer) 8);
         hours.remove((Integer) 9);
-        hours.forEach(hour -> assertTrue(hourNodeCache.getRelationshipsFor(hour).isEmpty(), "unexpected " + hour));
+        hours.forEach(hour -> assertTrue(hourNodeCache.getNodeIdsFor(hour).isEmpty(), "unexpected " + hour));
 
         Set<Integer> found = new HashSet<>();
         Set<RouteStation> routeStations = transportData.getRouteStations();
