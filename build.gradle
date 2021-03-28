@@ -45,7 +45,7 @@ dependencies {
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:cloudwatch:2.16.28')
+    implementation('software.amazon.awssdk:cloudwatch:2.16.29')
     implementation('software.amazon.awssdk:s3:2.16.29')
     implementation('software.amazon.awssdk:cloudformation:2.16.28')
     // aws cdk
@@ -64,7 +64,7 @@ dependencies {
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.2',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
-            'io.appium:java-client:7.5.0',
+            'io.appium:java-client:7.5.1',
             'org.hamcrest:hamcrest:2.2'
 
 }
