@@ -11,7 +11,7 @@ import java.util.List;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 
-class SimpleGraphConfig extends IntegrationTestConfig {
+public class SimpleGraphConfig extends IntegrationTestConfig {
 
     public SimpleGraphConfig(String dbFilename) {
         super(new GraphDBTestConfig("unitTest", dbFilename));

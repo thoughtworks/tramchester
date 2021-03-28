@@ -189,31 +189,36 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 legs.forEach(leg -> {
                     if (includeBothStops(filter, leg)) {
                         IdFor<Station> beginId = leg.getFirstStation().getId();
-                        IdFor<Station> endId = leg.getSecondStation().getId();
+                        Station end = leg.getSecondStation();
 
                         createServiceNodeAndRelationship(tx, route, trip.getService(),
-                                beginId, endId, stationCache);
+                                beginId, end, stationCache);
 
                         createHourNode(tx, route.getId(), trip.getService(), beginId,
-                                endId, leg.getDepartureTime().getHourOfDay(), stationCache);
+                                end.getId(), leg.getDepartureTime().getHourOfDay(), stationCache);
                     }
                 });
         });
     }
 
-    private void createServiceNodeAndRelationship(Transaction tx, Route route, Service service, IdFor<Station> begin, IdFor<Station> end,
+    private void createServiceNodeAndRelationship(Transaction tx, Route route, Service service, IdFor<Station> begin, Station end,
                                                   GraphBuilderCache routeBuilderCache) {
 
         // Node for the service
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
 
-        if (!routeBuilderCache.hasServiceNode(route.getId(), service, begin, end)) {
+        IdFor<Station> endId = end.getId();
+        if (!routeBuilderCache.hasServiceNode(route.getId(), service, begin, endId)) {
             Node svcNode = createGraphNode(tx, Labels.SERVICE);
             setProperty(svcNode, service);
             setProperty(svcNode, route);
-            setTowardsProp(svcNode, end);
-            routeBuilderCache.putService(route.getId(), service, begin, end, svcNode);
+
+            // TODO This is used to look up station and hence lat/long for distance ordering, store
+            //  org.neo4j.graphdb.spatial.Point instead?
+            setTowardsProp(svcNode, endId);
+
+            routeBuilderCache.putService(route.getId(), service, begin, endId, svcNode);
 
             // start route station -> svc node
             Node routeStationStart = routeBuilderCache.getRouteStation(tx, route, begin);

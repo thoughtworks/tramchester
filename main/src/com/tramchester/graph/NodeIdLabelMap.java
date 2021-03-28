@@ -65,16 +65,16 @@ public class NodeIdLabelMap implements NodeTypeRepository {
 
     private int getCapacity(GraphBuilder.Labels label) {
         // approx. sizings
-        switch (label) {
-            case ROUTE_STATION: return 282;
-            case TRAM_STATION: return 93;
-            case TRAIN_STATION: return 3000;
-            case PLATFORM: return 185;
-            case SERVICE: return 8680;
-            case HOUR: return 62525;
-            case MINUTE: return 314150;
-            default: return 0;
-        }
+        return switch (label) {
+            case ROUTE_STATION -> 282;
+            case TRAM_STATION -> 93;
+            case TRAIN_STATION -> 3000;
+            case PLATFORM -> 185;
+            case SERVICE -> 8680;
+            case HOUR -> 62525;
+            case MINUTE -> 314150;
+            default -> 0;
+        };
     }
 
     public void put(long id, GraphBuilder.Labels label) {

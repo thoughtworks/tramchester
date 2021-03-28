@@ -1,10 +1,10 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -50,6 +50,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
         /***
          * follow those links that include a matching destination route first
+         * Only useful for relatively simple routing with geographically close stops
          */
         private Collection<Relationship> priortiseByDestinationRoutes(TraversalState state, Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
@@ -68,11 +69,15 @@ public class RouteStationStateJustBoarded extends TraversalState {
             return highPriority;
         }
 
-        // significant overall performance increase for non-trival gregraphically diverse networks
+        /***
+         * Order outbound relationships by end node distance to destination
+         * significant overall performance increase for non-trival gregraphically diverse networks
+         */
         private Collection<Relationship> orderByDistance(Node node) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
 
             Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();
+
             toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
             return sortsPositions.sortedByNearTo(destinationLatLon, relationships);
         }
@@ -108,6 +113,8 @@ public class RouteStationStateJustBoarded extends TraversalState {
         private RelationshipFacade(Relationship relationship) {
             id = relationship.getId();
             this.relationship = relationship;
+
+            // TODO this needs to go via the cache layer
             this.stationId = GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
         }
 

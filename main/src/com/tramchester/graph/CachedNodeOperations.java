@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
@@ -30,20 +31,23 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, IdFor<Trip>> tripIdRelationshipCache;
+    private final Cache<Long, IdFor<Service>> serviceNodeCache;
+    private final Cache<Long, TramTime> timeNodeCache;
 
-    private final Cache<Long, IdFor<Service>> svcIdCache;
-    private final Cache<Long, TramTime> times;
     private final HourNodeCache prebuildHourCache;
+    private final NumberOfNodesRepository numberOfNodesRepository;
 
     @Inject
-    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache) {
+    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache, NumberOfNodesRepository numberOfNodesRepository) {
         this.prebuildHourCache = prebuildHourCache;
+        this.numberOfNodesRepository = numberOfNodesRepository;
 
         // size tuned from stats
         relationshipCostCache = createCache(85000);
-        svcIdCache = createCache(425350);
         tripIdRelationshipCache = createCache(32500);
-        times = createCache(40000);
+
+        timeNodeCache = createCache(GraphBuilder.Labels.MINUTE);
+        serviceNodeCache = createCache(GraphBuilder.Labels.SERVICE);
 
         cacheMetrics.register(this);
     }
@@ -52,13 +56,18 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     public void dispose() {
         logger.info("dispose");
         relationshipCostCache.invalidateAll();
-        svcIdCache.invalidateAll();
+        serviceNodeCache.invalidateAll();
         tripIdRelationshipCache.invalidateAll();
-        times.invalidateAll();
+        timeNodeCache.invalidateAll();
     }
 
     @NonNull
-    private <T> Cache<Long, T> createCache(int maximumSize) {
+    private <T> Cache<Long, T> createCache(GraphBuilder.Labels label) {
+        return createCache(numberOfNodesRepository.numberOf(label));
+    }
+
+    @NonNull
+    private <T> Cache<Long, T> createCache(long maximumSize) {
         // TODO cache expiry time into Config
         return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(30, TimeUnit.MINUTES).
                 recordStats().build();
@@ -67,9 +76,9 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     public List<Pair<String,CacheStats>> stats() {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
-        result.add(Pair.of("svcIdCache",svcIdCache.stats()));
+        result.add(Pair.of("svcIdCache", serviceNodeCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
-        result.add(Pair.of("times", times.stats()));
+        result.add(Pair.of("times", timeNodeCache.stats()));
 
         return result;
     }
@@ -81,12 +90,12 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     public TramTime getTime(Node node) {
         long nodeId = node.getId();
-        return times.get(nodeId, id -> GraphProps.getTime(node));
+        return timeNodeCache.get(nodeId, id -> GraphProps.getTime(node));
     }
 
     public IdFor<Service> getServiceId(Node node) {
         long nodeId = node.getId();
-        return svcIdCache.get(nodeId, id -> GraphProps.getServiceId(node));
+        return serviceNodeCache.get(nodeId, id -> GraphProps.getServiceId(node));
     }
 
     public int getHour(Node node) {

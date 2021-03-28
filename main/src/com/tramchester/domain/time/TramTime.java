@@ -65,7 +65,7 @@ public class  TramTime implements Comparable<TramTime> {
             offsetDays = offsetDays + 1;
         }
         if (hour>23) {
-            // spanning 2 days, cannot handle yet
+            // spanning 2 days, cannot handle yet, TODO very long ferry or train >2 days???
             return Optional.empty();
         }
 
@@ -284,7 +284,7 @@ public class  TramTime implements Comparable<TramTime> {
     }
 
     /***
-     * Is time within the preceeding minitutes, or equal to, time.
+     * Is time within the preceeding minutes, or equal to, time.
      * OR between Midnight and time iff proceedingMinutes > minutes in day
      * @param proceedingMinutes interval to consider prior to time
      * @param time end of period

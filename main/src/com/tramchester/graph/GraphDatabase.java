@@ -279,7 +279,7 @@ public class GraphDatabase implements DatabaseEventListener {
 
     public void createIndexs() {
 
-        try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Indexes"))
+        try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Constraints"))
         {
             Transaction tx = timed.transaction();
             Schema schema = tx.schema();

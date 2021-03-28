@@ -11,6 +11,7 @@ import com.tramchester.integration.graph.testSupport.RouteCalculationCombination
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainRouteCalculatorCombinationTests {
 
     // TODO this needs to be > time for whole test fixture, see note below in @After

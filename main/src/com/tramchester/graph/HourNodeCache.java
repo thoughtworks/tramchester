@@ -23,8 +23,8 @@ public class HourNodeCache extends PopulateNodeIdsFromQuery {
     private final ArrayList<Set<Long>> forEachHour;
 
     @Inject
-    public HourNodeCache(GraphDatabase graphDatabaseService, StagedTransportGraphBuilder.Ready ready) {
-        super(graphDatabaseService);
+    public HourNodeCache(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+        super(graphDatabase);
         forEachHour = new ArrayList<>(HOURS);
     }
 

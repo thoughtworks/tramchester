@@ -38,7 +38,7 @@ class MixedRouteTest {
     private static RouteCalculator calculator;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private static MixedRouteTest.SimpleGraphConfig config;
+    private static SimpleMixedRouteGraphConfig config;
 
     private TramServiceDate queryDate;
     private TramTime queryTime;
@@ -46,7 +46,7 @@ class MixedRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new MixedRouteTest.SimpleGraphConfig();
+        config = new SimpleMixedRouteGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder<MixedTransportTestDataFactory>().
@@ -152,9 +152,9 @@ class MixedRouteTest {
         assertTrue(vehicleStage.getDuration()>0);
     }
 
-    private static class SimpleGraphConfig extends IntegrationTestConfig {
+    private static class SimpleMixedRouteGraphConfig extends IntegrationTestConfig {
 
-        public SimpleGraphConfig() {
+        public SimpleMixedRouteGraphConfig() {
             super(new GraphDBTestConfig("unitTest", "MixedRouteTest.db"));
         }
 

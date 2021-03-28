@@ -7,12 +7,14 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @LazySingleton
 public class SortsPositions {
@@ -84,6 +86,7 @@ public class SortsPositions {
                 reduce((A, B) -> new LatLong(A.getLat()+B.getLat(), A.getLon()+B.getLon())).
                 map(latLong -> new LatLong(latLong.getLat()/ size, latLong.getLon()/ size)).get();
     }
+
 
     public interface HasStationId<T> {
         IdFor<Station> getStationId();
