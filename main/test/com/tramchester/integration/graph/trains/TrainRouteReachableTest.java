@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
@@ -15,14 +14,11 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-
-import java.util.List;
 
 import static com.tramchester.testSupport.reference.TrainStations.Knutsford;
 import static com.tramchester.testSupport.reference.TrainStations.Mobberley;
@@ -54,7 +50,7 @@ class TrainRouteReachableTest {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
 
-        route = routeRepository.findRouteByShortName(StringIdFor.createId("NT"), "NT:MAN->CTR");
+        route = routeRepository.findFirstRouteByShortName(StringIdFor.createId("NT"), "NT:MAN->CTR");
     }
 
     @Test

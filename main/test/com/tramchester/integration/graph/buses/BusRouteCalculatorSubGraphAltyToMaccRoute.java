@@ -91,14 +91,23 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     }
 
     @Test
+    void shouldHaveTheCorrectRouteIdForTheFilter() {
+        // Altrincham - Wilmslow - Knutsford - Macclesfield
+        Route route = transportData.findFirstRouteByName(StringIdFor.createId("DAGC"), "Altrincham - Wilmslow - Knutsford - Macclesfield");
+
+        assertEquals(route.getId(), ROUTE_ID);
+    }
+
+    @Test
     void shouldBeFilteringByCorrectRoute() {
         Route route = transportData.getRouteById(ROUTE_ID);
         assertNotNull(route);
 
         Station start = transportData.getStationById(BusStations.AltrinchamInterchange.getId());
-        Station end = transportData.getStationById(BusStations.MacclefieldBusStationBay1.getId());
+        Station end = transportData.getStationById(BusStations.KnutsfordStationStand3.getId());
 
         RouteStation routeStation = transportData.getRouteStation(start, route);
+        assertNotNull(routeStation);
 
         // TODO Rework this test
         IdSet<Station> result = getRouteReachableWithInterchange(routeStation, IdSet.singleton(end.getId()));
@@ -123,7 +132,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, 120);
-        Set<Journey> results = calculator.calculateRouteAsSet(BusStations.AltrinchamInterchange, BusStations.MacclefieldBusStationBay1,
+        Set<Journey> results = calculator.calculateRouteAsSet(BusStations.AltrinchamInterchange, BusStations.KnutsfordStationStand3,
                 journeyRequest);
 
         assertFalse(results.isEmpty());

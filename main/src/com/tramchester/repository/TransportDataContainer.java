@@ -1,7 +1,6 @@
 package com.tramchester.repository;
 
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.input.Trip;
@@ -281,10 +280,19 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Route findRouteByShortName(IdFor<Agency> agencyId, String name) {
+    public Route findFirstRouteByShortName(IdFor<Agency> agencyId, String shortName) {
         Optional<Route> searchResults = routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
-                filter(route -> route.getShortName().equals(name)).
+                filter(route -> route.getShortName().equals(shortName)).
+                findAny();
+        return searchResults.orElse(null);
+    }
+
+    @Override
+    public Route findFirstRouteByName(IdFor<Agency> agencyId, String longName) {
+        Optional<Route> searchResults = routes.getValues().stream().
+                filter(route -> route.getAgency().getId().equals(agencyId)).
+                filter(route -> route.getName().equals(longName)).
                 findAny();
         return searchResults.orElse(null);
     }

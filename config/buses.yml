@@ -42,9 +42,10 @@ distanceToNeighboursKM: 0.25
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
-maxWait: 25
-numberQueries: 8
-queryInterval: 15
+maxWait: 15
+maxInitialWait: 20
+numberQueries: 3
+queryInterval: 20
 maxNumberResults: 5
 maxWalkingConnections: 3
 maxJourneyDuration: 170

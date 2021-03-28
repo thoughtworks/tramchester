@@ -13,5 +13,6 @@ public interface RouteRepository {
     Route getRouteById(IdFor<Route> routeId);
     boolean hasRouteId(IdFor<Route> routeId);
 
-    Route findRouteByShortName(IdFor<Agency> agencyId, String name);
+    Route findFirstRouteByShortName(IdFor<Agency> agencyId, String shortName);
+    Route findFirstRouteByName(IdFor<Agency> agencyId, String longName);
 }

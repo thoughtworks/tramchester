@@ -14,29 +14,30 @@ import org.jetbrains.annotations.NotNull;
 
 public enum BusStations implements TestStations {
 
-    AltrinchamInterchange("1800AMIC001", "Altrincham", "Altrincham, Altrincham Interchange",
+    AltrinchamInterchange("1800AMIC001", "Altrincham", "Altrincham Interchange",
             new LatLong(53.38745, -2.34771)),
-    StockportBusStation("1800STBS001", "Stockport", "Stockport, Stockport Bus Station",
+    StockportBusStation("1800STBS001", "Stockport", "Stockport Bus Station",
             new LatLong(53.4091,-2.16293)),
-    ShudehillInterchange("1800SHIC001", "Shudehill", "Shudehill, Shudehill Interchange",
+    ShudehillInterchange("1800SHIC001", "Shudehill", "Shudehill Interchange",
             new LatLong(53.48557, -2.23827)),
-    ManchesterAirportStation("1800MABS001", "Manchester Airport", "Manchester Airport, Manchester Airport The Station",
+    ManchesterAirportStation("1800MABS001", "Manchester Airport", "Manchester Airport The Station",
             new LatLong(53.3656, -2.27242)),
-    KnutsfordStationStand3("0600MA6022", "Knutsford", "Knutsford, Bus Station (Stand 3)",
+    KnutsfordStationStand3("0600MA6022", "Knutsford", "Bus Station",
             new LatLong(53.30245, -2.37551)),
-    BuryInterchange("1800BYIC001", "Bury", "Bury, at Bury Interchange",
+    BuryInterchange("1800BYIC001", "Bury", "Bury Interchange",
             new LatLong(53.59134, -2.29706)),
-    PiccadilyStationStopA("1800EB01201", "Manchester City Centre", "Manchester City Centre, Piccadilly Station (Stop A)",
+    PiccadilyStationStopA("1800EB01201", "Manchester City Centre", "Piccadilly Station",
             new LatLong(53.47683, -2.23146)),
-    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens", "Piccadilly Gardens, Piccadilly Gardens (Stop H)",
+    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens", "Piccadilly Gardens",
             new LatLong(53.48063,-2.23825)),
-    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens", "Piccadilly Gardens, Piccadilly Gardens (Stop N)",
+    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens", "Piccadilly Gardens",
             new LatLong(53.48017, -2.23723)),
-    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
-            new LatLong(53.25831, -2.12502)),
-    StockportAtAldi("1800SG15721", "Stockport", "Stockport, at Aldi",
+    // No longer in the data
+//    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
+//            new LatLong(53.25831, -2.12502)),
+    StockportAtAldi("1800SG15721", "Stockport", "Aldi",
             new LatLong(53.41115, -2.15221)),
-    StockportNewbridgeLane("1800SG15561", "Stockport", "Stockport, Newbridge Lane (NW-bound)",
+    StockportNewbridgeLane("1800SG15561", "Stockport", "Newbridge Lane",
             new LatLong(53.41149, -2.15438));
 
     private final TestStation station;

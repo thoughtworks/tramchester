@@ -44,11 +44,14 @@ class ReachabilityRepositoryBusTest {
 
     @Test
     void shouldCreateReachabilityMatrix() {
-        Route route = routeRepo.getRouteById(RoutesForTesting.StockportMarpleRomileyCircular.getId());
+        Route routeA = routeRepo.getRouteById(RoutesForTesting.ALTY_TO_STOCKPORT.getId());
+        assertNotNull(routeA);
+        assertTrue(reachable(createRouteStation(routeA, BusStations.AltrinchamInterchange),
+                BusStations.StockportBusStation));
 
-        assertNotNull(route);
-
-        assertTrue(reachable(createRouteStation(route, BusStations.StockportAtAldi), BusStations.StockportNewbridgeLane ));
+        Route routeB = routeRepo.getRouteById(RoutesForTesting.StockportMarpleRomileyCircular.getId());
+        assertNotNull(routeB);
+        assertTrue(reachable(createRouteStation(routeB, BusStations.StockportAtAldi), BusStations.StockportNewbridgeLane ));
     }
 
     private boolean reachable(RouteStation routeStation, BusStations destinationStation) {
