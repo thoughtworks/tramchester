@@ -33,6 +33,8 @@ public enum TransportMode implements HasTransportMode {
         }
     }
 
+    // used in graph propety
+    // TODO Can now use native enum instead with neo4j
     private final short number;
 
     TransportMode(short number) {
@@ -40,16 +42,15 @@ public enum TransportMode implements HasTransportMode {
     }
 
     public static TransportMode fromGTFS(GTFSTransportationType routeType) {
-        switch (routeType) {
-            case tram: return TransportMode.Tram;
-            case bus: return TransportMode.Bus;
-            case train: return TransportMode.Train;
-            case ferry: return TransportMode.Ferry;
-            case subway: return TransportMode.Subway;
-            case replacementBus: return TransportMode.RailReplacementBus;
-            default:
-                throw new RuntimeException("Unexpected route type (check config?) " + routeType);
-        }
+        return switch (routeType) {
+            case tram -> TransportMode.Tram;
+            case bus -> TransportMode.Bus;
+            case train -> TransportMode.Train;
+            case ferry -> TransportMode.Ferry;
+            case subway -> TransportMode.Subway;
+            case replacementBus -> TransportMode.RailReplacementBus;
+            default -> throw new RuntimeException("Unexpected route type (check config?) " + routeType);
+        };
     }
 
     public static boolean isTram(HasTransportMode item) {
@@ -70,10 +71,6 @@ public enum TransportMode implements HasTransportMode {
 
     public static boolean isTrain(HasTransportMode item) {
         return item.getTransportMode().equals(TransportMode.Train);
-    }
-
-    public static boolean isTrain(HasTransportModes item) {
-        return item.getTransportModes().contains(TransportMode.Train);
     }
 
     public static Set<TransportMode> fromGTFS(Set<GTFSTransportationType> gtfsTransportationTypes) {

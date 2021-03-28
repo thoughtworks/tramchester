@@ -2,7 +2,8 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.graph.NumberOfNodesRepository;
+import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -16,11 +17,11 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NumberOfNodesRepositoryTest {
+class NumberOfNodesAndRelationshipsRepositoryTest {
 
     private static SimpleGraphConfig config;
     private static GuiceContainerDependencies<TramTransportDataForTestFactory> componentContainer;
-    private NumberOfNodesRepository repository;
+    private NumberOfNodesAndRelationshipsRepository repository;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -41,7 +42,7 @@ class NumberOfNodesRepositoryTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        repository = componentContainer.get(NumberOfNodesRepository.class);
+        repository = componentContainer.get(NumberOfNodesAndRelationshipsRepository.class);
     }
 
     @Test
@@ -59,6 +60,28 @@ class NumberOfNodesRepositoryTest {
         assertEquals(6, repository.numberOf(GraphBuilder.Labels.PLATFORM));
         assertEquals(8, repository.numberOf(GraphBuilder.Labels.ROUTE_STATION));
         assertEquals(6, repository.numberOf(GraphBuilder.Labels.PLATFORM));
+
+    }
+
+    @Test
+    void shouldHaveCorrectNumberOfRelations() {
+
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.BUS_GOES_TO));
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.TRAIN_GOES_TO));
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.TRAIN_NEIGHBOUR));
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.FERRY_GOES_TO));
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_FROM));
+        assertEquals(0, repository.numberOf(TransportRelationshipTypes.WALKS_TO));
+
+
+        assertEquals(7, repository.numberOf(TransportRelationshipTypes.TRAM_GOES_TO));
+        assertEquals(5, repository.numberOf(TransportRelationshipTypes.TO_SERVICE));
+        assertEquals(6, repository.numberOf(TransportRelationshipTypes.TO_HOUR));
+        assertEquals(7, repository.numberOf(TransportRelationshipTypes.TO_MINUTE));
+        assertEquals(5, repository.numberOf(TransportRelationshipTypes.BOARD));
+        assertEquals(5, repository.numberOf(TransportRelationshipTypes.DEPART));
+        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
+        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
 
 
     }

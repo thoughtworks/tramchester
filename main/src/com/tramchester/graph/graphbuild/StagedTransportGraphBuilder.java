@@ -452,7 +452,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         TramTime departureTime = beginStop.getDepartureTime();
 
-        TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.from(route.getTransportMode());
+        TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
 
         Node routeStationEnd = routeBuilderCache.getRouteStation(tx, route, endStop.getStation().getId());
 

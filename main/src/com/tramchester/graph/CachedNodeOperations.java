@@ -23,6 +23,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @LazySingleton
@@ -35,21 +36,26 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<Long, TramTime> timeNodeCache;
 
     private final HourNodeCache prebuildHourCache;
-    private final NumberOfNodesRepository numberOfNodesRepository;
+    private final NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository;
 
     @Inject
-    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache, NumberOfNodesRepository numberOfNodesRepository) {
+    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache,
+                                NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository) {
         this.prebuildHourCache = prebuildHourCache;
-        this.numberOfNodesRepository = numberOfNodesRepository;
+        this.numberOfNodesAndRelationshipsRepository = numberOfNodesAndRelationshipsRepository;
 
-        // size tuned from stats
-        relationshipCostCache = createCache(85000);
-        tripIdRelationshipCache = createCache(32500);
-
-        timeNodeCache = createCache(GraphBuilder.Labels.MINUTE);
-        serviceNodeCache = createCache(GraphBuilder.Labels.SERVICE);
+        relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
+        tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
+        timeNodeCache = createCache("timeNodeCache", GraphBuilder.Labels.MINUTE);
+        serviceNodeCache = createCache("serviceNodeCache", GraphBuilder.Labels.SERVICE);
 
         cacheMetrics.register(this);
+    }
+
+    private Long numberFor(Set<TransportRelationshipTypes> types) {
+        return types.stream().
+                map(numberOfNodesAndRelationshipsRepository::numberOf).
+                reduce(Long::sum).get();
     }
 
     @PreDestroy
@@ -62,13 +68,14 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     }
 
     @NonNull
-    private <T> Cache<Long, T> createCache(GraphBuilder.Labels label) {
-        return createCache(numberOfNodesRepository.numberOf(label));
+    private <T> Cache<Long, T> createCache(String name, GraphBuilder.Labels label) {
+        return createCache(name, numberOfNodesAndRelationshipsRepository.numberOf(label));
     }
 
     @NonNull
-    private <T> Cache<Long, T> createCache(long maximumSize) {
+    private <T> Cache<Long, T> createCache(String name, long maximumSize) {
         // TODO cache expiry time into Config
+        logger.info("Create create " + name + " max size " + maximumSize);
         return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(30, TimeUnit.MINUTES).
                 recordStats().build();
     }

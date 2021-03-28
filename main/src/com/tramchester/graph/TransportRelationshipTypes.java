@@ -5,6 +5,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public enum TransportRelationshipTypes implements RelationshipType {
     TRAM_GOES_TO,
@@ -44,18 +45,15 @@ public enum TransportRelationshipTypes implements RelationshipType {
         return forPlanning;
     }
 
-    public static TransportRelationshipTypes from(TransportMode transportMode) {
-        switch (transportMode) {
-            case Train: return TRAIN_GOES_TO;
-            case Bus:
-            case RailReplacementBus:
-                return BUS_GOES_TO;
-            case Tram: return TRAM_GOES_TO;
-            case Ferry: return FERRY_GOES_TO;
-            case Subway: return SUBWAY_GOES_TO;
-            default:
-                throw new RuntimeException("Unexpected travel mode " + transportMode);
-        }
+    public static TransportRelationshipTypes forMode(TransportMode transportMode) {
+        return switch (transportMode) {
+            case Train -> TRAIN_GOES_TO;
+            case Bus, RailReplacementBus -> BUS_GOES_TO;
+            case Tram -> TRAM_GOES_TO;
+            case Ferry -> FERRY_GOES_TO;
+            case Subway -> SUBWAY_GOES_TO;
+            default -> throw new RuntimeException("Unexpected travel mode " + transportMode);
+        };
     }
 
     public static boolean isNeighbour(Relationship relationship) {
@@ -63,5 +61,28 @@ public enum TransportRelationshipTypes implements RelationshipType {
                 relationship.isType(TRAIN_NEIGHBOUR) ||
                 relationship.isType(BUS_NEIGHBOUR);
     }
+
+    public static boolean hasCost(TransportRelationshipTypes relationshipType) {
+        return switch (relationshipType) {
+            case TO_HOUR,TO_MINUTE, TO_SERVICE -> false;
+            default -> true;
+        };
+    }
+
+    public static boolean hasTripId(TransportRelationshipTypes relationshipType) {
+        return switch (relationshipType) {
+            case TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE -> true;
+            default -> false;
+        };
+    }
+
+    public static Set<TransportRelationshipTypes> haveCosts() {
+        return Arrays.stream(values()).filter(TransportRelationshipTypes::hasCost).collect(Collectors.toSet());
+    }
+
+    public static Set<TransportRelationshipTypes> haveTripId() {
+        return Arrays.stream(values()).filter(TransportRelationshipTypes::hasTripId).collect(Collectors.toSet());
+    }
+
 }
 
