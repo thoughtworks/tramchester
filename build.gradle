@@ -45,16 +45,16 @@ dependencies {
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:cloudwatch:2.16.22')
-    implementation('software.amazon.awssdk:s3:2.16.23')
-    implementation('software.amazon.awssdk:cloudformation:2.16.22')
+    implementation('software.amazon.awssdk:cloudwatch:2.16.29')
+    implementation('software.amazon.awssdk:s3:2.16.29')
+    implementation('software.amazon.awssdk:cloudformation:2.16.29')
     // aws cdk
-    implementation 'software.amazon.awscdk:core:1.94.1',
-            'software.amazon.awscdk:s3:1.94.1',
-            'software.amazon.awscdk:ec2:1.94.1',
-            'software.amazon.awscdk:elasticloadbalancingv2:1.93.0',
-            'software.amazon.awscdk:autoscaling:1.94.1',
-            'software.amazon.awscdk:cdk-cx-api:1.94.1'
+    implementation 'software.amazon.awscdk:core:1.95.1',
+            'software.amazon.awscdk:s3:1.95.1',
+            'software.amazon.awscdk:ec2:1.95.1',
+            'software.amazon.awscdk:elasticloadbalancingv2:1.95.1',
+            'software.amazon.awscdk:autoscaling:1.95.1',
+            'software.amazon.awscdk:cdk-cx-api:1.95.1'
 
     implementation('org.geotools:gt-main:25.0')
     implementation('org.geotools:gt-epsg-hsql:24.2')
@@ -64,7 +64,7 @@ dependencies {
             'io.dropwizard:dropwizard-testing:' + dropwizardVersion,
             'org.easymock:easymock:4.2',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
-            'io.appium:java-client:7.5.0',
+            'io.appium:java-client:7.5.1',
             'org.hamcrest:hamcrest:2.2'
 
 }
