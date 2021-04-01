@@ -84,5 +84,8 @@ public enum TransportRelationshipTypes implements RelationshipType {
         return Arrays.stream(values()).filter(TransportRelationshipTypes::hasTripId).collect(Collectors.toSet());
     }
 
+    public static TransportRelationshipTypes from(Relationship relationship) {
+        return valueOf(relationship.getType().name());
+    }
 }
 

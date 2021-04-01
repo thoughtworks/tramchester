@@ -43,16 +43,18 @@ class TransportRelationshipTypesTest {
 
     @Test
     void shouldHaveCorrectTypesWithCost()  {
-        List<TransportRelationshipTypes> expectedTripId = Arrays.asList(TransportRelationshipTypes.TO_MINUTE,
+        List<TransportRelationshipTypes> expectedNoCost = Arrays.asList(
+                TransportRelationshipTypes.TO_MINUTE,
                 TransportRelationshipTypes.TO_HOUR,
                 TransportRelationshipTypes.TO_SERVICE);
 
-        expectedTripId.forEach(expected -> assertFalse(TransportRelationshipTypes.hasCost(expected), expected.name()));
+        expectedNoCost.forEach(expected -> assertFalse(TransportRelationshipTypes.hasCost(expected), expected.name()));
 
         List<TransportRelationshipTypes> expectedToHaveCost = new ArrayList<>(all);
-        expectedToHaveCost.removeAll(expectedTripId);
+        expectedToHaveCost.removeAll(expectedNoCost);
 
         expectedToHaveCost.forEach(expected -> assertTrue(TransportRelationshipTypes.hasCost(expected), expected.name()));
+
     }
 
     @Test

@@ -69,7 +69,7 @@ public class MapPathToStages {
 
         State state = new State(transportData, platformRepository, queryTime);
         for(Relationship relationship : relationships) {
-            TransportRelationshipTypes type = TransportRelationshipTypes.valueOf(relationship.getType().name());
+            TransportRelationshipTypes type = TransportRelationshipTypes.from(relationship);
             logger.debug("Mapping type " + type);
 
             switch (type) {

@@ -4,13 +4,13 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -111,9 +111,14 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     }
 
     public int getCost(Relationship relationship) {
-        long relationshipId = relationship.getId();
-        //noinspection ConstantConditions
-        return relationshipCostCache.get(relationshipId, id ->  GraphProps.getCost(relationship));
+        TransportRelationshipTypes relationshipType = TransportRelationshipTypes.from(relationship);
+        if (TransportRelationshipTypes.hasCost(relationshipType)) {
+            long relationshipId = relationship.getId();
+            //noinspection ConstantConditions
+            return relationshipCostCache.get(relationshipId, id ->  GraphProps.getCost(relationship));
+        } else {
+            return 0;
+        }
     }
 
     public void deleteFromCostCache(Relationship relationship) {
