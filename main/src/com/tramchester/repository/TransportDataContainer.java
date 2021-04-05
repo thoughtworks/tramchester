@@ -69,7 +69,15 @@ public class TransportDataContainer implements TransportData {
         logger.info(format("%s route stations", routeStations.size()));
         logger.info(format("%s services", services.size()));
         logger.info(format("%s trips", trips.size()));
+        logger.info(format("%s calling points", countStopCalls(trips)));
         logger.info(format("%s feedinfos", feedInfoMap.size()));
+    }
+
+    private int countStopCalls(IdMap<Trip> trips) {
+        Optional<Integer> count = trips.getValues().stream().
+                map(trip -> trip.getStopCalls().numberOfCallingPoints()).
+                reduce(Integer::sum);
+        return count.get();
     }
 
     public Service getService(IdFor<Service> serviceId) {

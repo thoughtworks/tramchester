@@ -258,7 +258,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
                 if (!buildable.hasTripId(trip.getId())) {
                     buildable.addTrip(trip); // seen at least one stop for this trip
-                    //
                 }
 
                 Service service = trip.getService();
