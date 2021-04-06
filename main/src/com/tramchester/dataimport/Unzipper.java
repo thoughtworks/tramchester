@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalTime;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -44,42 +43,67 @@ public class Unzipper {
     }
 
     private void extractEntryTo(Path targetDirectory, ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {
-        Path name = targetDirectory.resolve(zipEntry.getName());
+        Path target = targetDirectory.resolve(zipEntry.getName());
 
-        String absolutePath = name.toAbsolutePath().toString();
+        String absolutePath = target.toAbsolutePath().toString();
         if (zipEntry.isDirectory()) {
             logger.info("Create directory " + absolutePath);
-            Files.createDirectories(name);
+            Files.createDirectories(target);
             return;
         }
         logger.debug("Unpack file " + absolutePath);
-        Path parent = name.getParent();
+        Path parent = target.getParent();
         if (!parent.toFile().exists()) {
             logger.info("Create needed directory " + parent + " for " +absolutePath);
             Files.createDirectories(parent);
         }
-        File unpackTarget = name.toFile();
+        File unpackTarget = target.toFile();
         if (unpackTarget.exists()) {
             logger.debug(absolutePath + " already exists");
-            long epochMilli = unpackTarget.lastModified();
-            boolean modTime = zipEntry.getLastModifiedTime().toMillis() == epochMilli;
-            boolean size = zipEntry.getSize() == unpackTarget.length();
-            if (!modTime) {
-                logger.warn("File exists but mod time does not match");
-            }
-            if (!size) {
-                logger.warn("File exists but size does not match");
-            }
-            if (modTime&&size) {
-                logger.debug("Not over-writing " + absolutePath);
+
+            boolean modTimeMatches = checkModTime(zipEntry, unpackTarget);
+            boolean sizeMatches = checkFileSize(zipEntry, unpackTarget);
+
+            if (modTimeMatches&&sizeMatches) {
+                logger.info("Not over-writing " + absolutePath);
                 return;
             }
             logger.warn("Deleting " + absolutePath);
-            Files.delete(name);
+            Files.delete(target);
         }
-        Files.copy(zipInputStream, name);
+        Files.copy(zipInputStream, target);
         unpackTarget.setLastModified(zipEntry.getLastModifiedTime().toMillis());
 
+    }
+
+    private boolean checkFileSize(ZipEntry zipEntry, File file) {
+        if (zipEntry.getSize()==-1) {
+            logger.info("No size present in zip for " + file);
+            return true;
+        }
+
+        boolean sizeMatches = zipEntry.getSize() == file.length();
+        if (!sizeMatches) {
+            logger.warn(format("File %s exists but size (%s) does not match (%s)",
+                    file, file.length(), zipEntry.getSize()));
+        } else {
+            logger.info(format("File %s exists size (%s) matches (%s)",
+                    file, file.length(), zipEntry.getSize()));
+        }
+        return sizeMatches;
+    }
+
+    private boolean checkModTime(ZipEntry zipEntry, File file) {
+        long epochMilli = file.lastModified();
+        boolean modTimeMatches = zipEntry.getLastModifiedTime().toMillis() == epochMilli;
+        if (!modTimeMatches) {
+            logger.info(format("File %s exists but mod time (%s) does not match (%s)",
+                    file, file.lastModified(), zipEntry.getLastModifiedTime()));
+        } else {
+            logger.info(format("File %s mod time (%s) match (%s)",
+                    file, file.lastModified(), zipEntry.getLastModifiedTime()));
+        }
+        return modTimeMatches;
     }
 
 }
