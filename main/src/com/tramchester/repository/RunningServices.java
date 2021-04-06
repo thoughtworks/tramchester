@@ -1,16 +1,11 @@
 package com.tramchester.repository;
 
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RunningServices {
     private static final Logger logger = LoggerFactory.getLogger(RunningServices.class);

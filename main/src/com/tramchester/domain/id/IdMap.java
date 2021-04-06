@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
     private final HashMap<IdFor<T>, T> theMap;
@@ -64,8 +65,8 @@ public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
         return value;
     }
 
-    public Set<T> filter(Filter<T> theFilter) {
-        return theMap.values().stream().filter(theFilter::include).collect(Collectors.toUnmodifiableSet());
+    public Stream<T> filterStream(Filter<T> theFilter) {
+        return theMap.values().stream().filter(theFilter::include);
     }
 
     private IdMap<T> addAll(IdMap<T> others) {

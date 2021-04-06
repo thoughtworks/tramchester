@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -106,7 +108,12 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Station> getStationsForMode(TransportMode mode) {
-        return stationsById.filter(item -> item.getTransportModes().contains(mode));
+        return getStationsForModeStream(mode).collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public Stream<Station> getStationsForModeStream(TransportMode mode) {
+        return stationsById.filterStream(item -> item.getTransportModes().contains(mode));
     }
 
     @Override
@@ -128,6 +135,8 @@ public class TransportDataContainer implements TransportData {
     public RouteStation getRouteStation(Station station, Route route) {
         return getRouteStationById(RouteStation.createId(station.getId(), route.getId()));
     }
+
+
 
     @Override
     public Set<Service> getServices() {
@@ -280,7 +289,8 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
-        return services.filter(item -> item.getCalendar().operatesOn(date.getDate()));
+        return services.filterStream(item -> item.getCalendar().operatesOn(date.getDate())).
+                collect(Collectors.toUnmodifiableSet());
     }
 
     public boolean hasRouteId(IdFor<Route> routeId) {

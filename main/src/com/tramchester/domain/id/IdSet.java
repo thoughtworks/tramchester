@@ -5,10 +5,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.domain.GraphProperty;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
@@ -22,6 +19,11 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
 
     public IdSet(Set<IdFor<T>> set) {
         theSet = new HashSet<>(set);
+    }
+
+    public IdSet(Collection<IdFor<T>> ids) {
+        this();
+        theSet.addAll(ids);
     }
 
     public IdSet(int initialCapabicity) {
@@ -43,8 +45,9 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return this;
     }
 
-    public void add(IdFor<T> id) {
+    public IdSet<T> add(IdFor<T> id) {
         theSet.add(id);
+        return this;
     }
 
     public int size() {

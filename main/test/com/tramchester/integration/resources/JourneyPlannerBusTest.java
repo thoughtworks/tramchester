@@ -63,7 +63,7 @@ class JourneyPlannerBusTest {
 
         App app =  appExt.getApplication();
         StationRepository stationRepo = app.getDependencies().get(StationRepository.class);
-        Set<String> stationsIds = stationRepo.getStationsForMode(TransportMode.Bus).stream().
+        Set<String> stationsIds = stationRepo.getStationsForModeStream(TransportMode.Bus).
                 map(station -> station.getId().forDTO()).collect(Collectors.toSet());
 
         assertEquals(stationsIds.size(), results.size());

@@ -4,7 +4,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.CompositeId;
+import com.tramchester.domain.id.MixedCompositeId;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
@@ -28,7 +28,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
     }
 
     public static IdFor<RouteStation> createId(IdFor<Station> station, IdFor<Route> route) {
-        return CompositeId.createId(route, station);
+        return MixedCompositeId.createId(route, station);
     }
 
     public IdFor<RouteStation> getId() {

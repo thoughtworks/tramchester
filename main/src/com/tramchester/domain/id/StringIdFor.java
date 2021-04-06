@@ -63,7 +63,7 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
 
     public static <Z extends GraphProperty> IdFor<Z> getCompositeIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
         String value = entity.getProperty(propertyKey.getText()).toString();
-        return CompositeId.parse(value);
+        return MixedCompositeId.parse(value);
     }
 
     @Override

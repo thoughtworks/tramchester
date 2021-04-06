@@ -7,9 +7,9 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @ImplementedBy(TransportData.class)
 public interface StationRepository extends StationRepositoryPublic {
@@ -30,4 +30,5 @@ public interface StationRepository extends StationRepositoryPublic {
     RouteStation getRouteStationById(IdFor<RouteStation> routeStationId);
     RouteStation getRouteStation(Station startStation, Route route);
 
+    Stream<Station> getStationsForModeStream(TransportMode mode);
 }
