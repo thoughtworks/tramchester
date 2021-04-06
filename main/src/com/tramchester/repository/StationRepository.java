@@ -12,19 +12,16 @@ import java.util.Optional;
 import java.util.Set;
 
 @ImplementedBy(TransportData.class)
-public interface StationRepository {
-    Set<Station> getStations();
-    Set<Station> getStationsForMode(TransportMode mode);
-    int getNumberOfStations();
+public interface StationRepository extends StationRepositoryPublic {
 
-    Station getStationById(IdFor<Station> stationId);
-    boolean hasStationId(IdFor<Station> stationId);
+    int getNumberOfStations();
+    Set<Station> getStations();
 
     // live data association
     Optional<Station> getTramStationByName(String name);
 
     /***
-     * Use with care, return includes stations due to rare circumstances, such as return to deport
+     * Use with care, return includes route stations present due to rare circumstances, such as return to depot
      * Nomrally use RouteCallingStations instead if you want stations for a 'normally' defined route
      * @return all route stations
      */

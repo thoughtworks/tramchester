@@ -16,6 +16,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.StationRepositoryPublic;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,16 +38,16 @@ import static java.lang.String.format;
 @Api
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationResource extends UsesRecentCookie {
+public class StationResource extends UsesRecentCookie  {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
 
-    private final StationRepository stationRepository;
+    private final StationRepositoryPublic stationRepository;
     private final DataSourceRepository dataSourceRepository;
     private final StationLocations stationLocations;
     private final TramchesterConfig config;
 
     @Inject
-    public StationResource(StationRepository stationRepository,
+    public StationResource(StationRepositoryPublic stationRepository,
                            UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations, TramchesterConfig config) {
@@ -64,6 +65,7 @@ public class StationResource extends UsesRecentCookie {
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response get(@PathParam("id") String text) {
         logger.info("Get station by id: " + text);
+        
         StringIdFor<Station> id = StringIdFor.createId(text);
         guardForStationNotExisting(stationRepository, id);
 
@@ -72,23 +74,8 @@ public class StationResource extends UsesRecentCookie {
 
     @GET
     @Timed
-    @Path("/all")
-    @ApiOperation(value = "Get all stations, use /mode instead if possible", response = StationRefDTO.class, responseContainer = "List")
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
-    public Response getAll() {
-        logger.info("Get all stations");
-
-        Set<Station> allStations = stationRepository.getStations();
-
-        List<StationRefDTO> results = toStationRefDTOList(allStations);
-
-        return Response.ok(results).build();
-    }
-
-    @GET
-    @Timed
     @Path("/mode/{mode}")
-    @ApiOperation(value = "Get all stations", response = StationRefDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all stations for transport mode", response = StationRefDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@PathParam("mode") String rawMode, @Context Request request) {
         logger.info("Get stations for transport mode: " + rawMode);

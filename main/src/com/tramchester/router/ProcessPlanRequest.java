@@ -160,8 +160,8 @@ public class ProcessPlanRequest {
         return transportData.getStationById(locationId);
     }
 
-    private boolean isFromUserLocation(String startId) {
-        return MY_LOCATION_PLACEHOLDER_ID.equals(startId);
+    private boolean isFromUserLocation(String id) {
+        return MY_LOCATION_PLACEHOLDER_ID.equals(id);
     }
 
     private LatLong decodeLatLong(String lat, String lon) {

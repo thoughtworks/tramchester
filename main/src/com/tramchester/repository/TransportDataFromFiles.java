@@ -97,6 +97,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdMap<Agency> allAgencies = preloadAgencys(sourceName, dataSource.agencies, entityFactory);
         IdSet<Route> excludedRoutes = populateRoutes(buildable, dataSource.routes, allAgencies, allStations, sourceConfig, entityFactory);
         logger.info("Excluding " + excludedRoutes.size()+" routes ");
+
         allAgencies.clear();
 
         TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.trips, excludedRoutes, entityFactory);

@@ -5,6 +5,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.StationRepositoryPublic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,7 @@ public abstract class TransportResource {
         return forwardedHeader != null && forwardedHeader.equalsIgnoreCase("https");
     }
 
-    protected void guardForStationNotExisting(StationRepository repository, StringIdFor<Station> stationId) {
+    protected void guardForStationNotExisting(StationRepositoryPublic repository, StringIdFor<Station> stationId) {
         if (!repository.hasStationId(stationId)) {
             String msg = "Unable to find station " + stationId;
             logger.warn(msg);
