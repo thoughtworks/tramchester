@@ -2,7 +2,6 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -22,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -83,7 +83,7 @@ public class CreateNeighbours {
             logger.info(format("Adding neighbouring stations for %s stations and range %s KM", stations.size(), rangeInKM));
             stations.forEach(station -> {
                 if (filter.shouldInclude(station)) {
-                    Set<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM);
+                    Stream<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM);
                     addNeighbourRelationships(txn, filter, station, nearby);
                 }
             });
@@ -101,12 +101,12 @@ public class CreateNeighbours {
         txn.createNode(GraphBuilder.Labels.NEIGHBOURS_ENABLED);
     }
 
-    private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<Station> others) {
-        logger.info("Adding neighbour relations from " + from.getId() + " to " + HasId.asIds(others));
+    private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Stream<Station> others) {
+        logger.info("Adding neighbour relations from " + from.getId()); // + " to " + HasId.asIds(others));
         double mph = config.getWalkingMPH();
         final Node stationNode = graphQuery.getStationNode(txn, from);
         if (stationNode!=null) {
-            others.stream().filter(filter::shouldInclude).forEach(other -> {
+            others.filter(filter::shouldInclude).forEach(other -> {
                 Node otherNode = graphQuery.getStationNode(txn, other);
                 Set<RelationshipType> relationTypes = getRelationTypes(other);
 
@@ -138,16 +138,12 @@ public class CreateNeighbours {
 
     @NotNull
     private TransportRelationshipTypes getRelationType(TransportMode mode) {
-        switch (mode) {
-            case Tram:
-                return TransportRelationshipTypes.TRAM_NEIGHBOUR;
-            case Bus:
-                return TransportRelationshipTypes.BUS_NEIGHBOUR;
-            case Train:
-                return TransportRelationshipTypes.TRAIN_NEIGHBOUR;
-            default:
-                throw new RuntimeException("Unsupported mode " + mode);
-        }
+        return switch (mode) {
+            case Tram -> TransportRelationshipTypes.TRAM_NEIGHBOUR;
+            case Bus -> TransportRelationshipTypes.BUS_NEIGHBOUR;
+            case Train -> TransportRelationshipTypes.TRAIN_NEIGHBOUR;
+            default -> throw new RuntimeException("Unsupported mode " + mode);
+        };
     }
 
 }

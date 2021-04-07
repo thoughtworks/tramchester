@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.opengis.referencing.operation.TransformException;
 
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Stream;
 
 @ImplementedBy(StationLocations.class)
 public interface StationLocationsRepository {
@@ -19,7 +19,7 @@ public interface StationLocationsRepository {
 
     @NotNull List<Station> nearestStationsSorted(@NotNull GridPosition gridPosition, int maxToFind, double rangeInKM);
 
-    Set<Station> nearestStationsUnsorted(Station station, double rangeInKM);
+    Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM);
 
     BoundingBox getBounds();
 

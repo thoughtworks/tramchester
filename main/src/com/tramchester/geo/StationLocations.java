@@ -127,9 +127,9 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public Set<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
+    public Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
-        return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey).collect(Collectors.toSet());
+        return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey);
     }
 
     public List<Station> getNearestStationsTo(LatLong latLong, int maxNumberToFind, double rangeInKM) {
