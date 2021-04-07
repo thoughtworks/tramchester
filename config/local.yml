@@ -35,6 +35,12 @@ remoteSources:
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     filename: tfgm_data.zip
+  -
+    name: naptan
+    dataURL: https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv
+    dataCheckURL: https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv
+    dataPath: data/naptan
+    filename: naptan_csv.zip
 bounds:
   minEastings: 333211
   minNorthings: 373264
