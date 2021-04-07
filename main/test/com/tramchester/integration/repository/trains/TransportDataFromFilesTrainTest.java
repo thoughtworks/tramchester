@@ -35,7 +35,6 @@ class TransportDataFromFilesTrainTest {
     private static TramchesterConfig config;
 
     private TransportData transportData;
-    private Collection<Service> allServices;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -52,13 +51,11 @@ class TransportDataFromFilesTrainTest {
     @BeforeEach
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
-        allServices = transportData.getServices();
     }
 
     @Test
     void shouldHaveExpectedNumbersForTrain() {
-        assertEquals(28, transportData.getAgencies().size());
-        assertEquals(2578,transportData.getStations().size());
+        assertEquals(2571,transportData.getStations().size());
         assertEquals(3770, transportData.getRoutes().size());
 
         // no platforms represented in train data
@@ -68,19 +65,18 @@ class TransportDataFromFilesTrainTest {
     @Test
     void shouldGetAgencies() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
-        assertEquals(28, agencies.size());
+        assertEquals(27, agencies.size());
         assertTrue(agencies.contains(ArrivaTrainsWales));
     }
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        String routeId = "16989";
-        Route result = transportData.getRouteById(StringIdFor.createId(routeId)); // ariva train man airport to chester
+        Route result = transportData.findFirstRouteByShortName(StringIdFor.createId("AW"), "AW:MIA->CTR");
 
         assertNotNull(result);
         assertEquals("AW train service from MIA to CTR", result.getName());
         assertEquals(ArrivaTrainsWales, result.getAgency());
-        assertEquals(routeId,result.getId().forDTO());
+       //assertEquals(routeId,result.getId().forDTO()); changes frequently
         assertTrue(TransportMode.isTrain(result));
 
         Set<String> headsigns = result.getHeadsigns();
@@ -92,7 +88,7 @@ class TransportDataFromFilesTrainTest {
         Collection<Route> results = transportData.getRoutes();
         long walesTrainRoutes = results.stream().filter(route -> route.getAgency().equals(ArrivaTrainsWales)).count();
 
-        assertEquals(262, walesTrainRoutes);
+        assertEquals(237, walesTrainRoutes);
     }
 
     @Test

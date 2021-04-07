@@ -43,7 +43,7 @@ public class TransportDataContainer implements TransportData {
      * Not container managed due to test life cycle
      */
     public TransportDataContainer(ProvidesNow providesNow, String sourceName) {
-        logger.info("Created for " + sourceName);
+        logger.info("Created for sourcename: " + sourceName);
         this.providesNow = providesNow;
         this.sourceName = sourceName;
     }
@@ -135,8 +135,6 @@ public class TransportDataContainer implements TransportData {
     public RouteStation getRouteStation(Station station, Route route) {
         return getRouteStationById(RouteStation.createId(station.getId(), route.getId()));
     }
-
-
 
     @Override
     public Set<Service> getServices() {

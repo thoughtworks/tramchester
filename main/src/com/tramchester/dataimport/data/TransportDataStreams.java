@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrlAndUnzip;
 import com.tramchester.dataimport.TransportDataLoader;
 import com.tramchester.dataimport.TransportDataReader;
+import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
@@ -33,7 +34,7 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
 
     @Inject
     public TransportDataStreams(TransportDataLoader dataLoader, TramchesterConfig config,
-                                FetchDataFromUrlAndUnzip.Ready dataIsDownloadedAndUnzipped) {
+                                UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.dataLoader = dataLoader;
         this.config = config;
         theList = new ArrayList<>();

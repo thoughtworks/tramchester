@@ -4,7 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
+import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.testSupport.TestConfig;
 import org.jetbrains.annotations.NotNull;
@@ -56,13 +56,13 @@ class TransportModeRepositoryTest {
         configModesSourceA.add(GTFSTransportationType.train);
 
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
-        GTFSSourceConfig sourceA = new TFGMTestDataSourceConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms);
+        GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms);
         dataSources.add(sourceA);
 
         Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
         configModesSourceB.add(GTFSTransportationType.bus);
         configModesSourceB.add(GTFSTransportationType.train);
-        GTFSSourceConfig sourceB = new TFGMTestDataSourceConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms);
+        GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms);
         dataSources.add(sourceB);
 
         TramchesterConfig config = new ModeConfig(dataSources);
@@ -79,7 +79,7 @@ class TransportModeRepositoryTest {
     @NotNull
     private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
-        GTFSSourceConfig tramConfig = new TFGMTestDataSourceConfig("folder/some/path", configModes, modesWithPlatforms);
+        GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig("folder/some/path", configModes, modesWithPlatforms);
         dataSources.add(tramConfig);
         return new ModeConfig(dataSources);
     }

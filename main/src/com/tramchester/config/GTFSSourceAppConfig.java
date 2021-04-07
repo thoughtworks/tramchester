@@ -22,20 +22,8 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     private String name;
 
     @NotNull
-    @JsonProperty("URL")
-    private String tramDataUrl;
-
-    @NotNull
-    @JsonProperty("checkURL")
-    private String tramDataCheckUrl;
-
-    @NotNull
     @JsonProperty("dataPath")
     private Path dataPath;
-
-    @NotNull
-    @JsonProperty("unzipPath")
-    private Path unzipPath;
 
     @NotNull
     @JsonProperty("hasFeedInfo")
@@ -80,42 +68,8 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public String getTramDataUrl() {
-        return tramDataUrl;
-    }
-
-    @Override
-    public String getTramDataCheckUrl() {
-        return tramDataCheckUrl;
-    }
-
-    @Override
     public Path getDataPath() {
         return dataPath;
     }
 
-    @Override
-    public Path getUnzipPath() {
-        return unzipPath;
-    }
-
-    @Override
-    public String getZipFilename() {
-        return "data.zip";
-    }
-
-    @Override
-    public String toString() {
-        return "DataSourceAppConfig{" +
-                "name='" + name + '\'' +
-                ", tramDataUrl='" + tramDataUrl + '\'' +
-                ", tramDataCheckUrl='" + tramDataCheckUrl + '\'' +
-                ", dataPath=" + dataPath +
-                ", unzipPath=" + unzipPath +
-                ", hasFeedInfo=" + hasFeedInfo +
-                ", transportModes=" + transportModes +
-                ", transportModesWithPlatforms=" + transportModesWithPlatforms +
-                ", noServices=" + noServices +
-                "} " + super.toString();
-    }
 }

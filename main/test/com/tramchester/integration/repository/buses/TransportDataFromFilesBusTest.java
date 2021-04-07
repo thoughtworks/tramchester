@@ -65,8 +65,8 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldHaveExpectedNumbersForBus() {
         assertEquals(40, transportData.getAgencies().size());
-        assertEquals(15661, transportData.getStations().size());
-        assertEquals(1251, transportData.getRoutes().size());
+        assertEquals(15673, transportData.getStations().size());
+        assertEquals(1269, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());

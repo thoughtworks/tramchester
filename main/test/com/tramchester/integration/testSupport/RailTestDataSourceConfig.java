@@ -11,33 +11,17 @@ import java.util.Collections;
 import java.util.Set;
 
 class RailTestDataSourceConfig implements GTFSSourceConfig {
-    private static final String RAIL_LATEST_ZIP = "https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip";
+    private final String dataPath;
+
+    RailTestDataSourceConfig(String dataPath) {
+        this.dataPath = dataPath;
+    }
 
     // https://planar.network/projects/feeds
 
     @Override
-    public String getTramDataUrl() {
-        return RAIL_LATEST_ZIP;
-    }
-
-    @Override
-    public String getTramDataCheckUrl() {
-        return RAIL_LATEST_ZIP;
-    }
-
-    @Override
     public Path getDataPath() {
-        return Paths.get("data/trains");
-    }
-
-    @Override
-    public Path getUnzipPath() {
-        return Paths.get("./");
-    }
-
-    @Override
-    public String getZipFilename() {
-        return "data.zip";
+        return Paths.get(dataPath);
     }
 
     @Override

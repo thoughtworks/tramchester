@@ -4,26 +4,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Set;
 
 @JsonDeserialize(as= GTFSSourceAppConfig.class)
-public interface GTFSSourceConfig {
-    // url to load timetable data from
-    String getTramDataUrl();
-
-    // url to check mod time against to see if newer data available
-    String getTramDataCheckUrl();
-
-    // where to load timetable data from and place preprocessed data
-    Path getDataPath();
-
-    // folder data zip unpacks to
-    Path getUnzipPath();
-
-    // name of fetched zip file
-    String getZipFilename();
+public interface GTFSSourceConfig extends HasDataPath {
 
     // name for diag, logging and entity factory selection
     String getName();
@@ -40,6 +25,5 @@ public interface GTFSSourceConfig {
     // no service dates
     // basically a workaround for tfgm timetable including services for dates their website says there are no services..
     Set<LocalDate> getNoServices();
-
 
 }

@@ -20,7 +20,7 @@ import java.util.List;
 import static java.lang.String.format;
 
 @LazySingleton
-public class FetchDataFromUrl implements TransportDataFetcher {
+public class FetchDataFromUrl  {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
     private final URLDownloadAndModTime downloader;
@@ -31,7 +31,7 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         this(downloader, config.getRemoteDataSourceConfig());
     }
 
-    private FetchDataFromUrl(URLDownloadAndModTime downloader, List<RemoteDataSourceConfig> configs) {
+    public FetchDataFromUrl(URLDownloadAndModTime downloader, List<RemoteDataSourceConfig> configs) {
         this.downloader = downloader;
         this.configs = configs;
     }
@@ -48,7 +48,6 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         return new Ready();
     }
 
-    @Override
     public void fetchData() {
         configs.forEach(config -> {
             try {

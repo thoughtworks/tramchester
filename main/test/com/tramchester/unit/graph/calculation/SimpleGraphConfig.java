@@ -4,7 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
+import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +19,7 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("data/tram",
+        TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
                 GTFSTransportationType.tram, Tram);
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }

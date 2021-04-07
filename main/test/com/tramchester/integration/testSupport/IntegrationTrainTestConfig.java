@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestEnv;
 
@@ -11,6 +12,7 @@ import java.util.List;
 public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     private final RailTestDataSourceConfig sourceConfig;
+    private final RemoteDataSourceConfig remoteDataSourceConfig;
     private final GraphDBConfig graphDBConfig;
 
     public IntegrationTrainTestConfig() {
@@ -20,7 +22,8 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
     protected IntegrationTrainTestConfig(String dbFilename) {
         super(new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename));
         graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename);
-        sourceConfig = new RailTestDataSourceConfig();
+        sourceConfig = new RailTestDataSourceConfig("data/trains");
+        remoteDataSourceConfig = new RailRemoteDataSourceConfig("data/trains");
     }
 
     @Override
@@ -31,6 +34,11 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         return Collections.singletonList(sourceConfig);
+    }
+
+    @Override
+    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        return Collections.singletonList(remoteDataSourceConfig);
     }
 
     @Override

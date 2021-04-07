@@ -17,6 +17,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -25,8 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class GraphBuildAndStartTest {
 
+    // TODO NOT HELPFUL or Realistic
     // spin up graph, primarily here to diagnose out of memory issues, isolate just the graph build
-    //@Disabled("for diagnostics only")
+    @Disabled("for diagnostics only")
     @Test
     void shouldBuildGraphAndStart() throws IOException {
         TramchesterConfig config =new SubgraphConfig();
@@ -34,8 +36,10 @@ class GraphBuildAndStartTest {
         TestEnv.deleteDBIfPresent(config);
 
         Unzipper unzipper = new Unzipper();
-        FetchDataFromUrlAndUnzip fetcher = new FetchDataFromUrlAndUnzip(unzipper, new URLDownloadAndModTime(), config);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloadAndModTime(), config);
         fetcher.start();
+        UnzipFetchedData unzipFetchedData = new UnzipFetchedData(unzipper, config, fetcher.getReady());
+        unzipFetchedData.start();
 
         ProvidesNow providesNow = new ProvidesLocalNow();
 
@@ -46,7 +50,7 @@ class GraphBuildAndStartTest {
         FetchFileModTime fetchFileModTime = new FetchFileModTime();
 
         TransportDataLoader dataLoader = new TransportDataLoaderFiles(config, fetchFileModTime, mapper);
-        TransportDataStreams dataStreams = new TransportDataStreams(dataLoader, config, fetcher.getReady());
+        TransportDataStreams dataStreams = new TransportDataStreams(dataLoader, config, unzipFetchedData.getReady());
         TransportDataFromFiles dataFromFiles = new TransportDataFromFiles(dataStreams, config, providesNow);
 
         TransportData transportData = dataFromFiles.getData();

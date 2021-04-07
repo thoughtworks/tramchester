@@ -15,7 +15,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
+import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.MixedTransportTestDataFactory;
@@ -168,7 +168,7 @@ class MixedRouteTest {
             Set<GTFSTransportationType> modes = new HashSet<>(
                     Arrays.asList(GTFSTransportationType.bus, GTFSTransportationType.tram, GTFSTransportationType.ferry));
 
-            TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("unused",
+            TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("unused",
                     modes, Collections.singleton(TransportMode.Tram));
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }

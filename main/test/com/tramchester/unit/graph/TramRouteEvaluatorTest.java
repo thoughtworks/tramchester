@@ -16,7 +16,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
-import com.tramchester.integration.testSupport.TFGMTestDataSourceConfig;
+import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -76,7 +76,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         config = new TestConfig() {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-                return Collections.singletonList(new TFGMTestDataSourceConfig("data/tram",
+                return Collections.singletonList(new TFGMGTFSSourceTestConfig("data/tram",
                        GTFSTransportationType.tram, TransportMode.Tram));
             }
         };

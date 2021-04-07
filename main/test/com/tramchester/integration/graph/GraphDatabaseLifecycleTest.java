@@ -313,28 +313,9 @@ class GraphDatabaseLifecycleTest {
 
     private GTFSSourceConfig createDataSource(String name) {
         return new GTFSSourceConfig() {
-            @Override
-            public String getTramDataUrl() {
-                return null;
-            }
-
-            @Override
-            public String getTramDataCheckUrl() {
-                return null;
-            }
 
             @Override
             public Path getDataPath() {
-                return null;
-            }
-
-            @Override
-            public Path getUnzipPath() {
-                return null;
-            }
-
-            @Override
-            public String getZipFilename() {
                 return null;
             }
 

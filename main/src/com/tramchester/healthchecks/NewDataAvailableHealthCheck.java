@@ -2,6 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
@@ -16,12 +17,12 @@ import java.time.LocalDateTime;
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
-    private final GTFSSourceConfig config;
+    private final RemoteDataSourceConfig config;
     private final URLDownloadAndModTime urlDownloader;
     private final FetchFileModTime fetchFileModTime;
 
     @Inject
-    public NewDataAvailableHealthCheck(GTFSSourceConfig config, URLDownloadAndModTime urlDownloader,
+    public NewDataAvailableHealthCheck(RemoteDataSourceConfig config, URLDownloadAndModTime urlDownloader,
                                        FetchFileModTime fetchFileModTime, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.config = config;
@@ -31,7 +32,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
     @Override
     protected Result check() {
-        String dataCheckUrl = config.getTramDataCheckUrl();
+        String dataCheckUrl = config.getDataCheckUrl();
 
         try {
 
@@ -44,7 +45,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
                 logger.warn(msg);
                 return Result.unhealthy(msg);
             } else if (serverModTime.equals(LocalDateTime.MIN)) {
-                String msg = "Source is missing, cannot check for new timetable data at " + config.getTramDataUrl();
+                String msg = "Source is missing, cannot check for new timetable data at " + config.getDataUrl();
                 logger.error(msg);
                 return Result.unhealthy(msg);
             }

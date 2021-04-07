@@ -41,7 +41,7 @@ public class TransportDataLoaderFiles implements TransportDataLoader {
         logger.info("start");
         config.getGTFSDataSource().forEach(config -> {
             logger.info("Creating reader for config " + config.getName());
-            Path path = config.getDataPath().resolve(config.getUnzipPath());
+            Path path = config.getDataPath(); //.resolve(config.getUnzipPath());
             DataSourceInfo dataSourceInfo = createSourceInfoFrom(config);
 
             DataLoaderFactory factory = new DataLoaderFactory(path, mapper);

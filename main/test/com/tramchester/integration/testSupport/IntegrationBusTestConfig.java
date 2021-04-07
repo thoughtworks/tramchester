@@ -1,13 +1,15 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.util.Collections;
 import java.util.List;
 
 public class IntegrationBusTestConfig extends IntegrationTestConfig {
-    private final GTFSSourceConfig dataSourceConfig;
+    private final GTFSSourceConfig gtfsSourceConfig;
+    private final RemoteDataSourceConfig remoteDataSourceConfig;
 
     public IntegrationBusTestConfig() {
         this("int_test_bus.db");
@@ -15,14 +17,15 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     public IntegrationBusTestConfig(String dbName) {
         super(new GraphDBIntegrationBusTestConfig("integrationBusTest", dbName));
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/bus",
+        gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/bus",
                 Collections.singleton(GTFSTransportationType.bus),
                 Collections.emptySet());
+        remoteDataSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
     }
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        return Collections.singletonList(dataSourceConfig);
+        return Collections.singletonList(gtfsSourceConfig);
     }
 
     @Override
@@ -61,6 +64,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     @Override
     public int getMaxJourneyDuration() {
         return 180;
+    }
+
+    @Override
+    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        return Collections.singletonList(remoteDataSourceConfig);
     }
 
     private static class GraphDBIntegrationBusTestConfig extends GraphDBTestConfig {

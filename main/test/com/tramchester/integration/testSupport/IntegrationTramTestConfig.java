@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestLiveDataConfig;
@@ -13,7 +14,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private static final String DB_NAME = "int_test_tram.db";
 
-    private final GTFSSourceConfig dataSourceConfig;
+    private final GTFSSourceConfig gtfsSourceConfig;
+    private final RemoteDataSourceConfig remoteDataSourceConfig;
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
@@ -31,13 +33,19 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled) {
         super(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName));
         this.liveDataEnabled = liveDataEnabled;
-        dataSourceConfig = new TFGMTestDataSourceConfig("data/tram", GTFSTransportationType.tram,
+        gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
                 TransportMode.Tram);
+        remoteDataSourceConfig = new TFGMRemoteDataSourceConfig("data/tram");
     }
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        return Collections.singletonList(dataSourceConfig);
+        return Collections.singletonList(gtfsSourceConfig);
+    }
+
+    @Override
+    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        return Collections.singletonList(remoteDataSourceConfig);
     }
 
     @Override

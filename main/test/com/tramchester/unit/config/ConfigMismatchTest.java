@@ -1,10 +1,7 @@
 package com.tramchester.unit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.config.AppConfiguration;
-import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.GraphDBConfig;
-import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.*;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
@@ -22,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ConfigMismatchTest {
 
@@ -47,7 +45,6 @@ class ConfigMismatchTest {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
 
         validateCoreParameters(appConfig, testConfig);
-
     }
 
     @Test
@@ -60,7 +57,6 @@ class ConfigMismatchTest {
 
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval());
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries());
-
     }
 
     private void validateCoreParameters(AppConfiguration expected, AppConfiguration testConfig) {
@@ -90,17 +86,28 @@ class ConfigMismatchTest {
         assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
         assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
 
-        List<GTFSSourceConfig> expectedDataSourceConfigs = expected.getGTFSDataSource();
-        List<GTFSSourceConfig> dataSourceConfigs = testConfig.getGTFSDataSource();
-        assertEquals(expectedDataSourceConfigs.size(), dataSourceConfigs.size());
+        List<GTFSSourceConfig> expectedgtfsDataSource = expected.getGTFSDataSource();
+        List<GTFSSourceConfig> foundgtfsDataSource = testConfig.getGTFSDataSource();
+        assertEquals(expectedgtfsDataSource.size(), foundgtfsDataSource.size());
         //assume same order
-        for (int i = 0; i < expectedDataSourceConfigs.size(); i++) {
-            GTFSSourceConfig expectedDataSource = expectedDataSourceConfigs.get(i);
-            GTFSSourceConfig dataSourceConfig = dataSourceConfigs.get(i);
+        for (int i = 0; i < expectedgtfsDataSource.size(); i++) {
+            GTFSSourceConfig expectedDataSource = expectedgtfsDataSource.get(i);
+            GTFSSourceConfig dataSourceConfig = foundgtfsDataSource.get(i);
 
             assertEquals(expectedDataSource.getNoServices(), dataSourceConfig.getNoServices());
             assertEquals(expectedDataSource.getTransportModes(), dataSourceConfig.getTransportModes());
+        }
 
+        List<RemoteDataSourceConfig> expectedRemoteDataSourceConfig = expected.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> foundRemoteDataSourceConfig = testConfig.getRemoteDataSourceConfig();
+
+        assertFalse(expectedRemoteDataSourceConfig.isEmpty());
+        assertEquals(expectedRemoteDataSourceConfig.size(), foundRemoteDataSourceConfig.size());
+        for (int i = 0; i < expectedRemoteDataSourceConfig.size(); i++) {
+            RemoteDataSourceConfig expectedRemote = expectedRemoteDataSourceConfig.get(0);
+            RemoteDataSourceConfig foundRemote = foundRemoteDataSourceConfig.get(0);
+            //assertEquals(expectedRemote.getDataUrl(), foundRemote.getDataUrl());
+            assertEquals(expectedRemote.getDataCheckUrl(), foundRemote.getDataCheckUrl());
         }
 
     }
