@@ -1,9 +1,12 @@
 package com.tramchester.unit.dataimport;
 
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.integration.testSupport.TFGMRemoteDataSourceConfig;
+import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.assertj.core.util.Files;
 import org.easymock.EasyMock;
@@ -16,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 class FetchDataFromUrlTest extends EasyMockSupport {
 
@@ -23,13 +28,15 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     private FetchDataFromUrl fetchDataFromUrl;
     private Path zipFilename;
     private final String expectedDownloadURL = TestEnv.TFGM_TIMETABLE_URL;
+    private RemoteDataSourceConfig remoteDataSourceConfig;
 
     @BeforeEach
-    void beforeEachTestRuns() {
-        TramchesterConfig config = TestEnv.GET();
+    void beforeEachTestRuns() throws IOException {
+
+        TramchesterConfig config = new LocalTestConfig(java.nio.file.Files.createTempDirectory("FetchDataFromUrlTest"));
 
         downloader = createMock(URLDownloadAndModTime.class);
-        RemoteDataSourceConfig remoteDataSourceConfig = config.getRemoteDataSourceConfig().get(0);
+        remoteDataSourceConfig = config.getRemoteDataSourceConfig().get(0);
         final String targetZipFilename = remoteDataSourceConfig.getDownloadFilename();
         Path path = remoteDataSourceConfig.getDataPath();
         zipFilename = path.resolve(targetZipFilename);
@@ -40,8 +47,12 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @AfterEach
-    void afterEachTestRuns() {
+    void removeTmpDir() throws IOException {
         removeTmpFile();
+        Path tmpDir = remoteDataSourceConfig.getDataPath();
+        if (java.nio.file.Files.exists(tmpDir)) {
+            java.nio.file.Files.delete(tmpDir);
+        }
     }
 
     private void removeTmpFile() {
@@ -95,5 +106,21 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         verifyAll();
     }
 
+    private static class LocalTestConfig extends TestConfig {
+        private final Path dataPath;
 
+        private LocalTestConfig(Path dataPath) {
+            this.dataPath = dataPath;
+        }
+
+        @Override
+        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
+            return null;
+        }
+
+        @Override
+        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+            return Collections.singletonList(new TFGMRemoteDataSourceConfig(dataPath));
+        }
+    }
 }

@@ -254,8 +254,9 @@ public class TestEnv {
         assertEquals(a.getLon(), b.getLon(), delta, "lon: " +message);
     }
 
-    public static List<RemoteDataSourceConfig> createRemoteDataSourceConfig() {
+    public static List<RemoteDataSourceConfig> createRemoteDataSourceConfig(Path dataPath) {
         RemoteDataSourceConfig config = new RemoteDataSourceConfig() {
+
             @Override
             public String getDataCheckUrl() {
                 return TestEnv.TFGM_TIMETABLE_URL;
@@ -268,7 +269,7 @@ public class TestEnv {
 
             @Override
             public Path getDataPath() {
-                return Path.of("data","test");
+                return dataPath;
             }
 
             @Override
