@@ -38,7 +38,7 @@ public class TransportEntityFactory {
 
     }
 
-    public Service createService(IdFor<Service> serviceId, Route route) {
+    public Service createService(IdFor<Service> serviceId) {
         return new Service(serviceId);
     }
 

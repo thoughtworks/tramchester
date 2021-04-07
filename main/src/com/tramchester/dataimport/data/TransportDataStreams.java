@@ -3,7 +3,6 @@ package com.tramchester.dataimport.data;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrlAndUnzip;
 import com.tramchester.dataimport.TransportDataLoader;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.UnzipFetchedData;
@@ -13,6 +12,7 @@ import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForGBRail;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.repository.TransportDataSource;
+import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +31,14 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     private final List<TransportDataSource> theList;
     private final TransportDataLoader dataLoader;
     private final TramchesterConfig config;
+    private final NaptanRespository naptanRespository;
 
     @Inject
     public TransportDataStreams(TransportDataLoader dataLoader, TramchesterConfig config,
-                                UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
+                                NaptanRespository naptanRespository, UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.dataLoader = dataLoader;
         this.config = config;
+        this.naptanRespository = naptanRespository;
         theList = new ArrayList<>();
     }
 
@@ -81,7 +83,7 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     private TransportEntityFactory getEntityFactoryFor(GTFSSourceConfig sourceConfig) {
         DataSourceID sourceName = new DataSourceID(sourceConfig.getName());
         if (DataSourceID.TFGM().equals(sourceName)) {
-            return new TransportEntityFactoryForTFGM(config);
+            return new TransportEntityFactoryForTFGM(naptanRespository, config);
         } else if (DataSourceID.GBRail().equals(sourceName)) {
             return new TransportEntityFactoryForGBRail(config);
         } else {

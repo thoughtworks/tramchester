@@ -17,6 +17,7 @@ import static com.tramchester.testSupport.reference.BusStations.BuryInterchange;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+
 class NaPTANDataImportTest {
 
     private static GuiceContainerDependencies<TransportDataFactory> componentContainer;
@@ -71,5 +72,17 @@ class NaPTANDataImportTest {
         StopsData known = foundKnown.get();
         assertEquals("Manchester City Centre", known.getLocalityName());
         assertEquals("Manchester", known.getParentLocalityName());
+    }
+
+    @Test
+    void shouldContainOutofAreaStop() {
+        Optional<StopsData> foundKnown = dataStream.
+                filter(stop -> stop.getAtcoCode().equals(TestEnv.BRISTOL_BUSSTOP_OCTOCODE)).
+                findFirst();
+
+        assertFalse(foundKnown.isEmpty());
+        StopsData known = foundKnown.get();
+        assertEquals("Bristol City Centre", known.getLocalityName());
+        assertEquals("Bristol", known.getParentLocalityName());
     }
 }

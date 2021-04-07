@@ -17,6 +17,11 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/***
+ * See
+ * https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251/national-public-transport-access-nodes-naptan
+ * https://www.gov.uk/government/publications/national-public-transport-access-node-schema/naptan-and-nptg-data-sets-and-schema-guides
+ */
 @LazySingleton
 public class NaPTANDataImporter {
     private static final Logger logger = LoggerFactory.getLogger(NaPTANDataImporter.class);

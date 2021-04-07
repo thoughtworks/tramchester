@@ -62,6 +62,7 @@ public class TestEnv {
     public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
     public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
+    public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
     private static final Agency MET = new Agency(DataSourceID.TFGM(), Agency.METL, "Metrolink");
     public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(), "AW", "Arriva Trains Wales");

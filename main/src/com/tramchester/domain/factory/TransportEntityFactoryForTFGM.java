@@ -1,26 +1,31 @@
 package com.tramchester.domain.factory;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
-import org.jetbrains.annotations.NotNull;
+import com.tramchester.repository.naptan.NaptanRespository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
 
-    public TransportEntityFactoryForTFGM(TramchesterConfig config) {
+    private final NaptanRespository naptanRespository;
+
+    public TransportEntityFactoryForTFGM(NaptanRespository naptanRespository, TramchesterConfig config) {
         super(config);
+        this.naptanRespository = naptanRespository;
     }
 
     @Override
@@ -53,8 +58,23 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @Override
     public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
-        return new Station(stationId, stopData.getArea(), workAroundName(stopData.getName()),
+        String area = stopData.getArea();
+        if (naptanRespository.contains(stationId)) {
+            area = getAreaFromNaptanData(stationId);
+        }
+        return new Station(stationId, area, workAroundName(stopData.getName()),
                 stopData.getLatLong(), position);
+    }
+
+    private String getAreaFromNaptanData(IdFor<Station> stationId) {
+        String area;
+        StopsData naptapData = naptanRespository.get(stationId);
+        area = naptapData.getLocalityName();
+        String parent = naptapData.getParentLocalityName();
+        if (!parent.isBlank()) {
+            area = area + ", " + parent;
+        }
+        return area;
     }
 
     private String workAroundName(String name) {

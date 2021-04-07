@@ -64,10 +64,6 @@ public class Station implements Location<Station> {
         return StringIdFor.createId(text);
     }
 
-    /***
-     * Fetched from naptan data
-     */
-    @Deprecated
     @Override
     public String getArea() {
         return area;

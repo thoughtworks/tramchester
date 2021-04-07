@@ -73,11 +73,16 @@ public class FetchDataFromUrl  {
 
         String name = config.getName();
         if (Files.exists(destination)) {
-
-            // check mod times
-            LocalDateTime serverMod = downloader.getModTime(url);
             LocalDateTime localMod = getFileModLocalTime(destination);
 
+            if (config.getDataCheckUrl().isBlank()) {
+                // skip mod time check
+                logger.info("Skipping mod time check for " + config.getName());
+                loadIfCachePeriodExpired(url, destination, localMod);
+                return;
+            }
+
+            LocalDateTime serverMod = downloader.getModTime(url);
             if (serverMod.isEqual(LocalDateTime.MIN)) {
                 loadIfCachePeriodExpired(url, destination, localMod);
                 return;

@@ -72,6 +72,11 @@ public class StopData {
         return name;
     }
 
+    /***
+     * use value from naptan data insteaf
+     * @return area derived from csv file
+     */
+    @Deprecated
     public String getArea() {
         return area;
     }

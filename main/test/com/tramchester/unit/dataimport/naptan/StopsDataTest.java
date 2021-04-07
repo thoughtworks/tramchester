@@ -1,6 +1,7 @@
 package com.tramchester.unit.dataimport.naptan;
 
 import com.tramchester.dataimport.NaPTAN.StopsData;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.unit.dataimport.ParserTestHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,7 @@ class StopsDataTest extends ParserTestHelper<StopsData> {
         assertEquals("mantwgdp", data.getNaptanCode());
         assertEquals("Westwood", data.getLocalityName());
         assertEquals("Chadderton", data.getParentLocalityName());
+        assertEquals(new GridPosition(391756,405079), data.getGridPosition());
     }
 
     @Test

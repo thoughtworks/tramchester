@@ -135,7 +135,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         );
         if (!noDayServices.isEmpty()) {
-            logger.warn("The following services do no operate on any days per calendar.txt file " + noDayServices.toString());
+            logger.warn("The following services do no operate on any days per calendar.txt file " + noDayServices);
         }
     }
 
@@ -158,7 +158,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         });
         if (!missingCalendar.isEmpty()) {
-            logger.warn("Failed to match service id " + missingCalendar.toString() + " for calendar");
+            logger.warn("Failed to match service id " + missingCalendar + " for calendar");
         }
         logger.info("Loaded " + countCalendars.get() + " calendar entries");
 
@@ -186,7 +186,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         });
         if (!missingCalendarDates.isEmpty()) {
-            logger.warn("Failed to find service id " + missingCalendarDates.toString() + " for calendar_dates");
+            logger.warn("Failed to find service id " + missingCalendarDates + " for calendar_dates");
         }
         addNoServicesDatesToAllCalendars(services, noServices, missingCalendarDates);
 
@@ -276,7 +276,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         });
         if (!excludedStations.isEmpty()) {
-            logger.warn("Excluded the following station ids: " + excludedStations.toString());
+            logger.warn("Excluded the following station ids: " + excludedStations);
         }
         logger.info("Loaded " + count.get() + " stop times");
         return addedServices;
@@ -336,8 +336,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
             if (transportData.hasRouteId(routeId)) {
                 Route route = transportData.getRouteById(routeId);
-                // todo include routeid in service lookup
-                Service service = services.getOrAdd(serviceId, () -> factory.createService(serviceId, route));
+                Service service = services.getOrAdd(serviceId, () -> factory.createService(serviceId));
                 trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route));
                 count.getAndIncrement();
             } else {

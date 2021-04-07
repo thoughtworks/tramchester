@@ -23,7 +23,7 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getDataCheckUrl() {
-        return TestEnv.NAPTAN_URL;
+        return "";
     }
 
     @Override

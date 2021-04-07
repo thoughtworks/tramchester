@@ -34,10 +34,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -253,27 +255,38 @@ class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetStation() {
-        assertTrue(transportData.hasStationId(TramStations.Altrincham.getId()));
-        Station station = transportData.getStationById(TramStations.Altrincham.getId());
+        assertTrue(transportData.hasStationId(Altrincham.getId()));
+        Station station = transportData.getStationById(Altrincham.getId());
         assertEquals("Altrincham", station.getName());
 
         assertTrue(station.hasPlatforms());
         // only one platform at alty, well according to the timetable anyway....
         assertEquals(1, station.getPlatforms().size());
         Platform platformOne = station.getPlatforms().stream().findFirst().get();
-        assertEquals( TramStations.Altrincham.forDTO()+"1", platformOne.getId().forDTO());
+        assertEquals( Altrincham.forDTO()+"1", platformOne.getId().forDTO());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
+        // area from naptan data
+        assertEquals("Altrincham", station.getArea());
     }
 
     @Test
-    void shouldHavePlatform() {
-        StringIdFor<Platform> id = StringIdFor.createId(TramStations.StPetersSquare.forDTO() + "3");
+    void shouldHaveAreaForCityCenterStop() {
+        Station station = transportData.getStationById(StPetersSquare.getId());
+        assertEquals("St Peter's Square", station.getName());
+        // area from naptan data
+        assertEquals("Manchester City Centre, Manchester", station.getArea());
+    }
+
+    @Test
+    void shouldHavePlatformAndAreaForCityCenter() {
+        StringIdFor<Platform> id = StringIdFor.createId(StPetersSquare.getId().forDTO() + "3");
 
         assertTrue(transportData.hasPlatformId(id));
         Platform platform = transportData.getPlatform(id);
         assertEquals("St Peter's Square platform 3", platform.getName());
         assertEquals(TramStations.StPetersSquare.forDTO()+"3", platform.getId().forDTO());
+
     }
 
     @Test
