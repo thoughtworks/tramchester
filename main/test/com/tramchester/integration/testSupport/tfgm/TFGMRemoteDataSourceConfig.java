@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.tfgm;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;

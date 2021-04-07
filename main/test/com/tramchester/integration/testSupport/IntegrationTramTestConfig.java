@@ -5,8 +5,12 @@ import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
+import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestLiveDataConfig;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,8 +19,9 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private static final String DB_NAME = "int_test_tram.db";
 
     private final GTFSSourceConfig gtfsSourceConfig;
-    private final RemoteDataSourceConfig remoteDataSourceConfig;
+    private final RemoteDataSourceConfig remoteTFGMConfig;
     private final boolean liveDataEnabled;
+    private final NaptanRemoteDataSourceConfig remoteNaptanConfig;
 
     public IntegrationTramTestConfig() {
        this(DB_NAME, false);
@@ -35,7 +40,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
                 TransportMode.Tram);
-        remoteDataSourceConfig = new TFGMRemoteDataSourceConfig("data/tram");
+        remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
+        remoteNaptanConfig = new NaptanRemoteDataSourceConfig("data/naptan");
     }
 
     @Override
@@ -45,7 +51,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Collections.singletonList(remoteDataSourceConfig);
+        return Arrays.asList(remoteTFGMConfig, remoteNaptanConfig);
     }
 
     @Override

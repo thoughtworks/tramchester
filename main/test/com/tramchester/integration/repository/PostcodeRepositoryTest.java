@@ -6,7 +6,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
-import com.tramchester.repository.PostcodeRepository;
+import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 

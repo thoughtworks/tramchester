@@ -1,10 +1,9 @@
-package com.tramchester.unit.dataimport.parsers;
+package com.tramchester.unit.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.dataimport.DataLoader;
-import com.tramchester.dataimport.data.PostcodeData;
+import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.geo.GridPosition;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -2,8 +2,8 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.dataimport.PostcodeDataImporter;
-import com.tramchester.dataimport.data.PostcodeData;
+import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
+import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;

@@ -1,10 +1,10 @@
-package com.tramchester.unit.dataimport.parsers;
+package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.unit.dataimport.ParserTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

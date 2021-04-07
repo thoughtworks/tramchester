@@ -4,6 +4,8 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.testSupport.train.RailRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.train.RailTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.util.Collections;

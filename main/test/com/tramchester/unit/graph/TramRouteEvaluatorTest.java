@@ -16,7 +16,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
-import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;

@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.train;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -10,10 +10,10 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 
-class RailTestDataSourceConfig implements GTFSSourceConfig {
+public class RailTestDataSourceConfig implements GTFSSourceConfig {
     private final String dataPath;
 
-    RailTestDataSourceConfig(String dataPath) {
+    public RailTestDataSourceConfig(String dataPath) {
         this.dataPath = dataPath;
     }
 

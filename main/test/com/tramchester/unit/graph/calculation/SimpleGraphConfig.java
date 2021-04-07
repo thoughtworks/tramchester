@@ -4,7 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 
 import java.util.Collections;
 import java.util.List;

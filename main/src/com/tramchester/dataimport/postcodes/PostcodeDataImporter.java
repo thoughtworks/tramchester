@@ -1,9 +1,11 @@
-package com.tramchester.dataimport;
+package com.tramchester.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.data.PostcodeData;
+import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.Unzipper;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;

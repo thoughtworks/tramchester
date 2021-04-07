@@ -1,9 +1,9 @@
-package com.tramchester.repository;
+package com.tramchester.repository.postcodes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.PostcodeDataImporter;
-import com.tramchester.dataimport.data.PostcodeData;
+import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
+import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.tramchester.geo.CoordinateTransforms.getLatLong;
 
 @LazySingleton
 public class PostcodeRepository {
@@ -52,9 +54,7 @@ public class PostcodeRepository {
         List<Stream<PostcodeData>> sources = importer.loadLocalPostcodes();
 
         sources.forEach(source-> {
-            source.forEach(code -> {
-                postcodes.add(new PostcodeLocation(CoordinateTransforms.getLatLong(code.getGridPosition()), code.getId()));
-            });
+            source.forEach(code -> postcodes.add(new PostcodeLocation(getLatLong(code.getGridPosition()), code.getId())));
 
             source.close();
         });

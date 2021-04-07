@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.train;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 

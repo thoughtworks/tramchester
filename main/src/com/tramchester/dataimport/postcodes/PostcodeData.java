@@ -1,4 +1,4 @@
-package com.tramchester.dataimport.data;
+package com.tramchester.dataimport.postcodes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.GridPosition;
@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public class PostcodeData implements HasGridPosition {
 
+    // Note: required as no header line in the supplied csv files
     public static final String CVS_HEADER = "Postcode,Positional_quality_indicator,Eastings,Northings,Country_code,NHS_regional_HA_code," +
             "NHS_HA_code,Admin_county_code,Admin_district_code,Admin_ward_code";
 

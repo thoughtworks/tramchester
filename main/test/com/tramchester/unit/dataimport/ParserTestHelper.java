@@ -1,4 +1,4 @@
-package com.tramchester.unit.dataimport.parsers;
+package com.tramchester.unit.dataimport;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.tramchester.dataimport.DataLoader;

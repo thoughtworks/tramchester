@@ -14,7 +14,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneyToDTOMapper;
-import com.tramchester.repository.PostcodeRepository;
+import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import org.neo4j.graphdb.Transaction;

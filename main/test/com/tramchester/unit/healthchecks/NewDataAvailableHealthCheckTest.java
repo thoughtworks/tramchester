@@ -8,7 +8,7 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
-import com.tramchester.integration.testSupport.TFGMRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;

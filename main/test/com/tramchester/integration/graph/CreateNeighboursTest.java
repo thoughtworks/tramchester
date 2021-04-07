@@ -21,7 +21,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.BusStations;

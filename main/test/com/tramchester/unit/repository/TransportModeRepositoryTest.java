@@ -4,7 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.TFGMGTFSSourceTestConfig;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportModeRepository;
 import com.tramchester.testSupport.TestConfig;
 import org.jetbrains.annotations.NotNull;
