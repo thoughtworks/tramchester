@@ -40,7 +40,7 @@ public class URLDownloadAndModTime {
         }
 
         if (serverModMillis==0) {
-            logger.warn("No valid mod time from server, got 0");
+            logger.warn("No valid mod time from server, got 0 for " + url);
             return LocalDateTime.MIN;
         }
 

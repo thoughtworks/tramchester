@@ -3,17 +3,25 @@ package com.tramchester.dataimport.NaPTAN;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StopsData {
+
+    // Matches ID for TFGM gtfs data
     @JsonProperty("ATCOCode")
     private String atcoCode;
 
     @JsonProperty("NaptanCode")
     private String naptanCode;
 
+    // e.g. Manchester City Centre
     @JsonProperty("LocalityName")
     private String localityName;
 
+    // e.g. Manchester
     @JsonProperty("ParentLocalityName")
     private String parentLocalityName;
+
+    // e.g. Stand A, Stand 2, etc
+    @JsonProperty("Indicator")
+    private String indicator;
 
     public StopsData() {
         // deserialisation
@@ -33,5 +41,9 @@ public class StopsData {
 
     public String getParentLocalityName() {
         return parentLocalityName;
+    }
+
+    public String getIndicator() {
+        return indicator;
     }
 }

@@ -31,7 +31,7 @@ remoteSources:
   -
     name: naptan
     dataURL: https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv
-    dataCheckURL: https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv
+    dataCheckURL: ""
     dataPath: data/naptan
     filename: naptan_csv.zip
 bounds:

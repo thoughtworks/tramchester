@@ -65,8 +65,7 @@ public class Station implements Location<Station> {
     }
 
     /***
-     * Was specific to old TFGM data set
-     * @return an area in Greater Manchester
+     * Fetched from naptan data
      */
     @Deprecated
     @Override

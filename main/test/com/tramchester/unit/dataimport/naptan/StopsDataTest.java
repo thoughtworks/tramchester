@@ -32,4 +32,18 @@ class StopsDataTest extends ParserTestHelper<StopsData> {
         assertEquals("Westwood", data.getLocalityName());
         assertEquals("Chadderton", data.getParentLocalityName());
     }
+
+    @Test
+    void shouldParseForBusStationWithIndicator() {
+        StopsData data = super.parse("\"2800S16001B\",\"mergjtpm\",\"\",\"\",\"St Helens Bus Station\",\"en\",\"St Helens Bus St 2\",\"en\",\"" +
+                "Bus Station\",\"en\",\"St Helens Bus Station\",\"en\",\"\",\"\",\"Stand 2\",\"en\",\"\",\"E0057858\",\"" +
+                "St Helens\",\"\",\"\",\"St Helens\",\"en\",\"St Helens\",\"en\",\"1\",\"U\",351424,395440,-2.7329610659,53.4534662590,\"" +
+                "BCS\",\"\",\"\",\"\",\"No Notes\",\"en\",\"090\",\"1969-12-31T00:00:00\",\"1969-12-31T23:00:00\",0,\"new\",\"act\"");
+
+        assertEquals("2800S16001B", data.getAtcoCode());
+        assertEquals("mergjtpm", data.getNaptanCode());
+        assertEquals("St Helens", data.getLocalityName());
+        assertEquals("", data.getParentLocalityName());
+        assertEquals("Stand 2", data.getIndicator());
+    }
 }

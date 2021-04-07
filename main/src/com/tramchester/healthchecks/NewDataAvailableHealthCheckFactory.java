@@ -43,7 +43,8 @@ public class NewDataAvailableHealthCheckFactory implements HealthCheckFactory {
 
     @PostConstruct
     public void start() {
-        config.getRemoteDataSourceConfig().forEach(config ->
+        config.getRemoteDataSourceConfig().stream().
+                filter(source -> !source.getDataCheckUrl().isBlank()).forEach(config ->
                 healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime, serviceTimeLimits)));
     }
 
