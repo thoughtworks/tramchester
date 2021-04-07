@@ -147,7 +147,7 @@ test {
 }
 
 task pullData(type:JavaExec, dependsOn:classes) {
-    main = 'com.tramchester.dataimport.FetchDataFromUrl'
+    main = 'com.tramchester.dataimport.FetchDataFromUrlAndUnzip'
     classpath = sourceSets.main.runtimeClasspath
     args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip', 'data', 'tramData-1.0.zip'
 }
