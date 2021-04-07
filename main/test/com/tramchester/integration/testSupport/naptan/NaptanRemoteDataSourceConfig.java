@@ -38,6 +38,6 @@ public class NaptanRemoteDataSourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getName() {
-        return "integtationTestNaptan";
+        return "naptan";
     }
 }
