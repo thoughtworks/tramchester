@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.FetchDataFromUrlAndUnzip;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
@@ -67,8 +67,8 @@ public class Module<T extends TransportDataFactory>  extends AbstractModule {
     }
 
     @Provides
-    FetchDataFromUrl.Ready providesReadyToken(FetchDataFromUrl fetchDataFromUrl) {
-        return fetchDataFromUrl.getReady();
+    FetchDataFromUrlAndUnzip.Ready providesReadyToken(FetchDataFromUrlAndUnzip fetchDataFromUrlAndUnzip) {
+        return fetchDataFromUrlAndUnzip.getReady();
     }
 
     @Provides

@@ -1,6 +1,6 @@
 package com.tramchester.integration.testSupport;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 
-public class TFGMTestDataSourceConfig implements DataSourceConfig {
+public class TFGMTestDataSourceConfig implements GTFSSourceConfig {
 
     //
     // https://data.gov.uk/dataset/c96c4140-8b6c-4130-9642-49866498d268/gm-public-transport-schedules-gtfs

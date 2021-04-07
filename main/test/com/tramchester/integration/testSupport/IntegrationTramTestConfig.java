@@ -1,7 +1,6 @@
 package com.tramchester.integration.testSupport;
 
-import com.tramchester.config.DataSourceConfig;
-import com.tramchester.config.GraphDBConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -14,7 +13,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private static final String DB_NAME = "int_test_tram.db";
 
-    private final DataSourceConfig dataSourceConfig;
+    private final GTFSSourceConfig dataSourceConfig;
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
@@ -37,7 +36,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    protected List<DataSourceConfig> getDataSourceFORTESTING() {
+    protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         return Collections.singletonList(dataSourceConfig);
     }
 

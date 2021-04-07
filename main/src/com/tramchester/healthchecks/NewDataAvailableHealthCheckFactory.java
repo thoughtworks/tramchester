@@ -43,7 +43,7 @@ public class NewDataAvailableHealthCheckFactory implements HealthCheckFactory {
 
     @PostConstruct
     public void start() {
-        config.getDataSourceConfig().forEach(config ->
+        config.getGTFSDataSource().forEach(config ->
                 healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime, serviceTimeLimits)));
     }
 

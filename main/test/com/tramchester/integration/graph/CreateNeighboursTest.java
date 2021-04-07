@@ -2,7 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.reference.TransportMode;
@@ -52,7 +52,7 @@ class CreateNeighboursTest {
         }
 
         @Override
-        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
             return Collections.singletonList(new TFGMTestDataSourceConfig("data/neighbours", TestEnv.tramAndBus,
                     Collections.singleton(TransportMode.Tram)));
         }

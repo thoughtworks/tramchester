@@ -2,7 +2,7 @@ package com.tramchester.dataimport;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.DataSourceID;
@@ -39,7 +39,7 @@ public class TransportDataLoaderFiles implements TransportDataLoader {
     @PostConstruct
     public void start() {
         logger.info("start");
-        config.getDataSourceConfig().forEach(config -> {
+        config.getGTFSDataSource().forEach(config -> {
             logger.info("Creating reader for config " + config.getName());
             Path path = config.getDataPath().resolve(config.getUnzipPath());
             DataSourceInfo dataSourceInfo = createSourceInfoFrom(config);
@@ -56,7 +56,7 @@ public class TransportDataLoaderFiles implements TransportDataLoader {
     }
 
     @NotNull
-    private DataSourceInfo createSourceInfoFrom(DataSourceConfig config) {
+    private DataSourceInfo createSourceInfoFrom(GTFSSourceConfig config) {
         LocalDateTime modTime = fetchFileModTime.getFor(config);
         DataSourceID name = new DataSourceID(config.getName());
         return new DataSourceInfo(name, modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), modTime,

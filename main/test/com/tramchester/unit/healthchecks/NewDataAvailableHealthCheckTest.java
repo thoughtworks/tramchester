@@ -1,7 +1,7 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
     private URLDownloadAndModTime urlDownloader;
-    private final DataSourceConfig config = new TFGMTestDataSourceConfig("data/folder",
+    private final GTFSSourceConfig config = new TFGMTestDataSourceConfig("data/folder",
             GTFSTransportationType.tram, TransportMode.Tram);
     private FetchFileModTime fetchFileModTime;
     private NewDataAvailableHealthCheck healthCheck;

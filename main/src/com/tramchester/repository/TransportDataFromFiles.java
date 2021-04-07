@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
@@ -75,7 +75,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
 
         DataSourceID sourceName = dataSourceInfo.getID();
-        DataSourceConfig sourceConfig = dataSource.getConfig();
+        GTFSSourceConfig sourceConfig = dataSource.getConfig();
 
         logger.info("Loading data for " + sourceName);
 
@@ -140,7 +140,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private void populateCalendars(TransportDataContainer buildable, Stream<CalendarData> calendars,
-                                   Stream<CalendarDateData> calendarsDates, IdMap<Service> services, DataSourceConfig config,
+                                   Stream<CalendarDateData> calendarsDates, IdMap<Service> services, GTFSSourceConfig config,
                                    TransportEntityFactory factory) {
         AtomicInteger countCalendars = new AtomicInteger(0);
         logger.info("Loading calendars for " + services.size() +" services ");
@@ -236,7 +236,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
                                              IdMap<Station> stations, IdMap<Trip> trips,
-                                             TransportEntityFactory factory, DataSourceConfig dataSourceConfig) {
+                                             TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         logger.info("Loading stop times");
         IdMap<Service> addedServices = new IdMap<>();
         IdSet<Station> excludedStations = new IdSet<>();
@@ -284,7 +284,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
     private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
                                     Route route, Station station, TransportEntityFactory factory,
-                                    DataSourceConfig sourceConfig) {
+                                    GTFSSourceConfig sourceConfig) {
         StringIdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
 
@@ -360,7 +360,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
     private IdSet<Route> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
                                         IdMap<Agency> allAgencies, IdMap<Station> allStations,
-                                        DataSourceConfig sourceConfig, TransportEntityFactory factory) {
+                                        GTFSSourceConfig sourceConfig, TransportEntityFactory factory) {
         Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
         AtomicInteger count = new AtomicInteger();
 

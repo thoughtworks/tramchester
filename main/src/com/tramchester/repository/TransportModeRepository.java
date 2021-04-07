@@ -1,7 +1,7 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -20,8 +20,8 @@ public class TransportModeRepository {
     }
 
     public Set<TransportMode> getModes() {
-        return config.getDataSourceConfig().stream().
-                map(DataSourceConfig::getTransportModes).
+        return config.getGTFSDataSource().stream().
+                map(GTFSSourceConfig::getTransportModes).
                 flatMap(Collection::stream).
                 map(TransportMode::fromGTFS).collect(Collectors.toSet());
     }

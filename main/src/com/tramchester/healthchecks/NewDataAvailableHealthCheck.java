@@ -1,7 +1,7 @@
 package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
@@ -16,12 +16,12 @@ import java.time.LocalDateTime;
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
-    private final DataSourceConfig config;
+    private final GTFSSourceConfig config;
     private final URLDownloadAndModTime urlDownloader;
     private final FetchFileModTime fetchFileModTime;
 
     @Inject
-    public NewDataAvailableHealthCheck(DataSourceConfig config, URLDownloadAndModTime urlDownloader,
+    public NewDataAvailableHealthCheck(GTFSSourceConfig config, URLDownloadAndModTime urlDownloader,
                                        FetchFileModTime fetchFileModTime, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.config = config;

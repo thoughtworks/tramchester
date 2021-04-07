@@ -1,9 +1,9 @@
 package com.tramchester.dataimport.data;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.FetchDataFromUrlAndUnzip;
 import com.tramchester.dataimport.TransportDataLoader;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.domain.DataSourceID;
@@ -33,7 +33,7 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
 
     @Inject
     public TransportDataStreams(TransportDataLoader dataLoader, TramchesterConfig config,
-                                FetchDataFromUrl.Ready dataIsDownloadedAndUnzipped) {
+                                FetchDataFromUrlAndUnzip.Ready dataIsDownloadedAndUnzipped) {
         this.dataLoader = dataLoader;
         this.config = config;
         theList = new ArrayList<>();
@@ -50,7 +50,7 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
 
         transportDataReaders.forEach(transportDataReader -> {
             Stream<FeedInfo> feedInfoData = Stream.empty();
-            DataSourceConfig sourceConfig = transportDataReader.getConfig();
+            GTFSSourceConfig sourceConfig = transportDataReader.getConfig();
 
             if (sourceConfig.getHasFeedInfo()) {
                 feedInfoData = transportDataReader.getFeedInfo();
@@ -77,7 +77,7 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
         logger.info("started");
     }
 
-    private TransportEntityFactory getEntityFactoryFor(DataSourceConfig sourceConfig) {
+    private TransportEntityFactory getEntityFactoryFor(GTFSSourceConfig sourceConfig) {
         DataSourceID sourceName = new DataSourceID(sourceConfig.getName());
         if (DataSourceID.TFGM().equals(sourceName)) {
             return new TransportEntityFactoryForTFGM(config);

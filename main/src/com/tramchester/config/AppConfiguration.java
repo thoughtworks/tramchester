@@ -120,8 +120,12 @@ public class AppConfiguration extends TramchesterConfig {
     private Double distanceToNeighboursKM;
 
     @Valid
-    @JsonProperty("dataSources")
-    private List<DataSourceConfig> dataSourceConfig;
+    @JsonProperty("gtfsSourceConfig")
+    private List<GTFSSourceConfig> gtfsSourceConfig;
+
+    @Valid
+    @JsonProperty("remoteSources")
+    private List<RemoteDataSourceConfig> remoteDataConfig;
 
     @NotNull
     @JsonProperty("stationClosures")
@@ -262,8 +266,13 @@ public class AppConfiguration extends TramchesterConfig {
 
     @Valid
     @Override
-    public List<DataSourceConfig> getDataSourceConfig() {
-        return dataSourceConfig;
+    public List<GTFSSourceConfig> getGTFSDataSource() {
+        return gtfsSourceConfig;
+    }
+
+    @Override
+    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        return remoteDataConfig;
     }
 
     @Valid

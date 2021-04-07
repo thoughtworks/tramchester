@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph.calculation;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
@@ -18,7 +18,7 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
     }
 
     @Override
-    protected List<DataSourceConfig> getDataSourceFORTESTING() {
+    protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         TFGMTestDataSourceConfig tfgmTestDataSourceConfig = new TFGMTestDataSourceConfig("data/tram",
                 GTFSTransportationType.tram, Tram);
         return Collections.singletonList(tfgmTestDataSourceConfig);

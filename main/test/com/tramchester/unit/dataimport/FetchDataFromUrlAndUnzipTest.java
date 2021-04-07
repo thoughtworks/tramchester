@@ -1,8 +1,8 @@
-package com.tramchester.unit.dataimport.datacleanse;
+package com.tramchester.unit.dataimport;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.FetchDataFromUrlAndUnzip;
 import com.tramchester.dataimport.URLDownloadAndModTime;
 import com.tramchester.dataimport.Unzipper;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -27,11 +27,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-class FetchDataFromUrlTest extends EasyMockSupport {
+class FetchDataFromUrlAndUnzipTest extends EasyMockSupport {
 
     private final Path path = Paths.get(Files.temporaryFolderPath());
     private URLDownloadAndModTime downloader;
-    private FetchDataFromUrl fetchDataFromUrl;
+    private FetchDataFromUrlAndUnzip fetchDataFromUrlAndUnzip;
     private Path zipFilename;
     private Unzipper unzipper;
     private final String expectedDownloadURL = TestEnv.TFGM_TIMETABLE_URL;
@@ -43,16 +43,16 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         zipFilename = path.resolve(targetZipFilename);
         unzipper = createMock(Unzipper.class);
 
-        DataSourceConfig dataSourceConfig = new SourceConfig(path.toString(), targetZipFilename);
+        GTFSSourceConfig dataSourceConfig = new SourceConfig(path.toString(), targetZipFilename);
 
         TramchesterConfig config = new TestConfig() {
             @Override
-            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.singletonList(dataSourceConfig);
             }
         };
 
-        fetchDataFromUrl = new FetchDataFromUrl(unzipper, downloader, config);
+        fetchDataFromUrlAndUnzip = new FetchDataFromUrlAndUnzip(unzipper, downloader, config);
         removeTmpFile();
     }
 
@@ -77,7 +77,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        Assertions.assertAll(() -> fetchDataFromUrlAndUnzip.fetchData());
         verifyAll();
     }
 
@@ -88,7 +88,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        Assertions.assertAll(() -> fetchDataFromUrlAndUnzip.fetchData());
         verifyAll();
     }
 
@@ -100,7 +100,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        Assertions.assertAll(() -> fetchDataFromUrlAndUnzip.fetchData());
         verifyAll();
     }
 
@@ -113,7 +113,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         EasyMock.expect(unzipper.unpack(zipFilename, path)).andReturn(true);
 
         replayAll();
-        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        Assertions.assertAll(() -> fetchDataFromUrlAndUnzip.fetchData());
         verifyAll();
     }
 

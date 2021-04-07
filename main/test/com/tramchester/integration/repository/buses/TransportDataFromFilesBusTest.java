@@ -3,7 +3,7 @@ package com.tramchester.integration.repository.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataLoaderFiles;
@@ -183,8 +183,8 @@ class TransportDataFromFilesBusTest {
 
         assertFalse(applyToCurrentServices.isEmpty());
 
-        assertEquals(1,  config.getDataSourceConfig().size(), "expected only one data source");
-        DataSourceConfig sourceConfig = config.getDataSourceConfig().get(0);
+        assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
+        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
         Set<LocalDate> excludedByConfig = sourceConfig.getNoServices();
 
         applyToCurrentServices.forEach(exception -> {

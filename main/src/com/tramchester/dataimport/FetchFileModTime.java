@@ -1,6 +1,6 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 
 import java.nio.file.Path;
@@ -14,7 +14,7 @@ public class FetchFileModTime {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
     }
 
-    public LocalDateTime getFor(DataSourceConfig config) {
+    public LocalDateTime getFor(GTFSSourceConfig config) {
         Path dataPath = config.getDataPath();
         Path latestZipFile = dataPath.resolve(config.getZipFilename());
         return getFor(latestZipFile);

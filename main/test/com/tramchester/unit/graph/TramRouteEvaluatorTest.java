@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -76,7 +75,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         config = new TestConfig() {
             @Override
-            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.singletonList(new TFGMTestDataSourceConfig("data/tram",
                        GTFSTransportationType.tram, TransportMode.Tram));
             }

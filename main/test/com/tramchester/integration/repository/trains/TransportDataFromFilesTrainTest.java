@@ -3,21 +3,18 @@ package com.tramchester.integration.repository.trains;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataLoaderFiles;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
 import org.junit.jupiter.api.*;
@@ -29,7 +26,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.ArrivaTrainsWales;
-import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -139,8 +135,8 @@ class TransportDataFromFilesTrainTest {
 
         assertFalse(applyToCurrentServices.isEmpty());
 
-        assertEquals(1,  config.getDataSourceConfig().size(), "expected only one data source");
-        DataSourceConfig sourceConfig = config.getDataSourceConfig().get(0);
+        assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
+        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
         Set<LocalDate> excludedByConfig = sourceConfig.getNoServices();
 
         applyToCurrentServices.forEach(exception -> {

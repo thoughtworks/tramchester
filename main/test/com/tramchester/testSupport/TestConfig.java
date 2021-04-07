@@ -1,8 +1,9 @@
 package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.server.DefaultServerFactory;
@@ -17,11 +18,11 @@ import java.util.List;
 public abstract class TestConfig extends AppConfiguration {
 
     @Override
-    public List<DataSourceConfig> getDataSourceConfig() {
+    public List<GTFSSourceConfig> getGTFSDataSource() {
         return getDataSourceFORTESTING();
     }
 
-    protected abstract List<DataSourceConfig> getDataSourceFORTESTING();
+    protected abstract List<GTFSSourceConfig> getDataSourceFORTESTING();
 
     @Override
     public boolean getChangeAtInterchangeOnly() { return true; }
@@ -166,4 +167,8 @@ public abstract class TestConfig extends AppConfiguration {
         return 3;
     }
 
+    @Override
+    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        return TestEnv.createRemoteDataSourceConfig();
+    }
 }

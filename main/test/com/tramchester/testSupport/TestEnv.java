@@ -1,11 +1,8 @@
 package com.tramchester.testSupport;
 
 import com.codahale.metrics.Gauge;
+import com.tramchester.config.*;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.config.AppConfiguration;
-import com.tramchester.config.DataSourceConfig;
-import com.tramchester.config.LiveDataConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
@@ -81,7 +78,7 @@ public class TestEnv {
     public static AppConfiguration GET() {
         return new TestConfig() {
             @Override
-            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return Collections.emptyList();
             }
         };
@@ -90,7 +87,7 @@ public class TestEnv {
     public static TramchesterConfig GET(TestLiveDataConfig testLiveDataConfig) {
         return new TestConfig() {
             @Override
-            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return null;
             }
 
@@ -255,5 +252,35 @@ public class TestEnv {
     public static void assertLatLongEquals(LatLong a, LatLong b, double delta, String message) {
         assertEquals(a.getLat(), b.getLat(), delta, "lat:" + message);
         assertEquals(a.getLon(), b.getLon(), delta, "lon: " +message);
+    }
+
+    public static List<RemoteDataSourceConfig> createRemoteDataSourceConfig() {
+        RemoteDataSourceConfig config = new RemoteDataSourceConfig() {
+            @Override
+            public String getDataCheckUrl() {
+                return TestEnv.TFGM_TIMETABLE_URL;
+            }
+
+            @Override
+            public String getDataUrl() {
+                return TestEnv.TFGM_TIMETABLE_URL;
+            }
+
+            @Override
+            public Path getDataPath() {
+                return Path.of("data","test");
+            }
+
+            @Override
+            public String getDownloadFilename() {
+                return "testDownloadTarget.zip";
+            }
+
+            @Override
+            public String getName() {
+                return "testOnlyRemoteSource";
+            }
+        };
+        return Collections.singletonList(config);
     }
 }

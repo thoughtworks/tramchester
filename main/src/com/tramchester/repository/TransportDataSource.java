@@ -1,6 +1,6 @@
 package com.tramchester.repository;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
@@ -16,7 +16,7 @@ public class TransportDataSource {
     final Stream<CalendarData> calendars;
     final Stream<FeedInfo> feedInfo;
     final Stream<CalendarDateData> calendarsDates;
-    private final DataSourceConfig config;
+    private final GTFSSourceConfig config;
     final Stream<AgencyData> agencies;
     final private DataSourceInfo dataSourceInfo;
     final private TransportEntityFactory entityFactory;
@@ -25,7 +25,7 @@ public class TransportDataSource {
                                Stream<RouteData> routes, Stream<TripData> trips, Stream<StopTimeData> stopTimes,
                                Stream<CalendarData> calendars,
                                Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates,
-                               DataSourceConfig config, TransportEntityFactory entityFactory) {
+                               GTFSSourceConfig config, TransportEntityFactory entityFactory) {
         this.dataSourceInfo = dataSourceInfo;
         this.agencies = agencies;
         this.stops = stops;
@@ -54,7 +54,7 @@ public class TransportDataSource {
         return dataSourceInfo;
     }
 
-    public DataSourceConfig getConfig() {
+    public GTFSSourceConfig getConfig() {
         return config;
     }
 

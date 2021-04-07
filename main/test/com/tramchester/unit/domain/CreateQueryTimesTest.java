@@ -1,7 +1,7 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestConfig;
@@ -42,7 +42,7 @@ class CreateQueryTimesTest {
     private static class LocalConfig extends TestConfig {
 
         @Override
-        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
             return Collections.emptyList();
         }
 

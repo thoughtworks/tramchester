@@ -48,6 +48,7 @@ public class PostcodeRepository {
             return;
         }
 
+        // TODO make importer use PostConstruct
         List<Stream<PostcodeData>> sources = importer.loadLocalPostcodes();
 
         sources.forEach(source-> {

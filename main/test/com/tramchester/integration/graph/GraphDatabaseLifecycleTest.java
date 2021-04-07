@@ -1,6 +1,6 @@
 package com.tramchester.integration.graph;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
@@ -41,7 +41,7 @@ class GraphDatabaseLifecycleTest {
     private TramchesterConfig config;
     private DataSourceRepository repository;
     private Set<DataSourceInfo> namesAndVersions;
-    private List<DataSourceConfig> dataSourceConfigs;
+    private List<GTFSSourceConfig> dataSourceConfigs;
     private GraphDatabase graphDatabase;
 
     @BeforeEach
@@ -52,7 +52,7 @@ class GraphDatabaseLifecycleTest {
         GraphDBTestConfig dbConfig = new GraphDBTestConfig("graphDatabaseTest", dbName);
         config = new IntegrationTestConfig(dbConfig) {
             @Override
-            protected List<DataSourceConfig> getDataSourceFORTESTING() {
+            protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
                 return dataSourceConfigs;
             }
         };
@@ -311,8 +311,8 @@ class GraphDatabaseLifecycleTest {
         return count;
     }
 
-    private DataSourceConfig createDataSource(String name) {
-        return new DataSourceConfig() {
+    private GTFSSourceConfig createDataSource(String name) {
+        return new GTFSSourceConfig() {
             @Override
             public String getTramDataUrl() {
                 return null;

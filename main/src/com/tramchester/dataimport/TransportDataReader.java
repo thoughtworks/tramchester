@@ -1,7 +1,7 @@
 package com.tramchester.dataimport;
 
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.DataSourceInfo;
@@ -11,9 +11,9 @@ import java.util.stream.Stream;
 public class TransportDataReader {
 
     private final DataSourceInfo dataSourceInfo;
-    private final DataSourceConfig config;
+    private final GTFSSourceConfig config;
 
-    public DataSourceConfig getConfig() {
+    public GTFSSourceConfig getConfig() {
         return config;
     }
 
@@ -23,7 +23,7 @@ public class TransportDataReader {
 
     private final DataLoaderFactory factory;
 
-    public TransportDataReader(DataSourceInfo dataSourceInfo, DataLoaderFactory factory, DataSourceConfig config) {
+    public TransportDataReader(DataSourceInfo dataSourceInfo, DataLoaderFactory factory, GTFSSourceConfig config) {
         this.dataSourceInfo = dataSourceInfo;
         this.factory = factory;
         this.config = config;

@@ -15,7 +15,7 @@ import java.util.Set;
 @SuppressWarnings("unused")
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class DataSourceAppConfig extends Configuration implements DataSourceConfig  {
+public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConfig {
 
     @NotNull
     @JsonProperty(value = "name")

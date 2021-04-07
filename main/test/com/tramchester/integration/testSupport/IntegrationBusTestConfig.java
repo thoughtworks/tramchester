@@ -1,13 +1,13 @@
 package com.tramchester.integration.testSupport;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 
 import java.util.Collections;
 import java.util.List;
 
 public class IntegrationBusTestConfig extends IntegrationTestConfig {
-    private final DataSourceConfig dataSourceConfig;
+    private final GTFSSourceConfig dataSourceConfig;
 
     public IntegrationBusTestConfig() {
         this("int_test_bus.db");
@@ -21,7 +21,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    protected List<DataSourceConfig> getDataSourceFORTESTING() {
+    protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         return Collections.singletonList(dataSourceConfig);
     }
 

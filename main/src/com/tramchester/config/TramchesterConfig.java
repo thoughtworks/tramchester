@@ -87,8 +87,11 @@ public abstract class TramchesterConfig extends Configuration {
     // location of zip file containing postcode
     public abstract Path getPostcodeZip();
 
-    // config for each of the data sources
-    public abstract List<DataSourceConfig> getDataSourceConfig();
+    // config for each of the GTFS data sources
+    public abstract List<GTFSSourceConfig> getGTFSDataSource();
+
+    // config for each remote data source to be downloaded
+    public abstract List<RemoteDataSourceConfig> getRemoteDataSourceConfig();
 
     // a list of currently close stations
     public abstract List<StationClosure> getStationClosures();
@@ -103,8 +106,8 @@ public abstract class TramchesterConfig extends Configuration {
     public abstract BoundingBox getBounds();
 
     public Set<TransportMode> getTransportModes() {
-        return getDataSourceConfig().stream().
-                map(DataSourceConfig::getTransportModes).
+        return getGTFSDataSource().stream().
+                map(GTFSSourceConfig::getTransportModes).
                 flatMap(Collection::stream).
                 map(TransportMode::fromGTFS).
                 collect(Collectors.toSet());

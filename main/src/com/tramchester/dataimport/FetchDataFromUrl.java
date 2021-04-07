@@ -1,10 +1,8 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.reference.TransportMode;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +13,9 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -29,17 +23,15 @@ import static java.lang.String.format;
 public class FetchDataFromUrl implements TransportDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
-    private final Unzipper unzipper;
     private final URLDownloadAndModTime downloader;
-    private final List<DataSourceConfig> configs;
+    private final List<RemoteDataSourceConfig> configs;
 
     @Inject
-    public FetchDataFromUrl(Unzipper unzipper, URLDownloadAndModTime downloader, TramchesterConfig config) {
-        this(unzipper, downloader, config.getDataSourceConfig());
+    public FetchDataFromUrl(URLDownloadAndModTime downloader, TramchesterConfig config) {
+        this(downloader, config.getRemoteDataSourceConfig());
     }
 
-    private FetchDataFromUrl(Unzipper unzipper, URLDownloadAndModTime downloader, List<DataSourceConfig> configs) {
-        this.unzipper = unzipper;
+    private FetchDataFromUrl(URLDownloadAndModTime downloader, List<RemoteDataSourceConfig> configs) {
         this.downloader = downloader;
         this.configs = configs;
     }
@@ -56,35 +48,21 @@ public class FetchDataFromUrl implements TransportDataFetcher {
         return new Ready();
     }
 
-    // TODO Unzipper into cons
     @Override
     public void fetchData() {
         configs.forEach(config -> {
             try {
-                Path zipFile = refreshDataIfNewerAvailable(config);
-                if (!unzipper.unpack(zipFile, config.getDataPath())) {
-                    logger.error("unable to unpack zip file " + zipFile.toAbsolutePath());
-                }
+                refreshDataIfNewerAvailable(config);
             } catch (IOException e) {
                 logger.info("Unable to refresh data for config " + config);
             }
         });
     }
 
-    private void downloadAll() {
-        configs.forEach(config -> {
-            try {
-                refreshDataIfNewerAvailable(config);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to refresh data for config " + config);
-            }
-        });
-    }
-
-    private Path refreshDataIfNewerAvailable(DataSourceConfig config) throws IOException {
-        String url = config.getTramDataUrl();
+    private void refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
+        String url = config.getDataUrl();
         Path downloadDirectory = config.getDataPath();
-        String targetFile = config.getZipFilename();
+        String targetFile = config.getDownloadFilename();
 
         Path destination = downloadDirectory.resolve(targetFile);
 
@@ -113,81 +91,11 @@ public class FetchDataFromUrl implements TransportDataFetcher {
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
             downloader.downloadTo(destination, url);
         }
-        return destination;
     }
 
     private LocalDateTime getFileModLocalTime(Path destination) {
         long localModMillis = destination.toFile().lastModified();
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
-    }
-
-    // TODO Need to pass in unzip path and zip filename from CLI ags
-    // used during build to download latest tram data from tfgm site during deployment
-    // which is subsequently uploaded into S3
-    @Deprecated
-    public static void main(String[] args) throws Exception {
-        if (args.length!=3) {
-            throw new Exception("Expected 2 arguments, path and url");
-        }
-        String theUrl = args[0];
-        Path folder = Paths.get(args[1]);
-        String zipFilename = args[2];
-        logger.info(format("Loading %s to path %s file %s", theUrl, folder, zipFilename));
-        DataSourceConfig dataSourceConfig = new DataSourceConfig() {
-            @Override
-            public String getTramDataUrl() {
-                return theUrl;
-            }
-
-            @Override
-            public String getTramDataCheckUrl() {
-                return null;
-            }
-
-            @Override
-            public Path getDataPath() {
-                return folder;
-            }
-
-            @Override
-            public Path getUnzipPath() {
-                return Paths.get("./");
-            }
-
-            @Override
-            public String getZipFilename() {
-                return zipFilename;
-            }
-
-            @Override
-            public String getName() {
-                return "commandLine";
-            }
-
-            @Override
-            public boolean getHasFeedInfo() {
-                return true;
-            }
-
-            @Override
-            public Set<GTFSTransportationType> getTransportModes() {
-                return Collections.singleton(GTFSTransportationType.tram);
-            }
-
-            @Override
-            public Set<TransportMode> getTransportModesWithPlatforms() {
-                return Collections.singleton(TransportMode.Tram);
-            }
-
-            @Override
-            public Set<LocalDate> getNoServices() {
-                return Collections.emptySet();
-            }
-        };
-        URLDownloadAndModTime downloader = new URLDownloadAndModTime();
-        Unzipper unzipper = new Unzipper();
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(unzipper, downloader, Collections.singletonList(dataSourceConfig));
-        fetcher.downloadAll();
     }
 
     public static class Ready {

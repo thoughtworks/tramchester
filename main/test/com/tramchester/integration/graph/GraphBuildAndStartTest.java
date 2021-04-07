@@ -16,11 +16,9 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,7 +34,7 @@ class GraphBuildAndStartTest {
         TestEnv.deleteDBIfPresent(config);
 
         Unzipper unzipper = new Unzipper();
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(unzipper, new URLDownloadAndModTime(), config);
+        FetchDataFromUrlAndUnzip fetcher = new FetchDataFromUrlAndUnzip(unzipper, new URLDownloadAndModTime(), config);
         fetcher.start();
 
         ProvidesNow providesNow = new ProvidesLocalNow();

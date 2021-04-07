@@ -1,6 +1,6 @@
 package com.tramchester.integration.testSupport;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.testSupport.TestEnv;
@@ -29,7 +29,7 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    protected List<DataSourceConfig> getDataSourceFORTESTING() {
+    protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         return Collections.singletonList(sourceConfig);
     }
 

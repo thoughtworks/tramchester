@@ -1,6 +1,6 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -55,14 +55,14 @@ class TransportModeRepositoryTest {
         configModesSourceA.add(GTFSTransportationType.tram);
         configModesSourceA.add(GTFSTransportationType.train);
 
-        List<DataSourceConfig> dataSources = new LinkedList<>();
-        DataSourceConfig sourceA = new TFGMTestDataSourceConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms);
+        List<GTFSSourceConfig> dataSources = new LinkedList<>();
+        GTFSSourceConfig sourceA = new TFGMTestDataSourceConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms);
         dataSources.add(sourceA);
 
         Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
         configModesSourceB.add(GTFSTransportationType.bus);
         configModesSourceB.add(GTFSTransportationType.train);
-        DataSourceConfig sourceB = new TFGMTestDataSourceConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms);
+        GTFSSourceConfig sourceB = new TFGMTestDataSourceConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms);
         dataSources.add(sourceB);
 
         TramchesterConfig config = new ModeConfig(dataSources);
@@ -78,22 +78,22 @@ class TransportModeRepositoryTest {
 
     @NotNull
     private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
-        List<DataSourceConfig> dataSources = new LinkedList<>();
-        DataSourceConfig tramConfig = new TFGMTestDataSourceConfig("folder/some/path", configModes, modesWithPlatforms);
+        List<GTFSSourceConfig> dataSources = new LinkedList<>();
+        GTFSSourceConfig tramConfig = new TFGMTestDataSourceConfig("folder/some/path", configModes, modesWithPlatforms);
         dataSources.add(tramConfig);
         return new ModeConfig(dataSources);
     }
 
     private static class ModeConfig extends TestConfig {
 
-        private final List<DataSourceConfig> dataSources;
+        private final List<GTFSSourceConfig> dataSources;
 
-        private ModeConfig(List<DataSourceConfig> dataSources) {
+        private ModeConfig(List<GTFSSourceConfig> dataSources) {
             this.dataSources = dataSources;
         }
 
         @Override
-        protected List<DataSourceConfig> getDataSourceFORTESTING() {
+        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
             return dataSources;
         }
     }

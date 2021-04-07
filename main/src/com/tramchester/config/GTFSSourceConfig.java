@@ -8,8 +8,8 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Set;
 
-@JsonDeserialize(as=DataSourceAppConfig.class)
-public interface DataSourceConfig {
+@JsonDeserialize(as= GTFSSourceAppConfig.class)
+public interface GTFSSourceConfig {
     // url to load timetable data from
     String getTramDataUrl();
 

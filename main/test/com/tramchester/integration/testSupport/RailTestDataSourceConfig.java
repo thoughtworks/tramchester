@@ -1,6 +1,6 @@
 package com.tramchester.integration.testSupport;
 
-import com.tramchester.config.DataSourceConfig;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
 
-class RailTestDataSourceConfig implements DataSourceConfig {
+class RailTestDataSourceConfig implements GTFSSourceConfig {
     private static final String RAIL_LATEST_ZIP = "https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip";
 
     // https://planar.network/projects/feeds
