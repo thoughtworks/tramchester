@@ -45,7 +45,7 @@ dependencies {
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
-    implementation('software.amazon.awssdk:cloudwatch:2.16.29')
+    implementation('software.amazon.awssdk:cloudwatch:2.16.37')
     implementation('software.amazon.awssdk:s3:2.16.29')
     implementation('software.amazon.awssdk:cloudformation:2.16.29')
     // aws cdk
@@ -147,7 +147,7 @@ test {
 }
 
 task pullData(type:JavaExec, dependsOn:classes) {
-    main = 'com.tramchester.dataimport.FetchDataFromUrl'
+    main = 'com.tramchester.dataimport.FetchDataFromUrlAndUnzip'
     classpath = sourceSets.main.runtimeClasspath
     args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip', 'data', 'tramData-1.0.zip'
 }
