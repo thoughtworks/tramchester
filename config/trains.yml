@@ -18,7 +18,7 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: trains.db
   neo4jPagecacheMemory: 1000m
-dataSources:
+gtfsSourceConfig:
   -
     name: gb-rail
     URL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
@@ -29,6 +29,7 @@ dataSources:
     transportModes: [ train, bus, subway, ferry, replacementBus ]
     transportModesWithPlatforms: []
     noServices: []
+remoteSources: []
 bounds:
   minEastings: 147588
   minNorthings: 30599

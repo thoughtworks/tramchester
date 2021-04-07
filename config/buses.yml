@@ -19,7 +19,7 @@ graphDBConfig:
   graphName: buses.db
   neo4jPagecacheMemory: 1300m
 stationClosures: []
-dataSources:
+gtfsSourceConfig:
   -
     name: tfgm
     URL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
@@ -30,6 +30,7 @@ dataSources:
     transportModes: [ bus ]
     transportModesWithPlatforms: []
     noServices: []
+remoteSources: []
 bounds:
   minEastings: 112685
   minNorthings: 015490

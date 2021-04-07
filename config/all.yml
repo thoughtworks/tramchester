@@ -20,7 +20,7 @@ graphDBConfig:
   neo4jPagecacheMemory: 1500m
 stationClosures: []
 instanceDataUrl: http://169.254.169.254
-dataSources:
+gtfsSourceConfig:
   -
     name: tfgm
     URL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
