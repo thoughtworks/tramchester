@@ -5,6 +5,8 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.URLDownloadAndModTime;
+import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -29,19 +31,21 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     private Path zipFilename;
     private final String expectedDownloadURL = TestEnv.TFGM_TIMETABLE_URL;
     private RemoteDataSourceConfig remoteDataSourceConfig;
+    private ProvidesNow providesLocalNow;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
 
         TramchesterConfig config = new LocalTestConfig(java.nio.file.Files.createTempDirectory("FetchDataFromUrlTest"));
 
+        providesLocalNow = createMock(ProvidesNow.class);
         downloader = createMock(URLDownloadAndModTime.class);
         remoteDataSourceConfig = config.getRemoteDataSourceConfig().get(0);
         final String targetZipFilename = remoteDataSourceConfig.getDownloadFilename();
         Path path = remoteDataSourceConfig.getDataPath();
         zipFilename = path.resolve(targetZipFilename);
 
-        fetchDataFromUrl = new FetchDataFromUrl(downloader, config);
+        fetchDataFromUrl = new FetchDataFromUrl(downloader, config, providesLocalNow);
 
         removeTmpFile();
     }
@@ -96,9 +100,37 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldHandlerUnexpectedServerUpdateTime() throws IOException {
+    void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
+        EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now().
+                plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS+10));
+
         LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
+        EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(fileIsMissingTime);
+        downloader.downloadTo(zipFilename, expectedDownloadURL);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        verifyAll();
+    }
+
+    @Test
+    void shouldHandleNoModTimeIsAvailableByNotDownloadingIfExpiryOK() throws IOException {
+        Files.newFile(zipFilename.toAbsolutePath().toString());
+        EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
+        LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
+        EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(fileIsMissingTime);
+
+        replayAll();
+        Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
+        verifyAll();
+    }
+
+    @Test
+    void shouldHandlerFileIsMissing() throws IOException {
+        Files.newFile(zipFilename.toAbsolutePath().toString());
+        LocalDateTime fileIsMissingTime = LocalDateTime.MAX;
         EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(fileIsMissingTime);
 
         replayAll();

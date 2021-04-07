@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.time.ProvidesLocalNow;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,9 @@ public class FetchDataFromUrlAndUnzip {
 
         URLDownloadAndModTime downloader = new URLDownloadAndModTime();
 
-        FetchDataFromUrl fetchDataFromUrl = new FetchDataFromUrl(downloader, Collections.singletonList(dataSourceConfig));
+        ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
+        FetchDataFromUrl fetchDataFromUrl = new FetchDataFromUrl(downloader,
+                Collections.singletonList(dataSourceConfig), providesLocalNow);
         fetchDataFromUrl.start();
     }
 

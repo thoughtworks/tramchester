@@ -5,6 +5,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.UnzipFetchedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class NaPTANDataImporter {
     private boolean open;
 
     @Inject
-    public NaPTANDataImporter(TramchesterConfig config, CsvMapper mapper) {
+    public NaPTANDataImporter(TramchesterConfig config, CsvMapper mapper, UnzipFetchedData.Ready dataIsReady) {
             sourceConfig = config.getDataSourceConfig("naptan");
         this.mapper = mapper;
         open = false;

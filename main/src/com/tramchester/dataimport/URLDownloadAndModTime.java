@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,8 @@ public class URLDownloadAndModTime {
         HttpURLConnection connection = createConnection(url);
         connection.connect();
         long serverModMillis = connection.getLastModified();
+
+        // TODO what about redirects etc?
         boolean missing = connection.getResponseCode() != 200;
         if (missing) {
             logger.error("Response code " + connection.getResponseCode());
@@ -36,18 +39,32 @@ public class URLDownloadAndModTime {
             return LocalDateTime.MIN;
         }
 
-        LocalDateTime modTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
+        if (serverModMillis==0) {
+            logger.warn("No valid mod time from server, got 0");
+            return LocalDateTime.MIN;
+        }
+
+        LocalDateTime modTime = getLocalDateTime(serverModMillis);
         logger.info(format("Mod time for %s is %s", url, modTime));
         return modTime;
+    }
+
+    @NotNull
+    private LocalDateTime getLocalDateTime(long serverModMillis) {
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZone);
     }
 
     public void downloadTo(Path path, String url) throws IOException {
         try {
             File targetFile = path.toFile();
             HttpURLConnection connection = createConnection(url);
+            connection.setRequestProperty("Accept-Encoding", "gzip");
             connection.connect();
             long len = connection.getContentLengthLong();
+
             long serverModMillis = connection.getLastModified();
+            String encoding = connection.getContentType();
+            logger.info("Response encoding " + encoding);
 
             logger.info("Content length is " + len);
 
@@ -59,8 +76,12 @@ public class URLDownloadAndModTime {
                 fos.close();
                 rbc.close();
 
-                if (!targetFile.setLastModified(serverModMillis)) {
-                    logger.warn("Unable to set mod time on " + targetFile);
+                if (serverModMillis>0) {
+                    if (!targetFile.setLastModified(serverModMillis)) {
+                        logger.warn("Unable to set mod time on " + targetFile);
+                    }
+                } else {
+                    logger.warn("Server mod time is zero, not updating local file mod time");
                 }
             } else {
                 logger.error("Unable to download from " + url);

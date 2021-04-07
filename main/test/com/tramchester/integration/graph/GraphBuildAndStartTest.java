@@ -34,14 +34,14 @@ class GraphBuildAndStartTest {
         TramchesterConfig config =new SubgraphConfig();
 
         TestEnv.deleteDBIfPresent(config);
+        ProvidesLocalNow providesNow = new ProvidesLocalNow();
 
         Unzipper unzipper = new Unzipper();
-        FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloadAndModTime(), config);
+        FetchDataFromUrl fetcher = new FetchDataFromUrl(new URLDownloadAndModTime(), config, providesNow);
         fetcher.start();
         UnzipFetchedData unzipFetchedData = new UnzipFetchedData(unzipper, config, fetcher.getReady());
         unzipFetchedData.start();
 
-        ProvidesNow providesNow = new ProvidesLocalNow();
 
         NodeTypeRepository nodeTypeRepository = new NodeIdLabelMap();
 

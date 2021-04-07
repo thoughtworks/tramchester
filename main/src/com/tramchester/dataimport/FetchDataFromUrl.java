@@ -3,6 +3,7 @@ package com.tramchester.dataimport;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +24,22 @@ import static java.lang.String.format;
 public class FetchDataFromUrl  {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
+    // TODO Config?
+    public static final long DEFAULT_EXPIRY_MINS = 12 * 60;
+
     private final URLDownloadAndModTime downloader;
     private final List<RemoteDataSourceConfig> configs;
+    private final ProvidesNow providesLocalNow;
 
     @Inject
-    public FetchDataFromUrl(URLDownloadAndModTime downloader, TramchesterConfig config) {
-        this(downloader, config.getRemoteDataSourceConfig());
+    public FetchDataFromUrl(URLDownloadAndModTime downloader, TramchesterConfig config, ProvidesNow providesLocalNow) {
+        this(downloader, config.getRemoteDataSourceConfig(), providesLocalNow);
     }
 
-    public FetchDataFromUrl(URLDownloadAndModTime downloader, List<RemoteDataSourceConfig> configs) {
+    public FetchDataFromUrl(URLDownloadAndModTime downloader, List<RemoteDataSourceConfig> configs, ProvidesNow providesLocalNow) {
         this.downloader = downloader;
         this.configs = configs;
+        this.providesLocalNow = providesLocalNow;
     }
 
     @PostConstruct
@@ -67,17 +73,27 @@ public class FetchDataFromUrl  {
 
         String name = config.getName();
         if (Files.exists(destination)) {
-            try {
-                // check mod times
-                LocalDateTime serverMod = downloader.getModTime(url);
-                LocalDateTime localMod = getFileModLocalTime(destination);
-                logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
 
+            // check mod times
+            LocalDateTime serverMod = downloader.getModTime(url);
+            LocalDateTime localMod = getFileModLocalTime(destination);
+
+            if (serverMod.isEqual(LocalDateTime.MIN)) {
+                loadIfCachePeriodExpired(url, destination, localMod);
+                return;
+            }
+
+            if (serverMod.isEqual(LocalDateTime.MAX)) {
+                logger.error("Requested URL is (not status 200) missing " + url);
+                return;
+            }
+
+            logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
+
+            try {
                 if (serverMod.isAfter(localMod)) {
                     logger.warn(name + ": server time is after local, downloading new data");
                     downloader.downloadTo(destination, url);
-                } else if (serverMod.equals(LocalDateTime.MIN)) {
-                    logger.error("Missing source: " + url);
                 } else {
                     logger.info(name + ": no newer data");
                 }
@@ -86,9 +102,24 @@ public class FetchDataFromUrl  {
                 logger.error("Cannot connect to check or refresh data " + config, disconnected);
             }
         } else {
-            logger.info(name + ": no local file " + destination + " so down loading new data");
+            logger.info(name + ": no local file " + destination + " so down loading new data from " + url);
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
             downloader.downloadTo(destination, url);
+        }
+    }
+
+    private void loadIfCachePeriodExpired(String url, Path destination, LocalDateTime fileModTime)  {
+        LocalDateTime localNow = providesLocalNow.getDateTime();
+        String prefix = format("Local mod time: %s Current Local Time: %s ", fileModTime, localNow);
+        try {
+            if (fileModTime.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow)) {
+                logger.info(prefix + " expired downloading from " + url);
+                downloader.downloadTo(destination, url);
+            } else {
+                logger.info(prefix + " not expired, using current " + destination);
+            }
+        } catch (IOException e) {
+            logger.error("Cannot download from " + url);
         }
     }
 

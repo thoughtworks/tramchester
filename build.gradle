@@ -121,15 +121,22 @@ clean {
     delete 'data/tram/data.zip', 'data/bus/data.zip'
     delete fileTree('data/tram') {
         include '*.txt'
+        include '*.zip'
     }
     delete fileTree('data/bus') {
         include '*.txt'
+        include '*.zip'
     }
     delete fileTree('data/neighbours') {
         include '*.txt'
     }
     delete fileTree('data/train') {
         include '*.txt'
+        include '*.zip'
+    }
+    delete fileTree('data/naptan') {
+        include '*.csv'
+        include '*.zip'
     }
     delete fileTree('data/codepo_gb') {
         include '**/*.csv'
