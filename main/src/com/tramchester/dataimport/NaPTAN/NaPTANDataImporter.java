@@ -33,7 +33,7 @@ public class NaPTANDataImporter {
 
     @Inject
     public NaPTANDataImporter(TramchesterConfig config, CsvMapper mapper, UnzipFetchedData.Ready dataIsReady) {
-            sourceConfig = config.getDataSourceConfig("naptan");
+        sourceConfig = config.getDataSourceConfig("naptan");
         this.mapper = mapper;
         open = false;
     }

@@ -21,7 +21,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private final GTFSSourceConfig gtfsSourceConfig;
     private final RemoteDataSourceConfig remoteTFGMConfig;
     private final boolean liveDataEnabled;
-    private final NaptanRemoteDataSourceConfig remoteNaptanConfig;
 
     public IntegrationTramTestConfig() {
        this(DB_NAME, false);
@@ -41,7 +40,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
                 TransportMode.Tram);
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
-        remoteNaptanConfig = new NaptanRemoteDataSourceConfig("data/naptan");
     }
 
     @Override

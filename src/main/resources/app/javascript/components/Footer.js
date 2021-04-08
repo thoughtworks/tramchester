@@ -41,6 +41,7 @@ export default {
                    Contains Transport for Greater Manchester data.
                    Contains public sector information licensed under the Open Government Licence v2.0 by
                    <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
+                   Contains public sector information licensed under the Open Government Licence v3.0.
                </div>
            </b-row>
             <b-row align-h="start">

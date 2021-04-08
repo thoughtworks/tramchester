@@ -61,7 +61,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         String area = stopData.getArea();
         if (naptanRespository.contains(stationId)) {
             area = getAreaFromNaptanData(stationId);
+        } else {
+            logger.warn("No naptap data found for " + stationId);
         }
+        // TODO Check for duplicate names
+
         return new Station(stationId, area, workAroundName(stopData.getName()),
                 stopData.getLatLong(), position);
     }
