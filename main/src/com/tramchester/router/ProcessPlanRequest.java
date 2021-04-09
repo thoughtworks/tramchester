@@ -14,6 +14,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneyToDTOMapper;
+import com.tramchester.repository.StationRepositoryPublic;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -35,20 +36,20 @@ public class ProcessPlanRequest {
     private final LocationJourneyPlanner locToLocPlanner;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
-    private final TransportData transportData;
+    private final StationRepositoryPublic stationRepository;
     private final PostcodeRepository postcodeRepository;
     private final JourneyToDTOMapper journeyToDTOMapper;
 
     @Inject
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
-                              RouteCalculatorArriveBy routeCalculatorArriveBy, TransportData transportData,
+                              RouteCalculatorArriveBy routeCalculatorArriveBy, TransportData stationRepository,
                               PostcodeRepository postcodeRepository, JourneyToDTOMapper journeyToDTOMapper) {
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
 
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
-        this.transportData = transportData;
+        this.stationRepository = stationRepository;
         this.postcodeRepository = postcodeRepository;
         this.journeyToDTOMapper = journeyToDTOMapper;
     }
@@ -152,12 +153,12 @@ public class ProcessPlanRequest {
     private Station getStation(String locationIdText, String diagnostic) {
 
         StringIdFor<Station> locationId = StringIdFor.createId(locationIdText);
-        if (!transportData.hasStationId(locationId)) {
+        if (!stationRepository.hasStationId(locationId)) {
             String msg = "Unable to find " + diagnostic + " station from id: "+ locationIdText;
             logger.warn(msg);
             throw new RuntimeException(msg);
         }
-        return transportData.getStationById(locationId);
+        return stationRepository.getStationById(locationId);
     }
 
     private boolean isFromUserLocation(String id) {

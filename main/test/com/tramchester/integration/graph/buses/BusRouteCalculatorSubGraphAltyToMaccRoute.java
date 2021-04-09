@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.NoopRegisterMetrics;
+import static com.tramchester.testSupport.TestEnv.deleteDBIfPresent;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,9 +58,9 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         graphFilter.addRoute(ROUTE_ID);
 
         config = new Config("altyMacRoute.db");
-        TestEnv.deleteDBIfPresent(config);
+        deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
@@ -69,7 +71,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        TestEnv.deleteDBIfPresent(config);
+        deleteDBIfPresent(config);
     }
 
     @BeforeEach
@@ -104,10 +106,11 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         assertNotNull(route);
 
         Station start = transportData.getStationById(BusStations.AltrinchamInterchange.getId());
-        Station end = transportData.getStationById(BusStations.KnutsfordStationStand3.getId());
 
         RouteStation routeStation = transportData.getRouteStation(start, route);
         assertNotNull(routeStation);
+
+        Station end = transportData.getStationById(BusStations.KnutsfordStationStand3.getId());
 
         // TODO Rework this test
         IdSet<Station> result = getRouteReachableWithInterchange(routeStation, IdSet.singleton(end.getId()));

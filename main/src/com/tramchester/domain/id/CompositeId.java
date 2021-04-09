@@ -4,6 +4,9 @@ import com.tramchester.domain.GraphProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMAINTYPE> {
@@ -34,7 +37,7 @@ public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMA
     @Override
     public String forDTO() {
         StringBuilder result = new StringBuilder();
-        ids.forEach(id -> {
+        getSorted().forEach(id -> {
             result.append(result.isEmpty() ? "" : DIVIDER);
             result.append(id.forDTO());
         });
@@ -44,11 +47,15 @@ public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMA
     @Override
     public String getGraphId() {
         StringBuilder result = new StringBuilder();
-        ids.forEach(id -> {
+        getSorted().forEach(id -> {
             result.append(result.isEmpty() ? "" : DIVIDER);
             result.append(id.getGraphId());
         });
         return result.toString();
+    }
+
+    private List<IdFor<DOMAINTYPE>> getSorted() {
+        return ids.stream().sorted().collect(Collectors.toList());
     }
 
     @Override

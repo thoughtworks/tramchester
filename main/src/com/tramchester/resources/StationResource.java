@@ -14,6 +14,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -47,7 +48,7 @@ public class StationResource extends UsesRecentCookie  {
     private final TramchesterConfig config;
 
     @Inject
-    public StationResource(StationRepositoryPublic stationRepository,
+    public StationResource(CompositeStationRepository stationRepository,
                            UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations, TramchesterConfig config) {

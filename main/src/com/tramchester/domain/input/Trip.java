@@ -21,6 +21,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
     private int lastIndex;
     private int firstIndex;
 
+    @Deprecated
     public Trip(String tripId, String headSign, Service service, Route route) {
         this(StringIdFor.createId(tripId), headSign, service, route);
     }

@@ -18,13 +18,13 @@ public class TramStationState extends TraversalState {
         public TraversalState fromPlatform(PlatformState platformState, Node node, int cost) {
             return new TramStationState(platformState,
                     filterExcludingEndNode(
-                            node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR, TRAIN_NEIGHBOUR), platformState),
+                            node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR), platformState),
                     cost, node.getId());
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
             return new TramStationState(notStartedState,
-                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, BUS_NEIGHBOUR, TRAIN_NEIGHBOUR),
+                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR),
                     cost, node.getId());
         }
 

@@ -132,12 +132,13 @@ class TransportDataFromFilesBusTest {
     }
 
     @Test
-    void shouldGetStation() {
-        assertTrue(transportData.hasStationId(BusStations.PiccadilyStationStopA.getId()));
-        Station station = transportData.getStationById(BusStations.PiccadilyStationStopA.getId());
-        assertEquals("Piccadilly Station", station.getName());
+    void shouldGetStations() {
 
-        assertFalse(station.hasPlatforms());
+        for(BusStations station : BusStations.values()) {
+            assertTrue(transportData.hasStationId(station.getId()), station.name());
+            Station found = transportData.getStationById(station.getId());
+            assertEquals(station.getName(), found.getName());
+        }
     }
 
     @Disabled("too slow currently for buses")

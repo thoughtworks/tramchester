@@ -186,7 +186,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         });
         if (!missingCalendarDates.isEmpty()) {
-            logger.warn("Failed to find service id " + missingCalendarDates + " for calendar_dates");
+            logger.info("calendar_dates: Failed to find service id " + missingCalendarDates);
         }
         addNoServicesDatesToAllCalendars(services, noServices, missingCalendarDates);
 
@@ -276,7 +276,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         });
         if (!excludedStations.isEmpty()) {
-            logger.warn("Excluded the following station ids: " + excludedStations);
+            logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations);
         }
         logger.info("Loaded " + count.get() + " stop times");
         return addedServices;

@@ -3,19 +3,16 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.CreateNeighbours;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.IncludeAllFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -23,7 +20,8 @@ import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.*;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
@@ -33,28 +31,31 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class CreateNeighboursTest {
 
-    private static StationRepository stationRepository;
+    private StationRepository stationRepository;
     private static RouteCalculatorTestFacade routeCalculator;
+    private static NeighboursTestConfig testConfig;
 
     static class NeighboursTestConfig extends IntegrationTestConfig {
         public NeighboursTestConfig() {
-            super(new GraphDBTestConfig("integrationNeighboursTest", "busAndTram.db"));
+            super(
+                    new GraphDBTestConfig("integrationNeighboursTest", "neighboursBusAndTram.db"));
         }
 
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-            return Collections.singletonList(new TFGMGTFSSourceTestConfig("data/neighbours", TestEnv.tramAndBus,
-                    Collections.singleton(TransportMode.Tram)));
+            return Collections.singletonList(
+                    new TFGMGTFSSourceTestConfig("data/neighbours", TestEnv.tramAndBus,
+                            new HashSet<>(Arrays.asList(Tram, Bus))));
         }
 
         @Override
@@ -64,48 +65,51 @@ class CreateNeighboursTest {
     }
 
     private static ComponentContainer componentContainer;
-    private static TramchesterConfig testConfig;
-    private static GraphQuery graphQuery;
-    private static Transaction txn;
+    private GraphQuery graphQuery;
+    private Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new NeighboursTestConfig();
+
         componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        GraphDatabase database = componentContainer.get(GraphDatabase.class);
-
-        graphQuery = componentContainer.get(GraphQuery.class);
-        stationRepository = componentContainer.get(StationRepository.class);
-        StationLocationsRepository stationLocations = componentContainer.get(StationLocationsRepository.class);
-
-        txn = database.beginTx();
-
-        CreateNeighbours createNeighbours = new CreateNeighbours(database, new IncludeAllFilter(), graphQuery, stationRepository, stationLocations, testConfig);
-        createNeighbours.buildWithNoCommit(txn);
-
-        routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class),
-                stationRepository, txn);
+        // force creation and init
+        componentContainer.get(CreateNeighbours.class);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        txn.rollback();
         componentContainer.close();
     }
 
+    @BeforeEach
+    void onceBeforeEachTest() {
+        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        graphQuery = componentContainer.get(GraphQuery.class);
+
+        txn = graphDatabase.beginTx();
+        routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+    }
+
+    @AfterEach
+    void afterEachTestRuns() {
+        txn.close();
+    }
+
     @Test
-    void shouldCreateNeighbourRelationships() {
+    void shouldHaveExpectedNeighbourRelationships() {
 
         Node shudehillTramNode = graphQuery.getStationNode(txn, TramStations.of(TramStations.Shudehill));
-        Iterable<Relationship> busOutbounds = shudehillTramNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.BUS_NEIGHBOUR);
+        Iterable<Relationship> busOutbounds = shudehillTramNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.NEIGHBOUR);
         assertTrue(seenNode(txn, BusStations.ShudehillInterchange, busOutbounds, Relationship::getEndNode));
 
-        Iterable<Relationship> tramOutbounds = shudehillTramNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.TRAM_NEIGHBOUR);
+        Iterable<Relationship> tramOutbounds = shudehillTramNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.NEIGHBOUR);
         assertTrue(seenNode(txn, TramStations.of(TramStations.Victoria), tramOutbounds,  Relationship::getEndNode));
 
-        Iterable<Relationship> inbounds = shudehillTramNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.TRAM_NEIGHBOUR);
+        Iterable<Relationship> inbounds = shudehillTramNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.NEIGHBOUR);
         assertTrue(seenNode(txn, BusStations.ShudehillInterchange, inbounds, Relationship::getStartNode));
         assertTrue(seenNode(txn, TramStations.of(TramStations.Victoria), inbounds, Relationship::getStartNode));
     }
@@ -135,7 +139,7 @@ class CreateNeighboursTest {
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
             TransportStage<?,?> stage = journey.getStages().get(0);
-            assertEquals(TransportMode.Tram, stage.getMode());
+            assertEquals(Tram, stage.getMode());
         });
     }
 
@@ -155,7 +159,7 @@ class CreateNeighboursTest {
 
         maybeTram.forEach(journey -> {
             TransportStage<?,?> first = journey.getStages().get(0);
-            assertEquals(TransportMode.Tram, first.getMode());
+            assertEquals(Tram, first.getMode());
             TransportStage<?,?> second = journey.getStages().get(1);
             assertEquals(TransportMode.Connect, second.getMode());
         });

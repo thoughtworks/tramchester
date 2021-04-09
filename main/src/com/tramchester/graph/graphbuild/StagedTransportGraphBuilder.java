@@ -22,7 +22,6 @@ import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -87,12 +86,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             logger.info("Graph rebuild is finished for " + config.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
-            nodeIdLabelMap.populateNodeLabelMap(graphDatabase);
+            nodeTypeRepository.populateNodeLabelMap(graphDatabase);
         }
     }
 
-    @Override
-    protected void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
+    private void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
         logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
 
@@ -157,8 +155,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 // route relationships
                 createRouteRelationships(tx, filter, route, builderCache);
 
-                Stream<Service> services = getServices(filter, route);
-                buildGraphForServiceHourAndMinutes(filter, route, builderCache, services, tx);
+                buildGraphForServiceHourAndMinutes(filter, route, builderCache, tx);
 
                 timedTransaction.commit();
             }
@@ -168,7 +165,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void buildGraphForServiceHourAndMinutes(GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache,
-                                                    Stream<Service> services, Transaction tx) {
+                                                    Transaction tx) {
 
             // nodes for services and hours
             createServiceAndHourNodesForServices(tx, filter, route, route.getTrips(), routeBuilderCache);
@@ -288,11 +285,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    @NotNull
-    private Stream<Service> getServices(GraphFilter filter, Route route) {
-        return route.getServices().stream().filter(filter::shouldInclude);
-    }
-
     private void createBoardingAndDeparts(Transaction tx, GraphFilter filter, Route route, Trip trip, GraphBuilderCache routeBuilderCache) {
         StopCalls stops = trip.getStopCalls();
 
@@ -344,7 +336,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
             // this is normal for trains, timetable lists all passed stations, whether train stops or not
-            logger.warn("No pickup or dropoff for " + stopCall.toString());
+            logger.warn("No pickup or dropoff for " + stopCall);
         }
     }
 

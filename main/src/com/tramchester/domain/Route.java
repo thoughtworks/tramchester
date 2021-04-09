@@ -29,6 +29,7 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
                     TransportMode.Walk);
     }
 
+    @Deprecated
     public Route(String id, String shortName, String name, Agency agency, TransportMode transportMode) {
         this(StringIdFor.createId(id), shortName, name, agency, transportMode);
     }

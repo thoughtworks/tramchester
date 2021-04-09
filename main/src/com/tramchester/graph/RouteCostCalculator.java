@@ -7,6 +7,9 @@ import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
+import org.reflections.vfs.Vfs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
@@ -15,6 +18,8 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 @LazySingleton
 public class RouteCostCalculator {
+    private static final Logger logger = LoggerFactory.getLogger(RouteCostCalculator.class);
+
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;
 
@@ -37,7 +42,14 @@ public class RouteCostCalculator {
 
     public int getApproxCostBetween(Transaction txn, Station startStation, Station endStation) {
         Node startNode = graphQuery.getStationNode(txn, startStation);
+        if (startNode==null) {
+            throw new RuntimeException("Could not find start node for " + startStation.getId());
+        }
         Node endNode = graphQuery.getStationNode(txn, endStation);
+        if (endNode==null) {
+            throw new RuntimeException("Could not find end node for " + endStation.getId());
+        }
+
         return getApproxCostBetween(txn, startNode, endNode);
     }
 
@@ -48,7 +60,12 @@ public class RouteCostCalculator {
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
+
         WeightedPath path = finder.findSinglePath(startNode, endNode);
+        if (path==null) {
+            logger.error("No path found ");
+            return -1;
+        }
         double weight  = Math.floor(path.weight());
         return (int) weight;
     }
@@ -64,7 +81,8 @@ public class RouteCostCalculator {
                 INTERCHANGE_DEPART, Direction.OUTGOING,
                 WALKS_TO, Direction.OUTGOING,
                 WALKS_FROM, Direction.OUTGOING,
-                FINISH_WALK, Direction.OUTGOING
+                FINISH_WALK, Direction.OUTGOING,
+                NEIGHBOUR, Direction.OUTGOING
         );
     }
 }

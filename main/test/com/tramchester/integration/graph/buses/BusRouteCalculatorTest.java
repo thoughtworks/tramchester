@@ -71,7 +71,7 @@ class BusRouteCalculatorTest {
 
     @BusTest
     @Test
-    void shouldHaveStockToALtyJourneyAndBackAgain() {
+    void shouldHaveStockToAltyJourneyAndBackAgain() {
         TramTime travelTime = TramTime.of(8, 0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
@@ -102,7 +102,7 @@ class BusRouteCalculatorTest {
                 maxJourneyDuration);
         Set<Journey> journeys = calculator.calculateRouteAsSet(AltrinchamInterchange, KnutsfordStationStand3, request);
 
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "no journeys");
     }
 
     @BusTest

@@ -109,9 +109,7 @@ public class MapPathToStages {
                 case TO_HOUR:
                 case FINISH_WALK:
                     break;
-                case TRAIN_NEIGHBOUR:
-                case TRAM_NEIGHBOUR:
-                case BUS_NEIGHBOUR:
+                case NEIGHBOUR:
                     results.add(state.walkBetween(relationship));
                     break;
                 default:

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public abstract class GraphBuilder  {
+public abstract class GraphBuilder extends CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(GraphBuilder.class);
 
     protected static final int INTERCHANGE_DEPART_COST = 1;
@@ -46,7 +46,8 @@ public abstract class GraphBuilder  {
         HOUR,
         MINUTE,
         VERSION,
-        NEIGHBOURS_ENABLED;
+        NEIGHBOURS_ENABLED,
+        COMPOSITES_ADDED;
 
         public static Labels forMode(TransportMode mode) {
             return switch (mode) {
@@ -77,43 +78,14 @@ public abstract class GraphBuilder  {
 
     protected final GraphDBConfig config;
     protected final GraphFilter graphFilter;
-    protected final GraphDatabase graphDatabase;
     protected final GraphBuilderCache builderCache;
-    protected final NodeTypeRepository nodeIdLabelMap;
-
-    private int numberNodes;
-    private int numberRelationships;
 
     protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, TramchesterConfig config,
                            GraphBuilderCache builderCache, NodeTypeRepository nodeIdLabelMap) {
-        this.graphDatabase = graphDatabase;
+        super(graphDatabase, nodeIdLabelMap);
         this.config = config.getGraphDBConfig();
         this.graphFilter = graphFilter;
         this.builderCache = builderCache;
-        this.nodeIdLabelMap = nodeIdLabelMap;
-        numberNodes = 0;
-        numberRelationships = 0;
-    }
-
-    protected abstract void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache);
-
-    protected Node createGraphNode(Transaction tx, Labels label) {
-        numberNodes++;
-        Node node = graphDatabase.createNode(tx, label);
-        nodeIdLabelMap.put(node.getId(), label);
-        return node;
-    }
-
-    protected Node createGraphNode(Transaction tx, Set<Labels> labels) {
-        numberNodes++;
-        Node node = graphDatabase.createNode(tx, labels);
-        nodeIdLabelMap.put(node.getId(), labels);
-        return node;
-    }
-
-    protected Relationship createRelationship(Node start, Node end, TransportRelationshipTypes relationshipType) {
-        numberRelationships++;
-        return start.createRelationshipTo(end, relationshipType);
     }
 
     protected void logMemory(String prefix) {
@@ -121,8 +93,4 @@ public abstract class GraphBuilder  {
                 Runtime.getRuntime().freeMemory(), Runtime.getRuntime().totalMemory()));
     }
 
-    protected void reportStats() {
-        logger.info("Nodes created: " + numberNodes);
-        logger.info("Relationships created: " + numberRelationships);
-    }
 }

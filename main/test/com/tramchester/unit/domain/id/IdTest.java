@@ -15,15 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class IdTest {
 
     private final IdFor<Station> idA = StringIdFor.createId("1234");
-    private final IdFor<Station> idB = StringIdFor.createId("1234");
+    private final IdFor<Station> idAA = StringIdFor.createId("1234");
+    private final IdFor<Station> idB = StringIdFor.createId("0BCD");
     private final IdFor<Station> idC = StringIdFor.createId("5678");
 
     @Test
     void shouldHaveEquality() {
 
         assertEquals(idA, idA);
-        assertEquals(idA, idB);
-        assertEquals(idB, idA);
+        assertEquals(idA, idAA);
+        assertEquals(idAA, idA);
 
         assertNotEquals(idA, idC);
         assertNotEquals(idC, idA);
@@ -43,6 +44,11 @@ class IdTest {
         assertNotEquals(compositeIdA, compositeIdC);
         assertNotEquals(compositeIdC, compositeIdA);
 
+        assertEquals("0BCD_1234", compositeIdA.forDTO());
+        assertEquals("0BCD_1234", compositeIdA.getGraphId());
+
+        assertEquals(compositeIdA.forDTO(), compositeIdB.forDTO());
+        assertEquals(compositeIdA.getGraphId(), compositeIdB.getGraphId());
     }
 
     @Test
@@ -51,7 +57,7 @@ class IdTest {
         IdFor<Route> routeB = StringIdFor.createId("routeB");
 
         IdFor<RouteStation> compositeIdA = MixedCompositeId.createId(routeA, idA);
-        IdFor<RouteStation> compositeIdB = MixedCompositeId.createId(routeA, idB);
+        IdFor<RouteStation> compositeIdB = MixedCompositeId.createId(routeA, idA);
         IdFor<RouteStation> compositeIdC = MixedCompositeId.createId(routeB, idA);
 
         assertEquals(compositeIdA, compositeIdA);

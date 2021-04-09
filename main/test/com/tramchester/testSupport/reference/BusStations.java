@@ -65,6 +65,10 @@ public enum BusStations implements TestStations {
         return station.getProp();
     }
 
+    public String getName() {
+        return station.getName();
+    }
+
     public String forDTO() {
         return getId().forDTO();
     }

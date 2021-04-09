@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
@@ -30,7 +31,6 @@ class CompositeStationRepositoryTest {
     private StationRepository fullRepository;
 
     private static ComponentContainer componentContainer;
-    private Set<Station> allFromComposite;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -47,14 +47,13 @@ class CompositeStationRepositoryTest {
     void onceBeforeEachTestRuns() {
         repository = componentContainer.get(CompositeStationRepository.class);
         fullRepository = componentContainer.get(StationRepository.class);
-        allFromComposite = repository.getStationsForMode(Bus);
     }
 
     @Test
     void shouldNotHaveDuplicateNamesForStations() {
         Set<String> uniqueNames = new HashSet<>();
 
-        allFromComposite.forEach(station -> {
+        repository.getStationsForMode(Bus).forEach(station -> {
             String name = station.getName();
             assertFalse(uniqueNames.contains(name), "Not unique " + station.getId() + " " + name);
             uniqueNames.add(name);
@@ -63,7 +62,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldHaveCorrectNumberOfComposites() {
-        assertFalse(allFromComposite.isEmpty());
+        assertFalse(repository.getStationsForMode(Bus).isEmpty());
 
         long duplicateNamesFromFullRepository = fullRepository.getStations().stream().map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
@@ -79,7 +78,7 @@ class CompositeStationRepositoryTest {
     void shouldHaveUniqueIds() {
         IdSet<Station> uniqueIds = new IdSet<>();
 
-        allFromComposite.forEach(station -> {
+        repository.getStationsForMode(Bus).forEach(station -> {
             IdFor<Station> id = station.getId();
             assertFalse(uniqueIds.contains(id), "Not unique " + id);
             uniqueIds.add(id);
@@ -88,7 +87,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldHaveAndFindCorrectlyForComposites() {
-        Set<Station> compositesFor = repository.getCompositesFor(Bus);
+        Set<CompositeStation> compositesFor = repository.getCompositesFor(Bus);
         assertFalse(compositesFor.isEmpty());
 
         compositesFor.forEach(station -> {

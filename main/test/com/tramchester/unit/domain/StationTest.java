@@ -2,19 +2,17 @@ package com.tramchester.unit.domain;
 
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.reference.KnownTramRoute;
-import com.tramchester.domain.reference.RouteDirection;
-import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.KnownTramRoute;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.RoutesForTesting;
 import org.junit.jupiter.api.Test;
-import org.opengis.referencing.operation.TransformException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class StationTest {
 
     @Test
-    void testShouldSetTramNameCorrecly() throws TransformException {
+    void testShouldSetTramNameCorrecly() {
         Station tramStation = TestStation.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Tram);
 
@@ -35,7 +33,7 @@ class StationTest {
     }
 
     @Test
-    void testShouldSetBusNameCorrecly() throws TransformException {
+    void testShouldSetBusNameCorrecly() {
         Station busStation = TestStation.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), TransportMode.Bus);
 

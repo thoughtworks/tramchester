@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RouteCalculatorTestFacade {
-    private final RouteCalculator theCalulcator;
+    private final RouteCalculator routeCalculator;
     private final StationRepository repository;
     private final Transaction txn;
 
-    public RouteCalculatorTestFacade(RouteCalculator theCalulcator, StationRepository repository, Transaction txn) {
-       this.theCalulcator = theCalulcator;
+    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository repository, Transaction txn) {
+       this.routeCalculator = routeCalculator;
         this.repository = repository;
         this.txn = txn;
     }
@@ -32,21 +32,21 @@ public class RouteCalculatorTestFacade {
 
     @NotNull
     public Set<Journey> calculateRouteAsSet(Station start, Station dest, JourneyRequest request) {
-        Stream<Journey> stream = theCalulcator.calculateRoute(txn, start, dest, request);
+        Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request);
         Set<Journey> result = stream.collect(Collectors.toSet());
         stream.close();
         return result;
     }
 
     public Set<Journey> calculateRouteAsSet(TestStations start, TestStations dest, JourneyRequest request, int maxToReturn) {
-        Stream<Journey> stream = theCalulcator.calculateRoute(txn, real(start), real(dest), request);
+        Stream<Journey> stream = routeCalculator.calculateRoute(txn, real(start), real(dest), request);
         Set<Journey> result = stream.limit(maxToReturn).collect(Collectors.toSet());
         stream.close();
         return result;
     }
 
     public Set<Journey> calculateRouteAsSet(IdFor<Station> start, IdFor<Station> dest, JourneyRequest request, int maxToReturn) {
-        Stream<Journey> stream = theCalulcator.calculateRoute(txn, get(start), get(dest), request);
+        Stream<Journey> stream = routeCalculator.calculateRoute(txn, get(start), get(dest), request);
         Set<Journey> result = stream.limit(maxToReturn).collect(Collectors.toSet());
         stream.close();
         return result;

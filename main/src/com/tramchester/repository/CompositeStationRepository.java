@@ -3,9 +3,10 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.CompositeId;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -35,16 +36,18 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
     private final IdSet<Station> isUnderlyingStationComposite;
-    private final IdMap<Station> compositeStations;
-    private final Set<String> compositeNames;
+
+    // TODO use IdMap<CompositeStation>
+    private final Map<IdFor<Station>, CompositeStation> compositeStations;
+    private final Map<String, CompositeStation> compositeStationsByName;
 
     @Inject
     public CompositeStationRepository(StationRepository stationRepository, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.config = config;
         isUnderlyingStationComposite = new IdSet<>();
-        compositeStations = new IdMap<>();
-        compositeNames = new HashSet<>();
+        compositeStations = new HashMap<>();
+        compositeStationsByName = new HashMap<>();
     }
 
     @PostConstruct
@@ -52,7 +55,6 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         logger.info("starting");
         Set<TransportMode> modes = config.getTransportModes();
         modes.forEach(this::capture);
-        compositeNames.clear();
         logger.info("started");
     }
 
@@ -93,47 +95,38 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         groupdedByArea.forEach((area, stations) -> addComposite(mode, nonUniqueName, area, stations));
     }
 
-    private void addComposite(TransportMode mode, String nonUniqueName, String area, Set<Station> stationsWithSameName) {
+    private void addComposite(TransportMode mode, String nonUniqueName, String area, Set<Station> stationsToGroup) {
+        if (stationsToGroup.size()==1) {
+            Station single = stationsToGroup.iterator().next();
+            logger.debug(format("Not grouping for area:%s name:%s as single station matched id:%s",
+                    area, nonUniqueName, single.getId()));
+            return;
+        }
 
-        IdFor<Station> newId = createIdFor(stationsWithSameName);
-        logger.debug(format("Create id:%s name:%s mode:%s area:%s", newId, nonUniqueName, mode, area));
-        LatLong latLong = findLocationFor(stationsWithSameName);
-        GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
+        logger.debug(format("Create for ids:%s name:%s mode:%s area:%s", HasId.asIds(stationsToGroup), nonUniqueName, mode, area));
 
-        String compositeName = attemptUnqiueName(nonUniqueName, area, newId);
+        String compositeName = attemptUnqiueName(nonUniqueName, area, stationsToGroup);
+        CompositeStation compositeStation = new CompositeStation(stationsToGroup, area, compositeName);
 
-        Station compositeStation = new Station(newId, area, compositeName, latLong, gridPosition);
-        stationsWithSameName.stream().flatMap(station -> station.getRoutes().stream()).forEach(compositeStation::addRoute);
-        compositeStations.add(compositeStation);
+        stationsToGroup.stream().flatMap(station -> station.getRoutes().stream()).forEach(compositeStation::addRoute);
+        compositeStations.put(compositeStation.getId(), compositeStation);
+        compositeStationsByName.putIfAbsent(compositeName, compositeStation); // see attemptUnqiueName, might fail to get unique name
 
-        stationsWithSameName.stream().map(Station::getId).collect(IdSet.idCollector()).forEach(isUnderlyingStationComposite::add);
+        stationsToGroup.stream().map(Station::getId).collect(IdSet.idCollector()).forEach(isUnderlyingStationComposite::add);
     }
 
-    private String attemptUnqiueName(String nonUniqueName, String area, IdFor<Station> newId) {
+    private String attemptUnqiueName(String nonUniqueName, String area, Set<Station> stations) {
         String compositeName = nonUniqueName;
-        if (compositeNames.contains(compositeName)) {
+        if (compositeStationsByName.containsKey(compositeName)) {
             compositeName = compositeName + ", " + area;
-            if (compositeNames.contains(compositeName)) {
-                logger.warn(format("Unable to create unqiue name for %s, tried %s and %s ", newId, nonUniqueName, compositeName));
+            if (compositeStationsByName.containsKey(compositeName)) {
+                logger.warn(format("Unable to create unqiue name for %s, tried %s and stations %s ",
+                        HasId.asIds(stations), nonUniqueName, compositeName));
             }
-        } else {
-            compositeNames.add(compositeName);
         }
         return compositeName;
     }
 
-    private LatLong findLocationFor(Set<Station> stations) {
-        double lat = stations.stream().mapToDouble(station -> station.getLatLong().getLat()).
-                average().orElse(Double.NaN);
-        double lon = stations.stream().mapToDouble(station -> station.getLatLong().getLon()).
-                average().orElse(Double.NaN);
-        return new LatLong(lat, lon);
-    }
-
-    private IdFor<Station> createIdFor(Set<Station> stations) {
-        IdSet<Station> ids = stations.stream().map(Station::getId).collect(IdSet.idCollector());
-        return new CompositeId<>(ids);
-    }
 
     @Override
     public Set<Station> getStationsForMode(TransportMode mode) {
@@ -146,7 +139,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     @Override
     public Station getStationById(IdFor<Station> stationId) {
-        if (compositeStations.hasId(stationId)) {
+        if (compositeStations.containsKey(stationId)) {
             return compositeStations.get(stationId);
         }
         return stationRepository.getStationById(stationId);
@@ -154,14 +147,14 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     @Override
     public boolean hasStationId(IdFor<Station> stationId) {
-        if (compositeStations.hasId(stationId)) {
+        if (compositeStations.containsKey(stationId)) {
             return true;
         }
         return stationRepository.hasStationId(stationId);
     }
 
     public IdSet<Station> resolve(IdFor<Station> id) {
-        if (!compositeStations.hasId(id)) {
+        if (!compositeStations.containsKey(id)) {
             logger.warn(id + " was not a composite station");
             return IdSet.singleton(id);
         }
@@ -173,7 +166,13 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         return compositeStations.size();
     }
 
-    public Set<Station> getCompositesFor(TransportMode mode) {
-        return compositeStations.filterStream(item -> item.getTransportModes().contains(mode)).collect(Collectors.toSet());
+    public Set<CompositeStation> getCompositesFor(TransportMode mode) {
+        return compositeStations.values().stream().
+                filter(item -> item.getTransportModes().contains(mode)).
+                collect(Collectors.toSet());
+    }
+
+    public CompositeStation findByName(String name) {
+        return compositeStationsByName.get(name);
     }
 }

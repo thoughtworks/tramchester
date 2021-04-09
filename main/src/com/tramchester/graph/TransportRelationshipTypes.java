@@ -27,9 +27,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     TO_HOUR,
     TO_MINUTE,
     ON_ROUTE,
-    TRAM_NEIGHBOUR,
-    BUS_NEIGHBOUR,
-    TRAIN_NEIGHBOUR,
+    NEIGHBOUR,
     LINKED;
 
     private static final TransportRelationshipTypes[] forPlanning;
@@ -57,9 +55,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     }
 
     public static boolean isNeighbour(Relationship relationship) {
-        return relationship.isType(TRAM_NEIGHBOUR) ||
-                relationship.isType(TRAIN_NEIGHBOUR) ||
-                relationship.isType(BUS_NEIGHBOUR);
+        return relationship.isType(NEIGHBOUR);
     }
 
     public static boolean hasCost(TransportRelationshipTypes relationshipType) {

@@ -78,8 +78,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    @Override
-    protected void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
+    private void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
         logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
 
@@ -224,14 +223,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         builderCache.putRouteStation(routeStation.getId(), routeStationNode);
     }
 
-    private Node createStationNode(Transaction tx, Station station) {
-
-        Set<Labels> labels = Labels.forMode(station.getTransportModes());
-        logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
-        Node stationNode = createGraphNode(tx, labels);
-        setProperty(stationNode, station);
-        return stationNode;
-    }
 
     public static class Ready {
         private Ready() {

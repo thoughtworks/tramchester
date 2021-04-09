@@ -3,30 +3,26 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
-import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
 @LazySingleton
-public class CreateNeighbours {
+public class CreateNeighbours extends CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(CreateNeighbours.class);
 
     private final GraphDatabase database;
@@ -46,7 +42,8 @@ public class CreateNeighbours {
 
     @Inject
     public CreateNeighbours(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery, StationRepository repository,
-                            StationLocationsRepository stationLocations, TramchesterConfig config) {
+                            StationLocationsRepository stationLocations, TramchesterConfig config, NodeTypeRepository nodeTypeRepository) {
+        super(database, nodeTypeRepository);
         this.database = database;
         this.filter = filter;
         this.graphQuery = graphQuery;
@@ -72,10 +69,11 @@ public class CreateNeighbours {
         catch (Exception exception) {
             logger.error("Caught exception during neighbouring station add", exception);
         }
+        reportStats();
         logger.info("Started");
     }
 
-    public void buildWithNoCommit(Transaction txn) {
+    private void buildWithNoCommit(Transaction txn) {
         if (hasDBFlag(txn)) {
             logger.warn("Node NEIGHBOURS_ENABLED present, assuming neighbours already built");
         } else {
@@ -92,9 +90,7 @@ public class CreateNeighbours {
     }
 
     private boolean hasDBFlag(Transaction txn) {
-        ResourceIterator<Node> query = database.findNodes(txn, GraphBuilder.Labels.NEIGHBOURS_ENABLED);
-        List<Node> nodes = query.stream().collect(Collectors.toList());
-        return !nodes.isEmpty();
+        return graphQuery.hasAnyNodesWithLabel(txn, GraphBuilder.Labels.NEIGHBOURS_ENABLED);
     }
 
     private void addDBFlag(Transaction txn) {
@@ -102,48 +98,29 @@ public class CreateNeighbours {
     }
 
     private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Stream<Station> others) {
-        logger.info("Adding neighbour relations from " + from.getId()); // + " to " + HasId.asIds(others));
+        Node fromNode = graphQuery.getStationNode(txn, from);
+        if (fromNode==null) {
+            String msg = "Could not find database node for from: " + from.getId();
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
         double mph = config.getWalkingMPH();
-        final Node stationNode = graphQuery.getStationNode(txn, from);
-        if (stationNode!=null) {
-            others.filter(filter::shouldInclude).forEach(other -> {
-                Node otherNode = graphQuery.getStationNode(txn, other);
-                Set<RelationshipType> relationTypes = getRelationTypes(other);
+        logger.info("Adding neighbour relations from " + from.getId()); // + " to " + HasId.asIds(others));
+        others.filter(filter::shouldInclude).forEach(to -> {
 
-                relationTypes.forEach(relationType ->
-                        addNeighbourRelationship(relationType, from, stationNode, mph, other, otherNode));
-            });
-        } else {
-            logger.warn("Cannot add neighbours for station, no node found, station: "+from.getId());
-        }
-    }
+            Node toNode = graphQuery.getStationNode(txn, to);
+            if (toNode==null) {
+                String msg = "Could not find database node for to: " + to.getId();
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            }
 
-    private void addNeighbourRelationship(RelationshipType relationType, Station from, Node fromNode, double mph, Station other, Node otherNode) {
-        Set<Long> already = new HashSet<>();
-        fromNode.getRelationships(Direction.OUTGOING, relationType).
-                forEach(relationship -> already.add(relationship.getEndNode().getId()));
-
-        if (!already.contains(otherNode.getId())) {
-            Relationship relationship = fromNode.createRelationshipTo(otherNode, relationType);
-            GraphProps.setCostProp(relationship, CoordinateTransforms.calcCostInMinutes(from, other, mph));
-        } else {
-            logger.info("Relationship of type " + relationType + " already present from " + from + " to " + other);
-        }
-    }
-
-    private Set<RelationshipType> getRelationTypes(Station end) {
-        Set<TransportMode> endModes = end.getTransportModes();
-        return endModes.stream().map(this::getRelationType).collect(Collectors.toSet());
-    }
-
-    @NotNull
-    private TransportRelationshipTypes getRelationType(TransportMode mode) {
-        return switch (mode) {
-            case Tram -> TransportRelationshipTypes.TRAM_NEIGHBOUR;
-            case Bus -> TransportRelationshipTypes.BUS_NEIGHBOUR;
-            case Train -> TransportRelationshipTypes.TRAIN_NEIGHBOUR;
-            default -> throw new RuntimeException("Unsupported mode " + mode);
-        };
+            int cost = CoordinateTransforms.calcCostInMinutes(from, to, mph);
+            if (!addNeighbourRelationship(fromNode, toNode, cost)) {
+                logger.info(format("Already neighbour link from %s to %s", from.getId(), to.getId()));
+            }
+        });
     }
 
 }

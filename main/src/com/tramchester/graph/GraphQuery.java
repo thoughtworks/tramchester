@@ -7,16 +7,14 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @LazySingleton
 public class GraphQuery {
@@ -52,5 +50,11 @@ public class GraphQuery {
         List<Relationship> result = new LinkedList<>();
         routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(result::add);
         return result;
+    }
+
+    public boolean hasAnyNodesWithLabel(Transaction txn, GraphBuilder.Labels label) {
+        ResourceIterator<Node> query = graphDatabase.findNodes(txn, label);
+        List<Node> nodes = query.stream().collect(Collectors.toList());
+        return !nodes.isEmpty();
     }
 }
