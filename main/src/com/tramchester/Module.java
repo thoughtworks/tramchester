@@ -13,6 +13,7 @@ import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.NodeIdLabelMap;
 import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -65,6 +66,11 @@ public class Module<T extends TransportDataFactory>  extends AbstractModule {
 
     @Provides
     StagedTransportGraphBuilder.Ready providesReadyToken(StagedTransportGraphBuilder graphBuilder) {
+        return graphBuilder.getReady();
+    }
+
+    @Provides
+    CompositeStationGraphBuilder.Ready providesReadyToken(CompositeStationGraphBuilder graphBuilder) {
         return graphBuilder.getReady();
     }
 

@@ -7,9 +7,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.RouteRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
@@ -31,63 +31,108 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
 
     private final GraphDatabase graphDatabase;
     private final CompositeStationRepository stationRepository;
+    private final RouteRepository routeRepository;
     private final TramchesterConfig config;
-    private final GraphQuery graphQuery;
+    private final GraphFilter graphFilter;
+
+    // NOTE: cannot use graphquery here as creates a circular dependency on this class
+    //private final GraphQuery graphQuery;
 
     @Inject
-    public CompositeStationGraphBuilder(GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository, CompositeStationRepository stationRepository,
-                                        TramchesterConfig config, GraphQuery graphQuery,
+    public CompositeStationGraphBuilder(GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository,
+                                        CompositeStationRepository stationRepository, RouteRepository routeRepository,
+                                        TramchesterConfig config, GraphFilter graphFilter,
                                         StagedTransportGraphBuilder.Ready mainGraphIsBuilt) {
         super(graphDatabase, nodeTypeRepository);
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
+        this.routeRepository = routeRepository;
         this.config = config;
-        this.graphQuery = graphQuery;
+        this.graphFilter = graphFilter;
     }
 
     @PostConstruct
     private void start() {
         logger.info("starting");
-        config.getTransportModes().forEach(this::addCompositeNodesAndLinks);
-        reportStats();
+        addCompositesStationsToDB();
         logger.info("started");
+    }
+
+    private void addCompositesStationsToDB() {
+        try(Transaction txn = graphDatabase.beginTx()) {
+            if (hasDBFlag(txn)) {
+                logger.info("Already present in DB");
+                return;
+            }
+        }
+        config.getTransportModes().forEach(this::addCompositeNodesAndLinks);
+        try(Transaction txn = graphDatabase.beginTx()) {
+            addDBFlag(txn);
+        }
+        reportStats();
+    }
+
+    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
+    public Ready getReady() {
+        return new Ready();
     }
 
     private void addCompositeNodesAndLinks(TransportMode mode) {
         Set<CompositeStation> allComposite = stationRepository.getCompositesFor(mode);
 
+        if (allComposite.isEmpty()) {
+            logger.info("No composite stations for " + mode);
+            return;
+        }
+
+        logger.info("Adding composite stations to database for mode " + mode);
         try(Transaction txn = graphDatabase.beginTx()) {
-            if (hasDBFlag(txn)) {
-                logger.warn("Composites already added, DB flag is present");
-            } else {
-                logger.info("Adding composite stations to database");
-                allComposite.forEach(compositeStation -> {
+            allComposite.stream().filter(graphFilter::shouldInclude).
+                filter(station -> graphFilter.shouldInclude(routeRepository, station.getRoutes())).
+                forEach(compositeStation -> {
                     Node stationNode = createStationNode(txn, compositeStation);
-                    Set<Station> contained = compositeStation.getContained();
-                    linkStations(txn, stationNode, compositeStation, contained);
-                });
-                addDBFlag(txn);
-                txn.commit();
-            }
+                    linkStations(txn, mode, stationNode, compositeStation);
+            });
+            txn.commit();
         }
     }
 
-    private void linkStations(Transaction txn, Node startNode, CompositeStation start, Set<Station> stations) {
+    private void linkStations(Transaction txn, TransportMode mode, Node startNode, CompositeStation parent) {
+        Set<Station> stations = parent.getContained();
         double mph = config.getWalkingMPH();
-        stations.forEach(station -> {
-            int cost = CoordinateTransforms.calcCostInMinutes(start, station, mph);
-            Node otherNode = graphQuery.getStationNode(txn, station);
-            addNeighbourRelationship(startNode, otherNode, cost);
-            addNeighbourRelationship(otherNode, startNode, cost);
+
+        stations.stream().
+                filter(graphFilter::shouldInclude).
+                filter(station -> graphFilter.shouldInclude(routeRepository, station.getRoutes())).
+                forEach(station -> {
+                    int cost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
+                    Node otherNode = getStationNode(txn, mode, station);
+                    if (otherNode==null) {
+                        throw new RuntimeException("cannot find node for " + station);
+                    }
+                    addNeighbourRelationship(startNode, otherNode, cost);
+                    addNeighbourRelationship(otherNode, startNode, cost);
         });
     }
 
+    private Node getStationNode(Transaction txn, TransportMode mode, Station station) {
+        GraphBuilder.Labels label = GraphBuilder.Labels.forMode(mode);
+        return graphDatabase.findNode(txn, label, station.getProp().getText(), station.getId().getGraphId());
+    }
+
     private boolean hasDBFlag(Transaction txn) {
-        return graphQuery.hasAnyNodesWithLabel(txn, GraphBuilder.Labels.COMPOSITES_ADDED);
+        ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphBuilder.Labels.COMPOSITES_ADDED);
+        List<Node> nodes = query.stream().collect(Collectors.toList());
+        return !nodes.isEmpty();
     }
 
     private void addDBFlag(Transaction txn) {
         txn.createNode(GraphBuilder.Labels.COMPOSITES_ADDED);
+    }
+
+    public static class Ready {
+        private Ready() {
+        }
     }
 
 }

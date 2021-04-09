@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.*;
@@ -22,7 +23,8 @@ public class GraphQuery {
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public GraphQuery(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+    public GraphQuery(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready dbReady,
+                      CompositeStationGraphBuilder.Ready compositeStationsReady) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
     }

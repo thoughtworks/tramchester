@@ -18,7 +18,7 @@ import java.util.Set;
  * Test Support Only
  */
 public class ActiveGraphFilter implements GraphFilter {
-    private final IdSet<Route> routeCodes;
+    private final IdSet<Route> routeIds;
     private final Set<KnownTramRoute> knownTramRoutes;
     private final IdSet<Service> serviceIds;
     private final IdSet<Station> stationsIds;
@@ -26,11 +26,12 @@ public class ActiveGraphFilter implements GraphFilter {
     private boolean loadedRealRouteIds;
 
     public ActiveGraphFilter() {
-        loadedRealRouteIds = false;
-        routeCodes = new IdSet<>();
+        routeIds = new IdSet<>();
         serviceIds = new IdSet<>();
         stationsIds = new IdSet<>();
         agencyIds = new IdSet<>();
+
+        loadedRealRouteIds = false;
         knownTramRoutes = new HashSet<>();
     }
 
@@ -40,10 +41,10 @@ public class ActiveGraphFilter implements GraphFilter {
     }
 
     public void addRoute(IdFor<Route> id) {
-        routeCodes.add(id);
+        routeIds.add(id);
     }
 
-    public void addRoute(KnownTramRoute tramRoute) {
+    public void addTramRoute(KnownTramRoute tramRoute) {
         knownTramRoutes.add(tramRoute);
     }
 
@@ -60,27 +61,36 @@ public class ActiveGraphFilter implements GraphFilter {
     }
 
     public boolean shouldInclude(RouteRepository routeRepository, Route route) {
-        if (knownTramRoutes.isEmpty()) {
+        loadIfRequired(routeRepository);
+        if (routeIds.isEmpty()) {
             return true;
         }
-        if (!loadedRealRouteIds) {
-            loadReadRouteIds(routeRepository);
-        }
-        if (routeCodes.isEmpty()) {
-            return true;
-        }
-        return routeCodes.contains(route.getId());
+        return routeIds.contains(route.getId());
     }
 
-    private void loadReadRouteIds(RouteRepository routeRepository) {
+    @Override
+    public boolean shouldInclude(RouteRepository routeRepository, Set<Route> routes) {
+        loadIfRequired(routeRepository);
+        if (routeIds.isEmpty()) {
+            return true;
+        }
+        return routes.stream().anyMatch(route -> routeIds.contains(route.getId()));
+    }
+
+
+    private void loadIfRequired(RouteRepository routeRepository) {
+        if (loadedRealRouteIds) {
+            return;
+        }
+        loadedRealRouteIds = true;
+
         if (knownTramRoutes.isEmpty()) {
             return;
         }
         TramRouteHelper routeHelper = new TramRouteHelper(routeRepository);
         for(KnownTramRoute known : knownTramRoutes) {
-            routeCodes.add(routeHelper.getId(known));
+            routeIds.add(routeHelper.getId(known));
         }
-        loadedRealRouteIds = true;
     }
 
     public boolean shouldInclude(Service service) {
@@ -121,8 +131,8 @@ public class ActiveGraphFilter implements GraphFilter {
         if (!agencyIds.isEmpty()) {
             asString.append(" Only agencies:").append(agencyIds).append(" ");
         }
-        if (!routeCodes.isEmpty()) {
-            asString.append(" Only routes:").append(routeCodes).append(" ");
+        if (!routeIds.isEmpty()) {
+            asString.append(" Only routes:").append(routeIds).append(" ");
         }
         if (!serviceIds.isEmpty()) {
             asString.append(" Only services:").append(serviceIds).append(" ");

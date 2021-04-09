@@ -9,6 +9,8 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.RouteRepository;
 
+import java.util.Set;
+
 public class IncludeAllFilter implements GraphFilter {
 
     @Override
@@ -18,6 +20,11 @@ public class IncludeAllFilter implements GraphFilter {
 
     @Override
     public boolean shouldInclude(RouteRepository routeRepository, Route route) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldInclude(RouteRepository routeRepository, Set<Route> route) {
         return true;
     }
 

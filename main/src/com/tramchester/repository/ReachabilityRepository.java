@@ -51,7 +51,6 @@ public class ReachabilityRepository {
     public void start() {
         logger.info("start");
         config.getTransportModes().forEach(this::buildRepository);
-        //buildRepository(TransportMode.Tram);
         logger.info("started");
     }
 
@@ -66,6 +65,7 @@ public class ReachabilityRepository {
         Repository repository = new Repository();
         repositorys.put(mode, repository);
 
+        logger.info(format("Build repository for %s %s routestations", routeStations.size(), mode));
         repository.populateFor(routeStations, routeReachable);
 
         logger.info("Done for " + mode);
@@ -98,7 +98,6 @@ public class ReachabilityRepository {
         }
 
         public void populateFor(Set<RouteStation> startingPoints, RouteReachable routeReachable) {
-            logger.info(format("Build repository for %s routestations", startingPoints.size()));
 
             Set<RouteStation> cannotReachInterchange = new HashSet<>();
 
@@ -114,6 +113,12 @@ public class ReachabilityRepository {
                 IdSet<Station> reachableStations = routeReachable.getReachableStations(start);
                 reachableFrom.put(start.getId(), reachableStations);
             });
+
+            long zeroReachable = reachableFrom.values().stream().filter(IdSet::isEmpty).count();
+            long viaRoute = reachableFrom.size() - zeroReachable;
+
+            logger.info(format("For %s route stations, via interchange %s, route %s, none %s",
+                    startingPoints.size(), canReachInterchange.size(), viaRoute, zeroReachable));
 
             cannotReachInterchange.clear();
         }

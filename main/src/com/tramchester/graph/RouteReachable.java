@@ -85,12 +85,8 @@ public class RouteReachable {
         }
 
         int size = result.size();
-        String msg = format("Found reachability from %s to %s of %s stations", start.getStationId(), size, stationsOnRoute.size());
-        if (size>0) {
-            logger.debug(msg);
-        } else {
-            logger.warn(msg);
-        }
+        logger.debug(format("Found reachability from %s to %s of %s stations", start.getStationId(), size, stationsOnRoute.size()));
+
         return result;
     }
 

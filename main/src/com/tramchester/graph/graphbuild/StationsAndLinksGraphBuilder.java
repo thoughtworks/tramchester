@@ -87,7 +87,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 if (graphFilter.shouldInclude(agency)) {
                     try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding agency " + agency.getId())) {
                         Transaction tx = timedTransaction.transaction();
-                        Stream<Route> routes = agency.getRoutes().stream().filter(route -> graphFilter.shouldInclude(transportData,route));
+                        Stream<Route> routes = agency.getRoutes().stream().filter(route -> graphFilter.shouldInclude(transportData, route));
                         buildGraphForRoutes(tx, graphFilter, routes, builderCache);
                         timedTransaction.commit();
                     }
@@ -167,11 +167,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     }
                 });
             });
-
-        // TODO Was diagnosing issue with Guice DI
-//        if (routeBuilderCache.stationEmpty()) {
-//            throw new RuntimeException("No cached station after station build");
-//        }
 
         pairs.keySet().forEach(pair -> {
             Node startNode = routeBuilderCache.getStation(tx, pair.getBeginId());

@@ -8,10 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.GridPosition;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,16 +56,15 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     }
 
     private void capture(TransportMode mode) {
-
         Set<String> duplicatedNames = getDuplicatedNamesFor(mode);
-
-        logger.warn("Found " + duplicatedNames.size() + " duplicated names for " + mode +
-                " out of " + stationRepository.getNumberOfStations());
 
         if (duplicatedNames.isEmpty()) {
             logger.info("Not creating any composite stations for " + mode);
             return;
         }
+
+        logger.info("Found " + duplicatedNames.size() + " duplicated names for " + mode +
+                " out of " + stationRepository.getNumberOfStations());
 
         Map<String, Set<Station>> groupedByName = stationRepository.getStationsForMode(mode).stream().
                 filter(station -> !station.getArea().isBlank()).
@@ -126,7 +122,6 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         }
         return compositeName;
     }
-
 
     @Override
     public Set<Station> getStationsForMode(TransportMode mode) {
