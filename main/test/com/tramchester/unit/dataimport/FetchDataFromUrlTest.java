@@ -103,7 +103,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException {
         Files.newFile(zipFilename.toAbsolutePath().toString());
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now().
-                plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS+10));
+                plusMinutes(FetchDataFromUrl.DEFAULT_EXPIRY_MINS).plusDays(1));
 
         LocalDateTime fileIsMissingTime = LocalDateTime.MIN;
         EasyMock.expect(downloader.getModTime(expectedDownloadURL)).andReturn(fileIsMissingTime);
