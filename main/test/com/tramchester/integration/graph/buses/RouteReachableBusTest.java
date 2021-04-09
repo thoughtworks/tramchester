@@ -13,10 +13,8 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.reference.BusRoutesForTesting;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,12 +52,12 @@ class RouteReachableBusTest {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        altyToStockportRoute = RoutesForTesting.ALTY_TO_WARRINGTON;
+        altyToStockportRoute = BusRoutesForTesting.ALTY_TO_WARRINGTON;
     }
 
     @Test
     void shouldHaveCorrectReachability() {
-        Route route = RoutesForTesting.ALTY_TO_STOCKPORT;
+        Route route = BusRoutesForTesting.ALTY_TO_STOCKPORT;
         RouteStation routeStation = new RouteStation(BusStations.real(stationRepository,
                 BusStations.AltrinchamInterchange), route);
 
@@ -112,21 +109,4 @@ class RouteReachableBusTest {
         assertEquals(Collections.emptySet(), cutOffRouteStations);
     }
 
-    @Test
-    void shouldHaveAdjacentRoutesCorrectly() {
-        assertEquals(1, getRoutes(BusStations.StockportAtAldi, BusStations.StockportNewbridgeLane).size());
-        assertEquals(0, getRoutes(BusStations.StockportNewbridgeLane, BusStations.StockportAtAldi).size());
-    }
-
-    private List<Route> getRoutes(BusStations start, BusStations neighbour) {
-        return reachable.getRoutesFromStartToNeighbour(getReal(start), getReal(neighbour));
-    }
-
-    private Station getReal(TestStations stations) {
-        return TestStation.real(stationRepository, stations);
-    }
-
-    private RouteStation createRouteStation(Route route, Station station) {
-        return new RouteStation(station, route);
-    }
 }

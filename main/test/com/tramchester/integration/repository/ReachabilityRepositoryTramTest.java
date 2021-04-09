@@ -4,21 +4,22 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.reference.KnownTramRoute;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.RoutesForTesting;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import static com.tramchester.domain.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 
 class ReachabilityRepositoryTramTest {
     private ReachabilityRepository repository;
     private static ComponentContainer componentContainer;
+    private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -33,6 +34,7 @@ class ReachabilityRepositoryTramTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        tramRouteHelper = new TramRouteHelper(componentContainer);
         repository = componentContainer.get(ReachabilityRepository.class);
     }
 
@@ -75,7 +77,7 @@ class ReachabilityRepositoryTramTest {
 
     @NotNull
     private RouteStation createRouteStation(TramStations station, KnownTramRoute knownRoute) {
-        Route route = RoutesForTesting.createTramRoute(knownRoute);
+        Route route = tramRouteHelper.get(knownRoute);
         return new RouteStation(TramStations.of(station), route);
     }
 

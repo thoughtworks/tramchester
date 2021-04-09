@@ -14,7 +14,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.presentation.TravelAction;
-import com.tramchester.domain.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
@@ -32,7 +32,6 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -306,6 +305,11 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
                 departs, arrivesEnd, 9,
                 "walking", TransportMode.Walk,
                 0, new RouteRefDTO(Route.Walking), TravelAction.Board, when, "tripId");
+    }
+
+    private Route createTramRoute(KnownTramRoute knownRoute) {
+        return new Route(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
+                knownRoute.mode());
     }
 
 }

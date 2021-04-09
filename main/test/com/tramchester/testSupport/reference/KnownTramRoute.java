@@ -1,14 +1,10 @@
-package com.tramchester.domain.reference;
+package com.tramchester.testSupport.reference;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.Route;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.tramchester.domain.reference.RouteDirection;
+import com.tramchester.domain.reference.TransportMode;
 
 import static com.tramchester.domain.reference.RouteDirection.Inbound;
 import static com.tramchester.domain.reference.RouteDirection.Outbound;
@@ -29,21 +25,12 @@ public enum KnownTramRoute {
     TheTraffordCentreCornbrook("Red", Inbound),
     CornbrookTheTraffordCentre("Red", Outbound);
 
-    public static IdSet<Route> ids;
-    public static final Map<IdFor<Route>, KnownTramRoute> map;
-
-    static {
-        ids = Arrays.stream(KnownTramRoute.values()).map(KnownTramRoute::getId).collect(IdSet.idCollector());
-        map = Arrays.stream(KnownTramRoute.values()).map(element -> Pair.of(element.getId(),element)).
-                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-    }
-
     private final IdFor<Route> id;
     private final RouteDirection direction;
     private final String shortName;
 
     KnownTramRoute(String shortName, RouteDirection direction) {
-        // new format for IDs METLRED:I:
+        // new format for IDs METLRED:I:xxxxxx
         int endIndex = Math.min(shortName.length(), 4);
         String idSuffix = shortName.toUpperCase().substring(0, endIndex);
         this.id = createId(format("METL%s%s", idSuffix, direction.getSuffix()));
@@ -51,16 +38,8 @@ public enum KnownTramRoute {
         this.shortName = shortName + " Line";
     }
 
-    public IdFor<Route> getId() {
-        return id;
-    }
-
     private StringIdFor<Route> createId(String stationId) {
         return StringIdFor.createId(stationId);
-    }
-
-    public boolean matches(Route route) {
-        return id.equals(route.getId());
     }
 
     public RouteDirection direction() {
@@ -71,5 +50,9 @@ public enum KnownTramRoute {
 
     public String shortName() {
         return shortName;
+    }
+
+    public IdFor<Route> getFakeId() {
+        return id;
     }
 }

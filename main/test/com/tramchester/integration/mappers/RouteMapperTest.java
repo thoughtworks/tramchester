@@ -9,27 +9,34 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.tramchester.domain.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
+import static com.tramchester.testSupport.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteMapperTest {
     private static ComponentContainer componentContainer;
+    private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+    }
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        tramRouteHelper = new TramRouteHelper(componentContainer);
     }
 
     @AfterAll
@@ -42,7 +49,7 @@ class RouteMapperTest {
         RoutesMapper mapper = componentContainer.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
-        Route route = RoutesForTesting.createTramRoute(ManchesterAirportWythenshaweVictoria);
+        Route route = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria);
         RouteDTO query = new RouteDTO(route, new LinkedList<>());
 
         int index = dtos.indexOf(query);

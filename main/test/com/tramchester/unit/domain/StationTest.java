@@ -1,19 +1,19 @@
 package com.tramchester.unit.domain;
 
 
-import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
-import com.tramchester.testSupport.reference.RoutesForTesting;
 import org.junit.jupiter.api.Test;
 
+import static com.tramchester.domain.Agency.Walking;
+import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,7 +22,7 @@ class StationTest {
     @Test
     void testShouldSetTramNameCorrecly() {
         Station tramStation = TestStation.forTest("id", "area", "stopName",
-                new LatLong(-2.0, 2.3), TransportMode.Tram);
+                new LatLong(-2.0, 2.3), Tram);
 
         assertEquals("stopName", tramStation.getName());
         assertEquals(StringIdFor.createId("id"), tramStation.getId());
@@ -59,12 +59,11 @@ class StationTest {
 
         assertTrue(station.getTransportModes().isEmpty());
 
-        station.addRoute(RoutesForTesting.createTramRoute(KnownTramRoute.PiccadillyAltrincham));
-        assertTrue(station.getTransportModes().contains(TransportMode.Tram));
+        station.addRoute(new Route(StringIdFor.createId("routeIdA"), "shortName", "name", TestEnv.MetAgency(), Tram));
+        assertTrue(station.getTransportModes().contains(Tram));
 
-        Agency agency = Agency.Walking;
-        station.addRoute(new Route("routeId", "shortName", "name", agency, TransportMode.Train));
-        assertTrue(station.getTransportModes().contains(TransportMode.Train));
+        station.addRoute(new Route(StringIdFor.createId("routeIdB"), "trainShort", "train", Walking, Train));
+        assertTrue(station.getTransportModes().contains(Train));
 
         assertEquals(2, station.getTransportModes().size());
     }

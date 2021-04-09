@@ -7,7 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.graphbuild.ActiveGraphFilter;
+import com.tramchester.testSupport.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
@@ -60,10 +60,10 @@ class RouteCalculatorSubGraphMediaCityTest {
         TestEnv.deleteDBIfPresent(config);
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(AshtonUnderLyneManchesterEccles.getId());
-        graphFilter.addRoute(RochdaleShawandCromptonManchesterEastDidisbury.getId());
-        graphFilter.addRoute(EcclesManchesterAshtonUnderLyne.getId());
-        graphFilter.addRoute(EastDidisburyManchesterShawandCromptonRochdale.getId());
+        graphFilter.addRoute(AshtonUnderLyneManchesterEccles);
+        graphFilter.addRoute(RochdaleShawandCromptonManchesterEastDidisbury);
+        graphFilter.addRoute(EcclesManchesterAshtonUnderLyne);
+        graphFilter.addRoute(EastDidisburyManchesterShawandCromptonRochdale);
         stations.forEach(TramStations::getId);
 
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());

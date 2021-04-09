@@ -2,7 +2,7 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.graph.graphbuild.ActiveGraphFilter;
+import com.tramchester.testSupport.ActiveGraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.integration.testSupport.IntegrationBusTestConfig;

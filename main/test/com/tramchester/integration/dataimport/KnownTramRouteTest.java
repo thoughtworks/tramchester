@@ -2,10 +2,8 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -44,12 +42,12 @@ class KnownTramRouteTest {
 
         assertEquals(knownRoutes.size(), loadedRoutes.size());
 
-        IdSet<Route> knownRouteIds = knownRoutes.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
+//        IdSet<Route> knownRouteIds = knownRoutes.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
 
-        for (Route loaded: loadedRoutes) {
-            IdFor<Route> id = loaded.getId();
-            assertTrue(knownRouteIds.contains(id), id.toString());
-        }
+//        for (Route loaded: loadedRoutes) {
+//            IdFor<Route> id = loaded.getId();
+//            assertTrue(knownRouteIds.contains(id), id.toString());
+//        }
 
         Set<String> knownRouteNames = knownRoutes.stream().map(Enum::name).collect(Collectors.toSet());
 
@@ -59,9 +57,9 @@ class KnownTramRouteTest {
         }
 
         for(KnownTramRoute known : knownRoutes) {
-            Route found = routeRepository.getRouteById(known.getId());
+            Route found = TestEnv.findTramRoute(routeRepository, known);
             String name = found.getName().replace(" ","").replace("-","");
-            assertEquals(name, known.name(), known.getId().toString());
+            assertEquals(name, known.name(), known.name());
         }
 
 

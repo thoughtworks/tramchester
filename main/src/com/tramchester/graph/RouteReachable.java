@@ -134,11 +134,6 @@ public class RouteReachable {
         return foundRoute;
     }
 
-    @Deprecated
-    public List<Route> getRoutesFromStartToNeighbour(Station startStation, Station endStation) {
-        return getRoutesFromStartToNeighbour(StationPair.of(startStation, endStation));
-    }
-
     // supports position inference on live data
     public List<Route> getRoutesFromStartToNeighbour(StationPair pair) {
         List<Route> results = new ArrayList<>();

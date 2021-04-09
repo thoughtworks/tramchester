@@ -1,4 +1,4 @@
-package com.tramchester.graph.graphbuild;
+package com.tramchester.testSupport;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
@@ -7,18 +7,31 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 
+import java.util.HashSet;
+import java.util.Set;
+
+/***
+ * Test Support Only
+ */
 public class ActiveGraphFilter implements GraphFilter {
     private final IdSet<Route> routeCodes;
+    private final Set<KnownTramRoute> knownTramRoutes;
     private final IdSet<Service> serviceIds;
     private final IdSet<Station> stationsIds;
     private final IdSet<Agency> agencyIds;
+    private boolean loadedRealRouteIds;
 
     public ActiveGraphFilter() {
+        loadedRealRouteIds = false;
         routeCodes = new IdSet<>();
         serviceIds = new IdSet<>();
         stationsIds = new IdSet<>();
         agencyIds = new IdSet<>();
+        knownTramRoutes = new HashSet<>();
     }
 
     @Override
@@ -28,6 +41,10 @@ public class ActiveGraphFilter implements GraphFilter {
 
     public void addRoute(IdFor<Route> id) {
         routeCodes.add(id);
+    }
+
+    public void addRoute(KnownTramRoute tramRoute) {
+        knownTramRoutes.add(tramRoute);
     }
 
     public void addService(Service service) {
@@ -42,11 +59,28 @@ public class ActiveGraphFilter implements GraphFilter {
         agencyIds.add(agencyId);
     }
 
-    public boolean shouldInclude(Route route) {
+    public boolean shouldInclude(RouteRepository routeRepository, Route route) {
+        if (knownTramRoutes.isEmpty()) {
+            return true;
+        }
+        if (!loadedRealRouteIds) {
+            loadReadRouteIds(routeRepository);
+        }
         if (routeCodes.isEmpty()) {
             return true;
         }
         return routeCodes.contains(route.getId());
+    }
+
+    private void loadReadRouteIds(RouteRepository routeRepository) {
+        if (knownTramRoutes.isEmpty()) {
+            return;
+        }
+        TramRouteHelper routeHelper = new TramRouteHelper(routeRepository);
+        for(KnownTramRoute known : knownTramRoutes) {
+            routeCodes.add(routeHelper.getId(known));
+        }
+        loadedRealRouteIds = true;
     }
 
     public boolean shouldInclude(Service service) {

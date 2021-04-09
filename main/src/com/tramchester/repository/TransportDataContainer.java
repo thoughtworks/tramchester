@@ -296,12 +296,11 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Route findFirstRouteByShortName(IdFor<Agency> agencyId, String shortName) {
-        Optional<Route> searchResults = routes.getValues().stream().
+    public Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName) {
+        return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getShortName().equals(shortName)).
-                findAny();
-        return searchResults.orElse(null);
+                collect(Collectors.toSet());
     }
 
     @Override

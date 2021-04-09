@@ -14,7 +14,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteReachable;
-import com.tramchester.graph.graphbuild.ActiveGraphFilter;
+import com.tramchester.testSupport.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;

@@ -10,7 +10,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.*;
 import com.tramchester.domain.time.TramServiceDate;
@@ -18,6 +17,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,7 @@ import java.util.*;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestEnv {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
@@ -222,10 +224,6 @@ public class TestEnv {
        return "M239LT";
     }
 
-    public static IdFor<RouteStation> formId(TramStations tramStations, KnownTramRoute knownRoute) {
-        return RouteStation.createId(tramStations.getId(), knownRoute.getId());
-    }
-
     public static <T extends GraphProperty> void assertIdEquals(HasId<T> itemA, HasId<T> itemB) {
         assertEquals(itemA.getId(), itemB.getId());
     }
@@ -285,5 +283,22 @@ public class TestEnv {
             }
         };
         return Collections.singletonList(config);
+    }
+
+    public static Route findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
+        Set<Route> routes = routeRepository.findRoutesByShortName(MET.getId(), knownTramRoute.shortName());
+        assertEquals(2, routes.size());
+        Optional<Route> directionMatch = routes.stream().
+                filter(route -> route.getId().forDTO().contains(knownTramRoute.direction().getSuffix())).
+                findFirst();
+        assertTrue(directionMatch.isPresent());
+
+        return directionMatch.get();
+    }
+
+    public static Route singleRoute(RouteRepository routeRepository, IdFor<Agency> agencyId, String shortName) {
+        Set<Route> routes = routeRepository.findRoutesByShortName(agencyId, shortName);
+        assertEquals(1, routes.size(), format("expected to find only one route for %s and %s", agencyId, shortName));
+        return routes.iterator().next();
     }
 }

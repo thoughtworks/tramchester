@@ -22,7 +22,7 @@ import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.reference.BusRoutesForTesting;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -80,7 +80,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = transportData.getRouteById(RoutesForTesting.ALTY_TO_WARRINGTON.getId());
+        Route result = transportData.getRouteById(BusRoutesForTesting.ALTY_TO_WARRINGTON.getId());
         assertEquals("Altrincham - Partington - Thelwall - Warrington", result.getName());
         assertEquals(WarringtonsOwnBuses, result.getAgency());
         assertEquals("WBTR05A:I:",result.getId().forDTO());

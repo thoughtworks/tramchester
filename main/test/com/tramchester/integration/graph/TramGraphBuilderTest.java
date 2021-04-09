@@ -9,7 +9,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -18,7 +17,8 @@ import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -26,13 +26,15 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownTramRoute.*;
 import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,6 +49,7 @@ class TramGraphBuilderTest {
     private Route tramRouteAshtonEccles;
     private Route tramRouteEcclesAshton;
     private Route tramRouteAltPicc;
+    private TramRouteHelper tramRouteHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -57,9 +60,10 @@ class TramGraphBuilderTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        tramRouteAshtonEccles = createTramRoute(AshtonUnderLyneManchesterEccles);
-        tramRouteEcclesAshton = createTramRoute(EcclesManchesterAshtonUnderLyne);
-        tramRouteAltPicc = createTramRoute(AltrinchamPiccadilly);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
+        tramRouteAshtonEccles = tramRouteHelper.get(AshtonUnderLyneManchesterEccles);
+        tramRouteEcclesAshton = tramRouteHelper.get(EcclesManchesterAshtonUnderLyne);
+        tramRouteAltPicc = tramRouteHelper.get(AltrinchamPiccadilly);
 
         graphQuery = componentContainer.get(GraphQuery.class);
         transportData = componentContainer.get(TransportData.class);
@@ -207,7 +211,7 @@ class TramGraphBuilderTest {
 
     private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Station station = of(tramStation);
-        Route route = createTramRoute(knownRoute);
+        Route route = tramRouteHelper.get(knownRoute);
 
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
@@ -237,7 +241,7 @@ class TramGraphBuilderTest {
     }
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
-        Route route = RoutesForTesting.createTramRoute(knownRoute);
+        Route route = tramRouteHelper.get(knownRoute);
         Station station = of(tramStation);
 
         RouteStation routeStation = stationRepository.getRouteStation(station, route);

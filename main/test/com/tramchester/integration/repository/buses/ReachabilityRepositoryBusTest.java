@@ -9,7 +9,7 @@ import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.RoutesForTesting;
+import com.tramchester.testSupport.reference.BusRoutesForTesting;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,12 +44,12 @@ class ReachabilityRepositoryBusTest {
 
     @Test
     void shouldCreateReachabilityMatrix() {
-        Route routeA = routeRepo.getRouteById(RoutesForTesting.ALTY_TO_STOCKPORT.getId());
+        Route routeA = routeRepo.getRouteById(BusRoutesForTesting.ALTY_TO_STOCKPORT.getId());
         assertNotNull(routeA);
         assertTrue(reachable(createRouteStation(routeA, BusStations.AltrinchamInterchange),
                 BusStations.StockportBusStation));
 
-        Route routeB = routeRepo.getRouteById(RoutesForTesting.StockportMarpleRomileyCircular.getId());
+        Route routeB = routeRepo.getRouteById(BusRoutesForTesting.StockportMarpleRomileyCircular.getId());
         assertNotNull(routeB);
         assertTrue(reachable(createRouteStation(routeB, BusStations.StockportAtAldi), BusStations.StockportNewbridgeLane ));
     }

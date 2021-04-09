@@ -50,7 +50,7 @@ class TrainRouteReachableTest {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
 
-        route = routeRepository.findFirstRouteByShortName(StringIdFor.createId("NT"), "NT:MAN->CTR");
+        route = TestEnv.singleRoute(routeRepository, StringIdFor.createId("NT"), "NT:MAN->CTR");
     }
 
     @Test

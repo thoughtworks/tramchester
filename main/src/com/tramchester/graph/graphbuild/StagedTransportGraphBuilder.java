@@ -102,7 +102,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             for(Agency agency : transportData.getAgencies()) {
                     if (graphFilter.shouldInclude(agency)) {
                         try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId())) {
-                            Stream<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldInclude);
+                            Stream<Route> routes = agency.getRoutes().stream().filter(
+                                    route -> graphFilter.shouldInclude(transportData, route));
                             buildGraphForRoutes(graphDatabase, graphFilter, routes, builderCache);
                         }
                     } else {

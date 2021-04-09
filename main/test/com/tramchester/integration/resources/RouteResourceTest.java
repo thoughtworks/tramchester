@@ -1,16 +1,18 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -20,15 +22,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.KnownTramRoute.AshtonUnderLyneManchesterEccles;
-import static com.tramchester.domain.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
-import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
+import static com.tramchester.testSupport.reference.KnownTramRoute.AshtonUnderLyneManchesterEccles;
+import static com.tramchester.testSupport.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class RouteResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private TramRouteHelper routeHelper;
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        routeHelper = new TramRouteHelper(appExtension);
+    }
 
     @Test
     void shouldGetAllRoutes() {
@@ -39,7 +46,7 @@ class RouteResourceTest {
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        RouteDTO query = new RouteDTO(createTramRoute(AshtonUnderLyneManchesterEccles), new LinkedList<>());
+        RouteDTO query = new RouteDTO(routeHelper.get(AshtonUnderLyneManchesterEccles), new LinkedList<>());
         int index = routes.indexOf(query);
         assertTrue(index>0);
 
@@ -57,7 +64,7 @@ class RouteResourceTest {
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
-        RouteDTO query = new RouteDTO(createTramRoute(ManchesterAirportWythenshaweVictoria), new LinkedList<>());
+        RouteDTO query = new RouteDTO(routeHelper.get(ManchesterAirportWythenshaweVictoria), new LinkedList<>());
         int index = routes.indexOf(query);
         assertTrue(index>0);
 

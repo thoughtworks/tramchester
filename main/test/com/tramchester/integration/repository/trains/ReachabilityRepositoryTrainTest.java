@@ -49,9 +49,7 @@ class ReachabilityRepositoryTrainTest {
 
     @Test
     void shouldCreateReachabilityMatrix() {
-        Route route = routeRepository.findFirstRouteByShortName(StringIdFor.createId("NT"), "NT:CTR->MAN");
-        assertNotNull(route);
-
+        Route route = TestEnv.singleRoute(routeRepository, StringIdFor.createId("NT"), "NT:CTR->MAN");
         assertTrue(reachable(createRouteStation(route, Stockport), ManchesterPiccadilly));
     }
 

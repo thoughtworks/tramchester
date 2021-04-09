@@ -62,9 +62,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
             new Agency(DataSourceID.GBRail(), "FER", "ferryAgency"), TransportMode.Ferry);
 
     private void populateTestData(TransportDataContainer container) {
-        Route routeA = RoutesForTesting.AIR_TO_BUXTON;
+        Route routeA = BusRoutesForTesting.AIR_TO_BUXTON;
         Route ferryRoute = FERRY_ROUTE;
-        Route routeC = RoutesForTesting.ALTY_TO_WARRINGTON;
+        Route routeC = BusRoutesForTesting.ALTY_TO_WARRINGTON;
 
         Agency agencyA = routeA.getAgency();
         Agency agencyB = routeA.getAgency();

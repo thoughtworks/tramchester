@@ -24,6 +24,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
@@ -36,7 +37,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
-import static com.tramchester.domain.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
@@ -50,6 +51,7 @@ class TransportDataFromFilesTramTest {
 
     private TransportData transportData;
     private Collection<Service> allServices;
+    private TramRouteHelper routeHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -67,6 +69,7 @@ class TransportDataFromFilesTramTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         allServices = transportData.getServices();
+        routeHelper = new TramRouteHelper(componentContainer);
     }
 
     @Test
@@ -95,10 +98,11 @@ class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Route result = transportData.getRouteById(AshtonUnderLyneManchesterEccles.getId());
+        //Route result = transportData.getRouteById(AshtonUnderLyneManchesterEccles.getId());
+        Route result = TestEnv.findTramRoute(transportData, AshtonUnderLyneManchesterEccles);
         assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
-        assertEquals("METLBLUE:I:",result.getId().forDTO());
+        assertTrue(result.getId().forDTO().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
 
         Set<String> headsigns = result.getHeadsigns();
@@ -118,15 +122,15 @@ class TransportDataFromFilesTramTest {
 
         // 2*3 expected, but includes eccles as well
         assertEquals(8, traffordBarRoutes.size());
-        assertTrue(traffordBarRoutes.contains(AltrinchamPiccadilly.getId()));
-        assertTrue(traffordBarRoutes.contains(PiccadillyAltrincham.getId()));
-        assertTrue(traffordBarRoutes.contains(EastDidisburyManchesterShawandCromptonRochdale.getId()));
-        assertTrue(traffordBarRoutes.contains(RochdaleShawandCromptonManchesterEastDidisbury.getId()));
-        assertTrue(traffordBarRoutes.contains(VictoriaWythenshaweManchesterAirport.getId()));
-        assertTrue(traffordBarRoutes.contains(ManchesterAirportWythenshaweVictoria.getId()));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(AltrinchamPiccadilly)));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(PiccadillyAltrincham)));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale)));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
 
-        assertTrue(traffordBarRoutes.contains(EcclesManchesterAshtonUnderLyne.getId()));
-        assertTrue(traffordBarRoutes.contains(AshtonUnderLyneManchesterEccles.getId()));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
+        assertTrue(traffordBarRoutes.contains(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
     }
 
     @Test
@@ -364,10 +368,12 @@ class TransportDataFromFilesTramTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
+        Route route = TestEnv.findTramRoute(transportData, AshtonUnderLyneManchesterEccles);
+
         Set<Trip> toMediaCity = allTrips.stream().
                 filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).
                 filter(trip -> trip.getStopCalls().callsAt(TramStations.MediaCityUK)).
-                filter(trip -> trip.getRoute().getId().equals(AshtonUnderLyneManchesterEccles.getId())).
+                filter(trip -> trip.getRoute().getId().equals(route.getId())).
                 collect(Collectors.toSet());
 
         Set<Service> services = toMediaCity.stream().

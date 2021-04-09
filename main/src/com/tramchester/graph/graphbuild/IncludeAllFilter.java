@@ -7,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
+import com.tramchester.repository.RouteRepository;
 
 public class IncludeAllFilter implements GraphFilter {
 
@@ -16,7 +17,7 @@ public class IncludeAllFilter implements GraphFilter {
     }
 
     @Override
-    public boolean shouldInclude(Route route) {
+    public boolean shouldInclude(RouteRepository routeRepository, Route route) {
         return true;
     }
 

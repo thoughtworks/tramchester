@@ -119,6 +119,12 @@ public abstract class TramchesterConfig extends Configuration {
                 findFirst().orElseThrow();
     }
 
+    public boolean hasDataSourceConfig(String name) {
+        return getRemoteDataSourceConfig().stream().anyMatch(config -> config.getName().equals(name));
+    }
+
     // number of connections to make by walking
     public abstract int getMaxWalkingConnections();
+
+
 }

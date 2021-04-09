@@ -3,11 +3,11 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.graphbuild.ActiveGraphFilter;
+import com.tramchester.testSupport.ActiveGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -39,7 +39,7 @@ class RouteCalculatorSubGraphMonsallTest {
         TestEnv.deleteDBIfPresent(config);
 
         ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale.getId());
+        graphFilter.addRoute(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale);
 
         componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

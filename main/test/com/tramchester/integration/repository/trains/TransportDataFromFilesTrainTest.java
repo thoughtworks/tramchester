@@ -56,7 +56,7 @@ class TransportDataFromFilesTrainTest {
     @Test
     void shouldHaveExpectedNumbersForTrain() {
         assertEquals(2571,transportData.getStations().size());
-        assertEquals(3770, transportData.getRoutes().size());
+        assertEquals(3509, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -71,7 +71,7 @@ class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = transportData.findFirstRouteByShortName(StringIdFor.createId("AW"), "AW:MIA->CTR");
+        Route result = TestEnv.singleRoute(transportData, StringIdFor.createId("AW"), "AW:MIA->CTR");
 
         assertNotNull(result);
         assertEquals("AW train service from MIA to CTR", result.getName());

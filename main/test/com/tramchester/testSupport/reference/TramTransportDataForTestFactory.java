@@ -9,7 +9,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
@@ -30,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
-import static com.tramchester.domain.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.TestEnv.*;
@@ -75,9 +74,9 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         Agency agency = TestEnv.MetAgency();
 
         //Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
-        Route routeA = RoutesForTesting.createTramRoute(CornbrookTheTraffordCentre);
-        Route routeB = RoutesForTesting.createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
-        Route routeC = RoutesForTesting.createTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
+        Route routeA = createTramRoute(CornbrookTheTraffordCentre);
+        Route routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
+        Route routeC = createTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);
@@ -109,7 +108,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         serviceC.setCalendar(serviceCalendarC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip(TramTransportDataForTest.TRIP_A_ID, "headSign", serviceA, routeA);
+        Trip tripA = new Trip(StringIdFor.createId(TramTransportDataForTest.TRIP_A_ID), "headSign", serviceA, routeA);
 
         Station first = new TestStation(TramTransportDataForTest.FIRST_STATION, "area1", "startStation",
                 nearAltrincham, nearAltrinchamGrid, Tram);
@@ -152,7 +151,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         addAStation(container, stationFive);
 
         //
-        Trip tripC = new Trip("tripCId", "headSignC", serviceC, routeC);
+        Trip tripC = new Trip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC);
         PlatformStopCall stopG = createStop(container, tripC, interchangeStation, of(8, 26),
                 of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
@@ -181,6 +180,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         container.reportNumbers();
     }
 
+    private Route createTramRoute(KnownTramRoute knownRoute) {
+        return new Route(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
+                knownRoute.mode());
+    }
+
     private void addAStation(TransportDataContainer container, Station station) {
         container.addStation(station);
     }
@@ -193,7 +197,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
-        Trip trip = new Trip(tripId, "headSignTripB2", service, route);
+        Trip trip = new Trip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
         PlatformStopCall stop1 = createStop(container,trip, interchangeStation, of(startTime),
                 of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);

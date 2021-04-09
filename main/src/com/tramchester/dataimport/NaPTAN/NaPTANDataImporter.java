@@ -13,8 +13,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /***
@@ -24,27 +22,43 @@ import java.util.stream.Stream;
  */
 @LazySingleton
 public class NaPTANDataImporter {
+    private static final String NAPTAN_CONFIG_NAME = "naptan";
     private static final Logger logger = LoggerFactory.getLogger(NaPTANDataImporter.class);
 
+    private final TramchesterConfig config;
     private final CsvMapper mapper;
-    private final RemoteDataSourceConfig sourceConfig;
     private Stream<StopsData> stream;
     private boolean open;
 
     @Inject
     public NaPTANDataImporter(TramchesterConfig config, CsvMapper mapper, UnzipFetchedData.Ready dataIsReady) {
-        sourceConfig = config.getDataSourceConfig("naptan");
+        this.config = config;
         this.mapper = mapper;
         open = false;
     }
 
     @PostConstruct
     public void start() {
+        logger.info("starting");
+
+        if (!config.hasDataSourceConfig(NAPTAN_CONFIG_NAME)) {
+            logger.warn("Naptan is disabled, no config section found for " + NAPTAN_CONFIG_NAME);
+            stream = Stream.empty();
+            return;
+        }
+
+        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig("naptan");
+        loadForConfig(sourceConfig);
+
+        logger.info("started");
+    }
+
+    private void loadForConfig(RemoteDataSourceConfig sourceConfig) {
         if (open) {
             logger.warn("Already started");
             return;
         }
-        logger.info("starting");
+
         Path dataPath = sourceConfig.getDataPath();
         Path filePath = dataPath.resolve("Stops.csv");
         logger.info("Loading data from " + filePath.toAbsolutePath());
@@ -53,8 +67,6 @@ public class NaPTANDataImporter {
         stream = dataLoader.load();
         open = true;
         stream.onClose(this::streamClosed);
-
-        logger.info("started");
     }
 
     private void streamClosed() {

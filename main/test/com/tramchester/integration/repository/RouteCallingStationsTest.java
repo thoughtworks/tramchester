@@ -4,35 +4,42 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.KnownTramRoute;
 import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteCallingStations;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.tramchester.domain.reference.KnownTramRoute.*;
-import static com.tramchester.testSupport.reference.RoutesForTesting.createTramRoute;
 import static com.tramchester.testSupport.TestEnv.assertIdEquals;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteCallingStationsTest {
 
     private static ComponentContainer componentContainer;
-    private static RouteCallingStations repo;
-    private static TransportData transportData;
+    private RouteCallingStations callingStations;
+    private RouteRepository transportData;
+    private TramRouteHelper routeHelper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         componentContainer = new ComponentsBuilder<>().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        repo = componentContainer.get(RouteCallingStations.class);
-        transportData = componentContainer.get(TransportData.class);
+    }
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        callingStations = componentContainer.get(RouteCallingStations.class);
+        transportData = componentContainer.get(RouteRepository.class);
+        routeHelper = new TramRouteHelper(componentContainer);
     }
 
     @AfterAll
@@ -80,7 +87,7 @@ class RouteCallingStationsTest {
     void shouldHaveEndsOfLines() {
         IdSet<Station> foundEndOfLines = new IdSet<>();
         transportData.getRoutes().forEach(route -> {
-            List<Station> stations = repo.getStationsFor(route);
+            List<Station> stations = callingStations.getStationsFor(route);
             foundEndOfLines.add(stations.get(0).getId());
         });
         assertEquals(11, foundEndOfLines.size());
@@ -110,7 +117,7 @@ class RouteCallingStationsTest {
     }
 
     private List<Station> getStationsFor(KnownTramRoute knownRoute) {
-        return repo.getStationsFor(createTramRoute(knownRoute));
+        return callingStations.getStationsFor(routeHelper.get(knownRoute));
     }
 
 }
