@@ -12,6 +12,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -38,7 +39,7 @@ class RouteCalulcatorForBoundingBoxTest {
     private static GraphDatabase database;
     private static IntegrationTramTestConfig testConfig;
 
-    private RouteCalculator calculator;
+    private RouteCalculatorForBoxes calculator;
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
     private StationLocations stationLocations;
@@ -61,7 +62,7 @@ class RouteCalulcatorForBoundingBoxTest {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        calculator = componentContainer.get(RouteCalculator.class);
+        calculator = componentContainer.get(RouteCalculatorForBoxes.class);
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);
     }

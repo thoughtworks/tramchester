@@ -73,9 +73,9 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
             throw new RuntimeException("Unable to depart tram",e);
         }
 
-        // if bus station then may have arrived
-        long busStationNodeId = stationNode.getId();
-        if (destinationNodeIds.contains(busStationNodeId)) {
+        // if no platform station then may have arrived
+        long stationNodeId = stationNode.getId();
+        if (destinationNodeIds.contains(stationNodeId)) {
             return builders.destination.from(this, cost);
         }
 

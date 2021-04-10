@@ -64,12 +64,12 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         componentContainer.initialise();
 
         RouteRepository routeRepository = componentContainer.get(TransportData.class);
-        routes = routeRepository.findRoutesByName(StringIdFor.createId("DAGC"), "Altrincham - Wilmslow - Knutsford - Macclesfield");
+        routes = routeRepository.findRoutesByName(StringIdFor.createId("DAGC"),
+                "Altrincham - Wilmslow - Knutsford - Macclesfield");
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter) {
         routes.forEach(route -> graphFilter.addRoute(route.getId()));
-        //graphFilter.addRoute(ROUTE_ID_FOR_FILTER_ONLY);
     }
 
     @AfterAll

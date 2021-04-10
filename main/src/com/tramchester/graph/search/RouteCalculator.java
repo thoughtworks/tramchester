@@ -3,19 +3,16 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
+import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
-import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Transaction;
@@ -26,30 +23,16 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
 @LazySingleton
-public class RouteCalculator implements TramRouteCalculator {
+public class RouteCalculator extends RouteCalculatorSupport implements TramRouteCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculator.class);
-
-    private final MapPathToStages pathToStages;
+    private final ServiceRepository serviceRepository;
     private final TramchesterConfig config;
-    private final NodeContentsRepository nodeOperations;
-    private final NodeTypeRepository nodeTypeRepository;
-
-    private final TransportData transportData;
-    private final ReachabilityRepository reachabilityRepository;
     private final CreateQueryTimes createQueryTimes;
-    private final GraphDatabase graphDatabaseService;
-    private final ProvidesLocalNow providesLocalNow;
-    private final GraphQuery graphQuery;
-    private final SortsPositions sortsPosition;
-    private final MapPathToLocations mapPathToLocations;
-    private final CompositeStationRepository compositeStationRepository;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
@@ -57,20 +40,11 @@ public class RouteCalculator implements TramRouteCalculator {
                            CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository) {
-        this.transportData = transportData;
-        this.nodeOperations = nodeOperations;
-        this.pathToStages = pathToStages;
+        super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
+                providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository, transportData, config, transportData);
+        this.serviceRepository = transportData;
         this.config = config;
-        this.reachabilityRepository = reachabilityRepository;
         this.createQueryTimes = createQueryTimes;
-        this.graphDatabaseService = graphDatabaseService;
-        this.providesLocalNow = providesLocalNow;
-        this.graphQuery = graphQuery;
-        this.nodeTypeRepository = nodeTypeRepository;
-
-        this.sortsPosition = sortsPosition;
-        this.mapPathToLocations = mapPathToLocations;
-        this.compositeStationRepository = compositeStationRepository;
     }
 
     @Override
@@ -84,16 +58,6 @@ public class RouteCalculator implements TramRouteCalculator {
         Set<Station> destinations = Collections.singleton(destination);
 
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false);
-    }
-
-    private Node getStationNodeSafe(Transaction txn, Station station) {
-        Node stationNode = graphQuery.getStationNode(txn, station);
-        if (stationNode==null) {
-            String msg = "Unable to find station graph node based for " + station.getId();
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
-        return stationNode;
     }
 
     public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, Set<Station> desinationStations,
@@ -124,116 +88,15 @@ public class RouteCalculator implements TramRouteCalculator {
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
         return numChangesRange(journeyRequest).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime-> new PathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, previousSuccessfulVisit,
-                        createServiceReasons(journeyRequest, pathRequest.queryTime, pathRequest.numChanges), pathRequest)).
+                        createServiceReasons(journeyRequest, pathRequest), pathRequest)).
                 map(path -> createJourney(journeyRequest, path));
     }
-
-    public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
-                                                  List<BoundingBoxWithStations> grouped, long numberToFind) {
-        logger.info("Finding routes for bounding boxes");
-
-        final TramTime time = journeyRequest.getTime();
-
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, transportData, journeyRequest, destinations);
-
-        Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
-
-        return grouped.parallelStream().map(box -> {
-
-            // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-            // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
-            final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
-
-            logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
-            Set<Station> startingStations = box.getStaions();
-
-            try(Transaction txn = graphDatabaseService.beginTx()) {
-                Stream<Journey> journeys = startingStations.stream().
-                        filter(start -> !destinations.contains(start)).
-                        map(start -> getStationNodeSafe(txn, start)).
-                        flatMap(startNode -> numChangesRange(journeyRequest).
-                                map(numChanges -> new PathRequest(startNode, time, numChanges, journeyConstraints))).
-                        flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                previousSuccessfulVisit, createServiceReasons(journeyRequest, time, pathRequest.numChanges), pathRequest)).
-                        map(timedPath -> createJourney(journeyRequest, timedPath));
-
-                // TODO Limit here, or return the stream?
-                List<Journey> collect = journeys.limit(numberToFind).collect(Collectors.toList());
-
-                // yielding
-                return new JourneysForBox(box, collect);
-            }
-        });
-
-    }
-
-    @NotNull
-    private Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
-        return IntStream.rangeClosed(0, journeyRequest.getMaxChanges()).boxed();
-    }
-
-    @NotNull
-    private ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time, int numChanges) {
-        return new ServiceReasons(journeyRequest, time, providesLocalNow, numChanges);
-    }
-
-    @NotNull
-    private Set<Long> getDestinationNodeIds(Set<Station> destinations) {
-        Set<Long> destinationNodeIds;
-        try(Transaction txn = graphDatabaseService.beginTx()) {
-           destinationNodeIds = destinations.stream().
-                    map(station -> getStationNodeSafe(txn, station)).
-                    map(Entity::getId).
-                    collect(Collectors.toSet());
-        }
-        return destinationNodeIds;
-    }
-
-    private Stream<TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
-                                               final Set<Station> endStations, PreviousSuccessfulVisits previousSuccessfulVisit,
-                                               ServiceReasons reasons, PathRequest pathRequest) {
-
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
-                pathRequest.serviceHeuristics,
-                compositeStationRepository, sortsPosition, nodeOperations, transportData, endStations, config, nodeTypeRepository, destinationNodeIds, reasons);
-
-        return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit).
-                map(path -> new TimedPath(path, pathRequest.queryTime));
-    }
-
-    @NotNull
-    private Journey createJourney(JourneyRequest journeyRequest, TimedPath path) {
-        return new Journey(pathToStages.mapDirect(path, journeyRequest),
-                path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath()));
-    }
-
-    @NotNull
-    private ServiceHeuristics createHeuristics(TramTime time, JourneyConstraints journeyConstraints, int maxNumChanges) {
-        return new ServiceHeuristics(transportData, nodeOperations, reachabilityRepository,
-                journeyConstraints, time, maxNumChanges);
-    }
-
-    private class PathRequest {
-        private final Node startNode;
-        protected final TramTime queryTime;
-        protected final int numChanges;
-        private final ServiceHeuristics serviceHeuristics;
-
-        private PathRequest(Node startNode, TramTime queryTime, int numChanges, JourneyConstraints journeyConstraints) {
-            this.startNode = startNode;
-            this.queryTime = queryTime;
-            this.numChanges = numChanges;
-            this.serviceHeuristics = createHeuristics(queryTime, journeyConstraints, numChanges);
-        }
-    }
-
 
     public static class TimedPath {
         private final Path path;

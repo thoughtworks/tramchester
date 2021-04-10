@@ -69,9 +69,9 @@ public class RouteStationStateEndTrip extends TraversalState {
             throw new RuntimeException("Unable to depart tram",e);
         }
 
-        // if bus station then may have arrived
-        long busStationNodeId = nextNode.getId();
-        if (destinationNodeIds.contains(busStationNodeId)) {
+        // if no platform station then may have arrived
+        long nextNodeId = nextNode.getId();
+        if (destinationNodeIds.contains(nextNodeId)) {
             return builders.destination.from(this, cost);
         }
 

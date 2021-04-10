@@ -29,11 +29,11 @@ public class FastestRoutesForBoxes {
     private static final Logger logger = LoggerFactory.getLogger(FastestRoutesForBoxes.class);
 
     private final StationLocations stationLocations;
-    private final RouteCalculator calculator;
+    private final RouteCalculatorForBoxes calculator;
     private final JourneyToDTOMapper dtoMapper;
 
     @Inject
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculator calculator, JourneyToDTOMapper dtoMapper) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculatorForBoxes calculator, JourneyToDTOMapper dtoMapper) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;
         this.dtoMapper = dtoMapper;

@@ -15,9 +15,9 @@ import java.util.Set;
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(TripRepository tripRepository, SortsPositions sortsPositions, NodeContentsRepository nodeOperations, Set<Long> destinationNodeIds,
-                           Set<Station> destinationStation,
+                           Set<Station> destinationStations,
                            LatLong destinationLatLonHint, TramchesterConfig config) {
-        super(tripRepository, sortsPositions, nodeOperations, destinationNodeIds, destinationStation, destinationLatLonHint, config);
+        super(tripRepository, sortsPositions, nodeOperations, destinationNodeIds, destinationStations, destinationLatLonHint, config);
     }
 
     @Override
