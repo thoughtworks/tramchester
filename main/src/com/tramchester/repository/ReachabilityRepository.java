@@ -8,6 +8,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.RouteReachable;
+import com.tramchester.graph.graphbuild.GraphFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +31,16 @@ public class ReachabilityRepository {
 
     private final TransportData transportData;
     private final TramchesterConfig config;
+    private final GraphFilter graphFilter;
     private final RouteReachable routeReachable;
     private final Map<TransportMode, Repository> repositorys;
 
     @Inject
-    public ReachabilityRepository(RouteReachable routeReachable, TransportData transportData, TramchesterConfig config) {
+    public ReachabilityRepository(RouteReachable routeReachable, TransportData transportData, TramchesterConfig config, GraphFilter graphFilter) {
         this.routeReachable = routeReachable;
         this.transportData = transportData;
         this.config = config;
+        this.graphFilter = graphFilter;
         repositorys = new HashMap<>();
     }
 
@@ -59,6 +62,7 @@ public class ReachabilityRepository {
         logger.info("Building for " + mode);
         Set<RouteStation> routeStations = transportData.getRouteStations()
                 .stream().
+                filter(routeStation -> graphFilter.shouldInclude(transportData, routeStation.getRoute())).
                 filter(routeStation -> routeStation.getTransportModes().contains(mode)).
                 collect(Collectors.toSet());
 

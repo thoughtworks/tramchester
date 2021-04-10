@@ -128,7 +128,7 @@ public class LiveDataParser {
         LocalDateTime updateTime = getStationUpdateTime(dateString);
         logger.debug("Parsed lived data with update time: "+updateTime);
 
-        StringIdFor<Platform> platformId = StringIdFor.createId(atcoCode);
+        IdFor<Platform> platformId = StringIdFor.createId(atcoCode);
         if (!station.hasPlatform(platformId)) {
             // info not warn as currently a permanent issue with the data
             logger.info(format("Display '%s' Platform '%s' not in timetable data for station %s and Json %s",

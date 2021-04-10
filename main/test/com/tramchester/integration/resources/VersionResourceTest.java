@@ -2,23 +2,20 @@ package com.tramchester.integration.resources;
 
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;

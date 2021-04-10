@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -45,15 +46,15 @@ public class TripData {
         return text.replaceAll(" ","");
     }
 
-    public StringIdFor<Route> getRouteId() {
+    public IdFor<Route> getRouteId() {
         return StringIdFor.createId(removeSpaces(routeId));
     }
 
-    public StringIdFor<Service> getServiceId() {
+    public IdFor<Service> getServiceId() {
         return  StringIdFor.createId(serviceId);
     }
 
-    public StringIdFor<Trip> getTripId() {
+    public IdFor<Trip> getTripId() {
         return StringIdFor.createId(tripId);
     }
 

@@ -38,7 +38,7 @@ public enum KnownTramRoute {
         this.shortName = shortName + " Line";
     }
 
-    private StringIdFor<Route> createId(String stationId) {
+    private IdFor<Route> createId(String stationId) {
         return StringIdFor.createId(stationId);
     }
 

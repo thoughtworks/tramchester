@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
@@ -48,13 +49,14 @@ public class RouteCalculator implements TramRouteCalculator {
     private final GraphQuery graphQuery;
     private final SortsPositions sortsPosition;
     private final MapPathToLocations mapPathToLocations;
+    private final CompositeStationRepository compositeStationRepository;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository,
                            CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
-                           SortsPositions sortsPosition, MapPathToLocations mapPathToLocations) {
+                           SortsPositions sortsPosition, MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository) {
         this.transportData = transportData;
         this.nodeOperations = nodeOperations;
         this.pathToStages = pathToStages;
@@ -68,6 +70,7 @@ public class RouteCalculator implements TramRouteCalculator {
 
         this.sortsPosition = sortsPosition;
         this.mapPathToLocations = mapPathToLocations;
+        this.compositeStationRepository = compositeStationRepository;
     }
 
     @Override
@@ -196,9 +199,9 @@ public class RouteCalculator implements TramRouteCalculator {
                                                final Set<Station> endStations, PreviousSuccessfulVisits previousSuccessfulVisit,
                                                ServiceReasons reasons, PathRequest pathRequest) {
 
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService, transportData,
+        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest.serviceHeuristics,
-                sortsPosition, nodeOperations, endStations, config, nodeTypeRepository, destinationNodeIds, reasons);
+                compositeStationRepository, sortsPosition, nodeOperations, transportData, endStations, config, nodeTypeRepository, destinationNodeIds, reasons);
 
         return tramNetworkTraverser.
                 findPaths(txn, pathRequest.startNode, previousSuccessfulVisit).

@@ -3,7 +3,7 @@ package com.tramchester.integration.cloud.data;
 import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestLiveDataConfig;
 import org.apache.commons.codec.binary.Base64;

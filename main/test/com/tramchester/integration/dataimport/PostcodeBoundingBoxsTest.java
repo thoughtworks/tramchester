@@ -7,7 +7,7 @@ import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
+import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

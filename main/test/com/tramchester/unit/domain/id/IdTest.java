@@ -9,8 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class IdTest {
 
@@ -44,8 +43,8 @@ class IdTest {
         assertNotEquals(compositeIdA, compositeIdC);
         assertNotEquals(compositeIdC, compositeIdA);
 
-        assertEquals("0BCD_1234", compositeIdA.forDTO());
-        assertEquals("0BCD_1234", compositeIdA.getGraphId());
+        assertEquals("[0BCD_1234]", compositeIdA.forDTO());
+        assertEquals("[0BCD_1234]", compositeIdA.getGraphId());
 
         assertEquals(compositeIdA.forDTO(), compositeIdB.forDTO());
         assertEquals(compositeIdA.getGraphId(), compositeIdB.getGraphId());
@@ -66,6 +65,20 @@ class IdTest {
 
         assertNotEquals(compositeIdA, compositeIdC);
         assertNotEquals(compositeIdC, compositeIdA);
+    }
+
+    @Test
+    void shouldMapToNormalOrCompositeId() {
+        IdFor<Station> id = StringIdFor.createId("normalId");
+        assertFalse(CompositeId.isComposite("normalId"));
+        assertEquals("normalId", id.forDTO());
+
+        String text = "[Id1_Id2_Id3]";
+        assertTrue(CompositeId.isComposite(text));
+        IdFor<Station> comp = StringIdFor.createId(text);
+        CompositeId<Station> exepected = new CompositeId<>(StringIdFor.createId("Id1"), StringIdFor.createId("Id2"), StringIdFor.createId("Id3"));
+
+        assertEquals(exepected, comp);
     }
 
     @Test

@@ -12,9 +12,9 @@ public class RunningServices {
 
     private final IdSet<Service> serviceIds;
 
-    public RunningServices(TramServiceDate date, TransportData transportData) {
+    public RunningServices(TramServiceDate date, ServiceRepository serviceRepository) {
 
-        serviceIds = transportData.getServicesOnDate(date).stream().collect(IdSet.collector());
+        serviceIds = serviceRepository.getServicesOnDate(date).stream().collect(IdSet.collector());
 
         if (serviceIds.size()>0) {
             logger.info("Found " + serviceIds.size() + " running services for " + date);

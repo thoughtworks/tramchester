@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
@@ -57,7 +58,7 @@ public class StopTimeData {
                 '}';
     }
 
-    public StringIdFor<Trip> getTripId() {
+    public IdFor<Trip> getTripId() {
         return StringIdFor.createId(tripId);
     }
 
@@ -85,7 +86,7 @@ public class StopTimeData {
         return GTFSPickupDropoffType.fromString(dropOffType);
     }
 
-    public StringIdFor<Platform> getPlatformId() {
+    public IdFor<Platform> getPlatformId() {
         return StringIdFor.createId(stopId);
     }
 }

@@ -1,7 +1,7 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.liveUpdates.*;
 import com.tramchester.domain.places.Station;
@@ -215,13 +215,12 @@ class DueTramsRepositoryTest extends EasyMockSupport {
     }
 
 
-    public static StationDepartureInfo addStationInfoWithDueTram(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
-                                                                 String displayId, StringIdFor<Platform> platformId, String message,
-                                                                 Station location, DueTram dueTram) {
+    static void addStationInfoWithDueTram(List<StationDepartureInfo> info, LocalDateTime lastUpdate,
+                                          String displayId, IdFor<Platform> platformId, String message,
+                                          Station location, DueTram dueTram) {
         StationDepartureInfo departureInfo = new StationDepartureInfo(displayId, Lines.Eccles,
                 LineDirection.Incoming, platformId, location, message, lastUpdate);
         info.add(departureInfo);
         departureInfo.addDueTram(dueTram);
-        return departureInfo;
     }
 }

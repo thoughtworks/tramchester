@@ -13,7 +13,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;

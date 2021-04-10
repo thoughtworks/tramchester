@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -123,12 +124,12 @@ public class VehicleStage implements TransportStage<Station, Station> {
     public List<StopCall> getCallingPoints() {
         return stopSequenceNumbers.stream().
                 map(seqNum -> trip.getStopCalls().getStopBySequenceNumber(seqNum)).
-                filter(stopCall -> stopCall.callsAtStation()).
+                filter(StopCall::callsAtStation).
                 collect(Collectors.toList());
     }
 
     @Override
-    public StringIdFor<Trip> getTripId() {
+    public IdFor<Trip> getTripId() {
         return trip.getId();
     }
 

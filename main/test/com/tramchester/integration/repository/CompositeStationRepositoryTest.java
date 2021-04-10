@@ -3,7 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
+import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportDataFactory;

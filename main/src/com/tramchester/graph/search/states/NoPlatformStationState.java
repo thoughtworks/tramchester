@@ -25,8 +25,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
         }
 
         public NoPlatformStationState from(NotStartedState notStartedState, Node node, int cost) {
-            return new NoPlatformStationState(notStartedState, getAll(node),
-                    cost, node.getId());
+            return new NoPlatformStationState(notStartedState, getAll(node), cost, node.getId());
         }
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost) {

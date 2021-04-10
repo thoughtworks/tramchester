@@ -68,8 +68,8 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
         if (indexOfFrom>0 && indexOfTo>0) {
             String from = target.substring(indexOfFrom + FROM.length(), indexOfTo);
             String to = target.substring(indexOfTo + TO.length());
-            StringIdFor<Station> fromId = StringIdFor.createId(from);
-            StringIdFor<Station> toId = StringIdFor.createId(to);
+            IdFor<Station> fromId = StringIdFor.createId(from);
+            IdFor<Station> toId = StringIdFor.createId(to);
 
             if (allStations.hasId(toId) && allStations.hasId(fromId)) {
                 String toName = allStations.get(toId).getName();

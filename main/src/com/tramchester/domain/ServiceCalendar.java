@@ -132,4 +132,8 @@ public class ServiceCalendar {
                 ", removed=" + removed +
                 '}';
     }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
 }

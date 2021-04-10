@@ -4,9 +4,8 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -21,7 +20,6 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.repository.common.InterchangeRepositoryTestSupport.RoutesWithInterchanges;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;

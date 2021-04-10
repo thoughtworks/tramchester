@@ -2,6 +2,8 @@ package com.tramchester.router;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.CompositeId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -14,6 +16,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.mappers.JourneyToDTOMapper;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.repository.TransportData;
@@ -42,7 +45,7 @@ public class ProcessPlanRequest {
 
     @Inject
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
-                              RouteCalculatorArriveBy routeCalculatorArriveBy, TransportData stationRepository,
+                              RouteCalculatorArriveBy routeCalculatorArriveBy, CompositeStationRepository stationRepository,
                               PostcodeRepository postcodeRepository, JourneyToDTOMapper journeyToDTOMapper) {
         this.config = config;
         this.locToLocPlanner = locToLocPlanner;
@@ -141,7 +144,7 @@ public class ProcessPlanRequest {
     private PostcodeLocation getPostcode(String text, String diagnostic) {
         String prefixRemovedText = text.replaceFirst(PostcodeDTO.PREFIX, "");
 
-        StringIdFor<PostcodeLocation> postcodeId = StringIdFor.createId(prefixRemovedText);
+        IdFor<PostcodeLocation> postcodeId = StringIdFor.createId(prefixRemovedText);
         if (!postcodeRepository.hasPostcode(postcodeId)) {
             String msg = "Unable to find " + diagnostic +" postcode from:  "+ prefixRemovedText;
             logger.warn(msg);
@@ -150,15 +153,20 @@ public class ProcessPlanRequest {
         return postcodeRepository.getPostcode(postcodeId);
     }
 
-    private Station getStation(String locationIdText, String diagnostic) {
+    private Station getStation(String text, String diagnostic) {
 
-        StringIdFor<Station> locationId = StringIdFor.createId(locationIdText);
-        if (!stationRepository.hasStationId(locationId)) {
-            String msg = "Unable to find " + diagnostic + " station from id: "+ locationIdText;
-            logger.warn(msg);
-            throw new RuntimeException(msg);
+        IdFor<Station> stationId = StringIdFor.createId(text);
+        if (stationRepository.hasStationId(stationId)) {
+            return stationRepository.getStationById(stationId);
         }
-        return stationRepository.getStationById(locationId);
+        CompositeId<Station> compositeId = CompositeId.parse(text);
+        if (stationRepository.hasStationId(compositeId)) {
+            return stationRepository.getStationById(compositeId);
+        }
+
+        String msg = "Unable to find " + diagnostic + " station from id: "+ text;
+        logger.warn(msg);
+        throw new RuntimeException(msg);
     }
 
     private boolean isFromUserLocation(String id) {

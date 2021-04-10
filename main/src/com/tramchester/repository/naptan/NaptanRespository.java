@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,16 +31,29 @@ public class NaptanRespository {
     public NaptanRespository(NaPTANDataImporter dataImporter, TramchesterConfig config) {
         this.dataImporter = dataImporter;
         this.config = config;
-
+        stopData = Collections.emptyMap();
     }
 
     @PostConstruct
     public void start() {
         logger.info("starting");
+
+        if (!dataImporter.isEnabled()) {
+            logger.info("Not enabled");
+            return;
+        } else {
+            loadDataForConfiguredArea();
+        }
+
+        logger.info("started");
+    }
+
+    private void loadDataForConfiguredArea() {
         BoundingBox bounds = config.getBounds();
+        logger.info("Loading data for " + bounds);
         Double range = config.getNearestStopForWalkingRangeKM();
 
-        long margin = Math.round(range*1000D);
+        long margin = Math.round(range * 1000D);
         Stream<StopsData> dataStream = dataImporter.getAll();
         stopData = dataStream.
                 filter(item -> item.getGridPosition().isValid()).
@@ -47,8 +61,6 @@ public class NaptanRespository {
                 collect(Collectors.toMap(StopsData::getAtcoCode, Function.identity()));
         dataStream.close();
         logger.info("Loaded " + stopData.size() + " stops");
-
-        logger.info("started");
     }
 
     @PreDestroy
@@ -64,5 +76,9 @@ public class NaptanRespository {
 
     public StopsData get(IdFor<Station> actoCode) {
         return stopData.get(actoCode.forDTO());
+    }
+
+    public boolean isEnabled() {
+        return dataImporter.isEnabled();
     }
 }

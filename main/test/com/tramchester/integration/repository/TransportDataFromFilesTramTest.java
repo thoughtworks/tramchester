@@ -19,7 +19,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.DataExpiryCategory;
@@ -195,15 +195,16 @@ class TransportDataFromFilesTramTest {
         assertFalse(sundayTrips.isEmpty());
     }
 
-    @Disabled("Only useful when issues arise with expiry")
     @DataExpiryCategory
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
+
         LocalDate queryDate = LocalDate.now().plusDays(DAYS_AHEAD);
 
         Collection<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
-                filter(svc -> !svc.getCalendar().operatesOn(queryDate)).collect(Collectors.toSet());
+                filter(service -> service.getCalendar().getEndDate().isBefore(queryDate)).
+                collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), expiringServices, "Expiring svcs " +HasId.asIds(expiringServices));
     }
@@ -270,27 +271,27 @@ class TransportDataFromFilesTramTest {
         assertEquals( Altrincham.forDTO()+"1", platformOne.getId().forDTO());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
-        // area from naptan data
-        assertEquals("Altrincham", station.getArea());
+
+        // naptan load is disabled for trams
+        // assertEquals("Altrincham", station.getArea());
     }
 
     @Test
+    @Disabled("naptan load is disabled for trams")
     void shouldHaveAreaForCityCenterStop() {
         Station station = transportData.getStationById(StPetersSquare.getId());
         assertEquals("St Peter's Square", station.getName());
-        // area from naptan data
         assertEquals("Manchester City Centre, Manchester", station.getArea());
     }
 
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
-        StringIdFor<Platform> id = StringIdFor.createId(StPetersSquare.getId().forDTO() + "3");
+        IdFor<Platform> id = StringIdFor.createId(StPetersSquare.getId().forDTO() + "3");
 
         assertTrue(transportData.hasPlatformId(id));
         Platform platform = transportData.getPlatform(id);
         assertEquals("St Peter's Square platform 3", platform.getName());
         assertEquals(TramStations.StPetersSquare.forDTO()+"3", platform.getId().forDTO());
-
     }
 
     @Test

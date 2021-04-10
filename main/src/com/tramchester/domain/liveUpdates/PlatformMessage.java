@@ -1,21 +1,21 @@
 package com.tramchester.domain.liveUpdates;
 
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 
 public class PlatformMessage implements HasPlatformMessage {
-    private final StringIdFor<Platform> stationPlatform;
+    private final IdFor<Platform> stationPlatform;
     private final String message;
     private final LocalDateTime lastUpdate;
     private final Station station;
     private final String displayId;
 
-    public PlatformMessage(StringIdFor<Platform> stationPlatform, String message, LocalDateTime lastUpdate, Station station, String displayId) {
+    public PlatformMessage(IdFor<Platform> stationPlatform, String message, LocalDateTime lastUpdate, Station station, String displayId) {
         this.stationPlatform = stationPlatform;
         this.message = message;
         this.lastUpdate = lastUpdate;

@@ -45,27 +45,18 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return new Route(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
     }
 
-//    @Override
-//    public IdFor<Route> createRouteId(IdFor<Route> routeId) {
-//        // NOTE: tfgm has date suffix at end of route ID i.e. METLPURP:O:2021-03-08
-//        // remove that so route IDs do not change for each release of data??
-//
-//        String originalId = routeId.forDTO();
-//        int endId = originalId.lastIndexOf(':')+1;
-//        int index = Math.min(endId, originalId.length());
-//        String idWithoutDateSuffix = originalId.substring(0, index);
-//        return StringIdFor.createId(idWithoutDateSuffix);
-//    }
-
     @Override
     public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
         String area = stopData.getArea();
-        if (naptanRespository.contains(stationId)) {
-            area = getAreaFromNaptanData(stationId);
-        } else {
-            logger.warn("No naptap data found for " + stationId);
+        if (naptanRespository.isEnabled()) {
+            if (naptanRespository.contains(stationId)) {
+                area = getAreaFromNaptanData(stationId);
+            } else {
+                logger.warn("No naptap data found for " + stationId);
+            }
         }
-        // TODO Check for duplicate names
+
+        // Check for duplicate names - handled by CompositeStationRepository
 
         return new Station(stationId, area, workAroundName(stopData.getName()),
                 stopData.getLatLong(), position);

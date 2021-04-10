@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.integration.testSupport.TramWithPostcodesEnabled;
+import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

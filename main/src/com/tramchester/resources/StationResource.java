@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -67,7 +68,7 @@ public class StationResource extends UsesRecentCookie  {
     public Response get(@PathParam("id") String text) {
         logger.info("Get station by id: " + text);
         
-        StringIdFor<Station> id = StringIdFor.createId(text);
+        IdFor<Station> id = StringIdFor.createId(text);
         guardForStationNotExisting(stationRepository, id);
 
         return Response.ok(new LocationDTO(stationRepository.getStationById(id))).build();

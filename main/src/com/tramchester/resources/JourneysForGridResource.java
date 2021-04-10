@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoundingBoxWithCost;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
@@ -66,7 +67,7 @@ public class JourneysForGridResource {
         logger.info(format("Query for quicktimes to %s for grid of size %s at %s %s maxchanges %s max duration %s",
                 destinationIdText, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDuration));
 
-        StringIdFor<Station> destinationId = StringIdFor.createId(destinationIdText);
+        IdFor<Station> destinationId = StringIdFor.createId(destinationIdText);
         Station destination = repository.getStationById(destinationId);
 
         Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);

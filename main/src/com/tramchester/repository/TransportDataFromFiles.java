@@ -285,7 +285,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
                                     Route route, Station station, TransportEntityFactory factory,
                                     GTFSSourceConfig sourceConfig) {
-        StringIdFor<Platform> platformId = stopTimeData.getPlatformId();
+        IdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
 
         // TODO Should be HasPlatform

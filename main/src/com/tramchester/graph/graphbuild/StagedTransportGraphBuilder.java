@@ -430,7 +430,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                         GraphBuilderCache routeBuilderCache, Map<StationTime, Node> timeNodes) {
         Station startStation = beginStop.getStation();
 
-        StringIdFor<Trip> tripId = trip.getId();
+        IdFor<Trip> tripId = trip.getId();
         Node beginServiceNode = routeBuilderCache.getServiceNode(tx, route.getId(), trip.getService(), startStation.getId(),
                 endStop.getStation().getId());
 

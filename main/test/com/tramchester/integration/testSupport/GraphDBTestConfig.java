@@ -17,10 +17,6 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return fullpath;
     }
 
-    public Path getContainingFolder() {
-        return containingFolder;
-    }
-
     @Override
     public String getNeo4jPagecacheMemory() {
         return "100m";

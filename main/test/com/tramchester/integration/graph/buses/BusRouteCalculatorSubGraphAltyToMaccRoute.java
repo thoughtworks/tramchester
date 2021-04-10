@@ -18,7 +18,7 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.ActiveGraphFilter;
 import com.tramchester.testSupport.TestEnv;
@@ -147,7 +147,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
 
         TramTime time = TramTime.of(10, 40);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, 120);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3, 120);
+        journeyRequest.setDiag(true);
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -173,9 +174,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
-        //DiagramCreator creator = new DiagramCreator(database);
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        creator.create(format("%s_trams.dot", "altyToMacBuses"), routeStations, Integer.MAX_VALUE);
+        creator.create(format("%s.dot", "altyToMacBuses"), routeStations, Integer.MAX_VALUE);
     }
 
     private static class Config extends IntegrationBusTestConfig {

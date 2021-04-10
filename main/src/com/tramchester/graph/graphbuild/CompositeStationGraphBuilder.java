@@ -68,6 +68,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         config.getTransportModes().forEach(this::addCompositeNodesAndLinks);
         try(Transaction txn = graphDatabase.beginTx()) {
             addDBFlag(txn);
+            txn.commit();
         }
         reportStats();
     }

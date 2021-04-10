@@ -12,12 +12,19 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
         this.theId = theId;
     }
 
-    public static <C extends HasId<C> & GraphProperty> StringIdFor<C> createId(String id) {
-        return new StringIdFor<>(id);
+    private StringIdFor() {
+        this.theId = "";
+    }
+
+    public static <C extends GraphProperty> IdFor<C> createId(String text) {
+        if (CompositeId.isComposite(text)) {
+            return CompositeId.parse(text);
+        }
+        return new StringIdFor<>(text);
     }
 
     public static <CLASS extends GraphProperty> StringIdFor<CLASS> invalid() {
-        return new StringIdFor<>("");
+        return new StringIdFor<>();
     }
 
     @Override
@@ -58,7 +65,8 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
 
     public static <Z extends GraphProperty> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {
         String value =  entity.getProperty(propertyKey.getText()).toString();
-        return new StringIdFor<>(value);
+        return createId(value);
+
     }
 
     public static <Z extends GraphProperty> IdFor<Z> getCompositeIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey) {

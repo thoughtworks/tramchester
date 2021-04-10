@@ -4,7 +4,7 @@ import com.tramchester.App;
 import com.tramchester.RedirectToAppFilter;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;

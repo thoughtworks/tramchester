@@ -1,8 +1,8 @@
 package com.tramchester.domain.liveUpdates;
 
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ public class StationDepartureInfo  {
     private static final String NO_MESSAGE = "<no message>";
 
     private final Lines line;
-    private final StringIdFor<Platform> stationPlatform;
+    private final IdFor<Platform> stationPlatform;
     private final String message;
     private final List<DueTram> dueTrams;
     private final LocalDateTime lastUpdate;
@@ -24,7 +24,7 @@ public class StationDepartureInfo  {
     private final LineDirection direction;
 
     // station code here is the actocode
-    public StationDepartureInfo(String displayId, Lines line, LineDirection direction, StringIdFor<Platform> stationPlatform,
+    public StationDepartureInfo(String displayId, Lines line, LineDirection direction, IdFor<Platform> stationPlatform,
                                 Station station, String message, LocalDateTime lastUpdate) {
         this.displayId = displayId;
         this.line = line;
@@ -56,7 +56,7 @@ public class StationDepartureInfo  {
         return direction;
     }
 
-    public StringIdFor<Platform> getStationPlatform() {
+    public IdFor<Platform> getStationPlatform() {
         return stationPlatform;
     }
 

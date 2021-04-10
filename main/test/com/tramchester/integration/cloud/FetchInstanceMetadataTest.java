@@ -1,10 +1,8 @@
 package com.tramchester.integration.cloud;
 
 import com.tramchester.cloud.FetchInstanceMetadata;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import org.junit.jupiter.api.Test;
-
-import java.net.MalformedURLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

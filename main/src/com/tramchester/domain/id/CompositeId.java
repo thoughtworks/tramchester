@@ -2,15 +2,14 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.GraphProperty;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
-
 
 public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMAINTYPE> {
 
+    private static final char BEGIN = '[';
+    private static final char END = ']';
     private static final String DIVIDER = "_";
 
     private final IdSet<DOMAINTYPE> ids;
@@ -24,34 +23,53 @@ public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMA
         this.ids = new IdSet<>(Arrays.asList(ids));
     }
 
-    public static <T extends HasId<T> & GraphProperty> CompositeId<T> parse(String text) {
+    // <T extends HasId<T> & GraphProperty>
+    public static <T extends GraphProperty> CompositeId<T> parse(String text) {
+        if (!isComposite(text)) {
+            throw new RuntimeException("Could not parse " + text);
+        }
+
+        String bare = text.substring(1, text.length() - 1);
         IdSet<T> ids = new IdSet<>();
-        String[] parts = text.split(DIVIDER);
+        String[] parts = bare.split(DIVIDER);
         for (String part : parts) {
-            StringIdFor<T> id = StringIdFor.createId(part);
+            IdFor<T> id = StringIdFor.createId(part);
             ids.add(id);
         }
         return new CompositeId<T>(ids);
     }
 
+    public static boolean isComposite(String text) {
+        int length = text.length();
+        if (length < 2) {
+            return false;
+        }
+        return (text.charAt(0)==BEGIN && text.charAt(length -1)==END);
+    }
+
     @Override
     public String forDTO() {
-        StringBuilder result = new StringBuilder();
-        getSorted().forEach(id -> {
-            result.append(result.isEmpty() ? "" : DIVIDER);
-            result.append(id.forDTO());
-        });
-        return result.toString();
+        return serialize(IdFor::forDTO);
     }
 
     @Override
     public String getGraphId() {
+        return serialize(IdFor::getGraphId);
+    }
+
+    private String serialize(IdToString map) {
         StringBuilder result = new StringBuilder();
+        result.append(BEGIN);
         getSorted().forEach(id -> {
-            result.append(result.isEmpty() ? "" : DIVIDER);
-            result.append(id.getGraphId());
+            result.append(result.length()==1 ? "" : DIVIDER);
+            result.append(map.asString(id));
         });
+        result.append(END);
         return result.toString();
+    }
+
+    private interface IdToString {
+        String asString(IdFor<?> id);
     }
 
     private List<IdFor<DOMAINTYPE>> getSorted() {

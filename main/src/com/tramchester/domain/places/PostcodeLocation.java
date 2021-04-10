@@ -1,6 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,7 +14,7 @@ import java.util.Set;
 public class PostcodeLocation implements Location<PostcodeLocation> {
 
     private final LatLong LatLong;
-    private final StringIdFor<PostcodeLocation> id;
+    private final IdFor<PostcodeLocation> id;
     private final String name;
 
     public PostcodeLocation(com.tramchester.domain.presentation.LatLong latLong, String id) {
@@ -23,7 +24,7 @@ public class PostcodeLocation implements Location<PostcodeLocation> {
     }
 
     @Override
-    public StringIdFor<PostcodeLocation> getId() {
+    public IdFor<PostcodeLocation> getId() {
         return id;
     }
 

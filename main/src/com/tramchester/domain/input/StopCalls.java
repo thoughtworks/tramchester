@@ -1,7 +1,7 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -17,9 +17,9 @@ public class StopCalls {
     private static final Logger logger = LoggerFactory.getLogger(StopCalls.class);
 
     private final SortedMap<Integer, StopCall> orderedStopCalls;
-    private final StringIdFor<Trip> parent;
+    private final IdFor<Trip> parent;
 
-    public StopCalls(StringIdFor<Trip> parent) {
+    public StopCalls(IdFor<Trip> parent) {
         this.parent = parent;
         orderedStopCalls = new TreeMap<>();
     }

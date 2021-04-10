@@ -1,6 +1,7 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.places.RouteStation;
@@ -12,7 +13,7 @@ import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
-import com.tramchester.integration.testSupport.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -44,8 +45,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private ReachabilityRepository reachabilityRepository;
     private StationRepository stationRepository;
     private ProvidesLocalNow providesLocalNow;
-    private StringIdFor<Service> serviceIdA;
-    private StringIdFor<Service> serviceIdB;
+    private IdFor<Service> serviceIdA;
+    private IdFor<Service> serviceIdB;
     private JourneyConstraints journeyConstraints;
     private int maxJourneyDuration;
     private final int numChanges = 3;

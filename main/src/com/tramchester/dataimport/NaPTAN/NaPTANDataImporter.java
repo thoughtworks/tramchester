@@ -41,7 +41,7 @@ public class NaPTANDataImporter {
     public void start() {
         logger.info("starting");
 
-        if (!config.hasDataSourceConfig(NAPTAN_CONFIG_NAME)) {
+        if (!isEnabled()) {
             logger.warn("Naptan is disabled, no config section found for " + NAPTAN_CONFIG_NAME);
             stream = Stream.empty();
             return;
@@ -51,6 +51,10 @@ public class NaPTANDataImporter {
         loadForConfig(sourceConfig);
 
         logger.info("started");
+    }
+
+    public boolean isEnabled() {
+        return config.hasDataSourceConfig(NAPTAN_CONFIG_NAME);
     }
 
     private void loadForConfig(RemoteDataSourceConfig sourceConfig) {

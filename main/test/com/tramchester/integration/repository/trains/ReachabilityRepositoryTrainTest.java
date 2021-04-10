@@ -6,7 +6,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.IntegrationTrainTestConfig;
+import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;

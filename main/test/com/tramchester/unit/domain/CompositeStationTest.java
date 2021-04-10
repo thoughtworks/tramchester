@@ -43,7 +43,9 @@ class CompositeStationTest {
         assertEquals(2.3, compositeStation.getLatLong().getLon(),0);
         assertEquals("compArea", compositeStation.getArea());
 
-        assertEquals("id", compositeStation.forDTO());
+        assertEquals("[id]", compositeStation.forDTO());
+        assertEquals("[id]", compositeStation.getId().getGraphId());
+        assertEquals("[id]", compositeStation.getId().forDTO());
 
         assertEquals(1, compositeStation.getTransportModes().size());
         assertTrue(compositeStation.getTransportModes().contains(Tram));
@@ -79,8 +81,12 @@ class CompositeStationTest {
         CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName");
 
         assertEquals("compName", compositeStation.getName());
-        CompositeId<Station> expectedId = new CompositeId<Station>(StringIdFor.createId("idB"), StringIdFor.createId("idA"));
+        CompositeId<Station> expectedId = new CompositeId<>(StringIdFor.createId("idB"), StringIdFor.createId("idA"));
         assertEquals(expectedId, compositeStation.getId());
+        assertEquals("[idA_idB]", compositeStation.forDTO());
+        assertEquals("[idA_idB]", compositeStation.getId().getGraphId());
+        assertEquals("[idA_idB]", compositeStation.getId().forDTO());
+
         assertEquals(3, compositeStation.getLatLong().getLat(),0);
         assertEquals(6, compositeStation.getLatLong().getLon(),0);
         assertEquals("compArea", compositeStation.getArea());
@@ -89,7 +95,6 @@ class CompositeStationTest {
         assertTrue(compositeStation.getTransportModes().contains(Bus));
 
         assertEquals(2, compositeStation.getRoutes().size());
-
         assertEquals(2, compositeStation.getAgencies().size());
 
         Set<Station> containted = compositeStation.getContained();

@@ -1,17 +1,19 @@
 package com.tramchester.domain.input;
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.GraphProperty;
+import com.tramchester.domain.HasTransportMode;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
 
-    private final StringIdFor<Trip> tripId;
+    private final IdFor<Trip> tripId;
     private final String headSign;
     private final Service service;
     private final Route route;
@@ -26,7 +28,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         this(StringIdFor.createId(tripId), headSign, service, route);
     }
 
-    public Trip(StringIdFor<Trip> tripId, String headSign, Service service, Route route) {
+    public Trip(IdFor<Trip> tripId, String headSign, Service service, Route route) {
         this.tripId = tripId;
         this.headSign = headSign.intern();
         this.service = service;
@@ -54,7 +56,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         return tripId != null ? tripId.hashCode() : 0;
     }
 
-    public StringIdFor<Trip> getId() {
+    public IdFor<Trip> getId() {
         return tripId;
     }
 

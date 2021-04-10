@@ -8,7 +8,7 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.integration.testSupport.BusWithPostcodesEnabled;
+import com.tramchester.integration.testSupport.bus.BusWithPostcodesEnabled;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;

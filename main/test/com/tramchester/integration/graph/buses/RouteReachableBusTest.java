@@ -10,7 +10,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.RouteReachable;
-import com.tramchester.integration.testSupport.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -33,6 +34,7 @@ class RouteReachableBusTest {
 
     private RouteReachable reachable;
     private StationRepository stationRepository;
+    private RouteRepository routeRepository;
     private Route altyToStockportRoute;
 
     @BeforeAll
@@ -51,13 +53,16 @@ class RouteReachableBusTest {
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
-        stationRepository = componentContainer.get(StationRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
         altyToStockportRoute = BusRoutesForTesting.ALTY_TO_WARRINGTON;
     }
 
     @Test
     void shouldHaveCorrectReachability() {
-        Route route = BusRoutesForTesting.ALTY_TO_STOCKPORT;
+        //Route route = BusRoutesForTesting.ALTY_TO_STOCKPORT;
+        Route route = routeRepository.findFirstRouteByName(TestEnv.StagecoachManchester.getId(),
+                "Altrincham - Stockport");
+        assertNotNull(route);
         RouteStation routeStation = new RouteStation(BusStations.real(stationRepository,
                 BusStations.AltrinchamInterchange), route);
 

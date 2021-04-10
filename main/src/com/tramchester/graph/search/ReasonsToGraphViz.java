@@ -1,11 +1,13 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.states.HowIGotHere;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationRepositoryPublic;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -20,7 +22,7 @@ public class ReasonsToGraphViz {
 
     private final StringBuilder builder;
     private final Transaction transaction;
-    private final TransportData transportData;
+    private final CompositeStationRepository stationRepository;
 
     private final HashSet<Long> nodes;
     private final HashSet<String> reasonIds;
@@ -29,8 +31,8 @@ public class ReasonsToGraphViz {
 
     private static final boolean includeAll = false;
 
-    public ReasonsToGraphViz(Transaction transaction, TransportData transportData, StringBuilder builder) {
-        this.transportData = transportData;
+    public ReasonsToGraphViz(Transaction transaction, CompositeStationRepository stationRepository, StringBuilder builder) {
+        this.stationRepository = stationRepository;
         this.builder = builder;
         this.transaction = transaction;
 
@@ -101,7 +103,8 @@ public class ReasonsToGraphViz {
             }
             ids.append(value);
             if (GraphBuilder.Labels.isStation(graphLabel)) {
-                Station station = transportData.getStationById(GraphProps.getStationIdFrom(node));
+                IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
+                Station station = stationRepository.getStationById(stationIdFrom);
                 ids.append(System.lineSeparator()).append(station.getName());
             }
         });

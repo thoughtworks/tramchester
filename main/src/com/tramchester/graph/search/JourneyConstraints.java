@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.RunningServices;
+import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,10 @@ public class JourneyConstraints {
     private final int maxJourneyDuration;
     private final int maxWalkingConnections;
 
-    public JourneyConstraints(TramchesterConfig config, TransportData transportData, JourneyRequest journeyRequest,
+    public JourneyConstraints(TramchesterConfig config, ServiceRepository serviceRepository, JourneyRequest journeyRequest,
                               Set<Station> endStations) {
         this.config = config;
-        this.runningServices = new RunningServices(journeyRequest.getDate(), transportData);
+        this.runningServices = new RunningServices(journeyRequest.getDate(), serviceRepository);
         this.maxPathLength = computeMaxPathLength();
 
         this.endStations = endStations;
