@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -28,7 +29,7 @@ public class FindStationsByNumberLinks {
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public FindStationsByNumberLinks(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken) {
+    public FindStationsByNumberLinks(GraphDatabase graphDatabase, CompositeStationGraphBuilder.Ready readyToken) {
         this.graphDatabase = graphDatabase;
     }
 

@@ -5,13 +5,14 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataLoaderFiles;
+import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.ServiceCalendar;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
@@ -22,7 +23,6 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.BusRoutesForTesting;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -31,11 +31,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.TestEnv.*;
+import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
+import static com.tramchester.testSupport.TestEnv.WarringtonsOwnBuses;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TransportDataFromFilesBusTest {
 
     private static ComponentContainer componentContainer;
@@ -65,8 +65,8 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldHaveExpectedNumbersForBus() {
         assertEquals(40, transportData.getAgencies().size());
-        assertEquals(15673, transportData.getStations().size());
-        assertEquals(1269, transportData.getRoutes().size());
+        assertEquals(15767, transportData.getStations().size());
+        assertEquals(1779, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -80,10 +80,10 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = transportData.getRouteById(BusRoutesForTesting.ALTY_TO_WARRINGTON.getId());
-        assertEquals("Altrincham - Partington - Thelwall - Warrington", result.getName());
-        assertEquals(WarringtonsOwnBuses, result.getAgency());
-        assertEquals("WBTR05A:I:",result.getId().forDTO());
+        Route result = transportData.findFirstRouteByName(WarringtonsOwnBuses.getId(), "Altrincham - Partington - Thelwall - Warrington");
+        assertNotNull(result);
+
+        assertEquals("5A", result.getShortName());
         assertTrue(TransportMode.isBus(result));
 
         List<String> headsigns = new ArrayList<>(result.getHeadsigns());
@@ -93,11 +93,15 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedEndOfLinesAndRoutes() {
-        Route inbound = transportData.getRouteById(StringIdFor.createId("ROST464:I:"));
-        assertEquals("Rochdale - Bacup - Rawtenstall - Accrington", inbound.getName());
+        IdFor<Agency> agencyId = StringIdFor.createId("ROST");
 
-        Route outbound = transportData.getRouteById(StringIdFor.createId("ROST464:O:"));
-        assertEquals("Accrington - Rawtenstall - Bacup - Rochdale", outbound.getName());
+        Route inbound = transportData.findFirstRouteByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
+        assertNotNull(inbound);
+        assertEquals("464", inbound.getShortName());
+
+        Route outbound = transportData.findFirstRouteByName(agencyId, "Accrington - Rawtenstall - Bacup - Rochdale");
+        assertNotNull(outbound);
+        assertEquals("464", outbound.getShortName());
 
         Station firstStation = transportData.getStationById(StringIdFor.createId("2500ACC0009"));
         assertEquals("Bus Station", firstStation.getName());
@@ -113,7 +117,7 @@ class TransportDataFromFilesBusTest {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
 
-        assertEquals(317, gmsRoutes);
+        assertEquals(508, gmsRoutes);
     }
 
     @Test

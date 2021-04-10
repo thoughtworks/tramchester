@@ -59,14 +59,11 @@ class RouteReachableBusTest {
 
     @Test
     void shouldHaveCorrectReachability() {
-        //Route route = BusRoutesForTesting.ALTY_TO_STOCKPORT;
-        Route route = routeRepository.findFirstRouteByName(TestEnv.StagecoachManchester.getId(),
-                "Altrincham - Stockport");
-        assertNotNull(route);
+        Route route = BusRoutesForTesting.findAltyToStockport(routeRepository);
         RouteStation routeStation = new RouteStation(BusStations.real(stationRepository,
-                BusStations.AltrinchamInterchange), route);
+                BusStations.StopAtAltrinchamInterchange), route);
 
-        IdFor<Station> busStationId = BusStations.StockportBusStation.getId();
+        IdFor<Station> busStationId = BusStations.StopAtStockportBusStation.getId();
 
         IdSet<Station> result = reachable.getReachableStations(routeStation);
 
@@ -76,7 +73,7 @@ class RouteReachableBusTest {
 
     @Test
     void shouldCorrectNotReachable() {
-        RouteStation routeStation = new RouteStation(BusStations.real(stationRepository, BusStations.StockportBusStation), altyToStockportRoute);
+        RouteStation routeStation = new RouteStation(BusStations.real(stationRepository, BusStations.StopAtStockportBusStation), altyToStockportRoute);
 
         IdSet<Station> result = reachable.getReachableStations(routeStation);
 
@@ -85,7 +82,7 @@ class RouteReachableBusTest {
 
     @Test
     void shouldHaveCorrectReachabilityForWholeRoute() {
-        RouteStation routeStation = new RouteStation(BusStations.real(stationRepository, BusStations.AltrinchamInterchange), altyToStockportRoute);
+        RouteStation routeStation = new RouteStation(BusStations.real(stationRepository, BusStations.StopAtAltrinchamInterchange), altyToStockportRoute);
 
 //        Set<RouteStation> destinations = stationRepository.getRouteStations().stream().
 //                filter(station -> station.getRoute().getId().equals(route.getId())).

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.tramchester.testSupport.reference.BusStations.AltrinchamInterchange;
+import static com.tramchester.testSupport.reference.BusStations.StopAtAltrinchamInterchange;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.TRIP_A_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -127,7 +127,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapJoruneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
         ConnectingStage connectingStage = new ConnectingStage(
-                BusStations.of(AltrinchamInterchange), TramStations.of(Altrincham), 1, time);
+                BusStations.of(StopAtAltrinchamInterchange), TramStations.of(Altrincham), 1, time);
         VehicleStage tramStage = getRawVehicleStage(TramStations.of(Altrincham), TramStations.of(TramStations.Shudehill),
                 createRoute("route"), time.plusMinutes(1), 35, 9, true);
 

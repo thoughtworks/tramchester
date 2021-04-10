@@ -94,5 +94,11 @@ public class BoundingBox {
 
     }
 
-
+    @Override
+    public String toString() {
+        return "BoundingBox{" +
+                "bottomLeft=" + bottomLeft +
+                ", topRight=" + topRight +
+                '}';
+    }
 }

@@ -73,6 +73,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return area;
     }
 
+    // spelt different ways within data
     private String workAroundName(String name) {
         if ("St Peters Square".equals(name)) {
             return "St Peter's Square";

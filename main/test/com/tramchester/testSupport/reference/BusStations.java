@@ -14,9 +14,9 @@ import org.jetbrains.annotations.NotNull;
 
 public enum BusStations implements TestStations {
 
-    AltrinchamInterchange("1800AMIC001", "Altrincham", "Altrincham Interchange",
+    StopAtAltrinchamInterchange("1800AMIC001", "Altrincham", "Altrincham Interchange",
             new LatLong(53.38745, -2.34771)),
-    StockportBusStation("1800STBS001", "Stockport", "Stockport Bus Station",
+    StopAtStockportBusStation("1800STBS001", "Stockport", "Stockport Bus Station",
             new LatLong(53.4091,-2.16293)),
     ShudehillInterchange("1800SHIC001", "Shudehill", "Shudehill Interchange",
             new LatLong(53.48557, -2.23827)),

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteEndRepositoryBusTest {
     private static ComponentContainer componentContainer;
-    private RouteEndRepository repository;
+    private RouteEndRepository routeEndRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -35,18 +35,18 @@ class RouteEndRepositoryBusTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        repository = componentContainer.get(RouteEndRepository.class);
+        routeEndRepository = componentContainer.get(RouteEndRepository.class);
     }
 
     @Test
     void shouldFindEndsOfRoutesForBuses() {
-        IdSet<Station> result = repository.getStations(TransportMode.Bus);
+        IdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
 
         assertTrue(result.contains(StringIdFor.createId("2500ACC0009"))); // Accrington, Bus Station (Stand 9)
 
         assertFalse(result.contains(StringIdFor.createId("2500LAA15791"))); // Accrington, opp Infant Street
 
-        assertEquals(872, result.size());
+        assertEquals(1085, result.size());
 
     }
 }

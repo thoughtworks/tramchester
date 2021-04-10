@@ -86,7 +86,7 @@ class BusRouteCostCalculatorCompositeStationsTest {
     @BusTest
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        Assertions.assertEquals(36, getApproxCostBetween(shudehillInterchange, stockportBusStation));
+        Assertions.assertEquals(37, getApproxCostBetween(shudehillInterchange, stockportBusStation));
         Assertions.assertEquals(38, getApproxCostBetween(stockportBusStation, shudehillInterchange));
     }
 

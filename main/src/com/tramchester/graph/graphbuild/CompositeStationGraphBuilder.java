@@ -42,7 +42,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     public CompositeStationGraphBuilder(GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository,
                                         CompositeStationRepository stationRepository, RouteRepository routeRepository,
                                         TramchesterConfig config, GraphFilter graphFilter,
-                                        StagedTransportGraphBuilder.Ready mainGraphIsBuilt) {
+                                        StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt) {
         super(graphDatabase, nodeTypeRepository);
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
@@ -82,7 +82,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         Set<CompositeStation> allComposite = stationRepository.getCompositesFor(mode);
 
         if (allComposite.isEmpty()) {
-            logger.info("No composite stations for " + mode);
+            logger.info("No composite stations to add for " + mode);
             return;
         }
 

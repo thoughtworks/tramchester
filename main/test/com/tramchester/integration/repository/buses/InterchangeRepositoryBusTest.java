@@ -56,11 +56,12 @@ class InterchangeRepositoryBusTest {
         IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(Bus);
         assertFalse(interchanges.isEmpty());
 
-        assertTrue(interchanges.contains(AltrinchamInterchange.getId()));
-        assertTrue(interchanges.contains(StockportBusStation.getId()));
-
         assertFalse(interchanges.contains(StockportAtAldi.getId()));
         assertFalse(interchanges.contains(StockportNewbridgeLane.getId()));
+
+        assertTrue(interchanges.contains(StopAtAltrinchamInterchange.getId()));
+        assertTrue(interchanges.contains(StopAtStockportBusStation.getId()));
+
     }
 
     @BusTest
@@ -70,8 +71,6 @@ class InterchangeRepositoryBusTest {
         Set<Route> all = routeRepository.getRoutes();
 
         // Note works for 2 links, not for 3 links
-        // 2 = 1821 interchanges
-        // 3 = 234  interchanges, but unreachable interchanges
         assertEquals(all, routesWithInterchanges);
     }
 

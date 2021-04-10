@@ -77,7 +77,7 @@ class BusRouteCalculatorTest {
 
         JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 2,
                 maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(StockportBusStation, AltrinchamInterchange, requestA, 3);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(StopAtStockportBusStation, StopAtAltrinchamInterchange, requestA, 3);
         assertFalse(journeys.isEmpty());
 
         // At least one direct
@@ -86,7 +86,7 @@ class BusRouteCalculatorTest {
 
         JourneyRequest requestB = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 8,
                 maxJourneyDuration);
-        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(AltrinchamInterchange, StockportBusStation, requestB, 3);
+        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, StopAtStockportBusStation, requestB, 3);
 
         // algo seems to return very large number of changes even when 2 is possible??
         List<Journey> journeys2Stages = journeysMaxChanges.stream().filter(journey -> journey.getStages().size() <= 3).collect(Collectors.toList());
@@ -100,7 +100,7 @@ class BusRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
                 maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(AltrinchamInterchange, KnutsfordStationStand3, request);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, KnutsfordStationStand3, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
     }
@@ -112,7 +112,7 @@ class BusRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
                 maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(AltrinchamInterchange, KnutsfordStationStand3, request);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, KnutsfordStationStand3, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
 
@@ -132,7 +132,7 @@ class BusRouteCalculatorTest {
         int maxChanges = 2;
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0), false, maxChanges,
                 maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, StockportBusStation, journeyRequest, 3);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, StopAtStockportBusStation, journeyRequest, 3);
         assertFalse(journeys.isEmpty());
         List<Journey> threeStagesOrLess = journeys.stream().filter(journey -> journey.getStages().size() <= (maxChanges + 1)).collect(Collectors.toList());
         assertFalse(threeStagesOrLess.isEmpty());

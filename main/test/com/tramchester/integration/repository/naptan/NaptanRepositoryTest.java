@@ -52,7 +52,7 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldContainBusStopWithinArea() {
-        IdFor<Station> actoCode = BusStations.StockportBusStation.getId();
+        IdFor<Station> actoCode = BusStations.StopAtStockportBusStation.getId();
         assertTrue(respository.contains(actoCode));
 
         StopsData data = respository.get(actoCode);
