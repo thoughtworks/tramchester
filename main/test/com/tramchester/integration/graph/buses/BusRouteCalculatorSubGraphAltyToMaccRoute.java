@@ -15,12 +15,12 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteReachable;
+import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
-import com.tramchester.testSupport.ActiveGraphFilter;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -39,30 +39,37 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
-    private static final IdFor<Route> ROUTE_ID_FOR_FILTER_ONLY = StringIdFor.createId("DAGC088C:O:2021-01-02");
     private static ComponentContainer componentContainer;
     private static Config config;
+    private static Set<Route> routes;
 
     private RouteReachable routeReachable;
     private RouteCallingStations routeCallingStations;
     private RouteCalculatorTestFacade calculator;
-    private StationRepository stationRepository;
     private CompositeStationRepository compositeStationRepository;
+    private StationRepository stationRepository;
 
     private Transaction txn;
     private TramServiceDate when;
-    private Set<Route> routes;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addRoute(ROUTE_ID_FOR_FILTER_ONLY);
 
         config = new Config("altyMacRoute.db");
         deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().
+                configureGraphFilter(BusRouteCalculatorSubGraphAltyToMaccRoute::configureFilter).
+                create(config, NoopRegisterMetrics());
         componentContainer.initialise();
+
+        RouteRepository routeRepository = componentContainer.get(TransportData.class);
+        routes = routeRepository.findRoutesByName(StringIdFor.createId("DAGC"), "Altrincham - Wilmslow - Knutsford - Macclesfield");
+    }
+
+    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
+        routes.forEach(route -> graphFilter.addRoute(route.getId()));
+        //graphFilter.addRoute(ROUTE_ID_FOR_FILTER_ONLY);
     }
 
     @AfterAll
@@ -74,20 +81,17 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @BeforeEach
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        routeReachable = componentContainer.get(RouteReachable.class);
-        RouteRepository routeRepository = componentContainer.get(TransportData.class);
-        stationRepository = componentContainer.get(StationRepository.class);
-        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
 
+        stationRepository = componentContainer.get(StationRepository.class);
+
+        routeReachable = componentContainer.get(RouteReachable.class);
+        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
         routeCallingStations = componentContainer.get(RouteCallingStations.class);
 
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         when = new TramServiceDate(TestEnv.testDay());
-
-        routes = routeRepository.findRoutesByName(StringIdFor.createId("DAGC"), "Altrincham - Wilmslow - Knutsford - Macclesfield");
-
     }
 
     @AfterEach
@@ -97,36 +101,36 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         }
     }
 
-    // TODO Rework graph filter first
+    @Test
+    void shouldBeFilteringByCorrectRoute() {
 
-//    @Test
-//    void shouldBeFilteringByCorrectRoute() {
-//        assertEquals(route.getId(), ROUTE_ID_FOR_FILTER_ONLY, "filter is wrong");
-//
-//        CompositeStation start = compositeStationRepository.findByName("Altrincham Interchange");
-//        assertTrue(start.getRoutes().contains(route));
-//
-//        CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
-//        assertTrue(end.getRoutes().contains(route));
-//
-//        Set<Station> fromAltyServesRoutes = start.getContained().stream().filter(station -> station.servesRoute(route)).collect(Collectors.toSet());
-//        assertFalse(fromAltyServesRoutes.isEmpty());
-//
-//        IdSet<Station> endIds = end.getContained().stream()
-//                .filter(station -> station.servesRoute(route))
-//                .map(Station::getId).
-//                collect(IdSet.idCollector());
-//
-//        assertFalse(endIds.isEmpty());
-//
-//        fromAltyServesRoutes.forEach(station -> {
-//            RouteStation routeStation = stationRepository.getRouteStation(station, route);
-//            assertNotNull(routeStation, routeStation.toString());
-//
-//            IdSet<Station> result = getRouteReachableWithInterchange(routeStation, endIds);
-//            assertFalse(result.isEmpty());
-//        });
-//    }
+        routes.forEach(route -> {
+            CompositeStation start = compositeStationRepository.findByName("Altrincham Interchange");
+            assertTrue(start.getRoutes().contains(route));
+
+            CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
+            assertTrue(end.getRoutes().contains(route));
+
+            Set<Station> fromAltyServesRoutes = start.getContained().stream().filter(station -> station.servesRoute(route)).collect(Collectors.toSet());
+            assertFalse(fromAltyServesRoutes.isEmpty());
+
+            IdSet<Station> endIds = end.getContained().stream()
+                    .filter(station -> station.servesRoute(route))
+                    .map(Station::getId).
+                            collect(IdSet.idCollector());
+
+            assertFalse(endIds.isEmpty());
+
+            fromAltyServesRoutes.forEach(station -> {
+                RouteStation routeStation = stationRepository.getRouteStation(station, route);
+                assertNotNull(routeStation, routeStation.toString());
+
+                IdSet<Station> result = getRouteReachableWithInterchange(routeStation, endIds);
+                assertFalse(result.isEmpty());
+            });
+        });
+
+    }
 
     private IdSet<Station> getRouteReachableWithInterchange(RouteStation start, IdSet<Station> destinations) {
 

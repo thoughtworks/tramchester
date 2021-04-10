@@ -6,7 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.testSupport.ActiveGraphFilter;
+import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -48,14 +48,16 @@ class RouteCalculatorSubGraphTest {
         config = new SubgraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
-        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-//        graphFilter.addRoute(RouteCodesForTesting.ALTY_TO_BURY);
-        stations.forEach(station -> graphFilter.addStation(station.getId()));
-
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().
+                configureGraphFilter(RouteCalculatorSubGraphTest::configureFilter).
+                create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
+    }
+
+    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
+        stations.forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterAll

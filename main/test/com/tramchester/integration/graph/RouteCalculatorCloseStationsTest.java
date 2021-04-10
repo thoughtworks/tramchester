@@ -43,7 +43,7 @@ class RouteCalculatorCloseStationsTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         TramchesterConfig config = new ClosedStationsTramTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }

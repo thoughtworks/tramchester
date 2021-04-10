@@ -1,33 +1,50 @@
 package com.tramchester;
 
+import com.google.inject.AbstractModule;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.graphbuild.GraphFilter;
-import com.tramchester.graph.graphbuild.IncludeAllFilter;
+import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.modules.MappersAndConfigurationModule;
+import com.tramchester.modules.GetReadyModule;
+import com.tramchester.modules.GraphFilterModule;
+import com.tramchester.modules.TransportDataFactoryModule;
 import com.tramchester.repository.TransportDataFactory;
 import com.tramchester.repository.TransportDataFromFiles;
 
-public class ComponentsBuilder<C extends TransportDataFactory> {
-    private GraphFilter graphFilter = new IncludeAllFilter();
-    private Class<C> transportDataFactoryType;
+import java.util.Arrays;
+import java.util.List;
+
+public class ComponentsBuilder {
+    private Class<? extends TransportDataFactory> transportDataFactoryType;
+    private SetupGraphFilter setupGraphFilter;
 
     public ComponentsBuilder() {
-        // TODO
-        this.transportDataFactoryType = (Class<C>) TransportDataFromFiles.class;
+        this.transportDataFactoryType = TransportDataFromFiles.class;
+        setupGraphFilter = null;
     }
 
-    public ComponentsBuilder<C> setGraphFilter(GraphFilter graphFilter) {
-        this.graphFilter = graphFilter;
+    public GuiceContainerDependencies create(TramchesterConfig config, CacheMetrics.RegistersCacheMetrics registerCacheMetrics) {
+
+        List<AbstractModule> modules = Arrays.asList(
+                new MappersAndConfigurationModule(config, registerCacheMetrics),
+                new GetReadyModule(),
+                new TransportDataFactoryModule<>(transportDataFactoryType),
+                new GraphFilterModule(setupGraphFilter));
+
+        return new GuiceContainerDependencies(modules);
+    }
+
+    public <T extends TransportDataFactory>  ComponentsBuilder overrideProvider(Class<T> transportDataFactoryType) {
+        this.transportDataFactoryType = transportDataFactoryType;
         return this;
     }
 
-    public GuiceContainerDependencies<C> create(TramchesterConfig config, CacheMetrics.RegistersCacheMetrics registerCacheMetrics) {
-        return new GuiceContainerDependencies<>(graphFilter, config, registerCacheMetrics, transportDataFactoryType);
-    }
-
-    public ComponentsBuilder<C> overrideProvider(Class<C> providerClass) {
-        this.transportDataFactoryType = providerClass;
+    public ComponentsBuilder configureGraphFilter(SetupGraphFilter setupGraphFilter) {
+        this.setupGraphFilter = setupGraphFilter;
         return this;
     }
 
+    public interface SetupGraphFilter {
+        void configure(ConfigurableGraphFilter filterToConfigure);
+    }
 }

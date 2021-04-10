@@ -21,7 +21,7 @@ class InterchangeRepositoryTrainTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder<>().create(new IntegrationTrainTestConfig(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(new IntegrationTrainTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

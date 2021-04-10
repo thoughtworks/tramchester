@@ -56,7 +56,7 @@ class TransportDataFromFilesTramTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

@@ -21,13 +21,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
-    private static GuiceContainerDependencies<TransportDataFactory> componentContainer;
+    private static GuiceContainerDependencies componentContainer;
     private NaptanRespository respository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan();
-        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

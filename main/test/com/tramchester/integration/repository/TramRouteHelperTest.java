@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteHelperTest {
 
-    private static GuiceContainerDependencies<TransportDataFactory> componentContainer;
+    private static GuiceContainerDependencies componentContainer;
     private TramRouteHelper helper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder<>().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

@@ -48,7 +48,7 @@ public class App extends Application<AppConfiguration>  {
 
     private static final String SERVICE_NAME = "tramchester";
 
-    private GuiceContainerDependencies<TransportDataFromFiles> container;
+    private GuiceContainerDependencies container;
 
     public App() {
 
@@ -118,7 +118,7 @@ public class App extends Application<AppConfiguration>  {
         MetricRegistry metricRegistry = environment.metrics();
         CacheMetrics.RegistersCacheMetrics registersCacheMetrics = new CacheMetrics.DropWizardMetrics(metricRegistry);
 
-        this.container = new ComponentsBuilder<TransportDataFromFiles>().create(configuration, registersCacheMetrics);
+        this.container = new ComponentsBuilder().create(configuration, registersCacheMetrics);
 
         try {
             container.initialise();
@@ -220,7 +220,7 @@ public class App extends Application<AppConfiguration>  {
                 addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST),true, pattern);
     }
 
-    public GuiceContainerDependencies<TransportDataFromFiles> getDependencies() {
+    public GuiceContainerDependencies getDependencies() {
         return container;
     }
 

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class NumberOfNodesAndRelationshipsRepositoryTest {
 
     private static SimpleGraphConfig config;
-    private static GuiceContainerDependencies<TramTransportDataForTestFactory> componentContainer;
+    private static GuiceContainerDependencies componentContainer;
     private NumberOfNodesAndRelationshipsRepository repository;
 
     @BeforeAll
@@ -28,7 +28,7 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
         config = new SimpleGraphConfig("ServiceNodeCacheTest.db");
         TestEnv.deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<TramTransportDataForTestFactory>().
+        componentContainer = new ComponentsBuilder().
                 overrideProvider(TramTransportDataForTestFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

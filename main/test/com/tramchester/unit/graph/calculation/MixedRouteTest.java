@@ -49,7 +49,7 @@ class MixedRouteTest {
         config = new SimpleMixedRouteGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<MixedTransportTestDataFactory>().
+        componentContainer = new ComponentsBuilder().
                 overrideProvider(MixedTransportTestDataFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

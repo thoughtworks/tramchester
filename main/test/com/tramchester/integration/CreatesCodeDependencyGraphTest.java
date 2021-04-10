@@ -18,7 +18,7 @@ class CreatesCodeDependencyGraphTest {
     @BeforeAll
     static void beforeAnyTestRun() {
         TramchesterConfig config = new IntegrationTramTestConfig();
-        container = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
+        container = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
     }
 
     @Test

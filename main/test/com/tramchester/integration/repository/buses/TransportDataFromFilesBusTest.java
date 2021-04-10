@@ -46,7 +46,7 @@ class TransportDataFromFilesBusTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         config = new IntegrationBusTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

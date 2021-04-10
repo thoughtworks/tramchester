@@ -7,7 +7,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;

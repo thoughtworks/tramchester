@@ -8,6 +8,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.RouteRepository;
 import org.neo4j.graphdb.Node;

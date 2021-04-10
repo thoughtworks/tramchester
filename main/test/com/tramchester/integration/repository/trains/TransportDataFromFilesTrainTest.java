@@ -39,7 +39,7 @@ class TransportDataFromFilesTrainTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         config = new IntegrationTrainTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

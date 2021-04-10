@@ -43,7 +43,7 @@ class RouteReachableBusTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
         TramchesterConfig config = new IntegrationBusTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

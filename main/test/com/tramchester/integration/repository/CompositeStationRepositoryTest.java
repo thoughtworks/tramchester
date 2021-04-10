@@ -18,13 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CompositeStationRepositoryTest {
 
-    private static GuiceContainerDependencies<TransportDataFactory> componentContainer;
+    private static GuiceContainerDependencies componentContainer;
     private CompositeStationRepository repository;
     private StationRepository fullRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder<>().create(new TramWithPostcodesEnabled(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(new TramWithPostcodesEnabled(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

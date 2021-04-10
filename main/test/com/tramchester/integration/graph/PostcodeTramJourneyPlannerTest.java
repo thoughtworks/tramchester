@@ -54,7 +54,7 @@ class PostcodeTramJourneyPlannerTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new TramWithPostcodesEnabled();
-        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
     }

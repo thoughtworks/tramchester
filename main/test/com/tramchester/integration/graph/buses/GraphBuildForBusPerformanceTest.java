@@ -2,7 +2,7 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.testSupport.ActiveGraphFilter;
+import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -26,11 +26,14 @@ class GraphBuildForBusPerformanceTest {
         testConfig = new IntegrationBusTestConfig("GraphBuildForBusPerformanceTest.db");
         TestEnv.deleteDBIfPresent(testConfig);
 
-        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addAgency(TestEnv.WarringtonsOwnBuses.getId());
-
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().
+                configureGraphFilter(GraphBuildForBusPerformanceTest::configureFilter).
+                create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+    }
+
+    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
+        graphFilter.addAgency(TestEnv.WarringtonsOwnBuses.getId());
     }
 
     @AfterAll
@@ -41,12 +44,12 @@ class GraphBuildForBusPerformanceTest {
 
     @Test
     void shouldTriggerMainGraphBuild() {
-        StagedTransportGraphBuilder.Ready ready = componentContainer.get(StagedTransportGraphBuilder.Ready.class);
+        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
     }
 
     @Test
     void shouldTriggerLinksBuild() {
-        StationsAndLinksGraphBuilder.Ready ready = componentContainer.get(StationsAndLinksGraphBuilder.Ready.class);
+        componentContainer.get(StationsAndLinksGraphBuilder.Ready.class);
     }
 }
 

@@ -49,7 +49,7 @@ class TramRouteTest {
         config = new SimpleGraphConfig("tramroutetest.db");
         TestEnv.deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<TramTransportDataForTestFactory>().
+        componentContainer = new ComponentsBuilder().
                 overrideProvider(TramTransportDataForTestFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

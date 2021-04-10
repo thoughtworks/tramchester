@@ -39,7 +39,7 @@ class RouteCalulatorTestKeyRoutes {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

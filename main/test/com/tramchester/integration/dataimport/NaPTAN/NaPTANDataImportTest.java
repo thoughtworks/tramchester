@@ -21,14 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class NaPTANDataImportTest {
 
-    private static GuiceContainerDependencies<TransportDataFactory> componentContainer;
+    private static GuiceContainerDependencies componentContainer;
     private Stream<StopsData> dataStream;
     private NaPTANDataImporter dataImporter;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan();
-        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

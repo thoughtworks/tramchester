@@ -48,7 +48,7 @@ class GraphQueriesTests {
         config = new SimpleGraphConfig("graphquerytests.db");
         TestEnv.deleteDBIfPresent(config);
 
-        componentContainer = new ComponentsBuilder<TramTransportDataForTestFactory>().
+        componentContainer = new ComponentsBuilder().
                 overrideProvider(TramTransportDataForTestFactory.class).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

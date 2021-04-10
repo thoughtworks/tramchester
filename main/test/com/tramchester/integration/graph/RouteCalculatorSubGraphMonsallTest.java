@@ -3,17 +3,18 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.testSupport.ActiveGraphFilter;
+import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -28,6 +29,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
+    private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
@@ -38,13 +40,18 @@ class RouteCalculatorSubGraphMonsallTest {
         config = new SubgraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
-        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addTramRoute(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale);
-
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().
+                configureGraphFilter(RouteCalculatorSubGraphMonsallTest::configureFilter).
+                create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
+        tramRouteHelper = new TramRouteHelper(componentContainer);
+
         database = componentContainer.get(GraphDatabase.class);
+    }
+
+    private static void configureFilter(ConfigurableGraphFilter graphFilter) {
+        graphFilter.addRoute(tramRouteHelper.getId(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale));
     }
 
     @AfterAll

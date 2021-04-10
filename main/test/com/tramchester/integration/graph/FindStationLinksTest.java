@@ -27,7 +27,7 @@ class FindStationLinksTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         IntegrationTramTestConfig config = new IntegrationTramTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

@@ -72,7 +72,7 @@ class CreateNeighboursTest {
     static void onceBeforeAnyTestsRun() {
         testConfig = new NeighboursTestConfig();
 
-        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         // force creation and init

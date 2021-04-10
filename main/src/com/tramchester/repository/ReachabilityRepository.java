@@ -8,7 +8,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.RouteReachable;
-import com.tramchester.graph.graphbuild.GraphFilter;
+import com.tramchester.graph.filters.GraphFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

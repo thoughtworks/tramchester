@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.graph.filters;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
@@ -7,32 +7,21 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.graphbuild.GraphFilter;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 
-import java.util.HashSet;
 import java.util.Set;
 
-/***
- * Test Support Only
- */
-public class ActiveGraphFilter implements GraphFilter {
+public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     private final IdSet<Route> routeIds;
-    private final Set<KnownTramRoute> knownTramRoutes;
     private final IdSet<Service> serviceIds;
     private final IdSet<Station> stationsIds;
     private final IdSet<Agency> agencyIds;
-    private boolean loadedRealRouteIds;
 
     public ActiveGraphFilter() {
         routeIds = new IdSet<>();
         serviceIds = new IdSet<>();
         stationsIds = new IdSet<>();
         agencyIds = new IdSet<>();
-
-        loadedRealRouteIds = false;
-        knownTramRoutes = new HashSet<>();
     }
 
     @Override
@@ -42,30 +31,25 @@ public class ActiveGraphFilter implements GraphFilter {
 
     /***
      * Use with care, routes are likely to be duplicated, passing just one rarely correct for buses
-     * @param id
+     * @param id route id to add
      */
+    @Override
     public void addRoute(IdFor<Route> id) {
         routeIds.add(id);
     }
 
-    public void addTramRoute(KnownTramRoute tramRoute) {
-        knownTramRoutes.add(tramRoute);
-    }
-
-    public void addService(Service service) {
-        serviceIds.add(service.getId());
-    }
-
+    @Override
     public void addStation(IdFor<Station> id) {
         stationsIds.add(id);
     }
 
+    @Override
     public void addAgency(IdFor<Agency> agencyId) {
         agencyIds.add(agencyId);
     }
 
+    @Override
     public boolean shouldInclude(RouteRepository routeRepository, Route route) {
-        loadIfRequired(routeRepository);
         if (routeIds.isEmpty()) {
             return true;
         }
@@ -74,39 +58,19 @@ public class ActiveGraphFilter implements GraphFilter {
 
     @Override
     public boolean shouldInclude(RouteRepository routeRepository, Set<Route> routes) {
-        loadIfRequired(routeRepository);
         if (routeIds.isEmpty()) {
             return true;
         }
         return routes.stream().anyMatch(route -> routeIds.contains(route.getId()));
     }
 
-    private void loadIfRequired(RouteRepository routeRepository) {
-        if (loadedRealRouteIds) {
-            return;
-        }
-        loadedRealRouteIds = true;
 
-        if (knownTramRoutes.isEmpty()) {
-            return;
-        }
-        TramRouteHelper routeHelper = new TramRouteHelper(routeRepository);
-        for(KnownTramRoute known : knownTramRoutes) {
-            routeIds.add(routeHelper.getId(known));
-        }
-    }
-
-    public boolean shouldInclude(Service service) {
-        if (serviceIds.isEmpty()) {
-            return true;
-        }
-        return serviceIds.contains(service.getId());
-    }
-
+    @Override
     public boolean shouldInclude(Station station) {
         return shouldInclude(station.getId());
     }
 
+    @Override
     public boolean shouldInclude(StopCall call) {
         return shouldInclude(call.getStationId());
     }
@@ -146,5 +110,4 @@ public class ActiveGraphFilter implements GraphFilter {
         asString.append("}");
         return asString.toString();
     }
-
 }

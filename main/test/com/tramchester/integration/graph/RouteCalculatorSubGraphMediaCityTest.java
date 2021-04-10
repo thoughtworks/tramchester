@@ -7,7 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.testSupport.ActiveGraphFilter;
+import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -15,6 +15,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.DataExpiryCategory;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -30,12 +31,14 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
+    private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
@@ -59,17 +62,20 @@ class RouteCalculatorSubGraphMediaCityTest {
         config = new SubgraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
-        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        graphFilter.addTramRoute(AshtonUnderLyneManchesterEccles);
-        graphFilter.addTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
-        graphFilter.addTramRoute(EcclesManchesterAshtonUnderLyne);
-        graphFilter.addTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
-        stations.forEach(TramStations::getId);
-
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().
+                configureGraphFilter(RouteCalculatorSubGraphMediaCityTest::configureFilter).create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
+        tramRouteHelper = new TramRouteHelper(componentContainer);
+    }
+
+    private static void configureFilter(ConfigurableGraphFilter toConfigure) {
+        stations.forEach(station -> toConfigure.addStation(station.getId()));
+        toConfigure.addRoute(tramRouteHelper.getId(AshtonUnderLyneManchesterEccles));
+        toConfigure.addRoute(tramRouteHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury));
+        toConfigure.addRoute(tramRouteHelper.getId(EcclesManchesterAshtonUnderLyne));
+        toConfigure.addRoute(tramRouteHelper.getId(EastDidisburyManchesterShawandCromptonRochdale));
     }
 
     @AfterAll

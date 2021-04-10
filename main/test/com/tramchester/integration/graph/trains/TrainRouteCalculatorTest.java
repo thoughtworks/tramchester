@@ -51,7 +51,7 @@ class TrainRouteCalculatorTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         TramchesterConfig testConfig = new IntegrationTrainTestConfig();
-        componentContainer = new ComponentsBuilder<>().create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);

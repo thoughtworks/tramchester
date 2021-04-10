@@ -6,7 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.testSupport.ActiveGraphFilter;
+import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -51,13 +51,16 @@ class SubGraphAroundKnutsfordTrainTest {
         config = new SubgraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
-        ActiveGraphFilter graphFilter = new ActiveGraphFilter();
-        stations.forEach(station -> graphFilter.addStation(station.getId()));
-
-        componentContainer = new ComponentsBuilder<>().setGraphFilter(graphFilter).create(config, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().
+                configureGraphFilter(SubGraphAroundKnutsfordTrainTest::configureGraphFilter).
+                create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
+    }
+
+    private static void configureGraphFilter(ConfigurableGraphFilter graphFilter) {
+        stations.forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterAll

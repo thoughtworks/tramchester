@@ -5,11 +5,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.filters.GraphFilter;
 import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
