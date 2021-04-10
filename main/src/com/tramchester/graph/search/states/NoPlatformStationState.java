@@ -93,7 +93,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             case TRAIN_STATION:
                 return builders.noPlatformStation.fromNeighbour(this, next, cost);
             default:
-                throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
+                throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
         }
     }
 
@@ -112,7 +112,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
 
     @Override
     public String toString() {
-        return "BusStationState{" +
+        return "NoPlatformStationState{" +
                 "stationNodeId=" + stationNodeId +
                 "} " + super.toString();
     }

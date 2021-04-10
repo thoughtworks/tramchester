@@ -40,6 +40,10 @@ public class ActiveGraphFilter implements GraphFilter {
         return true;
     }
 
+    /***
+     * Use with care, routes are likely to be duplicated, passing just one rarely correct for buses
+     * @param id
+     */
     public void addRoute(IdFor<Route> id) {
         routeIds.add(id);
     }
@@ -76,7 +80,6 @@ public class ActiveGraphFilter implements GraphFilter {
         }
         return routes.stream().anyMatch(route -> routeIds.contains(route.getId()));
     }
-
 
     private void loadIfRequired(RouteRepository routeRepository) {
         if (loadedRealRouteIds) {

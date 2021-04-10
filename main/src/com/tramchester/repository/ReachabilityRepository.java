@@ -106,7 +106,7 @@ public class ReachabilityRepository {
             Set<RouteStation> cannotReachInterchange = new HashSet<>();
 
             startingPoints.forEach(start -> {
-                if (routeReachable.isInterchangeReachable(start))  {
+                if (routeReachable.isInterchangeReachableOnRoute(start))  {
                     canReachInterchange.add(start.getId());
                 } else {
                     cannotReachInterchange.add(start);
@@ -114,7 +114,7 @@ public class ReachabilityRepository {
             });
 
             cannotReachInterchange.forEach(start -> {
-                IdSet<Station> reachableStations = routeReachable.getReachableStations(start);
+                IdSet<Station> reachableStations = routeReachable.getReachableStationsOnRoute(start);
                 reachableFrom.put(start.getId(), reachableStations);
             });
 

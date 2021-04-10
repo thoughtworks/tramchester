@@ -82,13 +82,13 @@ class RouteReachableTramTest {
     private boolean reachableInterchange(KnownTramRoute knownRoute, TramStations routeStation) {
         Route route = tramRouteHelper.get(knownRoute);
         RouteStation start = createRouteStation(route, getReal(routeStation));
-        return reachable.isInterchangeReachable(start);
+        return reachable.isInterchangeReachableOnRoute(start);
     }
 
     private IdSet<Station> reachableStations(KnownTramRoute knownRoute, TramStations routeStation) {
         Route route = tramRouteHelper.get(knownRoute);
         RouteStation start = createRouteStation(route, getReal(routeStation));
-        return reachable.getReachableStations(start);
+        return reachable.getReachableStationsOnRoute(start);
     }
 
     private RouteStation createRouteStation(Route route, Station station) {

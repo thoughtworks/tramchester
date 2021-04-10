@@ -6,6 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import org.neo4j.internal.batchimport.stats.Stat;
 
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +29,7 @@ public interface StationRepository extends StationRepositoryPublic {
     Set<RouteStation> getRouteStations();
 
     RouteStation getRouteStationById(IdFor<RouteStation> routeStationId);
-    RouteStation getRouteStation(Station startStation, Route route);
+    RouteStation getRouteStation(Station station, Route route);
 
     Stream<Station> getStationsForModeStream(TransportMode mode);
 }

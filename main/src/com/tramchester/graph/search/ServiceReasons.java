@@ -103,12 +103,12 @@ public class ServiceReasons {
     }
 
     private ServiceReason.ReasonCode getReasonCode(TransportMode transportMode) {
-        switch (transportMode) {
-            case Tram: return ServiceReason.ReasonCode.OnTram;
-            case Bus: return ServiceReason.ReasonCode.OnBus;
-            case Train: return ServiceReason.ReasonCode.OnTrain;
-            default: return ServiceReason.ReasonCode.NotOnVehicle;
-        }
+        return switch (transportMode) {
+            case Tram -> ServiceReason.ReasonCode.OnTram;
+            case Bus -> ServiceReason.ReasonCode.OnBus;
+            case Train -> ServiceReason.ReasonCode.OnTrain;
+            default -> ServiceReason.ReasonCode.NotOnVehicle;
+        };
     }
 
     private void createGraphFile(Transaction transaction, CompositeStationRepository stationRepository) {

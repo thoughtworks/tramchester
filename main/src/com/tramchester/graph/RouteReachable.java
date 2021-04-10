@@ -11,7 +11,6 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.StationRepository;
-import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ public class RouteReachable {
      * @param start starting point
      * @return true if an interchange is reachable
      */
-    public boolean isInterchangeReachable(RouteStation start) {
+    public boolean isInterchangeReachableOnRoute(RouteStation start) {
         logger.debug(format("Checking interchange reachability from %s", start.getStationId()));
 
         // TODO cache the interchange list?
@@ -71,7 +70,7 @@ public class RouteReachable {
      * @param start starting point
      * @return destinations reachable from start via same route
      */
-    public IdSet<Station> getReachableStations(RouteStation start) {
+    public IdSet<Station> getReachableStationsOnRoute(RouteStation start) {
         IdSet<Station> stationsOnRoute = routeCallingStations.getStationsFor(start.getRoute()).
                 stream().collect(IdSet.collector());
 

@@ -7,7 +7,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
-import com.tramchester.dataimport.FetchDataFromUrlAndUnzip;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.graph.CachedNodeOperations;
 import com.tramchester.graph.NodeContentsRepository;
@@ -21,23 +20,23 @@ import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFactory;
 
-public class Module<T extends TransportDataFactory>  extends AbstractModule {
+public class Module<FACTORY extends TransportDataFactory>  extends AbstractModule {
     private static final CsvMapper csvMapper;
     private static final ObjectMapper objectMapper;
 
-    private final GuiceContainerDependencies<T> parent;
+    private final GuiceContainerDependencies<FACTORY> parent;
     private final GraphFilter filter;
     private final TramchesterConfig config;
     private final CacheMetrics.RegistersCacheMetrics registersCacheMetrics;
-    private final Class<T> factoryType;
+    private final Class<FACTORY> factoryType;
 
     static {
         csvMapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
         objectMapper = new ObjectMapper();
     }
 
-    public Module(GuiceContainerDependencies<T> parent, GraphFilter filter, TramchesterConfig config,
-                  CacheMetrics.RegistersCacheMetrics registersCacheMetrics, Class<T> factoryType) {
+    public Module(GuiceContainerDependencies<FACTORY> parent, GraphFilter filter, TramchesterConfig config,
+                  CacheMetrics.RegistersCacheMetrics registersCacheMetrics, Class<FACTORY> factoryType) {
         this.parent = parent;
         this.filter = filter;
         this.config = config;

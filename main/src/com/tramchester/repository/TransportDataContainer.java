@@ -64,7 +64,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     public void reportNumbers() {
-        logger.info("From " + dataSourceInfos.toString());
+        logger.info("From " + dataSourceInfos);
         logger.info(format("%s agencies", agencies.size()));
         logger.info(format("%s routes", routes.size()));
         logger.info(stationsById.size() + " stations " + platforms.size() + " platforms ");
@@ -304,12 +304,11 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
-    public Route findFirstRouteByName(IdFor<Agency> agencyId, String longName) {
-        Optional<Route> searchResults = routes.getValues().stream().
+    public Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName) {
+        return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getName().equals(longName)).
-                findAny();
-        return searchResults.orElse(null);
+                collect(Collectors.toSet());
     }
 
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {

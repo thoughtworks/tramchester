@@ -60,17 +60,17 @@ class TrainRouteReachableTest {
 
     @Test
     void shouldHaveCorrectReachability() {
-        IdSet<Station> fromMobberley = reachable.getReachableStations(createRouteStation(route, Mobberley));
+        IdSet<Station> fromMobberley = reachable.getReachableStationsOnRoute(createRouteStation(route, Mobberley));
         assertTrue(fromMobberley.contains(Knutsford.getId()));
 
-        IdSet<Station> fromKnutsford = reachable.getReachableStations(createRouteStation(route, Knutsford));
+        IdSet<Station> fromKnutsford = reachable.getReachableStationsOnRoute(createRouteStation(route, Knutsford));
         assertFalse(fromKnutsford.contains(Mobberley.getId())); // wrong direction
     }
 
     @Test
     void shouldHaveInterchangeReachable() {
-        assertTrue(reachable.isInterchangeReachable(createRouteStation(route, Knutsford)));
-        assertTrue(reachable.isInterchangeReachable(createRouteStation(route, Mobberley)));
+        assertTrue(reachable.isInterchangeReachableOnRoute(createRouteStation(route, Knutsford)));
+        assertTrue(reachable.isInterchangeReachableOnRoute(createRouteStation(route, Mobberley)));
     }
 
     private RouteStation createRouteStation(Route route, TrainStations station) {

@@ -7,13 +7,13 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.testSupport.TestEnv;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
 import static com.tramchester.testSupport.TestEnv.WarringtonsOwnBuses;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class BusRoutesForTesting {
 
@@ -31,18 +31,21 @@ public class BusRoutesForTesting {
             "Manchester Airport - Stockport - Buxton Skyline", HIGH_PEAK_BUSES, Bus);
 
 
-    public static Route findAltyToStockport(RouteRepository routeRepository) {
+    public static Set<Route> findAltyToWarrington(RouteRepository routeRepository) {
+        return getRouteAssertExists(routeRepository, WarringtonsOwnBuses.getId(), "Altrincham - Partington - Thelwall - Warrington");
+    }
+
+    public static Set<Route> findAltyToStockport(RouteRepository routeRepository) {
         return getRouteAssertExists(routeRepository, StagecoachManchester.getId(), "Altrincham - Stockport");
     }
 
-    public static Route findStockportMarpleRomileyCircular(RouteRepository routeRepository) {
+    public static Set<Route> findStockportMarpleRomileyCircular(RouteRepository routeRepository) {
         return getRouteAssertExists(routeRepository, StagecoachManchester.getId(), "Stockport - Marple/Romiley Circular");
     }
 
-    @NotNull
-    private static Route getRouteAssertExists(RouteRepository routeRepository, IdFor<Agency> agencyId, String longName) {
-        Route result = routeRepository.findFirstRouteByName(agencyId, longName);
-        assertNotNull(result);
+    private static Set<Route> getRouteAssertExists(RouteRepository routeRepository, IdFor<Agency> agencyId, String longName) {
+        Set<Route> result = routeRepository.findRoutesByName(agencyId, longName);
+        assertFalse(result.isEmpty());
         return result;
     }
 }

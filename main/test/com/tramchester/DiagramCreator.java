@@ -41,11 +41,11 @@ public class DiagramCreator {
     }
 
     public void create(String filename, Station station, int depthLimit) throws IOException {
-        create(filename, Collections.singletonList(station), depthLimit);
+        create(filename, Collections.singleton(station), depthLimit);
     }
 
-    // TODO Path not String
-    public void create(String fileName, List<Station> startPointsList, int depthLimit) throws IOException {
+    // TODO Path not String  for fileName
+    public void create(String fileName, Collection<Station> startPointsList, int depthLimit) throws IOException {
         logger.info("Creating diagram " + fileName);
 
         Set<Long> nodeSeen = new HashSet<>();
@@ -249,11 +249,14 @@ public class DiagramCreator {
             case ON_ROUTE -> "R";
             case INTERCHANGE_BOARD -> "IB";
             case INTERCHANGE_DEPART -> "ID";
-            case TRAM_GOES_TO -> "TramGoesTo";
+            case TRAM_GOES_TO -> "Tram";
             case DEPART -> "D";
-            case BUS_GOES_TO -> "BusGoesTo";
-            case TRAIN_GOES_TO -> "TrainGoesTo";
+            case BUS_GOES_TO -> "Bus";
+            case TRAIN_GOES_TO -> "Train";
             case LINKED -> "Link";
+            case NEIGHBOUR -> "neigh";
+            case FERRY_GOES_TO -> "Ferry";
+            case SUBWAY_GOES_TO -> "Subway";
             default -> "Unkn";
         };
     }

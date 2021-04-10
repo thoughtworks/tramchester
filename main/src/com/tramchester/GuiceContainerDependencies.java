@@ -29,7 +29,7 @@ public class GuiceContainerDependencies<T extends TransportDataFactory> implemen
     public GuiceContainerDependencies(GraphFilter filter, TramchesterConfig config,
                                       CacheMetrics.RegistersCacheMetrics registerCacheMetrics, Class<T> factoryType) {
         reflections = new Reflections(App.class.getPackageName());
-        module = new Module<T>(this, filter, config, registerCacheMetrics, factoryType);
+        module = new Module<>(this, filter, config, registerCacheMetrics, factoryType);
         injector = LifecycleInjector.builder().
                 withModules(module).
                 build().createInjector();

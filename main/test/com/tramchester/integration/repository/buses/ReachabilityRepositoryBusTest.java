@@ -14,7 +14,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.BusRoutesForTesting;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,29 +56,37 @@ class ReachabilityRepositoryBusTest {
     @Test
     void shouldHaveAltyToStockport() {
         CompositeStation interchange = compositeStationRepository.findByName("Altrincham Interchange");
-        Route altyToStockport = BusRoutesForTesting.findAltyToStockport(routeRepository);
+        Set<Route> altyToStockportRoutes = BusRoutesForTesting.findAltyToStockport(routeRepository);
 
-        Set<Station> stopsForRoutes = interchange.getContained().stream().filter(station -> station.servesRoute(altyToStockport)).collect(Collectors.toSet());
+        altyToStockportRoutes.forEach(altyToStockport -> {
+            Set<Station> stopsForRoutes = interchange.getContained().stream().
+                    filter(station -> station.servesRoute(altyToStockport)).collect(Collectors.toSet());
 
-        stopsForRoutes.forEach(station -> {
-            RouteStation routeStation = stationRepository.getRouteStation(station, altyToStockport);
-            assertTrue(reachable(routeStation, BusStations.StopAtStockportBusStation), station.getId().toString());
+            stopsForRoutes.forEach(station -> {
+                RouteStation routeStation = stationRepository.getRouteStation(station, altyToStockport);
+                assertTrue(reachable(routeStation, BusStations.StopAtStockportBusStation), station.getId().toString());
+            });
         });
+
     }
 
     @Test
     void shouldHaveStockportRomileyCircular() {
-        Route stockportMarpleRomileyCircular = BusRoutesForTesting.findStockportMarpleRomileyCircular(routeRepository);
-        assertTrue(reachable(createRouteStation(stockportMarpleRomileyCircular, BusStations.StockportAtAldi), BusStations.StockportNewbridgeLane ));
+        Set<Route> stockportMarpleRomileyCircularRoutes = BusRoutesForTesting.findStockportMarpleRomileyCircular(routeRepository);
+
+        Station atAldi = stationRepository.getStationById(BusStations.StockportAtAldi.getId());
+
+        Set<Route> routesCallingAtAldi = stockportMarpleRomileyCircularRoutes.stream().filter(atAldi::servesRoute).collect(Collectors.toSet());
+        assertFalse(routesCallingAtAldi.isEmpty(), "no routes match");
+
+        routesCallingAtAldi.forEach(route -> {
+            RouteStation routeStation = stationRepository.getRouteStation(atAldi, route);
+            assertTrue(reachable(routeStation, BusStations.StockportNewbridgeLane), "failed for " + route.getId());
+        });
     }
 
     private boolean reachable(RouteStation routeStation, BusStations destinationStation) {
         return reachabilityRepository.stationReachable(routeStation, BusStations.of(destinationStation));
-    }
-
-    @NotNull
-    private RouteStation createRouteStation(Route route, BusStations station) {
-        return new RouteStation(BusStations.of(station), route);
     }
 
 }

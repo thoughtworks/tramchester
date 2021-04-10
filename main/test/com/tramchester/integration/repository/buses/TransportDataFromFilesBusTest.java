@@ -24,7 +24,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -80,36 +79,47 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Route result = transportData.findFirstRouteByName(WarringtonsOwnBuses.getId(), "Altrincham - Partington - Thelwall - Warrington");
-        assertNotNull(result);
+        Set<Route> results = transportData.findRoutesByName(WarringtonsOwnBuses.getId(), "Altrincham - Partington - Thelwall - Warrington");
+        assertFalse(results.isEmpty());
 
-        assertEquals("5A", result.getShortName());
-        assertTrue(TransportMode.isBus(result));
+        results.forEach(result -> {
+            assertEquals("5A", result.getShortName());
+            assertTrue(TransportMode.isBus(result));
 
-        List<String> headsigns = new ArrayList<>(result.getHeadsigns());
-        assertEquals(1, headsigns.size(), "expected headsigns");
-        assertEquals("Warrington", headsigns.get(0));
+            List<String> headsigns = new ArrayList<>(result.getHeadsigns());
+            assertEquals(1, headsigns.size(), "expected headsigns");
+            assertEquals("Warrington", headsigns.get(0));
+        });
+
+    }
+
+    @Test
+    void shouldHaveNotHaveRoutesWithZeroTrips() {
+        Set<Route> routes = transportData.getRoutes();
+        Set<Route> emptyRoutes = routes.stream().filter(route -> route.getTrips().isEmpty()).collect(Collectors.toSet());
+
+        assertEquals(Collections.emptySet(), emptyRoutes);
     }
 
     @Test
     void shouldHaveExpectedEndOfLinesAndRoutes() {
         IdFor<Agency> agencyId = StringIdFor.createId("ROST");
 
-        Route inbound = transportData.findFirstRouteByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
-        assertNotNull(inbound);
-        assertEquals("464", inbound.getShortName());
+        Set<Route> inbounds = transportData.findRoutesByName(agencyId, "Rochdale - Bacup - Rawtenstall - Accrington");
+        assertFalse(inbounds.isEmpty());
+        inbounds.forEach(inbound -> assertEquals("464", inbound.getShortName()));
 
-        Route outbound = transportData.findFirstRouteByName(agencyId, "Accrington - Rawtenstall - Bacup - Rochdale");
-        assertNotNull(outbound);
-        assertEquals("464", outbound.getShortName());
+        Set<Route> outbounds = transportData.findRoutesByName(agencyId, "Accrington - Rawtenstall - Bacup - Rochdale");
+        assertFalse(outbounds.isEmpty());
+        outbounds.forEach(outbound -> assertEquals("464", outbound.getShortName()));
 
         Station firstStation = transportData.getStationById(StringIdFor.createId("2500ACC0009"));
         assertEquals("Bus Station", firstStation.getName());
-        assertTrue(firstStation.servesRoute(outbound));
+        outbounds.forEach(outbound -> assertTrue(firstStation.servesRoute(outbound)));
 
         Station secondStation = transportData.getStationById(StringIdFor.createId("2500LAA15791"));
         assertEquals("Infant Street", secondStation.getName());
-        assertTrue(secondStation.servesRoute(outbound));
+        outbounds.forEach(outbound -> assertTrue(secondStation.servesRoute(outbound)));
     }
 
     @Test

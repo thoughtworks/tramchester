@@ -6,11 +6,13 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -35,7 +37,8 @@ class RouteReachableBusTest {
     private RouteReachable reachable;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
-    private Route altyToStockportRoute;
+    private Set<Route> altyToWarringtonRoutes;
+    private CompositeStationRepository compositeStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -54,61 +57,83 @@ class RouteReachableBusTest {
         stationRepository = componentContainer.get(StationRepository.class);
         reachable = componentContainer.get(RouteReachable.class);
         routeRepository = componentContainer.get(RouteRepository.class);
-        altyToStockportRoute = BusRoutesForTesting.ALTY_TO_WARRINGTON;
+        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        altyToWarringtonRoutes = BusRoutesForTesting.findAltyToWarrington(routeRepository);
     }
 
     @Test
-    void shouldHaveCorrectReachability() {
-        Route route = BusRoutesForTesting.findAltyToStockport(routeRepository);
-        RouteStation routeStation = new RouteStation(BusStations.real(stationRepository,
-                BusStations.StopAtAltrinchamInterchange), route);
+    void shouldHaveReachabilityAltrinchamToStockport() {
+        Set<Route> routes = BusRoutesForTesting.findAltyToStockport(routeRepository);
 
-        IdFor<Station> busStationId = BusStations.StopAtStockportBusStation.getId();
+        CompositeStation interchange = compositeStationRepository.findByName("Altrincham Interchange");
 
-        IdSet<Station> result = reachable.getReachableStations(routeStation);
+        routes.forEach(route -> {
+            Set<Station> starts = interchange.getContained().stream().
+                    filter(station -> station.servesRoute(route)).collect(Collectors.toSet());
 
-        assertFalse(result.isEmpty());
-        assertTrue(result.contains(busStationId));
+            IdFor<Station> stockportStationBusStop = BusStations.StopAtStockportBusStation.getId();
+            starts.forEach(start -> {
+                RouteStation routeStation = stationRepository.getRouteStation(start, route);
+                IdSet<Station> result = reachable.getReachableStationsOnRoute(routeStation);
+                assertFalse(result.isEmpty(), start.getId().toString());
+                assertTrue(result.contains(stockportStationBusStop), start.getId().toString());
+            });
+        });
+
     }
 
     @Test
     void shouldCorrectNotReachable() {
-        RouteStation routeStation = new RouteStation(BusStations.real(stationRepository, BusStations.StopAtStockportBusStation), altyToStockportRoute);
 
-        IdSet<Station> result = reachable.getReachableStations(routeStation);
+        altyToWarringtonRoutes.forEach(altyToWarrington -> {
+            RouteStation routeStation = new RouteStation(BusStations.real(stationRepository, BusStations.StopAtStockportBusStation), altyToWarrington);
 
-        assertTrue(result.isEmpty());
+            IdSet<Station> result = reachable.getReachableStationsOnRoute(routeStation);
+
+            assertTrue(result.isEmpty());
+        });
     }
 
     @Test
-    void shouldHaveCorrectReachabilityForWholeRoute() {
-        RouteStation routeStation = new RouteStation(BusStations.real(stationRepository, BusStations.StopAtAltrinchamInterchange), altyToStockportRoute);
+    void shouldHaveExpectedStationsReachableFromSpecificStop() {
 
-//        Set<RouteStation> destinations = stationRepository.getRouteStations().stream().
-//                filter(station -> station.getRoute().getId().equals(route.getId())).
-//                collect(Collectors.toSet());
+        CompositeStation interchange = compositeStationRepository.findByName("Altrincham Interchange");
 
-        //long toInterchange = destinations.stream().filter(station -> reachable.isInterchangeReachable(station)).count();
-        IdSet<Station> result = reachable.getReachableStations(routeStation);
+        altyToWarringtonRoutes.forEach(altyToWarrington -> {
+            Set<Station> starts = interchange.getContained().stream().
+                    filter(station -> station.servesRoute(altyToWarrington)).collect(Collectors.toSet());
+            assertFalse(starts.isEmpty());
 
-        assertEquals(77, result.size());
+            assertEquals(1, starts.size());
+            Station stopAtAltrincham = starts.iterator().next();
+
+            RouteStation routeStation = stationRepository.getRouteStation(stopAtAltrincham, altyToWarrington);
+
+            IdSet<Station> result = reachable.getReachableStationsOnRoute(routeStation);
+
+            assertEquals(82, result.size());
+        });
+
     }
-
 
     @Test
     void shouldNotHaveStationsWithZeroReachability() {
-        Set<RouteStation> busRouteStations = stationRepository.getRouteStations()
-                .stream().
+        Set<RouteStation> routeStations = stationRepository.getRouteStations().stream().
                         filter(routeStation -> routeStation.getTransportModes().contains(TransportMode.Bus)).
                         collect(Collectors.toSet());
-        Set<RouteStation> cantReachInterchange = busRouteStations.stream().
-                filter(routeStation -> !reachable.isInterchangeReachable(routeStation)).collect(Collectors.toSet());
 
-        Set<RouteStation> cutOffRouteStations = cantReachInterchange.stream().
-                filter(routeStation -> reachable.getReachableStations(routeStation).isEmpty()).
+        Set<Route> noInterchangeOnRoute = routeStations.stream().
+                filter(routeStation -> !reachable.isInterchangeReachableOnRoute(routeStation)).
+                map(RouteStation::getRoute).
                 collect(Collectors.toSet());
 
-        assertEquals(Collections.emptySet(), cutOffRouteStations);
+        assertEquals(0, noInterchangeOnRoute.size());
+
+//        Set<RouteStation> cutOffRouteStations = noInterchangeOnRoute.stream().
+//                filter(routeStation -> reachable.getReachableStationsOnRoute(routeStation).isEmpty()).
+//                collect(Collectors.toSet());
+//
+//        assertEquals(Collections.emptySet(), cutOffRouteStations);
     }
 
 }

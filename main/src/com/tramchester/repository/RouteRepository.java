@@ -14,5 +14,5 @@ public interface RouteRepository {
     boolean hasRouteId(IdFor<Route> routeId);
 
     Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName);
-    Route findFirstRouteByName(IdFor<Agency> agencyId, String longName);
+    Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName);
 }
