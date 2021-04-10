@@ -110,7 +110,6 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-
     public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong startLatLong, LatLong destLatLong, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", startLatLong, destLatLong, journeyRequest));
 

@@ -1,8 +1,10 @@
 package com.tramchester.graph.search;
 
+import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -21,8 +23,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -81,7 +85,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
-                                             Set<Station> destinations, boolean walkAtStart) {
+                                             Set<Station> unexpanded, boolean walkAtStart) {
+
+        Set<Station> destinations = unexpandStations(unexpanded);
 
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
@@ -96,6 +102,19 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, previousSuccessfulVisit,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest)).
                 map(path -> createJourney(journeyRequest, path));
+    }
+
+    private Set<Station> unexpandStations(Set<Station> stations) {
+        return stations.stream().flatMap(this::expandStation).collect(Collectors.toSet());
+    }
+
+    private Stream<Station> expandStation(Station station) {
+        if (!(station instanceof CompositeStation)) {
+            return Stream.of(station);
+        }
+
+        CompositeStation compositeStation = (CompositeStation) station;
+        return Streams.concat(compositeStation.getContained().stream(), Stream.of(station));
     }
 
     public static class TimedPath {
