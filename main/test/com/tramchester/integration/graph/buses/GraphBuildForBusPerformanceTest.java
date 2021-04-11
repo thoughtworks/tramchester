@@ -34,7 +34,7 @@ class GraphBuildForBusPerformanceTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter) {
-        graphFilter.addAgency(TestEnv.WarringtonsOwnBuses.getId());
+        graphFilter.addAgency(TestEnv.StagecoachManchester.getId());
     }
 
     @AfterAll
