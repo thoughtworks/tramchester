@@ -3,12 +3,14 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.BusTest;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
@@ -36,7 +38,9 @@ class BusRouteCalculatorTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static IntegrationBusTestConfig testConfig;
+
     private RouteCalculatorTestFacade calculator;
+    private CompositeStationRepository compositeStationRepository;
 
     private final LocalDate when = TestEnv.testDay();
     private Transaction txn;
@@ -61,6 +65,7 @@ class BusRouteCalculatorTest {
         maxJourneyDuration = testConfig.getMaxJourneyDuration();
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
     }
 
@@ -93,17 +98,32 @@ class BusRouteCalculatorTest {
         assertFalse(journeys2Stages.isEmpty());
     }
 
-    @BusTest
+
     @Test
-    void shouldFindAltyToKnutfordAtExpectedTime() {
-        TramTime travelTime = TramTime.of(10, 20);
+    void shouldHaveJourneyAltyToKnutsford() {
+        CompositeStation start = compositeStationRepository.findByName("Altrincham Interchange");
+        CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
-                maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, KnutsfordStationStand3, request);
+        TramTime time = TramTime.of(10, 40);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, 120);
+        Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
-        assertFalse(journeys.isEmpty(), "no journeys");
+        assertFalse(results.isEmpty());
     }
+
+    @Test
+    void shouldHaveJourneyKnutsfordToAlty() {
+        CompositeStation start = compositeStationRepository.findByName("Bus Station, Knutsford");
+        CompositeStation end = compositeStationRepository.findByName("Altrincham Interchange");
+
+        TramTime time = TramTime.of(11, 20);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3, 120);
+
+        Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
+
+        assertFalse(results.isEmpty());
+    }
+
 
     @BusTest
     @Test

@@ -3,6 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
@@ -31,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
-import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -87,6 +88,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 for(Station station : transportData.getStations()) {
                     if (graphFilter.shouldInclude(station) && graphFilter.shouldIncludeRoutes(station.getRoutes())) {
                         Node stationNode = createStationNode(tx, station);
+                        createPlatformsForStation(tx, station, builderCache);
                         builderCache.putStation(station.getId(), stationNode);
                     }
                 }
@@ -192,8 +194,16 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             }
         }
 
-        Relationship stationsLinked = createRelationship(from, to, LINKED); //from.createRelationshipTo(to, LINKED);
+        Relationship stationsLinked = createRelationship(from, to, LINKED);
         addTransportMode(stationsLinked, mode);
+    }
+
+    private void createPlatformsForStation(Transaction txn, Station station, GraphBuilderCache routeBuilderCache) {
+        for (Platform platform : station.getPlatforms()) {
+            Node platformNode = createGraphNode(txn, Labels.PLATFORM);
+            setProperty(platformNode, platform);
+            routeBuilderCache.putPlatform(platform.getId(), platformNode);
+        }
     }
 
     private void createRouteStationNode(Transaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {

@@ -96,8 +96,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         graphDatabase.createIndexs();
 
         try(Timing ignored = new Timing(logger, "Graph rebuild")) {
+
+            // just for tfgm trams currently
+            linkStationsAndPlatforms(builderCache);
+
             // TODO Agencies could be done in parallel as should be no overlap except at station level?
-            // Performance only really an issue for buses currently.
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
                     try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId())) {
@@ -125,6 +128,20 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         logMemory("After graph build");
     }
 
+    private void linkStationsAndPlatforms(GraphBuilderCache builderCache) {
+
+        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link stations & platfoms")) {
+            Transaction txn = timedTransaction.transaction();
+            transportData.getStations().stream().
+                    filter(Station::hasPlatforms).
+                    filter(graphFilter::shouldInclude).
+                    filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
+                    forEach(station -> linkStationAndPlatforms(txn, station, builderCache));
+            timedTransaction.commit();
+        }
+
+    }
+
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
             logger.info("Adding version node to the DB");
@@ -142,17 +159,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return;
         }
 
-        Set<Station> filteredStations = graphFilter.isFiltered() ?
-                transportData.getStations().stream().filter(graphFilter::shouldInclude).collect(Collectors.toSet()) :
-                transportData.getStations();
-
-        // TODO Parallelism here?
-
         routes.forEach(route -> {
             try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "routes, trips, services, timings " + route.getId())) {
                 Transaction tx = timedTransaction.transaction();
-
-                // route relationships
                 createOnRouteRelationships(tx, route, builderCache);
                 buildGraphForServiceHourAndMinutes(route, builderCache, tx);
                 timedTransaction.commit();
@@ -160,17 +169,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         });
 
         routes.forEach(route -> {
-            try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger,"platforms, board/depart for " + route.getId())) {
+            try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger,"board/depart" + route.getId())) {
                 Transaction tx = timedTransaction.transaction();
-
-                // cache stations and create platforms for route
-                filteredStations.stream().filter(station -> station.servesRoute(route)).
-                        forEach(station -> addPlatformsForStation(tx, station, builderCache));
-
                 buildGraphForBoardsAndDeparts(route, builderCache, tx);
-
                 timedTransaction.commit();
             }
+
             builderCache.routeClear();
         });
     }
@@ -242,32 +246,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private Node getPlatformNode(Transaction txn, Platform platform) {
-        return graphDatabase.findNode(txn, Labels.PLATFORM, platform.getProp().getText(), platform.getId().getGraphId());
-    }
+    private void linkStationAndPlatforms(Transaction txn, Station station, GraphBuilderCache routeBuilderCache) {
 
-    private Node getStationNode(Transaction txn, Station station) {
-        Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.forMode(station.getTransportModes());
-        // ought to be able find with any of the labels, os use the first one
-        GraphBuilder.Labels label = labels.iterator().next();
-
-        return graphDatabase.findNode(txn, label, station.getProp().getText(), station.getId().getGraphId());
-    }
-
-    private void addPlatformsForStation(Transaction txn, Station station, GraphBuilderCache routeBuilderCache) {
-
-        //Node stationNode = getStationNode(txn, station);
         Node stationNode = routeBuilderCache.getStation(txn, station.getId());
         if (stationNode!=null) {
-            routeBuilderCache.putStation(station.getId(), stationNode);
             for (Platform platform : station.getPlatforms()) {
-                Node platformNode = getPlatformNode(txn, platform);
-                if (platformNode==null) {
-                    platformNode = createPlatformNode(txn, platform);
-                    routeBuilderCache.putPlatform(platform.getId(), platformNode);
-                    createPlatformStationRelationships(station, stationNode, platform, platformNode);
-                }
-                routeBuilderCache.putPlatform(platform.getId(), platformNode);
+                Node platformNode = routeBuilderCache.getPlatform(txn, platform.getId());
+                createPlatformStationRelationships(station, stationNode, platform, platformNode);
             }
         } else {
             throw new RuntimeException("Missing station node for " + station);
@@ -410,17 +395,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         if (!endNodes.contains(to)) {
-            Relationship onRoute = from.createRelationshipTo(to, TransportRelationshipTypes.ON_ROUTE);
+            Relationship onRoute = createRelationship(from, to, ON_ROUTE);
             setProperty(onRoute, route);
             setCostProp(onRoute, cost);
             setProperty(onRoute, route.getTransportMode());
         }
-    }
-
-    private Node createPlatformNode(Transaction tx, Platform platform) {
-        Node platformNode = createGraphNode(tx, Labels.PLATFORM);
-        setProperty(platformNode, platform);
-        return platformNode;
     }
 
     private void createPlatformStationRelationships(Station station, Node stationNode, Platform platform, Node platformNode) {

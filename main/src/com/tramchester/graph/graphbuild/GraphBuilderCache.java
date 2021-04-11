@@ -60,7 +60,7 @@ public class GraphBuilderCache {
 
     // memory usage management
     protected void routeClear() {
-        platforms.clear();
+//        platforms.clear();
         svcNodes.clear();
         hourNodes.clear();
         logger.debug("Route Clear");
@@ -104,6 +104,9 @@ public class GraphBuilderCache {
     }
 
     protected Node getPlatform(Transaction txn, IdFor<Platform> platformId) {
+        if (!platforms.containsKey(platformId)) {
+            throw new RuntimeException("Missing platform id " + platformId);
+        }
         return txn.getNodeById(platforms.get(platformId));
     }
 

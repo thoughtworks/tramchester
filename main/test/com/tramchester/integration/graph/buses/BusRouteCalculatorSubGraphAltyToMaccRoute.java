@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.NoopRegisterMetrics;
 import static com.tramchester.testSupport.TestEnv.deleteDBIfPresent;
-import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
