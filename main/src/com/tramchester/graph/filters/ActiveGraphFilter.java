@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
-import com.tramchester.repository.RouteRepository;
 
 import java.util.Set;
 
@@ -49,21 +48,25 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     }
 
     @Override
-    public boolean shouldInclude(RouteRepository routeRepository, Route route) {
-        if (routeIds.isEmpty()) {
-            return true;
-        }
-        return routeIds.contains(route.getId());
+    public boolean shouldIncludeRoute(Route route) {
+       return shouldIncludeRoute(route.getId());
     }
 
     @Override
-    public boolean shouldInclude(RouteRepository routeRepository, Set<Route> routes) {
+    public boolean shouldIncludeRoute(IdFor<Route> routeId) {
+        if (routeIds.isEmpty()) {
+            return true;
+        }
+        return routeIds.contains(routeId);
+    }
+
+    @Override
+    public boolean shouldIncludeRoutes(Set<Route> routes) {
         if (routeIds.isEmpty()) {
             return true;
         }
         return routes.stream().anyMatch(route -> routeIds.contains(route.getId()));
     }
-
 
     @Override
     public boolean shouldInclude(Station station) {
@@ -84,11 +87,16 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     }
 
     @Override
-    public boolean shouldInclude(Agency agency) {
+    public boolean shouldIncludeAgency(Agency agency) {
+        return shouldIncludeAgency(agency.getId());
+    }
+
+    @Override
+    public boolean shouldIncludeAgency(IdFor<Agency> agencyId) {
         if (agencyIds.isEmpty()) {
             return true;
         }
-        return agencyIds.contains(agency.getId());
+        return agencyIds.contains(agencyId);
     }
 
     @Override

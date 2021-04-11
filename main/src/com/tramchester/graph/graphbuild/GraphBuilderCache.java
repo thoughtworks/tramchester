@@ -1,10 +1,10 @@
 package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import org.neo4j.graphdb.Node;
@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.String.format;
 
@@ -36,13 +36,13 @@ public class GraphBuilderCache {
     @Inject
     public GraphBuilderCache() {
         cleared = false;
-        stationsToNodeId = new HashMap<>();
-        routeStations = new HashMap<>();
-        platforms = new HashMap<>();
-        svcNodes = new HashMap<>();
-        hourNodes = new HashMap<>();
-        boardings = new HashMap<>();
-        departs = new HashMap<>();
+        stationsToNodeId = new ConcurrentHashMap<>();
+        routeStations = new ConcurrentHashMap<>();
+        platforms = new ConcurrentHashMap<>();
+        svcNodes = new ConcurrentHashMap<>();
+        hourNodes = new ConcurrentHashMap<>();
+        boardings = new ConcurrentHashMap<>();
+        departs = new ConcurrentHashMap<>();
     }
 
     protected void fullClear() {
@@ -129,7 +129,7 @@ public class GraphBuilderCache {
         String key = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
         if (!hourNodes.containsKey(key)) {
             throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",
-                    key, service.getId(), station, hour.toString()));
+                    key, service.getId(), station, hour));
         }
         return txn.getNodeById(hourNodes.get(key));
     }
@@ -165,10 +165,6 @@ public class GraphBuilderCache {
             return relationshipCache.get(boardingNodeId).contains(routeStationNodeId);
         }
         return false;
-    }
-
-    public boolean stationEmpty() {
-        return stationsToNodeId.isEmpty();
     }
 
     public boolean hasServiceNode(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end) {

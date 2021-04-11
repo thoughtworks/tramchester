@@ -9,7 +9,6 @@ import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -44,6 +43,8 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
     private final TransportDataContainer dataContainer;
 
+    // NOTE: cannot inject GraphFilter here as circular dependency on being able to find routes which
+    // needs transport data to be loaded....
     @Inject
     public TransportDataFromFiles(TransportDataStreams transportDataStreams,
                                   TramchesterConfig config, ProvidesNow providesNow) {

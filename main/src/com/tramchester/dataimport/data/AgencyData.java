@@ -1,6 +1,9 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 
 public class AgencyData {
 
@@ -18,7 +21,7 @@ public class AgencyData {
         return name;
     }
 
-    public String getId() {
-        return id;
+    public IdFor<Agency> getId() {
+        return StringIdFor.createId(id);
     }
 }

@@ -43,13 +43,23 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     public int getNumberQueries() { return 1; }
 
     @Override
+    public int getQueryInterval() {
+        return 15;
+    }
+
+    @Override
     public boolean getCreateNeighbours() {
         return false;
     }
 
     @Override
     public int getMaxWait() {
-        return 25;
+        return 20;
+    }
+
+    @Override
+    public int getMaxInitialWait() {
+        return 45;
     }
 
     @Override

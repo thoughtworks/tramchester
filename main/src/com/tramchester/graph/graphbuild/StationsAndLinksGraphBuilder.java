@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
@@ -71,28 +70,32 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             if (graphFilter.isFiltered()) {
                 logger.warn("Graph is filtered " + graphFilter);
             }
-            buildGraphwithFilter(graphFilter, graphDatabase, builderCache);
+            buildGraphwithFilter(graphDatabase, builderCache);
             logger.info("Graph rebuild is finished for " + config.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
         }
     }
 
-    private void buildGraphwithFilter(GraphFilter graphFilter, GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
+    private void buildGraphwithFilter(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
         logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
 
         try (Timing timing = new Timing(logger, "graph rebuild")) {
-            for(Agency agency : transportData.getAgencies()) {
-                if (graphFilter.shouldInclude(agency)) {
-                    try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding agency " + agency.getId())) {
-                        Transaction tx = timedTransaction.transaction();
-                        Stream<Route> routes = agency.getRoutes().stream().filter(route -> graphFilter.shouldInclude(transportData, route));
-                        buildGraphForRoutes(tx, graphFilter, routes, builderCache);
-                        timedTransaction.commit();
+            try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding stations")) {
+                Transaction tx = timedTransaction.transaction();
+                for(Station station : transportData.getStations()) {
+                    if (graphFilter.shouldInclude(station) && graphFilter.shouldIncludeRoutes(station.getRoutes())) {
+                        Node stationNode = createStationNode(tx, station);
+                        builderCache.putStation(station.getId(), stationNode);
                     }
-                } else {
-                    logger.warn("Filter out: " + agency);
+                }
+                timedTransaction.commit();
+            }
+
+            for(Agency agency : transportData.getAgencies()) {
+                if (graphFilter.shouldIncludeAgency(agency)) {
+                    addRouteStationsAndLinksFor(agency, builderCache);
                 }
             }
         } catch (Exception except) {
@@ -105,48 +108,41 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logMemory("After graph build");
     }
 
-    private void buildGraphForRoutes(Transaction tx, final GraphFilter filter, Stream<Route> routes,
-                                     GraphBuilderCache builderCache) {
-        Set<Station> filteredStations = filter.isFiltered() ?
-                transportData.getStations().stream().filter(filter::shouldInclude).collect(Collectors.toSet()) :
+    private void addRouteStationsAndLinksFor(Agency agency, GraphBuilderCache builderCache) {
+
+        Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
+        if (routes.isEmpty()) {
+            return;
+        }
+
+        Set<Station> filteredStations = graphFilter.isFiltered() ?
+                transportData.getStations().stream().filter(graphFilter::shouldInclude)
+                        .filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes()))
+                        .collect(Collectors.toSet()) :
                 transportData.getStations();
 
-        routes.forEach(route -> {
-            IdFor<Route> asId = route.getId();
-            logger.info("Adding route " + asId);
-            // create or cache stations and platforms for route, create route stations
-            filteredStations.stream().filter(station -> station.servesRoute(route)).
-                    forEach(station -> createStationAndRouteStation(tx, route, station, builderCache));
+        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding routes")){
+            Transaction tx = timedTransaction.transaction();
+            routes.forEach(route -> {
+                IdFor<Route> asId = route.getId();
+                logger.info("Adding route " + asId);
+                filteredStations.stream().filter(station -> station.servesRoute(route)).
+                        forEach(station -> {
+                            RouteStation routeStation = transportData.getRouteStation(station, route);
+                            createRouteStationNode(tx, routeStation, builderCache);
+                        });
 
-            createLinkRelationships(tx, filter, route, builderCache);
+                createLinkRelationships(tx, route, builderCache);
 
-            logger.debug("Route " + asId + " added ");
-        });
-    }
-
-    private Node getStationNode(Transaction txn, Station station) {
-        Set<Labels> labels = Labels.forMode(station.getTransportModes());
-        // ought to be able find with any of the labels, os use the first one
-        Labels label = labels.iterator().next();
-
-        return graphDatabase.findNode(txn, label, station.getProp().getText(), station.getId().getGraphId());
-    }
-
-    private void createStationAndRouteStation(Transaction txn, Route route, Station station, GraphBuilderCache builderCache) {
-
-        RouteStation routeStation = transportData.getRouteStation(station, route);
-        createRouteStationNode(txn, routeStation, builderCache);
-
-        Node stationNode = getStationNode(txn, station);
-        if (stationNode == null) {
-            stationNode = createStationNode(txn, station);
-            builderCache.putStation(station.getId(), stationNode);
+                logger.debug("Route " + asId + " added ");
+            });
+            timedTransaction.commit();
         }
     }
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
-    private void createLinkRelationships(Transaction tx, GraphFilter filter, Route route, GraphBuilderCache routeBuilderCache) {
+    private void createLinkRelationships(Transaction tx, Route route, GraphBuilderCache routeBuilderCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
@@ -155,7 +151,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         route.getTrips().forEach(trip -> {
                 StopCalls stops = trip.getStopCalls();
                 stops.getLegs().forEach(leg -> {
-                    if (includeBothStops(filter, leg)) {
+                    if (includeBothStops(graphFilter, leg)) {
                         GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
                         GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
                         StationIdPair legStations = StationIdPair.of(leg.getFirstStation(), leg.getSecondStation());
@@ -196,7 +192,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             }
         }
 
-        Relationship stationsLinked = from.createRelationshipTo(to, LINKED);
+        Relationship stationsLinked = createRelationship(from, to, LINKED); //from.createRelationshipTo(to, LINKED);
         addTransportMode(stationsLinked, mode);
     }
 

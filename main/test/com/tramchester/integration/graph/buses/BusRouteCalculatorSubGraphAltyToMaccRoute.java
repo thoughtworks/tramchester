@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -40,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static ComponentContainer componentContainer;
-    private static Config config;
+    private static TramchesterConfig config;
     private static Set<Route> routes;
 
     private RouteReachable routeReachable;
@@ -55,7 +56,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
 
-        config = new Config("altyMacRoute.db");
+        config = new IntegrationBusTestConfig("altyMacRoute.db");
         deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -142,13 +143,26 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     }
 
     @Test
-    void shouldHaveJourneyOneEndToTheOther() {
+    void shouldHaveJourneyAltyToKnutsford() {
         CompositeStation start = compositeStationRepository.findByName("Altrincham Interchange");
         CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
 
         TramTime time = TramTime.of(10, 40);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, 120);
+        Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
+
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldHaveJourneyKnutsfordToAlty() {
+        CompositeStation start = compositeStationRepository.findByName("Bus Station, Knutsford");
+        CompositeStation end = compositeStationRepository.findByName("Altrincham Interchange");
+
+        TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3, 120);
         journeyRequest.setDiag(true);
+
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -165,8 +179,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
             Station firstStation = stationsAlongRoute.get(0);
 
             TramTime time = TramTime.of(9, 20);
-            JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 0, 120);
-            //journeyRequest.setDiag(true);
+            JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, 120);
 
             for (int i = 1; i <= knutsfordIndex; i++) {
                 Station secondStation = stationsAlongRoute.get(i);
@@ -186,15 +199,5 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         creator.create(format("%s.dot", "altyToMacBuses"), uniqueStations, Integer.MAX_VALUE);
     }
 
-    private static class Config extends IntegrationBusTestConfig {
-        public Config(String dbName) {
-            super(dbName);
-        }
-
-        @Override
-        public boolean getCreateNeighbours() {
-            return false;
-        }
-    }
 
 }

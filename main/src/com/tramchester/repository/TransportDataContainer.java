@@ -216,7 +216,6 @@ public class TransportDataContainer implements TransportData {
     }
 
     public void addAgency(Agency agency) {
-        logger.info("Added " + agency.getId());
         agencies.add(agency);
     }
 

@@ -15,8 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.repository.PlatformRepository;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
@@ -36,16 +35,21 @@ import static java.lang.String.format;
 public class MapPathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 
-    private final TransportData transportData;
     private final MyLocationFactory myLocationFactory;
+
+    private final CompositeStationRepository stationRepository;
     private final PlatformRepository platformRepository;
+    private final TripRepository tripRepository;
+    private final RouteRepository routeRepository;
 
     @Inject
-    public MapPathToStages(TransportData transportData,
-                           MyLocationFactory myLocationFactory, PlatformRepository platformRepository) {
-        this.transportData = transportData;
+    public MapPathToStages(MyLocationFactory myLocationFactory, CompositeStationRepository stationRepository,
+                           PlatformRepository platformRepository, TripRepository tripRepository, RouteRepository routeRepository) {
         this.myLocationFactory = myLocationFactory;
+        this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
+        this.tripRepository = tripRepository;
+        this.routeRepository = routeRepository;
     }
 
     public List<TransportStage<?,?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest) {
@@ -67,7 +71,7 @@ public class MapPathToStages {
             return results;
         }
 
-        State state = new State(transportData, platformRepository, queryTime);
+        State state = new State(platformRepository, tripRepository, routeRepository, stationRepository, queryTime);
         for(Relationship relationship : relationships) {
             TransportRelationshipTypes type = TransportRelationshipTypes.from(relationship);
             logger.debug("Mapping type " + type);
@@ -150,7 +154,7 @@ public class MapPathToStages {
         int cost = getCost(relationship);
 
         IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
-        Station destination = transportData.getStationById(stationId);
+        Station destination = stationRepository.getStationById(stationId);
 
         Node startNode = relationship.getStartNode();
         LatLong latLong = GraphProps.getLatLong(startNode);
@@ -163,7 +167,7 @@ public class MapPathToStages {
         int cost = getCost(relationship);
 
         IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
-        Station start = transportData.getStationById(stationId);
+        Station start = stationRepository.getStationById(stationId);
 
         Node endNode = relationship.getEndNode();
         LatLong latLong = GraphProps.getLatLong(endNode);
@@ -177,17 +181,20 @@ public class MapPathToStages {
         int cost = getCost(relationship);
 
         IdFor<Station> startStationId = GraphProps.getStationIdFrom(relationship.getStartNode());
-        Station start = transportData.getStationById(startStationId);
+        Station start = stationRepository.getStationById(startStationId);
 
         IdFor<Station> endStationId = GraphProps.getStationIdFrom(relationship.getEndNode());
-        Station end = transportData.getStationById(endStationId);
+        Station end = stationRepository.getStationById(endStationId);
 
         return new ConnectingStage(start, end, cost, walkStartTime);
     }
 
     private class State {
-        private final TransportData transportData;
         private final PlatformRepository platformRepository;
+        private final TripRepository tripRepository;
+        private final RouteRepository routeRepository;
+        private final StationRepositoryPublic stationRepository;
+
         private final TramTime queryTime;
 
         private WalkStarted walkStarted;
@@ -206,8 +213,11 @@ public class MapPathToStages {
         private int platformLeaveCost;
         private int departCost;
 
-        private State(TransportData transportData, PlatformRepository platformRepository, TramTime queryTime) {
-            this.transportData = transportData;
+        private State(PlatformRepository platformRepository, TripRepository tripRepository,
+                      RouteRepository routeRepository, StationRepositoryPublic stationRepository, TramTime queryTime) {
+            this.tripRepository = tripRepository;
+            this.routeRepository = routeRepository;
+            this.stationRepository = stationRepository;
             passedStopSequenceNumbers = new ArrayList<>();
             this.platformRepository = platformRepository;
             this.queryTime = queryTime;
@@ -216,9 +226,9 @@ public class MapPathToStages {
 
         protected void board(Relationship relationship) {
             boardCost = getCost(relationship);
-            boardingStation = transportData.getStationById(GraphProps.getStationIdFrom(relationship));
+            boardingStation = stationRepository.getStationById(GraphProps.getStationIdFrom(relationship));
             routeCode = GraphProps.getRouteIdFrom(relationship);
-            route = transportData.getRouteById(routeCode);
+            route = routeRepository.getRouteById(routeCode);
             if (boardingStation.hasPlatforms()) {
                 IdFor<Platform> platformId = GraphProps.getPlatformIdFrom(relationship);
                 boardingPlatform = platformRepository.getPlatformById(platformId);
@@ -228,8 +238,8 @@ public class MapPathToStages {
 
         protected VehicleStage depart(Relationship relationship) {
             IdFor<Station> stationId = GraphProps.getStationIdFrom(relationship);
-            Station departStation = transportData.getStationById(stationId);
-            Trip trip = transportData.getTripById(tripId);
+            Station departStation = stationRepository.getStationById(stationId);
+            Trip trip = tripRepository.getTripById(tripId);
 
             // if we counted destination for stage in the passedStations list then remove it
             int index = passedStopSequenceNumbers.size()-1;

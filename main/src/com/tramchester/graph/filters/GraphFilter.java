@@ -13,10 +13,12 @@ import java.util.Set;
 
 public interface GraphFilter {
     boolean isFiltered();
-    boolean shouldInclude(RouteRepository routeRepository, Route route);
-    boolean shouldInclude(RouteRepository routeRepository, Set<Route> route);
+    boolean shouldIncludeRoute(Route route);
+    boolean shouldIncludeRoute(IdFor<Route> route);
+    boolean shouldIncludeRoutes(Set<Route> route);
     boolean shouldInclude(Station station);
     boolean shouldInclude(StopCall stopCall);
     boolean shouldInclude(IdFor<Station> stationId);
-    boolean shouldInclude(Agency agency);
+    boolean shouldIncludeAgency(Agency agency);
+    boolean shouldIncludeAgency(IdFor<Agency> agencyId);
 }

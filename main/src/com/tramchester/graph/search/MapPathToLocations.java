@@ -9,6 +9,7 @@ import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -21,11 +22,11 @@ import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 
 @LazySingleton
 public class MapPathToLocations {
-    private final StationRepository stationRepository;
+    private final CompositeStationRepository stationRepository;
     private final ObjectMapper mapper;
 
     @Inject
-    public MapPathToLocations(StationRepository stationRepository, ObjectMapper mapper) {
+    public MapPathToLocations(CompositeStationRepository stationRepository, ObjectMapper mapper) {
         this.stationRepository = stationRepository;
         this.mapper = mapper;
     }

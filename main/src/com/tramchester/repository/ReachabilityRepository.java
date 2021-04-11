@@ -62,7 +62,7 @@ public class ReachabilityRepository {
         logger.info("Building for " + mode);
         Set<RouteStation> routeStations = transportData.getRouteStations()
                 .stream().
-                filter(routeStation -> graphFilter.shouldInclude(transportData, routeStation.getRoute())).
+                filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
                 filter(routeStation -> routeStation.getTransportModes().contains(mode)).
                 collect(Collectors.toSet());
 

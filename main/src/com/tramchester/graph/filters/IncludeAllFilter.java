@@ -1,14 +1,10 @@
 package com.tramchester.graph.filters;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.repository.RouteRepository;
 
 import java.util.Set;
 
@@ -20,12 +16,17 @@ public class IncludeAllFilter implements GraphFilter {
     }
 
     @Override
-    public boolean shouldInclude(RouteRepository routeRepository, Route route) {
+    public boolean shouldIncludeRoute(Route route) {
         return true;
     }
 
     @Override
-    public boolean shouldInclude(RouteRepository routeRepository, Set<Route> route) {
+    public boolean shouldIncludeRoute(IdFor<Route> route) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldIncludeRoutes(Set<Route> route) {
         return true;
     }
 
@@ -45,7 +46,12 @@ public class IncludeAllFilter implements GraphFilter {
     }
 
     @Override
-    public boolean shouldInclude(Agency agency) {
+    public boolean shouldIncludeAgency(Agency agency) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldIncludeAgency(IdFor<Agency> agencyId) {
         return true;
     }
 

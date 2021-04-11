@@ -21,6 +21,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
         Walking = new Agency(DataSourceID.Internal(), "Walking", "Walking");
     }
 
+    @Deprecated
     public Agency(DataSourceID dataSourceID, String agencyId, String agencyName) {
         this(dataSourceID, StringIdFor.createId(agencyId), agencyName);
     }
