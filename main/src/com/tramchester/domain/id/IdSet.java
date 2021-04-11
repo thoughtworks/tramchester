@@ -26,6 +26,11 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         theSet.addAll(ids);
     }
 
+    public IdSet(IdFor<T> id) {
+        this();
+        theSet.add(id);
+    }
+
     public IdSet(int initialCapabicity) {
         theSet = new HashSet<>(initialCapabicity);
     }

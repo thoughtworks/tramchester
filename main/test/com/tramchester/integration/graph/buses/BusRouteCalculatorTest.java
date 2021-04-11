@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -77,27 +78,39 @@ class BusRouteCalculatorTest {
     @BusTest
     @Test
     void shouldHaveStockToAltyJourneyAndBackAgain() {
+
+        CompositeStation stockport = compositeStationRepository.findByName("Stockport Bus Station");
+        CompositeStation alty = compositeStationRepository.findByName("Altrincham Interchange");
+
         TramTime travelTime = TramTime.of(8, 0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
         JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 2,
                 maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(StopAtStockportBusStation, StopAtAltrinchamInterchange, requestA, 3);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(stockport, alty, requestA, 3);
         assertFalse(journeys.isEmpty());
 
         // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        List<Journey> direct = journeys.stream().
+                filter(journey -> countNonConnectStages(journey) == 1).
+                collect(Collectors.toList());
         assertFalse(direct.isEmpty());
 
-        JourneyRequest requestB = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 8,
+        JourneyRequest requestB = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 4,
                 maxJourneyDuration);
-        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, StopAtStockportBusStation, requestB, 3);
+        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(alty, stockport, requestB, 3);
 
         // algo seems to return very large number of changes even when 2 is possible??
-        List<Journey> journeys2Stages = journeysMaxChanges.stream().filter(journey -> journey.getStages().size() <= 3).collect(Collectors.toList());
+        List<Journey> journeys2Stages = journeysMaxChanges.stream().
+                filter(journey -> countNonConnectStages(journey) <= 3).
+                collect(Collectors.toList());
         assertFalse(journeys2Stages.isEmpty());
     }
 
+    private long countNonConnectStages(Journey journey) {
+        return journey.getStages().stream().
+                filter(stage -> stage.getMode().getTransportMode() != TransportMode.Connect).count();
+    }
 
     @Test
     void shouldHaveJourneyAltyToKnutsford() {
@@ -128,11 +141,14 @@ class BusRouteCalculatorTest {
     @BusTest
     @Test
     void shouldNotRevisitSameBusStationAltyToKnutsford() {
+        CompositeStation start = compositeStationRepository.findByName("Altrincham Interchange");
+        CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
+
         TramTime travelTime = TramTime.of(15, 55);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
                 maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, KnutsfordStationStand3, request);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(start, end, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
 

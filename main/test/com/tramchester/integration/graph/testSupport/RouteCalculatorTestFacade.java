@@ -39,14 +39,15 @@ public class RouteCalculatorTestFacade {
     }
 
     public Set<Journey> calculateRouteAsSet(TestStations start, TestStations dest, JourneyRequest request, int maxToReturn) {
-        Stream<Journey> stream = routeCalculator.calculateRoute(txn, real(start), real(dest), request);
-        Set<Journey> result = stream.limit(maxToReturn).collect(Collectors.toSet());
-        stream.close();
-        return result;
+        return calculateRouteAsSet(real(start), real(dest), request, maxToReturn);
     }
 
     public Set<Journey> calculateRouteAsSet(IdFor<Station> start, IdFor<Station> dest, JourneyRequest request, int maxToReturn) {
-        Stream<Journey> stream = routeCalculator.calculateRoute(txn, get(start), get(dest), request);
+        return calculateRouteAsSet(get(start), get(dest), request, maxToReturn);
+    }
+
+    public Set<Journey> calculateRouteAsSet(Station start, Station dest, JourneyRequest request, int maxToReturn) {
+        Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request);
         Set<Journey> result = stream.limit(maxToReturn).collect(Collectors.toSet());
         stream.close();
         return result;

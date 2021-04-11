@@ -49,7 +49,7 @@ class PostcodeTramJourneyPlannerTest {
     private PostcodeRepository repository;
     private PostcodeLocation centralLocation;
     private static final TramTime planningTime = TramTime.of(11, 42);
-    private int maxStages = 9;
+    private final int maxStages = 9;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

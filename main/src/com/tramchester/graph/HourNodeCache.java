@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.PopulateNodeIdsFromQuery;
+import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -13,6 +14,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @LazySingleton
@@ -31,8 +35,12 @@ public class HourNodeCache extends PopulateNodeIdsFromQuery {
     @PostConstruct
     public void start() {
         logger.info("Starting");
+        ConcurrentMap<Integer, Set<Long>> results = IntStream.rangeClosed(0, 23).parallel().
+                mapToObj(hour -> Pair.of(hour, getNodeIdsFor(hour))).
+                collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
+
         for (int hour = 0; hour < HOURS; hour++) {
-            forEachHour.add(getNodeIdsFor(hour));
+            forEachHour.add(results.get(hour));
             logger.info("Added " + forEachHour.get(hour).size() + " nodes for hour " + hour);
         }
         logger.info("Started");

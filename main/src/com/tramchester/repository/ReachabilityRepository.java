@@ -9,6 +9,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.metrics.Timing;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +20,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -58,21 +62,11 @@ public class ReachabilityRepository {
     }
 
     private void buildRepository(TransportMode mode) {
-
-        logger.info("Building for " + mode);
-        Set<RouteStation> routeStations = transportData.getRouteStations()
-                .stream().
-                filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
-                filter(routeStation -> routeStation.getTransportModes().contains(mode)).
-                collect(Collectors.toSet());
-
-        Repository repository = new Repository();
-        repositorys.put(mode, repository);
-
-        logger.info(format("Build repository for %s %s routestations", routeStations.size(), mode));
-        repository.populateFor(routeStations, routeReachable);
-
-        logger.info("Done for " + mode);
+        try(Timing timing = new Timing(logger, "build for " + mode)) {
+            Repository repository = new Repository();
+            repositorys.put(mode, repository);
+            repository.populateFor(transportData, mode, graphFilter, routeReachable);
+        }
     }
 
     public boolean stationReachable(RouteStation routeStation, Station destinationStation) {
@@ -88,17 +82,43 @@ public class ReachabilityRepository {
     }
 
     private static class Repository {
-        private final IdSet<RouteStation> canReachInterchange;
-        private final Map<IdFor<RouteStation>, IdSet<Station>> reachableFrom;
+        private IdSet<RouteStation> canReachInterchange;
+        private Map<IdFor<RouteStation>, IdSet<Station>> reachableFrom;
 
         private Repository() {
-            canReachInterchange = new IdSet<>();
-            reachableFrom = new HashMap<>();
+            //canReachInterchange = new IdSet<>();
+            //reachableFrom = new HashMap<>();
         }
 
         public void dispose() {
             canReachInterchange.clear();
             reachableFrom.clear();
+        }
+
+
+        public void populateFor(StationRepository stationRepository, TransportMode mode, GraphFilter graphFilter, RouteReachable routeReachable) {
+
+            logger.info("Find interchange reachable for " + mode);
+            canReachInterchange = getRouteStationStream(stationRepository, mode, graphFilter).
+                    parallel().
+                    filter(routeReachable::isInterchangeReachableOnRoute).
+                    collect(IdSet.collector());
+
+            Stream<RouteStation> notViaInterchange = getRouteStationStream(stationRepository, mode, graphFilter).
+                    filter(routeStation -> !canReachInterchange.contains(routeStation.getId()));
+
+            logger.info("Find reachable on route for " + mode);
+            reachableFrom = notViaInterchange.parallel().
+                    map(routeStation -> Pair.of(routeStation.getId(), routeReachable.getReachableStationsOnRoute(routeStation))).
+                    collect(Collectors.toConcurrentMap(Pair::getLeft, Pair::getRight));
+
+        }
+
+        @NotNull
+        private Stream<RouteStation> getRouteStationStream(StationRepository stationRepository, TransportMode mode, GraphFilter graphFilter) {
+            return stationRepository.getRouteStations().stream().
+                    filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
+                    filter(routeStation -> routeStation.getTransportModes().contains(mode));
         }
 
         public void populateFor(Set<RouteStation> startingPoints, RouteReachable routeReachable) {
@@ -136,6 +156,7 @@ public class ReachabilityRepository {
             }
             return false;
         }
+
     }
 
 }

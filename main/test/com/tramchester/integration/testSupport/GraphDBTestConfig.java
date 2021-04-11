@@ -5,11 +5,10 @@ import com.tramchester.config.GraphDBConfig;
 import java.nio.file.Path;
 
 public class GraphDBTestConfig implements GraphDBConfig {
-    private final Path containingFolder;
     private final Path fullpath;
 
     public GraphDBTestConfig(String subFolderForDB, String dbFilename) {
-        this.containingFolder = Path.of("databases", subFolderForDB);
+        Path containingFolder = Path.of("databases", subFolderForDB);
         this.fullpath = containingFolder.resolve(dbFilename);
     }
 
