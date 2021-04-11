@@ -21,6 +21,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -119,7 +120,7 @@ class SubGraphAroundKnutsfordTrainTest {
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        creator.create(format("%s_trains.dot", "around_hale"), TrainStations.of(Hale), Integer.MAX_VALUE);
+        creator.create(Path.of(format("%s_trains.dot", "around_hale")), TrainStations.of(Hale), Integer.MAX_VALUE, false);
     }
 
     @NotNull

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -210,7 +211,7 @@ class TramRouteTest {
     @Test
     void createDiagramOfTestNetwork() {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        Assertions.assertAll(() -> creator.create("test_network.dot", transportData.getFirst(), Integer.MAX_VALUE));
+        Assertions.assertAll(() -> creator.create(Path.of("test_network.dot"), transportData.getFirst(), Integer.MAX_VALUE, false));
     }
 
     private static void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,

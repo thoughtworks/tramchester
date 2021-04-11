@@ -1,6 +1,7 @@
 package com.tramchester;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
@@ -8,6 +9,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.repository.CompositeStationRepository;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -32,26 +35,28 @@ public class DiagramCreator {
 
     private final GraphDatabase graphDatabase;
     private final GraphQuery graphQuery;
+    private final TransportRelationshipTypes[] toplevelRelationships = new TransportRelationshipTypes[]{LINKED};
+    private final CompositeStationRepository stationRepository;
 
     @Inject
-    public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery) {
+    public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, CompositeStationRepository stationRepository) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
         this.graphQuery = graphQuery;
+        this.stationRepository = stationRepository;
     }
 
-    public void create(String filename, Station station, int depthLimit) throws IOException {
-        create(filename, Collections.singleton(station), depthLimit);
+    public void create(Path filename, Station station, int depthLimit, boolean topLevel) throws IOException {
+        create(filename, Collections.singleton(station), depthLimit, topLevel);
     }
 
-    // TODO Path not String  for fileName
-    public void create(String fileName, Collection<Station> startPointsList, int depthLimit) throws IOException {
-        logger.info("Creating diagram " + fileName);
+    public void create(Path filePath, Collection<Station> startPointsList, int depthLimit, boolean topLevel) throws IOException {
+        logger.info("Creating diagram " + filePath.toAbsolutePath());
 
         Set<Long> nodeSeen = new HashSet<>();
         Set<Long> relationshipSeen = new HashSet<>();
 
-        OutputStream fileStream = new FileOutputStream(fileName);
+        OutputStream fileStream = new FileOutputStream(filePath.toFile());
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);
         PrintStream printStream = new PrintStream(bufferedOutputStream);
 
@@ -68,7 +73,7 @@ public class DiagramCreator {
                     logger.error("Can't find start node for station " + startPoint.getId());
                     builder.append("MISSING NODE\n");
                 } else {
-                    visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen);
+                    visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen, topLevel);
                 }
             });
 
@@ -85,7 +90,7 @@ public class DiagramCreator {
         logger.info("Finished diagram");
     }
 
-    private void visit(Node node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen) {
+    private void visit(Node node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
         if (depth<=0) {
             return;
         }
@@ -97,27 +102,32 @@ public class DiagramCreator {
         addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(node),
                 getLabelFor(node), getShapeFor(node)));
 
-        visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen);
-        visitInbounds(node, builder, depth, nodeSeen, relationshipSeen);
+        visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel);
+        visitInbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel);
 
     }
 
-    private void visitInbounds(Node targetNode, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen) {
-        targetNode.getRelationships(Direction.INCOMING, TransportRelationshipTypes.values()).forEach(towards -> {
+    private void visitInbounds(Node targetNode, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
+        getRelationships(targetNode, Direction.INCOMING, topLevel).forEach(towards -> {
 
             Node startNode = towards.getStartNode();
             addNode(builder, startNode);
 
             // startNode -> targetNode
             addEdge(builder, towards, createNodeId(startNode), createNodeId(targetNode), relationshipSeen);
-            visit(startNode, builder, depth-1, nodeSeen, relationshipSeen);
+            visit(startNode, builder, depth-1, nodeSeen, relationshipSeen, topLevel);
         });
     }
 
-    private void visitOutbounds(Node startNode, DiagramBuild builder, int depth, Set<Long> seen, Set<Long> relationshipSeen) {
+    private Iterable<Relationship> getRelationships(Node targetNode, Direction direction, boolean toplevelOnly) {
+        TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
+        return targetNode.getRelationships(direction, types);
+    }
+
+    private void visitOutbounds(Node startNode, DiagramBuild builder, int depth, Set<Long> seen, Set<Long> relationshipSeen, boolean topLevel) {
         Map<Long,Relationship> goesToRelationships = new HashMap<>();
 
-        startNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.forPlanning()).forEach(awayFrom -> {
+        getRelationships(startNode, Direction.OUTGOING, topLevel).forEach(awayFrom -> {
 
             TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(awayFrom.getType().name());
 
@@ -131,7 +141,7 @@ public class DiagramCreator {
                     goesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
             }
-            visit(rawEndNode, builder, depth-1, seen, relationshipSeen);
+            visit(rawEndNode, builder, depth-1, seen, relationshipSeen, topLevel);
         });
 
         // add services for this node
@@ -211,13 +221,15 @@ public class DiagramCreator {
         }
         if (node.hasLabel(ROUTE_STATION)) {
             // TODO Look up station name from the ID?
-            String stationName = GraphProps.getStationId(node).getGraphId();
+            String stationId = GraphProps.getStationId(node).getGraphId();
             TransportMode mode = GraphProps.getTransportMode(node);
-            String graphId = GraphProps.getRouteId(node).getGraphId();
-            return format("%s\n%s\n%s", graphId, stationName, mode.name());
+            String routeId = GraphProps.getRouteId(node).getGraphId();
+            return format("%s\n%s\n%s", routeId, stationId, mode.name());
         }
         if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
-            return node.getProperty(STATION_ID.getText()).toString();
+            IdFor<Station> stationId = GraphProps.getStationId(node);
+            Station station = stationRepository.getStationById(stationId);
+            return format("%s\n%s\n%s", station.getName(), station.getArea(), stationId.getGraphId());
         }
         if (node.hasLabel(SERVICE)) {
             return GraphProps.getServiceId(node).getGraphId();
@@ -231,7 +243,6 @@ public class DiagramCreator {
 
         return "No_Label";
     }
-
 
     private void addLine(DiagramBuild builder, String line) {
         builder.append(line);

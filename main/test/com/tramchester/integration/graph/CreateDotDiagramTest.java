@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,7 +67,7 @@ class CreateDotDiagramTest {
         Station startPoint = repository.getStationById(testPoint.getId());
 
         try {
-            diagramCreator.create(format("%s_trams.dot", startPoint.getName()), startPoint, depthLimit);
+            diagramCreator.create(Path.of(format("%s_trams.dot", startPoint.getName())), startPoint, depthLimit, false);
         } catch (IOException e) {
             fail(e);
         }

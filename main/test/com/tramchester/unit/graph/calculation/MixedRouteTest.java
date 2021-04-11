@@ -24,6 +24,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,7 +134,8 @@ class MixedRouteTest {
     void createDiagramOfTestNetwork() {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
         //DiagramCreator creator = new DiagramCreator(database, ready);
-        Assertions.assertAll(() -> creator.create("mixed_test_network.dot", transportData.getFirst(), Integer.MAX_VALUE));
+        Assertions.assertAll(() -> creator.create(Path.of("mixed_test_network.dot"), transportData.getFirst(),
+                Integer.MAX_VALUE, false));
     }
 
     private static void assertFirstAndLastForOneStage(Set<Journey> journeys, String firstStation, String secondStation,

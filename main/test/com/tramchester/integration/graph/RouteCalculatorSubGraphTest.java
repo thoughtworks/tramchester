@@ -19,6 +19,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -138,7 +139,7 @@ class RouteCalculatorSubGraphTest {
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
         //DiagramCreator creator = new DiagramCreator(database);
-        creator.create(format("%s_trams.dot", "subgraph"), TramStations.of(Cornbrook), Integer.MAX_VALUE);
+        creator.create(Path.of("subgraph_trams.dot"), TramStations.of(Cornbrook), Integer.MAX_VALUE, false);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

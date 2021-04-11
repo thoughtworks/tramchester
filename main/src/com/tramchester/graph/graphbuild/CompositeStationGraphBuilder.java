@@ -108,7 +108,6 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                 filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                 forEach(station -> {
                     int cost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
-                    //Node otherNode = getStationNode(txn, mode, station);
                     Node otherNode = builderCache.getStation(txn, station.getId());
                     if (otherNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
@@ -116,11 +115,6 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                     addNeighbourRelationship(startNode, otherNode, cost);
                     addNeighbourRelationship(otherNode, startNode, cost);
         });
-    }
-
-    private Node getStationNode(Transaction txn, TransportMode mode, Station station) {
-        GraphBuilder.Labels label = GraphBuilder.Labels.forMode(mode);
-        return graphDatabase.findNode(txn, label, station.getProp().getText(), station.getId().getGraphId());
     }
 
     private boolean hasDBFlag(Transaction txn) {

@@ -1,9 +1,11 @@
 package com.tramchester.integration.graph.buses;
 
+import com.google.common.collect.Streams;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +45,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
-    private static Set<Route> routes;
+    private static Set<Route> altyToKnutsford;
+    private static Set<Route> knutsfordToAlty;
 
     private RouteReachable routeReachable;
     private RouteCallingStations routeCallingStations;
@@ -65,12 +69,16 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         componentContainer.initialise();
 
         RouteRepository routeRepository = componentContainer.get(TransportData.class);
-        routes = routeRepository.findRoutesByName(StringIdFor.createId("DAGC"),
+        IdFor<Agency> agencyId = StringIdFor.createId("DAGC");
+        altyToKnutsford = routeRepository.findRoutesByName(agencyId,
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
+        knutsfordToAlty = routeRepository.findRoutesByName(agencyId,
+                "Macclesfield - Knutsford - Wilmslow - Altrincham");
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter) {
-        routes.forEach(route -> graphFilter.addRoute(route.getId()));
+        altyToKnutsford.forEach(route -> graphFilter.addRoute(route.getId()));
+        knutsfordToAlty.forEach(route -> graphFilter.addRoute(route.getId()));
     }
 
     @AfterAll
@@ -105,7 +113,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @Test
     void shouldBeFilteringByCorrectRoute() {
 
-        routes.forEach(route -> {
+        altyToKnutsford.forEach(route -> {
             CompositeStation start = compositeStationRepository.findByName("Altrincham Interchange");
             assertTrue(start.getRoutes().contains(route));
 
@@ -161,7 +169,6 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3, 120);
-        journeyRequest.setDiag(true);
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
@@ -171,7 +178,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @Test
     void shouldHaveSimpleRouteWithStationsAlongTheWay() {
 
-        routes.forEach(route -> {
+        altyToKnutsford.forEach(route -> {
             List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(route);
 
             List<IdFor<Station>> ids = stationsAlongRoute.stream().map(Station::getId).collect(Collectors.toList());
@@ -193,10 +200,10 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        Set<Station> uniqueStations = routes.stream().
+        Set<Station> stations = Streams.concat(altyToKnutsford.stream(), knutsfordToAlty.stream()).
                 flatMap(route -> routeCallingStations.getStationsFor(route).stream()).
                 collect(Collectors.toSet());
-        creator.create(format("%s.dot", "altyToMacBuses"), uniqueStations, Integer.MAX_VALUE);
+        creator.create(Path.of("AltrichamKnutsfordBuses.dot"), stations, 1, true);
     }
 
 
