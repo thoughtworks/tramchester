@@ -32,7 +32,7 @@
     "vue-cookies": "^1.7.4"
   },
   "devDependencies": {
-    "css-loader": "^5.1.2",
+    "css-loader": "^5.2.1",
     "file-loader": "^6.2.0",
     "style-loader": "^2.0.0",
     "vue-loader": "^15.9.6",
