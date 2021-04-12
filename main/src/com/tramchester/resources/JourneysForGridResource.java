@@ -5,14 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
+import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.postcodes.PostcodeRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.opengis.referencing.operation.TransformException;
@@ -41,14 +45,16 @@ public class JourneysForGridResource {
     private final StationRepository repository;
     private final FastestRoutesForBoxes search;
     private final JourneyToDTOMapper dtoMapper;
+    private final PostcodeRepository postcodeRepository;
     private final ObjectMapper objectMapper;
 
     @Inject
     public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
-                                   ObjectMapper objectMapper) {
+                                   PostcodeRepository postcodeRepository, ObjectMapper objectMapper) {
         this.repository = repository;
         this.search = search;
         this.dtoMapper = dtoMapper;
+        this.postcodeRepository = postcodeRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -67,8 +73,7 @@ public class JourneysForGridResource {
         logger.info(format("Query for quicktimes to %s for grid of size %s at %s %s maxchanges %s max duration %s",
                 destinationIdText, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDuration));
 
-        IdFor<Station> destinationId = StringIdFor.createId(destinationIdText);
-        Station destination = repository.getStationById(destinationId);
+        GridPosition destination = getGridPosition(destinationIdText);
 
         Optional<TramTime> maybeDepartureTime = TramTime.parse(departureTimeRaw);
         if (maybeDepartureTime.isEmpty()) {
@@ -96,6 +101,20 @@ public class JourneysForGridResource {
         Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
         return responseBuilder.build();
 
+    }
+
+    private GridPosition getGridPosition(String destinationIdText) {
+        GridPosition destination;
+        if (PostcodeDTO.isPostcodeId(destinationIdText)) {
+            IdFor<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(destinationIdText);
+            PostcodeLocation postcode = postcodeRepository.getPostcode(postcodeId);
+            destination = postcode.getGridPosition();
+        } else {
+            IdFor<Station> stationId = StringIdFor.createId(destinationIdText);
+            Station station = repository.getStationById(stationId);
+            destination = station.getGridPosition();
+        }
+        return destination;
     }
 
     private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramServiceDate serviceDate) {

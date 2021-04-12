@@ -10,13 +10,15 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.io.IOException;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+//@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@Disabled
 class GraphBuildForBusPerformanceTest {
 
     private static ComponentContainer componentContainer;

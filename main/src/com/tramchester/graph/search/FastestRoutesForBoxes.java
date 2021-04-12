@@ -10,6 +10,7 @@ import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.JourneyToDTOMapper;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +43,19 @@ public class FastestRoutesForBoxes {
     public Stream<BoundingBoxWithCost> findForGrid(Station destination, long gridSize,
                                                    JourneyRequest journeyRequest, long numberToFind)  {
 
-        logger.info("Creating station groups for gridsize " + gridSize);
+        logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
+        GridPosition gridPosition = destination.getGridPosition();
+
+        return findForGrid(gridPosition, gridSize, journeyRequest, numberToFind);
+    }
+
+    @NotNull
+    public Stream<BoundingBoxWithCost> findForGrid(GridPosition destination, long gridSize, JourneyRequest journeyRequest, long numberToFind) {
+        logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
         Optional<BoundingBoxWithStations> searchBoxWithDest = grouped.stream().
-                filter(box -> box.contained(destination.getGridPosition())).findFirst();
+                filter(box -> box.contained(destination)).findFirst();
 
         if (searchBoxWithDest.isEmpty()) {
             throw new RuntimeException("Unable to find destination in any boxes " + destination);
@@ -55,7 +64,7 @@ public class FastestRoutesForBoxes {
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
         return calculator.calculateRoutes(destinations, journeyRequest, grouped, numberToFind).
-                map(box->cheapest(box, destination.getGridPosition(), journeyRequest));
+                map(box->cheapest(box, destination, journeyRequest));
     }
 
     private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, GridPosition destination, JourneyRequest request) {

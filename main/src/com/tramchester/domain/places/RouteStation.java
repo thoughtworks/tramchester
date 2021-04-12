@@ -9,6 +9,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Collections;
@@ -67,6 +68,11 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
     @Override
     public LatLong getLatLong() {
         return station.getLatLong();
+    }
+
+    @Override
+    public GridPosition getGridPosition() {
+        return station.getGridPosition();
     }
 
     @Override

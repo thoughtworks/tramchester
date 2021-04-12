@@ -11,7 +11,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -22,6 +21,7 @@ import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -31,7 +31,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
@@ -153,25 +156,18 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void buildForAgency(GraphDatabase graphDatabase, Agency agency, GraphBuilderCache builderCache) {
 
-        Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
-        if (routes.isEmpty()) {
+        if (getRoutesForAgency(agency).findAny().isEmpty()) {
             return;
         }
 
         try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "onRoutes")) {
             Transaction tx = timedTransaction.transaction();
-            routes.forEach(route -> createOnRouteRelationships(tx, route, builderCache));
+            getRoutesForAgency(agency).forEach(route -> createOnRouteRelationships(tx, route, builderCache));
             timedTransaction.commit();
         }
 
-//        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "update trips")) {
-//            Transaction tx = timedTransaction.transaction();
-//            routes.forEach(route -> createServiceAndHourNodesForRoute(tx, route, builderCache));
-//            timedTransaction.commit();
-//        }
-
         try(Timing timing = new Timing(logger,"service, hour")) {
-            routes.forEach(route -> {
+            getRoutesForAgency(agency).parallel().forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
                     createServiceAndHourNodesForRoute(tx, route, builderCache);
                     tx.commit();
@@ -179,35 +175,30 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             });
         }
 
-        ServiceRelationshipTrips serviceRelationshipTrips = new ServiceRelationshipTrips();
-
-//        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "minute nodes")) {
-//            Transaction tx = timedTransaction.transaction();
-//            routes.forEach(route -> createMinuteNodesAndRecordUpdatesForTrips(tx, route, serviceRelationshipTrips, builderCache));
-//            timedTransaction.commit();
-//        }
-
         try(Timing timing = new Timing(logger,"time and update for trips")) {
-            routes.forEach(route -> {
+            getRoutesForAgency(agency).parallel().forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
+                    ServiceRelationshipTrips serviceRelationshipTrips = new ServiceRelationshipTrips();
                     createMinuteNodesAndRecordUpdatesForTrips(tx, route, serviceRelationshipTrips, builderCache);
+                    serviceRelationshipTrips.updateAll(tx);
                     tx.commit();
                 }
             });
-            try (Transaction tx = graphDatabase.beginTx()) {
-                serviceRelationshipTrips.updateAll(tx);
-                tx.commit();
-            }
         }
 
         try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "boards & departs")) {
             Transaction tx = timedTransaction.transaction();
-            routes.forEach(route -> buildGraphForBoardsAndDeparts(route, builderCache, tx));
+            getRoutesForAgency(agency).forEach(route -> buildGraphForBoardsAndDeparts(route, builderCache, tx));
             timedTransaction.commit();
         }
 
         builderCache.routeClear();
 
+    }
+
+    @NotNull
+    private Stream<Route> getRoutesForAgency(Agency agency) {
+        return agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute);
     }
 
     private void createMinuteNodesAndRecordUpdatesForTrips(Transaction tx, Route route, ServiceRelationshipTrips serviceRelationshipTrips,
@@ -541,16 +532,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     public static class ServiceRelationshipTrips {
-        private final Map<Long, IdSet<Trip>> map;
+        private final ConcurrentMap<Long, IdSet<Trip>> map;
 
         public ServiceRelationshipTrips() {
-            this.map = new HashMap<>();
+            this.map = new ConcurrentHashMap<>();
         }
 
         public void updateAll(Transaction txn) {
-            map.entrySet().forEach(entry -> {
-                update(txn, entry);
-            });
+            map.entrySet().forEach(entry -> update(txn, entry));
             map.values().forEach(IdSet::clear);
             map.clear();
         }
@@ -561,11 +550,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         public void add(long id, IdFor<Trip> tripId) {
-            if (map.containsKey(id)) {
-                map.get(id).add(tripId);
-                return;
-            }
-            map.put(id, new IdSet<>(tripId));
+            map.computeIfAbsent(id, key -> new IdSet<>());
+            map.computeIfPresent(id, (key,ids) -> ids.add(tripId));
+//            if (map.containsKey(id)) {
+//                map.get(id).add(tripId);
+//                return;
+//            }
+//            map.put(id, new IdSet<>(tripId));
         }
     }
 

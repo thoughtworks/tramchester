@@ -5,6 +5,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Collections;
@@ -13,12 +15,12 @@ import java.util.Set;
 
 public class PostcodeLocation implements Location<PostcodeLocation> {
 
-    private final LatLong LatLong;
+    private final LatLong latLong;
     private final IdFor<PostcodeLocation> id;
     private final String name;
 
     public PostcodeLocation(com.tramchester.domain.presentation.LatLong latLong, String id) {
-        LatLong = latLong;
+        this.latLong = latLong;
         this.id = StringIdFor.createId(id);
         this.name = id;
     }
@@ -35,7 +37,12 @@ public class PostcodeLocation implements Location<PostcodeLocation> {
 
     @Override
     public LatLong getLatLong() {
-        return LatLong;
+        return latLong;
+    }
+
+    @Override
+    public GridPosition getGridPosition() {
+        return CoordinateTransforms.getGridPosition(latLong);
     }
 
     @Override
@@ -93,7 +100,7 @@ public class PostcodeLocation implements Location<PostcodeLocation> {
     @Override
     public String toString() {
         return "PostcodeLocation{" +
-                "LatLong=" + LatLong +
+                "LatLong=" + latLong +
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 "} " + super.toString();

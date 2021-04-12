@@ -2,10 +2,10 @@ package com.tramchester.router;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -19,7 +19,6 @@ import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
 import com.tramchester.repository.postcodes.PostcodeRepository;
-import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -84,8 +83,8 @@ public class ProcessPlanRequest {
     private Stream<Journey> createJourneyPlan(Transaction txn, String startId, String endId, JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", startId, endId, journeyRequest));
 
-        boolean firstIsStation = !startId.startsWith(PostcodeDTO.PREFIX);
-        boolean secondIsStation = !endId.startsWith(PostcodeDTO.PREFIX);
+        boolean firstIsStation = !PostcodeDTO.isPostcodeId(startId);
+        boolean secondIsStation = !PostcodeDTO.isPostcodeId(endId);
 
         if (firstIsStation && secondIsStation) {
             Station start = getStation(startId, "start");
@@ -142,11 +141,11 @@ public class ProcessPlanRequest {
     }
 
     private PostcodeLocation getPostcode(String text, String diagnostic) {
-        String prefixRemovedText = text.replaceFirst(PostcodeDTO.PREFIX, "");
 
-        IdFor<PostcodeLocation> postcodeId = StringIdFor.createId(prefixRemovedText);
+        IdFor<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(text);
+
         if (!postcodeRepository.hasPostcode(postcodeId)) {
-            String msg = "Unable to find " + diagnostic +" postcode from:  "+ prefixRemovedText;
+            String msg = "Unable to find " + diagnostic +" postcode from:  "+ postcodeId;
             logger.warn(msg);
             throw new RuntimeException(msg);
         }

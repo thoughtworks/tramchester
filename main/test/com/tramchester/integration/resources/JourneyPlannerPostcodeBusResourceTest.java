@@ -42,7 +42,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     }
 
     private String prefix(PostcodeLocation postcode) {
-        return PostcodeDTO.PREFIX+postcode.forDTO();
+        return  "POSTCODE_"+postcode.forDTO();
     }
 
     @Test

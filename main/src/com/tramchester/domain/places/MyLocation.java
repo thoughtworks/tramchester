@@ -7,6 +7,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Collections;
@@ -51,6 +53,11 @@ public class MyLocation implements Location<MyLocation> {
     @Override
     public LatLong getLatLong() {
         return latLong;
+    }
+
+    @Override
+    public GridPosition getGridPosition() {
+        return CoordinateTransforms.getGridPosition(latLong);
     }
 
     @Override

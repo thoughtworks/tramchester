@@ -134,7 +134,7 @@ var mapApp = new Vue({
                 mapApp.draw();
                 // 9400ZZMASTP 9400ZZMAAIR 1800MABS001 MAN
                 // make sure to use HH:MM format with leading zero
-                queryForGrid(2000, "9400ZZMASTP", "08:15", getCurrentDate(), "3", "360");
+                queryForGrid(1000, "POSTCODE_M23AA", "08:15", getCurrentDate(), "3", "360");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
