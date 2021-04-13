@@ -18,6 +18,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -45,16 +46,16 @@ class CreateNeighboursTest {
     private static RouteCalculatorTestFacade routeCalculator;
     private static NeighboursTestConfig testConfig;
 
-    static class NeighboursTestConfig extends IntegrationTestConfig {
+    static class NeighboursTestConfig extends IntegrationBusTestConfig {
+
         public NeighboursTestConfig() {
-            super(
-                    new GraphDBTestConfig("integrationNeighboursTest", "neighboursBusAndTram.db"));
+            super("CreateNeighboursTest.db");
         }
 
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
             return Collections.singletonList(
-                    new TFGMGTFSSourceTestConfig("data/neighbours", TestEnv.tramAndBus,
+                    new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
                             new HashSet<>(Arrays.asList(Tram, Bus))));
         }
 

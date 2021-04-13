@@ -30,8 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.MixedTransportTestDataFactory.MixedTransportTestData.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MixedRouteTest {
 
@@ -108,7 +107,7 @@ class MixedRouteTest {
     @Test
     void shouldTestMultiStopJourneyFerryIsPossible() {
         ///
-        // Note relies on multi-mode stations automatically beign seen as interchanges
+        // Note relies on multi-mode stations automatically beging seen as interchanges
         // Change at Interchange ONLY is enable in config below
         ///
         assertTrue(config.getChangeAtInterchangeOnly(),"valid precondition");
@@ -116,17 +115,18 @@ class MixedRouteTest {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
-        assertEquals(1, journeys.size(), "journeys");
-        Journey journey = (Journey) journeys.toArray()[0];
+        assertFalse(journeys.isEmpty());
 
-        List<TransportStage<?,?>> stages = journey.getStages();
-        assertEquals(2, stages.size());
+        journeys.forEach(journey -> {
+            List<TransportStage<?,?>> stages = journey.getStages();
+            assertEquals(2, stages.size(), journey.toString());
 
-        TransportStage<?,?> first = stages.get(0);
-        assertEquals(FIRST_STATION, first.getFirstStation().forDTO());
+            TransportStage<?,?> first = stages.get(0);
+            assertEquals(FIRST_STATION, first.getFirstStation().forDTO(), journey.toString());
 
-        TransportStage<?,?> last = stages.get(1);
-        assertEquals(STATION_FOUR, last.getLastStation().forDTO());
+            TransportStage<?,?> last = stages.get(1);
+            assertEquals(STATION_FOUR, last.getLastStation().forDTO(), journey.toString());
+        });
 
     }
 

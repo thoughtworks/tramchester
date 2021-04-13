@@ -120,10 +120,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     public static class TimedPath {
         private final Path path;
         private final TramTime queryTime;
+        private final int numChanges;
 
-        protected TimedPath(Path path, TramTime queryTime) {
+        protected TimedPath(Path path, TramTime queryTime, int numChanges) {
             this.path = path;
             this.queryTime = queryTime;
+            this.numChanges = numChanges;
         }
 
         public Path getPath() {
@@ -132,6 +134,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         public TramTime getQueryTime() {
             return queryTime;
+        }
+
+        public int getNumChanges() {
+            return numChanges;
         }
     }
 }

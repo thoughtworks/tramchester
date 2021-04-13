@@ -70,6 +70,7 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
+        logger.info("Check journey from 0 to " + journeyRequest.getMaxChanges() +" changes");
         return IntStream.rangeClosed(0, journeyRequest.getMaxChanges()).boxed();
     }
 
@@ -90,7 +91,7 @@ public class RouteCalculatorSupport {
 
         return tramNetworkTraverser.
                 findPaths(txn, pathRequest.startNode, previousSuccessfulVisit).
-                map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime));
+                map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
     @NotNull

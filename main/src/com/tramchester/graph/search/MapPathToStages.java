@@ -55,8 +55,8 @@ public class MapPathToStages {
     public List<TransportStage<?,?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest) {
         Path path = timedPath.getPath();
         TramTime queryTime = timedPath.getQueryTime();
-        logger.info(format("Mapping path length %s to transport stages for %s at %s",
-                path.length(), journeyRequest, queryTime));
+        logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
+                path.length(), journeyRequest, queryTime, timedPath.getNumChanges()));
         ArrayList<TransportStage<?,?>> results = new ArrayList<>();
 
         List<Relationship> relationships = new ArrayList<>();
