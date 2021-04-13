@@ -1,8 +1,8 @@
 package com.tramchester.unit.geo;
 
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.*;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -186,6 +186,36 @@ class StationLocationsTest extends EasyMockSupport {
         // top right
         assertEquals(posB.getEastings(), bounds.getMaxEasting());
         assertEquals(posB.getNorthings(), bounds.getMaxNorthings());
+    }
+
+    @Test
+    void shouldHaveExpectedBoundingBoxes() throws TransformException {
+        long gridSize = 50;
+
+        Station testStationA = createTestStation("id123", "name", TestEnv.nearPiccGardens);
+        Station testStationC = createTestStation("id789", "nameB", TestEnv.nearShudehill);
+
+        setStationExceptations(testStationA, testStationC);
+
+        replayAll();
+        stationLocations.start();
+        BoundingBox area = stationLocations.getBounds();
+
+        Set<BoundingBox> expected = new HashSet<>();
+        for (long x = area.getMinEastings(); x <= area.getMaxEasting(); x = x + gridSize) {
+            for (long y = area.getMinNorthings(); y <= area.getMaxNorthings(); y = y + gridSize) {
+                BoundingBox box = new BoundingBox(x, y, x + gridSize, y + gridSize);
+                expected.add(box);
+            }
+        }
+        assertEquals(12, expected.size());
+
+        Set<BoundingBox> found = stationLocations.getBoundingBoxsFor(gridSize).collect(Collectors.toSet());
+
+        assertEquals(expected.size(), found.size());
+        Set<BoundingBox> notFound = new HashSet<>(expected);
+        notFound.removeAll(found);
+        assertEquals(Collections.emptySet(), notFound);
     }
 
     @Test

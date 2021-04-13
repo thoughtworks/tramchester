@@ -14,6 +14,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -56,14 +57,14 @@ public class StationLocations implements StationLocationsRepository {
     private void addStation(Station station) {
         logger.debug("Adding station " + HasId.asId(station));
         if (!positions.containsKey(station)) {
-            LatLong position = station.getLatLong();
-            if (!position.isValid()) {
-                    logger.warn("Incorrect lat/long for " + station.getId());
+            GridPosition position = station.getGridPosition();
+            if (position.isValid()) {
+                positions.put(station, position);
+                updateBoundingBox(position);
+                logger.debug("Added station " + station.getId() + " at grid " + position);
+            } else {
+                logger.warn("Invalid grid for " + station.getId());
             }
-            GridPosition gridPosition = CoordinateTransforms.getGridPosition(position);
-            positions.put(station, gridPosition);
-            updateBoundingBox(gridPosition);
-            logger.debug("Added station " + station.getId() + " at grid " + gridPosition);
         }
     }
 
@@ -178,16 +179,27 @@ public class StationLocations implements StationLocationsRepository {
 
         logger.info("Getting groupded stations for grid size " + gridSize);
 
-        List<BoundingBox> boxes = new ArrayList<>();
-        for (long x = minEastings; x <= maxEasting; x = x + gridSize) {
-            for (long y = minNorthings; y <= maxNorthings; y = y + gridSize) {
-                BoundingBox box = new BoundingBox(x, y, x + gridSize, y + gridSize);
-                boxes.add(box);
-            }
-        }
 
-        return boxes.stream().map(box -> new BoundingBoxWithStations(box, getStationsWithin(box))).
+        return getBoundingBoxsFor(gridSize).
+                map(box -> new BoundingBoxWithStations(box, getStationsWithin(box))).
                 filter(BoundingBoxWithStations::hasStations);
+    }
+
+    @NotNull
+    public Stream<BoundingBox> getBoundingBoxsFor(long gridSize) {
+        // addresses performance and memory usages on very large grids
+        return getEastingsStream(gridSize).
+                flatMap(x -> getNorthingsStream(gridSize).
+                        map(y -> new BoundingBox(x, y, x + gridSize, y + gridSize)));
+    }
+
+    private Stream<Long> getEastingsStream(long gridSize) {
+        return LongStream.
+                iterate(minEastings, current -> current <= maxEasting, current -> current + gridSize).boxed();
+    }
+
+    private Stream<Long> getNorthingsStream(long gridSize) {
+        return LongStream.iterate(minNorthings, current -> current <= maxNorthings, current -> current + gridSize).boxed();
     }
 
     private Set<Station> getStationsWithin(BoundingBox box) {

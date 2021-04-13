@@ -120,7 +120,7 @@ class SubGraphAroundKnutsfordTrainTest {
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        creator.create(Path.of(format("%s_trains.dot", "around_hale")), TrainStations.of(Hale), Integer.MAX_VALUE, false);
+        creator.create(Path.of(format("%s_trains.dot", "around_hale")), TrainStations.of(Hale), 100, false);
     }
 
     @NotNull

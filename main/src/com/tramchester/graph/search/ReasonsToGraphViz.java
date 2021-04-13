@@ -29,7 +29,7 @@ public class ReasonsToGraphViz {
     private final HashSet<Pair<Long,Long>> relationships;
     private final HashSet<Pair<Long, String>> reasonRelationships;
 
-    private static final boolean includeAll = false;
+    private static final boolean includeAll = true;
 
     public ReasonsToGraphViz(Transaction transaction, CompositeStationRepository stationRepository, StringBuilder builder) {
         this.stationRepository = stationRepository;

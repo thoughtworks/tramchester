@@ -33,7 +33,6 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -148,7 +147,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
             logger.info("Adding version node to the DB");
-            Node node = graphDatabase.createNode(tx, Labels.VERSION);
+            Node node = createGraphNode(tx, Labels.VERSION);
             infos.forEach(nameAndVersion -> setProp(node, nameAndVersion));
             tx.commit();
         }

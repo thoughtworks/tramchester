@@ -128,7 +128,8 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToBusStationCentral() {
         JourneyRequest journeyRequest = createRequest(3);
-        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.NearPiccadillyGardens, ShudehillInterchange, journeyRequest, 4);
+        Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.NearPiccadillyGardens, ShudehillInterchange,
+                journeyRequest, 4);
 
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
@@ -137,7 +138,8 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeCentral() {
         JourneyRequest journeyRequest = createRequest(2);
-        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, TestPostcodes.NearPiccadillyGardens, journeyRequest, 3);
+        Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, TestPostcodes.NearPiccadillyGardens,
+                journeyRequest, 3);
 
         assertFalse(journeys.isEmpty());
     }

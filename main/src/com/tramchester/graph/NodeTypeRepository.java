@@ -20,4 +20,6 @@ public interface NodeTypeRepository {
     void populateNodeLabelMap(GraphDatabase graphDatabase);
     void put(long id, GraphBuilder.Labels label);
     void put(long id, Set<GraphBuilder.Labels> label);
+
+    boolean shouldContain(GraphBuilder.Labels label);
 }

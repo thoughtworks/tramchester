@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -60,10 +61,10 @@ public class ProcessPlanRequest {
                                             String lat, String lon) {
         Stream<Journey> journeys;
 
-        if (isFromUserLocation(startId)) {
+        if (MyLocation.isUserLocation(startId)) {
             LatLong latLong = decodeLatLong(lat, lon);
             journeys = startsWithPosition(txn, latLong, endId, journeyRequest);
-        } else if (isFromUserLocation(endId)) {
+        } else if (MyLocation.isUserLocation(endId)) {
             LatLong latLong = decodeLatLong(lat, lon);
             journeys = endsWithPosition(txn, startId, latLong, journeyRequest);
         } else {
@@ -166,10 +167,6 @@ public class ProcessPlanRequest {
         String msg = "Unable to find " + diagnostic + " station from id: "+ text;
         logger.warn(msg);
         throw new RuntimeException(msg);
-    }
-
-    private boolean isFromUserLocation(String id) {
-        return MY_LOCATION_PLACEHOLDER_ID.equals(id);
     }
 
     private LatLong decodeLatLong(String lat, String lon) {

@@ -63,12 +63,19 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedNumbersForBus() {
-        assertEquals(40, transportData.getAgencies().size());
-        assertEquals(15767, transportData.getStations().size());
-        assertEquals(1779, transportData.getRoutes().size());
+        assertEquals(39, transportData.getAgencies().size());
+        assertEquals(15408, transportData.getStations().size());
+        assertEquals(1015, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
+    }
+
+    @Test
+    void shouldGetBusRoutes() {
+        Collection<Route> results = transportData.getRoutes();
+        long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
+        assertEquals(290, gmsRoutes);
     }
 
     @Test
@@ -122,13 +129,6 @@ class TransportDataFromFilesBusTest {
         outbounds.forEach(outbound -> assertTrue(secondStation.servesRoute(outbound)));
     }
 
-    @Test
-    void shouldGetBusRoutes() {
-        Collection<Route> results = transportData.getRoutes();
-        long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-
-        assertEquals(508, gmsRoutes);
-    }
 
     @Test
     void shouldGetServicesByDate() {
@@ -148,10 +148,10 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldGetStations() {
 
-        for(BusStations station : BusStations.values()) {
-            assertTrue(transportData.hasStationId(station.getId()), station.name());
-            Station found = transportData.getStationById(station.getId());
-            assertEquals(station.getName(), found.getName());
+        for(BusStations testStation : BusStations.values()) {
+            assertTrue(transportData.hasStationId(testStation.getId()), testStation.name());
+            Station found = transportData.getStationById(testStation.getId());
+            assertEquals(testStation.getName(), found.getName());
         }
     }
 

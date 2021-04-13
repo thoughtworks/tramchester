@@ -16,7 +16,7 @@ public abstract class ServiceReason {
     public enum ReasonCode {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
-        WalkOk, StationOpen, Continue, NumConnectionsOk,
+        WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk,
 
         NotOnQueryDate,
         NotAtQueryTime,

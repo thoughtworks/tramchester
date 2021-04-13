@@ -47,7 +47,9 @@ public class CreateNodesAndRelationships {
     protected Node createGraphNode(Transaction tx, GraphBuilder.Labels label) {
         numberNodes++;
         Node node = graphDatabase.createNode(tx, label);
-        nodeTypeRepository.put(node.getId(), label);
+        if (nodeTypeRepository.shouldContain(label)) {
+            nodeTypeRepository.put(node.getId(), label);
+        }
         return node;
     }
 

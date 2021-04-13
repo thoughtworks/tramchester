@@ -421,8 +421,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdMap<Station> allStations = new IdMap<>();
 
         stops.forEach((stopData) -> {
-            GridPosition position = getGridPosition(stopData.getLatLong());
-            if (position.isValid()) {
+            LatLong latLong = stopData.getLatLong();
+            if (latLong.isValid()) {
+                GridPosition position = getGridPosition(stopData.getLatLong());
                 if (bounds.contained(position)) {
                     preLoadStation(allStations, stopData, position, factory);
                 } else {
@@ -430,7 +431,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 }
             } else {
                 logger.warn("Stop has invalid postion " + stopData);
-                preLoadStation(allStations, stopData, position, factory);
+                preLoadStation(allStations, stopData, GridPosition.Invalid, factory);
             }
         });
         logger.info("Pre Loaded " + allStations.size() + " stations");

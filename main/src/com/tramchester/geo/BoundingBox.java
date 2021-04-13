@@ -101,4 +101,22 @@ public class BoundingBox {
                 ", topRight=" + topRight +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BoundingBox that = (BoundingBox) o;
+
+        if (!bottomLeft.equals(that.bottomLeft)) return false;
+        return topRight.equals(that.topRight);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = bottomLeft.hashCode();
+        result = 31 * result + topRight.hashCode();
+        return result;
+    }
 }

@@ -69,12 +69,16 @@ public class ServiceReasons {
 
     private void reportStats() {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for " + journeyRequest.toString() + " at " + queryTime + " max changes " + numChanges);
+            logger.warn("No result found for " + journeyRequest + " at " + queryTime + " max changes " + numChanges);
         }
+        logger.info("Service reasons for query time: " + queryTime);
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(
-                code -> logger.info(format("%s: %s", code, statistics.get(code))));
-
+                code -> {
+                    if (statistics.get(code).get() > 0) {
+                        logger.info(format("%s: %s", code, statistics.get(code)));
+                    }
+                });
     }
 
     public ServiceReason recordReason(final ServiceReason serviceReason) {
@@ -94,6 +98,7 @@ public class ServiceReasons {
     }
 
     public void recordSuccess() {
+        incrementStat(ServiceReason.ReasonCode.Arrived);
         success = true;
     }
 

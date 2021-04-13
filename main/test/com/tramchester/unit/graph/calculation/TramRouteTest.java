@@ -25,6 +25,7 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -145,10 +146,22 @@ class TramRouteTest {
     }
 
     @Test
-    void shouldTestSimpleJourneyIsNotPossible() {
+    void shouldTestSimpleJourneyIsNotPossible() throws IOException {
+        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0), 1);
+        journeyRequest.setDiag(true);
+
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getInterchange(), createJourneyRequest(TramTime.of(9, 0), 3)).collect(Collectors.toSet());
-        Assertions.assertEquals(0, journeys.size());
+                transportData.getInterchange(),
+                journeyRequest).collect(Collectors.toSet());
+
+        if (!journeys.isEmpty()) {
+            DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+            creator.create(Path.of("shouldTestSimpleJourneyIsNotPossible.dot"),
+                    transportData.getFirst(),
+                    100, false);
+        }
+
+        Assertions.assertEquals(Collections.emptySet(), journeys);
     }
 
     @Test
@@ -211,7 +224,8 @@ class TramRouteTest {
     @Test
     void createDiagramOfTestNetwork() {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        Assertions.assertAll(() -> creator.create(Path.of("test_network.dot"), transportData.getFirst(), Integer.MAX_VALUE, false));
+        Assertions.assertAll(() -> creator.create(Path.of("test_network.dot"),
+                transportData.getFirst(), 100, false));
     }
 
     private static void assertFirstAndLast(Set<Journey> journeys, String firstStation, String secondStation,

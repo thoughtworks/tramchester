@@ -193,6 +193,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO)) {
                 // TODO Record with different reason?
+                reasons.recordReason(ServiceReason.IsValid(ServiceReason.ReasonCode.WalkOk, howIGotHere));
                 return ServiceReason.ReasonCode.WalkOk;
             }
         }
@@ -213,6 +214,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return serviceReason.getReasonCode(); // valid, or not at time
         }
 
+        reasons.recordReason(ServiceReason.IsValid(ServiceReason.ReasonCode.Continue, howIGotHere));
         return ServiceReason.ReasonCode.Continue;
     }
 

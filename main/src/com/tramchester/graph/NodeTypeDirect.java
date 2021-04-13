@@ -62,4 +62,9 @@ public class NodeTypeDirect implements NodeTypeRepository {
     public void put(long id, Set<GraphBuilder.Labels> label) {
         // no-op
     }
+
+    @Override
+    public boolean shouldContain(GraphBuilder.Labels label) {
+        return false;
+    }
 }

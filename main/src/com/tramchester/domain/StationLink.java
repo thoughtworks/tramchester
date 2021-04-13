@@ -52,4 +52,8 @@ public class StationLink {
     public Set<TransportMode> getModes() {
         return modes;
     }
+
+    public boolean hasValidLatlongs() {
+        return pair.getBegin().getLatLong().isValid() && pair.getEnd().getLatLong().isValid();
+    }
 }

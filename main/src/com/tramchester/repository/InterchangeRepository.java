@@ -97,8 +97,10 @@ public class InterchangeRepository  {
     }
 
     private void addMultiModeStations() {
+        // NOTE: by default the train data set contains mixed mode due to replacement buses, bus links, subways etc
         Set<Station> multimodeStations = stationRepository.getStations().stream().
-                filter(station -> station.getTransportModes().size() > 1).collect(Collectors.toSet());
+                filter(station -> station.getTransportModes().size() > 1).
+                collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");
         multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> interchanges.get(mode).add(station.getId())));
     }

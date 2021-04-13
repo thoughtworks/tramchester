@@ -33,4 +33,5 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
     public int getQueryInterval() {
         return 6;
     }
+
 }

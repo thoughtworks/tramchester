@@ -149,7 +149,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        creator.create(Path.of("subgraph_mediacity_trams.dot"), TramStations.of(MediaCityUK), Integer.MAX_VALUE, true);
+        creator.create(Path.of("subgraph_mediacity_trams.dot"), TramStations.of(MediaCityUK), 100, true);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

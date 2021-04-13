@@ -69,7 +69,7 @@ public class ServiceHeuristics {
         if (currentNumConnections > journeyConstraints.getMaxWalkingConnections()) {
             return reasons.recordReason(ServiceReason.TooManyWalkingConnections(howIGotHere));
         }
-        return valid(ServiceReason.ReasonCode.NumConnectionsOk, howIGotHere, reasons);
+        return valid(ServiceReason.ReasonCode.NumWalkingConnectionsOk, howIGotHere, reasons);
     }
 
     public ServiceReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentElapsed, ServiceReasons reasons, int maxWait) {
@@ -96,7 +96,6 @@ public class ServiceHeuristics {
             // quick win
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
-
 
         TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
         if (journeyClockTime.withinInterval(maxWait, currentHour)) {

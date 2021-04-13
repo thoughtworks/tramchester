@@ -86,6 +86,11 @@ public class NodeIdLabelMap implements NodeTypeRepository {
         labels.forEach(label -> put(id, label));
     }
 
+    @Override
+    public boolean shouldContain(GraphBuilder.Labels label) {
+        return nodesToCache.contains(label);
+    }
+
     public boolean isService(Node nodeId) {
         return has(GraphBuilder.Labels.SERVICE, nodeId.getId());
     }

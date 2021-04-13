@@ -77,15 +77,19 @@ function queryForGrid(gridSize, destination, departureTime, departureDate, maxCh
 
     const searchParams = new URLSearchParams(urlParams);
 
-    oboe('/api/grid?'+searchParams.toString())
-        .node('BoxWithCost', function(box) {
-            addBoxWithCost(box)
-        })
-        .fail(function (errorReport) {
-            console.log("Failed to load grid '" + errorReport.toString() + "'");
-        });
+    getGrids(searchParams);
+}
 
-    }
+function queryForGridLatLong(gridSize, lat, lon, departureTime, departureDate, maxChanges, maxDuration) {
+    var urlParams = {
+        destination: "MyLocationPlaceholderId", gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
+        lat: lat, lon: lon,
+        maxChanges: maxChanges, maxDuration: maxDuration};
+
+    const searchParams = new URLSearchParams(urlParams);
+
+    getGrids(searchParams);
+}
 
 var mapApp = new Vue({
     el: '#tramMap',
@@ -134,7 +138,9 @@ var mapApp = new Vue({
                 mapApp.draw();
                 // 9400ZZMASTP 9400ZZMAAIR 1800MABS001 MAN
                 // make sure to use HH:MM format with leading zero
-                queryForGrid(1000, "POSTCODE_M23AA", "08:15", getCurrentDate(), "3", "360");
+                //queryForGrid(1000, "POSTCODE_M23AA", "08:15", getCurrentDate(), "3", "360");
+                // man picc 53.4774286,-2.2313236
+                queryForGridLatLong(1000, "53.4774286", "-2.2313236", "08:15", getCurrentDate(), "3", "360");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
@@ -147,4 +153,14 @@ var mapApp = new Vue({
     }
 });
 
+
+function getGrids(searchParams) {
+    oboe('/api/grid?' + searchParams.toString())
+        .node('BoxWithCost', function (box) {
+            addBoxWithCost(box);
+        })
+        .fail(function (errorReport) {
+            console.log("Failed to load grid '" + errorReport.toString() + "'");
+        });
+}
 

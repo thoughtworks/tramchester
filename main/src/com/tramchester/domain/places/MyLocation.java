@@ -93,4 +93,8 @@ public class MyLocation implements Location<MyLocation> {
     public String forDTO()  {
         return getId().forDTO();
     }
+
+    public static boolean isUserLocation(String text) {
+        return MY_LOCATION_PLACEHOLDER_ID.equals(text);
+    }
 }

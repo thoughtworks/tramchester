@@ -2,7 +2,8 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.GraphProperty;
 
-public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphProperty, B extends GraphProperty> implements IdFor<DOMAINTYPE>{
+public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphProperty, B extends GraphProperty>
+        implements IdFor<DOMAINTYPE>{
 
     private static final String DIVIDER = "_";
     private final IdFor<A> idA;
@@ -59,6 +60,6 @@ public class MixedCompositeId<DOMAINTYPE extends GraphProperty, A extends GraphP
 
     @Override
     public String toString() {
-        return "CompositeId{" + idA + "," + idB + '}';
+        return "MixedCompositeId{" + idA + "," + idB + '}';
     }
 }
