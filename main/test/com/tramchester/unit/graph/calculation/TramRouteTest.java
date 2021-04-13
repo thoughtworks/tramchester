@@ -147,24 +147,22 @@ class TramRouteTest {
 
     @Test
     void shouldTestSimpleJourneyIsNotPossible() throws IOException {
-        for (int i = 0; i < 500000; i++) {
-            JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0), 1);
-            //journeyRequest.setDiag(true);
+        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0), 1);
+        //journeyRequest.setDiag(true);
 
-            Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                    transportData.getInterchange(),
-                    journeyRequest).collect(Collectors.toSet());
+        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
+                transportData.getInterchange(),
+                journeyRequest).collect(Collectors.toSet());
 
-            if (!journeys.isEmpty()) {
-                DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-                creator.create(Path.of("shouldTestSimpleJourneyIsNotPossible.dot"),
-                        transportData.getFirst(),
-                        100, false);
-            }
-
-            Assertions.assertEquals(Collections.emptySet(), journeys);
+        if (!journeys.isEmpty()) {
+            DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+            creator.create(Path.of("shouldTestSimpleJourneyIsNotPossible.dot"),
+                    transportData.getFirst(),
+                    100, false);
         }
 
+        Assertions.assertEquals(Collections.emptySet(), journeys);
+        
     }
 
     @Test
