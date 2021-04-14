@@ -1,7 +1,6 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NodeTypeRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -71,9 +70,13 @@ public class CreateNodesAndRelationships {
     }
 
     protected boolean addNeighbourRelationship(Node fromNode, Node toNode, int cost) {
+        return addRelationshipFor(fromNode, toNode, cost, NEIGHBOUR);
+    }
 
+    private boolean addRelationshipFor(Node fromNode, Node toNode, int cost, TransportRelationshipTypes relationshipType) {
         Set<Long> alreadyNeighbours = new HashSet<>();
-        fromNode.getRelationships(Direction.OUTGOING, NEIGHBOUR).forEach(relationship -> alreadyNeighbours.add(relationship.getEndNode().getId()));
+        fromNode.getRelationships(Direction.OUTGOING, relationshipType).
+                forEach(relationship -> alreadyNeighbours.add(relationship.getEndNode().getId()));
 
         if (!alreadyNeighbours.contains(toNode.getId())) {
             Relationship relationship = createRelationship(fromNode, toNode, NEIGHBOUR);

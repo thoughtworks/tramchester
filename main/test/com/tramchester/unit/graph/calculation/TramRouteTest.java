@@ -162,7 +162,7 @@ class TramRouteTest {
         }
 
         Assertions.assertEquals(Collections.emptySet(), journeys);
-        
+
     }
 
     @Test

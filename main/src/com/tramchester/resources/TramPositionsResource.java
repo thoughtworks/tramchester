@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
+
 @Api
 @Path("/positions")
 @Produces(MediaType.APPLICATION_JSON)
@@ -65,8 +67,7 @@ public class TramPositionsResource {
                         pos.getCost())).
                 collect(Collectors.toList());
 
-        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList,
-                config.getTransportModes().contains(GTFSTransportationType.bus));
+        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList, config.getTransportModes().contains(Bus));
         return Response.ok(dto).build();
     }
 

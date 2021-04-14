@@ -80,7 +80,7 @@ public class MinuteState extends TraversalState {
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             return toRouteStation(node, cost);
         }
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
     private TraversalState toRouteStation(Node routeStationNode, int cost) {

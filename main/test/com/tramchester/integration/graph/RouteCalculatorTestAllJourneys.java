@@ -18,6 +18,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
+
 class RouteCalculatorTestAllJourneys {
 
     private static ComponentContainer componentContainer;
@@ -47,7 +49,7 @@ class RouteCalculatorTestAllJourneys {
     void shouldFindRouteEachStationToEveryOtherStream() {
         TransportData data = componentContainer.get(TransportData.class);
 
-        Set<Station> allStations = data.getStations();
+        Set<Station> allStations = data.getStationsForMode(Tram);
 
         // pairs of stations to check
         Set<StationIdPair> stationIdPairs = allStations.stream().flatMap(start -> allStations.stream().

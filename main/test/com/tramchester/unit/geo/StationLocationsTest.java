@@ -1,9 +1,11 @@
 package com.tramchester.unit.geo;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.*;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
@@ -22,17 +24,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class StationLocationsTest extends EasyMockSupport {
 
     private StationLocations stationLocations;
-    private StationRepository stationRepository;
+    private CompositeStationRepository stationRepository;
+    private TramchesterConfig config;
 
     @BeforeEach
     void onceBeforeEachTest() {
-        stationRepository = createMock(StationRepository.class);
-        stationLocations = new StationLocations(stationRepository);
+        stationRepository = createMock(CompositeStationRepository.class);
+        config = createMock(TramchesterConfig.class);
+        stationLocations = new StationLocations(stationRepository, config);
     }
 
     private void setStationExceptations(Station... stations) {
         Set<Station> toReturn = new HashSet<>(Arrays.asList(stations));
-        EasyMock.expect(stationRepository.getStations()).andReturn(toReturn);
+        EasyMock.expect(config.getTransportModes()).andReturn(Collections.singleton(TransportMode.Tram));
+        EasyMock.expect(stationRepository.getStationsForMode(TransportMode.Tram)).andReturn(toReturn);
     }
 
     @Test

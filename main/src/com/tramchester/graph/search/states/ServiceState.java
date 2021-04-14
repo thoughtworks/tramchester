@@ -55,7 +55,7 @@ public class ServiceState extends TraversalState {
         if (nodeLabel == GraphBuilder.Labels.HOUR) {
             return builders.hour.FromService(this, node, cost, maybeExistingTrip);
         }
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
 }

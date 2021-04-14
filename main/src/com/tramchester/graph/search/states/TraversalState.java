@@ -88,7 +88,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
                                              JourneyState journeyState, int cost) {
         throw new RuntimeException(format("Multi label Not implemented at %s for %s labels were %s",
-                this.toString(), journeyState, nodeLabels));
+                this, journeyState, nodeLabels));
     }
 
     public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,

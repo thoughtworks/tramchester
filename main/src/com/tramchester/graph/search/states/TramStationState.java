@@ -32,6 +32,10 @@ public class TramStationState extends TraversalState {
             return new TramStationState(noPlatformStation, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
         }
 
+        public TraversalState fromNeighbour(TramStationState tramStationState, Node node, int cost) {
+            return new TramStationState(tramStationState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+        }
+
     }
 
     private final long stationNodeId;
@@ -66,9 +70,11 @@ public class TramStationState extends TraversalState {
             case BUS_STATION:
             case TRAIN_STATION:
                 return builders.noPlatformStation.fromNeighbour(this, node, cost);
+            case TRAM_STATION:
+                return builders.tramStation.fromNeighbour(this, node, cost);
             default:
-                throw new RuntimeException("Unexpected node type: "+nodeLabel+ " at " + toString());
-
+                String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
+                throw new UnexpectedNodeTypeException(node, message);
         }
     }
 }

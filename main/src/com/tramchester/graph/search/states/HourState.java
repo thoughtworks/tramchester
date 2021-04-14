@@ -36,7 +36,7 @@ public class HourState extends TraversalState {
         } catch(TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);
         }
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
     private TraversalState toMinute(Node node, JourneyState journeyState, int cost) throws TramchesterException {

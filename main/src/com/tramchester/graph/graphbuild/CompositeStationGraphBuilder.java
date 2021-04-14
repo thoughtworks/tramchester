@@ -93,13 +93,13 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                 filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                 forEach(compositeStation -> {
                     Node stationNode = createStationNode(txn, compositeStation);
-                    linkStations(txn, mode, stationNode, compositeStation);
+                    linkStations(txn, stationNode, compositeStation);
             });
             timedTransaction.commit();
         }
     }
 
-    private void linkStations(Transaction txn, TransportMode mode, Node startNode, CompositeStation parent) {
+    private void linkStations(Transaction txn, Node startNode, CompositeStation parent) {
         Set<Station> contained = parent.getContained();
         double mph = config.getWalkingMPH();
 
@@ -112,6 +112,9 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                     if (otherNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
+
+                    // TODO Need different relationship type here, clashes with CreateNeighbours???
+
                     addNeighbourRelationship(startNode, otherNode, cost);
                     addNeighbourRelationship(otherNode, startNode, cost);
         });

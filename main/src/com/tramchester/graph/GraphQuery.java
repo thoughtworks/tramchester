@@ -17,14 +17,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/***
+ * Make sure have correct dependencies on "Ready" tokens alongside this class, it makes no gaurantees for any
+ * data having put in the DB
+ */
 @LazySingleton
 public class GraphQuery {
 
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public GraphQuery(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready dbReady,
-                      CompositeStationGraphBuilder.Ready compositeStationsReady) {
+    public GraphQuery(GraphDatabase graphDatabase) {
+        //, StagedTransportGraphBuilder.Ready dbReady, CompositeStationGraphBuilder.Ready compositeStationsReady)
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
     }

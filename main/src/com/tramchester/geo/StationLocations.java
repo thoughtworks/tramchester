@@ -1,9 +1,12 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -22,7 +25,9 @@ import static java.lang.String.format;
 @LazySingleton
 public class StationLocations implements StationLocationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
-    private final StationRepository stationRepository;
+
+    private final CompositeStationRepository stationRepository;
+    private final TramchesterConfig config;
 
     private long minEastings;
     private long maxEasting;
@@ -32,8 +37,9 @@ public class StationLocations implements StationLocationsRepository {
     private final HashMap<Station, GridPosition> positions;
 
     @Inject
-    public StationLocations(StationRepository stationRepository) {
+    public StationLocations(CompositeStationRepository stationRepository, TramchesterConfig config) {
         this.stationRepository = stationRepository;
+        this.config = config;
         positions = new HashMap<>();
 
         // bounding box for all stations
@@ -45,7 +51,12 @@ public class StationLocations implements StationLocationsRepository {
 
     @PostConstruct
     public void start() {
-        stationRepository.getStations().forEach(this::addStation);
+        logger.info("starting");
+        for (TransportMode transportMode : config.getTransportModes()) {
+            logger.info("Adding stations for " + transportMode);
+            stationRepository.getStationsForMode(transportMode).forEach(this::addStation);
+        }
+        logger.info("started");
     }
 
     @PreDestroy

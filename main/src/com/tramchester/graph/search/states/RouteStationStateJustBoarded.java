@@ -102,7 +102,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
         // if one to one relationship between platforms and route stations, or bus stations and route stations,
         // no longer holds then this will throw
-        throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
+        throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
     }
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {

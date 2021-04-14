@@ -56,7 +56,7 @@ public class RouteStationStateEndTrip extends TraversalState {
             case TRAIN_STATION:
                 return toStation(nextNode, journeyState, cost);
             default:
-                throw new RuntimeException(format("Unexpected node type: %s state :%s ", nodeLabel, this));
+                throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
         }
 
     }

@@ -93,7 +93,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             case TRAIN_STATION:
                 return builders.noPlatformStation.fromNeighbour(this, next, cost);
             default:
-                throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
+                throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
         }
     }
 

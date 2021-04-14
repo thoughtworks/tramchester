@@ -47,7 +47,7 @@ public class NotStartedState extends TraversalState {
             case SUBWAY_STATION:
                 return builders.noPlatformStation.from(this, firstNode, cost);
         }
-        throw new RuntimeException("Unexpected node type: " + nodeLabel);
+        throw new UnexpectedNodeTypeException(firstNode, "Unexpected node type: " + nodeLabel);
     }
 
 }

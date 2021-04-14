@@ -84,7 +84,7 @@ public class PlatformState extends TraversalState implements NodeId {
             return builders.routeStationJustBoarded.fromPlatformState(this, node, cost);
         }
 
-        throw new RuntimeException("Unexpected node type: "+nodeLabel);
+        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
     @Override

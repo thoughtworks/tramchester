@@ -63,9 +63,11 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedNumbersForBus() {
-        assertEquals(39, transportData.getAgencies().size());
-        assertEquals(15408, transportData.getStations().size());
-        assertEquals(1015, transportData.getRoutes().size());
+        assertEquals(40, transportData.getAgencies().size());
+        assertEquals(1241, transportData.getRoutes().size());
+        int size = transportData.getStations().size();
+        assertTrue(size > 15400, "big change");
+        assertTrue(size < 16400, "big change");
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -75,7 +77,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertEquals(290, gmsRoutes);
+        assertEquals(309, gmsRoutes);
     }
 
     @Test

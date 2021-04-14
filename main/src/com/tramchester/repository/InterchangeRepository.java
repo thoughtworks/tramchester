@@ -4,10 +4,12 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.ModeIdsMap;
 import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.CreateNeighbours;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,20 +31,22 @@ public class InterchangeRepository  {
 
     private final FindStationsByNumberLinks findStationsByNumberConnections;
     private final StationRepository stationRepository;
+    private final CreateNeighbours createNeighbours;
     private final CompositeStationRepository compositeStationRepository;
-    private final Set<TransportMode> enabledModes;
+    private final TramchesterConfig config;
 
-    private final Map<TransportMode, IdSet<Station>> interchanges;
+    private final ModeIdsMap<Station> interchanges;
 
     @Inject
     public InterchangeRepository(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
-                                 CompositeStationRepository compositeStationRepository,
+                                 CreateNeighbours createNeighbours, CompositeStationRepository compositeStationRepository,
                                  TramchesterConfig config) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
+        this.createNeighbours = createNeighbours;
         this.compositeStationRepository = compositeStationRepository;
-        enabledModes = config.getTransportModes();
-        interchanges = new HashMap<>();
+        this.config = config;
+        interchanges = new ModeIdsMap<>();
     }
 
     @PreDestroy
@@ -55,9 +57,12 @@ public class InterchangeRepository  {
     @PostConstruct
     public void start() {
         logger.info("Starting");
+        Set<TransportMode> enabledModes = config.getTransportModes();
+
         enabledModes.forEach(this::populateInterchangesFor);
         addAdditionalTramInterchanges();
         addMultiModeStations();
+        enabledModes.forEach(this::addStationsWithNeighbours);
         logger.info("started");
     }
 
@@ -77,7 +82,7 @@ public class InterchangeRepository  {
         logger.info(format("Added %s interchanges for %s composites", allContainedStations.size(), composites.size()));
         found.addAll(allContainedStations);
 
-        interchanges.put(mode, found);
+        interchanges.addAll(mode, found);
     }
 
     private int getLinkThreshhold(TransportMode mode) {
@@ -90,9 +95,9 @@ public class InterchangeRepository  {
 
     private void addAdditionalTramInterchanges() {
         // TODO should really check data source as well
-        if (enabledModes.contains(Tram)) {
-            IdSet<Station> addToSet = interchanges.get(Tram);
-            TramInterchanges.stations().forEach(addToSet::add);
+        if (config.getTransportModes().contains(Tram)) {
+            //IdSet<Station> addToSet = interchanges.get(Tram);
+            TramInterchanges.stations().forEach(tramInterchange -> interchanges.add(Tram, tramInterchange));
         }
     }
 
@@ -102,25 +107,33 @@ public class InterchangeRepository  {
                 filter(station -> station.getTransportModes().size() > 1).
                 collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");
-        multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> interchanges.get(mode).add(station.getId())));
+        multimodeStations.forEach(station -> station.getTransportModes().forEach(mode -> interchanges.add(mode, station.getId())));
+    }
+
+    private void addStationsWithNeighbours(TransportMode mode) {
+        if (config.getCreateNeighbours()) {
+            createNeighbours.getStationsWithNeighbours(mode).forEach(stationId -> {
+                interchanges.add(mode, stationId);
+            });
+        }
+    }
+
+    public boolean isInterchange(TransportMode mode, IdFor<Station> stationId) {
+        return interchanges.containsFor(mode, stationId);
     }
 
     public boolean isInterchange(Station station) {
-        // only checking stations modes is small optimisation as station id's are unique
-        Set<TransportMode> stationModes = station.getTransportModes();
-
-        for (TransportMode mode : stationModes) {
-            if (interchanges.get(mode).contains(station.getId())) {
+        for(TransportMode mode : station.getTransportModes()) {
+            if (isInterchange(mode, station.getId())) {
                 return true;
             }
         }
-
         return false;
     }
 
     public boolean isInterchange(IdFor<Station> stationId) {
-        for (TransportMode enabledMode : enabledModes) {
-            if (interchanges.get(enabledMode).contains(stationId)) {
+        for (TransportMode enabledMode : config.getTransportModes()) {
+            if (isInterchange(enabledMode, stationId)) {
                 return true;
             }
         }
