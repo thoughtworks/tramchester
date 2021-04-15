@@ -93,6 +93,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 relationships(TO_HOUR, Direction.OUTGOING).
                 relationships(TO_MINUTE, Direction.OUTGOING).
                 relationships(NEIGHBOUR, Direction.OUTGOING).
+                relationships(GROUPED_TO_CHILD, Direction.OUTGOING).
+                relationships(GROUPED_TO_PARENT, Direction.OUTGOING).
                 expand(this, initialJourneyState).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).

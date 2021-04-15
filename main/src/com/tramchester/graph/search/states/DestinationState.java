@@ -33,6 +33,10 @@ public class DestinationState extends TraversalState
         public TraversalState from(RouteStationStateEndTrip endTrip, int cost) {
             return new DestinationState(endTrip, cost);
         }
+
+        public TraversalState from(GroupedStationState groupedStationState, int cost) {
+            return new DestinationState(groupedStationState, cost);
+        }
     }
 
     private DestinationState(TraversalState parent, int cost) {

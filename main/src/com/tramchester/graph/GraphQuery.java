@@ -44,6 +44,18 @@ public class GraphQuery {
         return findNode(txn, label, station);
     }
 
+    public Node getGroupedNode(Transaction txn, Station station) {
+        return findNode(txn, GraphBuilder.Labels.GROUPED, station);
+    }
+
+    public Node getStationOrGrouped(Transaction txn, Station station) {
+        if (station.isComposite()) {
+            return getGroupedNode(txn, station);
+        } else {
+            return getStationNode(txn, station);
+        }
+    }
+
     private <C extends GraphProperty>  Node findNode(Transaction txn, GraphBuilder.Labels label, HasId<C> hasId) {
         return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
     }
@@ -63,4 +75,5 @@ public class GraphQuery {
         List<Node> nodes = query.stream().collect(Collectors.toList());
         return !nodes.isEmpty();
     }
+
 }

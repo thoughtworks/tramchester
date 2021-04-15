@@ -38,6 +38,11 @@ public class CompositeStation extends Station {
     }
 
     @Override
+    public boolean isComposite() {
+        return true;
+    }
+
+    @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.STATION_ID;
     }

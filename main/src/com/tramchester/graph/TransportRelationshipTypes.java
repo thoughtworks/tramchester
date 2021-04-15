@@ -26,9 +26,11 @@ public enum TransportRelationshipTypes implements RelationshipType {
     TO_SERVICE,
     TO_HOUR,
     TO_MINUTE,
-    ON_ROUTE,
-    NEIGHBOUR,
-    LINKED;
+    GROUPED_TO_PARENT, // between composite stations to/from contained stations
+    GROUPED_TO_CHILD,
+    ON_ROUTE,  // route stations on same route
+    NEIGHBOUR, // stations within N meters, different transport modes
+    LINKED; // station to station by transport mode
 
     private static final TransportRelationshipTypes[] forPlanning;
 
@@ -54,8 +56,8 @@ public enum TransportRelationshipTypes implements RelationshipType {
         };
     }
 
-    public static boolean isNeighbour(Relationship relationship) {
-        return relationship.isType(NEIGHBOUR);
+    public static boolean isNeighbourOrGrouped(Relationship relationship) {
+        return relationship.isType(NEIGHBOUR) || relationship.isType(GROUPED_TO_CHILD) || relationship.isType(GROUPED_TO_PARENT);
     }
 
     public static boolean hasCost(TransportRelationshipTypes relationshipType) {

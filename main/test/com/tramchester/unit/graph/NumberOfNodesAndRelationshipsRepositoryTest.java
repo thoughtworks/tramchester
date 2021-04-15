@@ -53,13 +53,13 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
         assertEquals(0, repository.numberOf(GraphBuilder.Labels.QUERY_NODE));
         assertEquals(0, repository.numberOf(GraphBuilder.Labels.TRAIN_STATION));
 
-        assertEquals(6, repository.numberOf(GraphBuilder.Labels.TRAM_STATION));
+        assertEquals(7, repository.numberOf(GraphBuilder.Labels.TRAM_STATION));
         assertEquals(6, repository.numberOf(GraphBuilder.Labels.HOUR));
         assertEquals(5, repository.numberOf(GraphBuilder.Labels.SERVICE));
         assertEquals(7, repository.numberOf(GraphBuilder.Labels.MINUTE));
-        assertEquals(6, repository.numberOf(GraphBuilder.Labels.PLATFORM));
-        assertEquals(8, repository.numberOf(GraphBuilder.Labels.ROUTE_STATION));
-        assertEquals(6, repository.numberOf(GraphBuilder.Labels.PLATFORM));
+        assertEquals(7, repository.numberOf(GraphBuilder.Labels.PLATFORM));
+        assertEquals(9, repository.numberOf(GraphBuilder.Labels.ROUTE_STATION));
+        assertEquals(7, repository.numberOf(GraphBuilder.Labels.PLATFORM));
 
     }
 

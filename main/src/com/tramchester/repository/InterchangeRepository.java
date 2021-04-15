@@ -96,7 +96,6 @@ public class InterchangeRepository  {
     private void addAdditionalTramInterchanges() {
         // TODO should really check data source as well
         if (config.getTransportModes().contains(Tram)) {
-            //IdSet<Station> addToSet = interchanges.get(Tram);
             TramInterchanges.stations().forEach(tramInterchange -> interchanges.add(Tram, tramInterchange));
         }
     }

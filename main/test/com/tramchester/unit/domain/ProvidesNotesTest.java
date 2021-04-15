@@ -10,6 +10,8 @@ import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.VehicleStage;
+import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.repository.PlatformMessageSource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;

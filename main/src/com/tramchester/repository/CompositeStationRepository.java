@@ -78,7 +78,6 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     @NotNull
     private Set<String> getDuplicatedNamesFor(TransportMode mode) {
         return stationRepository.getStationsForModeStream(mode).
-                filter(station -> !station.hasPlatforms()).
                 map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
                 entrySet().stream().

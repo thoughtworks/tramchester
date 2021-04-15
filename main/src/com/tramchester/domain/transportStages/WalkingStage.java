@@ -1,5 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.domain.transportStages;
 
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;

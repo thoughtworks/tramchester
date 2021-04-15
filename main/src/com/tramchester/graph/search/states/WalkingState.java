@@ -50,6 +50,10 @@ public class WalkingState extends TraversalState {
                 journeyState.walkingConnection();
                 return builders.noPlatformStation.from(this, node, cost);
             }
+            case GROUPED -> {
+                journeyState.walkingConnection();
+                return builders.groupedStation.fromWalk(this, node, cost);
+            }
             default -> throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + toString());
         }
 

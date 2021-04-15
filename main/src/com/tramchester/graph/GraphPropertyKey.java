@@ -35,7 +35,7 @@ public enum GraphPropertyKey {
 
     public static GraphPropertyKey keyForLabel(GraphBuilder.Labels label) {
         return switch (label) {
-            case TRAIN_STATION, BUS_STATION, TRAM_STATION, FERRY_STATION, SUBWAY_STATION -> STATION_ID;
+            case TRAIN_STATION, BUS_STATION, TRAM_STATION, FERRY_STATION, SUBWAY_STATION, GROUPED -> STATION_ID;
             case ROUTE_STATION -> ROUTE_STATION_ID;
             case SERVICE -> SERVICE_ID;
             case PLATFORM -> PLATFORM_ID;

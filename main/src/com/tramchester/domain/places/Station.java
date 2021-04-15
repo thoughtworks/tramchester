@@ -74,6 +74,10 @@ public class Station implements Location<Station> {
         return !platforms.isEmpty();
     }
 
+    public boolean isComposite() {
+        return false;
+    }
+
     @Override
     public Set<Platform> getPlatforms() {
         return platforms;

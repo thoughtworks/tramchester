@@ -1,5 +1,7 @@
-package com.tramchester.domain;
+package com.tramchester.domain.transportStages;
 
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -98,8 +100,8 @@ public class ConnectingStage implements TransportStage<Station, Station>  {
     @Override
     public String toString() {
         return "ConnectingStage{" +
-                "start=" + start.getName() +
-                ", end=" + end.getName() +
+                "start=" + start.getId() +
+                ", end=" + end.getId() +
                 ", cost=" + cost +
                 ", walkStartTime=" + walkStartTime +
                 '}';

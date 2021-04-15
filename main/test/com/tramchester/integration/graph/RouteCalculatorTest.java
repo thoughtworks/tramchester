@@ -6,7 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.VehicleStage;
+import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;

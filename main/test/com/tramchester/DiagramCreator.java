@@ -10,6 +10,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.CompositeStationRepository;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -178,7 +179,7 @@ public class DiagramCreator {
             Set<TransportMode> modes = GraphProps.getTransportModes(edge);
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes));
         } else {
-            String shortForm = createShortForm(relationshipType);
+            String shortForm = createShortForm(relationshipType, edge);
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, shortForm));
         }
     }
@@ -211,7 +212,6 @@ public class DiagramCreator {
         if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
             return "box";
         }
-
         return "box";
     }
 
@@ -240,6 +240,11 @@ public class DiagramCreator {
         if (node.hasLabel(MINUTE)) {
             return GraphProps.getTime(node).toString();
         }
+        if (node.hasLabel(GROUPED)) {
+            IdFor<Station> stationId = GraphProps.getStationId(node);
+            Station station = stationRepository.getStationById(stationId);
+            return format("%s\n%s\n%s", station.getName(), station.getArea(), stationId.getGraphId());
+        }
 
         return "No_Label";
     }
@@ -248,7 +253,16 @@ public class DiagramCreator {
         builder.append(line);
     }
 
-    private String createShortForm(TransportRelationshipTypes relationshipType) {
+    private String createShortForm(TransportRelationshipTypes relationshipType, Relationship edge) {
+        String cost = "";
+        if (hasCost(relationshipType)) {
+            cost = "("+ GraphProps.getCost(edge)+ ")";
+        }
+        return getNameFor(relationshipType) + cost;
+    }
+
+    @NotNull
+    private String getNameFor(TransportRelationshipTypes relationshipType) {
         return switch (relationshipType) {
             case ENTER_PLATFORM -> "E";
             case LEAVE_PLATFORM -> "L";
@@ -268,6 +282,8 @@ public class DiagramCreator {
             case NEIGHBOUR -> "neigh";
             case FERRY_GOES_TO -> "Ferry";
             case SUBWAY_GOES_TO -> "Subway";
+            case GROUPED_TO_CHILD -> "groupChild";
+            case GROUPED_TO_PARENT -> "groupParent";
             default -> "Unkn";
         };
     }

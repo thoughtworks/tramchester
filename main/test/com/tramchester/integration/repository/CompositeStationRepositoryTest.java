@@ -40,7 +40,7 @@ class CompositeStationRepositoryTest {
     }
 
     @Test
-    void shouldHaveNoneForStationsWithPlatforms() {
+    void shouldHaveNoneForTramStationsAsNoDuplicatedNames() {
         assertEquals(0,repository.getNumberOfComposites());
         assertTrue(repository.getCompositesFor(Tram).isEmpty());
     }

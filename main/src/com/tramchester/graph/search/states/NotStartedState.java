@@ -46,6 +46,8 @@ public class NotStartedState extends TraversalState {
             case FERRY_STATION:
             case SUBWAY_STATION:
                 return builders.noPlatformStation.from(this, firstNode, cost);
+            case GROUPED:
+                return builders.groupedStation.fromStart(this, firstNode, cost);
         }
         throw new UnexpectedNodeTypeException(firstNode, "Unexpected node type: " + nodeLabel);
     }

@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.graph.graphbuild.GraphProps.setProperty;
+import static java.lang.String.format;
+
 /***
  * Add nodes and relationships for composite stations to the exitsing graph
  */
@@ -92,14 +95,20 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
             allComposite.stream().filter(graphFilter::shouldInclude).
                 filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                 forEach(compositeStation -> {
-                    Node stationNode = createStationNode(txn, compositeStation);
+                    Node stationNode = createGroupedStationNodes(txn, compositeStation);
                     linkStations(txn, stationNode, compositeStation);
             });
             timedTransaction.commit();
         }
     }
 
-    private void linkStations(Transaction txn, Node startNode, CompositeStation parent) {
+    private Node createGroupedStationNodes(Transaction txn, CompositeStation compositeStation) {
+        Node stationNode = CompositeStationGraphBuilder.this.createGraphNode(txn, GraphBuilder.Labels.GROUPED);
+        setProperty(stationNode, compositeStation);
+        return stationNode;
+    }
+
+    private void linkStations(Transaction txn, Node parentNode, CompositeStation parent) {
         Set<Station> contained = parent.getContained();
         double mph = config.getWalkingMPH();
 
@@ -108,15 +117,13 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                 filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                 forEach(station -> {
                     int cost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
-                    Node otherNode = builderCache.getStation(txn, station.getId());
-                    if (otherNode==null) {
+                    Node childNode = builderCache.getStation(txn, station.getId());
+                    if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
-                    // TODO Need different relationship type here, clashes with CreateNeighbours???
-
-                    addNeighbourRelationship(startNode, otherNode, cost);
-                    addNeighbourRelationship(otherNode, startNode, cost);
+                    addGroupRelationshipTowardsChild(parentNode, childNode, cost);
+                    addGroupRelationshipTowardsParent(childNode, parentNode, cost);
         });
     }
 

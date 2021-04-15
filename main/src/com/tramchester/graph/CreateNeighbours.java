@@ -154,7 +154,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships {
 
     private boolean addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Stream<Station> others) {
         AtomicBoolean addedAny = new AtomicBoolean(false);
-        Node fromNode = graphQuery.getStationNode(txn, from);
+        Node fromNode = graphQuery.getStationOrGrouped(txn, from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
             logger.error(msg);
@@ -165,7 +165,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships {
         logger.debug("Adding neighbour relations from " + from.getId());
         others.filter(filter::shouldInclude).forEach(to -> {
 
-            Node toNode = graphQuery.getStationNode(txn, to);
+            Node toNode = graphQuery.getStationOrGrouped(txn, to);
             if (toNode==null) {
                 String msg = "Could not find database node for to: " + to.getId();
                 logger.error(msg);

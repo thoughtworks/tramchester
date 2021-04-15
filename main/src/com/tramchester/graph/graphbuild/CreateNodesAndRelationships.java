@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.tramchester.graph.TransportRelationshipTypes.NEIGHBOUR;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphProps.setProperty;
 import static java.lang.String.format;
 
@@ -73,13 +73,21 @@ public class CreateNodesAndRelationships {
         return addRelationshipFor(fromNode, toNode, cost, NEIGHBOUR);
     }
 
+    protected void addGroupRelationshipTowardsParent(Node fromNode, Node toNode, int cost) {
+        addRelationshipFor(fromNode, toNode, cost, GROUPED_TO_PARENT);
+    }
+
+    protected void addGroupRelationshipTowardsChild(Node fromNode, Node toNode, int cost) {
+        addRelationshipFor(fromNode, toNode, cost, GROUPED_TO_CHILD);
+    }
+
     private boolean addRelationshipFor(Node fromNode, Node toNode, int cost, TransportRelationshipTypes relationshipType) {
         Set<Long> alreadyNeighbours = new HashSet<>();
         fromNode.getRelationships(Direction.OUTGOING, relationshipType).
                 forEach(relationship -> alreadyNeighbours.add(relationship.getEndNode().getId()));
 
         if (!alreadyNeighbours.contains(toNode.getId())) {
-            Relationship relationship = createRelationship(fromNode, toNode, NEIGHBOUR);
+            Relationship relationship = createRelationship(fromNode, toNode, relationshipType);
             GraphProps.setCostProp(relationship, cost);
             return true;
         }

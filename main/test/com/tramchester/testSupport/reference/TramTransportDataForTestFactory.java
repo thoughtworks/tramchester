@@ -73,14 +73,15 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private void populateTestData(TransportDataContainer container) {
         Agency agency = TestEnv.MetAgency();
 
-        //Route routeA = RoutesForTesting.ALTY_TO_BURY; // TODO This route not present during lockdown
         Route routeA = createTramRoute(CornbrookTheTraffordCentre);
         Route routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
         Route routeC = createTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
+        Route routeD = createTramRoute(ManchesterAirportWythenshaweVictoria);
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);
         agency.addRoute(routeC);
+        agency.addRoute(routeD);
 
         container.addAgency(agency);
 
@@ -91,10 +92,12 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         routeA.addService(serviceA);
         routeB.addService(serviceB);
         routeC.addService(serviceC);
+        routeD.addService(serviceA);
 
         container.addRoute(routeA);
         container.addRoute(routeB);
         container.addRoute(routeC);
+        container.addRoute(routeD);
 
         LocalDate startDate = LocalDate.of(2014, 2, 10);
         LocalDate endDate = LocalDate.of(2020, 8, 15);
@@ -117,7 +120,16 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         PlatformStopCall stopA = createStop(container, tripA, first, of(8, 0), of(8, 0), 1);
         tripA.addStop(stopA);
 
-        Station second = new TestStation(TramTransportDataForTest.SECOND_STATION, "area2", "secondStation",
+        // trip Z, firstNameDup - for composite station testing
+        Trip tripZ = new Trip(StringIdFor.createId("tripZ"), "for dup", serviceA, routeD);
+        Station firstDupName = new TestStation(TramTransportDataForTest.FIRST_STATION_DUP_NAME, "area1", "startStation",
+                nearAltrincham, nearAltrinchamGrid, Tram);
+        addAStation(container, firstDupName);
+        addRouteStation(container, firstDupName, routeD);
+        PlatformStopCall stopZ = createStop(container, tripZ, firstDupName, of(12, 0), of(12, 0), 1);
+        tripZ.addStop(stopZ);
+
+        Station second = new TestStation(TramTransportDataForTest.SECOND_STATION, "area1", "secondStation",
                 nearPiccGardens, nearPiccGardensGrid, Tram);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
@@ -225,12 +237,13 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         private static final String serviceCId = "serviceCId";
 
         public static final String TRIP_A_ID = "tripAId";
-        public static final String FIRST_STATION = METROLINK_PREFIX + "_ST_FIRST";
-        public static final String SECOND_STATION = METROLINK_PREFIX + "_ST_SECOND";
-        public static final String LAST_STATION = METROLINK_PREFIX + "_ST_LAST";
+        public static final String FIRST_STATION = METROLINK_PREFIX + "FIRST";
+        public static final String FIRST_STATION_DUP_NAME = METROLINK_PREFIX + "FIRSTDUP";
+        public static final String SECOND_STATION = METROLINK_PREFIX + "SECOND";
+        public static final String LAST_STATION = METROLINK_PREFIX + "LAST";
         public static final String INTERCHANGE = TramStations.Cornbrook.forDTO();
-        private static final String STATION_FOUR = METROLINK_PREFIX + "_ST_FOUR";
-        private static final String STATION_FIVE = METROLINK_PREFIX + "_ST_FIVE";
+        private static final String STATION_FOUR = METROLINK_PREFIX + "FOUR";
+        private static final String STATION_FIVE = METROLINK_PREFIX + "FIVE";
 
         public TramTransportDataForTest(ProvidesNow providesNow) {
             super(providesNow, "TramTransportDataForTest");
@@ -238,6 +251,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         public Station getFirst() {
             return getStationById(StringIdFor.createId(FIRST_STATION));
+        }
+
+        public Station getFirstDupName() {
+            return getStationById(StringIdFor.createId(FIRST_STATION_DUP_NAME));
         }
 
         public Station getSecond() {

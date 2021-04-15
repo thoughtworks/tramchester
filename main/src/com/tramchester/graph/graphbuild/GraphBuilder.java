@@ -31,6 +31,7 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
 
     public enum Labels implements Label
     {
+        GROUPED,  // composite station node
         ROUTE_STATION,
         TRAM_STATION,
         BUS_STATION,

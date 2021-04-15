@@ -1,4 +1,4 @@
-package com.tramchester.domain;
+package com.tramchester.domain.transportStages;
 
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
@@ -7,28 +7,30 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.WalkingStage;
 
 import java.util.Collections;
 import java.util.List;
 
-public class WalkingFromStationStage extends WalkingStage<Station, MyLocation> {
-    public WalkingFromStationStage(Station start, MyLocation destination, int duration, TramTime beginTime) {
+public class WalkingToStationStage extends WalkingStage<MyLocation, Station> {
+
+    public WalkingToStationStage(MyLocation start, Station destination, int duration, TramTime beginTime) {
         super(start, destination, duration, beginTime);
     }
 
     @Override
     public boolean getTowardsMyLocation() {
-        return true;
+        return false;
     }
 
     @Override
     public String getHeadSign() {
-        return destination.getName();
+        return "My Location";
     }
 
     @Override
     public Location<?> getActionStation() {
-        return getFirstStation();
+        return getLastStation();
     }
 
     @Override
@@ -43,6 +45,6 @@ public class WalkingFromStationStage extends WalkingStage<Station, MyLocation> {
 
     @Override
     public String toString() {
-        return "WalkingFromStationStage{} " + super.toString();
+        return "WalkingToStationStage{} " + super.toString();
     }
 }

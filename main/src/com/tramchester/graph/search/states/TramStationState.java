@@ -8,34 +8,41 @@ import org.neo4j.graphdb.Relationship;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class TramStationState extends TraversalState {
+public class TramStationState extends TraversalState implements NodeId {
 
     public static class Builder {
         public TraversalState fromWalking(WalkingState walkingState, Node node, int cost) {
-            return new TramStationState(walkingState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+            return new TramStationState(walkingState, node.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR), cost, node.getId());
         }
 
         public TraversalState fromPlatform(PlatformState platformState, Node node, int cost) {
             return new TramStationState(platformState,
                     filterExcludingEndNode(
-                            node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR), platformState),
+                            node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT), platformState),
                     cost, node.getId());
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
             return new TramStationState(notStartedState,
-                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR),
+                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
                     cost, node.getId());
         }
 
         public TraversalState fromNeighbour(NoPlatformStationState noPlatformStation, Node node, int cost) {
-            return new TramStationState(noPlatformStation, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+            return new TramStationState(noPlatformStation,
+                    node.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT), cost, node.getId());
         }
 
         public TraversalState fromNeighbour(TramStationState tramStationState, Node node, int cost) {
-            return new TramStationState(tramStationState, node.getRelationships(OUTGOING, ENTER_PLATFORM), cost, node.getId());
+            return new TramStationState(tramStationState,
+                    node.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT), cost, node.getId());
         }
 
+        public TraversalState fromGrouped(GroupedStationState groupedStationState, Node node, int cost) {
+            return new TramStationState(groupedStationState,
+                    node.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR),
+                    cost,  node.getId());
+        }
     }
 
     private final long stationNodeId;
@@ -50,6 +57,12 @@ public class TramStationState extends TraversalState {
         return "TramStationState{" +
                 "stationNodeId=" + stationNodeId +
                 "} " + super.toString();
+    }
+
+
+    @Override
+    public long nodeId() {
+        return stationNodeId;
     }
 
     @Override
@@ -72,6 +85,8 @@ public class TramStationState extends TraversalState {
                 return builders.noPlatformStation.fromNeighbour(this, node, cost);
             case TRAM_STATION:
                 return builders.tramStation.fromNeighbour(this, node, cost);
+            case GROUPED:
+                return builders.groupedStation.fromChildStation(this, node, cost); // grouped are same transport mode
             default:
                 String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
                 throw new UnexpectedNodeTypeException(node, message);

@@ -20,7 +20,8 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
     public static class Builder {
 
         public NoPlatformStationState from(WalkingState walkingState, Node node, int cost) {
-            return new NoPlatformStationState(walkingState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
+            return new NoPlatformStationState(walkingState,
+                    node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT, NEIGHBOUR),
                     cost, node.getId());
         }
 
@@ -40,17 +41,25 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
         }
 
         public TraversalState fromNeighbour(NoPlatformStationState noPlatformStation, Node node, int cost) {
-            return new NoPlatformStationState(noPlatformStation, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
+            return new NoPlatformStationState(noPlatformStation,
+                    node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT),
                     cost, node.getId());
         }
 
         public TraversalState fromNeighbour(TramStationState tramStationState, Node node, int cost) {
-            return new NoPlatformStationState(tramStationState, node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD),
+            return new NoPlatformStationState(tramStationState,
+                    node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT),
                     cost, node.getId());
         }
 
+        public TraversalState fromGrouped(GroupedStationState groupedStationState, Node node, int cost) {
+            return new NoPlatformStationState(groupedStationState,
+                    node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, NEIGHBOUR),
+                    cost,  node.getId());
+        }
+
         private Iterable<Relationship> getAll(Node node) {
-            return node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM, NEIGHBOUR);
+            return node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
         }
     }
 
@@ -92,6 +101,8 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             case BUS_STATION:
             case TRAIN_STATION:
                 return builders.noPlatformStation.fromNeighbour(this, next, cost);
+            case GROUPED:
+                return builders.groupedStation.fromChildStation(this, next, cost); // grouped are same transport mode
             default:
                 throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
         }

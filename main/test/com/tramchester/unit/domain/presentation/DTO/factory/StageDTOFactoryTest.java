@@ -10,6 +10,8 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.VehicleStage;
+import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMockSupport;

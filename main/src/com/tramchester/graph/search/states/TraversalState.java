@@ -163,6 +163,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         protected final MinuteState.Builder minute;
         protected final HourState.Builder hour;
         protected final DestinationState.Builder destination;
+        protected final GroupedStationState.Builder groupedStation;
 
         public Builders(SortsPositions sortsPositions, LatLong destinationLatLon, TramchesterConfig config) {
             routeStation = new RouteStationStateOnTrip.Builder();
@@ -176,6 +177,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             tramStation = new TramStationState.Builder();
             hour = new HourState.Builder();
             destination = new DestinationState.Builder();
+            groupedStation = new GroupedStationState.Builder();
         }
     }
 

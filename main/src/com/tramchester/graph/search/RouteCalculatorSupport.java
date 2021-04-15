@@ -59,7 +59,7 @@ public class RouteCalculatorSupport {
     }
 
     protected Node getStationNodeSafe(Transaction txn, Station station) {
-        Node stationNode = graphQuery.getStationNode(txn, station);
+        Node stationNode = graphQuery.getStationOrGrouped(txn, station);
         if (stationNode == null) {
             String msg = "Unable to find station graph node based for " + station.getId();
             logger.error(msg);

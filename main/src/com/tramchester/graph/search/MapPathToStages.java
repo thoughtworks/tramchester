@@ -13,6 +13,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.ConnectingStage;
+import com.tramchester.domain.transportStages.VehicleStage;
+import com.tramchester.domain.transportStages.WalkingFromStationStage;
+import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.*;
@@ -60,7 +64,9 @@ public class MapPathToStages {
         ArrayList<TransportStage<?,?>> results = new ArrayList<>();
 
         List<Relationship> relationships = new ArrayList<>();
-        path.relationships().forEach(relationships::add);
+        for(Relationship relationship : path.relationships()) {
+           relationships.add(relationship);
+        }
 
         if (relationships.size()==0) {
             return results;
@@ -116,6 +122,10 @@ public class MapPathToStages {
                 case NEIGHBOUR:
                     results.add(state.walkBetween(relationship));
                     break;
+                case GROUPED_TO_CHILD:
+                case GROUPED_TO_PARENT:
+                    results.addAll(state.withinGroup(relationship));
+                    break;
                 default:
                     throw new RuntimeException(format("Unexpected relationship %s in path %s", type, path));
             }
@@ -137,7 +147,7 @@ public class MapPathToStages {
         } else if (relationship.isType(WALKS_FROM)) {
             return createWalkFrom(relationship, timeWalkStarted);
         }
-        else if (TransportRelationshipTypes.isNeighbour(relationship)) {
+        else if (TransportRelationshipTypes.isNeighbourOrGrouped(relationship)) {
             return createWalkFromNeighbour(relationship, timeWalkStarted);
         }
         else {
@@ -339,6 +349,38 @@ public class MapPathToStages {
             platformLeaveCost = getCost(relationship);
         }
 
+        public List<TransportStage<?, ?>> withinGroup(Relationship relationship) {
+            List<TransportStage<?, ?>> results = new ArrayList<>();
+            int cost = GraphProps.getCost(relationship);
+
+            TramTime time;
+            if (departTime==null) {
+                time = queryTime.plusMinutes(cost);
+            } else {
+                time = departTime.plusMinutes(cost);
+            }
+
+            if (walkStarted!=null) {
+                int totalCostOfWalk = walkStarted.cost;
+                TramTime timeWalkStarted = time.minusMinutes(totalCostOfWalk);
+                if (timeWalkStarted.isBefore(queryTime)) {
+                    logger.error("Computed walk start ahead of query time");
+                }
+                WalkingToStationStage walkingStage = new WalkingToStationStage(walkStarted.start, walkStarted.destination,
+                        walkStarted.cost, timeWalkStarted);
+                results.add(walkingStage);
+                walkStarted = null;
+            }
+
+            IdFor<Station> groupId = GraphProps.getStationId(relationship.getStartNode());
+            Station start = stationRepository.getStationById(groupId);
+            IdFor<Station> childId = GraphProps.getStationId(relationship.getEndNode());
+            Station end = stationRepository.getStationById(childId);
+
+            results.add(new ConnectingStage(start, end, cost, time));
+
+            return results;
+        }
     }
 
     private static class WalkStarted {
