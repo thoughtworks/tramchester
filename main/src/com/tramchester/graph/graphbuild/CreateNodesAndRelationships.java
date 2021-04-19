@@ -2,7 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;

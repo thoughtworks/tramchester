@@ -3,7 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.TraversalState;
@@ -158,6 +158,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return ServiceReason.ReasonCode.TookTooLong;
         }
 
+        // -->Route Station
         // is even reachable from here? is the station open?
         if (nodeTypeRepository.isRouteStation(nextNode)) {
             if (!serviceHeuristics.canReachDestination(nextNode, howIGotHere, reasons).isValid()) {
@@ -168,6 +169,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
+        // -->Service
         // is the service running today?
         boolean isService = nodeTypeRepository.isService(nextNode);
         if (isService) {
@@ -192,7 +194,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO)) {
-                // TODO Record with different reason?
                 reasons.recordReason(ServiceReason.IsValid(ServiceReason.ReasonCode.WalkOk, howIGotHere));
                 return ServiceReason.ReasonCode.WalkOk;
             }
@@ -201,6 +202,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         TramTime visitingTime = journeyState.getJourneyClock();
         int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
 
+        // -->Hour
         // check time, just hour first
         if (nodeTypeRepository.isHour(nextNode)) {
             if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait).isValid()) {
@@ -208,13 +210,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
+        // --> Minute
         // check time
         if (nodeTypeRepository.isTime(nextNode)) {
             ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
-            return serviceReason.getReasonCode(); // valid, or not at time
+            if (!serviceReason.isValid()) {
+                return serviceReason.getReasonCode(); // valid, or not at time
+            }
         }
 
-        reasons.recordReason(ServiceReason.IsValid(ServiceReason.ReasonCode.Continue, howIGotHere));
+        reasons.recordReason(ServiceReason.Continue(nextNode, howIGotHere));
         return ServiceReason.ReasonCode.Continue;
     }
 

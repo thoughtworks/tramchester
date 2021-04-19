@@ -8,6 +8,8 @@ import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
+import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;

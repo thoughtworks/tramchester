@@ -16,7 +16,7 @@ server:
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
-  graphName: all.db
+  graphName: databases/all.db
   neo4jPagecacheMemory: 1500m
 stationClosures: []
 instanceDataUrl: http://169.254.169.254
@@ -48,19 +48,17 @@ remoteSources:
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/bus
     filename: tfgm_data.zip
+  -
+    name: naptan
+    dataURL: https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv
+    dataCheckURL: ""
+    dataPath: data/naptan
+    filename: naptan_csv.zip
 bounds:
-  minEastings: 112685
-  minNorthings: 015490
-  maxEasting: 619307
-  maxNorthings: 1108843
-liveData:
-  dataUrl: https://api.tfgm.com/odata/Metrolinks
-  dataSubscriptionKey: ${TFGMAPIKEY:- ""}
-  s3Bucket: tramchesterlivedata
-  s3Prefix: ${PLACE:- "test"}
-  refreshPeriodSeconds: 20
-  maxNumberStationsWithoutMessages: 10
-  maxNumberStationsWithoutData: 5
+  minEastings: 333211
+  minNorthings: 373264
+  maxEasting: 414492
+  maxNorthings: 437779
 loadPostcodes: false
 createNeighbours: true
 distanceToNeighboursKM: 0.2

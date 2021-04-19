@@ -4,7 +4,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import org.neo4j.graphdb.Label;
 import org.slf4j.Logger;
@@ -79,8 +79,8 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
     protected final GraphBuilderCache builderCache;
 
     protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, TramchesterConfig config,
-                           GraphBuilderCache builderCache, NodeTypeRepository nodeIdLabelMap) {
-        super(graphDatabase, nodeIdLabelMap);
+                           GraphBuilderCache builderCache, NodeTypeRepository nodeTypeRepository) {
+        super(graphDatabase, nodeTypeRepository);
         this.config = config.getGraphDBConfig();
         this.graphFilter = graphFilter;
         this.builderCache = builderCache;

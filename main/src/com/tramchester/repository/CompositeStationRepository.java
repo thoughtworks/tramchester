@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static java.lang.String.format;
 
 /***
@@ -32,6 +34,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
+    private final NaptanRespository naptanRespository;
     private final IdSet<Station> isUnderlyingStationComposite;
 
     // TODO use IdMap<CompositeStation>
@@ -39,9 +42,11 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     private final Map<String, CompositeStation> compositeStationsByName;
 
     @Inject
-    public CompositeStationRepository(StationRepository stationRepository, TramchesterConfig config) {
+    public CompositeStationRepository(StationRepository stationRepository, TramchesterConfig config,
+                                      NaptanRespository naptanRespository) {
         this.stationRepository = stationRepository;
         this.config = config;
+        this.naptanRespository = naptanRespository;
         isUnderlyingStationComposite = new IdSet<>();
         compositeStations = new HashMap<>();
         compositeStationsByName = new HashMap<>();
@@ -50,6 +55,11 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     @PostConstruct
     public void start() {
         logger.info("starting");
+        if (!naptanRespository.isEnabled() && config.getTransportModes().contains(Bus)) {
+            String msg = "Naptan config not present in remoteSources, it is required when Bus is enabled.";
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
         Set<TransportMode> modes = config.getTransportModes();
         modes.forEach(this::capture);
         logger.info("started");

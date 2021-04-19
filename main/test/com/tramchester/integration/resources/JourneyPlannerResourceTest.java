@@ -53,7 +53,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
+    private static final IntegrationAppExtension appExtension =
+            new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
@@ -159,22 +160,28 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             StageDTO firstStage = journey.getStages().get(0);
             PlatformDTO platform1 = firstStage.getPlatform();
 
-            Assertions.assertEquals("1", platform1.getPlatformNumber());
-            Assertions.assertEquals( "Altrincham platform 1", platform1.getName());
-            Assertions.assertEquals( TramStations.Altrincham.forDTO()+"1", platform1.getId());
+            assertEquals("1", platform1.getPlatformNumber());
+            assertEquals( "Altrincham platform 1", platform1.getName());
+            assertEquals( TramStations.Altrincham.forDTO()+"1", platform1.getId());
 
             StageDTO secondStage = journey.getStages().get(1);
             PlatformDTO platform2 = secondStage.getPlatform();
 
-            Assertions.assertEquals("1", platform2.getPlatformNumber());
+            // TODO Need to rework this next part to split different journey routes and assert for those
+
+            // seems can be either 1 or 2
+            String platformNumber = platform2.getPlatformNumber();
+            assertTrue("12".contains(platformNumber));
             // multiple possible places to change depending on timetable etc
-            assertThat(platform2.getName(), is(oneOf("Piccadilly platform 1",
+            assertThat(platform2.getName(), is(oneOf(
+                    "Piccadilly platform 1",
                     "Cornbrook platform 1",
-                    "St Peter's Square platform 1", "Piccadilly Gardens platform 1")));
-            assertThat( platform2.getId(), is(oneOf(TramStations.Piccadilly.forDTO()+"1",
-                    TramStations.Cornbrook.forDTO()+"1",
-                    TramStations.StPetersSquare.forDTO()+"1",
-                    TramStations.PiccadillyGardens.forDTO()+"1")));
+                    "St Peter's Square platform 2",
+                    "Piccadilly Gardens platform 1")));
+            assertThat( platform2.getId(), is(oneOf(TramStations.Piccadilly.forDTO()+platformNumber,
+                    TramStations.Cornbrook.forDTO()+platformNumber,
+                    TramStations.StPetersSquare.forDTO()+platformNumber,
+                    TramStations.PiccadillyGardens.forDTO()+platformNumber)));
         });
 
     }

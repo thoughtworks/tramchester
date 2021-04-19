@@ -1,6 +1,7 @@
-package com.tramchester.graph;
+package com.tramchester.graph.caches;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.PopulateNodeIdsFromQuery;
 import org.apache.commons.lang3.tuple.Pair;

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class TramchesterConfig extends Configuration {
+public abstract class TramchesterConfig extends Configuration implements HasRemoteDataSourceConfig {
 
     public static final ZoneId TimeZone = ZoneId.of("Europe/London");
 
@@ -126,5 +126,7 @@ public abstract class TramchesterConfig extends Configuration {
     // number of connections to make by walking
     public abstract int getMaxWalkingConnections();
 
-
+    public boolean liveDataEnabled() {
+        return getLiveDataConfig()!=null;
+    }
 }

@@ -167,4 +167,8 @@ public abstract class TestConfig extends AppConfiguration {
         return 3;
     }
 
+    @Override
+    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        return Collections.emptyList();
+    }
 }

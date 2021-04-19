@@ -64,7 +64,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldHaveExpectedNumbersForBus() {
         assertEquals(40, transportData.getAgencies().size());
-        assertEquals(1308, transportData.getRoutes().size());
+        assertTrue(withinNPercent(1300, transportData.getRoutes().size(), 0.1F));
         int size = transportData.getStations().size();
         assertTrue(size > 15400, "big change");
         assertTrue(size < 16400, "big change");
@@ -77,7 +77,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertEquals(305, gmsRoutes);
+        assertTrue(withinNPercent(300, gmsRoutes, 0.1F));
     }
 
     @Test
@@ -221,4 +221,14 @@ class TransportDataFromFilesBusTest {
             }
         });
     }
+
+    // for things changing very frequently
+    private boolean withinNPercent(long expected, long actual, float percentage) {
+        int margin = Math.round(expected * percentage);
+        long upper = expected + margin;
+        long lower = expected - margin;
+
+        return (actual>lower) && (actual<upper);
+    }
+
 }

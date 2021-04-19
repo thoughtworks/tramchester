@@ -1,7 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.graph.NodeContentsRepository;
-import com.tramchester.metrics.CacheMetrics;
+import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -10,8 +9,6 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.graph.HourNodeCache;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
@@ -21,7 +18,6 @@ import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,7 @@
-package com.tramchester.graph;
+package com.tramchester.graph.caches;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,8 +20,7 @@ import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 public class NodeIdLabelMap implements NodeTypeRepository {
     private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);
 
-    // map from the NodeId to the Label
-    private final Map<GraphBuilder.Labels, Set<Long>> map;
+    private final ConcurrentMap<GraphBuilder.Labels, Set<Long>> labelMap;
     private final ConcurrentMap<Long, Boolean> queryNodes;
 
     private final Set<GraphBuilder.Labels> nodesToCache = new HashSet<>(Arrays.asList(
@@ -27,14 +28,18 @@ public class NodeIdLabelMap implements NodeTypeRepository {
             FERRY_STATION, SUBWAY_STATION
     ));
 
+    // NOTE: cannot use NumberOfNodesAndRelationshipsRepository here as NodeIdLabelMap is populated during
+    // graph build
+    @Inject
     public NodeIdLabelMap() {
-        map = new EnumMap<>(GraphBuilder.Labels.class);
+        labelMap = new ConcurrentHashMap<>();
 
         for (GraphBuilder.Labels label: nodesToCache) {
-            map.put(label, new HashSet<>(getCapacity(label), 1.0F));
+            labelMap.put(label, new HashSet<>(getCapacity(label), 0.8F));
         }
         queryNodes = new ConcurrentHashMap<>();
     }
+
 
     // called when DB loaded from disc, instead of rebuild
     public void populateNodeLabelMap(GraphDatabase graphDatabase) {
@@ -45,14 +50,13 @@ public class NodeIdLabelMap implements NodeTypeRepository {
             }
         }
         for (GraphBuilder.Labels label : nodesToCache) {
-            int size = map.get(label).size();
+            int size = labelMap.get(label).size();
             if (size>0) {
                 logger.info("Loaded " + size + " for label " + label);
             } else {
                 logger.info("Loaded zero nodes for label " + label);
             }
         }
-
         logger.info("Finished populating map");
     }
 
@@ -60,7 +64,7 @@ public class NodeIdLabelMap implements NodeTypeRepository {
     public void dispose() {
         logger.info("dispose");
         queryNodes.clear();
-        map.clear();
+        labelMap.clear();
     }
 
     private int getCapacity(GraphBuilder.Labels label) {
@@ -78,7 +82,7 @@ public class NodeIdLabelMap implements NodeTypeRepository {
     }
 
     public void put(long id, GraphBuilder.Labels label) {
-        map.get(label).add(id);
+        labelMap.get(label).add(id);
     }
 
     @Override
@@ -116,7 +120,7 @@ public class NodeIdLabelMap implements NodeTypeRepository {
         if (label == GraphBuilder.Labels.QUERY_NODE) {
             return queryNodes.containsKey(nodeId);
         }
-        return map.get(label).contains(nodeId);
+        return labelMap.get(label).contains(nodeId);
     }
 
     // for creating query nodes, to support MyLocation journeys
@@ -133,4 +137,12 @@ public class NodeIdLabelMap implements NodeTypeRepository {
         queryNodes.remove(id);
     }
 
+    @Override
+    public String toString() {
+        return "NodeIdLabelMap{" +
+                "labelMap=" + labelMap +
+                ", queryNodes=" + queryNodes +
+                ", nodesToCache=" + nodesToCache +
+                '}';
+    }
 }

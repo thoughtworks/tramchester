@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
@@ -40,14 +42,27 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     private final Cache<IdFor<Platform>, PlatformMessage> messageCache;
     private final ProvidesNow providesNow;
+    private final CacheMetrics cacheMetrics;
+    private final TramchesterConfig config;
     private LocalDate lastRefresh;
 
     @Inject
-    public PlatformMessageRepository(ProvidesNow providesNow, CacheMetrics cacheMetrics) {
+    public PlatformMessageRepository(ProvidesNow providesNow, CacheMetrics cacheMetrics, TramchesterConfig config) {
         this.providesNow = providesNow;
+        this.cacheMetrics = cacheMetrics;
+        this.config = config;
         messageCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
                 expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
-        cacheMetrics.register(this);
+
+    }
+
+    @PostConstruct
+    public void start() {
+        if (isEnabled()) {
+            cacheMetrics.register(this);
+        } else {
+            logger.warn("Disabled, live data is not configured");
+        }
     }
 
     @PreDestroy
@@ -56,7 +71,18 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     @Override
+    public boolean isEnabled() {
+        return config.liveDataEnabled();
+    }
+
+    /***
+     * from LiveDataUpdater, which only running if live data is configured
+     */
+    @Override
     public int updateCache(List<StationDepartureInfo> departureInfos) {
+        if (!isEnabled()) {
+            logger.error("Unexpected call of updateCache since live data is disabled");
+        }
         logger.info("Updating cache");
         consumeDepartInfo(departureInfos);
         messageCache.cleanUp();
@@ -110,6 +136,10 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     @Override
     public List<PlatformMessage> messagesFor(Station station, LocalDate when, TramTime queryTime) {
+        if (!isEnabled()) {
+            return Collections.emptyList();
+        }
+
         // TODO this uses the timetable station/platform association, but seems live data includes extra platforms
         // not provided in stops.txt feed
         logger.info("Get messages for " + HasId.asId(station));
@@ -123,6 +153,10 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     @Override
     public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime) {
+        if (!isEnabled()) {
+            return Optional.empty();
+        }
+
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Optional.empty();
@@ -174,6 +208,10 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     // for healthcheck
     public int numberStationsWithMessages(LocalDateTime queryDateTime) {
+        if (!isEnabled()) {
+            return 0;
+        }
+
         if (!queryDateTime.toLocalDate().equals(lastRefresh)) {
             return 0;
         }

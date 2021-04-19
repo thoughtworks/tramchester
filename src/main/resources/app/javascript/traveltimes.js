@@ -115,7 +115,7 @@ var mapApp = new Vue({
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
-            Routes.addRoutes(mapApp.map, mapApp.routes);
+            //Routes.addRoutes(mapApp.map, mapApp.routes);
             //addStations();
             mapApp.journeyLayer = L.featureGroup()
         }
@@ -140,7 +140,7 @@ var mapApp = new Vue({
                 // make sure to use HH:MM format with leading zero
                 //queryForGrid(1000, "POSTCODE_M23AA", "08:15", getCurrentDate(), "3", "360");
                 // man picc 53.4774286,-2.2313236
-                queryForGridLatLong(1000, "53.4774286", "-2.2313236", "08:15", getCurrentDate(), "3", "360");
+                queryForGridLatLong(500, "53.4774286", "-2.2313236", "07:30", getCurrentDate(), "4", "120");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);

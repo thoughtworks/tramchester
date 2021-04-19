@@ -9,10 +9,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.graph.CachedNodeOperations;
-import com.tramchester.graph.NodeContentsRepository;
-import com.tramchester.graph.NodeIdLabelMap;
-import com.tramchester.graph.NodeTypeRepository;
+import com.tramchester.graph.caches.*;
 import com.tramchester.metrics.CacheMetrics;
 
 public class MappersAndConfigurationModule extends AbstractModule {
@@ -31,7 +28,8 @@ public class MappersAndConfigurationModule extends AbstractModule {
 
         bind(ProvidesNow.class).to(ProvidesLocalNow.class);
         bind(NodeContentsRepository.class).to(CachedNodeOperations.class);
-        bind(NodeTypeRepository.class).to(NodeIdLabelMap.class);
+           bind(NodeTypeRepository.class).to(NodeTypeDirect.class);
+//        bind(NodeTypeRepository.class).to(NodeIdLabelMap.class);
     }
 
     @LazySingleton

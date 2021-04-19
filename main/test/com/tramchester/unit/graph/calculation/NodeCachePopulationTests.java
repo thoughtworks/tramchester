@@ -3,7 +3,7 @@ package com.tramchester.unit.graph.calculation;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.HourNodeCache;
+import com.tramchester.graph.caches.HourNodeCache;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;

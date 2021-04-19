@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.HasRemoteDataSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
@@ -32,19 +33,18 @@ public class FetchDataFromUrl  {
     private final ProvidesNow providesLocalNow;
 
     @Inject
-    public FetchDataFromUrl(URLDownloadAndModTime downloader, TramchesterConfig config, ProvidesNow providesLocalNow) {
-        this(downloader, config.getRemoteDataSourceConfig(), providesLocalNow);
-    }
-
-    public FetchDataFromUrl(URLDownloadAndModTime downloader, List<RemoteDataSourceConfig> configs, ProvidesNow providesLocalNow) {
+    public FetchDataFromUrl(URLDownloadAndModTime downloader, HasRemoteDataSourceConfig config, ProvidesNow providesLocalNow) {
         this.downloader = downloader;
-        this.configs = configs;
+        this.configs = config.getRemoteDataSourceConfig();
         this.providesLocalNow = providesLocalNow;
     }
 
     @PostConstruct
     public void start() {
         logger.info("start");
+        if (this.configs==null) {
+            throw new RuntimeException("configs should be null, use empty list if not sources needed");
+        }
         fetchData();
         logger.info("started");
     }

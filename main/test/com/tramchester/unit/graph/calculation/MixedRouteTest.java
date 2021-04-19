@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -15,6 +16,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -186,6 +188,11 @@ class MixedRouteTest {
         @Override
         public int getMaxWalkingConnections() {
             return 4;
+        }
+
+        @Override
+        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+            return Collections.singletonList(new NaptanRemoteDataSourceConfig("data/naptan"));
         }
     }
 }

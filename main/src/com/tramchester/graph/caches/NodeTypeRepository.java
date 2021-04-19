@@ -1,5 +1,6 @@
-package com.tramchester.graph;
+package com.tramchester.graph.caches;
 
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;

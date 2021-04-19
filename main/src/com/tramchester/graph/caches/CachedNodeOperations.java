@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.caches;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -8,6 +8,8 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.metrics.CacheMetrics;

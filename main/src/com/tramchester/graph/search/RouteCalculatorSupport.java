@@ -7,6 +7,8 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
+import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
@@ -61,7 +63,7 @@ public class RouteCalculatorSupport {
     protected Node getStationNodeSafe(Transaction txn, Station station) {
         Node stationNode = graphQuery.getStationOrGrouped(txn, station);
         if (stationNode == null) {
-            String msg = "Unable to find station graph node based for " + station.getId();
+            String msg = "Unable to find station (or grouped) graph node based for " + station.getId();
             logger.error(msg);
             throw new RuntimeException(msg);
         }

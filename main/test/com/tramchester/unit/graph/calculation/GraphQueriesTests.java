@@ -10,7 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindRouteEndPoints;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.HourNodeCache;
+import com.tramchester.graph.caches.HourNodeCache;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;

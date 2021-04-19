@@ -13,6 +13,9 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
+import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.caches.NodeIdLabelMap;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
@@ -523,6 +526,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkNumberWalkingConnections(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NumConnectionsOk, howIGotHere));
+
+        EasyMock.expect(node.getLabels()).andReturn(Collections.singleton(GraphBuilder.Labels.TRAM_STATION));
 
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(nodeIdLabelMap.isService(node)).andReturn(false);

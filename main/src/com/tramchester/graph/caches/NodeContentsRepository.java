@@ -1,11 +1,11 @@
-package com.tramchester.graph;
+package com.tramchester.graph.caches;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.caches.CachedNodeOperations;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 

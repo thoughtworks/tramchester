@@ -84,7 +84,10 @@ class NumberOfNodesAndRelationshipsRepository {
         relationshipCounts.clear();
     }
 
-    public long numberOf(GraphBuilder.Labels label) {
+    public Long numberOf(GraphBuilder.Labels label) {
+        if (!nodeCounts.containsKey(label)) {
+            return 0L;
+        }
         return nodeCounts.get(label);
     }
 

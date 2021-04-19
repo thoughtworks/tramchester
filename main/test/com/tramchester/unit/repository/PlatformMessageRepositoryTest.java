@@ -1,5 +1,6 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
@@ -15,6 +16,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +26,7 @@ import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,11 +39,14 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     private LocalDateTime lastUpdate;
     private Station station;
     private Platform platform;
+    private TramchesterConfig config;
 
     @BeforeEach
     void beforeEachTestRuns() {
         providesNow = createMock(ProvidesNow.class);
-        repository = new PlatformMessageRepository(providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()));
+        config = createMock(TramchesterConfig.class);
+
+        repository = new PlatformMessageRepository(providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()), config);
 
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
@@ -54,6 +60,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldUpdateMessageCacheAndFetch() {
         List<StationDepartureInfo> infos = new LinkedList<>();
+
+        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         StationDepartureInfo departureInfoA = new StationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
@@ -99,6 +107,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldIgnoreAPIProvidedEmptyMessage() {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
+        EasyMock.expect(config.liveDataEnabled()).andReturn(true);
+
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "<no message>", lastUpdate);
@@ -117,6 +127,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldIgnorEmptyMessage() {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
+        EasyMock.expect(config.liveDataEnabled()).andReturn(true);
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "", lastUpdate);
@@ -142,6 +153,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     void shouldGiveNoMessagesIfOutOfDateRefresh() {
         List<StationDepartureInfo> infos = new LinkedList<>();
 
+        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
+
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
                 "some msg", lastUpdate);
@@ -162,6 +175,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldGiveNoMessagesIfOldRefresh() {
         List<StationDepartureInfo> infos = new LinkedList<>();
+        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         StationDepartureInfo departureInfo = new StationDepartureInfo("yyy", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
@@ -183,6 +197,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldIgnoreDuplicateUpdatesForPlatforms() {
         List<StationDepartureInfo> infos = new LinkedList<>();
+
+        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         StationDepartureInfo departureInfoA = new StationDepartureInfo("123", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
@@ -210,6 +226,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldIgnoreEmptyDuplicateUpdatesForPlatforms() {
         List<StationDepartureInfo> infos = new LinkedList<>();
+        EasyMock.expect(config.liveDataEnabled()).andStubReturn(true);
 
         StationDepartureInfo departureInfoA = new StationDepartureInfo("123", Lines.Eccles,
                 LineDirection.Incoming, platform.getId(), station,
@@ -232,6 +249,28 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         Optional<PlatformMessage> platformMessage = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), updateTime);
         assertTrue(platformMessage.isPresent());
         assertEquals("some message", platformMessage.get().getMessage());
+    }
+
+    @Test
+    void noNothingIfLiveDataIsDisabled() {
+        LocalDate date = LocalDate.now();
+        TramTime time = TramTime.of(14, 34);
+
+        EasyMock.expect(config.liveDataEnabled()).andStubReturn(false);
+
+        replayAll();
+        List<PlatformMessage> messageForStation = repository.messagesFor(station, date, time);
+        Optional<PlatformMessage> messageForPlatform = repository.messagesFor(StringIdFor.createId("platformId"), date, time);
+        Set<Station> stationsWithMessages = repository.getStationsWithMessages(LocalDateTime.now());
+        int numberOfEntries = repository.numberOfEntries();
+        int numberStationsWithEntries = repository.numberStationsWithMessages(LocalDateTime.now());
+        verifyAll();
+
+        assertTrue(messageForStation.isEmpty());
+        assertTrue(messageForPlatform.isEmpty());
+        assertTrue(stationsWithMessages.isEmpty());
+        assertEquals(0, numberOfEntries);
+        assertEquals(0, numberStationsWithEntries);
     }
 
 }

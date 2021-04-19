@@ -15,4 +15,6 @@ import java.util.Optional;
 public interface PlatformMessageSource extends LiveDataCache {
     Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, LocalDate queryDate, TramTime queryTime);
     List<PlatformMessage> messagesFor(Station station, LocalDate queryDate, TramTime queryTime);
+
+    boolean isEnabled();
 }

@@ -32,7 +32,7 @@ public class FetchDataFromUrlAndUnzip {
 
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
         FetchDataFromUrl fetchDataFromUrl = new FetchDataFromUrl(downloader,
-                Collections.singletonList(dataSourceConfig), providesLocalNow);
+                () -> Collections.singletonList(dataSourceConfig), providesLocalNow);
         fetchDataFromUrl.start();
     }
 

@@ -10,6 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
@@ -168,6 +169,7 @@ class TramRouteTest {
 
     @Test
     void shouldTestSimpleJourneyIsNotPossible() throws IOException {
+
         JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0), 1);
         journeyRequest.setDiag(true);
 
@@ -175,15 +177,7 @@ class TramRouteTest {
                 transportData.getInterchange(),
                 journeyRequest).collect(Collectors.toSet());
 
-        if (!journeys.isEmpty()) {
-            DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-            creator.create(Path.of("shouldTestSimpleJourneyIsNotPossible.dot"),
-                    transportData.getFirst(),
-                    100, false);
-        }
-
         assertEquals(Collections.emptySet(), journeys);
-
     }
 
     @Test
@@ -208,7 +202,8 @@ class TramRouteTest {
 
     @Test
     void shouldTestJourneyInterchangeToFive() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7,56), 0);
+        journeyRequest.setDiag(true);
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());

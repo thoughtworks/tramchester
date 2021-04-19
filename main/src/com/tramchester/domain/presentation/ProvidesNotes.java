@@ -16,6 +16,7 @@ import com.tramchester.repository.PlatformMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,19 +43,40 @@ public class ProvidesNotes {
         this.platformMessageSource = platformMessageSource;
     }
 
-    public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
-        List<Note> notes = new LinkedList<>();
-        if (journey.getTransportModes().contains(TransportMode.Tram)) {
-            notes.addAll(createNotesForADate(queryDate));
-            notes.addAll(liveNotesForJourney(journey, queryDate.getDate()));
-            return notes;
-        } else {
-            logger.info("Not a tram journey, providing no notes");
-            return Collections.emptyList();
+    @PostConstruct
+    void start() {
+        if (!platformMessageSource.isEnabled()) {
+            logger.warn("Disabled for live data since PlatformMessageSource is disabled");
         }
     }
 
+    /***
+     * From JourneyDTO prep
+     */
+    public List<Note> createNotesForJourney(Journey journey, TramServiceDate queryDate) {
+        if (!journey.getTransportModes().contains(TransportMode.Tram)) {
+            logger.info("Not a tram journey, providing no notes");
+            return Collections.emptyList();
+        }
+
+        List<Note> notes = new LinkedList<>(createNotesForADate(queryDate));
+
+        if (platformMessageSource.isEnabled()) {
+            notes.addAll(liveNotesForJourney(journey, queryDate.getDate()));
+        }
+
+        return notes;
+    }
+
+    /***
+     * From DepaturesResouce
+     */
     public List<Note> createNotesForStations(List<Station> stations, TramServiceDate queryDate, TramTime time) {
+        if (!platformMessageSource.isEnabled()) {
+            logger.error("Attempted to get notes for departures when live data disabled");
+            return Collections.emptyList();
+        }
+
         List<Note> notes = new LinkedList<>();
         notes.addAll(createNotesForADate(queryDate));
         notes.addAll(createLiveNotesForStations(stations, queryDate.getDate(), time));

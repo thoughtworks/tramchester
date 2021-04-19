@@ -5,6 +5,8 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.states.HowIGotHere;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
 
 import java.util.Objects;
 
@@ -113,6 +115,31 @@ public abstract class ServiceReason {
         @Override
         public boolean isValid() {
             return true;
+        }
+    }
+
+    private static class Continue extends ServiceReason {
+
+        String labels;
+
+        public Continue(Node node, HowIGotHere path) {
+            super(ReasonCode.Continue, path);
+            StringBuilder builder = new StringBuilder();
+            builder.append("ok: ");
+            for (Label label: node.getLabels()) {
+                builder.append(label.name()).append(" ");
+            }
+            labels = builder.toString();
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
+        }
+
+        @Override
+        public String textForGraph() {
+            return labels;
         }
     }
 
@@ -252,6 +279,10 @@ public abstract class ServiceReason {
 
     public static IsValid IsValid(ReasonCode code, HowIGotHere path) { return new IsValid( code, path);}
 
+    public static ServiceReason Continue(Node node, HowIGotHere path) {
+        return new Continue(node, path);
+    }
+
     public static ServiceReason DoesNotRunOnQueryDate(HowIGotHere path, IdFor<Service> nodeServiceId) {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);
     }
@@ -303,5 +334,6 @@ public abstract class ServiceReason {
     public static ServiceReason StationClosed(HowIGotHere howIGotHere, Station closed) {
         return new ServiceReason.StationClosed(howIGotHere, closed);
     }
+
 
 }

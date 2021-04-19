@@ -152,7 +152,7 @@ public class App extends Application<AppConfiguration>  {
         environment.jersey().register(new ResponseCookieFilter());
 
         // only enable live data present in config
-        if (configuration.getLiveDataConfig() != null) {
+        if (configuration.liveDataEnabled()) {
             initLiveDataMetricAndHealthcheck(configuration.getLiveDataConfig(), environment, executor, metricRegistry);
         }
 

@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -123,7 +124,9 @@ public class CreateNeighbours extends CreateNodesAndRelationships {
 
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create neighbours for " + mode)) {
             Transaction txn = timedTransaction.transaction();
-                allStationsForMode.stream().filter(filter::shouldInclude).forEach(station -> {
+                allStationsForMode.stream().
+                        filter(station -> station.getGridPosition().isValid()).
+                        filter(filter::shouldInclude).forEach(station -> {
                     // nearby could be any transport mode
                     Stream<Station> nearby = stationLocations.
                             nearestStationsUnsorted(station, rangeInKM)
