@@ -54,7 +54,8 @@ class ValidateTramTestStations {
 
             // area no longer in tfgm data
             assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
-            assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.00001, "latlong wrong for " + testStationName);
+            assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001,
+                    "latlong wrong for " + testStationName);
 
         });
     }

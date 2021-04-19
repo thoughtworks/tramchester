@@ -8,7 +8,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
-import com.tramchester.graph.PreviousSuccessfulVisits;
+import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.states.NotStartedState;

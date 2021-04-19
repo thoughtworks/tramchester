@@ -4,7 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeTypeRepository;
-import com.tramchester.graph.PreviousSuccessfulVisits;
+import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.TraversalState;
 import org.neo4j.graphdb.Node;
@@ -74,17 +74,22 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         TramTime journeyClock = journeyState.getJourneyClock();
 
         Node nextNode = path.endNode();
+        ServiceReason.ReasonCode previousResult = previousSuccessfulVisit.getPreviousResult(nextNode.getId(), journeyClock);
 
-        if (previousSuccessfulVisit.hasUsableResult(nextNode, journeyClock)) {
+        if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
             HowIGotHere howIGotHere = new HowIGotHere(path);
             reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
-            return Evaluation.EXCLUDE_AND_PRUNE;
+
+            if (previousSuccessfulVisit.isMultipleJourneyMode()) {
+                return decideEvaluationAction(previousResult);
+            } else {
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
         }
 
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
         Evaluation result = decideEvaluationAction(reasonCode);
-
-        previousSuccessfulVisit.recordVisitIfUseful(reasonCode, nextNode, journeyClock);
+        previousSuccessfulVisit.recordVisitIfUseful(reasonCode, nextNode.getId(), journeyClock);
 
         return result;
     }

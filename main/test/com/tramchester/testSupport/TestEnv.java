@@ -249,40 +249,9 @@ public class TestEnv {
         }
     }
 
-    public static void assertLatLongEquals(LatLong a, LatLong b, double delta, String message) {
-        assertEquals(a.getLat(), b.getLat(), delta, "lat:" + message);
-        assertEquals(a.getLon(), b.getLon(), delta, "lon: " +message);
-    }
-
-    public static List<RemoteDataSourceConfig> createRemoteDataSourceConfig(Path dataPath) {
-        RemoteDataSourceConfig config = new RemoteDataSourceConfig() {
-
-            @Override
-            public String getDataCheckUrl() {
-                return TestEnv.TFGM_TIMETABLE_URL;
-            }
-
-            @Override
-            public String getDataUrl() {
-                return TestEnv.TFGM_TIMETABLE_URL;
-            }
-
-            @Override
-            public Path getDataPath() {
-                return dataPath;
-            }
-
-            @Override
-            public String getDownloadFilename() {
-                return "testDownloadTarget.zip";
-            }
-
-            @Override
-            public String getName() {
-                return "testOnlyRemoteSource";
-            }
-        };
-        return Collections.singletonList(config);
+    public static void assertLatLongEquals(LatLong expected, LatLong actual, double delta, String message) {
+        assertEquals(expected.getLat(), actual.getLat(), delta, "lat:" + message);
+        assertEquals(expected.getLon(), actual.getLon(), delta, "lon: " +message);
     }
 
     public static Route findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {

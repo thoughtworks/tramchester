@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 
 public enum TramStations implements TestStations {
 
-    Altrincham("9400ZZMAALT", "Altrincham", "Altrincham", pos(53.38743, -2.34741)),
+    Altrincham("9400ZZMAALT", "Altrincham", "Altrincham", pos(53.38726, -2.34755)),
     Ashton("9400ZZMAAUL", "Ashton-under-Lyne", "Ashton-Under-Lyne", pos(53.49035, -2.09798)),
-    ManAirport("9400ZZMAAIR", "Manchester Airport", "Manchester Airport", pos(53.36535, -2.27247)),
-    TraffordBar("9400ZZMATRA", "Trafford Bar", "Trafford Bar", pos(53.46187, -2.27711)),
+    ManAirport("9400ZZMAAIR", "Manchester Airport", "Manchester Airport", pos(53.36541, -2.27222)),
+    TraffordBar("9400ZZMATRA", "Trafford Bar", "Trafford Bar", pos(53.46163, -2.27762)),
     VeloPark("9400ZZMAVPK", "Sportcity", "Velopark", pos(53.48224, -2.1933)),
     Cornbrook("9400ZZMACRN", "Cornbrook", "Cornbrook", pos(53.46996, -2.26768)),
     Etihad("9400ZZMAECS", "Sportcity", "Etihad Campus", pos(53.48535, -2.20221)),

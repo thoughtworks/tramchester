@@ -12,6 +12,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
+import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;

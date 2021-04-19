@@ -27,7 +27,6 @@ public abstract class ServiceReason {
         TookTooLong,
         NotAtHour,
         AlreadyDeparted,
-        Cached,
         LongerPath,
         PathTooLong,
         OnTram,
@@ -38,6 +37,9 @@ public abstract class ServiceReason {
         TooManyChanges,
         TooManyWalkingConnections,
         StationClosed,
+
+        Cached,
+        PreviousCacheMiss,
 
         Arrived
     }
