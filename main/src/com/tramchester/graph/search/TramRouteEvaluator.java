@@ -29,7 +29,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceHeuristics serviceHeuristics;
     private final NodeTypeRepository nodeTypeRepository;
     private final ServiceReasons reasons;
-    private final PreviousSuccessfulVisits previousSuccessfulVisit;
+    //private final PreviousSuccessfulVisits previousSuccessfulVisit;
 
     private final Set<Long> stationNodes;
     private final boolean loopDetection;
@@ -47,7 +47,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.destinationNodeIds = destinationNodeIds;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
-        this.previousSuccessfulVisit = previousSuccessfulVisit;
+        //this.previousSuccessfulVisit = previousSuccessfulVisit;
         Set<TransportMode> transportModes = config.getTransportModes();
         maxWait = config.getMaxWait();
         maxInitialWait = config.getMaxInitialWait();
@@ -60,7 +60,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     public void dispose() {
-        previousSuccessfulVisit.clear();
+        //previousSuccessfulVisit.clear();
     }
 
     @Override
@@ -71,27 +71,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     @Override
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
         ImmutableJourneyState journeyState = state.getState();
-        TramTime journeyClock = journeyState.getJourneyClock();
-
         Node nextNode = path.endNode();
-        ServiceReason.ReasonCode previousResult = previousSuccessfulVisit.getPreviousResult(nextNode.getId(), journeyClock);
-
-        if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
-            HowIGotHere howIGotHere = new HowIGotHere(path);
-            reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
-
-            if (previousSuccessfulVisit.isMultipleJourneyMode()) {
-                return decideEvaluationAction(previousResult);
-            } else {
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
-        }
-
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
-        Evaluation result = decideEvaluationAction(reasonCode);
-        previousSuccessfulVisit.recordVisitIfUseful(reasonCode, nextNode.getId(), journeyClock);
-
-        return result;
+        return decideEvaluationAction(reasonCode);
     }
 
     public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
