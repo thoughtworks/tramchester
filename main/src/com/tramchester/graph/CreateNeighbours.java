@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocationsRepository;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphBuilder;
@@ -56,8 +55,8 @@ public class CreateNeighbours extends CreateNodesAndRelationships {
     @Inject
     public CreateNeighbours(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery, CompositeStationRepository repository,
                             StationLocationsRepository stationLocations, TramchesterConfig config,
-                            NodeTypeRepository nodeTypeRepository, StationsAndLinksGraphBuilder.Ready ready) {
-        super(database, nodeTypeRepository);
+                            StationsAndLinksGraphBuilder.Ready ready) {
+        super(database);
         this.database = database;
         this.filter = filter;
         this.graphQuery = graphQuery;

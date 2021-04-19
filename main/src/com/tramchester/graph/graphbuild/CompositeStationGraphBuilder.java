@@ -7,7 +7,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.CompositeStationRepository;
@@ -24,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.graphbuild.GraphProps.setProperty;
-import static java.lang.String.format;
 
 /***
  * Add nodes and relationships for composite stations to the exitsing graph
@@ -43,11 +41,11 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     //private final GraphQuery graphQuery;
 
     @Inject
-    public CompositeStationGraphBuilder(GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository,
-                                        CompositeStationRepository stationRepository,
+    public CompositeStationGraphBuilder(GraphDatabase graphDatabase, CompositeStationRepository stationRepository,
                                         TramchesterConfig config, GraphFilter graphFilter,
-                                        StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt, GraphBuilderCache builderCache) {
-        super(graphDatabase, nodeTypeRepository);
+                                        StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
+                                        GraphBuilderCache builderCache) {
+        super(graphDatabase);
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
         this.config = config;

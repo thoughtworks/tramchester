@@ -49,23 +49,4 @@ public class NodeTypeDirect implements NodeTypeRepository {
         node.delete();
     }
 
-    @Override
-    public void populateNodeLabelMap(GraphDatabase graphDatabase) {
-        // no-op
-    }
-
-    @Override
-    public void put(long id, GraphBuilder.Labels label) {
-        // no-op
-    }
-
-    @Override
-    public void put(long id, Set<GraphBuilder.Labels> label) {
-        // no-op
-    }
-
-    @Override
-    public boolean shouldContain(GraphBuilder.Labels label) {
-        return false;
-    }
 }

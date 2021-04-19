@@ -3,14 +3,19 @@ package com.tramchester.graph.caches;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.metrics.TimedTransaction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,11 +32,12 @@ public class NodeIdLabelMap implements NodeTypeRepository {
             ROUTE_STATION, PLATFORM, SERVICE, HOUR, MINUTE, TRAM_STATION, BUS_STATION, TRAIN_STATION,
             FERRY_STATION, SUBWAY_STATION
     ));
+    private final GraphDatabase graphDatabase;
 
-    // NOTE: cannot use NumberOfNodesAndRelationshipsRepository here as NodeIdLabelMap is populated during
-    // graph build
+    // TODO use NumberOfNodesAndRelationshipsRepository here
     @Inject
-    public NodeIdLabelMap() {
+    public NodeIdLabelMap(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+        this.graphDatabase = graphDatabase;
         labelMap = new ConcurrentHashMap<>();
 
         for (GraphBuilder.Labels label: nodesToCache) {
@@ -40,15 +46,23 @@ public class NodeIdLabelMap implements NodeTypeRepository {
         queryNodes = new ConcurrentHashMap<>();
     }
 
+    @PostConstruct
+    private void start() {
+        logger.info("start");
+        populateCaches();
+        logger.info("started");
+    }
 
-    // called when DB loaded from disc, instead of rebuild
-    public void populateNodeLabelMap(GraphDatabase graphDatabase) {
-        logger.info("Rebuilding node->label index");
-        try (Transaction tx = graphDatabase.beginTx()) {
+    private void populateCaches() {
+        // populate
+        try (TimedTransaction timed = new TimedTransaction(graphDatabase, logger, "populate node type cache")) {
+            Transaction tx = timed.transaction();
             for (GraphBuilder.Labels label : nodesToCache) {
                 graphDatabase.findNodes(tx, label).stream().forEach(node -> put(node.getId(), label));
             }
         }
+
+        // logging for diagnostics
         for (GraphBuilder.Labels label : nodesToCache) {
             int size = labelMap.get(label).size();
             if (size>0) {
@@ -57,7 +71,6 @@ public class NodeIdLabelMap implements NodeTypeRepository {
                 logger.info("Loaded zero nodes for label " + label);
             }
         }
-        logger.info("Finished populating map");
     }
 
     @PreDestroy
@@ -85,18 +98,13 @@ public class NodeIdLabelMap implements NodeTypeRepository {
         labelMap.get(label).add(id);
     }
 
-    @Override
     public void put(long id, Set<GraphBuilder.Labels> labels) {
         labels.forEach(label -> put(id, label));
     }
 
     @Override
-    public boolean shouldContain(GraphBuilder.Labels label) {
-        return nodesToCache.contains(label);
-    }
-
     public boolean isService(Node nodeId) {
-        return has(GraphBuilder.Labels.SERVICE, nodeId.getId());
+        return has(SERVICE, nodeId.getId());
     }
 
     @Override
@@ -104,16 +112,20 @@ public class NodeIdLabelMap implements NodeTypeRepository {
         return has(TRAIN_STATION, node.getId());
     }
 
+    @Override
     public boolean isHour(Node node) {
         return has(HOUR, node.getId());
     }
 
+    @Override
     public boolean isTime(Node node) { return has(MINUTE, node.getId()); }
 
+    @Override
     public boolean isRouteStation(Node node) {
         return has(ROUTE_STATION, node.getId());
     }
 
+    @Override
     public boolean isBusStation(Node node) { return has(BUS_STATION, node.getId()); }
 
     private boolean has(final GraphBuilder.Labels label, final long nodeId) {
@@ -124,13 +136,15 @@ public class NodeIdLabelMap implements NodeTypeRepository {
     }
 
     // for creating query nodes, to support MyLocation journeys
+    @Override
     public Node createQueryNode(GraphDatabase graphDatabase, Transaction txn) {
         Node result = graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE);
-        queryNodes.put(result.getId(),true);
+        queryNodes.put(result.getId(), true);
         return result;
     }
 
     // for deleting query nodes, to support MyLocation journeys
+    @Override
     public void deleteQueryNode(Node node) {
         long id = node.getId();
         node.delete();

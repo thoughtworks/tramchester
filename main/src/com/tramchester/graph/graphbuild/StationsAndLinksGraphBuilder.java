@@ -13,7 +13,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
@@ -32,7 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -56,9 +55,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     @Inject
     public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
-                                        NodeTypeRepository nodeIdLabelMap, TransportData transportData,
-                                        GraphBuilderCache builderCache) {
-        super(graphDatabase, graphFilter, config, builderCache, nodeIdLabelMap);
+                                        TransportData transportData, GraphBuilderCache builderCache) {
+        super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
     }
 

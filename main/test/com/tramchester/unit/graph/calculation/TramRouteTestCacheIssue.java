@@ -71,7 +71,6 @@ class TramRouteTestCacheIssue {
     void shouldTestSimpleJourneyIsNotPossible() {
 
         JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0), 1);
-        //journeyRequest.setDiag(true);
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(),

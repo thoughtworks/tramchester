@@ -18,9 +18,4 @@ public interface NodeTypeRepository {
     Node createQueryNode(GraphDatabase graphDatabase, Transaction txn);
     void deleteQueryNode(Node queryNode);
 
-    void populateNodeLabelMap(GraphDatabase graphDatabase);
-    void put(long id, GraphBuilder.Labels label);
-    void put(long id, Set<GraphBuilder.Labels> label);
-
-    boolean shouldContain(GraphBuilder.Labels label);
 }

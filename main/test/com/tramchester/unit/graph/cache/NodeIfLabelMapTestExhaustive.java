@@ -2,16 +2,16 @@ package com.tramchester.unit.graph.cache;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeIdLabelMap;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.repository.naptan.NaptanRespository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("was just to try to catch any cache build issues via repeat")
 class NodeIfLabelMapTestExhaustive {
     private ComponentContainer componentContainer;
     private SimpleGraphConfig config;
@@ -75,6 +75,7 @@ class NodeIfLabelMapTestExhaustive {
 
     private void checkFor(NodeIdLabelMapTest.ValidatesFor validatesFor, GraphBuilder.Labels label) {
         Set<Node> directs = database.findNodes(txn, label).stream().collect(Collectors.toSet());
+        assertFalse(directs.isEmpty(), "missing");
         for (Node direct : directs) {
             assertTrue(validatesFor.is(cache, direct));
         }

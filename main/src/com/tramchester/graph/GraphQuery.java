@@ -44,7 +44,7 @@ public class GraphQuery {
         return findNode(txn, label, station);
     }
 
-    public Node getGroupedNode(Transaction txn, Station station) {
+    private Node getGroupedNode(Transaction txn, Station station) {
         return findNode(txn, GraphBuilder.Labels.GROUPED, station);
     }
 
