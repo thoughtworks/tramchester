@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -28,6 +29,7 @@ class RouteCalculatorKeyRoutesBusTest {
     private final LocalDate when = TestEnv.testDay();
     private RouteCalculationCombinations combinations;
     private TramTime time;
+    private JourneyRequest journeyRequest;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -51,25 +53,27 @@ class RouteCalculatorKeyRoutesBusTest {
     void beforeEachTestRuns() {
         combinations = new RouteCalculationCombinations(componentContainer, testConfig);
         time = TramTime.of(8, 0);
+        int numberChanges = 3;
+        journeyRequest = new JourneyRequest(when, time, false, numberChanges, testConfig.getMaxJourneyDuration());
     }
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.EndOfRoutesToInterchanges(Bus), time);
+        combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToInterchanges(Bus), journeyRequest);
     }
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.EndOfRoutesToEndOfRoutes(Bus), time);
+        combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Bus), journeyRequest);
     }
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.InterchangeToEndRoutes(Bus), time);
+        combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToEndRoutes(Bus), journeyRequest);
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.InterchangeToInterchange(Bus), time);
+        combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Bus), journeyRequest);
     }
 }

@@ -35,10 +35,13 @@ class RouteCalulatorTestKeyRoutes {
 
     private final LocalDate when = TestEnv.testDay();
     private RouteCalculationCombinations combinations;
+    private JourneyRequest journeyRequest;
+    private int maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationTramTestConfig();
+
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -50,42 +53,53 @@ class RouteCalulatorTestKeyRoutes {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        maxJourneyDuration = testConfig.getMaxJourneyDuration();
+        journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
+                maxJourneyDuration);
         combinations = new RouteCalculationCombinations(componentContainer, testConfig);
     }
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.EndOfRoutesToInterchanges(Tram), TramTime.of(8,0));
+        combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToInterchanges(Tram), journeyRequest);
     }
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.EndOfRoutesToEndOfRoutes(Tram), TramTime.of(8,0));
+        combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), journeyRequest);
     }
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.InterchangeToEndRoutes(Tram), TramTime.of(8,0));
+        combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToEndRoutes(Tram), journeyRequest);
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        combinations.validateAllHaveAtLeastOneJourney(when, combinations.InterchangeToInterchange(Tram), TramTime.of(8,0));
+        combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Tram), journeyRequest);
     }
 
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
-        // todo: lockdown, changed from 9 to 10.15 as airport to eccles fails for 10.15am
-        checkRouteNextNDays(combinations.EndOfRoutesToEndOfRoutes(Tram), when, TramTime.of(10,15));
+        for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
+            LocalDate testDate = avoidChristmasDate(when.plusDays(day));
+
+            JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
+                    maxJourneyDuration);
+            combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), request);
+        }
     }
 
     @Test
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
         List<Journey> allResults = new ArrayList<>();
 
-        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(when,
-                combinations.EndOfRoutesToEndOfRoutes(Tram), TramTime.of(9,0));
+        JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 2,
+                maxJourneyDuration * 2);
+
+        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results =
+                combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
         double longest = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare).get();
@@ -110,21 +124,16 @@ class RouteCalulatorTestKeyRoutes {
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
-                                3, testConfig.getMaxJourneyDuration());
-                        Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(), journeyRequest);
-                        RouteCalculationCombinations.JourneyOrNot journeyOrNot = new RouteCalculationCombinations.JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
+                                3, maxJourneyDuration);
+                        Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),
+                                journeyRequest);
+                        RouteCalculationCombinations.JourneyOrNot journeyOrNot =
+                                new RouteCalculationCombinations.JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
                     }
                 }).filter(pair -> pair.getRight().missing()).findAny();
 
         assertFalse(failed.isPresent());
-    }
-
-    private void checkRouteNextNDays(Set<StationIdPair> stationIdPairs, LocalDate date, TramTime time) {
-        for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
-            LocalDate testDate = avoidChristmasDate(date.plusDays(day));
-            combinations.validateAllHaveAtLeastOneJourney(testDate, stationIdPairs, time);
-        }
     }
 
 }

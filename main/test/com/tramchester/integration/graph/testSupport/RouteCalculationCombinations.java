@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RouteCalculationCombinations {
 
-    private final TramchesterConfig config;
     private final GraphDatabase database;
     private final RouteCalculator calculator;
     private final StationRepository stationRepository;
@@ -38,7 +37,6 @@ public class RouteCalculationCombinations {
     private final RouteEndRepository routeEndRepository;
 
     public RouteCalculationCombinations(ComponentContainer componentContainer, TramchesterConfig config) {
-        this.config = config;
         this.database = componentContainer.get(GraphDatabase.class);
         this.calculator = componentContainer.get(RouteCalculator.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
@@ -49,23 +47,6 @@ public class RouteCalculationCombinations {
     public Optional<Journey> findJourneys(Transaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
         return calculator.calculateRoute(txn, stationRepository.getStationById(start),
                 stationRepository.getStationById(dest), journeyRequest).limit(1).findAny();
-    }
-
-    public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(
-            LocalDate queryDate, Set<StationIdPair> stationIdPairs, TramTime queryTime) {
-
-        Map<StationIdPair, JourneyOrNot> results = computeJourneys(queryDate, stationIdPairs, queryTime);
-        assertEquals(stationIdPairs.size(), results.size(), "Not enough results");
-
-        // check all results present, collect failures into a list
-        List<RouteCalculationCombinations.JourneyOrNot> failed = results.values().stream().
-                filter(RouteCalculationCombinations.JourneyOrNot::missing).
-                collect(Collectors.toList());
-
-        assertEquals(0L, failed.size(), format("Failed some of %s (finished %s) combinations %s",
-                        results.size(), stationIdPairs.size(), displayFailed(failed)));
-
-        return results;
     }
 
     public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
@@ -83,18 +64,6 @@ public class RouteCalculationCombinations {
                 results.size(), stationIdPairs.size(), displayFailed(failed)));
 
         return results;
-    }
-
-    /***
-     * use the version that takes journey request instead
-     */
-    @Deprecated
-    @NotNull
-    private Map<StationIdPair, JourneyOrNot> computeJourneys(LocalDate queryDate, Set<StationIdPair> combinations, TramTime queryTime) {
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false, 3,
-                config.getMaxJourneyDuration());
-
-        return computeJourneys(combinations, request);
     }
 
     @NotNull

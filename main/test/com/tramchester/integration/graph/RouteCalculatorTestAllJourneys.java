@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
@@ -51,6 +52,9 @@ class RouteCalculatorTestAllJourneys {
 
         Set<Station> allStations = data.getStationsForMode(Tram);
 
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
+                testConfig.getMaxJourneyDuration());
+
         // pairs of stations to check
         Set<StationIdPair> stationIdPairs = allStations.stream().flatMap(start -> allStations.stream().
                 map(dest -> StationIdPair.of(start, dest))).
@@ -59,8 +63,9 @@ class RouteCalculatorTestAllJourneys {
                 filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
 
-        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.validateAllHaveAtLeastOneJourney(when,
-                stationIdPairs, TramTime.of(8, 5));
+
+        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results =
+                combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest);
 
         // now find longest journey
         Optional<Integer> maxNumberStops = results.values().stream().

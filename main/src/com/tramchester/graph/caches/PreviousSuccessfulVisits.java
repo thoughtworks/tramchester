@@ -60,11 +60,11 @@ public class PreviousSuccessfulVisits {
     private static class NodeIdAndTime {
 
         private final long nodeId;
-        private final TramTime journeyClock;
+        private final TramTime tramTime;
 
-        public NodeIdAndTime(long nodeId, TramTime journeyClock) {
+        public NodeIdAndTime(long nodeId, TramTime tramTime) {
             this.nodeId = nodeId;
-            this.journeyClock = journeyClock;
+            this.tramTime = tramTime;
         }
 
         @Override
@@ -75,13 +75,13 @@ public class PreviousSuccessfulVisits {
             NodeIdAndTime that = (NodeIdAndTime) o;
 
             if (nodeId != that.nodeId) return false;
-            return journeyClock.equals(that.journeyClock);
+            return tramTime.equals(that.tramTime);
         }
 
         @Override
         public int hashCode() {
             int result = (int) (nodeId ^ (nodeId >>> 32));
-            result = 31 * result + journeyClock.hashCode();
+            result = 31 * result + tramTime.hashCode();
             return result;
         }
     }
