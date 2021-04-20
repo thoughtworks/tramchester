@@ -2,6 +2,7 @@ package com.tramchester.graph.caches;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.metrics.TimedTransaction;
@@ -33,11 +34,14 @@ public class NodeTypeCache implements NodeTypeRepository {
             FERRY_STATION, SUBWAY_STATION
     ));
     private final GraphDatabase graphDatabase;
+    private final NumberOfNodesAndRelationshipsRepository numbersOfNodes;
 
     // TODO use NumberOfNodesAndRelationshipsRepository here
     @Inject
-    public NodeTypeCache(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+    public NodeTypeCache(GraphDatabase graphDatabase, NumberOfNodesAndRelationshipsRepository numbersOfNodes,
+                         StagedTransportGraphBuilder.Ready ready) {
         this.graphDatabase = graphDatabase;
+        this.numbersOfNodes = numbersOfNodes;
         labelMap = new ConcurrentHashMap<>();
 
         for (GraphBuilder.Labels label: nodesToCache) {
@@ -81,17 +85,18 @@ public class NodeTypeCache implements NodeTypeRepository {
     }
 
     private int getCapacity(GraphBuilder.Labels label) {
+        return numbersOfNodes.numberOf(label).intValue();
         // approx. sizings
-        return switch (label) {
-            case ROUTE_STATION -> 282;
-            case TRAM_STATION -> 93;
-            case TRAIN_STATION -> 3000;
-            case PLATFORM -> 185;
-            case SERVICE -> 8680;
-            case HOUR -> 62525;
-            case MINUTE -> 314150;
-            default -> 0;
-        };
+//        return switch (label) {
+//            case ROUTE_STATION -> 282;
+//            case TRAM_STATION -> 93;
+//            case TRAIN_STATION -> 3000;
+//            case PLATFORM -> 185;
+//            case SERVICE -> 8680;
+//            case HOUR -> 62525;
+//            case MINUTE -> 314150;
+//            default -> 0;
+//        };
     }
 
     public void put(long id, GraphBuilder.Labels label) {

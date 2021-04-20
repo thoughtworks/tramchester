@@ -19,6 +19,7 @@ import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Transaction;
@@ -99,12 +100,17 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
         PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
-        return numChangesRange(journeyRequest).
+        Stream<Journey> results = numChangesRange(journeyRequest).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime-> new PathRequest(startNode, queryTime, numChanges, journeyConstraints))).
+                        map(queryTime -> new PathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, previousSuccessfulVisit)).
                 map(path -> createJourney(journeyRequest, path));
+
+        if (journeyRequest.getDiagnosticsEnabled()) {
+            results.onClose(() -> previousSuccessfulVisit.reportStatsFor(journeyRequest));
+        }
+        return results;
     }
 
     private Set<Station> unexpandStations(Set<Station> stations) {

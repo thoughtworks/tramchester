@@ -65,14 +65,16 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 
+
+
         return grouped.parallelStream().map(box -> {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
             // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
+            PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
-            PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().

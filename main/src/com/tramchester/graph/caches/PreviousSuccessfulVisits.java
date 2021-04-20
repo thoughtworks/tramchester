@@ -2,13 +2,22 @@ package com.tramchester.graph.caches;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.ServiceReason;
+import com.tramchester.repository.ReportsCacheStats;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class PreviousSuccessfulVisits {
+public class PreviousSuccessfulVisits implements ReportsCacheStats {
+    private static final Logger logger = LoggerFactory.getLogger(PreviousSuccessfulVisits.class);
     private static final long MAX_CACHE_SZIE = 10000;
     private static final int CACHE_DURATION_MINS = 30;
 
@@ -38,10 +47,6 @@ public class PreviousSuccessfulVisits {
         }
     }
 
-    public boolean isMultipleJourneyMode() {
-        return false;
-    }
-
     public ServiceReason.ReasonCode getPreviousResult(Long nodeId, TramTime journeyClock) {
 
         ServiceReason.ReasonCode timeFound = timeNodePrevious.getIfPresent(nodeId);
@@ -55,6 +60,21 @@ public class PreviousSuccessfulVisits {
         }
 
         return ServiceReason.ReasonCode.PreviousCacheMiss;
+    }
+
+    @Override
+    public List<Pair<String, CacheStats>> stats() {
+        List<Pair<String, CacheStats>> results = new ArrayList<>();
+        results.add(Pair.of("timeNodePrevious", timeNodePrevious.stats()));
+        results.add(Pair.of("hourNodePrevious", hourNodePrevious.stats()));
+        return results;
+    }
+
+    public void reportStatsFor(JourneyRequest journeyRequest) {
+        logger.info("Cache stats for " + journeyRequest.getUid());
+        stats().forEach(pair -> {
+            logger.info("Cache stats for " + pair.getLeft() + " " + pair.getRight().toString());
+        });
     }
 
     private static class NodeIdAndTime {
