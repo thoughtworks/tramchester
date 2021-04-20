@@ -19,6 +19,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -61,6 +62,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.outbounds = new ArrayList<>();
 
         this.builders = new Builders(sortsPositions, destinationLatLonHint, config);
+    }
+
+    protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, int costForLastEdge) {
+        this(parent, outbounds::iterator, costForLastEdge);
     }
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
@@ -114,11 +119,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         return outbounds;
     }
 
-    protected static List<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, NodeId hasNodeId) {
+    protected static Stream<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, NodeId hasNodeId) {
         long nodeId = hasNodeId.nodeId();
         return Streams.stream(relationships).
-                filter(relationship -> relationship.getEndNode().getId() != nodeId).
-                collect(Collectors.toList());
+                filter(relationship -> relationship.getEndNode().getId() != nodeId);
     }
 
     @NotNull

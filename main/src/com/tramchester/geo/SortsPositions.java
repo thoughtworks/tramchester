@@ -57,7 +57,7 @@ public class SortsPositions {
     }
 
     // List, order matters here
-    public <CONTAINED> List<CONTAINED> sortedByNearTo(LatLong destination, Set<HasStationId<CONTAINED>> startingPoints) {
+    public <CONTAINED> Stream<CONTAINED> sortedByNearTo(LatLong destination, Set<HasStationId<CONTAINED>> startingPoints) {
 
         Map<HasStationId<CONTAINED>, Double> distances = new HashMap<>();
 
@@ -69,8 +69,7 @@ public class SortsPositions {
 
         return distances.entrySet().stream().
                 sorted(Comparator.comparingDouble(Map.Entry::getValue)).
-                map(entry -> entry.getKey().getContained()).
-                collect(Collectors.toList());
+                map(entry -> entry.getKey().getContained());
 
     }
 

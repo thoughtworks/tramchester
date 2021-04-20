@@ -6,6 +6,8 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.stream.Stream;
+
 import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
 
 public class GroupedStationState extends TraversalState {
@@ -38,6 +40,11 @@ public class GroupedStationState extends TraversalState {
     }
 
     private final long stationNodeId;
+
+    private GroupedStationState(TraversalState parent, Stream<Relationship> relationships, int cost, long stationNodeId) {
+        super(parent, relationships, cost);
+        this.stationNodeId = stationNodeId;
+    }
 
     private GroupedStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);

@@ -5,6 +5,8 @@ import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.stream.Stream;
+
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -25,6 +27,10 @@ public class WalkingState extends TraversalState {
             return new WalkingState(tramStationState,
                     filterExcludingEndNode(node.getRelationships(OUTGOING), tramStationState), cost);
         }
+    }
+
+    private WalkingState(TraversalState parent, Stream<Relationship> relationships, int cost) {
+        super(parent, relationships, cost);
     }
 
     private WalkingState(TraversalState parent, Iterable<Relationship> relationships, int cost) {

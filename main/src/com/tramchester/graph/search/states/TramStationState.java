@@ -5,6 +5,8 @@ import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.stream.Stream;
+
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -46,6 +48,11 @@ public class TramStationState extends TraversalState implements NodeId {
     }
 
     private final long stationNodeId;
+
+    private TramStationState(TraversalState parent, Stream<Relationship> relationships, int cost, long stationNodeId) {
+        super(parent, relationships, cost);
+        this.stationNodeId = stationNodeId;
+    }
 
     private TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);

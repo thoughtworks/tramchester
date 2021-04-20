@@ -70,21 +70,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
         ImmutableJourneyState journeyState = state.getState();
         TramTime journeyClock = journeyState.getJourneyClock();
-
         Node nextNode = path.endNode();
-        ServiceReason.ReasonCode previousResult = previousSuccessfulVisits.getPreviousResult(nextNode.getId(), journeyClock);
 
+        // NOTE: This makes a very(!) significant impact on performance, without it algo explore the same
+        // path again and again for the same time in the case where it is a valid time.
+        ServiceReason.ReasonCode previousResult = previousSuccessfulVisits.getPreviousResult(nextNode.getId(), journeyClock);
         if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
             HowIGotHere howIGotHere = new HowIGotHere(path);
             reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
-
-            if (previousSuccessfulVisits.isMultipleJourneyMode()) {
-                return decideEvaluationAction(previousResult);
-            } else {
-                // NOTE: This makes very significant impact on performance, without it would explore the same
-                // path again for the same time in the case where it is a valid time.
-                return Evaluation.EXCLUDE_AND_PRUNE;
-            }
+            return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);

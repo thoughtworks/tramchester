@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -31,7 +31,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            List<Relationship> stationRelationships = filterExcludingEndNode(getAll(node), onTrip);
+            Stream<Relationship> stationRelationships = filterExcludingEndNode(getAll(node), onTrip);
             return new NoPlatformStationState(onTrip, stationRelationships, cost, node.getId());
         }
 
@@ -64,6 +64,11 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
     }
 
     private final long stationNodeId;
+
+    private NoPlatformStationState(TraversalState parent, Stream<Relationship> relationships, int cost, long stationNodeId) {
+        super(parent, relationships, cost);
+        this.stationNodeId = stationNodeId;
+    }
 
     private NoPlatformStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
         super(parent, relationships, cost);

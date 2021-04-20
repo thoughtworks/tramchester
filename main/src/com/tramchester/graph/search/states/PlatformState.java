@@ -8,6 +8,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -35,7 +36,7 @@ public class PlatformState extends TraversalState implements NodeId {
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            List<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
+            Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
             return new PlatformState(routeStationStateOnTrip, filterExcludingEndNode, node.getId(), cost);
         }
 
@@ -48,6 +49,11 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     private final long platformNodeId;
+
+    private PlatformState(TraversalState parent, Stream<Relationship> relationships, long platformNodeId, int cost) {
+        super(parent, relationships, cost);
+        this.platformNodeId = platformNodeId;
+    }
 
     private PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId, int cost) {
         super(parent, relationships, cost);
