@@ -107,7 +107,8 @@ public class ServiceHeuristics {
 
 
     public ServiceReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
-        IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(node);
+
+        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         Station associatedStation = routeStation.getStation();
@@ -122,7 +123,7 @@ public class ServiceHeuristics {
 
     public ServiceReason canReachDestination(Node endNode, HowIGotHere howIGotHere, ServiceReasons reasons) {
 
-        IdFor<RouteStation> routeStationId = GraphProps.getRouteStationIdFrom(endNode);
+        IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         if (routeStation==null) {

@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentMap;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 
 @LazySingleton
-public class NodeIdLabelMap implements NodeTypeRepository {
-    private static final Logger logger = LoggerFactory.getLogger(NodeIdLabelMap.class);
+public class NodeTypeCache implements NodeTypeRepository {
+    private static final Logger logger = LoggerFactory.getLogger(NodeTypeCache.class);
 
     private final ConcurrentMap<GraphBuilder.Labels, Set<Long>> labelMap;
     private final ConcurrentMap<Long, Boolean> queryNodes;
@@ -36,7 +36,7 @@ public class NodeIdLabelMap implements NodeTypeRepository {
 
     // TODO use NumberOfNodesAndRelationshipsRepository here
     @Inject
-    public NodeIdLabelMap(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+    public NodeTypeCache(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
         this.graphDatabase = graphDatabase;
         labelMap = new ConcurrentHashMap<>();
 

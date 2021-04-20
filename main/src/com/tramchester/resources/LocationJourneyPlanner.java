@@ -10,6 +10,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.*;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
+import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
@@ -36,6 +37,7 @@ public class LocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
 
     private final StationLocations stationLocations;
+    private final GraphFilter graphFilter;
     private final TramchesterConfig config;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
@@ -47,7 +49,8 @@ public class LocationJourneyPlanner {
     @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
-                                  GraphQuery graphQuery, GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository) {
+                                  GraphQuery graphQuery, GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository,
+                                  GraphFilter graphFilter) {
         this.config = config;
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
@@ -56,6 +59,7 @@ public class LocationJourneyPlanner {
         this.graphDatabase = graphDatabase;
         this.nodeTypeRepository = nodeTypeRepository;
         this.stationLocations = stationLocations;
+        this.graphFilter = graphFilter;
     }
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong latLong, Station destination,
@@ -199,7 +203,10 @@ public class LocationJourneyPlanner {
         int maxResults = config.getNumOfNearestStopsForWalking();
         double rangeInKM = config.getNearestStopForWalkingRangeKM();
         List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, maxResults, rangeInKM);
-        List<StationWalk> stationWalks = createWalks(latLong, nearbyStations);
+
+        List<Station> filtered = nearbyStations.stream().filter(graphFilter::shouldInclude).collect(Collectors.toList());
+
+        List<StationWalk> stationWalks = createWalks(latLong, filtered);
         logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));
         return stationWalks;
     }

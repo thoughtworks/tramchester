@@ -29,7 +29,7 @@ public class MappersAndConfigurationModule extends AbstractModule {
         bind(ProvidesNow.class).to(ProvidesLocalNow.class);
         bind(NodeContentsRepository.class).to(CachedNodeOperations.class);
 //           bind(NodeTypeRepository.class).to(NodeTypeDirect.class);
-        bind(NodeTypeRepository.class).to(NodeIdLabelMap.class);
+        bind(NodeTypeRepository.class).to(NodeTypeCache.class);
     }
 
     @LazySingleton

@@ -53,6 +53,7 @@ public class TestEnv {
     public static final LatLong nearStockportBus = new LatLong(53.408735,-2.1656593);
     public static final LatLong nearGreenwich = new LatLong(51.477928, -0.001545);
     public static final LatLong nearKnutsfordBusStation = new LatLong(53.3026112D,-2.3774635D);
+    public static final LatLong nearStPetersSquare = new LatLong(53.4776898D,-2.2432105D);
 
     public static final GridPosition nearAltrinchamGrid;
     public static final GridPosition nearPiccGardensGrid;

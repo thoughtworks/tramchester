@@ -10,7 +10,8 @@ import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
@@ -95,14 +96,14 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
+        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
         return numChangesRange(journeyRequest).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime-> new PathRequest(startNode, queryTime, numChanges, journeyConstraints))).
-                flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, previousSuccessfulVisit,
-                        createServiceReasons(journeyRequest, pathRequest), pathRequest)).
+                flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
+                        createServiceReasons(journeyRequest, pathRequest), pathRequest, previousSuccessfulVisit)).
                 map(path -> createJourney(journeyRequest, path));
     }
 

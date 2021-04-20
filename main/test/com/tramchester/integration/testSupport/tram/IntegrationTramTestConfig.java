@@ -52,7 +52,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return Collections.singletonList(remoteTFGMConfig); // naptan disabled for trams
-//        return Arrays.asList(remoteTFGMConfig, remoteNaptanConfig);
     }
 
     @Override

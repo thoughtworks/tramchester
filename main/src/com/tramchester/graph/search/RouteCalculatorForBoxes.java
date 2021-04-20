@@ -9,7 +9,8 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
@@ -68,10 +69,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
             // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
-            final PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
+            PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().
@@ -80,7 +81,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         flatMap(startNode -> numChangesRange(journeyRequest).
                                 map(numChanges -> new PathRequest(startNode, time, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                previousSuccessfulVisit, createServiceReasons(journeyRequest, time, pathRequest), pathRequest)).
+                                createServiceReasons(journeyRequest, time, pathRequest), pathRequest, previousSuccessfulVisit)).
                         map(timedPath -> createJourney(journeyRequest, timedPath));
 
                 // TODO Limit here, or return the stream?

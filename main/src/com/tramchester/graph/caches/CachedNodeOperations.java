@@ -7,6 +7,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -32,9 +33,11 @@ import java.util.concurrent.TimeUnit;
 public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepository {
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
-    private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, IdFor<Trip>> tripIdRelationshipCache;
     private final Cache<Long, IdFor<Service>> serviceNodeCache;
+    private final Cache<Long, IdFor<RouteStation>> routeStationIdCache;
+
+    private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, TramTime> timeNodeCache;
 
     private final HourNodeCache prebuildHourCache;
@@ -48,6 +51,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
         tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
+        routeStationIdCache = createCache("routeStationIdCache", GraphBuilder.Labels.ROUTE_STATION);
         timeNodeCache = createCache("timeNodeCache", GraphBuilder.Labels.MINUTE);
         serviceNodeCache = createCache("serviceNodeCache", GraphBuilder.Labels.SERVICE);
 
@@ -87,7 +91,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("svcIdCache", serviceNodeCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
-        result.add(Pair.of("times", timeNodeCache.stats()));
+        result.add(Pair.of("timeNodeCache", timeNodeCache.stats()));
+        result.add(Pair.of("routeStationIdCache", routeStationIdCache.stats()));
 
         return result;
     }
@@ -100,6 +105,12 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     public TramTime getTime(Node node) {
         long nodeId = node.getId();
         return timeNodeCache.get(nodeId, id -> GraphProps.getTime(node));
+    }
+
+    @Override
+    public IdFor<RouteStation> getRouteStationId(Node node) {
+        long nodeId = node.getId();
+        return routeStationIdCache.get(nodeId, id -> GraphProps.getRouteStationIdFrom(node));
     }
 
     public IdFor<Service> getServiceId(Node node) {

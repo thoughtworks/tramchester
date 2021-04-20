@@ -29,7 +29,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceHeuristics serviceHeuristics;
     private final NodeTypeRepository nodeTypeRepository;
     private final ServiceReasons reasons;
-    //private final PreviousSuccessfulVisits previousSuccessfulVisit;
+    private final PreviousSuccessfulVisits previousSuccessfulVisits;
 
     private final Set<Long> stationNodes;
     private final boolean loopDetection;
@@ -41,13 +41,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeTypeRepository nodeTypeRepository, ServiceReasons reasons,
-                              PreviousSuccessfulVisits previousSuccessfulVisit,
-                              TramchesterConfig config) {
+                              PreviousSuccessfulVisits previousSuccessfulVisits, TramchesterConfig config) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
-        //this.previousSuccessfulVisit = previousSuccessfulVisit;
+        this.previousSuccessfulVisits = previousSuccessfulVisits;
         Set<TransportMode> transportModes = config.getTransportModes();
         maxWait = config.getMaxWait();
         maxInitialWait = config.getMaxInitialWait();
@@ -60,7 +59,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     public void dispose() {
-        //previousSuccessfulVisit.clear();
     }
 
     @Override
@@ -71,9 +69,29 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     @Override
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
         ImmutableJourneyState journeyState = state.getState();
+        TramTime journeyClock = journeyState.getJourneyClock();
+
         Node nextNode = path.endNode();
+        ServiceReason.ReasonCode previousResult = previousSuccessfulVisits.getPreviousResult(nextNode.getId(), journeyClock);
+
+        if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
+            HowIGotHere howIGotHere = new HowIGotHere(path);
+            reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
+
+            if (previousSuccessfulVisits.isMultipleJourneyMode()) {
+                return decideEvaluationAction(previousResult);
+            } else {
+                // NOTE: This makes very significant impact on performance, without it would explore the same
+                // path again for the same time in the case where it is a valid time.
+                return Evaluation.EXCLUDE_AND_PRUNE;
+            }
+        }
+
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
-        return decideEvaluationAction(reasonCode);
+        Evaluation result = decideEvaluationAction(reasonCode);
+        previousSuccessfulVisits.recordVisitIfUseful(reasonCode, nextNode.getId(), journeyClock);
+
+        return result;
     }
 
     public static Evaluation decideEvaluationAction(ServiceReason.ReasonCode code) {
@@ -145,14 +163,24 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return ServiceReason.ReasonCode.TookTooLong;
         }
 
-        // -->Route Station
-        // is even reachable from here? is the station open?
-        if (nodeTypeRepository.isRouteStation(nextNode)) {
-            if (!serviceHeuristics.canReachDestination(nextNode, howIGotHere, reasons).isValid()) {
-                return ServiceReason.ReasonCode.NotReachable;
+        // these next are ordered by frequency / number of nodes of type
+
+        TramTime visitingTime = journeyState.getJourneyClock();
+        int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
+        // --> Minute
+        // check time
+        if (nodeTypeRepository.isTime(nextNode)) {
+            ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
+            if (!serviceReason.isValid()) {
+                return serviceReason.getReasonCode(); // valid, or not at time
             }
-            if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
-                return ServiceReason.ReasonCode.StationClosed;
+        }
+
+        // -->Hour
+        // check time, just hour first
+        if (nodeTypeRepository.isHour(nextNode)) {
+            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait).isValid()) {
+                return ServiceReason.ReasonCode.NotAtHour;
             }
         }
 
@@ -162,6 +190,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (isService) {
             if (!serviceHeuristics.checkServiceDate(nextNode, howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotOnQueryDate;
+            }
+        }
+
+        // -->Route Station
+        // is even reachable from here? is the station open?
+        if (nodeTypeRepository.isRouteStation(nextNode)) {
+            if (!serviceHeuristics.canReachDestination(nextNode, howIGotHere, reasons).isValid()) {
+                return ServiceReason.ReasonCode.NotReachable;
+            }
+            if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
+                return ServiceReason.ReasonCode.StationClosed;
             }
         }
 
@@ -176,8 +215,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
+        // TOOD is this still needed, should drop through via continue anyway?
         Relationship inboundRelationship = thePath.lastRelationship();
-
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO)) {
@@ -186,27 +225,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
-        TramTime visitingTime = journeyState.getJourneyClock();
-        int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
-
-        // -->Hour
-        // check time, just hour first
-        if (nodeTypeRepository.isHour(nextNode)) {
-            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait).isValid()) {
-                return ServiceReason.ReasonCode.NotAtHour;
-            }
-        }
-
-        // --> Minute
-        // check time
-        if (nodeTypeRepository.isTime(nextNode)) {
-            ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
-            if (!serviceReason.isValid()) {
-                return serviceReason.getReasonCode(); // valid, or not at time
-            }
-        }
-
-        reasons.recordReason(ServiceReason.Continue(nextNode, howIGotHere));
+        reasons.recordReason(ServiceReason.Continue(howIGotHere));
         return ServiceReason.ReasonCode.Continue;
     }
 

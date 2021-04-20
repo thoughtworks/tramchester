@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeTypeRepository;
-import com.tramchester.graph.caches.NodeIdLabelMap;
+import com.tramchester.graph.caches.NodeTypeCache;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-class NodeIdLabelMapTest {
+class NodeTypeCacheTest {
     private static ComponentContainer componentContainer;
     private static SimpleGraphConfig config;
 
     private Transaction txn;
-    private NodeIdLabelMap cache;
+    private NodeTypeCache cache;
     private GraphDatabase database;
 
     @BeforeAll
@@ -48,7 +48,7 @@ class NodeIdLabelMapTest {
     @BeforeEach
     void beforeEachTestRuns() {
         database = componentContainer.get(GraphDatabase.class);
-        cache = componentContainer.get(NodeIdLabelMap.class);
+        cache = componentContainer.get(NodeTypeCache.class);
 
         txn = database.beginTx();
     }

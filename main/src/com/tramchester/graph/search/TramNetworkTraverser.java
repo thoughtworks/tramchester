@@ -43,11 +43,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
+    private PreviousSuccessfulVisits previousSuccessfulVisit;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 CompositeStationRepository stationRepository, SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository,
                                 TripRepository tripRespository, Set<Station> endStations, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
-                                Set<Long> destinationNodeIds, ServiceReasons reasons) {
+                                Set<Long> destinationNodeIds, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.stationRepository = stationRepository;
@@ -60,9 +61,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.config = config;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
+        this.previousSuccessfulVisit = previousSuccessfulVisit;
     }
 
-    public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousSuccessfulVisits previousSuccessfulVisit) {
+    public Stream<Path> findPaths(Transaction txn, Node startNode) {
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
                 destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -12,6 +13,8 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +46,7 @@ class RouteCalculatorSubGraphTest {
             TramStations.Pomona);
     private Transaction txn;
     private TramTime tramTime;
+    private int maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -74,6 +78,7 @@ class RouteCalculatorSubGraphTest {
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         tramTime = TramTime.of(8, 0);
+        maxJourneyDuration = config.getMaxJourneyDuration();
     }
 
     @AfterEach
@@ -84,19 +89,31 @@ class RouteCalculatorSubGraphTest {
     @Test
     void reproduceIssueEdgePerTrip() {
 
-        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Deansgate, TramTime.of(19,51), when);
-        validateAtLeastOneJourney(Cornbrook, TramStations.Pomona, TramTime.of(19,51).plusMinutes(6), when);
+        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Deansgate,
+                new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration));
 
-        validateAtLeastOneJourney(TramStations.Deansgate, Cornbrook, TramTime.of(19,51).plusMinutes(3), when);
-        validateAtLeastOneJourney(TramStations.Deansgate, TramStations.Pomona, TramTime.of(19,51).plusMinutes(3), when);
+        validateAtLeastOneJourney(Cornbrook, TramStations.Pomona,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, 5,
+                        maxJourneyDuration));
 
-        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, TramTime.of(19,51), when);
-        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, TramTime.of(19,56), when);
+        validateAtLeastOneJourney(TramStations.Deansgate, Cornbrook,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 5,
+                        maxJourneyDuration));
+
+        validateAtLeastOneJourney(TramStations.Deansgate, TramStations.Pomona,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 5,
+                        maxJourneyDuration));
+
+        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, new JourneyRequest(when, tramTime, false, 5,
+                maxJourneyDuration));
+        validateAtLeastOneJourney(TramStations.StPetersSquare, TramStations.Pomona, new JourneyRequest(when, tramTime, false, 5,
+                maxJourneyDuration));
     }
 
     @Test
     void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(Cornbrook, TramStations.StPetersSquare, TramTime.of(23,55), when);
+        validateAtLeastOneJourney(Cornbrook, TramStations.StPetersSquare, new JourneyRequest(when, tramTime, false, 5,
+                maxJourneyDuration));
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -105,10 +122,28 @@ class RouteCalculatorSubGraphTest {
         for (TramStations start: stations) {
             for (TramStations destination: stations) {
                 if (!start.equals(destination)) {
-                    validateAtLeastOneJourney(start, destination, tramTime, when);
+                    validateAtLeastOneJourney(start, destination, new JourneyRequest(when, tramTime, false, 5,
+                            maxJourneyDuration));
                 }
             }
         }
+    }
+
+    @Test
+    void shouldHaveWalkAtEnd() {
+
+        LocationJourneyPlanner planner = componentContainer.get(LocationJourneyPlanner.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        LocationJourneyPlannerTestFacade testFacade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
+                maxJourneyDuration);
+        journeyRequest.setDiag(true);
+        final Station station = stationRepository.getStationById(TramStations.Pomona.getId());
+        Set<Journey> results = testFacade.quickestRouteForLocation(station,
+                TestEnv.nearStPetersSquare,
+                journeyRequest, 4);
+        assertFalse(results.isEmpty());
     }
 
     @Test
@@ -151,13 +186,11 @@ class RouteCalculatorSubGraphTest {
     @NotNull
     private Set<Journey> getJourneys(TramStations start, TramStations destination, LocalDate when) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
-                config.getMaxJourneyDuration());
+                maxJourneyDuration);
         return calculator.calculateRouteAsSet(start,destination, journeyRequest);
     }
 
-    private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, LocalDate date) {
-        JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 5,
-                config.getMaxJourneyDuration());
+    private void validateAtLeastOneJourney(TramStations start, TramStations dest, JourneyRequest journeyRequest) {
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest, 1);
         assertFalse(results.isEmpty());

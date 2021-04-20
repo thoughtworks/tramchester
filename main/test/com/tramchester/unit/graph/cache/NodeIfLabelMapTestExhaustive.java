@@ -3,7 +3,7 @@ package com.tramchester.unit.graph.cache;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.caches.NodeIdLabelMap;
+import com.tramchester.graph.caches.NodeTypeCache;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.testSupport.TestEnv;
@@ -27,7 +27,7 @@ class NodeIfLabelMapTestExhaustive {
     private SimpleGraphConfig config;
 
     private Transaction txn;
-    private NodeIdLabelMap cache;
+    private NodeTypeCache cache;
     private GraphDatabase database;
 
     @BeforeEach
@@ -41,7 +41,7 @@ class NodeIfLabelMapTestExhaustive {
         componentContainer.initialise();
 
         database = componentContainer.get(GraphDatabase.class);
-        cache = componentContainer.get(NodeIdLabelMap.class);
+        cache = componentContainer.get(NodeTypeCache.class);
 
         txn = database.beginTx();
     }
@@ -73,7 +73,7 @@ class NodeIfLabelMapTestExhaustive {
         checkFor(NodeTypeRepository::isRouteStation, GraphBuilder.Labels.ROUTE_STATION);
     }
 
-    private void checkFor(NodeIdLabelMapTest.ValidatesFor validatesFor, GraphBuilder.Labels label) {
+    private void checkFor(NodeTypeCacheTest.ValidatesFor validatesFor, GraphBuilder.Labels label) {
         Set<Node> directs = database.findNodes(txn, label).stream().collect(Collectors.toSet());
         assertFalse(directs.isEmpty(), "missing");
         for (Node direct : directs) {

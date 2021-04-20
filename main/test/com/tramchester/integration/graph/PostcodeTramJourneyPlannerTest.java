@@ -78,10 +78,11 @@ class PostcodeTramJourneyPlannerTest {
         txn.close();
     }
 
+    // IS USED - see below
     private static Stream<JourneyRequest> getRequest() {
         int maxJourneyDuration = testConfig.getMaxJourneyDuration();
         TramServiceDate date = new TramServiceDate(when);
-        int maxChanges = 8;
+        int maxChanges = 2;
         return Stream.of(
                 new JourneyRequest(date, planningTime, false, maxChanges, maxJourneyDuration),
                 new JourneyRequest(date, planningTime, true, maxChanges, maxJourneyDuration));

@@ -6,7 +6,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
@@ -85,15 +86,16 @@ public class RouteCalculatorSupport {
 
 
     protected Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
-                                                               final Set<Station> endStations, PreviousSuccessfulVisits previousSuccessfulVisit,
-                                                               ServiceReasons reasons, PathRequest pathRequest) {
+                                                                 final Set<Station> endStations,
+                                                                 ServiceReasons reasons, PathRequest pathRequest,
+                                                                 PreviousSuccessfulVisits previousSuccessfulVisit) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest.serviceHeuristics, compositeStationRepository, sortsPosition, nodeOperations,
-                tripRepository, endStations, config, nodeTypeRepository, destinationNodeIds, reasons);
+                tripRepository, endStations, config, nodeTypeRepository, destinationNodeIds, reasons, previousSuccessfulVisit);
 
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit).
+                findPaths(txn, pathRequest.startNode).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 

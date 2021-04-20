@@ -41,7 +41,7 @@ public class RouteCalculatorTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static IntegrationTramTestConfig config;
-    private final int maxChanges = 3;
+    private final int maxChanges = 2;
 
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
