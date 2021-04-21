@@ -84,7 +84,15 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             return builders.destination.from(this, cost);
         }
 
-        return builders.noPlatformStation.fromNeighbour(this, next, cost);
+        // route station nodes may also have INTERCHANGE label set
+        if (nodeLabels.contains(GraphBuilder.Labels.ROUTE_STATION)) {
+            return toRouteStation(next, journeyState, cost);
+        }
+        
+        // TODO this is not called any more
+        // return builders.noPlatformStation.fromNeighbour(this, next, cost);
+
+        throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabels + " at " + this);
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -68,6 +69,15 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
+    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node node, JourneyState journeyState, int cost) {
+        // route station nodes may also have INTERCHANGE label set
+        if (nodeLabels.contains(GraphBuilder.Labels.ROUTE_STATION)) {
+            return toRouteStation(node, journeyState, cost);
+        }
+        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabels);
+    }
+
+    @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
 
         long nodeId = node.getId();
@@ -81,16 +91,20 @@ public class PlatformState extends TraversalState implements NodeId {
         }
 
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
-            try {
-                journeyState.board(TransportMode.Tram);
-            } catch (TramchesterException e) {
-                throw new RuntimeException("unable to board tram", e);
-            }
-
-            return builders.routeStationJustBoarded.fromPlatformState(this, node, cost);
+            return toRouteStation(node, journeyState, cost);
         }
 
         throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
+    }
+
+    private TraversalState toRouteStation(Node node, JourneyState journeyState, int cost) {
+        try {
+            journeyState.board(TransportMode.Tram);
+        } catch (TramchesterException e) {
+            throw new RuntimeException("unable to board tram", e);
+        }
+
+        return builders.routeStationJustBoarded.fromPlatformState(this, node, cost);
     }
 
     @Override

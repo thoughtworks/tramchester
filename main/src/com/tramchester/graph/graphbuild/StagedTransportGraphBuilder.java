@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.INTERCHANGE;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -78,15 +79,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     public void start() {
         logger.info("start");
         if (graphDatabase.isCleanDB()) {
-            logger.info("Rebuild of TimeTable graph DB for " + config.getDbPath());
+            logger.info("Rebuild of TimeTable graph DB for " + graphDBConfig.getDbPath());
             if (graphFilter.isFiltered()) {
                 logger.warn("Graph is filtered " + graphFilter);
             }
             buildGraphwithFilter(graphDatabase, builderCache);
-            logger.info("Graph rebuild is finished for " + config.getDbPath());
+            logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
         } else {
-            logger.info("No rebuild of graph, using existing data");
-            //nodeTypeRepository.populateNodeLabelMap(graphDatabase);
+            logger.info("No rebuild of graph");
         }
     }
 
@@ -367,6 +367,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         IdFor<RouteStation> routeStationId = RouteStation.createId(station.getId(), route.getId());
         Node routeStationNode = routeBuilderCache.getRouteStation(tx, routeStationId);
 
+        if (isInterchange) {
+            routeStationNode.addLabel(INTERCHANGE);
+        }
+
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
         if (pickup && !routeBuilderCache.hasBoarding(platformOrStation.getId(), routeStationNode.getId())) {
             createBoarding(routeBuilderCache, stopCall, route, station, isInterchange, platformOrStation, routeStationId,
@@ -398,7 +402,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createBoarding(GraphBuilderCache routeBuilderCache, StopCall stop, Route route, Station station,
-                                boolean isInterchange, Node platformOrStation, IdFor<RouteStation> routeStationId, Node routeStationNode) {
+                                boolean isInterchange, Node platformOrStation, IdFor<RouteStation> routeStationId,
+                                Node routeStationNode) {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
         int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
         Relationship boardRelationship = createRelationship(platformOrStation, routeStationNode, boardType);

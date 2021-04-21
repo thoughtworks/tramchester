@@ -44,7 +44,8 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
         MINUTE,
         VERSION,
         NEIGHBOURS_ENABLED,
-        COMPOSITES_ADDED;
+        COMPOSITES_ADDED,
+        INTERCHANGE;
 
         public static Labels forMode(TransportMode mode) {
             return switch (mode) {
@@ -73,14 +74,14 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    protected final GraphDBConfig config;
+    protected final GraphDBConfig graphDBConfig;
     protected final GraphFilter graphFilter;
     protected final GraphBuilderCache builderCache;
 
     protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, TramchesterConfig config,
                            GraphBuilderCache builderCache) {
         super(graphDatabase);
-        this.config = config.getGraphDBConfig();
+        this.graphDBConfig = config.getGraphDBConfig();
         this.graphFilter = graphFilter;
         this.builderCache = builderCache;
     }

@@ -43,7 +43,6 @@ public class MapPathToLocations {
             results.add(stationRepository.getStationById(stationId));
         }
         if (node.hasLabel(ROUTE_STATION)) {
-            // TODO this should be route station, not station
             IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
             results.add(stationRepository.getStationById(stationId));
         } else if (node.hasLabel(QUERY_NODE)) {

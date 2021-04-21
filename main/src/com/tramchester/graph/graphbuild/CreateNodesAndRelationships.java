@@ -21,7 +21,6 @@ public class CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(CreateNodesAndRelationships.class);
 
     protected final GraphDatabase graphDatabase;
-    //protected final NodeTypeRepository nodeTypeRepository;
 
     private int numberNodes;
     private int numberRelationships;
@@ -44,18 +43,12 @@ public class CreateNodesAndRelationships {
 
     protected Node createGraphNode(Transaction tx, GraphBuilder.Labels label) {
         numberNodes++;
-        Node node = graphDatabase.createNode(tx, label);
-//        if (nodeTypeRepository.shouldContain(label)) {
-//            nodeTypeRepository.put(node.getId(), label);
-//        }
-        return node;
+        return graphDatabase.createNode(tx, label);
     }
 
     private Node createGraphNode(Transaction tx, Set<GraphBuilder.Labels> labels) {
         numberNodes++;
-        Node node = graphDatabase.createNode(tx, labels);
-//        nodeTypeRepository.put(node.getId(), labels);
-        return node;
+        return graphDatabase.createNode(tx, labels);
     }
 
     protected Relationship createRelationship(Node start, Node end, TransportRelationshipTypes relationshipType) {

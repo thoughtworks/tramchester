@@ -15,6 +15,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
@@ -82,6 +83,15 @@ public class MinuteState extends TraversalState {
         throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
+    @Override
+    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node node, JourneyState journeyState, int cost) {
+        // route station nodes may also have INTERCHANGE label set
+        if (nodeLabels.contains(GraphBuilder.Labels.ROUTE_STATION)) {
+            return toRouteStation(node, cost);
+        }
+        throw new UnexpectedNodeTypeException(node, "Unexpected node types: "+nodeLabels);
+    }
+
     private TraversalState toRouteStation(Node routeStationNode, int cost) {
         Iterable<Relationship> allDeparts = routeStationNode.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
 
@@ -100,6 +110,7 @@ public class MinuteState extends TraversalState {
 
         // now add outgoing to platforms
         if (interchangesOnly) {
+            // TODO optimise only do this if interchange label is present on the node
             Iterable<Relationship> interchanges = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
             interchanges.forEach(routeStationOutbounds::add);
         } else {

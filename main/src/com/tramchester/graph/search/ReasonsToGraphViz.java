@@ -96,12 +96,14 @@ public class ReasonsToGraphViz {
         StringBuilder ids = new StringBuilder();
         node.getLabels().forEach(label -> {
             GraphBuilder.Labels graphLabel = GraphBuilder.Labels.valueOf(label.name());
-            GraphPropertyKey key = GraphPropertyKey.keyForLabel(graphLabel);
-            String value = node.getProperty(key.getText()).toString();
-            if (ids.length()>0) {
-                ids.append(System.lineSeparator());
+            if (!graphLabel.equals(GraphBuilder.Labels.INTERCHANGE)) {
+                GraphPropertyKey key = GraphPropertyKey.keyForLabel(graphLabel);
+                String value = node.getProperty(key.getText()).toString();
+                if (ids.length() > 0) {
+                    ids.append(System.lineSeparator());
+                }
+                ids.append(value);
             }
-            ids.append(value);
             if (GraphBuilder.Labels.isStation(graphLabel)) {
                 IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
                 Station station = stationRepository.getStationById(stationIdFrom);

@@ -65,12 +65,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logger.info("start");
         logger.info("Data source name " + transportData.getSourceName());
         if (graphDatabase.isCleanDB()) {
-            logger.info("Rebuild of Stations, RouteStations and Links graph DB for " + config.getDbPath());
+            logger.info("Rebuild of Stations, RouteStations and Links graph DB for " + graphDBConfig.getDbPath());
             if (graphFilter.isFiltered()) {
                 logger.warn("Graph is filtered " + graphFilter);
             }
             buildGraphwithFilter(graphDatabase, builderCache);
-            logger.info("Graph rebuild is finished for " + config.getDbPath());
+            logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
         }

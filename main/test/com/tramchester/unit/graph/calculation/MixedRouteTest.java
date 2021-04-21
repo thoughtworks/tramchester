@@ -129,13 +129,11 @@ class MixedRouteTest {
             TransportStage<?,?> last = stages.get(1);
             assertEquals(STATION_FOUR, last.getLastStation().forDTO(), journey.toString());
         });
-
     }
 
     @Test
     void createDiagramOfTestNetwork() {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        //DiagramCreator creator = new DiagramCreator(database, ready);
         Assertions.assertAll(() -> creator.create(Path.of("mixed_test_network.dot"), transportData.getFirst(),
                 Integer.MAX_VALUE, false));
     }
