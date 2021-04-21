@@ -2,6 +2,8 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
@@ -24,30 +26,31 @@ public class RouteCostCalculator {
     private final GraphDatabase graphDatabaseService;
 
     @Inject
-    public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService) {
+    public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService,
+                               StagedTransportGraphBuilder.Ready ready) {
         this.graphQuery = graphQuery;
         this.graphDatabaseService = graphDatabaseService;
     }
 
     public int getApproxCostBetween(Transaction txn, Station station, Node endNode) {
-        Node startNode = graphQuery.getStationNode(txn, station);
+        Node startNode = graphQuery.getStationOrGrouped(txn, station);
         return getApproxCostBetween(txn, startNode, endNode);
     }
 
     // startNode must have been found within supplied txn
     public int getApproxCostBetween(Transaction txn, Node startNode, Station endStation) {
-        Node endNode = graphQuery.getStationNode(txn, endStation);
+        Node endNode = graphQuery.getStationOrGrouped(txn, endStation);
         return getApproxCostBetween(txn, startNode, endNode);
     }
 
     public int getApproxCostBetween(Transaction txn, Station startStation, Station endStation) {
-        Node startNode = graphQuery.getStationNode(txn, startStation);
+        Node startNode = graphQuery.getStationOrGrouped(txn, startStation);
         if (startNode==null) {
-            throw new RuntimeException("Could not find start node for " + startStation.getId());
+            throw new RuntimeException("Could not find start node for graph id " + startStation.getId().getGraphId());
         }
-        Node endNode = graphQuery.getStationNode(txn, endStation);
+        Node endNode = graphQuery.getStationOrGrouped(txn, endStation);
         if (endNode==null) {
-            throw new RuntimeException("Could not find end node for " + endStation.getId());
+            throw new RuntimeException("Could not find end node for graph id" + endStation.getId().getGraphId());
         }
 
         return getApproxCostBetween(txn, startNode, endNode);
@@ -55,7 +58,6 @@ public class RouteCostCalculator {
 
     // startNode and endNode must have been found within supplied txn
     public int getApproxCostBetween(Transaction txn, Node startNode, Node endNode) {
-        // follow the ON_ROUTE relationships to quickly find a route without any timing information or check
         PathExpander<Double> forTypesAndDirections = fullExpanderForRoutes();
 
         EvaluationContext context = graphDatabaseService.createContext(txn);

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class InterchangeRepositoryTrainTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository interchangeRepository;

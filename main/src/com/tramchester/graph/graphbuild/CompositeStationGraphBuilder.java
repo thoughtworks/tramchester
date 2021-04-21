@@ -88,7 +88,8 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
             return;
         }
 
-        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger,"adding composite stations")) {
+        final String logMessage = "adding " + allComposite.size() + " composite stations for " + mode;
+        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
             Transaction txn = timedTransaction.transaction();
             allComposite.stream().filter(graphFilter::shouldInclude).
                 filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).

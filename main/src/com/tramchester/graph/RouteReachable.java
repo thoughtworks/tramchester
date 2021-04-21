@@ -49,11 +49,13 @@ public class RouteReachable {
      * @return true if an interchange is reachable
      */
     public boolean isInterchangeReachableOnRoute(RouteStation start) {
-        logger.debug(format("Checking interchange reachability from %s", start.getStationId()));
 
         // TODO cache the interchange list?
         IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(start.getTransportMode());
-        List<String> interchangeIds = interchanges.stream().map(IdFor::getGraphId).collect(Collectors.toList());
+        Set<String> interchangeIds = interchanges.stream().map(IdFor::getGraphId).collect(Collectors.toSet());
+
+        logger.debug(format("Checking interchange reachability from %s to %s interchages",
+                start.getStationId(), interchangeIds.size()));
 
         boolean result;
         try (Transaction txn = graphDatabaseService.beginTx()) {
@@ -89,7 +91,7 @@ public class RouteReachable {
         return result;
     }
 
-    private boolean interchangeReachable(Transaction txn, RouteStation start, List<String> interchangeIds) {
+    private boolean interchangeReachable(Transaction txn, RouteStation start, Set<String> interchangeIds) {
         Map<String, Object> params = new HashMap<>();
         params.put("route_station_id", start.getId().getGraphId());
         params.put("route_id", start.getRoute().getId().getGraphId());

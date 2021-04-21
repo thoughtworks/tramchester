@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import static com.tramchester.testSupport.TestEnv.ArrivaTrainsWales;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TransportDataFromFilesTrainTest {
 
     private static ComponentContainer componentContainer;
@@ -55,8 +54,8 @@ class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldHaveExpectedNumbersForTrain() {
-        assertEquals(2571,transportData.getStations().size());
-        assertEquals(3509, transportData.getRoutes().size());
+        assertEquals(2572,transportData.getStations().size());
+        assertEquals(3529, transportData.getRoutes().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -88,7 +87,7 @@ class TransportDataFromFilesTrainTest {
         Collection<Route> results = transportData.getRoutes();
         long walesTrainRoutes = results.stream().filter(route -> route.getAgency().equals(ArrivaTrainsWales)).count();
 
-        assertEquals(237, walesTrainRoutes);
+        assertEquals(235, walesTrainRoutes);
     }
 
     @Test

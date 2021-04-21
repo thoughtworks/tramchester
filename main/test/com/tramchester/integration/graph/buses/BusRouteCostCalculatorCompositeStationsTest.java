@@ -49,8 +49,6 @@ class BusRouteCostCalculatorCompositeStationsTest {
         stockportBusStation = stationRepository.findByName("Stockport Bus Station");
         shudehillInterchange = stationRepository.findByName("Shudehill Interchange");
 
-        // force creation of db nodes
-        componentContainer.get(CompositeStationGraphBuilder.class);
         routeCost = componentContainer.get(RouteCostCalculator.class);
 
         txn = database.beginTx();
@@ -72,21 +70,21 @@ class BusRouteCostCalculatorCompositeStationsTest {
     @BusTest
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        Assertions.assertEquals(37, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
-        Assertions.assertEquals(39, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
+        Assertions.assertEquals(36, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
+        Assertions.assertEquals(40, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
     }
 
     @BusTest
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
         Assertions.assertEquals(55, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
-        Assertions.assertEquals(55, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
+        Assertions.assertEquals(56, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
     }
 
     @BusTest
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        Assertions.assertEquals(37, getApproxCostBetween(shudehillInterchange, stockportBusStation));
+        Assertions.assertEquals(36, getApproxCostBetween(shudehillInterchange, stockportBusStation));
         Assertions.assertEquals(38, getApproxCostBetween(stockportBusStation, shudehillInterchange));
     }
 

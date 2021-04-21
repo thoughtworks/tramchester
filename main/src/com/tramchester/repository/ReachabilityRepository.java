@@ -95,7 +95,6 @@ public class ReachabilityRepository {
             reachableFrom.clear();
         }
 
-
         public void populateFor(StationRepository stationRepository, TransportMode mode, GraphFilter graphFilter, RouteReachable routeReachable) {
 
             logger.info("Find interchange reachable for " + mode);

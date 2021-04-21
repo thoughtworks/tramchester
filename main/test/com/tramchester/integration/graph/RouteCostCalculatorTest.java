@@ -19,6 +19,7 @@ class RouteCostCalculatorTest {
 
     private GraphDatabase database;
     private RouteCostCalculator routeCostCalc;
+    private Transaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -34,36 +35,33 @@ class RouteCostCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-
         routeCostCalc = componentContainer.get(RouteCostCalculator.class);
         database = componentContainer.get(GraphDatabase.class);
+        txn = database.beginTx();
+    }
+
+    @AfterEach
+    void afterEachTestHasRun() {
+        txn.close();
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyNavRoad() {
+        assertEquals(5, getApproxCostBetween(txn, TramStations.NavigationRoad, TramStations.Altrincham));
+        assertEquals(6, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.NavigationRoad));
 
-        try(Transaction txn = database.beginTx()) {
-            assertEquals(5, getApproxCostBetween(txn, TramStations.NavigationRoad, TramStations.Altrincham));
-            assertEquals(6, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.NavigationRoad));
-        }
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsAltyBury() {
-
-        try(Transaction txn = database.beginTx()) {
-            assertEquals(64, getApproxCostBetween(txn, TramStations.Bury, TramStations.Altrincham));
-            assertEquals(65, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
-        }
+        assertEquals(64, getApproxCostBetween(txn, TramStations.Bury, TramStations.Altrincham));
+        assertEquals(65, getApproxCostBetween(txn, TramStations.Altrincham, TramStations.Bury));
     }
 
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() {
-
-        try(Transaction txn = database.beginTx()) {
-            assertEquals(61, getApproxCostBetween(txn, TramStations.MediaCityUK, TramStations.ManAirport));
-            assertEquals(61, getApproxCostBetween(txn, TramStations.ManAirport, TramStations.MediaCityUK));
-        }
+        assertEquals(61, getApproxCostBetween(txn, TramStations.MediaCityUK, TramStations.ManAirport));
+        assertEquals(61, getApproxCostBetween(txn, TramStations.ManAirport, TramStations.MediaCityUK));
     }
 
     private int getApproxCostBetween(Transaction txn, TramStations start, TramStations dest) {

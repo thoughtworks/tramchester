@@ -46,7 +46,7 @@ class RouteEndRepositoryBusTest {
 
         assertFalse(result.contains(StringIdFor.createId("2500LAA15791"))); // Accrington, opp Infant Street
 
-        assertEquals(1085, result.size());
+        assertEquals(1079, result.size());
 
     }
 }

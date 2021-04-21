@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.CompositeStationRepository;
@@ -118,6 +119,16 @@ class CompositeRouteTest {
         Assertions.assertEquals(1, journeys.size());
 
         journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
+    }
+
+    @Test
+    void shouldHaveRouteCosts() {
+        RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
+        assertEquals(43, routeCostCalculator.getApproxCostBetween(txn, compositeStation, transportData.getLast()));
+        assertEquals(43, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
+
+        assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), compositeStation));
+        assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, compositeStation, transportData.getFirst()));
     }
 
     @Test
