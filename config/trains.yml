@@ -33,6 +33,12 @@ remoteSources:
     dataCheckURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
     dataPath: data/trains
     filename: gb-rail-latest.zip
+  -
+    name: naptan
+    dataURL: https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv
+    dataCheckURL: ""
+    dataPath: data/naptan
+    filename: naptan_csv.zip
 bounds:
   minEastings: 147588
   minNorthings: 30599

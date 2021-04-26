@@ -2,6 +2,7 @@ package com.tramchester.unit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
+import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
@@ -18,8 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigMismatchTest {
 
@@ -43,6 +43,15 @@ class ConfigMismatchTest {
 
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
+
+        validateCoreParameters(appConfig, testConfig);
+    }
+
+    @Test
+    void shouldHaveKeyParametersSameForBusIntegrationTests() throws IOException, ConfigurationException {
+
+        AppConfiguration appConfig = loadConfigFromFile("buses.yml");
+        IntegrationBusTestConfig testConfig = new IntegrationBusTestConfig();
 
         validateCoreParameters(appConfig, testConfig);
     }
@@ -82,9 +91,14 @@ class ConfigMismatchTest {
         assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory());
 
         LiveDataConfig expectedLiveDataConfig = expected.getLiveDataConfig();
-        LiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
-        assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
-        assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
+
+        if (expectedLiveDataConfig!=null) {
+            LiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
+            assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
+            assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
+        } else {
+            assertNull(testConfig.getLiveDataConfig());
+        }
 
         List<GTFSSourceConfig> expectedgtfsDataSource = expected.getGTFSDataSource();
         List<GTFSSourceConfig> foundgtfsDataSource = testConfig.getGTFSDataSource();

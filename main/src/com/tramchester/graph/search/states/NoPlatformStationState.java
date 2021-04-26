@@ -88,7 +88,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
         if (nodeLabels.contains(GraphBuilder.Labels.ROUTE_STATION)) {
             return toRouteStation(next, journeyState, cost);
         }
-        
+
         // TODO this is not called any more
         // return builders.noPlatformStation.fromNeighbour(this, next, cost);
 

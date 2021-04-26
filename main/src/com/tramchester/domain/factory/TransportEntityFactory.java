@@ -27,7 +27,7 @@ public class TransportEntityFactory {
     }
 
     public Agency createUnknownAgency(DataSourceID dataSourceID, IdFor<Agency> agencyId) {
-        return new Agency(dataSourceID, agencyId.getGraphId(), "UNKNOWN");
+        return new Agency(dataSourceID, agencyId, "UNKNOWN");
     }
 
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {

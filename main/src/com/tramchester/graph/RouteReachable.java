@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteCallingStations;
 import com.tramchester.repository.StationRepository;
@@ -27,17 +28,15 @@ public class RouteReachable {
     private static final Logger logger = LoggerFactory.getLogger(RouteReachable.class);
 
     private final GraphDatabase graphDatabaseService;
-    private final InterchangeRepository interchangeRepository;
     private final StationRepository stationRepository;
     private final GraphQuery graphQuery;
     private final RouteCallingStations routeCallingStations;
 
     @Inject
-    public RouteReachable(GraphDatabase graphDatabaseService,
-                          InterchangeRepository interchangeRepository, StationRepository stationRepository,
-                          GraphQuery graphQuery, RouteCallingStations routeCallingStations) {
+    public RouteReachable(GraphDatabase graphDatabaseService, StationRepository stationRepository,
+                          GraphQuery graphQuery, RouteCallingStations routeCallingStations,
+                          StagedTransportGraphBuilder.Ready ready) {
         this.graphDatabaseService = graphDatabaseService;
-        this.interchangeRepository = interchangeRepository;
         this.stationRepository = stationRepository;
         this.graphQuery = graphQuery;
         this.routeCallingStations = routeCallingStations;
@@ -49,17 +48,11 @@ public class RouteReachable {
      * @return true if an interchange is reachable
      */
     public boolean isInterchangeReachableOnRoute(RouteStation start) {
-
-        // TODO cache the interchange list?
-        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(start.getTransportMode());
-        Set<String> interchangeIds = interchanges.stream().map(IdFor::getGraphId).collect(Collectors.toSet());
-
-        logger.debug(format("Checking interchange reachability from %s to %s interchages",
-                start.getStationId(), interchangeIds.size()));
+        logger.debug("Checking interchange reachability from " + start.getStationId());
 
         boolean result;
         try (Transaction txn = graphDatabaseService.beginTx()) {
-            result = interchangeReachable(txn, start, interchangeIds);
+            result = interchangeReachable(txn, start);
         }
 
         String verb = result? " Can " : " Cannot ";
@@ -91,16 +84,14 @@ public class RouteReachable {
         return result;
     }
 
-    private boolean interchangeReachable(Transaction txn, RouteStation start, Set<String> interchangeIds) {
+    private boolean interchangeReachable(Transaction txn, RouteStation start) {
         Map<String, Object> params = new HashMap<>();
         params.put("route_station_id", start.getId().getGraphId());
         params.put("route_id", start.getRoute().getId().getGraphId());
-        params.put("interchanges", interchangeIds);
 
-        String query = "MATCH (begin:ROUTE_STATION)-[:ON_ROUTE*0..]->(dest:ROUTE_STATION) " +
+        String query = "MATCH (begin:ROUTE_STATION)-[:ON_ROUTE*0..]->(dest:INTERCHANGE) " +
                 "WHERE (begin.route_station_id = $route_station_id) " +
                 "AND (dest.route_id = $route_id) " +
-                " AND (dest.station_id IN $interchanges) " +
                 "RETURN DISTINCT dest";
 
         boolean foundRoute;

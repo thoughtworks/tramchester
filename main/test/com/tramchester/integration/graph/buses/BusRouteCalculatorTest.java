@@ -17,6 +17,7 @@ import com.tramchester.testSupport.BusTest;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorTest {
@@ -110,6 +111,20 @@ class BusRouteCalculatorTest {
     private long countNonConnectStages(Journey journey) {
         return journey.getStages().stream().
                 filter(stage -> stage.getMode().getTransportMode() != TransportMode.Connect).count();
+    }
+
+    @Test
+    void shouldFindJourneyInFutureCorrectly() {
+        // attempt to repro seen in ui where zero journeys
+        CompositeStation start = compositeStationRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
+        CompositeStation end = compositeStationRepository.findByName("Altrincham Interchange");
+
+        JourneyRequest journeyRequest = new JourneyRequest(LocalDate.of(2021, 4, 21),
+                TramTime.of(8,19), false, 3, maxJourneyDuration);
+
+        @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
+        assertFalse(results.isEmpty());
+        fail("have correct times and stages for grouped stations");
     }
 
     @Test

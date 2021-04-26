@@ -63,16 +63,9 @@ public class StationLinksResource {
 
         List<StationLinkDTO> results = allLinks.stream().
                 filter(StationLink::hasValidLatlongs).
-                map(this::create).collect(Collectors.toList());
+                map(StationLinkDTO::create).collect(Collectors.toList());
 
         return Response.ok(results).build();
-    }
-
-    private StationLinkDTO create(StationLink link) {
-        StationPair stationPair = link.getStations();
-        StationRefWithPosition begin = new StationRefWithPosition(stationPair.getBegin());
-        StationRefWithPosition end = new StationRefWithPosition(stationPair.getEnd());
-        return new StationLinkDTO(begin, end, Collections.singleton(Tram));
     }
 
 }

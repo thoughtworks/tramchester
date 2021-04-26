@@ -74,10 +74,17 @@ class TransportDataFromFilesBusTest {
     }
 
     @Test
-    void shouldGetBusRoutes() {
+    void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
         assertTrue(withinNPercent(300, gmsRoutes, 0.1F));
+    }
+
+    @Test
+    void shouldGetOnlyBusRoutes() {
+        Collection<Route> results = transportData.getRoutes();
+        long notBus = results.stream().filter(route -> !route.getTransportMode().equals(TransportMode.Bus)).count();
+        assertEquals(0, notBus);
     }
 
     @Test

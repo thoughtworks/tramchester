@@ -17,7 +17,7 @@ secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: buses.db
-  neo4jPagecacheMemory: 1300m
+  neo4jPagecacheMemory: 300m
 stationClosures: []
 gtfsSourceConfig:
   -
@@ -48,19 +48,19 @@ bounds:
 instanceDataUrl: http://169.254.169.254
 loadPostcodes: true
 createNeighbours: false
-distanceToNeighboursKM: 0.25
+distanceToNeighboursKM: 0.4
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
 removeRouteNameSuffix: true
-maxWait: 15
-maxInitialWait: 20
+maxWait: 35
+maxInitialWait: 45
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5
 maxWalkingConnections: 3
-maxJourneyDuration: 170
-nearestStopRangeKM: 1.6
-nearestStopForWalkingRangeKM: 1
+maxJourneyDuration: 180
+nearestStopRangeKM: 1.0
+nearestStopForWalkingRangeKM: 0.5
 numOfNearestStopsToOffer: 5
 numOfNearestStopsForWalking: 50
 walkingMPH: 3.0

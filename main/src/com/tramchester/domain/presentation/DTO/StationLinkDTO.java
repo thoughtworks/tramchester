@@ -1,8 +1,13 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.Collections;
 import java.util.Set;
+
+import static com.tramchester.domain.reference.TransportMode.Tram;
 
 public class StationLinkDTO {
     private StationRefWithPosition begin;
@@ -49,4 +54,10 @@ public class StationLinkDTO {
         return result;
     }
 
+    public static StationLinkDTO create(StationLink stationLink) {
+        StationPair stationPair = stationLink.getStations();
+        StationRefWithPosition begin = new StationRefWithPosition(stationPair.getBegin());
+        StationRefWithPosition end = new StationRefWithPosition(stationPair.getEnd());
+        return new StationLinkDTO(begin, end, stationLink.getModes());
+    }
 }

@@ -111,7 +111,9 @@ class RouteReachableBusTest {
 
             IdSet<Station> result = reachable.getReachableStationsOnRoute(routeStation);
 
-            assertEquals(82, result.size());
+            assertTrue(result.size()>80);
+            assertTrue(result.size()<85); // diff routes have diff calling points
+
         });
 
     }

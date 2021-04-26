@@ -83,6 +83,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
+    public boolean getLoadPostcodes() {
+        return true;
+    }
+
+    @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return Arrays.asList(remoteDataSourceConfig, remoteNaptanConfig);
     }

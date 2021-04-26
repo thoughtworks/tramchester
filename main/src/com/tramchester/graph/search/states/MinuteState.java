@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.INTERCHANGE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
@@ -110,9 +111,10 @@ public class MinuteState extends TraversalState {
 
         // now add outgoing to platforms
         if (interchangesOnly) {
-            // TODO optimise only do this if interchange label is present on the node
-            Iterable<Relationship> interchanges = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
-            interchanges.forEach(routeStationOutbounds::add);
+            if (routeStationNode.hasLabel(INTERCHANGE)) {
+                Iterable<Relationship> interchanges = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
+                interchanges.forEach(routeStationOutbounds::add);
+            }
         } else {
             allDeparts.forEach(routeStationOutbounds::add);
         }

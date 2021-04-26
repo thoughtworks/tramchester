@@ -60,11 +60,17 @@ class FindStationLinksTest {
 
         assertFalse(results.contains(createLink(StPetersSquare, Shudehill)));
         assertFalse(results.contains(createLink(Shudehill, StPetersSquare)));
-
     }
 
-    private StationLink createLink(TramStations stPetersSquare, TramStations piccadillyGardens) {
-        return new StationLink(TramStations.of(stPetersSquare), TramStations.of(piccadillyGardens),
+    @Test
+    void shouldHaveCorrectTransportMode() {
+        Set<StationLink> forTrams = findStationLinks.findFor(Tram);
+        long notTram = forTrams.stream().filter(link -> !link.getModes().contains(Tram)).count();
+        assertEquals(0, notTram);
+    }
+
+    private StationLink createLink(TramStations stationA, TramStations stationB) {
+        return new StationLink(TramStations.of(stationA), TramStations.of(stationB),
                 Collections.singleton(Tram));
     }
 
