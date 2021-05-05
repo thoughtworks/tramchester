@@ -118,7 +118,7 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
         final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false, 3,
                 maxJourneyDuration);
-        request.setDiag(true);
+        //request.setDiag(true);
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Deansgate, nearAltrincham, request, 2);
 

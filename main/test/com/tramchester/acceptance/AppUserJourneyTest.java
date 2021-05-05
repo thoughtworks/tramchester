@@ -51,7 +51,6 @@ class AppUserJourneyTest extends UserJourneyTest {
     private final String deansgate = TramStations.Deansgate.getName();
 
     // useful consts, keep around as can swap when timetable changes
-
     // No longer running
 //    private static final String altyToBuryClass = "RouteClassGreenLine";
 //    private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";

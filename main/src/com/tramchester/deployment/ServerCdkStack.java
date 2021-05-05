@@ -98,7 +98,7 @@ public class ServerCdkStack extends Stack {
     private IRole getRole(ServerCdkStack scope) {
         String accountid = getEnvOrStop("CDK_DEFAULT_ACCOUNT");
         String id = getPhysicalId("010createInstanceIAMRole", "InstanceRole");
-        logger.info("Got phsical id for instance role: " + id);
+        logger.info("Got physical id for instance role: " + id);
         String arn = String.format("arn:aws:iam::%s:role/tramchester/%s/%s", accountid, cfnEnv, id);
         logger.info("Trying arn " + arn);
         return Role.fromRoleArn(scope, "role", arn);

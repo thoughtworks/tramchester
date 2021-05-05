@@ -138,7 +138,7 @@ class RouteCalculatorSubGraphTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
                 maxJourneyDuration);
-        journeyRequest.setDiag(true);
+        //journeyRequest.setDiag(true);
         final Station station = stationRepository.getStationById(TramStations.Pomona.getId());
         Set<Journey> results = testFacade.quickestRouteForLocation(station,
                 TestEnv.nearStPetersSquare,

@@ -171,13 +171,13 @@ public class TestEnv {
         }
         Path path = Paths.get(value).toAbsolutePath();
         if (Files.exists(path)) {
-            logger.info(format("Env var %s set to '%s' resulting in path '%s'", envVarName, value, path.toString()));
+            logger.info(format("Env var %s set to '%s' resulting in path '%s'", envVarName, value, path));
         }
         else {
-            logger.error(format("Env var %s set to '%s' resulting in MISSING path '%s'", envVarName, value, path.toString()));
+            logger.error(format("Env var %s set to '%s' resulting in MISSING path '%s'", envVarName, value, path));
         }
         if (Files.isDirectory(path)) {
-            logger.error(format("Env var %s set to '%s' resulting in DIRECTORY path '%s'", envVarName, value, path.toString()));
+            logger.error(format("Env var %s set to '%s' resulting in DIRECTORY path '%s'", envVarName, value, path));
             return null;
         }
         return path;
