@@ -24,8 +24,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalulatorTestKeyRoutes {
@@ -56,7 +55,7 @@ class RouteCalulatorTestKeyRoutes {
         maxJourneyDuration = testConfig.getMaxJourneyDuration();
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
                 maxJourneyDuration);
-        combinations = new RouteCalculationCombinations(componentContainer, testConfig);
+        combinations = new RouteCalculationCombinations(componentContainer);
     }
 
     @Test
@@ -102,7 +101,9 @@ class RouteCalulatorTestKeyRoutes {
                 combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
         results.forEach((route, journey) -> journey.ifPresent(allResults::add));
 
-        double longest = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare).get();
+        final Optional<Integer> max = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare);
+        assertTrue(max.isPresent());
+        double longest = max.get();
         assertEquals(testConfig.getMaxJourneyDuration(), longest, 0.001);
 
     }

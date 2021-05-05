@@ -43,7 +43,7 @@ class RouteCalculatorTestAllJourneys {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        combinations = new RouteCalculationCombinations(componentContainer, testConfig);
+        combinations = new RouteCalculationCombinations(componentContainer);
     }
 
     @Test

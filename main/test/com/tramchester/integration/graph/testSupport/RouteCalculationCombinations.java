@@ -1,13 +1,12 @@
 package com.tramchester.integration.graph.testSupport;
 
 import com.tramchester.ComponentContainer;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
@@ -15,7 +14,6 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.domain.StationIdPair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
@@ -36,7 +34,7 @@ public class RouteCalculationCombinations {
     private final InterchangeRepository interchangeRepository;
     private final RouteEndRepository routeEndRepository;
 
-    public RouteCalculationCombinations(ComponentContainer componentContainer, TramchesterConfig config) {
+    public RouteCalculationCombinations(ComponentContainer componentContainer) {
         this.database = componentContainer.get(GraphDatabase.class);
         this.calculator = componentContainer.get(RouteCalculator.class);
         this.stationRepository = componentContainer.get(StationRepository.class);

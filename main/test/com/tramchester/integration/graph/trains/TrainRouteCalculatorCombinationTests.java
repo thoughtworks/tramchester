@@ -50,7 +50,7 @@ class TrainRouteCalculatorCombinationTests {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
-        combinations = new RouteCalculationCombinations(componentContainer, config);
+        combinations = new RouteCalculationCombinations(componentContainer);
     }
 
     @AfterEach
