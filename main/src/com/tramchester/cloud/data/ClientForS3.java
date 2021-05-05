@@ -5,11 +5,9 @@ import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
-import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
@@ -165,7 +163,6 @@ public class ClientForS3 {
         }
     }
 
-    @NotNull
     private String getETagClean(GetObjectResponse response) {
         String remote = response.eTag();
         if (remote.startsWith("\"")) {

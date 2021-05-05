@@ -26,7 +26,7 @@ public enum BusStations implements TestStations {
             new LatLong(53.30245, -2.37551)),
     BuryInterchange("1800BYIC0C1", "Bury", "Bury Interchange",
             new LatLong(53.59134, -2.29706)),
-    PiccadilyStationStopA("1800EB01201", "Manchester City Centre", "Piccadilly Station",
+    PiccadilyStationStopA("1800EB01201", "Manchester City Centre", "Manchester Piccadilly Rail Station",
             new LatLong(53.47683, -2.23146)),
     PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens", "Piccadilly Gardens",
             new LatLong(53.48063,-2.23825)),

@@ -63,7 +63,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedNumbersForBus() {
-        assertEquals(40, transportData.getAgencies().size());
+        assertEquals(39, transportData.getAgencies().size());
         assertTrue(withinNPercent(1300, transportData.getRoutes().size(), 0.1F));
         int size = transportData.getStations().size();
         assertTrue(size > 15400, "big change");

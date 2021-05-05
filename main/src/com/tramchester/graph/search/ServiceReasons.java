@@ -4,7 +4,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.CompositeStationRepository;
-import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -146,7 +145,6 @@ public class ServiceReasons {
         }
     }
 
-    @NotNull
     private String createFilename() {
         String postfix = journeyRequest.getUid().toString();
         String dateString = providesLocalNow.getDateTime().toLocalDate().toString();

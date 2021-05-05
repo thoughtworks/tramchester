@@ -3,14 +3,13 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.configuration.ExternalSettings;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.configuration.SettingValueParsers;
@@ -206,7 +205,6 @@ public class GraphDatabase implements DatabaseEventListener {
         return configValue != dbValue;
     }
 
-    @NotNull
     private List<Node> getNodes(Transaction transaction, GraphBuilder.Labels label) {
         ResourceIterator<Node> query = findNodes(transaction, label);
         List<Node> nodes = query.stream().collect(Collectors.toList());

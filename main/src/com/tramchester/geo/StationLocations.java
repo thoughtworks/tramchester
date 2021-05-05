@@ -117,13 +117,12 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    @NotNull
-    public List<Station> nearestStationsSorted(@NotNull GridPosition gridPosition, int maxToFind, double rangeInKM) {
+    public List<Station> nearestStationsSorted( GridPosition gridPosition, int maxToFind, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
 
         Stream<Map.Entry<Station, GridPosition>> unsorted = getNearbyStream(gridPosition, rangeInMeters);
 
-        @NotNull List<Station> stationList;
+         List<Station> stationList;
         if (maxToFind > 1) {
             // only sort if more than one, as sorting potentially expensive
             stationList = unsorted.
@@ -152,14 +151,14 @@ public class StationLocations implements StationLocationsRepository {
         return result;
     }
 
-    @NotNull
-    private Stream<Map.Entry<Station, GridPosition>> getNearbyStream(@NotNull GridPosition otherPosition, long rangeInMeters) {
+
+    private Stream<Map.Entry<Station, GridPosition>> getNearbyStream( GridPosition otherPosition, long rangeInMeters) {
         return getNearbyStreamSquare(otherPosition, rangeInMeters).
                         filter(entry -> GridPositions.withinDist(otherPosition, entry.getValue(), rangeInMeters));
     }
 
-    @NotNull
-    private Stream<Map.Entry<Station, GridPosition>> getNearbyStreamSquare(@NotNull GridPosition otherPosition,
+
+    private Stream<Map.Entry<Station, GridPosition>> getNearbyStreamSquare( GridPosition otherPosition,
                                                                               long rangeInMeters) {
         if (positions.isEmpty()) {
             logger.warn("No positions present");
@@ -198,7 +197,7 @@ public class StationLocations implements StationLocationsRepository {
                 filter(BoundingBoxWithStations::hasStations);
     }
 
-    @NotNull
+
     public Stream<BoundingBox> getBoundingBoxsFor(long gridSize) {
         // addresses performance and memory usages on very large grids
         return getEastingsStream(gridSize).

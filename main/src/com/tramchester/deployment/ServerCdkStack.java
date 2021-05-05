@@ -1,7 +1,6 @@
 package com.tramchester.deployment;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awscdk.core.*;
@@ -79,11 +78,10 @@ public class ServerCdkStack extends Stack {
         Tags.of(instance).add("CFN_ASSIST_TYPE", "web");
     }
 
-    @NotNull
     private IVpc getVpc() {
-        @NotNull VpcLookupOptions lookupOptions = new VpcLookupOptions() {
+        VpcLookupOptions lookupOptions = new VpcLookupOptions() {
             @Override
-            public @NotNull Map<String, String> getTags() {
+            public Map<String, String> getTags() {
                 HashMap<String, String> tags = new HashMap<>();
                 tags.put("CFN_ASSIST_ENV", cfnEnv);
                 tags.put("CFN_ASSIST_PROJECT",cfnProject);
@@ -122,7 +120,7 @@ public class ServerCdkStack extends Stack {
         String subnetId = getPhysicalId("001subnets", "webSubnetZoneA");
 
         // workaround bug in Subnet.fromSubnetId https://github.com/aws/aws-cdk/issues/8301
-        @NotNull SubnetAttributes attributes = SubnetAttributes.builder().
+        SubnetAttributes attributes = SubnetAttributes.builder().
                 subnetId(subnetId).
                 availabilityZone("eu-west-1a").build();
         ISubnet webSubnetA = Subnet.fromSubnetAttributes(this, "webSubnetA", attributes);
@@ -138,7 +136,7 @@ public class ServerCdkStack extends Stack {
         return cfnProject+cfnEnv+shortName;
     }
 
-    private String createUserData(@NotNull String webDoneWaitHandle, String bucketName) {
+    private String createUserData(String webDoneWaitHandle, String bucketName) {
         String baseUrl = "https://s3-eu-west-1.amazonaws.com";
         return "#include"+"\n"+
                 baseUrl + "/" + bucketName +  "/" + releaseNumber + "/cloudInitAWSLinux.txt" + "\n" +

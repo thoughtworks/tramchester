@@ -56,7 +56,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataMessagesCategory
-    void shouldMessagesForStation() {
+    void shouldHaveMessagesForStation() {
         Response response = IntegrationClient.getApiResponse(
                 appExtension, String.format("departures/station/%s", stationWithNotes.forDTO()));
         assertEquals(200, response.getStatus());
