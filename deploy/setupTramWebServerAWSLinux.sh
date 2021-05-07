@@ -63,7 +63,7 @@ chown -R ec2-user .
 
 # start 
 logger Start tramchester server
-export JAVA_OPTS="-Xmx750m"
+export JAVA_OPTS="-Xmx500m"
 sudo -E -u ec2-user bash ./$target/bin/tramchester server config/local.yml &
 
 logger Started Web server
