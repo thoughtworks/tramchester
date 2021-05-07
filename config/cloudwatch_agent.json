@@ -4,6 +4,7 @@
     "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
   },
   "metrics": {
+    "namespace": "PREFIX",
     "metrics_collected": {
       "cpu": {
         "resources": [
