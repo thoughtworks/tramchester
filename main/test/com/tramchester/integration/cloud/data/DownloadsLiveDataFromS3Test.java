@@ -3,7 +3,7 @@ package com.tramchester.integration.cloud.data;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.cloud.data.ClientForS3;
-import com.tramchester.cloud.data.DownloadsLiveData;
+import com.tramchester.cloud.data.DownloadsLiveDataFromS3;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DownloadsLiveDataTest {
+class DownloadsLiveDataFromS3Test {
     private static final int NUM_OF_DISPLAYS = 189;
     private static final String PREFIX = "uat/20200227/";
     private static final int NUM_KEYS_FOR_PREFIX = 7844; // from s3 console, historical so should not change
 
     private static ComponentContainer componentContainer;
-    private DownloadsLiveData downloader;
+    private DownloadsLiveDataFromS3 downloader;
     private ClientForS3 clientForS3;
 
     @BeforeAll
@@ -44,7 +44,7 @@ class DownloadsLiveDataTest {
 
     @BeforeEach
     void beforeEachTest() {
-        downloader = componentContainer.get(DownloadsLiveData.class);
+        downloader = componentContainer.get(DownloadsLiveDataFromS3.class);
         clientForS3 = componentContainer.get(ClientForS3.class);
     }
 

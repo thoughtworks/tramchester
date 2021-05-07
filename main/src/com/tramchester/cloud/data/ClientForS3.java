@@ -115,7 +115,9 @@ public class ClientForS3 {
         }
 
         logger.info("Downloading data for " + keys.size() + " keys");
-        return keys.parallelStream().map(key -> download(key, responseMapper)).flatMap(Collection::stream);
+        final Stream<String> stream = keys.parallelStream();
+        stream.onClose(() -> logger.info("Download stream closed"));
+        return stream.map(key -> download(key, responseMapper)).flatMap(Collection::stream);
     }
 
     private <T> List<T> download(String key, ResponseMapper<T> responseMapper) {

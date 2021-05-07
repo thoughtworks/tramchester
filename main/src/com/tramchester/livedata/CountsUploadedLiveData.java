@@ -1,7 +1,7 @@
 package com.tramchester.livedata;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.cloud.data.DownloadsLiveData;
+import com.tramchester.cloud.data.DownloadsLiveDataFromS3;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.metrics.HasMetrics;
@@ -13,15 +13,14 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 @LazySingleton
 public class CountsUploadedLiveData implements HasMetrics {
-    private final DownloadsLiveData downloadsLiveData;
+    private final DownloadsLiveDataFromS3 downloadsLiveData;
     private final ProvidesNow providesNow;
 
     @Inject
-    public CountsUploadedLiveData(DownloadsLiveData downloadsLiveData, ProvidesNow providesNow) {
+    public CountsUploadedLiveData(DownloadsLiveDataFromS3 downloadsLiveData, ProvidesNow providesNow) {
         this.downloadsLiveData = downloadsLiveData;
         this.providesNow = providesNow;
     }

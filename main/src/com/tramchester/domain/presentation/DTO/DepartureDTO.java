@@ -28,18 +28,18 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     private LocalDateTime dueTime;
     private int wait;
 
-    public DepartureDTO(String from, String destination, String carriages, String status, LocalDateTime dueTime, int wait) {
+    public DepartureDTO(Station from, DueTram dueTram, LocalDate queryDate) {
+        this(from.getName(), dueTram.getDestination().getName(), dueTram.getCarriages(), dueTram.getStatus(),
+                dueTram.getWhen().toDate(queryDate), dueTram.getWait());
+    }
+
+    private DepartureDTO(String from, String destination, String carriages, String status, LocalDateTime dueTime, int wait) {
         this.from = from;
         this.destination = destination;
         this.carriages = carriages;
         this.status = status;
         this.dueTime = dueTime;
         this.wait = wait;
-    }
-
-    public DepartureDTO(Station from, DueTram dueTram, LocalDate queryDate) {
-        this(from.getName(), dueTram.getDestination().getName(), dueTram.getCarriages(), dueTram.getStatus(),
-                dueTram.getWhen().toDate(queryDate), dueTram.getWait());
     }
 
     @SuppressWarnings("unused")

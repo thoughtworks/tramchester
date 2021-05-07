@@ -38,10 +38,12 @@ public class LiveDataParser {
     private static final String DIRECTION_BOTH = "Incoming/Outgoing";
     private static final String TERMINATES_HERE = "Terminates Here";
     private static final String NOT_IN_SERVICE = "Not in Service";
-    private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
-    private final StationRepository stationRepository;
     private static final List<String> NotADestination = Arrays.asList("See Tram Front", NOT_IN_SERVICE);
-    private final Map<String, String> mapping;
+
+    private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZone);
+
+    private final StationRepository stationRepository;
+    private final Map<String, String> lineNameMappings;
 
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
@@ -55,7 +57,7 @@ public class LiveDataParser {
         NewtonHeathAndMoston("Newton Heath and Moston","Newton Heath & Moston"),
         StWerburgsRoad("St Werburgh’s Road","St Werburgh's Road"),
         Rochdale("Rochdale Stn", "Rochdale Railway Station"),
-        TraffordCentre("intu Trafford Centre", "The Trafford Centre");
+        TraffordCentre("Trafford Centre", "The Trafford Centre");
 
         private final String from;
         private final String too;
@@ -72,9 +74,9 @@ public class LiveDataParser {
 
     @Inject
     public LiveDataParser(StationRepository stationRepository) {
-        mapping = new HashMap<>();
-        List<LiveDataNamesMapping> refereceData = Arrays.asList(LiveDataNamesMapping.values());
-        refereceData.forEach(item -> mapping.put(item.from, item.too));
+        lineNameMappings = new HashMap<>();
+        List<LiveDataNamesMapping> referenceData = Arrays.asList(LiveDataNamesMapping.values());
+        referenceData.forEach(item -> lineNameMappings.put(item.from, item.too));
         this.stationRepository = stationRepository;
     }
 
@@ -110,17 +112,17 @@ public class LiveDataParser {
 
         LineDirection direction = getDirection(rawDirection);
         if (direction==Unknown) {
-            logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection + " for JSON " +jsonObject.toString());
+            logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection + " for JSON " + jsonObject);
         }
 
         Lines line = getLine(rawLine);
         if (line== Lines.UnknownLine) {
-            logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine + " for JSON " +jsonObject.toString());
+            logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine + " for JSON " + jsonObject);
         }
 
         Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
         if (maybeStation.isEmpty()) {
-            logger.warn("Display '" + displayId + "' Unable to map atco code to station '"+ atcoCode + "' for JSON " +jsonObject.toString());
+            logger.warn("Display '" + displayId + "' Unable to map atco code to station '"+ atcoCode + "' for JSON " + jsonObject);
             return Optional.empty();
         }
         Station station = maybeStation.get();
@@ -132,7 +134,7 @@ public class LiveDataParser {
         if (!station.hasPlatform(platformId)) {
             // info not warn as currently a permanent issue with the data
             logger.info(format("Display '%s' Platform '%s' not in timetable data for station %s and Json %s",
-                    displayId, atcoCode, station.getId(), jsonObject.toString()));
+                    displayId, atcoCode, station.getId(), jsonObject));
             // Seems to be legit, at very least some single platform stations (i.e. navigation road) appear to have
             // two platforms in the live data feed...
             //return Optional.empty();
@@ -190,7 +192,7 @@ public class LiveDataParser {
             String destinationName = getNumberedField(jsonObject, "Dest", index);
             if (destinationName.isEmpty()) {
                 // likely not present in json
-                logger.debug("Skipping destination '" + destinationName + "' for " + jsonObject.toString() + " and index " + i);
+                logger.debug("Skipping destination '" + destinationName + "' for " + jsonObject + " and index " + i);
             } else if (NotADestination.contains(destinationName)) {
                 logger.info("Display '" + departureInfo.getDisplayId() + "' Skipping destination '" + destinationName + "' for " + jsonObject.toJson() + " and index " + i);
             } else {
@@ -214,7 +216,9 @@ public class LiveDataParser {
                             departureInfo.addDueTram(dueTram);
                         },
 
-                        () -> logger.warn("Display id '" + departureInfo.getDisplayId() + "' Unable to match due tram destination '" + destinationName + "' index: " + index +" json '"+jsonObject+"'"));
+                        () -> logger.warn("Display id '" + departureInfo.getDisplayId() +
+                                "' Unable to match due tram destination '" + destinationName +
+                                "' index: " + index +" json '"+jsonObject+"'"));
             }
         }
     }
@@ -252,8 +256,8 @@ public class LiveDataParser {
             destinationName = destinationName.substring(0, viaIndex);
         }
 
-        if (mapping.containsKey(destinationName)) {
-            return mapping.get(destinationName);
+        if (lineNameMappings.containsKey(destinationName)) {
+            return lineNameMappings.get(destinationName);
         }
 
         return destinationName;

@@ -1,12 +1,10 @@
 package com.tramchester.unit.liveData;
 
-import com.tramchester.cloud.data.DownloadsLiveData;
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.cloud.data.DownloadsLiveDataFromS3;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.livedata.CountsUploadedLiveData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TestLiveDataConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -27,7 +24,7 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
 
     private LocalDateTime checkTime;
     private ProvidesLocalNow providesLocalNow;
-    private DownloadsLiveData downloadsLiveData;
+    private DownloadsLiveDataFromS3 downloadsLiveData;
     private CountsUploadedLiveData countsUploadedLiveData;
     private Duration expectedDuration;
 
@@ -35,7 +32,7 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
     void beforeEachTest() {
         checkTime = TestEnv.LocalNow();
         providesLocalNow = createMock(ProvidesLocalNow.class);
-        downloadsLiveData = createMock(DownloadsLiveData.class);
+        downloadsLiveData = createMock(DownloadsLiveDataFromS3.class);
 
         countsUploadedLiveData = new CountsUploadedLiveData(downloadsLiveData, providesLocalNow);
         expectedDuration = Duration.of(5, SECONDS);

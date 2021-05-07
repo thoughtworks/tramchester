@@ -1,12 +1,11 @@
 package com.tramchester.unit.cloud.data;
 
 import com.tramchester.cloud.data.ClientForS3;
-import com.tramchester.cloud.data.DownloadsLiveData;
+import com.tramchester.cloud.data.DownloadsLiveDataFromS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
-import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
 import org.easymock.Capture;
@@ -25,10 +24,10 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static org.junit.jupiter.api.Assertions.*;
 
-class DownloadsLiveDataTest extends EasyMockSupport {
+class DownloadsLiveDataFromS3Test extends EasyMockSupport {
 
     private ClientForS3 clientForS3;
-    private DownloadsLiveData downloader;
+    private DownloadsLiveDataFromS3 downloader;
     private S3Keys s3Keys;
     private StationDepartureInfoDTO departsDTO;
 
@@ -40,7 +39,7 @@ class DownloadsLiveDataTest extends EasyMockSupport {
         StationDepartureMapper stationDepartureMapper = createStrictMock(StationDepartureMapper.class);
         s3Keys = createMock(S3Keys.class);
 
-        downloader = new DownloadsLiveData(clientForS3, stationDepartureMapper, s3Keys);
+        downloader = new DownloadsLiveDataFromS3(clientForS3, stationDepartureMapper, s3Keys);
 
         StationDepartureInfo stationDepartureInfo = LiveDataUpdaterTest.createDepartureInfoWithDueTram(
                 LocalDateTime.parse("2018-11-15T15:06:32"), "displayId",

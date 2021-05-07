@@ -40,7 +40,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     private static final Logger logger = LoggerFactory.getLogger(DueTramsRepository.class);
 
     // TODO Correct limit here?
-    private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
+    private static final int TIME_LIMIT_MINS = 20; // only enrich if data is within this many minutes
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
     // platformId -> StationDepartureInfo
@@ -54,7 +54,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
         this.providesNow = providesNow;
 
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
-                expireAfterWrite(TIME_LIMIT, TimeUnit.MINUTES).recordStats().build();
+                expireAfterWrite(TIME_LIMIT_MINS, TimeUnit.MINUTES).recordStats().build();
 
         registory.register(this);
     }
@@ -79,6 +79,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
         for (StationDepartureInfo departureInfo : departureInfos) {
             updateCacheFor(departureInfo, platformsSeen);
         }
+
         return platformsSeen.size();
     }
 
@@ -154,8 +155,8 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     }
 
     private boolean withinTime(TramTime queryTime, LocalTime updateTime) {
-        TramTime limitBefore = TramTime.of(updateTime.minusMinutes(TIME_LIMIT));
-        TramTime limitAfter = TramTime.of(updateTime.plusMinutes(TIME_LIMIT));
+        TramTime limitBefore = TramTime.of(updateTime.minusMinutes(TIME_LIMIT_MINS));
+        TramTime limitAfter = TramTime.of(updateTime.plusMinutes(TIME_LIMIT_MINS));
         return queryTime.between(limitBefore, limitAfter);
     }
 

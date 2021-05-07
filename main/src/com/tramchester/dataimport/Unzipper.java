@@ -20,8 +20,8 @@ public class Unzipper {
 
     public boolean unpack(Path zipFilename, Path targetDirectory) {
         logger.info(format("Unziping data from %s to %s ", zipFilename, targetDirectory));
+        File zipFile = zipFilename.toFile();
         try {
-            File zipFile = zipFilename.toFile();
             ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
             ZipEntry zipEntry = zipInputStream.getNextEntry();
             while (zipEntry!=null) {
@@ -51,12 +51,14 @@ public class Unzipper {
             Files.createDirectories(target);
             return;
         }
+
         logger.debug("Unpack file " + absolutePath);
         Path parent = target.getParent();
         if (!parent.toFile().exists()) {
             logger.info("Create needed directory " + parent + " for " +absolutePath);
             Files.createDirectories(parent);
         }
+
         File unpackTarget = target.toFile();
         if (unpackTarget.exists()) {
             logger.debug(absolutePath + " already exists");
@@ -71,6 +73,7 @@ public class Unzipper {
             logger.warn("Deleting " + absolutePath);
             Files.delete(target);
         }
+
         Files.copy(zipInputStream, target);
         unpackTarget.setLastModified(zipEntry.getLastModifiedTime().toMillis());
 

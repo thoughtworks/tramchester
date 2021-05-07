@@ -47,8 +47,8 @@ public class TramPositionsResource {
 
     @GET
     @Timed
-    @ApiOperation(value = "Infered positions of trams within network",
-            notes = "Infered from live tram data feed and timetime data, unfiltered will give all stations whether " +
+    @ApiOperation(value = "Inferred positions of trams within network",
+            notes = "Inferred from live tram data feed and timetable data, unfiltered will give all stations whether " +
                     "trams present between them or not",
             response = TramsPositionsDTO.class)
     @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)

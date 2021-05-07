@@ -59,7 +59,13 @@ public class UploadsLiveData implements LiveDataObserver {
             logger.info("Upload live data to S3");
             String json = mapper.map(dtoToUpload);
 
-            return s3.upload(key, json);
+            final boolean flag = s3.upload(key, json);
+            if (flag) {
+                logger.info("Upload done");
+            } else {
+                logger.warn("Upload failed");
+            }
+            return flag;
 
         } catch (JsonProcessingException e) {
             logger.warn("Unable to upload live data to S3",e);
