@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # AWS LINUX VERSION #################
 
 logger Begin setup of tramchester server
@@ -40,7 +39,6 @@ dist=`basename $distUrl`
 # set up overrides for server config so data is pulled from S3 at start up
 export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
 
-target=tramchester-1.0
 
 cd ~ec2-user
 mkdir -p server
@@ -62,9 +60,8 @@ logger cloud watch agent installed
 chown -R ec2-user .
 
 # start 
-logger Start tramchester server
-export JAVA_OPTS="-Xmx500m"
-sudo -E -u ec2-user bash ./$target/bin/tramchester server config/local.yml &
+logger Start tramchester
+export JAVA_OPTS="-Xmx450m"
+sudo -E -u ec2-user bash ./tramchester-1.0/bin/start.sh &
 
-logger Started Web server
 logger Finish Web bootstrap script for $BUILD and $PLACE

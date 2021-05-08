@@ -372,9 +372,22 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     }
 }
 
-distZip {
-    into('config') {
-        from 'config'
+//distZip {
+//    into('config') {
+//        from 'config'
+//    }
+//}
+
+distributions {
+    main {
+        contents {
+            into ('config') {
+                from 'config'
+            }
+            into ('bin') {
+                from 'deploy/start.sh'
+            }
+        }
     }
 }
 
