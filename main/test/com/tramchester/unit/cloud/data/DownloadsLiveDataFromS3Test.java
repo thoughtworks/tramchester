@@ -61,7 +61,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         EasyMock.expect(s3Keys.parse("keysFromS3")).andReturn(start);
 
         EasyMock.expect(clientForS3.getKeysFor("expectedPrefix")).andReturn(keysFromS3);
-        EasyMock.expect(clientForS3.download(EasyMock.eq(keysFromS3),
+        EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(keysFromS3),
                 EasyMock.capture(responseMapperCapture))).andReturn(Stream.of(departsDTO));
 
         replayAll();
@@ -101,7 +101,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         Set<String> matching = new HashSet<>();
         matching.add(keyA);
         matching.add(keyB);
-        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).
+        EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).
                 andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();
@@ -144,7 +144,7 @@ class DownloadsLiveDataFromS3Test extends EasyMockSupport {
         Set<String> matching = new HashSet<>();
         matching.add(keyA);
         matching.add(keyC);
-        EasyMock.expect(clientForS3.download(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).
+        EasyMock.expect(clientForS3.downloadAndMap(EasyMock.eq(matching), EasyMock.capture(responseMapperCapture))).
                 andReturn(Stream.of(departsDTO, otherDTO));
 
         replayAll();

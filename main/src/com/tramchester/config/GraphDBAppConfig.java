@@ -14,11 +14,17 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
     // TODO Make a path, rename config name
     private final String graphName;
     private final String neo4jPagecacheMemory;
+    private final String initialHeapSize;
+    private final String maxHeapSize;
 
     public GraphDBAppConfig(@JsonProperty(value = "graphName", required = true) String graphName,
-                            @JsonProperty(value = "neo4jPagecacheMemory", required = true) String neo4jPagecacheMemory) {
+                            @JsonProperty(value = "neo4jPagecacheMemory", required = true) String neo4jPagecacheMemory,
+                            @JsonProperty(value = "initialHeapSize", required = true) String initialHeapSize,
+                            @JsonProperty(value = "maxHeapSize", required = true) String maxHeapSize) {
         this.graphName = graphName;
         this.neo4jPagecacheMemory = neo4jPagecacheMemory;
+        this.initialHeapSize = initialHeapSize;
+        this.maxHeapSize = maxHeapSize;
     }
 
     @Override
@@ -34,10 +40,22 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
     }
 
     @Override
+    public String getInitialHeapSize() {
+        return initialHeapSize;
+    }
+
+    @Override
+    public String getMaxHeapSize() {
+        return maxHeapSize;
+    }
+
+    @Override
     public String toString() {
         return "GraphDBAppConfig{" +
                 "graphName='" + graphName + '\'' +
                 ", neo4jPagecacheMemory='" + neo4jPagecacheMemory + '\'' +
-                '}';
+                ", initialHeapSize='" + initialHeapSize + '\'' +
+                ", maxHeapSize='" + maxHeapSize + '\'' +
+                "} " + super.toString();
     }
 }

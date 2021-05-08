@@ -108,7 +108,7 @@ public class ClientForS3 {
         return true;
     }
 
-    public <T> Stream<T> download(Set<String> keys, ResponseMapper<T> responseMapper) {
+    public <T> Stream<T> downloadAndMap(Set<String> keys, ResponseMapper<T> responseMapper) {
         if (!isStarted()) {
             logger.error("not started");
             return Stream.empty();
@@ -117,10 +117,10 @@ public class ClientForS3 {
         logger.info("Downloading data for " + keys.size() + " keys");
         final Stream<String> stream = keys.parallelStream();
         stream.onClose(() -> logger.info("Download stream closed"));
-        return stream.map(key -> download(key, responseMapper)).flatMap(Collection::stream);
+        return stream.map(key -> downloadAndMapForKey(key, responseMapper)).flatMap(Collection::stream);
     }
 
-    private <T> List<T> download(String key, ResponseMapper<T> responseMapper) {
+    private <T> List<T> downloadAndMapForKey(String key, ResponseMapper<T> responseMapper) {
         GetObjectRequest request = GetObjectRequest.builder().bucket(bucket).key(key).build();
 
         ResponseTransformer<GetObjectResponse, List<T>> transformer =

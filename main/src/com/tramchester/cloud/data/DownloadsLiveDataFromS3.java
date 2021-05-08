@@ -82,7 +82,7 @@ public class DownloadsLiveDataFromS3 {
 
     private Stream<StationDepartureInfoDTO> downloadFor(Set<String> keys) {
 
-        return s3Client.download(keys, bytes -> {
+        return s3Client.downloadAndMap(keys, bytes -> {
             String text = new String(bytes, StandardCharsets.US_ASCII);
             return mapper.parse(text);
         });

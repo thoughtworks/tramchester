@@ -20,4 +20,14 @@ public class GraphDBTestConfig implements GraphDBConfig {
     public String getNeo4jPagecacheMemory() {
         return "100m";
     }
+
+    @Override
+    public String getInitialHeapSize() {
+        return "100m";
+    }
+
+    @Override
+    public String getMaxHeapSize() {
+        return "200m";
+    }
 }

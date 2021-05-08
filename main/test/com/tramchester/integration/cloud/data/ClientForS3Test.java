@@ -138,7 +138,7 @@ class ClientForS3Test {
 
         ClientForS3.ResponseMapper<String> transformer = incoming -> Collections.singletonList(new String(incoming, StandardCharsets.US_ASCII));
 
-        List<String> results = clientForS3.download(Collections.singleton(key), transformer).collect(Collectors.toList());
+        List<String> results = clientForS3.downloadAndMap(Collections.singleton(key), transformer).collect(Collectors.toList());
         assertEquals(1, results.size());
         assertEquals(payload, results.get(0));
     }
