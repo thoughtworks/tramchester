@@ -13,6 +13,7 @@ export BUILD=`cat userdata.txt | grep BUILD | cut -d = -f 2-`
 export ARTIFACTSURL=`cat userdata.txt | grep ARTIFACTSURL | cut -d = -f 2-`
 export REDIRECTHTTP=`cat userdata.txt | grep REDIRECTHTTP | cut -d = -f 2-`
 export TFGMAPIKEY=`cat userdata.txt | grep TFGMAPIKEY | cut -d = -f 2-`
+target=tramchester-1.0
 
 if [ "$BUILD" == '' ]; then
         echo 'BUILD missing'
@@ -33,12 +34,11 @@ fi
 logger Set up Web server Build: $BUILD Url: $ARTIFACTSURL Env: $PLACE
 
 # fetch and install the package
-distUrl=$ARTIFACTSURL/$BUILD/tramchester-1.0.zip
+distUrl=$ARTIFACTSURL/$BUILD/$target.zip
 dist=`basename $distUrl`
 
 # set up overrides for server config so data is pulled from S3 at start up
 export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
-
 
 cd ~ec2-user
 mkdir -p server
@@ -52,8 +52,8 @@ unzip $dist
 logger set up amazon cloudwatch logs agent new
 wget -nv https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
 sudo rpm -U ./amazon-cloudwatch-agent.rpm
-sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" config/cloudwatch_agent.json
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:config/cloudwatch_agent.json -s
+sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" $target/config/cloudwatch_agent.json
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:$target/config/cloudwatch_agent.json -s
 logger cloud watch agent installed
 
 # fix ownership
@@ -62,6 +62,6 @@ chown -R ec2-user .
 # start 
 logger Start tramchester
 export JAVA_OPTS="-Xmx450m"
-sudo -E -u ec2-user bash ./tramchester-1.0/bin/start.sh &
+sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
 logger Finish Web bootstrap script for $BUILD and $PLACE
