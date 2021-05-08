@@ -1,6 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.GraphDBConfig;
+import com.tramchester.config.HasGraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
@@ -78,7 +79,7 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
     protected final GraphFilter graphFilter;
     protected final GraphBuilderCache builderCache;
 
-    protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, TramchesterConfig config,
+    protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, HasGraphDBConfig config,
                            GraphBuilderCache builderCache) {
         super(graphDatabase);
         this.graphDBConfig = config.getGraphDBConfig();

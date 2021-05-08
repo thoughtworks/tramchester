@@ -16,7 +16,6 @@ import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.repository.DueTramsRepository;
 import com.tramchester.repository.PlatformMessageRepository;
-import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.repository.VersionRepository;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;

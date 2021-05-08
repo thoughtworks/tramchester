@@ -86,11 +86,7 @@ public class AppConfiguration extends TramchesterConfig {
 
     @JsonProperty("dataExpiryThreadhold")
     private Integer dataExpiryThreadhold;
-
-    @NotNull
-    @JsonProperty("removeRouteNameSuffix")
-    private Boolean removeRouteNameSuffix;
-
+    
     @NotNull
     @JsonProperty("maxJourneyDuration")
     private Integer maxJourneyDuration;
@@ -222,11 +218,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Integer getStaticAssetCacheTimeSeconds() {
         return staticAssetCacheTimeSeconds;
-    }
-
-    @Override
-    public boolean getRemoveRouteNameSuffix() {
-        return removeRouteNameSuffix;
     }
 
     @Override

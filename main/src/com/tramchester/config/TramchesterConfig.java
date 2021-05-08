@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class TramchesterConfig extends Configuration implements HasRemoteDataSourceConfig {
+public abstract class TramchesterConfig extends Configuration implements HasRemoteDataSourceConfig, HasGraphDBConfig {
 
     public static final ZoneId TimeZone = ZoneId.of("Europe/London");
 
@@ -67,7 +67,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract int getDataExpiryThreadhold();
 
     // remove the (Purple Line) part of the route name?
-    public abstract boolean getRemoveRouteNameSuffix();
+    //public abstract boolean getRemoveRouteNameSuffix();
 
     // only allow changing vehicles at interchanges
     public abstract boolean getChangeAtInterchangeOnly();

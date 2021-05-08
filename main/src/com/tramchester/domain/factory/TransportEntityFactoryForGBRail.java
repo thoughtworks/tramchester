@@ -1,12 +1,11 @@
 package com.tramchester.domain.factory;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -19,8 +18,8 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     private static final String FROM = "from ";
     private static final String TO = " to ";
 
-    public TransportEntityFactoryForGBRail(TramchesterConfig config) {
-        super(config);
+    public TransportEntityFactoryForGBRail() {
+        super();
     }
 
     @Override

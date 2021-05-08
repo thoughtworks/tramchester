@@ -53,7 +53,6 @@ createNeighbours: false
 distanceToNeighboursKM: 0.4
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
-removeRouteNameSuffix: true
 maxWait: 35
 maxInitialWait: 45
 numberQueries: 3

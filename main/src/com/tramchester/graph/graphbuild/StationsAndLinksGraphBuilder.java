@@ -1,6 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.HasGraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
@@ -54,7 +55,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     @Inject
-    public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
+    public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, HasGraphDBConfig config, GraphFilter graphFilter,
                                         TransportData transportData, GraphBuilderCache builderCache) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;

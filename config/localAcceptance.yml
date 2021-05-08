@@ -47,7 +47,6 @@ instanceDataUrl: http://169.254.169.254
 loadPostcodes: false
 postcodeDataPath: data/codepo_gb/Data/CSV
 postcodeZip: data/codepo_gb.zip
-removeRouteNameSuffix: true
 maxWait: 25
 maxInitialWait: 13
 maxNumberResults: 5

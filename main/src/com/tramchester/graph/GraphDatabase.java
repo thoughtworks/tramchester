@@ -337,11 +337,9 @@ public class GraphDatabase implements DatabaseEventListener {
         return tx.traversalDescription();
     }
 
-
     public EvaluationContext createContext(Transaction txn) {
         return new BasicEvaluationContext(txn, databaseService);
     }
-
 
     @Override
     public void databaseStart(DatabaseEventContext eventContext) {

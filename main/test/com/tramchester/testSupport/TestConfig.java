@@ -113,12 +113,6 @@ public abstract class TestConfig extends AppConfiguration {
     public int getDataExpiryThreadhold() { return 3; }
 
     @Override
-    public boolean getRemoveRouteNameSuffix() {
-        // issue with truncation of source data, until this is fixed this needs to remain true
-        return true;
-    }
-
-    @Override
     public boolean getLoadPostcodes() {
         return false;
     }

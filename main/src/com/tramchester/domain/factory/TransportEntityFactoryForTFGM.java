@@ -1,6 +1,5 @@
 package com.tramchester.domain.factory;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
@@ -8,8 +7,6 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -23,8 +20,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     private final NaptanRespository naptanRespository;
 
-    public TransportEntityFactoryForTFGM(NaptanRespository naptanRespository, TramchesterConfig config) {
-        super(config);
+    public TransportEntityFactoryForTFGM(NaptanRespository naptanRespository) {
+        super();
         this.naptanRespository = naptanRespository;
     }
 
@@ -33,14 +30,15 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         IdFor<Route> routeId = createRouteId(routeData.getId());
 
-        // TODO No longer needed?
         String routeName = routeData.getLongName();
-        if (config.getRemoveRouteNameSuffix()) {
-            int indexOf = routeName.indexOf("(");
-            if (indexOf > -1) {
-                routeName = routeName.substring(0,indexOf).trim();
-            }
-        }
+
+        // no longer needed
+//        if (config.getRemoveRouteNameSuffix()) {
+//            int indexOf = routeName.indexOf("(");
+//            if (indexOf > -1) {
+//                routeName = routeName.substring(0,indexOf).trim();
+//            }
+//        }
 
         return new Route(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
     }

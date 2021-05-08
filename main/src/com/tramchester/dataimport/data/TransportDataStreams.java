@@ -30,14 +30,12 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
 
     private final List<TransportDataSource> theList;
     private final TransportDataLoader dataLoader;
-    private final TramchesterConfig config;
     private final NaptanRespository naptanRespository;
 
     @Inject
-    public TransportDataStreams(TransportDataLoader dataLoader, TramchesterConfig config,
-                                NaptanRespository naptanRespository, UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
+    public TransportDataStreams(TransportDataLoader dataLoader, NaptanRespository naptanRespository,
+                                UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.dataLoader = dataLoader;
-        this.config = config;
         this.naptanRespository = naptanRespository;
         theList = new ArrayList<>();
     }
@@ -83,11 +81,11 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     private TransportEntityFactory getEntityFactoryFor(GTFSSourceConfig sourceConfig) {
         DataSourceID sourceName = new DataSourceID(sourceConfig.getName());
         if (DataSourceID.TFGM().equals(sourceName)) {
-            return new TransportEntityFactoryForTFGM(naptanRespository, config);
+            return new TransportEntityFactoryForTFGM(naptanRespository);
         } else if (DataSourceID.GBRail().equals(sourceName)) {
-            return new TransportEntityFactoryForGBRail(config);
+            return new TransportEntityFactoryForGBRail();
         } else {
-            return new TransportEntityFactory(config);
+            return new TransportEntityFactory();
         }
     }
 

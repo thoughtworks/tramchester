@@ -1,6 +1,5 @@
 package com.tramchester.domain.factory;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
@@ -16,10 +15,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 
 public class TransportEntityFactory {
-    protected final TramchesterConfig config;
 
-    public TransportEntityFactory(TramchesterConfig config) {
-        this.config = config;
+    public TransportEntityFactory() {
     }
 
     public Agency createAgency(DataSourceID dataSourceID, AgencyData agencyData) {

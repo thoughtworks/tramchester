@@ -38,13 +38,13 @@ distUrl=$ARTIFACTSURL/$BUILD/$target.zip
 dist=`basename $distUrl`
 
 # set up overrides for server config so data is pulled from S3 at start up
-export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tramData-1.0.zip
+export TRAM_DATAURL=$ARTIFACTSURL/$BUILD/tfgm_data.zip
 
 cd ~ec2-user
 mkdir -p server
 cd server
 
-logger Attempt to fetch files from $distUrl
+logger Get $distUrl
 wget -nv $distUrl -O $dist
 unzip $dist
 
@@ -55,6 +55,11 @@ sudo rpm -U ./amazon-cloudwatch-agent.rpm
 sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" $target/config/cloudwatch_agent.json
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:$target/config/cloudwatch_agent.json -s
 logger cloud watch agent installed
+
+# download pre-built DB
+logger Get DB from $ARTIFACTSURL/$BUILD/tramchester.db.zip
+wget -nv $ARTIFACTSURL/$BUILD/tramchester.db.zip -O tramchester.db.zip
+unzip tramchester.db.zip -d tramchester.db
 
 # fix ownership
 chown -R ec2-user .

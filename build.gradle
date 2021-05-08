@@ -153,12 +153,6 @@ test {
     useJUnitPlatform()
 }
 
-task pullData(type:JavaExec, dependsOn:classes) {
-    main = 'com.tramchester.dataimport.FetchDataFromUrlAndUnzip'
-    classpath = sourceSets.main.runtimeClasspath
-    args 'http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip', 'data', 'tramData-1.0.zip'
-}
-
 task cdkApp(type:JavaExec, dependsOn:classes) {
     main = 'com.tramchester.deployment.CdkApp'
     classpath = sourceSets.main.runtimeClasspath
@@ -322,15 +316,6 @@ task localAppium(type: Test, dependsOn: ['webpack', 'compileJava']) {
     }
 }
 
-task uploadData(dependsOn: ['cfnassist', 'pullData']) {
-    doLast {
-        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
-            Artifact(name: 'data', value: 'data/tramData-1.0.zip')
-            S3Create()
-        }
-    }
-}
-
 task diagrams(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist() {
@@ -385,10 +370,37 @@ distributions {
     }
 }
 
+task pullData(type:JavaExec, dependsOn:classes) {
+    main = 'com.tramchester.deployment.cli.FetchDataCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/local.yml'
+}
+
+task buildDatabase(type:JavaExec, dependsOn:classes) {
+    main = 'com.tramchester.deployment.cli.BuildGraphCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/local.yml'
+}
+
 task uploadApp(dependsOn: ['cfnassist', 'distZip', 'uploadSupportFiles'])  {
     doLast {
         ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
             Artifact(name: 'package', value: 'build/distributions/tramchester-1.0.zip')
+            S3Create()
+        }
+    }
+}
+
+task zipDB(type:Zip, dependsOn: 'buildDatabase') {
+    from 'tramchester.db'
+    archiveFileName = 'tramchester.db.zip'
+}
+
+task uploadData(dependsOn: ['cfnassist', 'pullData', 'zipDB']) {
+    doLast {
+        ant.cfnassist(buildNumber: buildNumber, bucketname: 'tramchester2dist') {
+            Artifact(name: 'data', value: 'data/tram/tfgm_data.zip')
+            Artifact(name: 'db', value: 'build/distributions/tramchester.db.zip')
             S3Create()
         }
     }

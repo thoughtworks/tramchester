@@ -39,6 +39,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
+    public static final int EMPTY_MESSAGE_WARN_THRESHOLD = 10;
 
     private final Cache<IdFor<Platform>, PlatformMessage> messageCache;
     private final ProvidesNow providesNow;
@@ -102,7 +103,9 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
             }
         }
 
-        if (emptyMessages>0) {
+        if (emptyMessages > EMPTY_MESSAGE_WARN_THRESHOLD) {
+            logger.warn("Received "+emptyMessages+" empty messages");
+        } else if (emptyMessages>0) {
             logger.info("Received "+emptyMessages+" empty messages");
         }
     }
@@ -125,7 +128,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         }
 
         if (departureInfo.getMessage().isEmpty()) {
-            logger.info("Skipping empty message for " +platformId+ " displayId: " + departureInfo.getDisplayId());
+            logger.debug("Skipping empty message for " +platformId+ " displayId: " + departureInfo.getDisplayId());
             return false;
         }
 
