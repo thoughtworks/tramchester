@@ -18,6 +18,8 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: tramchester.db
   neo4jPagecacheMemory: 100m
+  initialHeapSize: 50m
+  maxHeapSize: 150m
 stationClosures: []
 instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig:

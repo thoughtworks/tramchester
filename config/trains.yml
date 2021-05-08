@@ -18,6 +18,8 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: trains.db
   neo4jPagecacheMemory: 1000m
+  initialHeapSize: 100m
+  maxHeapSize: 200m
 gtfsSourceConfig:
   -
     name: gb-rail
