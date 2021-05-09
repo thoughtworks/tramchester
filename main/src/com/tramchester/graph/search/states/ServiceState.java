@@ -53,7 +53,7 @@ public class ServiceState extends TraversalState {
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         if (nodeLabel == GraphBuilder.Labels.HOUR) {
-            return builders.hour.FromService(this, node, cost, maybeExistingTrip);
+            return builders.towardsHour(this, HourState.class).fromService(this, node, cost, maybeExistingTrip);
         }
         throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }

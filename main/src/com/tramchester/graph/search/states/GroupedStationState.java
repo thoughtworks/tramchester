@@ -69,7 +69,8 @@ public class GroupedStationState extends TraversalState {
         switch (nodeLabel) {
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.noPlatformStation.fromGrouped(this, next, cost);
+                return builders.towardsNeighbour(this, NoPlatformStationState.class).
+                        fromGrouped(this, next, cost);
             case TRAM_STATION:
                 return builders.tramStation.fromGrouped(this, next, cost);
             default:

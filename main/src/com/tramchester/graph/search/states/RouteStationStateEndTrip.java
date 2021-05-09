@@ -23,10 +23,20 @@ public class RouteStationStateEndTrip extends TraversalState {
                 "} " + super.toString();
     }
 
-    public static class Builder {
+    public static class Builder implements TowardsState<RouteStationStateEndTrip> {
 
         public TraversalState fromMinuteState(MinuteState minuteState, int cost, List<Relationship> routeStationOutbound, TransportMode mode) {
             return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, mode);
+        }
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(MinuteState.class, this);
+        }
+
+        @Override
+        public Class<RouteStationStateEndTrip> getDestination() {
+            return RouteStationStateEndTrip.class;
         }
     }
 
@@ -70,7 +80,8 @@ public class RouteStationStateEndTrip extends TraversalState {
             return builders.destination.from(this, cost);
         }
 
-        return builders.noPlatformStation.fromRouteStation(this, nextNode, cost);
+        return builders.towardsNoPlatformStation(this, NoPlatformStationState.class).
+                fromRouteStation(this, nextNode, cost);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {

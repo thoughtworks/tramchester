@@ -32,7 +32,7 @@ public class NotStartedState extends TraversalState {
 
     public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node firstNode, JourneyState journeyState, int cost) {
         // should only be called for multi-mode stations
-        return builders.noPlatformStation.from(this, firstNode, cost);
+        return builders.towardsNeighbour(this, NoPlatformStationState.class).from(this, firstNode, cost);
     }
 
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
@@ -45,7 +45,8 @@ public class NotStartedState extends TraversalState {
             case TRAIN_STATION:
             case FERRY_STATION:
             case SUBWAY_STATION:
-                return builders.noPlatformStation.from(this, firstNode, cost);
+                return builders.towardsNeighbour(this, NoPlatformStationState.class).
+                        from(this, firstNode, cost);
             case GROUPED:
                 return builders.groupedStation.fromStart(this, firstNode, cost);
         }

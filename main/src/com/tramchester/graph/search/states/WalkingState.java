@@ -56,7 +56,8 @@ public class WalkingState extends TraversalState {
             }
             case BUS_STATION, TRAIN_STATION -> {
                 journeyState.walkingConnection();
-                return builders.noPlatformStation.from(this, node, cost);
+                return builders.towardsNeighbour(this, NoPlatformStationState.class).
+                        from(this, node, cost);
             }
             case GROUPED -> {
                 journeyState.walkingConnection();

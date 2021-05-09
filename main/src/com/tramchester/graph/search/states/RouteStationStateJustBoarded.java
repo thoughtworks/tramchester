@@ -22,7 +22,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateJustBoarded extends TraversalState {
 
-    public static class Builder {
+    public static class Builder implements TowardsState<RouteStationStateJustBoarded> {
         private final SortsPositions sortsPositions;
         private final LatLong destinationLatLon;
 
@@ -31,10 +31,20 @@ public class RouteStationStateJustBoarded extends TraversalState {
             this.destinationLatLon = destinationLatLon;
         }
 
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(PlatformState.class, this);
+            registers.add(NoPlatformStationState.class, this);
+        }
+
+        @Override
+        public Class<RouteStationStateJustBoarded> getDestination() {
+            return RouteStationStateJustBoarded.class;
+        }
+
         public TraversalState fromPlatformState(PlatformState platformState, Node node, int cost) {
             Stream<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
                     platformState);
-            //node.getRelationships(OUTGOING, TO_SERVICE).forEach(outbounds::add);
             Stream<Relationship> toServices = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
             return new RouteStationStateJustBoarded(platformState, Stream.concat(outbounds, toServices), cost);
         }
@@ -45,10 +55,8 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
             Stream<Relationship> services;
             if (TransportMode.isTram(mode)) {
-                //filteredDeparts.addAll(priortiseServicesByDestinationRoutes(noPlatformStation, node));
                 services = Streams.stream(priortiseServicesByDestinationRoutes(noPlatformStation, node));
             } else {
-//                filteredDeparts.addAll(orderServicesByDistance(node));
                 services = orderServicesByDistance(node);
             }
 
@@ -88,6 +96,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
             return sortsPositions.sortedByNearTo(destinationLatLon, relationships);
         }
+
     }
 
     @Override

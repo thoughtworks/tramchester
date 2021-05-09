@@ -22,11 +22,21 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
     private final IdFor<Trip> tripId;
     private final TransportMode transportMode;
 
-    public static class Builder {
+    public static class Builder implements TowardsState<RouteStationStateOnTrip> {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
                                               IdFor<Trip> tripId, TransportMode transportMode) {
             return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId, transportMode);
+        }
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(MinuteState.class, this);
+        }
+
+        @Override
+        public Class<RouteStationStateOnTrip> getDestination() {
+            return RouteStationStateOnTrip.class;
         }
     }
 
@@ -79,7 +89,8 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
             return builders.destination.from(this, cost);
         }
 
-        return builders.noPlatformStation.fromRouteStation(this, stationNode, cost);
+        return builders.towardsNoPlatformStation(this, NoPlatformStationState.class)
+                .fromRouteStation(this, stationNode, cost);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {

@@ -89,7 +89,8 @@ public class TramStationState extends TraversalState implements NodeId {
                 return builders.walking.fromTramStation(this, node, cost);
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.noPlatformStation.fromNeighbour(this, node, cost);
+                return builders.towardsNeighbourFromTramStation(this, NoPlatformStationState.class).
+                        fromNeighbour(this, node, cost);
             case TRAM_STATION:
                 return builders.tramStation.fromNeighbour(this, node, cost);
             case GROUPED:

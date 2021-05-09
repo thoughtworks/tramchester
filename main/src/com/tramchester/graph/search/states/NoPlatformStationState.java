@@ -17,7 +17,24 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NoPlatformStationState extends TraversalState implements NodeId {
 
-    public static class Builder {
+    public static class Builder implements TowardsState<NoPlatformStationState> {
+
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(WalkingState.class, this);
+            registers.add(NotStartedState.class, this);
+            registers.add(RouteStationStateOnTrip.class, this);
+            registers.add(RouteStationStateEndTrip.class, this);
+            registers.add(NoPlatformStationState.class, this);
+            registers.add(TramStationState.class, this);
+            registers.add(GroupedStationState.class, this);
+        }
+
+        @Override
+        public Class<NoPlatformStationState> getDestination() {
+            return NoPlatformStationState.class;
+        }
 
         public NoPlatformStationState from(WalkingState walkingState, Node node, int cost) {
             return new NoPlatformStationState(walkingState,
@@ -29,15 +46,15 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             return new NoPlatformStationState(notStartedState, getAll(node), cost, node.getId());
         }
 
+        public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
+            // end of a trip, may need to go back to this route station to catch new service
+            return new NoPlatformStationState(routeStationState, getAll(node), cost, node.getId());
+        }
+
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
             Stream<Relationship> stationRelationships = filterExcludingEndNode(getAll(node), onTrip);
             return new NoPlatformStationState(onTrip, stationRelationships, cost, node.getId());
-        }
-
-        public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
-            // end of a trip, may need to go back to this route station to catch new service
-            return new NoPlatformStationState(routeStationState, getAll(node), cost, node.getId());
         }
 
         public TraversalState fromNeighbour(NoPlatformStationState noPlatformStation, Node node, int cost) {
@@ -61,6 +78,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
         private Iterable<Relationship> getAll(Node node) {
             return node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
         }
+
     }
 
     private final long stationNodeId;
@@ -113,7 +131,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
                 return builders.tramStation.fromNeighbour(this, next, cost);
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.noPlatformStation.fromNeighbour(this, next, cost);
+                return builders.towardsNeighbour(this, NoPlatformStationState.class).fromNeighbour(this, next, cost);
             case GROUPED:
                 return builders.groupedStation.fromChildStation(this, next, cost); // grouped are same transport mode
             default:
@@ -131,7 +149,8 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             throw new RuntimeException("unable to board vehicle", e);
         }
 
-        return builders.routeStationJustBoarded.fromNoPlatformStation(this, node, cost, actualMode);
+        return builders.towardsRouteStationJustBoarded(this, RouteStationStateJustBoarded.class).
+                fromNoPlatformStation(this, node, cost, actualMode);
     }
 
     @Override

@@ -102,7 +102,9 @@ public class MinuteState extends TraversalState {
         List<Relationship> towardsDestination = getTowardsDestination(allDeparts);
         if (!towardsDestination.isEmpty()) {
             // we've nearly arrived
-            return builders.routeStation.fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
+            return builders.towardsRouteStateOnTrip(this, RouteStationStateOnTrip.class).
+                    fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
+//            return builders.routeStationOnTrip.fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
         }
 
         // outbound service relationships that continue the current trip
@@ -121,9 +123,11 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // for a change of trip id we need to get off vehicle, then back on to another service
-            return builders.routeStationEndTrip.fromMinuteState(this, cost, routeStationOutbounds, transportMode);
+            return builders.towardsRouteStateEndTrip(this, RouteStationStateEndTrip.class).
+                    fromMinuteState(this, cost, routeStationOutbounds, transportMode);
         } else {
-            return builders.routeStation.fromMinuteState(this, routeStationNode, cost, routeStationOutbounds, tripId, transportMode);
+            return builders.towardsRouteStateOnTrip(this, RouteStationStateOnTrip.class).
+                    fromMinuteState(this, routeStationNode, cost, routeStationOutbounds, tripId, transportMode);
         }
     }
 

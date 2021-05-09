@@ -12,10 +12,20 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
 
-    public static class Builder {
-        public TraversalState FromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
+    public static class Builder implements TowardsState<HourState> {
+        public TraversalState fromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost);
+        }
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(ServiceState.class, this);
+        }
+
+        @Override
+        public Class<HourState> getDestination() {
+            return HourState.class;
         }
     }
 
