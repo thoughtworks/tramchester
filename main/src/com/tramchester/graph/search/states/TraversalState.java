@@ -25,19 +25,21 @@ import static java.lang.String.format;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
-    protected final NodeContentsRepository nodeOperations;
-    protected final TripRepository tripRepository;
+//    protected final NodeContentsRepository nodeOperations;
+//    protected final TripRepository tripRepository;
+//    private final IdSet<Station> destinationStationIds;
+//    private final IdSet<Route> destinationRouteIds;
+//    protected final Set<Long> destinationNodeIds;
+
+    @Deprecated
+    protected final Builders builders;
 
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
     private final TraversalState parent;
 
-    private final IdSet<Station> destinationStationIds;
-    private final IdSet<Route> destinationRouteIds;
-
-    protected final Set<Long> destinationNodeIds;
-    protected final Builders builders;
+    protected final TraversalOps traversalOps;
 
     private TraversalState child;
 
@@ -50,18 +52,21 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected TraversalState(TripRepository tripRepository, SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
                              Set<Long> destinationNodeIds, Set<Station> destinationStations,
                              LatLong destinationLatLonHint, TramchesterConfig config) {
-        this.tripRepository = tripRepository;
-        this.nodeOperations = nodeOperations;
-        this.destinationNodeIds = destinationNodeIds;
-        this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
-        this.destinationRouteIds = getDestinationRoutes(destinationStations);
+        traversalOps = new TraversalOps(nodeOperations, tripRepository, destinationStations,
+                destinationNodeIds,  new Builders(sortsPositions, destinationLatLonHint, config));
+        this.builders = traversalOps.getBuilders();
+//        this.tripRepository = tripRepository;
+//        this.nodeOperations = nodeOperations;
+//        this.destinationNodeIds = destinationNodeIds;
+//        this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
+//        this.destinationRouteIds = getDestinationRoutes(destinationStations);
+//        this.builders = new Builders(sortsPositions, destinationLatLonHint, config);
 
         this.costForLastEdge = 0;
         this.parentCost = 0;
         this.parent = null;
         this.outbounds = new ArrayList<>();
 
-        this.builders = new Builders(sortsPositions, destinationLatLonHint, config);
     }
 
     protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, int costForLastEdge) {
@@ -69,22 +74,19 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
-        this.nodeOperations = parent.nodeOperations;
-        this.tripRepository = parent.tripRepository;
-        this.destinationNodeIds = parent.destinationNodeIds;
-        this.destinationStationIds = parent.destinationStationIds;
-        this.destinationRouteIds = parent.destinationRouteIds;
-        this.builders = parent.builders;
-
+        this.traversalOps = parent.traversalOps;
+        this.builders = traversalOps.getBuilders();
+//        this.nodeOperations = parent.nodeOperations;
+//        this.tripRepository = parent.tripRepository;
+//        this.destinationNodeIds = parent.destinationNodeIds;
+//        this.destinationStationIds = parent.destinationStationIds;
+//        this.destinationRouteIds = parent.destinationRouteIds;
+//        this.builders = parent.builders;
         this.parent = parent;
+
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
         this.parentCost = parent.getTotalCost();
-    }
-
-    private IdSet<Route> getDestinationRoutes(Set<Station> destinationStations) {
-        return destinationStations.stream().map(Station::getRoutes).flatMap(Collection::stream).
-                collect(IdSet.collector());
     }
 
     protected abstract TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
@@ -128,9 +130,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     @NotNull
     protected List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
         // towards final destination, just follow this one
-        return Streams.stream(outgoing).
-                filter(depart -> destinationStationIds.contains(GraphProps.getStationIdFrom(depart))).
-                collect(Collectors.toList());
+        return traversalOps.getTowardsDestination(outgoing);
     }
 
     public int getTotalCost() {
@@ -151,7 +151,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     public boolean hasDestinationRoute(IdFor<Route> routeId) {
-        return destinationRouteIds.contains(routeId);
+        return traversalOps.hasDestinationRoute(routeId);
     }
 
     protected static class Builders {

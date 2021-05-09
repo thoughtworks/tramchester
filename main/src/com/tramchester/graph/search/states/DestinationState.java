@@ -43,17 +43,17 @@ public class DestinationState extends TraversalState
         super(parent, new LinkedList<>(), cost);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DestinationState)) return false;
-        TraversalState that = (TraversalState) o;
-        return that.destinationNodeIds == this.destinationNodeIds;
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof DestinationState)) return false;
+//        TraversalState that = (TraversalState) o;
+//        return that.destinationNodeIds == this.destinationNodeIds;
+//    }
 
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        throw new RuntimeException("Already at destination, id is " + destinationNodeIds);
+        throw new RuntimeException("Already at destination, id is " + node.getId());
     }
 
     @Override

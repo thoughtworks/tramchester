@@ -61,7 +61,7 @@ public class GroupedStationState extends TraversalState {
     @Override
     protected TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node next, JourneyState journeyState, int cost) {
         long nodeId = next.getId();
-        if (destinationNodeIds.contains(nodeId)) {
+        if (traversalOps.isDestination(nodeId)) {
             // TODO Cost of bus depart?
             return builders.destination.from(this, cost);
         }

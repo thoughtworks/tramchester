@@ -76,7 +76,7 @@ public class RouteStationStateEndTrip extends TraversalState {
 
         // if no platform station then may have arrived
         long nextNodeId = nextNode.getId();
-        if (destinationNodeIds.contains(nextNodeId)) {
+        if (traversalOps.isDestination(nextNodeId)) {
             return builders.destination.from(this, cost);
         }
 

@@ -42,8 +42,8 @@ public class MinuteState extends TraversalState {
             boolean changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
             if (maybeExistingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = maybeExistingTrip.getTripId();
-                Iterable<Relationship> filterBySingleTripId = filterBySingleTripId(hourState.nodeOperations,
-                        relationships, existingTripId);
+                Iterable<Relationship> filterBySingleTripId =
+                        hourState.traversalOps.filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
                 // starting a brand new journey
@@ -133,8 +133,8 @@ public class MinuteState extends TraversalState {
 
     private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships) {
 
-        IdFor<Service> currentSvcId = tripRepository.getTripById(tripId).getService().getId();
-        tripRepository.getTripById(tripId).getService().getId();
+        IdFor<Service> currentSvcId = traversalOps.getServiceIdFor(tripId);
+       //tripRepository.getTripById(tripId).getService().getId();
 
         return Streams.stream(svcRelationships).
                 filter(relationship -> serviceNodeMatches(relationship, currentSvcId)).
@@ -143,16 +143,8 @@ public class MinuteState extends TraversalState {
 
     private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {
         Node svcNode = relationship.getEndNode();
-        IdFor<Service> svcId = nodeOperations.getServiceId(svcNode);
+        IdFor<Service> svcId = traversalOps.getServiceIdFor(svcNode);
         return  currentSvcId.equals(svcId);
-    }
-
-    private static List<Relationship> filterBySingleTripId(NodeContentsRepository nodeOperations,
-                                                           Iterable<Relationship> relationships, IdFor<Trip> tripIdToMatch) {
-        return Streams.stream(relationships).
-                filter(relationship -> nodeOperations.getTrip(relationship).equals(tripIdToMatch)).
-                collect(Collectors.toList());
-
     }
 
 

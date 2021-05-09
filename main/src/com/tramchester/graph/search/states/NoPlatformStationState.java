@@ -19,7 +19,6 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
 
     public static class Builder implements TowardsState<NoPlatformStationState> {
 
-
         @Override
         public void register(RegistersFromState registers) {
             registers.add(WalkingState.class, this);
@@ -97,7 +96,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
     @Override
     public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node next, JourneyState journeyState, int cost) {
         long nodeId = next.getId();
-        if (destinationNodeIds.contains(nodeId)) {
+        if  (traversalOps.isDestination(nodeId)) {
             // TODO Cost of bus depart?
             return builders.destination.from(this, cost);
         }
@@ -116,7 +115,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node next, JourneyState journeyState, int cost) {
         long nodeId = next.getId();
-        if (destinationNodeIds.contains(nodeId)) {
+        if (traversalOps.isDestination(nodeId)) {
             // TODO Cost of bus depart?
             return builders.destination.from(this, cost);
         }

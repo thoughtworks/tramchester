@@ -76,7 +76,7 @@ public class TramStationState extends TraversalState implements NodeId {
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
                                           JourneyState journeyState, int cost) {
         long nodeId = node.getId();
-        if (destinationNodeIds.contains(nodeId)) {
+        if (traversalOps.isDestination(nodeId)) {
             // TODO Cost of platform depart?
             return builders.destination.from(this, cost);
         }

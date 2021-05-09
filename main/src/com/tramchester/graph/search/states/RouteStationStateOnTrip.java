@@ -85,7 +85,7 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
 
         // if no platform station then may have arrived
         long stationNodeId = stationNode.getId();
-        if (destinationNodeIds.contains(stationNodeId)) {
+        if (traversalOps.isDestination(stationNodeId)) {
             return builders.destination.from(this, cost);
         }
 
