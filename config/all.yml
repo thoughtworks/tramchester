@@ -61,11 +61,8 @@ bounds:
   minNorthings: 373264
   maxEasting: 414492
   maxNorthings: 437779
-loadPostcodes: false
 createNeighbours: true
 distanceToNeighboursKM: 0.2
-postcodeDataPath: data/codepo_gb/Data/CSV
-postcodeZip: data/codepo_gb.zip
 maxWait: 35
 maxInitialWait: 45
 numberQueries: 3
