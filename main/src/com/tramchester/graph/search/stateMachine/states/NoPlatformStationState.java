@@ -5,10 +5,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.NodeId;
-import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
-import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
+import com.tramchester.graph.search.stateMachine.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -19,9 +16,9 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class NoPlatformStationState extends TraversalState implements NodeId {
+public class NoPlatformStationState extends StationState implements NodeId {
 
-    public static class Builder implements TowardsState<NoPlatformStationState> {
+    public static class Builder implements TowardsStationState<NoPlatformStationState> {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -39,13 +36,13 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             return NoPlatformStationState.class;
         }
 
-        public NoPlatformStationState from(WalkingState walkingState, Node node, int cost) {
+        public NoPlatformStationState fromWalking(WalkingState walkingState, Node node, int cost) {
             return new NoPlatformStationState(walkingState,
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT, NEIGHBOUR),
                     cost, node.getId());
         }
 
-        public NoPlatformStationState from(NotStartedState notStartedState, Node node, int cost) {
+        public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, int cost) {
             return new NoPlatformStationState(notStartedState, getAll(node), cost, node.getId());
         }
 
@@ -60,19 +57,13 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             return new NoPlatformStationState(onTrip, stationRelationships, cost, node.getId());
         }
 
-        public TraversalState fromNeighbour(NoPlatformStationState noPlatformStation, Node node, int cost) {
+        public NoPlatformStationState fromNeighbour(StationState noPlatformStation, Node node, int cost) {
             return new NoPlatformStationState(noPlatformStation,
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT),
                     cost, node.getId());
         }
 
-        public TraversalState fromNeighbour(TramStationState tramStationState, Node node, int cost) {
-            return new NoPlatformStationState(tramStationState,
-                    node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT),
-                    cost, node.getId());
-        }
-
-        public TraversalState fromGrouped(GroupedStationState groupedStationState, Node node, int cost) {
+        public NoPlatformStationState fromGrouped(GroupedStationState groupedStationState, Node node, int cost) {
             return new NoPlatformStationState(groupedStationState,
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, NEIGHBOUR),
                     cost,  node.getId());
@@ -131,7 +122,7 @@ public class NoPlatformStationState extends TraversalState implements NodeId {
             case ROUTE_STATION:
                 return toRouteStation(next, journeyState, cost);
             case TRAM_STATION:
-                return builders.tramStation.fromNeighbour(this, next, cost);
+                return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, next, cost);
             case BUS_STATION:
             case TRAIN_STATION:
                 return builders.towardsNeighbour(this, NoPlatformStationState.class).fromNeighbour(this, next, cost);

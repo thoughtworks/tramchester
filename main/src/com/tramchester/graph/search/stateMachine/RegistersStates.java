@@ -13,7 +13,13 @@ public class RegistersStates implements RegistersFromState {
     }
 
     public TowardsState<? extends TraversalState> getBuilderFor(Class<? extends TraversalState> from, Class<? extends TraversalState> to) {
-        return map.get(new FromTo(from, to));
+        final FromTo key = new FromTo(from, to);
+
+        if (!map.containsKey(key)) {
+            throw new NextStateNotFoundException(key);
+        }
+        return map.get(key);
+
     }
 
     public void addBuilder(TowardsState<? extends TraversalState> builder) {
@@ -52,6 +58,14 @@ public class RegistersStates implements RegistersFromState {
             int result = from.hashCode();
             result = 31 * result + to.hashCode();
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "FromTo{" +
+                    "from=" + from +
+                    ", to=" + to +
+                    '}';
         }
     }
 }

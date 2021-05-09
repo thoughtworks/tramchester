@@ -87,7 +87,7 @@ public class PlatformState extends TraversalState implements NodeId {
             if (traversalOps.isDestination(nodeId)) {
                 return builders.destination.from(this, cost);
             } else {
-                return builders.tramStation.fromPlatform(this, node, cost);
+                return builders.towardsStation(this, TramStationState.class).fromPlatform(this, node, cost);
             }
         }
 
