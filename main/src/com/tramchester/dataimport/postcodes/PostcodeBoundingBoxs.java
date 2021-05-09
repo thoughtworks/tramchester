@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.PostcodeHintData;
@@ -25,24 +26,31 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.dataimport.postcodes.PostcodeDataImporter.POSTCODES_CONFIG_NAME;
+
 @LazySingleton
 public class PostcodeBoundingBoxs {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeBoundingBoxs.class);
 
     public final static String HINTS_FILES = "postcode_hints.csv";
     private final Map<Path, BoundingBox> postcodeBounds;
-    private final Path hintsFilePath;
     private final boolean enabled;
     private final CsvMapper mapper;
     private boolean playback;
+
+    private Path hintsFilePath;
 
     @Inject
     public PostcodeBoundingBoxs(TramchesterConfig config, CsvMapper mapper) {
         this.mapper = mapper;
         postcodeBounds = new HashMap<>();
-        Path directory = config.getPostcodeDataPath();
-        enabled = config.getLoadPostcodes();
-        hintsFilePath = directory.resolve(HINTS_FILES).toAbsolutePath();
+        enabled = config.hasDataSourceConfig(POSTCODES_CONFIG_NAME);
+        if (enabled) {
+            RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig(POSTCODES_CONFIG_NAME);
+            Path directory = sourceConfig.getDataPath();
+
+            hintsFilePath = directory.resolve(HINTS_FILES).toAbsolutePath();
+        }
     }
 
     @PreDestroy
@@ -73,10 +81,10 @@ public class PostcodeBoundingBoxs {
             return;
         }
 
-        if (!playback) {
-            recordBoundsForPostcodes();
-        } else {
+        if (playback) {
             logger.info("Not recording");
+        } else {
+            recordBoundsForPostcodes();
         }
     }
 
@@ -86,15 +94,14 @@ public class PostcodeBoundingBoxs {
         DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFilePath, PostcodeHintData.class, mapper);
 
         Stream<PostcodeHintData> data = loader.load();
-
         data.forEach(item -> postcodeBounds.put(Path.of(item.getFile()),
                 new BoundingBox(item.getMinEasting(), item.getMinNorthing(), item.getMaxEasting(), item.getMaxNorthing())));
-
         data.close();
+        logger.info("Loaded " + postcodeBounds.size() +" bounding boxes");
     }
 
     private void recordBoundsForPostcodes() {
-        logger.info("Recording bounds for postcode files in " + hintsFilePath.toAbsolutePath().toString());
+        logger.info("Recording bounds for postcode files in " + hintsFilePath.toAbsolutePath());
 
         CsvMapper mapper = new CsvMapper();
         CsvSchema schema = mapper.schemaFor(PostcodeHintData.class).withHeader();
@@ -157,7 +164,11 @@ public class PostcodeBoundingBoxs {
         return postcodeBounds.get(file);
     }
 
-    public boolean hasData() {
+    public boolean isLoaded() {
         return playback;
+    }
+
+    public boolean hasBoundsFor(Path file) {
+        return postcodeBounds.containsKey(file);
     }
 }

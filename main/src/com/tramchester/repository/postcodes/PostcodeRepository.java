@@ -5,22 +5,22 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
-import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.FindNear;
+import com.tramchester.geo.GridPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.tramchester.dataimport.postcodes.PostcodeDataImporter.POSTCODES_CONFIG_NAME;
 import static com.tramchester.geo.CoordinateTransforms.getLatLong;
 
 @LazySingleton
@@ -31,7 +31,6 @@ public class PostcodeRepository {
     private final TramchesterConfig config;
 
     private final IdMap<PostcodeLocation> postcodes; // Id -> PostcodeLocation
-    private LocalDateTime lastModifiedTime;
 
     @Inject
     public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config) {
@@ -46,7 +45,9 @@ public class PostcodeRepository {
 
     @PostConstruct
     public void start() {
-        if (!config.getLoadPostcodes()) {
+        logger.info("starting");
+
+        if (!config.hasDataSourceConfig(POSTCODES_CONFIG_NAME)) {
             logger.warn("Not loading postcodes");
             return;
         }
@@ -56,15 +57,15 @@ public class PostcodeRepository {
 
         sources.forEach(source-> {
             source.forEach(code -> postcodes.add(new PostcodeLocation(getLatLong(code.getGridPosition()), code.getId())));
-
             source.close();
         });
 
-        this.lastModifiedTime = importer.getTargetFolderModTime();
+        logger.info("Loaded " + postcodes.size() + " postcodes");
+        logger.info("started");
     }
 
     @PreDestroy
-    public void dispose() {
+    public void stop() {
         postcodes.clear();
     }
 
@@ -76,7 +77,7 @@ public class PostcodeRepository {
         return Collections.unmodifiableCollection(postcodes.getValues());
     }
 
-    public LocalDateTime getLastModifiedDate() {
-        return lastModifiedTime;
+    public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, int meters) {
+        return FindNear.getNearTo(postcodes.getValues(), location, meters);
     }
 }

@@ -78,20 +78,19 @@ public class BoundingBox {
     }
 
     public boolean overlapsWith(BoundingBox other) {
-        GridPosition topLeft = new GridPosition(getMinEastings(), getMaxNorthings());
-        GridPosition bottomRight = new GridPosition(getMaxEasting(), getMinNorthings());
-
-        if (other.contained(bottomLeft)) {
-            return true;
+        if (other.bottomLeft.getNorthings()>topRight.getNorthings()) {
+            return false;
         }
-        if (other.contained(topLeft)) {
-            return true;
+        if (other.topRight.getNorthings()<bottomLeft.getNorthings()) {
+            return false;
         }
-        if (other.contained(topRight)) {
-            return true;
+        if (other.bottomLeft.getEastings()>topRight.getEastings()) {
+            return false;
         }
-        return other.contained(bottomRight);
-
+        if (other.topRight.getEastings()<bottomLeft.getEastings()) {
+            return false;
+        }
+        return true;
     }
 
     @Override

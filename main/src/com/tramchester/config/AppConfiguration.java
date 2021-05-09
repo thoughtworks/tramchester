@@ -31,16 +31,6 @@ public class AppConfiguration extends TramchesterConfig {
     private String instanceDataUrl;
 
     @NotNull
-    @JsonProperty("loadPostcodes")
-    private Boolean loadPostcodes;
-
-    @JsonProperty("postcodeDataPath")
-    private Path postcodeDataPath;
-
-    @JsonProperty("postcodeZip")
-    private Path postcodeZip;
-
-    @NotNull
     @JsonProperty("nearestStopRangeKM")
     private Double nearestStopRangeKM;
 
@@ -231,11 +221,6 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
-    public boolean getLoadPostcodes() {
-        return loadPostcodes;
-    }
-
-    @Override
     public boolean getCreateNeighbours() {
         return createNeighbours;
     }
@@ -243,16 +228,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public double getDistanceToNeighboursKM() {
         return distanceToNeighboursKM;
-    }
-
-    @Override
-    public Path getPostcodeDataPath() {
-        return postcodeDataPath;
-    }
-
-    @Override
-    public Path getPostcodeZip() {
-        return postcodeZip;
     }
 
     @Valid

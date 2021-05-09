@@ -113,21 +113,6 @@ public abstract class TestConfig extends AppConfiguration {
     public int getDataExpiryThreadhold() { return 3; }
 
     @Override
-    public boolean getLoadPostcodes() {
-        return false;
-    }
-
-    @Override
-    public Path getPostcodeDataPath() {
-        return Path.of("data", "codepo_gb", "Data", "CSV");
-    }
-
-    @Override
-    public Path getPostcodeZip() {
-        return Path.of("data", "codepo_gb.zip");
-    }
-
-    @Override
     public ServerFactory getServerFactory() {
         DefaultServerFactory factory = new DefaultServerFactory();
         factory.setApplicationContextPath("/");

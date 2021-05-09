@@ -5,7 +5,6 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
@@ -83,13 +82,8 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public boolean getLoadPostcodes() {
-        return true;
-    }
-
-    @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(remoteDataSourceConfig, remoteNaptanConfig);
+        return Arrays.asList(remoteDataSourceConfig, remoteNaptanConfig, postCodeDatasourceConfig);
     }
 
     private static class GraphDBIntegrationBusTestConfig extends GraphDBTestConfig {

@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.repository.postcodes.PostcodeRepository;
@@ -33,10 +34,12 @@ public class PostcodeResource {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeResource.class);
 
     private final PostcodeRepository postcodeRepository;
+    private final PostcodeDataImporter importer;
 
     @Inject
-    public PostcodeResource(PostcodeRepository postcodeRepository) {
+    public PostcodeResource(PostcodeRepository postcodeRepository, PostcodeDataImporter importer) {
         this.postcodeRepository = postcodeRepository;
+        this.importer = importer;
     }
 
     @GET
@@ -49,7 +52,7 @@ public class PostcodeResource {
         // TODO this could potentilly be very big.....
         Collection<PostcodeLocation> allPostcodes = postcodeRepository.getPostcodes();
 
-        LocalDateTime modTime = postcodeRepository.getLastModifiedDate();
+        LocalDateTime modTime = importer.getTargetFolderModTime();
         Date date = Date.from(modTime.toInstant(ZoneOffset.UTC));
 
         Response.ResponseBuilder builder = request.evaluatePreconditions(date);

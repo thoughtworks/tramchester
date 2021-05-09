@@ -1,6 +1,7 @@
-package com.tramchester.integration.dataimport;
+package com.tramchester.integration.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
@@ -32,8 +33,9 @@ class PostcodeBoundingBoxsTest {
     void beforeEachTest() throws IOException {
         mapper = CsvMapper.builder().build();
 
-        TramchesterConfig config = new TramWithPostcodesEnabledTestData();
-        hintsFile = config.getPostcodeDataPath().resolve("postcode_hints.csv");
+        TramchesterConfig config = new TramWithPostcodesEnabled();
+        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig("postcodes");
+        hintsFile = sourceConfig.getDataPath().resolve("postcode_hints.csv");
         postcodeBoundingBoxs = new PostcodeBoundingBoxs(config, mapper);
 
         if (!Files.exists(testFolder)) {
@@ -52,7 +54,7 @@ class PostcodeBoundingBoxsTest {
 
         postcodeBoundingBoxs.start();
 
-        assertFalse(postcodeBoundingBoxs.hasData());
+        assertFalse(postcodeBoundingBoxs.isLoaded());
 
         Path path = Path.of("fileA.csv");
         for (int easting = 10; easting < 20; easting++) {
@@ -89,7 +91,7 @@ class PostcodeBoundingBoxsTest {
 
         // now should be playback, loads from file
         postcodeBoundingBoxs.start();
-        assertTrue(postcodeBoundingBoxs.hasData());
+        assertTrue(postcodeBoundingBoxs.isLoaded());
 
         assertFalse(postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("xxx", -11, 0)));
         assertFalse(postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("xxx", 11, 0)));
@@ -143,11 +145,4 @@ class PostcodeBoundingBoxsTest {
 
     }
 
-    private class TramWithPostcodesEnabledTestData extends TramWithPostcodesEnabled {
-
-        @Override
-        public Path getPostcodeDataPath() {
-            return testFolder;
-        }
-    }
 }

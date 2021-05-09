@@ -11,13 +11,10 @@ import java.util.stream.Stream;
 
 @ImplementedBy(StationLocations.class)
 public interface StationLocationsRepository {
-    LatLong getStationPosition(Station station) throws TransformException;
-
-    GridPosition getStationGridPosition(Station station);
 
     List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, double rangeInKM);
 
-    @NotNull List<Station> nearestStationsSorted(@NotNull GridPosition gridPosition, int maxToFind, double rangeInKM);
+    List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, double rangeInKM);
 
     Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM);
 

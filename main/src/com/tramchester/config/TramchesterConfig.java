@@ -72,20 +72,11 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // only allow changing vehicles at interchanges
     public abstract boolean getChangeAtInterchangeOnly();
 
-    // load postcodes?
-    public abstract boolean getLoadPostcodes();
-
     // add neighbouring stations
     public abstract boolean getCreateNeighbours();
 
     // distance for neighbouring stations, in KM
     public abstract double getDistanceToNeighboursKM() ;
-
-    // unpacked location of postcode data
-    public abstract Path getPostcodeDataPath();
-
-    // location of zip file containing postcode
-    public abstract Path getPostcodeZip();
 
     // config for each of the GTFS data sources
     public abstract List<GTFSSourceConfig> getGTFSDataSource();

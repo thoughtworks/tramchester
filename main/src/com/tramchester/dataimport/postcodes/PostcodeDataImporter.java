@@ -2,10 +2,11 @@ package com.tramchester.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.FetchFileModTime;
-import com.tramchester.dataimport.Unzipper;
+import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -32,124 +33,103 @@ public class PostcodeDataImporter {
 
     private static final Logger logger = LoggerFactory.getLogger(PostcodeDataImporter.class);
     private static final String CSV = ".csv";
+    public static final String POSTCODES_CONFIG_NAME = "postcodes";
 
-    private final Path directory;
-    private final TramchesterConfig config;
+    private static final Path dataFolder = Paths.get("Data", "CSV");
+
     private final StationLocations stationLocations;
-    private final Unzipper unzipper;
-    private final long margin;
-    private final Double range;
     private final PostcodeBoundingBoxs postcodeBounds;
     private final FetchFileModTime fetchFileModTime;
     private final CsvMapper mapper;
-    private BoundingBox requiredBounds;
+
+    private final boolean enabled;
+    private final TramchesterConfig config;
 
     @Inject
-    public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations, Unzipper unzipper,
+    public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations,
                                 PostcodeBoundingBoxs postcodeBounds, FetchFileModTime fetchFileModTime,
-                                CsvMapper mapper) {
-        this.directory = config.getPostcodeDataPath();
-        range = config.getNearestStopForWalkingRangeKM();
+                                CsvMapper mapper,  UnzipFetchedData.Ready dataIsReady) {
         this.fetchFileModTime = fetchFileModTime;
         this.mapper = mapper;
-        // meters
-        margin = Math.round(range * 1000D);
         this.config = config;
+
         this.stationLocations = stationLocations;
-        this.unzipper = unzipper;
         this.postcodeBounds = postcodeBounds;
+
+        this.enabled = config.hasDataSourceConfig(POSTCODES_CONFIG_NAME);
     }
 
     public List<Stream<PostcodeData>> loadLocalPostcodes() {
-        requiredBounds = stationLocations.getBounds();
-
-        unzipIfRequired();
-
-        logger.info("Load postcode files files from " + directory.toAbsolutePath());
-        if (!Files.isDirectory(directory)) {
-            logger.error("Cannot load postcode data, location is not a directory " + directory);
+        if (!enabled) {
+            logger.warn("load postcodes attempted when data source not present");
             return Collections.emptyList();
         }
 
+        RemoteDataSourceConfig dataSourceConfig = config.getDataSourceConfig(POSTCODES_CONFIG_NAME);
+        Path dataFilesDirectory = dataSourceConfig.getDataPath().resolve(dataFolder);
+
+        logger.info("Load postcode files files from " + dataFilesDirectory.toAbsolutePath());
+
+        if (!Files.isDirectory(dataFilesDirectory)) {
+            logger.error("Cannot load postcode data, location is not a directory " + dataFilesDirectory);
+            return Collections.emptyList();
+        }
+
+        BoundingBox stationBounds = stationLocations.getBounds();
         Set<Path> csvFiles;
         try {
-            csvFiles = Files.list(directory).
+            csvFiles = Files.list(dataFilesDirectory).
                     filter(Files::isRegularFile).
                     filter(path -> path.getFileName().toString().toLowerCase().endsWith(CSV)).
-                    filter(path -> !path.endsWith(PostcodeBoundingBoxs.HINTS_FILES)). // skip hints file
                     collect(Collectors.toSet());
         } catch (IOException e) {
-            logger.error("Cannot list files in postcode data location " + directory.toAbsolutePath(), e);
+            logger.error("Cannot list files in postcode data location " + dataFilesDirectory.toAbsolutePath(), e);
             return Collections.emptyList();
         }
 
         if (csvFiles.isEmpty()) {
-            logger.error("Found no matching files in " + directory.toAbsolutePath());
+            logger.error("Found no matching files in " + dataFilesDirectory.toAbsolutePath());
         } else {
-            logger.info("Found " + csvFiles.size() + " files in " + directory.toAbsolutePath());
+            logger.info("Found " + csvFiles.size() + " files in " + dataFilesDirectory.toAbsolutePath());
         }
 
-        return csvFiles.stream().map(this::loadDataFromFile).collect(Collectors.toList());
+        return csvFiles.stream().map(file -> loadDataFromFile(file, stationBounds)).collect(Collectors.toList());
     }
 
-    private void unzipIfRequired() {
-        Path postcodeZip = config.getPostcodeZip();
-        Path unzipTarget = getTargetPath();
-        if (refreshNeeded(postcodeZip, unzipTarget)) {
-            unzipper.unpack(postcodeZip, unzipTarget);
-        }
-    }
-
-    private Path getTargetPath() {
-        return Path.of(config.getPostcodeZip().toAbsolutePath().toString().replace(".zip", ""));
-    }
-
-    private boolean refreshNeeded(Path postcodeZip, Path unzipTarget)  {
-        try {
-            if (Files.exists(unzipTarget)) {
-                FileTime targetModTime = Files.getLastModifiedTime(unzipTarget);
-                FileTime zipModTime = Files.getLastModifiedTime(postcodeZip);
-
-                if (targetModTime.compareTo(zipModTime) <= 0) {
-                    logger.info("Not unpacking, output directory is newer or same mod time");
-                    return false;
-                }
-            }
-        }
-        catch (IOException exception) {
-            logger.warn("Cannot check mod time, will unzip", exception);
-        }
-        return true;
-    }
-
-    private Stream<PostcodeData> loadDataFromFile(Path file) {
+    private Stream<PostcodeData> loadDataFromFile(Path file, BoundingBox loadedStationsBounds) {
         logger.info("Load postcode data from " + file.toAbsolutePath());
 
-        DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        Double rangeInKm = config.getNearestStopForWalkingRangeKM();
+        long marginInM = Math.round(rangeInKm * 1000D);
 
-        if (postcodeBounds.hasData()) {
-            BoundingBox fileBounds = postcodeBounds.getBoundsFor(file);
-            if (fileBounds!=null && !fileBounds.overlapsWith(requiredBounds)) {
+        DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        Stream<PostcodeData> postcodeDataStream = getPostcodesFor(loader);
+
+        if (postcodeBounds.isLoaded() && postcodeBounds.hasBoundsFor(file)) {
+            BoundingBox boundsForPostcodeFile = postcodeBounds.getBoundsFor(file);
+            if (boundsForPostcodeFile.overlapsWith(loadedStationsBounds)) {
+                return postcodeDataStream.
+                        filter(postcode -> loadedStationsBounds.within(marginInM, postcode.getGridPosition())).
+                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm));
+            } else {
                 logger.info("Skipping " + file + " as contains no positions overlapping with current bounds");
                 return Stream.empty();
-            } else {
-                Stream<PostcodeData> postcodeDataStream = loader.load();
-
-                return postcodeDataStream.
-                        filter(postcode -> postcode.getGridPosition().isValid()).
-                        filter(postcode -> requiredBounds.within(margin, postcode.getGridPosition())).
-                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), range));
             }
+        } else {
+            return postcodeDataStream.
+                    filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
+                    filter(postcode -> loadedStationsBounds.within(marginInM, postcode.getGridPosition())).
+                    filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm));
         }
+    }
 
-        Stream<PostcodeData> postcodeDataStream = loader.load();
-        return postcodeDataStream.filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
-                filter(postcode -> requiredBounds.within(margin, postcode.getGridPosition())).
-                filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), range));
-
+    private Stream<PostcodeData> getPostcodesFor(DataLoader<PostcodeData> loader) {
+        return loader.load().
+                filter(postcode -> postcode.getGridPosition().isValid());
     }
 
     public LocalDateTime getTargetFolderModTime() {
-        return fetchFileModTime.getFor(getTargetPath());
+        RemoteDataSourceConfig dataSourceConfig = config.getDataSourceConfig(POSTCODES_CONFIG_NAME);
+        return fetchFileModTime.getFor(dataSourceConfig.getDataPath());
     }
 }

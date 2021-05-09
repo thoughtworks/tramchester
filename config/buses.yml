@@ -42,6 +42,12 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/naptan
     filename: naptan_csv.zip
+  -
+    name: postcodes
+    dataURL: https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect
+    dataCheckURL: ""
+    dataPath: data/postcodes
+    filename: codepo_gb.zip
 bounds:
   minEastings: 112685
   minNorthings: 015490

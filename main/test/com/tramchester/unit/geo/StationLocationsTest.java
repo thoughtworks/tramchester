@@ -65,10 +65,11 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationB = createTestStation("id789", "nameC", TestEnv.nearShudehill);
         setStationExceptations(stationA, stationB);
 
+        LatLong resultA = stationA.getLatLong();
+        LatLong resultB = stationB.getLatLong();
+
         replayAll();
         stationLocations.start();
-        LatLong resultA = stationLocations.getStationPosition(stationA);
-        LatLong resultB = stationLocations.getStationPosition(stationB);
         verifyAll();
 
         assertEquals(TestEnv.nearPiccGardens.getLat(), resultA.getLat(), 0.00001);
@@ -93,12 +94,13 @@ class StationLocationsTest extends EasyMockSupport {
         LatLong closePlace = new LatLong(place.getLat()+0.008, place.getLon()+0.008);
         Station stationD = createTestStation("idABC", "name", closePlace);
 
+        GridPosition gridA = stationA.getGridPosition();
+        GridPosition gridB = stationD.getGridPosition();
+
         setStationExceptations(stationA, stationB, stationC, stationD);
 
         replayAll();
         stationLocations.start();
-        GridPosition gridA = stationLocations.getStationGridPosition(stationA);
-        GridPosition gridB = stationLocations.getStationGridPosition(stationD);
         verifyAll();
 
         int rangeInKM = 1;
@@ -177,11 +179,11 @@ class StationLocationsTest extends EasyMockSupport {
 
         setStationExceptations(testStationA, testStationB, testStationC);
 
+        GridPosition posA = testStationA.getGridPosition();
+        GridPosition posB = testStationB.getGridPosition();
+
         replayAll();
         stationLocations.start();
-        GridPosition posA = stationLocations.getStationGridPosition(testStationA);
-        GridPosition posB = stationLocations.getStationGridPosition(testStationB);
-
         BoundingBox bounds = stationLocations.getBounds();
         verifyAll();
 

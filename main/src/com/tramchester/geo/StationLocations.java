@@ -7,17 +7,13 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.CompositeStationRepository;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -36,13 +32,13 @@ public class StationLocations implements StationLocationsRepository {
     private long minNorthings;
     private long maxNorthings;
 
-    private final HashMap<Station, GridPosition> positions;
+    private final Set<Station> positions;
 
     @Inject
     public StationLocations(CompositeStationRepository stationRepository, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.config = config;
-        positions = new HashMap<>();
+        positions = new HashSet<>();
 
         // bounding box for all stations
         minEastings = Long.MAX_VALUE;
@@ -69,22 +65,16 @@ public class StationLocations implements StationLocationsRepository {
 
     private void addStation(Station station) {
         logger.debug("Adding station " + HasId.asId(station));
-        if (!positions.containsKey(station)) {
+        if (!positions.contains(station)) {
             GridPosition position = station.getGridPosition();
             if (position.isValid()) {
-                positions.put(station, position);
+                positions.add(station);
                 updateBoundingBox(position);
                 logger.debug("Added station " + station.getId() + " at grid " + position);
             } else {
                 logger.warn("Invalid grid for " + station.getId());
             }
         }
-    }
-
-    @Override
-    public LatLong getStationPosition(Station station) {
-        GridPosition gridPostition = positions.get(station);
-        return CoordinateTransforms.getLatLong(gridPostition);
     }
 
     private void updateBoundingBox(GridPosition gridPosition) {
@@ -106,8 +96,24 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public GridPosition getStationGridPosition(Station station) {
-        return positions.get(station);
+    public List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, double rangeInKM) {
+        long rangeInMeters = Math.round(rangeInKM * 1000D);
+
+        if (maxToFind > 1) {
+            // only sort if more than one, as sorting potentially expensive
+           return FindNear.getNearToSorted(positions, gridPosition, rangeInMeters).
+                    limit(maxToFind).
+                    collect(Collectors.toList());
+        } else {
+            return FindNear.getNearTo(positions, gridPosition, rangeInMeters).
+                    limit(maxToFind).collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
+        long rangeInMeters = Math.round(rangeInKM * 1000D);
+        return FindNear.getNearTo(positions, station.getGridPosition(), rangeInMeters);
     }
 
     @Override
@@ -116,63 +122,10 @@ public class StationLocations implements StationLocationsRepository {
         return nearestStationsSorted(gridPosition, maxToFind, rangeInKM);
     }
 
-    @Override
-    public List<Station> nearestStationsSorted( GridPosition gridPosition, int maxToFind, double rangeInKM) {
-        long rangeInMeters = Math.round(rangeInKM * 1000D);
-
-        Stream<Map.Entry<Station, GridPosition>> unsorted = getNearbyStream(gridPosition, rangeInMeters);
-
-         List<Station> stationList;
-        if (maxToFind > 1) {
-            // only sort if more than one, as sorting potentially expensive
-            stationList = unsorted.
-                    sorted((a, b) -> compareDistances(gridPosition, a.getValue(), b.getValue())).
-                    limit(maxToFind).
-                    map(Map.Entry::getKey).collect(Collectors.toList());
-            logger.debug(format("Found %s (of %s) stations within %s meters of grid %s",
-                    stationList.size(), maxToFind, rangeInMeters, gridPosition));
-        } else {
-            stationList = unsorted.limit(maxToFind).map(Map.Entry::getKey).collect(Collectors.toList());
-        }
-        unsorted.close();
-
-        return stationList;
-    }
-
-    @Override
-    public Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
-        long rangeInMeters = Math.round(rangeInKM * 1000D);
-        return getNearbyStream(getStationGridPosition(station), rangeInMeters).map(Map.Entry::getKey);
-    }
-
     public List<Station> getNearestStationsTo(LatLong latLong, int maxNumberToFind, double rangeInKM) {
         List<Station> result = nearestStationsSorted(latLong, maxNumberToFind, rangeInKM);
         logger.info(format("Found %s (of max %s) stations close to %s", result.size(), maxNumberToFind, latLong));
         return result;
-    }
-
-
-    private Stream<Map.Entry<Station, GridPosition>> getNearbyStream( GridPosition otherPosition, long rangeInMeters) {
-        return getNearbyStreamSquare(otherPosition, rangeInMeters).
-                        filter(entry -> GridPositions.withinDist(otherPosition, entry.getValue(), rangeInMeters));
-    }
-
-
-    private Stream<Map.Entry<Station, GridPosition>> getNearbyStreamSquare( GridPosition otherPosition,
-                                                                              long rangeInMeters) {
-        if (positions.isEmpty()) {
-            logger.warn("No positions present");
-        }
-        return positions.entrySet().stream().
-                // crude filter initially
-                        filter(entry -> GridPositions.withinDistEasting(otherPosition, entry.getValue(), rangeInMeters)).
-                        filter(entry -> GridPositions.withinDistNorthing(otherPosition, entry.getValue(), rangeInMeters));
-    }
-
-    private int compareDistances(GridPosition origin, GridPosition first, GridPosition second) {
-        long firstDist = GridPositions.distanceTo(origin, first);
-        long secondDist = GridPositions.distanceTo(origin, second);
-        return Long.compare(firstDist, secondDist);
     }
 
     public BoundingBox getBounds() {
@@ -181,7 +134,7 @@ public class StationLocations implements StationLocationsRepository {
 
     public boolean hasAnyNearby(GridPosition hasGridPosition, double rangeInKM) {
         long rangeInMeters = Math.round(rangeInKM * 1000D);
-        return getNearbyStream(hasGridPosition, rangeInMeters).findAny().isPresent();
+        return  FindNear.getNearTo(positions, hasGridPosition, rangeInMeters).findAny().isPresent();
     }
 
     public Stream<BoundingBoxWithStations> getGroupedStations(long gridSize) {
@@ -216,9 +169,8 @@ public class StationLocations implements StationLocationsRepository {
 
     private Set<Station> getStationsWithin(BoundingBox box) {
         // TODO need more efficient way to do this?
-        return positions.entrySet().stream().
-                filter(entry -> box.contained(entry.getValue())).
-                map(Map.Entry::getKey).
+        return positions.stream().
+                filter(entry -> box.contained(entry.getGridPosition())).
                 collect(Collectors.toSet());
     }
 

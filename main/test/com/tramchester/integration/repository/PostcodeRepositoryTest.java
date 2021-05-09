@@ -5,12 +5,17 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeRepositoryTest {
 
@@ -34,6 +39,11 @@ class PostcodeRepositoryTest {
     }
 
     @Test
+    void shouldHaveSomePostcodes() {
+        assertFalse(repository.getPostcodes().isEmpty());
+    }
+
+    @Test
     void shouldLoadPostcodes() {
 
         LatLong expected = TestEnv.nearWythenshaweHosp();
@@ -44,5 +54,13 @@ class PostcodeRepositoryTest {
         LatLong position = result.getLatLong();
         Assertions.assertEquals(expected.getLat(), position.getLat(), 0.01);
         Assertions.assertEquals(expected.getLon(), position.getLon(), 0.01);
+    }
+
+    @Test
+    void shouldHavePostcodesNear() {
+        GridPosition place = TestEnv.nearPiccGardensGrid;
+
+        Set<PostcodeLocation> found = repository.getPostcodesNear(place, 500).collect(Collectors.toSet());
+        assertFalse(found.isEmpty());
     }
 }

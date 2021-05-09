@@ -9,10 +9,12 @@ import java.nio.file.Path;
 public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final NaptanRemoteDataSourceConfig remoteNaptanConfig;
+    protected final PostCodeDatasourceConfig postCodeDatasourceConfig;
     private final GraphDBTestConfig dbConfig;
 
     protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
         remoteNaptanConfig = new NaptanRemoteDataSourceConfig("data/naptan");
+        postCodeDatasourceConfig = new PostCodeDatasourceConfig();
         this.dbConfig = dbConfig;
     }
 

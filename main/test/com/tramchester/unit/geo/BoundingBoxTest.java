@@ -33,4 +33,68 @@ class BoundingBoxTest {
         assertFalse(box.contained(CoordinateTransforms.getGridPosition(outsideBox)));
     }
 
+    @Test
+    void shouldHaveOverlapsWithin() {
+        BoundingBox boxA = new BoundingBox(1,2, 10,12);
+        BoundingBox boxB = new BoundingBox(4,5, 7,9);
+
+        assertTrue(boxA.overlapsWith(boxB));
+        assertTrue(boxB.overlapsWith(boxA));
+    }
+
+    @Test
+    void shouldHaveOverlapsTopRightOrBottomLeft() {
+        BoundingBox boxA = new BoundingBox(1,2, 10,12);
+        BoundingBox boxB = new BoundingBox(4,5, 13,14);
+
+        assertTrue(boxA.overlapsWith(boxB));
+        assertTrue(boxB.overlapsWith(boxA));
+    }
+
+    @Test
+    void shouldHaveOverlapsBottomRightOrTopLeft() {
+        BoundingBox boxA = new BoundingBox(5,6, 10,12);
+        BoundingBox boxB = new BoundingBox(7,4, 13,8);
+
+        assertTrue(boxA.overlapsWith(boxB));
+        assertTrue(boxB.overlapsWith(boxA));
+    }
+
+    @Test
+    void shouldHaveOverlapVertStrip() {
+        BoundingBox boxA = new BoundingBox(5,6, 10,12);
+        BoundingBox boxB = new BoundingBox(7,4, 8,14);
+
+        assertTrue(boxA.overlapsWith(boxB));
+        assertTrue(boxB.overlapsWith(boxA));
+    }
+
+    @Test
+    void shouldHaveOverlapHorzStrip() {
+        BoundingBox boxA = new BoundingBox(5,6, 10,12);
+        BoundingBox boxB = new BoundingBox(4,7, 12,10);
+
+        assertTrue(boxA.overlapsWith(boxB));
+        assertTrue(boxB.overlapsWith(boxA));
+    }
+
+    @Test
+    void shouldHaveOverlapPartial() {
+        BoundingBox boxA = new BoundingBox(5,6, 10,12);
+        BoundingBox boxB = new BoundingBox(7,8, 8,14);
+
+        assertTrue(boxA.overlapsWith(boxB));
+        assertTrue(boxB.overlapsWith(boxA));
+    }
+
+
+    @Test
+    void shouldHaveNotOverlaps() {
+        BoundingBox boxA = new BoundingBox(1,2, 10,12);
+        BoundingBox boxB = new BoundingBox(20,25, 28,34);
+
+        assertFalse(boxA.overlapsWith(boxB));
+        assertFalse(boxB.overlapsWith(boxA));
+    }
+
 }

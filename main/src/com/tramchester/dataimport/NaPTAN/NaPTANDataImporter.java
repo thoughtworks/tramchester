@@ -47,7 +47,7 @@ public class NaPTANDataImporter {
             return;
         }
 
-        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig("naptan");
+        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig(NAPTAN_CONFIG_NAME);
         loadForConfig(sourceConfig);
 
         logger.info("started");

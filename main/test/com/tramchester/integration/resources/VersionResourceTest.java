@@ -56,7 +56,7 @@ class VersionResourceTest {
 
         assertEquals(expectedModes.size(), result.size());
         assertTrue(expectedModes.containsAll(result));
-        assertEquals(configuration.getLoadPostcodes(), results.getPostcodesEnabled());
+        assertFalse(results.getPostcodesEnabled());
     }
 
 }

@@ -83,7 +83,6 @@ class ConfigMismatchTest {
         assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults());
         assertEquals(expected.getCreateNeighbours(), testConfig.getCreateNeighbours());
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM());
-        assertEquals(expected.getLoadPostcodes(), testConfig.getLoadPostcodes());
         assertEquals(expected.getTransportModes(), testConfig.getTransportModes());
 
         GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();

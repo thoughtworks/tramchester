@@ -50,11 +50,8 @@ liveData:
   refreshPeriodSeconds: 20
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
-loadPostcodes: false
 createNeighbours: false
 distanceToNeighboursKM: 0.4
-postcodeDataPath: data/codepo_gb/Data/CSV
-postcodeZip: data/codepo_gb.zip
 maxWait: 25
 maxInitialWait: 13
 numberQueries: 3
