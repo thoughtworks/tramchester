@@ -120,7 +120,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
                                           JourneyState journeyState, int cost) {
 
         if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return builders.service.fromRouteStation(this, nextNode, cost);
+            return builders.towardsService(this).fromRouteStation(this, nextNode, cost);
         }
 
         // if one to one relationship between platforms and route stations, or bus stations and route stations,

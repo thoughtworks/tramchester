@@ -5,6 +5,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsRouteStationTripState;
 import com.tramchester.graph.search.stateMachine.TowardsState;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
@@ -17,7 +18,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class RouteStationStateEndTrip extends TraversalState {
+public class RouteStationStateEndTrip extends RouteStationTripState {
 
     @Override
     public String toString() {
@@ -26,7 +27,7 @@ public class RouteStationStateEndTrip extends TraversalState {
                 "} " + super.toString();
     }
 
-    public static class Builder implements TowardsState<RouteStationStateEndTrip> {
+    public static class Builder implements TowardsRouteStationTripState<RouteStationStateEndTrip> {
 
         public TraversalState fromMinuteState(MinuteState minuteState, int cost, List<Relationship> routeStationOutbound, TransportMode mode) {
             return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, mode);
@@ -62,7 +63,7 @@ public class RouteStationStateEndTrip extends TraversalState {
                                           JourneyState journeyState, int cost) {
         return switch (nodeLabel) {
             case PLATFORM -> toPlatform(nextNode, journeyState, cost);
-            case SERVICE -> builders.service.fromRouteStation(this, nextNode, cost);
+            case SERVICE -> builders.towardsService(this).fromRouteStation(this, nextNode, cost);
             case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
             default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
         };

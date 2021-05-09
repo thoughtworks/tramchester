@@ -32,7 +32,7 @@ public class NotStartedState extends TraversalState {
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
         switch(nodeLabel) {
             case QUERY_NODE:
-                return builders.walking.fromStart(this, firstNode, cost);
+                return builders.towardsWalk(this, WalkingState.class).fromStart(this, firstNode, cost);
             case TRAM_STATION:
                 return builders.towardsNeighbour(this, TramStationState.class).fromStart(this, firstNode, cost);
             case BUS_STATION:

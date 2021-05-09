@@ -5,6 +5,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsState;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -14,11 +16,28 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
-    public static class Builder {
+    public static class Builder implements TowardsState<ServiceState> {
 
-        public TraversalState fromRouteStation(RouteStationStateOnTrip routeStationStateOnTrip, IdFor<Trip> tripId, Node node, int cost) {
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(RouteStationStateOnTrip.class, this);
+            registers.add(RouteStationStateEndTrip.class, this);
+            registers.add(RouteStationStateJustBoarded.class, this);
+        }
+
+        @Override
+        public Class<ServiceState> getDestination() {
+            return ServiceState.class;
+        }
+
+        public TraversalState fromRouteStation(RouteStationStateOnTrip state, IdFor<Trip> tripId, Node node, int cost) {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
-            return new ServiceState(routeStationStateOnTrip, serviceRelationships, ExistingTrip.onTrip(tripId), cost);
+            return new ServiceState(state, serviceRelationships, ExistingTrip.onTrip(tripId), cost);
+        }
+
+        public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, Node node, int cost) {
+            Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
+            return new ServiceState(endTrip, serviceRelationships, cost);
         }
 
         public TraversalState fromRouteStation(RouteStationStateJustBoarded justBoarded, Node node, int cost) {
@@ -26,10 +45,6 @@ public class ServiceState extends TraversalState {
             return new ServiceState(justBoarded, serviceRelationships, cost);
         }
 
-        public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, Node node, int cost) {
-            Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
-            return new ServiceState(endTrip, serviceRelationships, cost);
-        }
     }
 
     private final ExistingTrip maybeExistingTrip;

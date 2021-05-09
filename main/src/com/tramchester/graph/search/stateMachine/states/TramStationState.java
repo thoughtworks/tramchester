@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class TramStationState extends StationState implements NodeId {
+public class TramStationState extends StationState {
 
     public static class Builder implements TowardsStationState<TramStationState> {
 
@@ -100,7 +100,7 @@ public class TramStationState extends StationState implements NodeId {
                 return builders.platform.from(this, node, cost);
             case QUERY_NODE:
                 journeyState.walkingConnection();
-                return builders.walking.fromTramStation(this, node, cost);
+                return builders.towardsWalk(this, WalkingState.class).fromStation(this, node, cost);
             case BUS_STATION:
             case TRAIN_STATION:
                 return builders.towardsNeighbourFromTramStation(this, NoPlatformStationState.class).

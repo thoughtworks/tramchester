@@ -6,10 +6,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.NodeId;
-import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
-import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
+import com.tramchester.graph.search.stateMachine.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -21,12 +18,12 @@ import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class RouteStationStateOnTrip extends TraversalState implements NodeId {
+public class RouteStationStateOnTrip extends RouteStationTripState implements NodeId {
     private final long routeStationNodeId;
     private final IdFor<Trip> tripId;
     private final TransportMode transportMode;
 
-    public static class Builder implements TowardsState<RouteStationStateOnTrip> {
+    public static class Builder implements TowardsRouteStationTripState<RouteStationStateOnTrip> {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
                                               IdFor<Trip> tripId, TransportMode transportMode) {
@@ -73,7 +70,7 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
                                           JourneyState journeyState, int cost) {
         return switch (nodeLabel) {
             case PLATFORM -> toPlatform(nextNode, journeyState, cost);
-            case SERVICE -> builders.service.fromRouteStation(this, tripId, nextNode, cost);
+            case SERVICE -> builders.towardsService(this).fromRouteStation(this, tripId, nextNode, cost);
             case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
             default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
         };

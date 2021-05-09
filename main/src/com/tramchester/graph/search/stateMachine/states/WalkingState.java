@@ -2,6 +2,8 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsState;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -12,21 +14,29 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
-    public static class Builder {
+    public static class Builder implements TowardsState<WalkingState> {
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(NotStartedState.class, this);
+            registers.add(NoPlatformStationState.class, this);
+            registers.add(TraversalState.class, this);
+        }
+
+        @Override
+        public Class<WalkingState> getDestination() {
+            return WalkingState.class;
+        }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
             return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
         }
 
-        public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
-            return new WalkingState(noPlatformStation,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING), noPlatformStation), cost);
+        public TraversalState fromStation(StationState station, Node node, int cost) {
+            return new WalkingState(station,
+                    filterExcludingEndNode(node.getRelationships(OUTGOING), station), cost);
         }
 
-        public TraversalState fromTramStation(TramStationState tramStationState, Node node, int cost) {
-            return new WalkingState(tramStationState,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING), tramStationState), cost);
-        }
     }
 
     private WalkingState(TraversalState parent, Stream<Relationship> relationships, int cost) {
