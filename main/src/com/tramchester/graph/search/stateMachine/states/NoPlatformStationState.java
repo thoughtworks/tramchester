@@ -118,7 +118,7 @@ public class NoPlatformStationState extends StationState {
         switch (nodeLabel) {
             case QUERY_NODE:
                 journeyState.walkingConnection();
-                return builders.towardsWalk(this, WalkingState.class).fromStation(this, next, cost);
+                return builders.towardsWalk(this).fromStation(this, next, cost);
             case ROUTE_STATION:
                 return toRouteStation(next, journeyState, cost);
             case TRAM_STATION:
@@ -143,7 +143,7 @@ public class NoPlatformStationState extends StationState {
             throw new RuntimeException("unable to board vehicle", e);
         }
 
-        return builders.towardsRouteStationJustBoarded(this, RouteStationStateJustBoarded.class).
+        return builders.towardsRouteStationJustBoarded(this).
                 fromNoPlatformStation(this, node, cost, actualMode);
     }
 

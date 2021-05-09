@@ -5,6 +5,8 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsState;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -17,22 +19,35 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformState extends TraversalState implements NodeId {
 
-    public static class Builder {
+    public static class Builder implements TowardsState<PlatformState> {
+
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(TramStationState.class, this);
+            registers.add(RouteStationStateOnTrip.class, this);
+            registers.add(RouteStationStateEndTrip.class, this);
+        }
+
+        @Override
+        public Class<PlatformState> getDestination() {
+            return PlatformState.class;
+        }
 
         public PlatformState from(TramStationState tramStationState, Node node, int cost) {
             return new PlatformState(tramStationState,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
         }
 
-        public TraversalState fromRouteStationTowardsDest(RouteStationStateOnTrip routeStationStateOnTrip,
+        public TraversalState fromRouteStationTowardsDest(RouteStationTripState state,
                                                           Iterable<Relationship> relationships, Node platformNode, int cost) {
-            return new PlatformState(routeStationStateOnTrip, relationships, platformNode.getId(), cost);
+            return new PlatformState(state, relationships, platformNode.getId(), cost);
         }
 
-        public TraversalState fromRouteStationTowardsDest(RouteStationStateEndTrip endTrip, Iterable<Relationship> relationships,
-                                                          Node platformNode, int cost) {
-            return new PlatformState(endTrip, relationships, platformNode.getId(), cost);
-        }
+//        public TraversalState fromRouteStationTowardsDest(RouteStationStateEndTrip state, Iterable<Relationship> relationships,
+//                                                          Node platformNode, int cost) {
+//            return new PlatformState(state, relationships, platformNode.getId(), cost);
+//        }
 
         public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, int cost) {
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
@@ -48,6 +63,7 @@ public class PlatformState extends TraversalState implements NodeId {
             // end of a trip, may need to go back to this route station to catch new service
             return new PlatformState(routeStationState, platformRelationships, node.getId(), cost);
         }
+
     }
 
     private final long platformNodeId;
@@ -87,7 +103,7 @@ public class PlatformState extends TraversalState implements NodeId {
             if (traversalOps.isDestination(nodeId)) {
                 return builders.destination.from(this, cost);
             } else {
-                return builders.towardsStation(this, TramStationState.class).fromPlatform(this, node, cost);
+                return builders.towardsStation(this).fromPlatform(this, node, cost);
             }
         }
 
@@ -105,7 +121,7 @@ public class PlatformState extends TraversalState implements NodeId {
             throw new RuntimeException("unable to board tram", e);
         }
 
-        return builders.towardsRouteStationJustBoarded(this, RouteStationStateJustBoarded.class).
+        return builders.towardsRouteStationJustBoarded(this).
                 fromPlatformState(this, node, cost);
     }
 

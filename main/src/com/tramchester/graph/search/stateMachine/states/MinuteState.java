@@ -104,7 +104,7 @@ public class MinuteState extends TraversalState {
         List<Relationship> towardsDestination = traversalOps.getTowardsDestination(allDeparts);
         if (!towardsDestination.isEmpty()) {
             // we've nearly arrived
-            return builders.towardsRouteStateOnTrip(this, RouteStationStateOnTrip.class).
+            return builders.towardsRouteStateOnTrip(this).
                     fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
 //            return builders.routeStationOnTrip.fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
         }
@@ -125,10 +125,10 @@ public class MinuteState extends TraversalState {
 
         if (tripFinishedHere) {
             // for a change of trip id we need to get off vehicle, then back on to another service
-            return builders.towardsRouteStateEndTrip(this, RouteStationStateEndTrip.class).
+            return builders.towardsRouteStateEndTrip(this).
                     fromMinuteState(this, cost, routeStationOutbounds, transportMode);
         } else {
-            return builders.towardsRouteStateOnTrip(this, RouteStationStateOnTrip.class).
+            return builders.towardsRouteStateOnTrip(this).
                     fromMinuteState(this, routeStationNode, cost, routeStationOutbounds, tripId, transportMode);
         }
     }

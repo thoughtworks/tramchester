@@ -100,10 +100,10 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
         // towards final destination, just follow this one
         List<Relationship> towardsDest = traversalOps.getTowardsDestination(platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM));
         if (!towardsDest.isEmpty()) {
-            return builders.platform.fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
+            return builders.towardsPlatform(this).fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
         }
 
-        return builders.platform.fromRouteStation(this, platformNode, cost);
+        return builders.towardsPlatform(this).fromRouteStation(this, platformNode, cost);
 
     }
 }

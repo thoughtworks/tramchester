@@ -97,13 +97,13 @@ public class TramStationState extends StationState {
 
         switch (nodeLabel) {
             case PLATFORM:
-                return builders.platform.from(this, node, cost);
+                return builders.towardsPlatform(this).from(this, node, cost);
             case QUERY_NODE:
                 journeyState.walkingConnection();
-                return builders.towardsWalk(this, WalkingState.class).fromStation(this, node, cost);
+                return builders.towardsWalk(this).fromStation(this, node, cost);
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.towardsNeighbourFromTramStation(this, NoPlatformStationState.class).
+                return builders.towardsNeighbour(this, NoPlatformStationState.class).
                         fromNeighbour(this, node, cost);
             case TRAM_STATION:
                 return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, node, cost);

@@ -102,9 +102,9 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
             // towards final destination, just follow this one
             List<Relationship> towardsDest = traversalOps.getTowardsDestination(platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM));
             if (!towardsDest.isEmpty()) {
-                return builders.platform.fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
+                return builders.towardsPlatform(this).fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
             }
-            return builders.platform.fromRouteStationOnTrip(this, platformNode, cost);
+            return builders.towardsPlatform(this).fromRouteStationOnTrip(this, platformNode, cost);
         }
         catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process platform", exception);
