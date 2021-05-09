@@ -12,6 +12,7 @@ import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.states.NotStartedState;
+import com.tramchester.graph.search.states.TraversalOps;
 import com.tramchester.graph.search.states.TraversalState;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.TripRepository;
@@ -70,8 +71,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
-        final NotStartedState traversalState = new NotStartedState(tripRespository, sortsPosition, nodeContentsRepository,
-                destinationNodeIds, endStations, destinationLatLon, config);
+        TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, endStations,
+                destinationNodeIds, sortsPosition, destinationLatLon, config);
+        final NotStartedState traversalState = new NotStartedState(traversalOps);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Create traversal");

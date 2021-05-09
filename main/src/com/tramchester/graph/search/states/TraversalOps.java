@@ -1,13 +1,16 @@
 package com.tramchester.graph.search.states;
 
 import com.google.common.collect.Streams;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.TripRepository;
@@ -28,13 +31,14 @@ public class TraversalOps {
     private final TraversalState.Builders builders;
 
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        Set<Station> destinationStations, Set<Long> destinationNodeIds, TraversalState.Builders builders) {
+                        Set<Station> destinationStations, Set<Long> destinationNodeIds, SortsPositions sortsPositions,
+                        LatLong destinationLatLon, TramchesterConfig config) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
         this.destinationRouteIds = getDestinationRoutes(destinationStations);
-        this.builders = builders;
+        this.builders =  new TraversalState.Builders(sortsPositions, destinationLatLon, config);
     }
 
     private IdSet<Route> getDestinationRoutes(Set<Station> destinationStations) {

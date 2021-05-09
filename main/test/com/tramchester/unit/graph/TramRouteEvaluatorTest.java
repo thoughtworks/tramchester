@@ -19,6 +19,7 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.states.HowIGotHere;
 import com.tramchester.graph.search.states.NotStartedState;
+import com.tramchester.graph.search.states.TraversalOps;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestConfig;
@@ -112,7 +113,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NotStartedState getNotStartedState() {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
-        return new NotStartedState(tripRepository, sortsPositions, nodeOperations, destinationNodeIds, destinationStations, latLongHint, config);
+
+        return new NotStartedState(new TraversalOps(nodeOperations, tripRepository, destinationStations,
+                destinationNodeIds,  sortsPositions, latLongHint, TestEnv.GET()));
     }
 
     @NotNull

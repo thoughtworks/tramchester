@@ -25,48 +25,25 @@ import static java.lang.String.format;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
-//    protected final NodeContentsRepository nodeOperations;
-//    protected final TripRepository tripRepository;
-//    private final IdSet<Station> destinationStationIds;
-//    private final IdSet<Route> destinationRouteIds;
-//    protected final Set<Long> destinationNodeIds;
-
     @Deprecated
     protected final Builders builders;
-
+    protected final TraversalOps traversalOps;
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
     private final TraversalState parent;
 
-    protected final TraversalOps traversalOps;
-
     private TraversalState child;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(parent);
-    }
-
     // initial only
-    protected TraversalState(TripRepository tripRepository, SortsPositions sortsPositions, NodeContentsRepository nodeOperations,
-                             Set<Long> destinationNodeIds, Set<Station> destinationStations,
-                             LatLong destinationLatLonHint, TramchesterConfig config) {
-        traversalOps = new TraversalOps(nodeOperations, tripRepository, destinationStations,
-                destinationNodeIds,  new Builders(sortsPositions, destinationLatLonHint, config));
+    protected TraversalState(TraversalOps traversalOps) {
+        this.traversalOps = traversalOps;
         this.builders = traversalOps.getBuilders();
-//        this.tripRepository = tripRepository;
-//        this.nodeOperations = nodeOperations;
-//        this.destinationNodeIds = destinationNodeIds;
-//        this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
-//        this.destinationRouteIds = getDestinationRoutes(destinationStations);
-//        this.builders = new Builders(sortsPositions, destinationLatLonHint, config);
 
         this.costForLastEdge = 0;
         this.parentCost = 0;
         this.parent = null;
         this.outbounds = new ArrayList<>();
-
     }
 
     protected TraversalState(TraversalState parent, Stream<Relationship> outbounds, int costForLastEdge) {
@@ -76,12 +53,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.traversalOps = parent.traversalOps;
         this.builders = traversalOps.getBuilders();
-//        this.nodeOperations = parent.nodeOperations;
-//        this.tripRepository = parent.tripRepository;
-//        this.destinationNodeIds = parent.destinationNodeIds;
-//        this.destinationStationIds = parent.destinationStationIds;
-//        this.destinationRouteIds = parent.destinationRouteIds;
-//        this.builders = parent.builders;
         this.parent = parent;
 
         this.outbounds = outbounds;
@@ -127,12 +98,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 filter(relationship -> relationship.getEndNode().getId() != nodeId);
     }
 
-    @NotNull
-    protected List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
-        // towards final destination, just follow this one
-        return traversalOps.getTowardsDestination(outgoing);
-    }
-
     public int getTotalCost() {
         return parentCost + getCurrentCost();
     }
@@ -150,8 +115,9 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 '}';
     }
 
-    public boolean hasDestinationRoute(IdFor<Route> routeId) {
-        return traversalOps.hasDestinationRoute(routeId);
+    @Override
+    public int hashCode() {
+        return Objects.hash(parent);
     }
 
     protected static class Builders {

@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.states.NotStartedState;
+import com.tramchester.graph.search.states.TraversalOps;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -51,8 +52,8 @@ class JourneyStateTest extends EasyMockSupport {
         TripRepository tripRepository = createMock(TripRepository.class);
         NodeContentsRepository cachedNodeOperations = createMock(NodeContentsRepository.class);
 
-        traversalState = new NotStartedState(tripRepository, sortsPositions,
-                cachedNodeOperations, destinationNodeIds, destinations, latLongHint, TestEnv.GET());
+        traversalState = new NotStartedState(new TraversalOps(cachedNodeOperations, tripRepository, destinations,
+                destinationNodeIds,  sortsPositions, latLongHint, TestEnv.GET()));
         queryTime = TramTime.of(9, 15);
     }
 

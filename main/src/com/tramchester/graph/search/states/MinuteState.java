@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
@@ -99,7 +98,8 @@ public class MinuteState extends TraversalState {
         TransportMode transportMode = GraphProps.getTransportMode(routeStationNode);
 
         // if towards dest then always follow whether interchange-only enabled or not
-        List<Relationship> towardsDestination = getTowardsDestination(allDeparts);
+        // towards final destination, just follow this one
+        List<Relationship> towardsDestination = traversalOps.getTowardsDestination(allDeparts);
         if (!towardsDestination.isEmpty()) {
             // we've nearly arrived
             return builders.towardsRouteStateOnTrip(this, RouteStationStateOnTrip.class).

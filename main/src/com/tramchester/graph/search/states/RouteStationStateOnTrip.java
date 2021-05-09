@@ -98,7 +98,8 @@ public class RouteStationStateOnTrip extends TraversalState implements NodeId {
             journeyState.leave(TransportMode.Tram, getTotalCost());
 
             // TODO Push into PlatformState
-            List<Relationship> towardsDest = getTowardsDestination(platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM));
+            // towards final destination, just follow this one
+            List<Relationship> towardsDest = traversalOps.getTowardsDestination(platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM));
             if (!towardsDest.isEmpty()) {
                 return builders.platform.fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
             }

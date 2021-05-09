@@ -1,23 +1,15 @@
 package com.tramchester.graph.search.states;
 
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Node;
 
 import java.util.Set;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(TripRepository tripRepository, SortsPositions sortsPositions, NodeContentsRepository nodeOperations, Set<Long> destinationNodeIds,
-                           Set<Station> destinationStations,
-                           LatLong destinationLatLonHint, TramchesterConfig config) {
-        super(tripRepository, sortsPositions, nodeOperations, destinationNodeIds, destinationStations, destinationLatLonHint, config);
+    public NotStartedState(TraversalOps traversalOps) {
+        super(traversalOps);
     }
 
     @Override

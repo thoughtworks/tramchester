@@ -74,7 +74,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
 
             toServices.forEach(relationship -> {
                 IdFor<Route> routeId = GraphProps.getRouteIdFrom(relationship);
-                if (state.hasDestinationRoute(routeId)) {
+                if (state.traversalOps.hasDestinationRoute(routeId)) {
                     highPriority.add(relationship);
                 } else {
                     lowPriority.add(relationship);
