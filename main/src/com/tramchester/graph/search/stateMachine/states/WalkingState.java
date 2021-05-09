@@ -56,22 +56,22 @@ public class WalkingState extends TraversalState {
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
         // could be we've walked to our destination
         if (traversalOps.isDestination(node.getId())) {
-            return builders.destination.from(this, cost);
+            return builders.towardsDest(this).from(this, cost);
         }
 
         switch (nodeLabel) {
             case TRAM_STATION -> {
                 journeyState.walkingConnection();
-                return builders.towardsNeighbour(this, TramStationState.class).fromWalking(this, node, cost);
+                return builders.towardsStation(this, TramStationState.class).fromWalking(this, node, cost);
             }
             case BUS_STATION, TRAIN_STATION -> {
                 journeyState.walkingConnection();
-                return builders.towardsNeighbour(this, NoPlatformStationState.class).
+                return builders.towardsStation(this, NoPlatformStationState.class).
                         fromWalking(this, node, cost);
             }
             case GROUPED -> {
                 journeyState.walkingConnection();
-                return builders.groupedStation.fromWalk(this, node, cost);
+                return builders.towardsGroup(this).fromWalk(this, node, cost);
             }
             default -> throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
         }

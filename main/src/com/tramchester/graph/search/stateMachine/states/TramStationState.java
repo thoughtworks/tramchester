@@ -92,7 +92,7 @@ public class TramStationState extends StationState {
         long nodeId = node.getId();
         if (traversalOps.isDestination(nodeId)) {
             // TODO Cost of platform depart?
-            return builders.destination.from(this, cost);
+            return builders.towardsDest(this).from(this, cost);
         }
 
         switch (nodeLabel) {
@@ -108,7 +108,7 @@ public class TramStationState extends StationState {
             case TRAM_STATION:
                 return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, node, cost);
             case GROUPED:
-                return builders.groupedStation.fromChildStation(this, node, cost); // grouped are same transport mode
+                return builders.towardsGroup(this).fromChildStation(this, node, cost); // grouped are same transport mode
             default:
                 String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
                 throw new UnexpectedNodeTypeException(node, message);

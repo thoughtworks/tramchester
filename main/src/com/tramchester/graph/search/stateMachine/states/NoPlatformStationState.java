@@ -93,7 +93,7 @@ public class NoPlatformStationState extends StationState {
         long nodeId = next.getId();
         if  (traversalOps.isDestination(nodeId)) {
             // TODO Cost of bus depart?
-            return builders.destination.from(this, cost);
+            return builders.towardsDest(this).from(this, cost);
         }
 
         // route station nodes may also have INTERCHANGE label set
@@ -112,7 +112,7 @@ public class NoPlatformStationState extends StationState {
         long nodeId = next.getId();
         if (traversalOps.isDestination(nodeId)) {
             // TODO Cost of bus depart?
-            return builders.destination.from(this, cost);
+            return builders.towardsDest(this).from(this, cost);
         }
 
         switch (nodeLabel) {
@@ -127,7 +127,7 @@ public class NoPlatformStationState extends StationState {
             case TRAIN_STATION:
                 return builders.towardsNeighbour(this, NoPlatformStationState.class).fromNeighbour(this, next, cost);
             case GROUPED:
-                return builders.groupedStation.fromChildStation(this, next, cost); // grouped are same transport mode
+                return builders.towardsGroup(this).fromChildStation(this, next, cost); // grouped are same transport mode
             default:
                 throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
         }

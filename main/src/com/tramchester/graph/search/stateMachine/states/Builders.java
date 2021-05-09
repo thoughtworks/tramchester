@@ -8,9 +8,6 @@ import com.tramchester.graph.search.stateMachine.TowardsStationState;
 
 public class Builders {
 
-    protected final MinuteState.Builder minute;
-    protected final DestinationState.Builder destination;
-    protected final GroupedStationState.Builder groupedStation;
     private final RegistersStates registersStates;
 
     public Builders(SortsPositions sortsPositions, LatLong destinationLatLon, TramchesterConfig config) {
@@ -25,10 +22,9 @@ public class Builders {
         registersStates.addBuilder(new WalkingState.Builder());
         registersStates.addBuilder(new ServiceState.Builder());
         registersStates.addBuilder(new PlatformState.Builder());
-
-        minute = new MinuteState.Builder(config);
-        destination = new DestinationState.Builder();
-        groupedStation = new GroupedStationState.Builder();
+        registersStates.addBuilder(new MinuteState.Builder(config));
+        registersStates.addBuilder(new DestinationState.Builder());
+        registersStates.addBuilder(new GroupedStationState.Builder());
     }
 
     public WalkingState.Builder towardsWalk(NotStartedState from) {
@@ -41,6 +37,10 @@ public class Builders {
 
     public HourState.Builder towardsHour(ServiceState from) {
         return (HourState.Builder) registersStates.getBuilderFor(from.getClass(), HourState.class);
+    }
+
+    public MinuteState.Builder towardsMinute(HourState from) {
+        return (MinuteState.Builder) registersStates.getBuilderFor(from.getClass(), MinuteState.class);
     }
 
     public TramStationState.Builder towardsStation(PlatformState from) {
@@ -62,24 +62,24 @@ public class Builders {
     public RouteStationStateJustBoarded.Builder towardsRouteStationJustBoarded(NoPlatformStationState from) {
         return (RouteStationStateJustBoarded.Builder) registersStates.getBuilderFor(from.getClass(), RouteStationStateJustBoarded.class);
     }
-    
-    public NoPlatformStationState.Builder towardsNoPlatformStation(RouteStationTripState from, Class<NoPlatformStationState> towards) {
-        return (NoPlatformStationState.Builder) registersStates.getBuilderFor(from.getClass(), towards);
+
+    public NoPlatformStationState.Builder towardsNoPlatformStation(RouteStationTripState from) {
+        return (NoPlatformStationState.Builder) registersStates.getBuilderFor(from.getClass(), NoPlatformStationState.class);
     }
 
     public <F extends StationState, S extends StationState, B extends TowardsStationState<S>> B towardsNeighbour(F from, Class<S> towards) {
         return (B) registersStates.getBuilderFor(from.getClass(), towards);
     }
 
-    public <S extends StationState, B extends TowardsStationState<S>> B towardsNeighbour(NotStartedState from, Class<S> towards) {
+    public <S extends StationState, B extends TowardsStationState<S>> B towardsStation(NotStartedState from, Class<S> towards) {
         return (B) registersStates.getBuilderFor(from.getClass(), towards);
     }
 
-    public <S extends StationState, B extends TowardsStationState<S>> B  towardsNeighbour(WalkingState from, Class<S> towards) {
+    public <S extends StationState, B extends TowardsStationState<S>> B towardsStation(WalkingState from, Class<S> towards) {
         return (B) registersStates.getBuilderFor(from.getClass(), towards);
     }
 
-    public <S extends StationState, B extends TowardsStationState<S>> B towardsNeighbour(GroupedStationState from, Class<S> towards) {
+    public <S extends StationState, B extends TowardsStationState<S>> B towardsStation(GroupedStationState from, Class<S> towards) {
         return (B) registersStates.getBuilderFor(from.getClass(), towards);
     }
 
@@ -97,5 +97,45 @@ public class Builders {
 
     public PlatformState.Builder towardsPlatform(TramStationState from) {
         return (PlatformState.Builder) registersStates.getBuilderFor(from.getClass(), PlatformState.class);
+    }
+
+    public DestinationState.Builder towardsDest(WalkingState from) {
+        return getDestBuilder(from.getClass());
+    }
+
+    public DestinationState.Builder towardsDest(TramStationState from) {
+        return getDestBuilder(from.getClass());
+    }
+
+    public DestinationState.Builder towardsDest(NoPlatformStationState from) {
+        return getDestBuilder(from.getClass());
+    }
+
+    public DestinationState.Builder towardsDest(PlatformState from) {
+        return getDestBuilder(from.getClass());
+    }
+
+    public DestinationState.Builder towardsDest(RouteStationTripState from) {
+        return getDestBuilder(from.getClass());
+    }
+
+    public DestinationState.Builder towardsDest(GroupedStationState from) {
+        return getDestBuilder(from.getClass());
+    }
+
+    private DestinationState.Builder getDestBuilder(Class<? extends TraversalState> aClass) {
+        return (DestinationState.Builder) registersStates.getBuilderFor(aClass, DestinationState.class);
+    }
+
+    public GroupedStationState.Builder towardsGroup(StationState from) {
+        return (GroupedStationState.Builder) registersStates.getBuilderFor(from.getClass(), GroupedStationState.class);
+    }
+
+    public GroupedStationState.Builder towardsGroup(WalkingState from) {
+        return (GroupedStationState.Builder) registersStates.getBuilderFor(from.getClass(), GroupedStationState.class);
+    }
+
+    public GroupedStationState.Builder towardsGroup(NotStartedState from) {
+        return (GroupedStationState.Builder) registersStates.getBuilderFor(from.getClass(), GroupedStationState.class);
     }
 }

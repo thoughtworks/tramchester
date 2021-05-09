@@ -11,6 +11,8 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsState;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -28,12 +30,22 @@ public class MinuteState extends TraversalState {
 
     private final boolean interchangesOnly;
 
-    public static class Builder {
+    public static class Builder implements TowardsState<MinuteState> {
 
         private final TramchesterConfig config;
 
         public Builder(TramchesterConfig config) {
             this.config = config;
+        }
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(HourState.class, this);
+        }
+
+        @Override
+        public Class<MinuteState> getDestination() {
+            return MinuteState.class;
         }
 
         public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip maybeExistingTrip) {
@@ -52,6 +64,7 @@ public class MinuteState extends TraversalState {
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
             }
         }
+
     }
 
     private final IdFor<Trip> tripId;

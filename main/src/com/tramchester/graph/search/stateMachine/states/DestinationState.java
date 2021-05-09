@@ -2,13 +2,31 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsState;
 import org.neo4j.graphdb.Node;
 
 import java.util.LinkedList;
 
 public class DestinationState extends TraversalState
 {
-    public static class Builder {
+    public static class Builder implements TowardsState<DestinationState> {
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(NoPlatformStationState.class, this);
+            registers.add(WalkingState.class, this);
+            registers.add(TramStationState.class, this);
+            registers.add(PlatformState.class, this);
+            registers.add(RouteStationStateOnTrip.class, this);
+            registers.add(RouteStationStateEndTrip.class, this);
+            registers.add(GroupedStationState.class, this);
+        }
+
+        @Override
+        public Class<DestinationState> getDestination() {
+            return DestinationState.class;
+        }
 
         public TraversalState from(NoPlatformStationState noPlatformStation, int cost) {
             return new DestinationState(noPlatformStation, cost);
@@ -37,6 +55,7 @@ public class DestinationState extends TraversalState
         public TraversalState from(GroupedStationState groupedStationState, int cost) {
             return new DestinationState(groupedStationState, cost);
         }
+
     }
 
     private DestinationState(TraversalState parent, int cost) {

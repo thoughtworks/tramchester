@@ -14,7 +14,6 @@ import static java.lang.String.format;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
-    @Deprecated
     protected final Builders builders;
     protected final TraversalOps traversalOps;
     private final Iterable<Relationship> outbounds;

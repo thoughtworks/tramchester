@@ -13,9 +13,22 @@ import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
 
 public class GroupedStationState extends TraversalState {
 
-    public static class Builder {
+    public static class Builder implements TowardsState<GroupedStationState> {
 
         // TODO map of accept states to outbound relationships
+
+        @Override
+        public void register(RegistersFromState registers) {
+            registers.add(TramStationState.class, this);
+            registers.add(NoPlatformStationState.class, this);
+            registers.add(WalkingState.class, this);
+            registers.add(NotStartedState.class, this);
+        }
+
+        @Override
+        public Class<GroupedStationState> getDestination() {
+            return GroupedStationState.class;
+        }
 
         public TraversalState fromChildStation(TramStationState tramStationState, Node node, int cost) {
             return new GroupedStationState(tramStationState,
@@ -38,6 +51,8 @@ public class GroupedStationState extends TraversalState {
             return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
                     cost, node.getId());
         }
+
+
     }
 
     private final long stationNodeId;
@@ -64,15 +79,15 @@ public class GroupedStationState extends TraversalState {
         long nodeId = next.getId();
         if (traversalOps.isDestination(nodeId)) {
             // TODO Cost of bus depart?
-            return builders.destination.from(this, cost);
+            return builders.towardsDest(this).from(this, cost);
         }
 
         switch (nodeLabel) {
             case BUS_STATION:
             case TRAIN_STATION:
-                return builders.towardsNeighbour(this, NoPlatformStationState.class).fromGrouped(this, next, cost);
+                return builders.towardsStation(this, NoPlatformStationState.class).fromGrouped(this, next, cost);
             case TRAM_STATION:
-                return builders.towardsNeighbour(this, TramStationState.class).fromGrouped(this, next, cost);
+                return builders.towardsStation(this, TramStationState.class).fromGrouped(this, next, cost);
             default:
                 String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
                 throw new UnexpectedNodeTypeException(next, message);

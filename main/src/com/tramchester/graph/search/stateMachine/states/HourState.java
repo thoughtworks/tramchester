@@ -55,7 +55,7 @@ public class HourState extends TraversalState {
 
         journeyState.recordVehicleDetails(time, getTotalCost());
 
-        return builders.minute.fromHour(this, node, cost, maybeExistingTrip);
+        return builders.towardsMinute(this).fromHour(this, node, cost, maybeExistingTrip);
     }
 
     @Override

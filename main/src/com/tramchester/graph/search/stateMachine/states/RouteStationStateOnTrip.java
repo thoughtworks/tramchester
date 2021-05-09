@@ -87,10 +87,10 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
         // if no platform station then may have arrived
         long stationNodeId = stationNode.getId();
         if (traversalOps.isDestination(stationNodeId)) {
-            return builders.destination.from(this, cost);
+            return builders.towardsDest(this).from(this, cost);
         }
 
-        return builders.towardsNoPlatformStation(this, NoPlatformStationState.class)
+        return builders.towardsNoPlatformStation(this)
                 .fromRouteStation(this, stationNode, cost);
     }
 

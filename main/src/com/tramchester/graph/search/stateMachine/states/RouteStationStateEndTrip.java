@@ -6,7 +6,6 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStationTripState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -81,10 +80,10 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
         // if no platform station then may have arrived
         long nextNodeId = nextNode.getId();
         if (traversalOps.isDestination(nextNodeId)) {
-            return builders.destination.from(this, cost);
+            return builders.towardsDest(this).from(this, cost);
         }
 
-        return builders.towardsNoPlatformStation(this, NoPlatformStationState.class).
+        return builders.towardsNoPlatformStation(this).
                 fromRouteStation(this, nextNode, cost);
     }
 
