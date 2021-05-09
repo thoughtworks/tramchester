@@ -43,6 +43,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships {
     private final double rangeInKM;
     private final GraphFilter filter;
 
+    // ONLY link stations of different types
     private static final boolean DIFF_MODES_ONLY = true;
 
     ///
