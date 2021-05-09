@@ -1,7 +1,8 @@
-package com.tramchester.graph.search.states;
+package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.stateMachine.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

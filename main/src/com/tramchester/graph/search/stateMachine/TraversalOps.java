@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.states;
+package com.tramchester.graph.search.stateMachine;
 
 import com.google.common.collect.Streams;
 import com.tramchester.config.TramchesterConfig;
@@ -13,6 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.search.stateMachine.states.Builders;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -28,7 +29,7 @@ public class TraversalOps {
     private final IdSet<Station> destinationStationIds;
     private final IdSet<Route> destinationRouteIds;
     private final Set<Long> destinationNodeIds;
-    private final TraversalState.Builders builders;
+    private final Builders builders;
 
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         Set<Station> destinationStations, Set<Long> destinationNodeIds, SortsPositions sortsPositions,
@@ -38,7 +39,7 @@ public class TraversalOps {
         this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
         this.destinationRouteIds = getDestinationRoutes(destinationStations);
-        this.builders =  new TraversalState.Builders(sortsPositions, destinationLatLon, config);
+        this.builders =  new Builders(sortsPositions, destinationLatLon, config);
     }
 
     private IdSet<Route> getDestinationRoutes(Set<Station> destinationStations) {
@@ -56,7 +57,7 @@ public class TraversalOps {
         return destinationRouteIds.contains(routeId);
     }
 
-    public TraversalState.Builders getBuilders() {
+    public Builders getBuilders() {
         return builders;
     }
 

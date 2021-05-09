@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.states;
+package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
 import com.tramchester.domain.Route;
@@ -10,6 +10,9 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsState;
+import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 

@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.states;
+package com.tramchester.graph.search.stateMachine;
 
 import org.neo4j.graphdb.Path;
 

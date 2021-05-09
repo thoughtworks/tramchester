@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.CachedNodeOperations;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.*;
-import com.tramchester.graph.search.states.HowIGotHere;
+import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.ReachabilityRepository;

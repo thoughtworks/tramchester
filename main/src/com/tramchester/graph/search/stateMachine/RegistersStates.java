@@ -1,4 +1,6 @@
-package com.tramchester.graph.search.states;
+package com.tramchester.graph.search.stateMachine;
+
+import com.tramchester.graph.search.stateMachine.states.TraversalState;
 
 import java.util.HashMap;
 

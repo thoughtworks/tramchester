@@ -1,4 +1,4 @@
-package com.tramchester.graph.search.states;
+package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
