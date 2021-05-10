@@ -1,9 +1,12 @@
 package com.tramchester.graph.search.stateMachine;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 
 import java.util.HashMap;
+import java.util.Set;
 
+@LazySingleton
 public class RegistersStates implements RegistersFromState {
 
     HashMap<FromTo, TowardsState<? extends TraversalState>> map;
@@ -33,6 +36,10 @@ public class RegistersStates implements RegistersFromState {
 
     public void clear() {
         map.clear();
+    }
+
+    public Set<FromTo> getTransitions() {
+        return map.keySet();
     }
 
     public static class FromTo {
@@ -70,6 +77,14 @@ public class RegistersStates implements RegistersFromState {
                     "from=" + from +
                     ", to=" + to +
                     '}';
+        }
+
+        public Class<? extends TraversalState> getFrom() {
+            return from;
+        }
+
+        public Class<? extends TraversalState> getTo() {
+            return to;
         }
     }
 }

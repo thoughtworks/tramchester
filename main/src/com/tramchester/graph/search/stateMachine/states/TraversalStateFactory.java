@@ -19,9 +19,9 @@ public class TraversalStateFactory {
     private final TramchesterConfig config;
 
     @Inject
-    public TraversalStateFactory(TramchesterConfig config) {
+    public TraversalStateFactory(RegistersStates registersStates, TramchesterConfig config) {
+        this.registersStates = registersStates;
         this.config = config;
-        registersStates = new RegistersStates();
     }
 
     @PostConstruct

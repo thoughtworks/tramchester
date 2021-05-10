@@ -20,7 +20,6 @@ public class WalkingState extends TraversalState {
         public void register(RegistersFromState registers) {
             registers.add(NotStartedState.class, this);
             registers.add(NoPlatformStationState.class, this);
-            registers.add(TraversalState.class, this);
             registers.add(TramStationState.class, this);
         }
 
