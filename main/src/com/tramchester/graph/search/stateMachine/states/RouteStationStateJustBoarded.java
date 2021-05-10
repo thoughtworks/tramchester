@@ -12,6 +12,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsState;
+import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -26,12 +27,8 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class RouteStationStateJustBoarded extends TraversalState {
 
     public static class Builder implements TowardsState<RouteStationStateJustBoarded> {
-        private final SortsPositions sortsPositions;
-        private final LatLong destinationLatLon;
 
-        public Builder(SortsPositions sortsPositions, LatLong destinationLatLon) {
-            this.sortsPositions = sortsPositions;
-            this.destinationLatLon = destinationLatLon;
+        public Builder() {
         }
 
         @Override
@@ -60,7 +57,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
             if (TransportMode.isTram(mode)) {
                 services = Streams.stream(priortiseServicesByDestinationRoutes(noPlatformStation, node));
             } else {
-                services = orderServicesByDistance(node);
+                services = orderServicesByDistance(node, noPlatformStation.traversalOps);
             }
 
             return new RouteStationStateJustBoarded(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
@@ -91,13 +88,14 @@ public class RouteStationStateJustBoarded extends TraversalState {
          * Order outbound relationships by end node distance to destination
          * significant overall performance increase for non-trival gregraphically diverse networks
          */
-        private Stream<Relationship> orderServicesByDistance(Node node) {
+        private Stream<Relationship> orderServicesByDistance(Node node, TraversalOps traversalOps) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
 
-            Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();
-
-            toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
-            return sortsPositions.sortedByNearTo(destinationLatLon, relationships);
+            return traversalOps.orderServicesByDistance(toServices);
+//            Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();
+//
+//            toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
+//            return sortsPositions.sortedByNearTo(destinationLatLon, relationships);
         }
 
     }
@@ -128,42 +126,5 @@ public class RouteStationStateJustBoarded extends TraversalState {
         throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
     }
 
-    private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
-        private final Relationship relationship;
-        private final Long id;
-        private final IdFor<Station> stationId;
 
-        private RelationshipFacade(Relationship relationship) {
-            id = relationship.getId();
-            this.relationship = relationship;
-
-            // TODO this needs to go via the cache layer
-            this.stationId = GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            RelationshipFacade that = (RelationshipFacade) o;
-
-            return id.equals(that.id);
-        }
-
-        @Override
-        public int hashCode() {
-            return id.hashCode();
-        }
-
-        @Override
-        public IdFor<Station> getStationId() {
-            return stationId;
-        }
-
-        @Override
-        public Relationship getContained() {
-            return relationship;
-        }
-    }
 }

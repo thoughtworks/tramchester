@@ -21,6 +21,7 @@ public class WalkingState extends TraversalState {
             registers.add(NotStartedState.class, this);
             registers.add(NoPlatformStationState.class, this);
             registers.add(TraversalState.class, this);
+            registers.add(TramStationState.class, this);
         }
 
         @Override

@@ -15,11 +15,11 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Transaction;
@@ -45,11 +45,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository,
-                           CreateQueryTimes createQueryTimes, GraphDatabase graphDatabaseService,
+                           CreateQueryTimes createQueryTimes, TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
-                           SortsPositions sortsPosition, MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository) {
+                           SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
+                           CompositeStationRepository compositeStationRepository) {
         super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
-                providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository, transportData, config, transportData);
+                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository, transportData, config, transportData);
         this.serviceRepository = transportData;
         this.config = config;
         this.createQueryTimes = createQueryTimes;

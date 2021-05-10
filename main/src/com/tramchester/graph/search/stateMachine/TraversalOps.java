@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.google.common.collect.Streams;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -13,15 +12,17 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.stateMachine.states.Builders;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
@@ -29,17 +30,21 @@ public class TraversalOps {
     private final IdSet<Station> destinationStationIds;
     private final IdSet<Route> destinationRouteIds;
     private final Set<Long> destinationNodeIds;
-    private final Builders builders;
+    private final TraversalStateFactory builders;
+    private final LatLong destinationLatLon;
+    private final SortsPositions sortsPositions;
 
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        Set<Station> destinationStations, Set<Long> destinationNodeIds, SortsPositions sortsPositions,
-                        LatLong destinationLatLon, TramchesterConfig config) {
+                        SortsPositions sortsPositions, Set<Station> destinationStations, Set<Long> destinationNodeIds,
+                        LatLong destinationLatLon, TraversalStateFactory traversalStateFactory) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
+        this.sortsPositions = sortsPositions;
         this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
         this.destinationRouteIds = getDestinationRoutes(destinationStations);
-        this.builders =  new Builders(sortsPositions, destinationLatLon, config);
+        this.destinationLatLon = destinationLatLon;
+        this.builders = traversalStateFactory;
     }
 
     private IdSet<Route> getDestinationRoutes(Set<Station> destinationStations) {
@@ -57,7 +62,7 @@ public class TraversalOps {
         return destinationRouteIds.contains(routeId);
     }
 
-    public Builders getBuilders() {
+    public TraversalStateFactory getBuilders() {
         return builders;
     }
 
@@ -79,7 +84,55 @@ public class TraversalOps {
                 collect(Collectors.toList());
     }
 
+    public Stream<Relationship> orderServicesByDistance(Iterable<Relationship> relationships) {
+        //Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
+
+        Set<SortsPositions.HasStationId<Relationship>> wrapped = new HashSet<>();
+
+        relationships.forEach(svcRelationship -> wrapped.add(new RelationshipFacade(svcRelationship)));
+        return sortsPositions.sortedByNearTo(destinationLatLon, wrapped);
+    }
+
     public TramTime getTimeFrom(Node node) {
         return nodeOperations.getTime(node);
+    }
+
+    private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
+        private final Relationship relationship;
+        private final Long id;
+        private final IdFor<Station> stationId;
+
+        private RelationshipFacade(Relationship relationship) {
+            id = relationship.getId();
+            this.relationship = relationship;
+
+            // TODO this needs to go via the cache layer
+            this.stationId = GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RelationshipFacade that = (RelationshipFacade) o;
+
+            return id.equals(that.id);
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public IdFor<Station> getStationId() {
+            return stationId;
+        }
+
+        @Override
+        public Relationship getContained() {
+            return relationship;
+        }
     }
 }

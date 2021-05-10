@@ -10,6 +10,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
@@ -44,11 +45,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
-    private PreviousSuccessfulVisits previousSuccessfulVisit;
+    private final PreviousSuccessfulVisits previousSuccessfulVisit;
+    private final TraversalStateFactory traversalStateFactory;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
                                 CompositeStationRepository stationRepository, SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository,
-                                TripRepository tripRespository, Set<Station> endStations, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
+                                TripRepository tripRespository, TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
@@ -57,6 +59,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.nodeContentsRepository = nodeContentsRepository;
         this.queryTime = serviceHeuristics.getQueryTime();
         this.tripRespository = tripRespository;
+        this.traversalStateFactory = traversalStateFactory;
         this.destinationNodeIds = destinationNodeIds;
         this.endStations = endStations;
         this.config = config;
@@ -71,8 +74,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
-        TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, endStations,
-                destinationNodeIds, sortsPosition, destinationLatLon, config);
+
+        TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, endStations,
+                destinationNodeIds, destinationLatLon, traversalStateFactory);
         final NotStartedState traversalState = new NotStartedState(traversalOps);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 

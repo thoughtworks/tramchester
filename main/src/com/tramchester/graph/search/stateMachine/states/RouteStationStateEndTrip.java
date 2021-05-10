@@ -28,7 +28,8 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
 
     public static class Builder implements TowardsRouteStationTripState<RouteStationStateEndTrip> {
 
-        public TraversalState fromMinuteState(MinuteState minuteState, int cost, List<Relationship> routeStationOutbound, TransportMode mode) {
+        public TraversalState fromMinuteState(MinuteState minuteState, int cost, List<Relationship> routeStationOutbound,
+                                              TransportMode mode) {
             return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, mode);
         }
 

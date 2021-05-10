@@ -1,6 +1,6 @@
 package com.tramchester.unit.graph;
 
-import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -9,9 +9,11 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -51,9 +53,11 @@ class JourneyStateTest extends EasyMockSupport {
 
         TripRepository tripRepository = createMock(TripRepository.class);
         NodeContentsRepository cachedNodeOperations = createMock(NodeContentsRepository.class);
+        final TramchesterConfig config = TestEnv.GET();
 
-        traversalState = new NotStartedState(new TraversalOps(cachedNodeOperations, tripRepository, destinations,
-                destinationNodeIds,  sortsPositions, latLongHint, TestEnv.GET()));
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(config);
+        traversalState = new NotStartedState(new TraversalOps(cachedNodeOperations, tripRepository, sortsPositions, destinations,
+                destinationNodeIds, latLongHint, traversalStateFactory));
         queryTime = TramTime.of(9, 15);
     }
 

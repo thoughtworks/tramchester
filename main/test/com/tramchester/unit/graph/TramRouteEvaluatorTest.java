@@ -17,6 +17,7 @@ import com.tramchester.graph.caches.NodeTypeCache;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.*;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -113,8 +114,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
 
-        return new NotStartedState(new TraversalOps(nodeOperations, tripRepository, destinationStations,
-                destinationNodeIds,  sortsPositions, latLongHint, TestEnv.GET()));
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(config);
+
+        return new NotStartedState(new TraversalOps(nodeOperations, tripRepository, sortsPositions, destinationStations,
+                destinationNodeIds, latLongHint, traversalStateFactory));
     }
 
     @NotNull

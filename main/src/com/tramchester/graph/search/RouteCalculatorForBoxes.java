@@ -14,6 +14,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
@@ -43,13 +44,14 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
                                    TransportData transportData,
-                                   GraphDatabase graphDatabaseService, GraphQuery graphQuery, MapPathToStages pathToStages,
+                                   GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
+                                   MapPathToStages pathToStages,
                                    NodeContentsRepository nodeOperations, NodeTypeRepository nodeTypeRepository,
                                    ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    CompositeStationRepository compositeStationRepository) {
         super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
-                providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository, transportData, config, transportData);
+                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository, transportData, config, transportData);
         this.config = config;
         this.serviceRepository = transportData;
         this.graphDatabaseService = graphDatabaseService;
