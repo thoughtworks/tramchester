@@ -3,10 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
@@ -24,9 +21,9 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class RouteStationStateJustBoarded extends TraversalState {
+public class JustBoardedState extends TraversalState {
 
-    public static class Builder implements TowardsState<RouteStationStateJustBoarded> {
+    public static class Builder implements TowardsState<JustBoardedState> {
 
         public Builder() {
         }
@@ -38,15 +35,15 @@ public class RouteStationStateJustBoarded extends TraversalState {
         }
 
         @Override
-        public Class<RouteStationStateJustBoarded> getDestination() {
-            return RouteStationStateJustBoarded.class;
+        public Class<JustBoardedState> getDestination() {
+            return JustBoardedState.class;
         }
 
         public TraversalState fromPlatformState(PlatformState platformState, Node node, int cost) {
             Stream<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
                     platformState);
             Stream<Relationship> toServices = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
-            return new RouteStationStateJustBoarded(platformState, Stream.concat(outbounds, toServices), cost);
+            return new JustBoardedState(platformState, Stream.concat(outbounds, toServices), cost);
         }
 
         public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost, TransportMode mode) {
@@ -60,7 +57,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
                 services = orderServicesByDistance(node, noPlatformStation.traversalOps);
             }
 
-            return new RouteStationStateJustBoarded(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
+            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
         }
 
         /***
@@ -90,12 +87,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
          */
         private Stream<Relationship> orderServicesByDistance(Node node, TraversalOps traversalOps) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
-
             return traversalOps.orderServicesByDistance(toServices);
-//            Set<SortsPositions.HasStationId<Relationship>> relationships = new HashSet<>();
-//
-//            toServices.forEach(svcRelationship -> relationships.add(new RelationshipFacade(svcRelationship)));
-//            return sortsPositions.sortedByNearTo(destinationLatLon, relationships);
         }
 
     }
@@ -105,11 +97,7 @@ public class RouteStationStateJustBoarded extends TraversalState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private RouteStationStateJustBoarded(TraversalState traversalState, Stream<Relationship> outbounds, int cost) {
-        super(traversalState, outbounds, cost);
-    }
-
-    private RouteStationStateJustBoarded(TraversalState traversalState, Iterable<Relationship> outbounds, int cost) {
+    private JustBoardedState(TraversalState traversalState, Stream<Relationship> outbounds, int cost) {
         super(traversalState, outbounds, cost);
     }
 

@@ -121,7 +121,7 @@ public class PlatformState extends TraversalState implements NodeId {
             throw new RuntimeException("unable to board tram", e);
         }
 
-        return builders.towardsRouteStationJustBoarded(this).
+        return builders.towardsJustBoarded(this).
                 fromPlatformState(this, node, cost);
     }
 

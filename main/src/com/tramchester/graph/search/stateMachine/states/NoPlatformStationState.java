@@ -143,7 +143,7 @@ public class NoPlatformStationState extends StationState {
             throw new RuntimeException("unable to board vehicle", e);
         }
 
-        return builders.towardsRouteStationJustBoarded(this).
+        return builders.towardsJustBoarded(this).
                 fromNoPlatformStation(this, node, cost, actualMode);
     }
 

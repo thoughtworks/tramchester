@@ -30,7 +30,7 @@ public class TraversalStateFactory {
         registersStates.addBuilder(new RouteStationStateOnTrip.Builder());
         registersStates.addBuilder(new RouteStationStateEndTrip.Builder());
         registersStates.addBuilder(new HourState.Builder());
-        registersStates.addBuilder(new RouteStationStateJustBoarded.Builder());
+        registersStates.addBuilder(new JustBoardedState.Builder());
         registersStates.addBuilder(new NoPlatformStationState.Builder());
         registersStates.addBuilder(new TramStationState.Builder());
         registersStates.addBuilder(new WalkingState.Builder());
@@ -77,12 +77,12 @@ public class TraversalStateFactory {
         return (RouteStationStateOnTrip.Builder) registersStates.getBuilderFor(from.getClass(), RouteStationStateOnTrip.class);
     }
 
-    public RouteStationStateJustBoarded.Builder towardsRouteStationJustBoarded(PlatformState from) {
-        return (RouteStationStateJustBoarded.Builder) registersStates.getBuilderFor(from.getClass(), RouteStationStateJustBoarded.class);
+    public JustBoardedState.Builder towardsJustBoarded(PlatformState from) {
+        return (JustBoardedState.Builder) registersStates.getBuilderFor(from.getClass(), JustBoardedState.class);
     }
 
-    public RouteStationStateJustBoarded.Builder towardsRouteStationJustBoarded(NoPlatformStationState from) {
-        return (RouteStationStateJustBoarded.Builder) registersStates.getBuilderFor(from.getClass(), RouteStationStateJustBoarded.class);
+    public JustBoardedState.Builder towardsJustBoarded(NoPlatformStationState from) {
+        return (JustBoardedState.Builder) registersStates.getBuilderFor(from.getClass(), JustBoardedState.class);
     }
 
     public NoPlatformStationState.Builder towardsNoPlatformStation(RouteStationTripState from) {
@@ -109,7 +109,7 @@ public class TraversalStateFactory {
         return (ServiceState.Builder) registersStates.getBuilderFor(from.getClass(), ServiceState.class);
     }
 
-    public ServiceState.Builder towardsService(RouteStationStateJustBoarded from) {
+    public ServiceState.Builder towardsService(JustBoardedState from) {
         return (ServiceState.Builder) registersStates.getBuilderFor(from.getClass(), ServiceState.class);
     }
 

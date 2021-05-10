@@ -22,7 +22,7 @@ public class ServiceState extends TraversalState {
         public void register(RegistersFromState registers) {
             registers.add(RouteStationStateOnTrip.class, this);
             registers.add(RouteStationStateEndTrip.class, this);
-            registers.add(RouteStationStateJustBoarded.class, this);
+            registers.add(JustBoardedState.class, this);
         }
 
         @Override
@@ -40,7 +40,7 @@ public class ServiceState extends TraversalState {
             return new ServiceState(endTrip, serviceRelationships, cost);
         }
 
-        public TraversalState fromRouteStation(RouteStationStateJustBoarded justBoarded, Node node, int cost) {
+        public TraversalState fromRouteStation(JustBoardedState justBoarded, Node node, int cost) {
             Iterable<Relationship> serviceRelationships = node.getRelationships(OUTGOING, TO_HOUR);
             return new ServiceState(justBoarded, serviceRelationships, cost);
         }
