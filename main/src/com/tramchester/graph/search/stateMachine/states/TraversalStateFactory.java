@@ -3,6 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
+import com.tramchester.graph.search.stateMachine.TowardsState;
 import com.tramchester.graph.search.stateMachine.TowardsStationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +56,6 @@ public class TraversalStateFactory {
 
     public WalkingState.Builder towardsWalk(StationState from) {
         return (WalkingState.Builder) registersStates.getBuilderFor(from.getClass(), WalkingState.class);
-    }
-
-    public HourState.Builder towardsHour(ServiceState from) {
-        return (HourState.Builder) registersStates.getBuilderFor(from.getClass(), HourState.class);
     }
 
     public MinuteState.Builder towardsMinute(HourState from) {
@@ -159,5 +156,21 @@ public class TraversalStateFactory {
 
     public GroupedStationState.Builder towardsGroup(NotStartedState from) {
         return (GroupedStationState.Builder) registersStates.getBuilderFor(from.getClass(), GroupedStationState.class);
+    }
+
+    private <S extends TraversalState, T extends TowardsState<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
+        return (T) registersStates.getBuilderFor(from,to);
+    }
+
+    public HourState.Builder getTowardsHour(Class<? extends TraversalState> from) {
+        return getFor(from, HourState.class);
+    }
+
+    public TramStationState.Builder getTowardsStation(Class<? extends TraversalState> from) {
+        return getFor(from, TramStationState.class);
+    }
+
+    public DestinationState.Builder getTowardsDestination(Class<? extends TraversalState> from) {
+        return getFor(from, DestinationState.class);
     }
 }

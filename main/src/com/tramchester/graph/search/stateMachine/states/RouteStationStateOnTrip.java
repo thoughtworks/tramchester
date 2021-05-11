@@ -5,6 +5,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.*;
 import org.neo4j.graphdb.Node;
@@ -26,7 +27,8 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
     public static class Builder implements TowardsRouteStationTripState<RouteStationStateOnTrip> {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
-                                              IdFor<Trip> tripId, TransportMode transportMode) {
+                                              IdFor<Trip> tripId) {
+            TransportMode transportMode = GraphProps.getTransportMode(node);
             return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId, transportMode);
         }
 
@@ -77,31 +79,26 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
     }
 
     private TraversalState toStation(Node stationNode, JourneyState journeyState, int cost) {
-        // no platforms in bus network, direct to station
-        try {
-            journeyState.leave(transportMode, getTotalCost());
-        } catch (TramchesterException e) {
-            throw new RuntimeException("Unable to depart tram",e);
-        }
+        leaveVehicle(journeyState, transportMode, "Unable to depart tram");
 
-        // if no platform station then may have arrived
         long stationNodeId = stationNode.getId();
         if (traversalOps.isDestination(stationNodeId)) {
             return builders.towardsDest(this).from(this, cost);
         }
 
-        return builders.towardsNoPlatformStation(this)
-                .fromRouteStation(this, stationNode, cost);
+        return builders.towardsNoPlatformStation(this).fromRouteStation(this, stationNode, cost);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
-        try {
-            journeyState.leave(TransportMode.Tram, getTotalCost());
+        leaveVehicle(journeyState, TransportMode.Tram, "Unable to process platform");
+        return builders.towardsPlatform(this).fromRouteStationOnTrip(this, platformNode, cost);
+    }
 
-            return builders.towardsPlatform(this).fromRouteStationOnTrip(this, platformNode, cost);
-        }
-        catch (TramchesterException exception) {
-            throw new RuntimeException("Unable to process platform", exception);
+    private void leaveVehicle(JourneyState journeyState, TransportMode transportMode, String s) {
+        try {
+            journeyState.leave(transportMode, getTotalCost());
+        } catch (TramchesterException e) {
+            throw new RuntimeException(s, e);
         }
     }
 

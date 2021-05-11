@@ -34,7 +34,7 @@ public class TramStationState extends StationState {
             return new TramStationState(walkingState, node.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR), cost, node.getId());
         }
 
-        public TraversalState fromPlatform(PlatformState platformState, Node node, int cost) {
+        public TramStationState fromPlatform(PlatformState platformState, Node node, int cost) {
             return new TramStationState(platformState,
                     filterExcludingEndNode(
                             node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT), platformState),

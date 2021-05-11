@@ -22,7 +22,6 @@ public class PlatformState extends TraversalState implements NodeId {
 
     public static class Builder implements TowardsState<PlatformState> {
 
-
         @Override
         public void register(RegistersFromState registers) {
             registers.add(TramStationState.class, this);
@@ -103,15 +102,15 @@ public class PlatformState extends TraversalState implements NodeId {
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
 
-        long nodeId = node.getId();
-
-        if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
-            if (traversalOps.isDestination(nodeId)) {
-                return builders.towardsDest(this).from(this, cost);
-            } else {
-                return builders.towardsStation(this).fromPlatform(this, node, cost);
-            }
-        }
+//        long nodeId = node.getId();
+//
+//        if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
+//            if (traversalOps.isDestination(nodeId)) {
+//                return builders.towardsDest(this).from(this, cost);
+//            } else {
+//                return builders.towardsStation(this).fromPlatform(this, node, cost);
+//            }
+//        }
 
         if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
             return toRouteStation(node, journeyState, cost);
@@ -129,6 +128,16 @@ public class PlatformState extends TraversalState implements NodeId {
 
         return builders.towardsJustBoarded(this).
                 fromPlatformState(this, node, cost);
+    }
+
+    @Override
+    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromPlatform(this, node, cost);
+    }
+
+    @Override
+    protected DestinationState toDestination(DestinationState.Builder towardsDestination, int cost) {
+        return towardsDestination.from(this, cost);
     }
 
     @Override

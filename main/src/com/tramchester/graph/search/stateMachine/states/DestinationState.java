@@ -28,31 +28,31 @@ public class DestinationState extends TraversalState
             return DestinationState.class;
         }
 
-        public TraversalState from(NoPlatformStationState noPlatformStation, int cost) {
+        public DestinationState from(NoPlatformStationState noPlatformStation, int cost) {
             return new DestinationState(noPlatformStation, cost);
         }
 
-        public TraversalState from(WalkingState walkingState, int cost) {
+        public DestinationState from(WalkingState walkingState, int cost) {
             return new DestinationState(walkingState, cost);
         }
 
-        public TraversalState from(TramStationState tramStationState, int cost) {
+        public DestinationState from(TramStationState tramStationState, int cost) {
             return new DestinationState(tramStationState, cost);
         }
 
-        public TraversalState from(PlatformState platformState, int cost) {
-            return new DestinationState(platformState, cost);
+        public DestinationState from(PlatformState state, int cost) {
+            return new DestinationState(state, cost);
         }
 
-        public TraversalState from(RouteStationStateOnTrip routeStationStateOnTrip, int cost) {
+        public DestinationState from(RouteStationStateOnTrip routeStationStateOnTrip, int cost) {
             return new DestinationState(routeStationStateOnTrip, cost);
         }
 
-        public TraversalState from(RouteStationStateEndTrip endTrip, int cost) {
+        public DestinationState from(RouteStationStateEndTrip endTrip, int cost) {
             return new DestinationState(endTrip, cost);
         }
 
-        public TraversalState from(GroupedStationState groupedStationState, int cost) {
+        public DestinationState from(GroupedStationState groupedStationState, int cost) {
             return new DestinationState(groupedStationState, cost);
         }
 
@@ -61,14 +61,6 @@ public class DestinationState extends TraversalState
     private DestinationState(TraversalState parent, int cost) {
         super(parent, new LinkedList<>(), cost);
     }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof DestinationState)) return false;
-//        TraversalState that = (TraversalState) o;
-//        return that.destinationNodeIds == this.destinationNodeIds;
-//    }
 
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
@@ -79,4 +71,5 @@ public class DestinationState extends TraversalState
     public String toString() {
         return "DestinationState{} " + super.toString();
     }
+
 }

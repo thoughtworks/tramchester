@@ -33,8 +33,8 @@ public class NotStartedState extends TraversalState {
         switch(nodeLabel) {
             case QUERY_NODE:
                 return builders.towardsWalk(this).fromStart(this, firstNode, cost);
-            case TRAM_STATION:
-                return builders.towardsStation(this, TramStationState.class).fromStart(this, firstNode, cost);
+//            case TRAM_STATION:
+//                return builders.towardsStation(this, TramStationState.class).fromStart(this, firstNode, cost);
             case BUS_STATION:
             case TRAIN_STATION:
             case FERRY_STATION:
@@ -46,4 +46,8 @@ public class NotStartedState extends TraversalState {
         throw new UnexpectedNodeTypeException(firstNode, "Unexpected node type: " + nodeLabel);
     }
 
+    @Override
+    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromStart(this, node, cost);
+    }
 }

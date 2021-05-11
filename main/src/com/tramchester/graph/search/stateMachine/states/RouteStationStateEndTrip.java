@@ -3,19 +3,19 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStationTripState;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
+import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateEndTrip extends RouteStationTripState {
 
@@ -28,9 +28,9 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
 
     public static class Builder implements TowardsRouteStationTripState<RouteStationStateEndTrip> {
 
-        public TraversalState fromMinuteState(MinuteState minuteState, int cost, List<Relationship> routeStationOutbound,
-                                              TransportMode mode) {
-            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, mode);
+        public TraversalState fromMinuteState(MinuteState minuteState, Entity node, int cost, List<Relationship> routeStationOutbound) {
+            TransportMode transportMode = GraphProps.getTransportMode(node);
+            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, transportMode);
         }
 
         @Override
@@ -67,16 +67,10 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
             case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
             default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
         };
-
     }
 
     private TraversalState toStation(Node nextNode, JourneyState journeyState, int cost) {
-        // no platforms in bus network, direct to station
-        try {
-            journeyState.leave(mode, getTotalCost());
-        } catch (TramchesterException e) {
-            throw new RuntimeException("Unable to depart tram",e);
-        }
+        leaveVehicle(journeyState);
 
         // if no platform station then may have arrived
         long nextNodeId = nextNode.getId();
@@ -84,20 +78,19 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
             return builders.towardsDest(this).from(this, cost);
         }
 
-        return builders.towardsNoPlatformStation(this).
-                fromRouteStation(this, nextNode, cost);
+        return builders.towardsNoPlatformStation(this).fromRouteStation(this, nextNode, cost);
     }
 
     private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
-        try {
-            journeyState.leave(TransportMode.Tram, getTotalCost());
-        }
-        catch (TramchesterException exception) {
-            throw new RuntimeException("Unable to process platform", exception);
-        }
-
-
+        leaveVehicle(journeyState);
         return builders.towardsPlatform(this).fromRouteStation(this, platformNode, cost);
+    }
 
+    private void leaveVehicle(JourneyState journeyState) {
+        try {
+            journeyState.leave(mode, getTotalCost());
+        } catch (TramchesterException e) {
+            throw new RuntimeException("Unable to leave " + mode, e);
+        }
     }
 }

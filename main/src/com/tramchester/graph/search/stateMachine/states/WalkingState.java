@@ -60,10 +60,6 @@ public class WalkingState extends TraversalState {
         }
 
         switch (nodeLabel) {
-            case TRAM_STATION -> {
-                journeyState.walkingConnection();
-                return builders.towardsStation(this, TramStationState.class).fromWalking(this, node, cost);
-            }
             case BUS_STATION, TRAIN_STATION -> {
                 journeyState.walkingConnection();
                 return builders.towardsStation(this, NoPlatformStationState.class).
@@ -76,5 +72,11 @@ public class WalkingState extends TraversalState {
             default -> throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
         }
 
+    }
+
+    @Override
+    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        journeyState.walkingConnection();
+        return towardsStation.fromWalking(this, node, cost);
     }
 }

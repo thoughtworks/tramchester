@@ -84,13 +84,18 @@ public class GroupedStationState extends TraversalState {
 
         switch (nodeLabel) {
             case BUS_STATION:
-            case TRAIN_STATION:
-                return builders.towardsStation(this, NoPlatformStationState.class).fromGrouped(this, next, cost);
+//            case TRAIN_STATION:
+//                return builders.towardsStation(this, NoPlatformStationState.class).fromGrouped(this, next, cost);
             case TRAM_STATION:
                 return builders.towardsStation(this, TramStationState.class).fromGrouped(this, next, cost);
             default:
                 String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
                 throw new UnexpectedNodeTypeException(next, message);
         }
+    }
+
+    @Override
+    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromGrouped(this, node, cost);
     }
 }

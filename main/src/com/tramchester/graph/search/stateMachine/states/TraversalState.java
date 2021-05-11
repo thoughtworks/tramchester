@@ -57,16 +57,46 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 this, journeyState, nodeLabels));
     }
 
-    public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
+    public TraversalState nextStateLegacy(Set<GraphBuilder.Labels> nodeLabels, Node node,
                                     JourneyState journeyState, int cost) {
-        if (nodeLabels.size()==1) {
-            GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
-            child = createNextState(nodeLabel, node, journeyState, cost);
-        } else {
-            child = createNextState(nodeLabels, node, journeyState, cost);
+        if (nodeLabels.size()>1) {
+            return createNextState(nodeLabels, node, journeyState, cost);
         }
+        GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
+        return createNextState(nodeLabel, node, journeyState, cost);
+    }
 
-        return child;
+    public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
+                                       JourneyState journeyState, int cost) {
+        long nodeId = node.getId();
+
+        if (nodeLabels.size()>1) {
+            return createNextState(nodeLabels, node, journeyState, cost);
+        }
+        GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
+        switch (nodeLabel) {
+            case HOUR -> { return toHour(builders.getTowardsHour(this.getClass()), node, cost); }
+            case TRAM_STATION -> {
+                if (traversalOps.isDestination(nodeId)) {
+                    return toDestination(builders.getTowardsDestination(this.getClass()), cost);
+                } else {
+                    return toStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
+                }
+            }
+            default -> { return createNextState(nodeLabel, node, journeyState, cost); }
+        }
+    }
+
+    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    protected DestinationState toDestination(DestinationState.Builder towardsDestination, int cost) {
+        throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    protected HourState toHour(HourState.Builder towardsHour, Node node, int cost) {
+        throw new RuntimeException("No such transition at " + this.getClass());
     }
 
     public void dispose() {
@@ -107,6 +137,5 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     public int hashCode() {
         return Objects.hash(parent);
     }
-
 
 }

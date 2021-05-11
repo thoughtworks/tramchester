@@ -6,7 +6,6 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
@@ -48,13 +47,13 @@ public class MinuteState extends TraversalState {
             return MinuteState.class;
         }
 
-        public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip maybeExistingTrip) {
+        public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip existingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO
                 ,FERRY_GOES_TO, SUBWAY_GOES_TO);
 
             boolean changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
-            if (maybeExistingTrip.isOnTrip()) {
-                IdFor<Trip> existingTripId = maybeExistingTrip.getTripId();
+            if (existingTrip.isOnTrip()) {
+                IdFor<Trip> existingTripId = existingTrip.getTripId();
                 Iterable<Relationship> filterBySingleTripId =
                         hourState.traversalOps.filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
@@ -64,7 +63,6 @@ public class MinuteState extends TraversalState {
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
             }
         }
-
     }
 
     private final IdFor<Trip> tripId;
@@ -110,23 +108,19 @@ public class MinuteState extends TraversalState {
     private TraversalState toRouteStation(Node routeStationNode, int cost) {
         Iterable<Relationship> allDeparts = routeStationNode.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
 
-        TransportMode transportMode = GraphProps.getTransportMode(routeStationNode);
-
         // if towards dest then always follow whether interchange-only enabled or not
-        // towards final destination, just follow this one
         List<Relationship> towardsDestination = traversalOps.getTowardsDestination(allDeparts);
         if (!towardsDestination.isEmpty()) {
             // we've nearly arrived
             return builders.towardsRouteStateOnTrip(this).
-                    fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
-//            return builders.routeStationOnTrip.fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId, transportMode);
+                    fromMinuteState(this, routeStationNode, cost, towardsDestination, tripId);
         }
 
         // outbound service relationships that continue the current trip
         List<Relationship> routeStationOutbounds = filterByTripId(routeStationNode.getRelationships(OUTGOING, TO_SERVICE));
         boolean tripFinishedHere = routeStationOutbounds.isEmpty(); // i.e. no outbound from RS for this tripId
 
-        // now add outgoing to platforms
+        // now add outgoing to platforms/stations
         if (interchangesOnly) {
             if (routeStationNode.hasLabel(INTERCHANGE)) {
                 Iterable<Relationship> interchanges = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
@@ -139,17 +133,16 @@ public class MinuteState extends TraversalState {
         if (tripFinishedHere) {
             // for a change of trip id we need to get off vehicle, then back on to another service
             return builders.towardsRouteStateEndTrip(this).
-                    fromMinuteState(this, cost, routeStationOutbounds, transportMode);
+                    fromMinuteState(this, routeStationNode, cost, routeStationOutbounds);
         } else {
             return builders.towardsRouteStateOnTrip(this).
-                    fromMinuteState(this, routeStationNode, cost, routeStationOutbounds, tripId, transportMode);
+                    fromMinuteState(this, routeStationNode, cost, routeStationOutbounds, tripId);
         }
     }
 
     private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships) {
 
         IdFor<Service> currentSvcId = traversalOps.getServiceIdFor(tripId);
-       //tripRepository.getTripById(tripId).getService().getId();
 
         return Streams.stream(svcRelationships).
                 filter(relationship -> serviceNodeMatches(relationship, currentSvcId)).

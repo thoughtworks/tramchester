@@ -61,18 +61,20 @@ public class ServiceState extends TraversalState {
     }
 
     @Override
+    protected TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
+        throw new RuntimeException("no longer used");
+    }
+
+    @Override
+    protected HourState toHour(HourState.Builder towardsHour, Node node, int cost) {
+        return towardsHour.fromService(this, node, cost, maybeExistingTrip);
+    }
+
+    @Override
     public String toString() {
         return "ServiceState{" +
                 "maybeExistingTrip=" + maybeExistingTrip +
                 "} " + super.toString();
-    }
-
-    @Override
-    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        if (nodeLabel == GraphBuilder.Labels.HOUR) {
-            return builders.towardsHour(this).fromService(this, node, cost, maybeExistingTrip);
-        }
-        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
 }
