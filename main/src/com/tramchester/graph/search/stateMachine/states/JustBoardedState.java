@@ -87,7 +87,7 @@ public class JustBoardedState extends TraversalState {
          */
         private Stream<Relationship> orderServicesByDistance(Node node, TraversalOps traversalOps) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
-            return traversalOps.orderServicesByDistance(toServices);
+            return traversalOps.orderRelationshipsByDistance(toServices);
         }
 
     }

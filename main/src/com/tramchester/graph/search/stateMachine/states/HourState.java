@@ -14,6 +14,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class HourState extends TraversalState {
 
     public static class Builder implements TowardsState<HourState> {
+
         public TraversalState fromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost);

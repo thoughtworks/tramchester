@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(TraversalOps traversalOps) {
-        super(traversalOps);
+    public NotStartedState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory) {
+        super(traversalOps, traversalStateFactory);
     }
 
     @Override

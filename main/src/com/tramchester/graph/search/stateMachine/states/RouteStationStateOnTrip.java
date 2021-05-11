@@ -98,12 +98,6 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
         try {
             journeyState.leave(TransportMode.Tram, getTotalCost());
 
-            // TODO Push into PlatformState
-            // towards final destination, just follow this one
-            List<Relationship> towardsDest = traversalOps.getTowardsDestination(platformNode.getRelationships(OUTGOING, LEAVE_PLATFORM));
-            if (!towardsDest.isEmpty()) {
-                return builders.towardsPlatform(this).fromRouteStationTowardsDest(this, towardsDest, platformNode,  cost);
-            }
             return builders.towardsPlatform(this).fromRouteStationOnTrip(this, platformNode, cost);
         }
         catch (TramchesterException exception) {

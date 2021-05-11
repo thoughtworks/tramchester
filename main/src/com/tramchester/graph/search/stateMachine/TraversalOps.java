@@ -30,13 +30,12 @@ public class TraversalOps {
     private final IdSet<Station> destinationStationIds;
     private final IdSet<Route> destinationRouteIds;
     private final Set<Long> destinationNodeIds;
-    private final TraversalStateFactory builders;
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
 
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, Set<Station> destinationStations, Set<Long> destinationNodeIds,
-                        LatLong destinationLatLon, TraversalStateFactory traversalStateFactory) {
+                        LatLong destinationLatLon) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
@@ -44,7 +43,6 @@ public class TraversalOps {
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
         this.destinationRouteIds = getDestinationRoutes(destinationStations);
         this.destinationLatLon = destinationLatLon;
-        this.builders = traversalStateFactory;
     }
 
     private IdSet<Route> getDestinationRoutes(Set<Station> destinationStations) {
@@ -62,9 +60,9 @@ public class TraversalOps {
         return destinationRouteIds.contains(routeId);
     }
 
-    public TraversalStateFactory getBuilders() {
-        return builders;
-    }
+//    public TraversalStateFactory getBuilders() {
+//        return builders;
+//    }
 
     public boolean isDestination(long nodeId) {
         return destinationNodeIds.contains(nodeId);
@@ -84,11 +82,8 @@ public class TraversalOps {
                 collect(Collectors.toList());
     }
 
-    public Stream<Relationship> orderServicesByDistance(Iterable<Relationship> relationships) {
-        //Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
-
+    public Stream<Relationship> orderRelationshipsByDistance(Iterable<Relationship> relationships) {
         Set<SortsPositions.HasStationId<Relationship>> wrapped = new HashSet<>();
-
         relationships.forEach(svcRelationship -> wrapped.add(new RelationshipFacade(svcRelationship)));
         return sortsPositions.sortedByNearTo(destinationLatLon, wrapped);
     }

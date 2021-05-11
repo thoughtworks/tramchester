@@ -24,9 +24,9 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     private TraversalState child;
 
     // initial only
-    protected TraversalState(TraversalOps traversalOps) {
+    protected TraversalState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory) {
         this.traversalOps = traversalOps;
-        this.builders = traversalOps.getBuilders();
+        this.builders = traversalStateFactory;
 
         this.costForLastEdge = 0;
         this.parentCost = 0;
@@ -40,7 +40,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     protected TraversalState(TraversalState parent, Iterable<Relationship> outbounds, int costForLastEdge) {
         this.traversalOps = parent.traversalOps;
-        this.builders = traversalOps.getBuilders();
+        this.builders = parent.builders;
         this.parent = parent;
 
         this.outbounds = outbounds;

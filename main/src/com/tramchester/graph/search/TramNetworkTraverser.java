@@ -76,8 +76,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, endStations,
-                destinationNodeIds, destinationLatLon, traversalStateFactory);
-        final NotStartedState traversalState = new NotStartedState(traversalOps);
+                destinationNodeIds, destinationLatLon);
+        final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
 
         logger.info("Create traversal");

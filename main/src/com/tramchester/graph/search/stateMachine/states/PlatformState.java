@@ -11,6 +11,7 @@ import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -39,17 +40,15 @@ public class PlatformState extends TraversalState implements NodeId {
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
         }
 
-        public TraversalState fromRouteStationTowardsDest(RouteStationTripState state,
-                                                          Iterable<Relationship> relationships, Node platformNode, int cost) {
-            return new PlatformState(state, relationships, platformNode.getId(), cost);
-        }
-
-//        public TraversalState fromRouteStationTowardsDest(RouteStationStateEndTrip state, Iterable<Relationship> relationships,
-//                                                          Node platformNode, int cost) {
-//            return new PlatformState(state, relationships, platformNode.getId(), cost);
-//        }
-
         public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, int cost) {
+
+            // towards final destination, just follow this one
+            List<Relationship> towardsDest = routeStationStateOnTrip.traversalOps.
+                    getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
+            if (!towardsDest.isEmpty()) {
+                return new PlatformState(routeStationStateOnTrip, towardsDest, node.getId(), cost);
+            }
+
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
@@ -58,6 +57,13 @@ public class PlatformState extends TraversalState implements NodeId {
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
+            // towards final destination, just follow this one
+            List<Relationship> towardsDest = routeStationState.traversalOps.
+                    getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
+            if (!towardsDest.isEmpty()) {
+                return new PlatformState(routeStationState, towardsDest, node.getId(), cost);
+            }
+
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
