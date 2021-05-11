@@ -61,12 +61,31 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
-        return switch (nodeLabel) {
-            case PLATFORM -> toPlatform(nextNode, journeyState, cost);
-            case SERVICE -> builders.towardsService(this).fromRouteStation(this, nextNode, cost);
-            case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
-            default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
-        };
+        throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
+
+//        return switch (nodeLabel) {
+//            case PLATFORM -> toPlatform(nextNode, journeyState, cost);
+//            case SERVICE -> builders.towardsService(this).fromRouteStation(this, nextNode, cost);
+//            case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
+//            default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
+//        };
+    }
+
+    @Override
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+        return towardsService.fromRouteStation(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        leaveVehicle(journeyState);
+        return towardsStation.fromRouteStation(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+        leaveVehicle(journeyState);
+        return towardsPlatform.fromRouteStation(this, node, cost);
     }
 
     private TraversalState toStation(Node nextNode, JourneyState journeyState, int cost) {
@@ -79,11 +98,6 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
         }
 
         return builders.towardsNoPlatformStation(this).fromRouteStation(this, nextNode, cost);
-    }
-
-    private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
-        leaveVehicle(journeyState);
-        return builders.towardsPlatform(this).fromRouteStation(this, platformNode, cost);
     }
 
     private void leaveVehicle(JourneyState journeyState) {

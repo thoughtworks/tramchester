@@ -96,8 +96,8 @@ public class TramStationState extends StationState {
         }
 
         switch (nodeLabel) {
-            case PLATFORM:
-                return builders.towardsPlatform(this).from(this, node, cost);
+//            case PLATFORM:
+//                return builders.towardsPlatform(this).from(this, node, cost);
             case QUERY_NODE:
                 journeyState.walkingConnection();
                 return builders.towardsWalk(this).fromStation(this, node, cost);
@@ -107,11 +107,21 @@ public class TramStationState extends StationState {
                         fromNeighbour(this, node, cost);
             case TRAM_STATION:
                 return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, node, cost);
-            case GROUPED:
-                return builders.towardsGroup(this).fromChildStation(this, node, cost); // grouped are same transport mode
+//            case GROUPED:
+//                return builders.towardsGroup(this).fromChildStation(this, node, cost); // grouped are same transport mode
             default:
                 String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
                 throw new UnexpectedNodeTypeException(node, message);
         }
+    }
+
+    @Override
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+        return towardsGroup.fromChildStation(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+        return towardsPlatform.from(this, node, cost);
     }
 }

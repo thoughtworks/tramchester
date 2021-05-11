@@ -44,22 +44,19 @@ public class HourState extends TraversalState {
 
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        try {
-            if (nodeLabel == GraphBuilder.Labels.MINUTE) {
-                return toMinute(node, journeyState, cost);
-            }
-        } catch(TramchesterException exception) {
-            throw new RuntimeException("Unable to process time ordering", exception);
-        }
         throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
-    private TraversalState toMinute(Node node, JourneyState journeyState, int cost) throws TramchesterException {
-        TramTime time = traversalOps.getTimeFrom(node);
+    @Override
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyState journeyState) {
+        try {
+            TramTime time = traversalOps.getTimeFrom(node);
+            journeyState.recordVehicleDetails(time, getTotalCost());
+        } catch (TramchesterException exception) {
+            throw new RuntimeException("Unable to process time ordering", exception);
+        }
 
-        journeyState.recordVehicleDetails(time, getTotalCost());
-
-        return builders.towardsMinute(this).fromHour(this, node, cost, maybeExistingTrip);
+        return towardsMinute.fromHour(this, node, cost, maybeExistingTrip);
     }
 
     @Override

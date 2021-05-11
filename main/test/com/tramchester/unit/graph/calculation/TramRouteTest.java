@@ -202,7 +202,6 @@ class TramRouteTest {
     @Test
     void shouldTestJourneyInterchangeToFive() {
         JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7,56), 0);
-//        journeyRequest.setDiag(true);
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());

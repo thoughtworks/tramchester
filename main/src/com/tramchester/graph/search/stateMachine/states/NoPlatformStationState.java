@@ -126,11 +126,16 @@ public class NoPlatformStationState extends StationState {
             case BUS_STATION:
             case TRAIN_STATION:
                 return builders.towardsNeighbour(this, NoPlatformStationState.class).fromNeighbour(this, next, cost);
-            case GROUPED:
-                return builders.towardsGroup(this).fromChildStation(this, next, cost); // grouped are same transport mode
+//            case GROUPED:
+//                return builders.towardsGroup(this).fromChildStation(this, next, cost); // grouped are same transport mode
             default:
                 throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
         }
+    }
+
+    @Override
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+        return towardsGroup.fromChildStation(this, node, cost);
     }
 
     @NotNull

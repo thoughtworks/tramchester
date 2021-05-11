@@ -105,14 +105,17 @@ public class JustBoardedState extends TraversalState {
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
 
-        if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-            return builders.towardsService(this).fromRouteStation(this, nextNode, cost);
-        }
+//        if (nodeLabel == GraphBuilder.Labels.SERVICE) {
+//            return builders.towardsService(this).fromRouteStation(this, nextNode, cost);
+//        }
 
         // if one to one relationship between platforms and route stations, or bus stations and route stations,
         // no longer holds then this will throw
         throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
     }
 
-
+    @Override
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+        return towardsService.fromRouteStation(this, node, cost);
+    }
 }

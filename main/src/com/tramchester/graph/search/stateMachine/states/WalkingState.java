@@ -54,28 +54,41 @@ public class WalkingState extends TraversalState {
 
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        // could be we've walked to our destination
-        if (traversalOps.isDestination(node.getId())) {
-            return builders.towardsDest(this).from(this, cost);
-        }
+        throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
 
-        switch (nodeLabel) {
-            case BUS_STATION, TRAIN_STATION -> {
-                journeyState.walkingConnection();
-                return builders.towardsStation(this, NoPlatformStationState.class).
-                        fromWalking(this, node, cost);
-            }
-            case GROUPED -> {
-                journeyState.walkingConnection();
-                return builders.towardsGroup(this).fromWalk(this, node, cost);
-            }
-            default -> throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
-        }
-
+//        // could be we've walked to our destination
+//        if (traversalOps.isDestination(node.getId())) {
+//            return builders.towardsDest(this).from(this, cost);
+//        }
+//
+//        switch (nodeLabel) {
+//            case BUS_STATION, TRAIN_STATION -> {
+//                journeyState.walkingConnection();
+//                return builders.towardsStation(this, NoPlatformStationState.class).
+//                        fromWalking(this, node, cost);
+//            }
+//            case GROUPED -> {
+//                journeyState.walkingConnection();
+//                return builders.towardsGroup(this).fromWalk(this, node, cost);
+//            }
+//            default -> throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
+//        }
     }
 
     @Override
-    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+        journeyState.walkingConnection();
+        return towardsGroup.fromWalk(this, node, cost);
+    }
+
+    @Override
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        journeyState.walkingConnection();
+        return towardsStation.fromWalking(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
         journeyState.walkingConnection();
         return towardsStation.fromWalking(this, node, cost);
     }

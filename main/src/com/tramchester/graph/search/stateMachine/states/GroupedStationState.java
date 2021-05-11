@@ -30,15 +30,9 @@ public class GroupedStationState extends TraversalState {
             return GroupedStationState.class;
         }
 
-        public TraversalState fromChildStation(TramStationState tramStationState, Node node, int cost) {
-            return new GroupedStationState(tramStationState,
-                    filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),tramStationState),
-                    cost, node.getId());
-        }
-
-        public TraversalState fromChildStation(NoPlatformStationState noPlatformStationState, Node node, int cost) {
-            return new GroupedStationState(noPlatformStationState,
-                    filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD), noPlatformStationState),
+        public TraversalState fromChildStation(StationState stationState, Node node, int cost) {
+            return new GroupedStationState(stationState,
+                    filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
                     cost, node.getId());
         }
 
@@ -51,8 +45,6 @@ public class GroupedStationState extends TraversalState {
             return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
                     cost, node.getId());
         }
-
-
     }
 
     private final long stationNodeId;
@@ -76,26 +68,34 @@ public class GroupedStationState extends TraversalState {
 
     @Override
     protected TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node next, JourneyState journeyState, int cost) {
-        long nodeId = next.getId();
-        if (traversalOps.isDestination(nodeId)) {
-            // TODO Cost of bus depart?
-            return builders.towardsDest(this).from(this, cost);
-        }
+        String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
+        throw new UnexpectedNodeTypeException(next, message);
 
-        switch (nodeLabel) {
-            case BUS_STATION:
+//        long nodeId = next.getId();
+//        if (traversalOps.isDestination(nodeId)) {
+//            // TODO Cost of bus depart?
+//            return builders.towardsDest(this).from(this, cost);
+//        }
+
+//        switch (nodeLabel) {
+//            case BUS_STATION:
 //            case TRAIN_STATION:
 //                return builders.towardsStation(this, NoPlatformStationState.class).fromGrouped(this, next, cost);
-            case TRAM_STATION:
-                return builders.towardsStation(this, TramStationState.class).fromGrouped(this, next, cost);
-            default:
-                String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
-                throw new UnexpectedNodeTypeException(next, message);
-        }
+//            case TRAM_STATION:
+//                return builders.towardsStation(this, TramStationState.class).fromGrouped(this, next, cost);
+//            default:
+//                String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
+//                throw new UnexpectedNodeTypeException(next, message);
+//        }
     }
 
     @Override
-    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromGrouped(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
         return towardsStation.fromGrouped(this, node, cost);
     }
 }

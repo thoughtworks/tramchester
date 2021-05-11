@@ -35,19 +35,29 @@ public class NotStartedState extends TraversalState {
                 return builders.towardsWalk(this).fromStart(this, firstNode, cost);
 //            case TRAM_STATION:
 //                return builders.towardsStation(this, TramStationState.class).fromStart(this, firstNode, cost);
-            case BUS_STATION:
-            case TRAIN_STATION:
-            case FERRY_STATION:
-            case SUBWAY_STATION:
-                return builders.towardsStation(this, NoPlatformStationState.class).fromStart(this, firstNode, cost);
-            case GROUPED:
-                return builders.towardsGroup(this).fromStart(this, firstNode, cost);
+//            case BUS_STATION:
+//            case TRAIN_STATION:
+//            case FERRY_STATION:
+//            case SUBWAY_STATION:
+//                return builders.towardsStation(this, NoPlatformStationState.class).fromStart(this, firstNode, cost);
+//            case GROUPED:
+//                return builders.towardsGroup(this).fromStart(this, firstNode, cost);
         }
         throw new UnexpectedNodeTypeException(firstNode, "Unexpected node type: " + nodeLabel);
     }
 
     @Override
-    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+        return towardsGroup.fromStart(this, node, cost);
+    }
+
+    @Override
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromStart(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
         return towardsStation.fromStart(this, node, cost);
     }
 }

@@ -48,6 +48,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalCost();
     }
 
+    @Deprecated
     protected abstract TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
                                                       JourneyState journeyState, int cost);
 
@@ -75,19 +76,53 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
         GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
         switch (nodeLabel) {
+            case MINUTE -> { return toMinute(builders.getTowardsMinute(this.getClass()), node, cost, journeyState); }
             case HOUR -> { return toHour(builders.getTowardsHour(this.getClass()), node, cost); }
+            case GROUPED -> { return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState); }
+            case BUS_STATION,
+                    TRAIN_STATION,
+                    SUBWAY_STATION,
+                    FERRY_STATION -> {
+                if (traversalOps.isDestination(nodeId)) {
+                    return toDestination(builders.getTowardsDestination(this.getClass()), cost);
+                } else {
+                    return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
+                }
+            }
             case TRAM_STATION -> {
                 if (traversalOps.isDestination(nodeId)) {
                     return toDestination(builders.getTowardsDestination(this.getClass()), cost);
                 } else {
-                    return toStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
+                    return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
                 }
             }
+            case SERVICE -> { return toService(builders.getTowardsService(this.getClass()), node, cost); }
+            case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(this.getClass()), node, cost, journeyState); }
             default -> { return createNextState(nodeLabel, node, journeyState, cost); }
         }
     }
 
-    protected TramStationState toStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+        throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+        throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost, JourneyState journeyState) {
+        throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+        throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyState journeyState) {
+        throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 

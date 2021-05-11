@@ -70,12 +70,31 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
     @Override
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
-        return switch (nodeLabel) {
-            case PLATFORM -> toPlatform(nextNode, journeyState, cost);
-            case SERVICE -> builders.towardsService(this).fromRouteStation(this, tripId, nextNode, cost);
-            case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
-            default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
-        };
+        throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
+
+//        return switch (nodeLabel) {
+//            case PLATFORM -> toPlatform(nextNode, journeyState, cost);
+//            case SERVICE -> builders.towardsService(this).fromRouteStation(this, tripId, nextNode, cost);
+//            case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
+//            default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
+//        };
+    }
+
+    @Override
+    protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
+        return towardsService.fromRouteStation(this, tripId, node, cost);
+    }
+
+    @Override
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost, JourneyState journeyState) {
+        leaveVehicle(journeyState, transportMode, "Unable to depart tram");
+        return towardsNoPlatformStation.fromRouteStation(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+        leaveVehicle(journeyState, TransportMode.Tram, "Unable to process platform");
+        return towardsPlatform.fromRouteStationOnTrip(this, node, cost);
     }
 
     private TraversalState toStation(Node stationNode, JourneyState journeyState, int cost) {
@@ -87,11 +106,6 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
         }
 
         return builders.towardsNoPlatformStation(this).fromRouteStation(this, stationNode, cost);
-    }
-
-    private TraversalState toPlatform(Node platformNode, JourneyState journeyState, int cost) {
-        leaveVehicle(journeyState, TransportMode.Tram, "Unable to process platform");
-        return builders.towardsPlatform(this).fromRouteStationOnTrip(this, platformNode, cost);
     }
 
     private void leaveVehicle(JourneyState journeyState, TransportMode transportMode, String s) {
