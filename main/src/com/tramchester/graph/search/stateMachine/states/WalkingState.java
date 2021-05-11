@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
@@ -52,19 +52,19 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyStateUpdate journeyState) {
         journeyState.walkingConnection();
         return towardsGroup.fromWalk(this, node, cost);
     }
 
     @Override
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         journeyState.walkingConnection();
         return towardsStation.fromWalking(this, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         journeyState.walkingConnection();
         return towardsStation.fromWalking(this, node, cost);
     }

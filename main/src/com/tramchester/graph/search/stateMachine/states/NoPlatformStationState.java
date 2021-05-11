@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
 import org.neo4j.graphdb.Node;
@@ -86,36 +86,36 @@ public class NoPlatformStationState extends StationState {
     }
 
     @Override
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromNeighbour(this, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toNoPlatformStation(Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromNeighbour(this, node, cost);
     }
 
     @Override
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
         journeyState.walkingConnection();
         return towardsWalk.fromStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsGroup.fromChildStation(this, node, cost);
     }
 
     @Override
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyState journeyState) {
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyStateUpdate journeyState) {
         boardVehicle(node, journeyState);
         return towardsJustBoarded.fromNoPlatformStation(this, node, cost);
     }
 
-    private void boardVehicle(Node node, JourneyState journeyState) {
+    private void boardVehicle(Node node, JourneyStateUpdate journeyState) {
         try {
             TransportMode actualMode = GraphProps.getTransportMode(node);
-            journeyState.board(actualMode);
+            journeyState.board(actualMode, node);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board vehicle", e);
         }

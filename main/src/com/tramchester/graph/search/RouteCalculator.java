@@ -103,10 +103,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
         Stream<Journey> results = numChangesRange(journeyRequest).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> new PathRequest(startNode, queryTime, numChanges, journeyConstraints))).
+                        map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, previousSuccessfulVisit)).
-                map(path -> createJourney(journeyRequest, path));
+                map(path -> createJourney(journeyRequest, path, destinations));
 
         if (journeyRequest.getDiagnosticsEnabled()) {
             results.onClose(() -> previousSuccessfulVisit.reportStatsFor(journeyRequest));
@@ -132,7 +132,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         private final TramTime queryTime;
         private final int numChanges;
 
-        protected TimedPath(Path path, TramTime queryTime, int numChanges) {
+        public TimedPath(Path path, TramTime queryTime, int numChanges) {
             this.path = path;
             this.queryTime = queryTime;
             this.numChanges = numChanges;

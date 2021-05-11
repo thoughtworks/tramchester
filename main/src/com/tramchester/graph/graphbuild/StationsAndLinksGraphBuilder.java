@@ -201,6 +201,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         for (Platform platform : station.getPlatforms()) {
             Node platformNode = createGraphNode(txn, Labels.PLATFORM);
             setProperty(platformNode, platform);
+            setProperty(platformNode, station);
             routeBuilderCache.putPlatform(platform.getId(), platformNode);
         }
     }

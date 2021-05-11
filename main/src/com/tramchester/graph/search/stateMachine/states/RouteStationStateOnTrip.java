@@ -6,6 +6,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
@@ -61,18 +62,19 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost,
+                                                 JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState, transportMode, "Unable to depart tram");
         return towardsNoPlatformStation.fromRouteStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState, TransportMode.Tram, "Unable to process platform");
         return towardsPlatform.fromRouteStationOnTrip(this, node, cost);
     }
 
-    private void leaveVehicle(JourneyState journeyState, TransportMode transportMode, String s) {
+    private void leaveVehicle(JourneyStateUpdate journeyState, TransportMode transportMode, String s) {
         try {
             journeyState.leave(transportMode, getTotalCost());
         } catch (TramchesterException e) {

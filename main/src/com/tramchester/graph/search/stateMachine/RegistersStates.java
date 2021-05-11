@@ -15,13 +15,13 @@ public class RegistersStates implements RegistersFromState {
         map = new HashMap<>();
     }
 
-    public <T extends TraversalState> Towards<T> getBuilderFor(Class<? extends TraversalState> from, Class<T> to) {
+    public <S extends TraversalState, T extends Towards<S>> T getBuilderFor(Class<? extends TraversalState> from, Class<S> to) {
         final FromTo key = new FromTo(from, to);
 
         if (!map.containsKey(key)) {
             throw new NextStateNotFoundException(key);
         }
-        return (Towards<T>) map.get(key);
+        return (T) map.get(key);
 
     }
 

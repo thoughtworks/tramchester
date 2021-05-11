@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
 import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
@@ -56,7 +56,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
-                                       JourneyState journeyState, int cost) {
+                                    JourneyStateUpdate journeyState, int cost) {
         long nodeId = node.getId();
 
         boolean isInterchange = nodeLabels.contains(GraphBuilder.Labels.INTERCHANGE);
@@ -91,15 +91,15 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyState journeyState) {
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
@@ -107,19 +107,19 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
@@ -143,7 +143,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    private TraversalState toTramStation(Node node, JourneyState journeyState, int cost, long nodeId) {
+    private TraversalState toTramStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {
         if (traversalOps.isDestination(nodeId)) {
             return toDestination(builders.getTowardsDestination(this.getClass()), cost);
         } else {
@@ -151,7 +151,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-    private TraversalState toStation(Node node, JourneyState journeyState, int cost, long nodeId) {
+    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {
         if (traversalOps.isDestination(nodeId)) {
             return toDestination(builders.getTowardsDestination(this.getClass()), cost);
         } else {
@@ -159,7 +159,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-    private TraversalState toGrouped(Node node, int cost, JourneyState journeyState, long nodeId) {
+    private TraversalState toGrouped(Node node, int cost, JourneyStateUpdate journeyState, long nodeId) {
         if (traversalOps.isDestination(nodeId)) {
             return toDestination(builders.getTowardsDestination(this.getClass()), cost);
         } else {
@@ -167,7 +167,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-    private RouteStationState toRouteStation(Class<? extends TraversalState> from, Node node, int cost, JourneyState journeyState,
+    private RouteStationState toRouteStation(Class<? extends TraversalState> from, Node node, int cost, JourneyStateUpdate journeyState,
                                              boolean isInterchange) {
 
         if (from.equals(PlatformState.class) || from.equals(NoPlatformStationState.class)) {

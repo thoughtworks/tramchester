@@ -17,12 +17,14 @@ import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -30,7 +32,7 @@ public class RouteCalculatorSupport {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorSupport.class);
 
     private final GraphQuery graphQuery;
-    private final MapPathToStages pathToStages;
+    private final PathToStages pathToStages;
     private final NodeContentsRepository nodeOperations;
     private final NodeTypeRepository nodeTypeRepository;
     private final ReachabilityRepository reachabilityRepository;
@@ -44,7 +46,7 @@ public class RouteCalculatorSupport {
     private final TripRepository tripRepository;
     private final TraversalStateFactory traversalStateFactory;
 
-    protected RouteCalculatorSupport(GraphQuery graphQuery, MapPathToStages pathToStages, NodeContentsRepository nodeOperations,
+    protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeOperations,
                                      NodeTypeRepository nodeTypeRepository, ReachabilityRepository reachabilityRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory, ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition,
                                      MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository,
@@ -76,6 +78,18 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
+    public Set<Long> getDestinationNodeIds(Set<Station> destinations) {
+        Set<Long> destinationNodeIds;
+        try(Transaction txn = graphDatabaseService.beginTx()) {
+            destinationNodeIds = destinations.stream().
+                    map(station -> getStationNodeSafe(txn, station)).
+                    map(Entity::getId).
+                    collect(Collectors.toSet());
+        }
+        return destinationNodeIds;
+    }
+
+    @NotNull
     protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
         final int max = journeyRequest.getMaxChanges();
         final int min = 0;
@@ -89,8 +103,7 @@ public class RouteCalculatorSupport {
                 journeyConstraints, time, maxNumChanges);
     }
 
-
-    protected Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
+    public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
                                                                  final Set<Station> endStations,
                                                                  ServiceReasons reasons, PathRequest pathRequest,
                                                                  PreviousSuccessfulVisits previousSuccessfulVisit) {
@@ -106,8 +119,8 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path) {
-        return new Journey(pathToStages.mapDirect(path, journeyRequest),
+    protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path, Set<Station> endStations) {
+        return new Journey(pathToStages.mapDirect(path, journeyRequest, endStations),
                 path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath()));
     }
 
@@ -121,17 +134,22 @@ public class RouteCalculatorSupport {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesLocalNow, pathRequest.numChanges);
     }
 
-    protected class PathRequest {
+    public PathRequest createPathRequest(Node startNode, TramTime queryTime, int numChanges, JourneyConstraints journeyConstraints) {
+        ServiceHeuristics serviceHeuristics = createHeuristics(queryTime, journeyConstraints, numChanges);
+        return new PathRequest(startNode, queryTime, numChanges, serviceHeuristics);
+    }
+
+    public static class PathRequest {
         private final Node startNode;
         private final TramTime queryTime;
         private final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
 
-        public PathRequest(Node startNode, TramTime queryTime, int numChanges, JourneyConstraints journeyConstraints) {
+        public PathRequest(Node startNode, TramTime queryTime, int numChanges, ServiceHeuristics serviceHeuristics) {
             this.startNode = startNode;
             this.queryTime = queryTime;
             this.numChanges = numChanges;
-            this.serviceHeuristics = createHeuristics(queryTime, journeyConstraints, numChanges);
+            this.serviceHeuristics = serviceHeuristics;
         }
     }
 

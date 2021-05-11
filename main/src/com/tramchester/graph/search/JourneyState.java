@@ -4,12 +4,13 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
 import java.util.Objects;
 
-public class JourneyState implements ImmutableJourneyState {
+public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private TramTime journeyClock;
     private TransportMode transportMode;
 
@@ -67,6 +68,7 @@ public class JourneyState implements ImmutableJourneyState {
         return journeyClock;
     }
 
+
     public void updateJourneyClock(int currentTotalCost) {
         int costForTrip = currentTotalCost - journeyOffset;
 
@@ -90,6 +92,7 @@ public class JourneyState implements ImmutableJourneyState {
         return !transportMode.equals(TransportMode.NotSet);
     }
 
+    @Override
     public void leave(TransportMode mode, int totalCost) throws TramchesterException {
         if (!transportMode.equals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + transportMode);
@@ -128,7 +131,8 @@ public class JourneyState implements ImmutableJourneyState {
         return hasBegun;
     }
 
-    public void board(TransportMode mode) throws TramchesterException {
+    @Override
+    public void board(TransportMode mode, Node node) throws TramchesterException {
         guardAlreadyOnboard();
         numberOfBoardings = numberOfBoardings + 1;
         transportMode = mode;

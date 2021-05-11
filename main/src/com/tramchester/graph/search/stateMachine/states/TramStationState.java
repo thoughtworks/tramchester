@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
 import org.neo4j.graphdb.Node;
@@ -87,28 +87,28 @@ public class TramStationState extends StationState {
     }
 
     @Override
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
         journeyState.walkingConnection();
         return towardsWalk.fromStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, int cost, JourneyStateUpdate journeyState) {
         return toStation.fromNeighbour(this, node, cost);
     }
 
     @Override
-    protected TramStationState toTramStation(Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TramStationState toTramStation(Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromNeighbour(this, node, cost);
     }
 
     @Override
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsGroup.fromChildStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsPlatform.from(this, node, cost);
     }
 }

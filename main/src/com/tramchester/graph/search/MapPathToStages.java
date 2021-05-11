@@ -27,16 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 
 @LazySingleton
-public class MapPathToStages {
+public class MapPathToStages implements PathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 
     private final MyLocationFactory myLocationFactory;
@@ -56,7 +53,8 @@ public class MapPathToStages {
         this.routeRepository = routeRepository;
     }
 
-    public List<TransportStage<?,?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest) {
+    @Override
+    public List<TransportStage<?,?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest, Set<Station> endStations) {
         Path path = timedPath.getPath();
         TramTime queryTime = timedPath.getQueryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",

@@ -50,7 +50,7 @@ public class TraversalStateFactory {
     }
 
     private <S extends TraversalState, T extends Towards<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
-        return (T) registersStates.getBuilderFor(from,to);
+        return registersStates.getBuilderFor(from,to);
     }
 
     public HourState.Builder getTowardsHour(Class<? extends TraversalState> from) {

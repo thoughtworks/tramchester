@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import org.neo4j.graphdb.Entity;
@@ -51,18 +51,18 @@ public class RouteStationStateEndTrip extends RouteStationState {
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState);
         return towardsStation.fromRouteStation(this, node, cost);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState);
         return towardsPlatform.fromRouteStation(this, node, cost);
     }
 
-    private void leaveVehicle(JourneyState journeyState) {
+    private void leaveVehicle(JourneyStateUpdate journeyState) {
         try {
             journeyState.leave(mode, getTotalCost());
         } catch (TramchesterException e) {

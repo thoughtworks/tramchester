@@ -67,8 +67,6 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 
-
-
         return grouped.parallelStream().map(box -> {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
@@ -83,10 +81,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         filter(start -> !destinations.contains(start)).
                         map(start -> getStationNodeSafe(txn, start)).
                         flatMap(startNode -> numChangesRange(journeyRequest).
-                                map(numChanges -> new PathRequest(startNode, time, numChanges, journeyConstraints))).
+                                map(numChanges -> createPathRequest(startNode, time, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, time, pathRequest), pathRequest, previousSuccessfulVisit)).
-                        map(timedPath -> createJourney(journeyRequest, timedPath));
+                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations));
 
                 // TODO Limit here, or return the stream?
                 List<Journey> collect = journeys.limit(numberToFind).collect(Collectors.toList());
@@ -98,15 +96,5 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     }
 
-    @NotNull
-    private Set<Long> getDestinationNodeIds(Set<Station> destinations) {
-        Set<Long> destinationNodeIds;
-        try(Transaction txn = graphDatabaseService.beginTx()) {
-            destinationNodeIds = destinations.stream().
-                    map(station -> getStationNodeSafe(txn, station)).
-                    map(Entity::getId).
-                    collect(Collectors.toSet());
-        }
-        return destinationNodeIds;
-    }
+
 }

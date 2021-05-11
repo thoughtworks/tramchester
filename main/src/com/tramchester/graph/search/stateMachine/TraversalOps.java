@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.google.common.collect.Streams;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -12,13 +11,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +28,6 @@ public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
     private final TripRepository tripRepository;
     private final IdSet<Station> destinationStationIds;
-    private final IdSet<Route> destinationRouteIds;
     private final Set<Long> destinationNodeIds;
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
@@ -44,13 +40,7 @@ public class TraversalOps {
         this.sortsPositions = sortsPositions;
         this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
-        this.destinationRouteIds = getDestinationRoutes(destinationStations);
         this.destinationLatLon = destinationLatLon;
-    }
-
-    private IdSet<Route> getDestinationRoutes(Set<Station> destinationStations) {
-        return destinationStations.stream().map(Station::getRoutes).flatMap(Collection::stream).
-                collect(IdSet.collector());
     }
 
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
@@ -59,20 +49,8 @@ public class TraversalOps {
                 collect(Collectors.toList());
     }
 
-    public boolean hasDestinationRoute(IdFor<Route> routeId) {
-        return destinationRouteIds.contains(routeId);
-    }
-
-//    public TraversalStateFactory getBuilders() {
-//        return builders;
-//    }
-
     public boolean isDestination(long nodeId) {
         return destinationNodeIds.contains(nodeId);
-    }
-
-    public IdFor<Service> getServiceIdFor(IdFor<Trip> tripId) {
-        return tripRepository.getTripById(tripId).getService().getId();
     }
 
     public IdFor<Service> getServiceIdFor(Node svcNode) {

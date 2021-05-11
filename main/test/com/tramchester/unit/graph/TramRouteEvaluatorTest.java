@@ -315,7 +315,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         JourneyState journeyState = new JourneyState(time, traversalState);
-        journeyState.board(TransportMode.Tram);
+        journeyState.board(TransportMode.Tram, node);
         state.setState(journeyState);
 
         EasyMock.expect(path.length()).andReturn(50);
@@ -353,7 +353,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         JourneyState journeyState = new JourneyState(time, traversalState);
-        journeyState.board(TransportMode.Tram);
+        journeyState.board(TransportMode.Tram, node);
         state.setState(journeyState);
 
         EasyMock.expect(path.length()).andReturn(50);
@@ -392,7 +392,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState();
         JourneyState journeyState = new JourneyState(time, traversalState);
-        journeyState.board(TransportMode.Bus);
+        journeyState.board(TransportMode.Bus, node);
         state.setState(journeyState);
 
         EasyMock.expect(path.length()).andReturn(50);
@@ -559,7 +559,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         NotStartedState traversalState = getNotStartedState();
         TramTime time = TramTime.of(8, 15);
         JourneyState journeyState = new JourneyState(time, traversalState);
-        journeyState.board(TransportMode.Tram); // So uses non-initial wait time
+        journeyState.board(TransportMode.Tram, node); // So uses non-initial wait time
         state.setState(journeyState);
 
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0 ,howIGotHere, reasons)).
