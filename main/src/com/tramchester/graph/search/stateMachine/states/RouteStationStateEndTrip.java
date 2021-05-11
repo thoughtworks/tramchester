@@ -6,7 +6,7 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsRouteStationTripState;
+import com.tramchester.graph.search.stateMachine.TowardsState;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
@@ -26,7 +26,7 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
                 "} " + super.toString();
     }
 
-    public static class Builder implements TowardsRouteStationTripState<RouteStationStateEndTrip> {
+    public static class Builder implements TowardsState<RouteStationStateEndTrip> {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Entity node, int cost, List<Relationship> routeStationOutbound) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
@@ -62,13 +62,6 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
         throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
-
-//        return switch (nodeLabel) {
-//            case PLATFORM -> toPlatform(nextNode, journeyState, cost);
-//            case SERVICE -> builders.towardsService(this).fromRouteStation(this, nextNode, cost);
-//            case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
-//            default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
-//        };
     }
 
     @Override

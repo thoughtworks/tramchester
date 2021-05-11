@@ -52,7 +52,9 @@ public class JustBoardedState extends TraversalState {
 
             Stream<Relationship> services;
             if (TransportMode.isTram(mode)) {
-                services = Streams.stream(priortiseServicesByDestinationRoutes(noPlatformStation, node));
+                // TODO should not happen, tram stations have platforms
+                throw new RuntimeException("not used?");
+                //services = Streams.stream(priortiseServicesByDestinationRoutes(noPlatformStation, node));
             } else {
                 services = orderServicesByDistance(node, noPlatformStation.traversalOps);
             }

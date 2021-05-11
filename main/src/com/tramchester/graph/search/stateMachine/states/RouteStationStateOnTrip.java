@@ -24,7 +24,7 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
     private final IdFor<Trip> tripId;
     private final TransportMode transportMode;
 
-    public static class Builder implements TowardsRouteStationTripState<RouteStationStateOnTrip> {
+    public static class Builder implements TowardsState<RouteStationStateOnTrip> {
 
         public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
                                               IdFor<Trip> tripId) {

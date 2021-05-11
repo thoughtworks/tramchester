@@ -136,4 +136,5 @@ public class TraversalStateFactory {
     public WalkingState.Builder getTowardsWalk(Class<? extends TraversalState> from) {
         return getFor(from, WalkingState.class);
     }
+
 }

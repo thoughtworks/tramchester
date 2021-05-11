@@ -76,17 +76,23 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
 
         GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
+        final Class<? extends TraversalState> from = this.getClass();
         switch (nodeLabel) {
-            case MINUTE -> { return toMinute(builders.getTowardsMinute(this.getClass()), node, cost, journeyState); }
-            case HOUR -> { return toHour(builders.getTowardsHour(this.getClass()), node, cost); }
-            case GROUPED -> { return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState); }
+            case MINUTE -> { return toMinute(builders.getTowardsMinute(from), node, cost, journeyState); }
+            case HOUR -> { return toHour(builders.getTowardsHour(from), node, cost); }
+            case GROUPED -> { return toGrouped(builders.getTowardsGroup(from), node, cost, journeyState); }
             case BUS_STATION, TRAIN_STATION, SUBWAY_STATION, FERRY_STATION -> { return toStation(node, journeyState, cost, nodeId); }
             case TRAM_STATION -> { return toTramStation(node, journeyState, cost, nodeId); }
-            case SERVICE -> { return toService(builders.getTowardsService(this.getClass()), node, cost); }
-            case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(this.getClass()), node, cost, journeyState); }
-            case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(this.getClass()), node, cost, journeyState);}
+            case SERVICE -> { return toService(builders.getTowardsService(from), node, cost); }
+            case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(from), node, cost, journeyState); }
+            case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(from), node, cost, journeyState);}
+//            case ROUTE_STATION -> { return toRouteStation(from, node, cost, journeyState); }
             default -> { return createNextState(nodeLabel, node, journeyState, cost); }
         }
+    }
+
+    private TraversalState toRouteStation(Class<? extends TraversalState> from, Node node, int cost, JourneyState journeyState) {
+        throw new RuntimeException("WIP");
     }
 
     protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
