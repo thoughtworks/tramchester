@@ -60,7 +60,7 @@ class CreateNeighboursTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new NeighboursTestConfig();
-        TestEnv.deleteDBIfPresent(config);
+        //TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -87,6 +87,11 @@ class CreateNeighboursTest {
         createNeighbours = componentContainer.get(CreateNeighbours.class);
     }
 
+    @Test
+    void shouldFindTheBusStation() {
+        assertNotNull(shudehillBus);
+    }
+
     @AfterEach
     void onceAfterEachTestHasRun() {
         txn.close();
@@ -95,9 +100,12 @@ class CreateNeighboursTest {
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromTram() {
         Node tramNode = graphQuery.getStationNode(txn, shudehillTram);
+        assertNotNull(tramNode);
+
         Station victoria = TramStations.of(TramStations.Victoria);
 
         Set<Relationship> awayFrom = getRelationships(tramNode, OUTGOING);
+
         assertTrue(seenNode(txn, shudehillBus, awayFrom, Relationship::getEndNode));
         assertFalse(seenNode(txn, victoria, awayFrom, Relationship::getEndNode));
         assertFalse(seenNode(txn, shudehillTram, awayFrom, Relationship::getEndNode));
@@ -109,7 +117,8 @@ class CreateNeighboursTest {
 
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromBus() {
-        Node busNode = graphQuery.getStationNode(txn, shudehillBus);
+        Node busNode = graphQuery.getStationOrGrouped(txn, shudehillBus);
+        assertNotNull(busNode, "No node found for " + shudehillBus);
 
         Set<Relationship> awayFrom = getRelationships(busNode, OUTGOING);
         assertTrue(seenNode(txn, shudehillTram, awayFrom, Relationship::getEndNode));
@@ -121,12 +130,18 @@ class CreateNeighboursTest {
     }
 
     @Test
-    void shouldHaveListOfStationsThatNowHaveneighbours() {
+    void shouldHaveListOfStationsThatNowHaveNeighboursBus() {
         IdSet<Station> haveNeighboursBus = createNeighbours.getStationsWithNeighbours(Bus);
-        assertTrue(haveNeighboursBus.contains(shudehillBus.getId()));
+        assertEquals(258, haveNeighboursBus.size());
+
+        assertTrue(haveNeighboursBus.contains(BusStations.StopAtAltrinchamInterchange.getId()));
         assertFalse(haveNeighboursBus.contains(shudehillTram.getId()));
         assertFalse(haveNeighboursBus.contains(BusStations.KnutsfordStationStand3.getId()));
 
+    }
+
+    @Test
+    void shouldHaveListOfStationsThatNowHaveNeighboursTram() {
         IdSet<Station> haveNeighboursTram = createNeighbours.getStationsWithNeighbours(Tram);
         assertTrue(haveNeighboursTram.contains(shudehillTram.getId()));
         assertFalse(haveNeighboursTram.contains(shudehillBus.getId()));
@@ -203,7 +218,8 @@ class CreateNeighboursTest {
     }
 
     private boolean seenNode(Transaction txn, Station station, Set<Relationship> relationships, SelectNode selectNode) {
-        Node nodeToFind = graphQuery.getStationNode(txn, station);
+        Node nodeToFind = graphQuery.getStationOrGrouped(txn, station);
+        assertNotNull(nodeToFind, "no node found for " + station);
         boolean seenNode = false;
         for (Relationship relationship : relationships) {
             if (selectNode.getNode(relationship).getId()==nodeToFind.getId()) {

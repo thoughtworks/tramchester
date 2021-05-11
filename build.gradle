@@ -254,6 +254,19 @@ task apiTests(type: Test, dependsOn: compileJava) {
     }
 }
 
+task graphTests(type: Test, dependsOn: compileJava) {
+    minHeapSize = "1000m"
+    maxHeapSize = "1750m"
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching "com.tramchester.integration.graph.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
 // allow re-run of the task to aid in performance tuning
 allprojects {
     tasks.matching { task -> task.name == "allStationsTest" }.all {

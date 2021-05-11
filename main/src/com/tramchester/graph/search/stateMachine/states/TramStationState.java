@@ -95,24 +95,44 @@ public class TramStationState extends StationState {
             return builders.towardsDest(this).from(this, cost);
         }
 
-        switch (nodeLabel) {
+        String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
+        throw new UnexpectedNodeTypeException(node, message);
+
+//        switch (nodeLabel) {
 //            case PLATFORM:
 //                return builders.towardsPlatform(this).from(this, node, cost);
-            case QUERY_NODE:
-                journeyState.walkingConnection();
-                return builders.towardsWalk(this).fromStation(this, node, cost);
-            case BUS_STATION:
-            case TRAIN_STATION:
-                return builders.towardsNeighbour(this, NoPlatformStationState.class).
-                        fromNeighbour(this, node, cost);
-            case TRAM_STATION:
-                return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, node, cost);
+//            case QUERY_NODE:
+//                journeyState.walkingConnection();
+//                return builders.towardsWalk(this).fromStation(this, node, cost);
+//            case BUS_STATION:
+//            case TRAIN_STATION:
+//                return builders.towardsNeighbour(this, NoPlatformStationState.class).
+//                        fromNeighbour(this, node, cost);
+//            case TRAM_STATION:
+//                return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, node, cost);
 //            case GROUPED:
 //                return builders.towardsGroup(this).fromChildStation(this, node, cost); // grouped are same transport mode
-            default:
-                String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
-                throw new UnexpectedNodeTypeException(node, message);
-        }
+//            default:
+//                String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
+//                throw new UnexpectedNodeTypeException(node, message);
+//        }
+
+    }
+
+    @Override
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
+        journeyState.walkingConnection();
+        return towardsWalk.fromStation(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, int cost, JourneyState journeyState) {
+        return toStation.fromNeighbour(this, node, cost);
+    }
+
+    @Override
+    protected TramStationState toTramStation(Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromNeighbour(this, node, cost);
     }
 
     @Override

@@ -74,32 +74,23 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         if (nodeLabels.size()>1) {
             return createNextState(nodeLabels, node, journeyState, cost);
         }
+
         GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
         switch (nodeLabel) {
             case MINUTE -> { return toMinute(builders.getTowardsMinute(this.getClass()), node, cost, journeyState); }
             case HOUR -> { return toHour(builders.getTowardsHour(this.getClass()), node, cost); }
             case GROUPED -> { return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState); }
-            case BUS_STATION,
-                    TRAIN_STATION,
-                    SUBWAY_STATION,
-                    FERRY_STATION -> {
-                if (traversalOps.isDestination(nodeId)) {
-                    return toDestination(builders.getTowardsDestination(this.getClass()), cost);
-                } else {
-                    return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
-                }
-            }
-            case TRAM_STATION -> {
-                if (traversalOps.isDestination(nodeId)) {
-                    return toDestination(builders.getTowardsDestination(this.getClass()), cost);
-                } else {
-                    return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
-                }
-            }
+            case BUS_STATION, TRAIN_STATION, SUBWAY_STATION, FERRY_STATION -> { return toStation(node, journeyState, cost, nodeId); }
+            case TRAM_STATION -> { return toTramStation(node, journeyState, cost, nodeId); }
             case SERVICE -> { return toService(builders.getTowardsService(this.getClass()), node, cost); }
             case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(this.getClass()), node, cost, journeyState); }
+            case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(this.getClass()), node, cost, journeyState);}
             default -> { return createNextState(nodeLabel, node, journeyState, cost); }
         }
+    }
+
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
+        throw new RuntimeException("No such transition at " + this.getClass());
     }
 
     protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
@@ -114,6 +105,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
+    // TODO Check for destination
     protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyState journeyState) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
@@ -132,6 +124,22 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     protected HourState toHour(HourState.Builder towardsHour, Node node, int cost) {
         throw new RuntimeException("No such transition at " + this.getClass());
+    }
+
+    private TraversalState toTramStation(Node node, JourneyState journeyState, int cost, long nodeId) {
+        if (traversalOps.isDestination(nodeId)) {
+            return toDestination(builders.getTowardsDestination(this.getClass()), cost);
+        } else {
+            return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
+        }
+    }
+
+    private TraversalState toStation(Node node, JourneyState journeyState, int cost, long nodeId) {
+        if (traversalOps.isDestination(nodeId)) {
+            return toDestination(builders.getTowardsDestination(this.getClass()), cost);
+        } else {
+            return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
+        }
     }
 
     public void dispose() {

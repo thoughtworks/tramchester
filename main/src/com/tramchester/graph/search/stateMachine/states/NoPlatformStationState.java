@@ -116,21 +116,37 @@ public class NoPlatformStationState extends StationState {
         }
 
         switch (nodeLabel) {
-            case QUERY_NODE:
-                journeyState.walkingConnection();
-                return builders.towardsWalk(this).fromStation(this, next, cost);
+//            case QUERY_NODE:
+//                journeyState.walkingConnection();
+//                return builders.towardsWalk(this).fromStation(this, next, cost);
             case ROUTE_STATION:
                 return toRouteStation(next, journeyState, cost);
-            case TRAM_STATION:
-                return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, next, cost);
-            case BUS_STATION:
-            case TRAIN_STATION:
-                return builders.towardsNeighbour(this, NoPlatformStationState.class).fromNeighbour(this, next, cost);
+//            case TRAM_STATION:
+//                return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, next, cost);
+//            case BUS_STATION:
+//            case TRAIN_STATION:
+//                return builders.towardsNeighbour(this, NoPlatformStationState.class).fromNeighbour(this, next, cost);
 //            case GROUPED:
 //                return builders.towardsGroup(this).fromChildStation(this, next, cost); // grouped are same transport mode
             default:
                 throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
         }
+    }
+
+    @Override
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromNeighbour(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toNoPlatformStation(Builder towardsStation, Node node, int cost, JourneyState journeyState) {
+        return towardsStation.fromNeighbour(this, node, cost);
+    }
+
+    @Override
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
+        journeyState.walkingConnection();
+        return towardsWalk.fromStation(this, node, cost);
     }
 
     @Override

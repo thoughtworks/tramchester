@@ -51,14 +51,6 @@ public class TraversalStateFactory {
         logger.info("stopped");
     }
 
-    public WalkingState.Builder towardsWalk(NotStartedState from) {
-        return (WalkingState.Builder) registersStates.getBuilderFor(from.getClass(), WalkingState.class);
-    }
-
-    public WalkingState.Builder towardsWalk(StationState from) {
-        return (WalkingState.Builder) registersStates.getBuilderFor(from.getClass(), WalkingState.class);
-    }
-
     public RouteStationStateEndTrip.Builder towardsRouteStateEndTrip(MinuteState from) {
         return (RouteStationStateEndTrip.Builder) registersStates.getBuilderFor(from.getClass(), RouteStationStateEndTrip.class);
     }
@@ -75,15 +67,14 @@ public class TraversalStateFactory {
         return (JustBoardedState.Builder) registersStates.getBuilderFor(from.getClass(), JustBoardedState.class);
     }
 
+    // for multi-label
     @Deprecated
     public NoPlatformStationState.Builder towardsNoPlatformStation(RouteStationTripState from) {
         return (NoPlatformStationState.Builder) registersStates.getBuilderFor(from.getClass(), NoPlatformStationState.class);
     }
 
-    public <F extends StationState, S extends StationState, B extends TowardsStationState<S>> B towardsNeighbour(F from, Class<S> towards) {
-        return (B) registersStates.getBuilderFor(from.getClass(), towards);
-    }
-
+    // For multi-label
+    @Deprecated
     public <S extends StationState, B extends TowardsStationState<S>> B towardsStation(NotStartedState from, Class<S> towards) {
         return (B) registersStates.getBuilderFor(from.getClass(), towards);
     }
@@ -103,6 +94,8 @@ public class TraversalStateFactory {
     private DestinationState.Builder getDestBuilder(Class<? extends TraversalState> aClass) {
         return (DestinationState.Builder) registersStates.getBuilderFor(aClass, DestinationState.class);
     }
+
+    // NEW /////////////////
 
     private <S extends TraversalState, T extends TowardsState<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
         return (T) registersStates.getBuilderFor(from,to);
@@ -138,5 +131,9 @@ public class TraversalStateFactory {
 
     public PlatformState.Builder getTowardsPlatform(Class<? extends TraversalState> from) {
         return getFor(from, PlatformState.class);
+    }
+
+    public WalkingState.Builder getTowardsWalk(Class<? extends TraversalState> from) {
+        return getFor(from, WalkingState.class);
     }
 }

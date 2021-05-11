@@ -30,9 +30,11 @@ public class NotStartedState extends TraversalState {
     }
 
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node firstNode, JourneyState journeyState, int cost) {
-        switch(nodeLabel) {
-            case QUERY_NODE:
-                return builders.towardsWalk(this).fromStart(this, firstNode, cost);
+        throw new UnexpectedNodeTypeException(firstNode, "Unexpected node type: " + nodeLabel);
+
+//        switch(nodeLabel) {
+//            case QUERY_NODE:
+//                return builders.towardsWalk(this).fromStart(this, firstNode, cost);
 //            case TRAM_STATION:
 //                return builders.towardsStation(this, TramStationState.class).fromStart(this, firstNode, cost);
 //            case BUS_STATION:
@@ -42,8 +44,13 @@ public class NotStartedState extends TraversalState {
 //                return builders.towardsStation(this, NoPlatformStationState.class).fromStart(this, firstNode, cost);
 //            case GROUPED:
 //                return builders.towardsGroup(this).fromStart(this, firstNode, cost);
-        }
-        throw new UnexpectedNodeTypeException(firstNode, "Unexpected node type: " + nodeLabel);
+//        }
+//        throw new UnexpectedNodeTypeException(firstNode, "Unexpected node type: " + nodeLabel);
+    }
+
+    @Override
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyState journeyState) {
+        return towardsWalk.fromStart(this, node, cost);
     }
 
     @Override
