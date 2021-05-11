@@ -3,16 +3,20 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.google.common.collect.Streams;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.*;
+import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.search.stateMachine.TraversalOps;
+import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.DEPART;
 import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_DEPART;
-import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
@@ -51,25 +55,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalCost();
     }
 
-    @Deprecated
-    protected abstract TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
-                                                      JourneyState journeyState, int cost);
-
-    protected TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
-                                             JourneyState journeyState, int cost) {
-        throw new RuntimeException(format("Multi label Not implemented at %s for %s labels were %s",
-                this, journeyState, nodeLabels));
-    }
-
-    public TraversalState nextStateLegacy(Set<GraphBuilder.Labels> nodeLabels, Node node,
-                                    JourneyState journeyState, int cost) {
-        if (nodeLabels.size()>1) {
-            return createNextState(nodeLabels, node, journeyState, cost);
-        }
-        GraphBuilder.Labels nodeLabel = nodeLabels.iterator().next();
-        return createNextState(nodeLabel, node, journeyState, cost);
-    }
-
     public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
                                        JourneyState journeyState, int cost) {
         long nodeId = node.getId();
@@ -87,7 +72,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                 // multi-mode station, all same case, so pick first one
                 nodeLabel = nodeLabels.iterator().next();
             } else {
-                return createNextState(nodeLabels, node, journeyState, cost);
+                throw new RuntimeException("Unexpected multi-label condition: " + nodeLabels);
             }
         }
 
@@ -102,7 +87,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(from), node, cost, journeyState); }
             case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(from), node, cost, journeyState);}
             case ROUTE_STATION -> { return toRouteStation(from, node, cost, journeyState, isInterchange); }
-            default -> { return createNextState(nodeLabel, node, journeyState, cost); }
+            default -> throw new UnexpectedNodeTypeException(node, "Unexpected at " + this + " label:" + nodeLabel);
         }
     }
 

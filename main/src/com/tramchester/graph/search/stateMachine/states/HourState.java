@@ -43,11 +43,6 @@ public class HourState extends TraversalState {
     }
 
     @Override
-    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
-    }
-
-    @Override
     protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyState journeyState) {
         try {
             TramTime time = traversalOps.getTimeFrom(node);

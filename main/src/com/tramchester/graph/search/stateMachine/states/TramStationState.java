@@ -1,8 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.*;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsStation;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -84,39 +84,6 @@ public class TramStationState extends StationState {
     @Override
     public long nodeId() {
         return stationNodeId;
-    }
-
-    @Override
-    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node,
-                                          JourneyState journeyState, int cost) {
-        long nodeId = node.getId();
-        if (traversalOps.isDestination(nodeId)) {
-            // TODO Cost of platform depart?
-            return builders.towardsDest(this).from(this, cost);
-        }
-
-        String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
-        throw new UnexpectedNodeTypeException(node, message);
-
-//        switch (nodeLabel) {
-//            case PLATFORM:
-//                return builders.towardsPlatform(this).from(this, node, cost);
-//            case QUERY_NODE:
-//                journeyState.walkingConnection();
-//                return builders.towardsWalk(this).fromStation(this, node, cost);
-//            case BUS_STATION:
-//            case TRAIN_STATION:
-//                return builders.towardsNeighbour(this, NoPlatformStationState.class).
-//                        fromNeighbour(this, node, cost);
-//            case TRAM_STATION:
-//                return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, node, cost);
-//            case GROUPED:
-//                return builders.towardsGroup(this).fromChildStation(this, node, cost); // grouped are same transport mode
-//            default:
-//                String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
-//                throw new UnexpectedNodeTypeException(node, message);
-//        }
-
     }
 
     @Override

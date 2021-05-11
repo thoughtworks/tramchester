@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -50,29 +49,6 @@ public class WalkingState extends TraversalState {
     @Override
     public String toString() {
         return "WalkingState{} " + super.toString();
-    }
-
-    @Override
-    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
-
-//        // could be we've walked to our destination
-//        if (traversalOps.isDestination(node.getId())) {
-//            return builders.towardsDest(this).from(this, cost);
-//        }
-//
-//        switch (nodeLabel) {
-//            case BUS_STATION, TRAIN_STATION -> {
-//                journeyState.walkingConnection();
-//                return builders.towardsStation(this, NoPlatformStationState.class).
-//                        fromWalking(this, node, cost);
-//            }
-//            case GROUPED -> {
-//                journeyState.walkingConnection();
-//                return builders.towardsGroup(this).fromWalk(this, node, cost);
-//            }
-//            default -> throw new RuntimeException("Unexpected node type: " + nodeLabel + " at " + this);
-//        }
     }
 
     @Override

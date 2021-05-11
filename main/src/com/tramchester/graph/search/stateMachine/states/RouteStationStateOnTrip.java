@@ -1,20 +1,18 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.*;
+import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Collection;
-import java.util.Set;
-
-import static java.lang.String.format;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
     private final long routeStationNodeId;
@@ -58,27 +56,6 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node nextNode,
-                                          JourneyState journeyState, int cost) {
-        // should be called for multi-mode stations only
-        throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node types: %s state :%s ", nodeLabels, this));
-//        return toStation(nextNode, journeyState, cost);
-    }
-
-    @Override
-    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
-                                          JourneyState journeyState, int cost) {
-        throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
-
-//        return switch (nodeLabel) {
-//            case PLATFORM -> toPlatform(nextNode, journeyState, cost);
-//            case SERVICE -> builders.towardsService(this).fromRouteStation(this, tripId, nextNode, cost);
-//            case BUS_STATION, TRAIN_STATION -> toStation(nextNode, journeyState, cost);
-//            default -> throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
-//        };
-    }
-
-    @Override
     protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
         return towardsService.fromRouteStation(this, tripId, node, cost);
     }
@@ -93,17 +70,6 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyState journeyState) {
         leaveVehicle(journeyState, TransportMode.Tram, "Unable to process platform");
         return towardsPlatform.fromRouteStationOnTrip(this, node, cost);
-    }
-
-    private TraversalState toStation(Node stationNode, JourneyState journeyState, int cost) {
-        leaveVehicle(journeyState, transportMode, "Unable to depart tram");
-
-        long stationNodeId = stationNode.getId();
-        if (traversalOps.isDestination(stationNodeId)) {
-            return builders.towardsDest(this).from(this, cost);
-        }
-
-        return builders.towardsNoPlatformStation(this).fromRouteStation(this, stationNode, cost);
     }
 
     private void leaveVehicle(JourneyState journeyState, TransportMode transportMode, String s) {

@@ -1,18 +1,15 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.exceptions.TramchesterException;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
-import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -88,47 +85,6 @@ public class PlatformState extends TraversalState implements NodeId {
         return "PlatformState{" +
                 "platformNodeId=" + platformNodeId +
                 "} " + super.toString();
-    }
-
-    @Override
-    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node node, JourneyState journeyState, int cost) {
-        // route station nodes may also have INTERCHANGE label set
-        if (nodeLabels.contains(GraphBuilder.Labels.ROUTE_STATION)) {
-            return toRouteStation(node, journeyState, cost);
-        }
-        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabels);
-    }
-
-    @Override
-    public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-
-//        long nodeId = node.getId();
-//
-//        if (nodeLabel == GraphBuilder.Labels.TRAM_STATION) {
-//            if (traversalOps.isDestination(nodeId)) {
-//                return builders.towardsDest(this).from(this, cost);
-//            } else {
-//                return builders.towardsStation(this).fromPlatform(this, node, cost);
-//            }
-//        }
-//
-//        if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
-//            return toRouteStation(node, journeyState, cost);
-//        }
-
-        throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
-    }
-
-    // multi-label
-    private TraversalState toRouteStation(Node node, JourneyState journeyState, int cost) {
-        try {
-            // TODO DONT ASSUME THIS
-            journeyState.board(TransportMode.Tram);
-        } catch (TramchesterException e) {
-            throw new RuntimeException("unable to board tram", e);
-        }
-
-        return builders.towardsJustBoarded(this).fromPlatformState(this, node, cost);
     }
 
     @Override

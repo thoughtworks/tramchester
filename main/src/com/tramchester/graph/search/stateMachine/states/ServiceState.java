@@ -2,8 +2,6 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -57,11 +55,6 @@ public class ServiceState extends TraversalState {
     private ServiceState(TraversalState parent, Iterable<Relationship> relationships, int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = ExistingTrip.none();
-    }
-
-    @Override
-    protected TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node node, JourneyState journeyState, int cost) {
-        throw new RuntimeException("no longer used");
     }
 
     @Override

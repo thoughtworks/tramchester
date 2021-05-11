@@ -1,8 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.*;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -64,29 +64,6 @@ public class GroupedStationState extends TraversalState {
         return "GroupedStationState{" +
                 "stationNodeId=" + stationNodeId +
                 "} " + super.toString();
-    }
-
-    @Override
-    protected TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node next, JourneyState journeyState, int cost) {
-        String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
-        throw new UnexpectedNodeTypeException(next, message);
-
-//        long nodeId = next.getId();
-//        if (traversalOps.isDestination(nodeId)) {
-//            // TODO Cost of bus depart?
-//            return builders.towardsDest(this).from(this, cost);
-//        }
-
-//        switch (nodeLabel) {
-//            case BUS_STATION:
-//            case TRAIN_STATION:
-//                return builders.towardsStation(this, NoPlatformStationState.class).fromGrouped(this, next, cost);
-//            case TRAM_STATION:
-//                return builders.towardsStation(this, TramStationState.class).fromGrouped(this, next, cost);
-//            default:
-//                String message = "Unexpected node type: " + nodeLabel + " at " + this + " for " + journeyState;
-//                throw new UnexpectedNodeTypeException(next, message);
-//        }
     }
 
     @Override

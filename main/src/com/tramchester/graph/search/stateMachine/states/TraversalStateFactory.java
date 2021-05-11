@@ -4,8 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.Towards;
-import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
-import com.tramchester.graph.search.stateMachine.TowardsStation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,56 +48,6 @@ public class TraversalStateFactory {
         registersStates.clear();
         logger.info("stopped");
     }
-
-    public RouteStationStateEndTrip.Builder towardsRouteStateEndTrip(MinuteState from) {
-        return (RouteStationStateEndTrip.Builder) registersStates.getBuilderFor(from.getClass(), RouteStationStateEndTrip.class);
-    }
-
-    public RouteStationStateOnTrip.Builder towardsRouteStateOnTrip(MinuteState from) {
-        return (RouteStationStateOnTrip.Builder) registersStates.getBuilderFor(from.getClass(), RouteStationStateOnTrip.class);
-    }
-
-    // for multi-label
-    @Deprecated
-    public JustBoardedState.Builder towardsJustBoarded(PlatformState from) {
-        return (JustBoardedState.Builder) registersStates.getBuilderFor(from.getClass(), JustBoardedState.class);
-    }
-
-    // for multi-label
-    @Deprecated
-    public JustBoardedState.Builder towardsJustBoarded(NoPlatformStationState from) {
-        return (JustBoardedState.Builder) registersStates.getBuilderFor(from.getClass(), JustBoardedState.class);
-    }
-
-    // for multi-label
-    @Deprecated
-    public NoPlatformStationState.Builder towardsNoPlatformStation(RouteStationState from) {
-        return (NoPlatformStationState.Builder) registersStates.getBuilderFor(from.getClass(), NoPlatformStationState.class);
-    }
-
-    // For multi-label
-    @Deprecated
-    public <S extends StationState, B extends TowardsStation<S>> B towardsStation(NotStartedState from, Class<S> towards) {
-        return (B) registersStates.getBuilderFor(from.getClass(), towards);
-    }
-
-    public DestinationState.Builder towardsDest(TramStationState from) {
-        return getDestBuilder(from.getClass());
-    }
-
-    public DestinationState.Builder towardsDest(NoPlatformStationState from) {
-        return getDestBuilder(from.getClass());
-    }
-
-    public DestinationState.Builder towardsDest(RouteStationState from) {
-        return getDestBuilder(from.getClass());
-    }
-
-    private DestinationState.Builder getDestBuilder(Class<? extends TraversalState> aClass) {
-        return (DestinationState.Builder) registersStates.getBuilderFor(aClass, DestinationState.class);
-    }
-
-    // NEW /////////////////
 
     private <S extends TraversalState, T extends Towards<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
         return (T) registersStates.getBuilderFor(from,to);
