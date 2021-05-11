@@ -6,7 +6,7 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
+import com.tramchester.graph.search.stateMachine.Towards;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -16,7 +16,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
 
-    public static class Builder implements TowardsState<HourState> {
+    public static class Builder implements Towards<HourState> {
 
         public HourState fromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);

@@ -18,7 +18,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NoPlatformStationState extends StationState {
 
-    public static class Builder implements TowardsStationState<NoPlatformStationState> {
+    public static class Builder implements TowardsStation<NoPlatformStationState> {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -101,9 +101,6 @@ public class NoPlatformStationState extends StationState {
             return toRouteStation(next, journeyState, cost);
         }
 
-        // TODO this is not called any more
-        // return builders.noPlatformStation.fromNeighbour(this, next, cost);
-
         throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabels + " at " + this);
     }
 
@@ -115,12 +112,14 @@ public class NoPlatformStationState extends StationState {
             return builders.towardsDest(this).from(this, cost);
         }
 
-        switch (nodeLabel) {
+        throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
+
+//        switch (nodeLabel) {
 //            case QUERY_NODE:
 //                journeyState.walkingConnection();
 //                return builders.towardsWalk(this).fromStation(this, next, cost);
-            case ROUTE_STATION:
-                return toRouteStation(next, journeyState, cost);
+//            case ROUTE_STATION:
+//                return toRouteStation(next, journeyState, cost);
 //            case TRAM_STATION:
 //                return builders.towardsNeighbour(this, TramStationState.class).fromNeighbour(this, next, cost);
 //            case BUS_STATION:
@@ -128,9 +127,10 @@ public class NoPlatformStationState extends StationState {
 //                return builders.towardsNeighbour(this, NoPlatformStationState.class).fromNeighbour(this, next, cost);
 //            case GROUPED:
 //                return builders.towardsGroup(this).fromChildStation(this, next, cost); // grouped are same transport mode
-            default:
-                throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
-        }
+//            default:
+//                throw new UnexpectedNodeTypeException(next, "Unexpected node type: " + nodeLabel + " at " + this);
+//        }
+
     }
 
     @Override
@@ -154,18 +154,26 @@ public class NoPlatformStationState extends StationState {
         return towardsGroup.fromChildStation(this, node, cost);
     }
 
+    @Override
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyState journeyState) {
+        boardVehicle(node, journeyState);
+        return towardsJustBoarded.fromNoPlatformStation(this, node, cost);
+    }
+
+    // for multi-label
     @NotNull
     private TraversalState toRouteStation(Node node, JourneyState journeyState, int cost) {
-        TransportMode actualMode = GraphProps.getTransportMode(node);
+        boardVehicle(node, journeyState);
+        return builders.towardsJustBoarded(this).fromNoPlatformStation(this, node, cost);
+    }
 
+    private void boardVehicle(Node node, JourneyState journeyState) {
         try {
+            TransportMode actualMode = GraphProps.getTransportMode(node);
             journeyState.board(actualMode);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board vehicle", e);
         }
-
-        return builders.towardsJustBoarded(this).
-                fromNoPlatformStation(this, node, cost, actualMode);
     }
 
     @Override

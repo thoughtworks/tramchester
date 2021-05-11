@@ -105,7 +105,6 @@ class TramRouteTest {
         LatLong origin = TestEnv.nearAltrincham;
 
         JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7, 57), 0);
-//        journeyRequest.setDiag(true);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecond(),
                 journeyRequest, 3);

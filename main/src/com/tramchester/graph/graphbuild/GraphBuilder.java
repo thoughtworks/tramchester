@@ -10,6 +10,7 @@ import org.neo4j.graphdb.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
     protected static final int ENTER_INTER_PLATFORM_COST = 0;
     protected static final int LEAVE_INTER_PLATFORM_COST = 0;
 
+    // TODO Push up
     public enum Labels implements Label
     {
         GROUPED,  // composite station node
@@ -64,8 +66,12 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
         }
 
         public static boolean isStation(Labels label) {
-            return label==TRAM_STATION || label==BUS_STATION || label==TRAIN_STATION || label==FERRY_STATION
-                    || label==SUBWAY_STATION;
+            return label == TRAM_STATION || isNoPlatformStation(label);
+        }
+
+        public static boolean isNoPlatformStation(Labels label) {
+            return label == BUS_STATION || label == TRAIN_STATION || label == FERRY_STATION
+                    || label == SUBWAY_STATION;
         }
 
         public static Set<Labels> from(Iterable<Label> labels) {

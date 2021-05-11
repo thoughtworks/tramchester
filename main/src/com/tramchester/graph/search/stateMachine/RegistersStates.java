@@ -9,28 +9,28 @@ import java.util.Set;
 @LazySingleton
 public class RegistersStates implements RegistersFromState {
 
-    HashMap<FromTo, TowardsState<? extends TraversalState>> map;
+    HashMap<FromTo, Towards<? extends TraversalState>> map;
 
     public RegistersStates() {
         map = new HashMap<>();
     }
 
-    public <T extends TraversalState> TowardsState<T> getBuilderFor(Class<? extends TraversalState> from, Class<T> to) {
+    public <T extends TraversalState> Towards<T> getBuilderFor(Class<? extends TraversalState> from, Class<T> to) {
         final FromTo key = new FromTo(from, to);
 
         if (!map.containsKey(key)) {
             throw new NextStateNotFoundException(key);
         }
-        return (TowardsState<T>) map.get(key);
+        return (Towards<T>) map.get(key);
 
     }
 
-    public void addBuilder(TowardsState<? extends TraversalState> builder) {
+    public void addBuilder(Towards<? extends TraversalState> builder) {
         builder.register(this);
     }
 
     @Override
-    public <T extends TraversalState> void add(Class<? extends TraversalState> from, TowardsState<T> builder) {
+    public <T extends TraversalState> void add(Class<? extends TraversalState> from, Towards<T> builder) {
         map.put(new FromTo(from, builder.getDestination()), builder);
     }
 

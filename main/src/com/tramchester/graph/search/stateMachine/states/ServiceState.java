@@ -6,8 +6,7 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
-import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
+import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -16,7 +15,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
-    public static class Builder implements TowardsState<ServiceState> {
+    public static class Builder implements Towards<ServiceState> {
 
         @Override
         public void register(RegistersFromState registers) {

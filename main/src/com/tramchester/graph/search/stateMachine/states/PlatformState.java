@@ -6,7 +6,7 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
+import com.tramchester.graph.search.stateMachine.Towards;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -20,7 +20,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformState extends TraversalState implements NodeId {
 
-    public static class Builder implements TowardsState<PlatformState> {
+    public static class Builder implements Towards<PlatformState> {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -111,22 +111,34 @@ public class PlatformState extends TraversalState implements NodeId {
 //                return builders.towardsStation(this).fromPlatform(this, node, cost);
 //            }
 //        }
-
-        if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
-            return toRouteStation(node, journeyState, cost);
-        }
+//
+//        if (nodeLabel == GraphBuilder.Labels.ROUTE_STATION) {
+//            return toRouteStation(node, journeyState, cost);
+//        }
 
         throw new UnexpectedNodeTypeException(node, "Unexpected node type: "+nodeLabel);
     }
 
+    // multi-label
     private TraversalState toRouteStation(Node node, JourneyState journeyState, int cost) {
         try {
+            // TODO DONT ASSUME THIS
             journeyState.board(TransportMode.Tram);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board tram", e);
         }
 
         return builders.towardsJustBoarded(this).fromPlatformState(this, node, cost);
+    }
+
+    @Override
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyState journeyState) {
+        try {
+            journeyState.board(TransportMode.Tram);
+        } catch (TramchesterException e) {
+            throw new RuntimeException("unable to board tram", e);
+        }
+        return towardsJustBoarded.fromPlatformState(this, node, cost);
     }
 
     @Override

@@ -13,7 +13,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
 
 public class GroupedStationState extends TraversalState {
 
-    public static class Builder implements TowardsState<GroupedStationState> {
+    public static class Builder implements Towards<GroupedStationState> {
 
         // TODO map of accept states to outbound relationships
 

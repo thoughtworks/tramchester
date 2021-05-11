@@ -3,14 +3,10 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
-import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
+import com.tramchester.graph.search.stateMachine.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -21,12 +17,9 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class JustBoardedState extends TraversalState {
+public class JustBoardedState extends RouteStationState {
 
-    public static class Builder implements TowardsState<JustBoardedState> {
-
-        public Builder() {
-        }
+    public static class Builder extends TowardsRouteStation<JustBoardedState> {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -39,26 +32,17 @@ public class JustBoardedState extends TraversalState {
             return JustBoardedState.class;
         }
 
-        public TraversalState fromPlatformState(PlatformState platformState, Node node, int cost) {
-            Stream<Relationship> outbounds = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
+        public JustBoardedState fromPlatformState(PlatformState platformState, Node node, int cost) {
+            Stream<Relationship> otherPlatforms = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
                     platformState);
             Stream<Relationship> toServices = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
-            return new JustBoardedState(platformState, Stream.concat(outbounds, toServices), cost);
+            return new JustBoardedState(platformState, Stream.concat(otherPlatforms, toServices), cost);
         }
 
-        public TraversalState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost, TransportMode mode) {
+        public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
             Stream<Relationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART),
                     noPlatformStation);
-
-            Stream<Relationship> services;
-            if (TransportMode.isTram(mode)) {
-                // TODO should not happen, tram stations have platforms
-                throw new RuntimeException("not used?");
-                //services = Streams.stream(priortiseServicesByDestinationRoutes(noPlatformStation, node));
-            } else {
-                services = orderServicesByDistance(node, noPlatformStation.traversalOps);
-            }
-
+            Stream<Relationship> services = orderServicesByDistance(node, noPlatformStation.traversalOps);
             return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
         }
 
@@ -107,12 +91,6 @@ public class JustBoardedState extends TraversalState {
     public TraversalState createNextState(GraphBuilder.Labels nodeLabel, Node nextNode,
                                           JourneyState journeyState, int cost) {
 
-//        if (nodeLabel == GraphBuilder.Labels.SERVICE) {
-//            return builders.towardsService(this).fromRouteStation(this, nextNode, cost);
-//        }
-
-        // if one to one relationship between platforms and route stations, or bus stations and route stations,
-        // no longer holds then this will throw
         throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node type: %s state :%s ", nodeLabel, this));
     }
 

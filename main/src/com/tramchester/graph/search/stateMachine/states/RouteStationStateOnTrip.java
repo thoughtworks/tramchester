@@ -12,25 +12,16 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.graph.TransportRelationshipTypes.LEAVE_PLATFORM;
 import static java.lang.String.format;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class RouteStationStateOnTrip extends RouteStationTripState implements NodeId {
+public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
     private final long routeStationNodeId;
     private final IdFor<Trip> tripId;
     private final TransportMode transportMode;
 
-    public static class Builder implements TowardsState<RouteStationStateOnTrip> {
-
-        public TraversalState fromMinuteState(MinuteState minuteState, Node node, int cost, Collection<Relationship> routeStationOutbound,
-                                              IdFor<Trip> tripId) {
-            TransportMode transportMode = GraphProps.getTransportMode(node);
-            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), tripId, transportMode);
-        }
+    public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -40,6 +31,12 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
         @Override
         public Class<RouteStationStateOnTrip> getDestination() {
             return RouteStationStateOnTrip.class;
+        }
+
+        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, int cost,
+                                                       Collection<Relationship> routeStationOutbound) {
+            TransportMode transportMode = GraphProps.getTransportMode(node);
+            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), minuteState.getTripId(), transportMode);
         }
     }
 
@@ -64,7 +61,8 @@ public class RouteStationStateOnTrip extends RouteStationTripState implements No
     public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node nextNode,
                                           JourneyState journeyState, int cost) {
         // should be called for multi-mode stations only
-        return toStation(nextNode, journeyState, cost);
+        throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node types: %s state :%s ", nodeLabels, this));
+//        return toStation(nextNode, journeyState, cost);
     }
 
     @Override

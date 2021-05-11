@@ -3,14 +3,14 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
+import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 
 import java.util.LinkedList;
 
 public class DestinationState extends TraversalState
 {
-    public static class Builder implements TowardsState<DestinationState> {
+    public static class Builder implements Towards<DestinationState> {
 
         @Override
         public void register(RegistersFromState registers) {

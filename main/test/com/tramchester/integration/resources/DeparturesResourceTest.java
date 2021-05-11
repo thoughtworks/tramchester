@@ -173,8 +173,8 @@ class DeparturesResourceTest {
         DepartureDTO departureDTO = departures.first();
         LocalDateTime when = departureDTO.getDueTime();
 
-        TramTime nowWithin5mins = TramTime.of(TestEnv.LocalNow().toLocalTime().minusMinutes(5));
-        assertTrue(when.toLocalTime().isAfter(nowWithin5mins.asLocalTime()) );
+        TramTime nowMinus5mins = TramTime.of(TestEnv.LocalNow().toLocalTime().minusMinutes(6));
+        assertTrue(when.toLocalTime().isAfter(nowMinus5mins.asLocalTime()), when.toString());
 
         String nextDepart = departureDTO.getFrom();
         assertTrue(nearby.contains(nextDepart), nextDepart);

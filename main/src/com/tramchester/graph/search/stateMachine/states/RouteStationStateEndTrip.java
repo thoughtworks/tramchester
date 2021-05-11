@@ -6,7 +6,8 @@ import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
+import com.tramchester.graph.search.stateMachine.Towards;
+import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
@@ -17,7 +18,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class RouteStationStateEndTrip extends RouteStationTripState {
+public class RouteStationStateEndTrip extends RouteStationState {
 
     @Override
     public String toString() {
@@ -26,12 +27,7 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
                 "} " + super.toString();
     }
 
-    public static class Builder implements TowardsState<RouteStationStateEndTrip> {
-
-        public TraversalState fromMinuteState(MinuteState minuteState, Entity node, int cost, List<Relationship> routeStationOutbound) {
-            TransportMode transportMode = GraphProps.getTransportMode(node);
-            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, transportMode);
-        }
+    public static class Builder extends TowardsRouteStation<RouteStationStateEndTrip> {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -42,20 +38,27 @@ public class RouteStationStateEndTrip extends RouteStationTripState {
         public Class<RouteStationStateEndTrip> getDestination() {
             return RouteStationStateEndTrip.class;
         }
+
+        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Entity node, int cost, Iterable<Relationship> routeStationOutbound) {
+            TransportMode transportMode = GraphProps.getTransportMode(node);
+            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, transportMode);
+        }
+
     }
 
     private final TransportMode mode;
 
-    private RouteStationStateEndTrip(MinuteState minuteState, List<Relationship> routeStationOutbound, int cost, TransportMode mode) {
+    private RouteStationStateEndTrip(MinuteState minuteState, Iterable<Relationship> routeStationOutbound, int cost, TransportMode mode) {
         super(minuteState, routeStationOutbound, cost);
         this.mode = mode;
     }
 
     @Override
-    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabel, Node nextNode,
+    public TraversalState createNextState(Set<GraphBuilder.Labels> nodeLabels, Node nextNode,
                                           JourneyState journeyState, int cost) {
         // should only be called when we have multi-mode station
-        return toStation(nextNode, journeyState, cost);
+        //return toStation(nextNode, journeyState, cost);
+        throw new UnexpectedNodeTypeException(nextNode, format("Unexpected node types: %s state :%s ", nodeLabels, this));
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.tramchester.graph.search.stateMachine.states.StationState;
 import com.tramchester.graph.search.stateMachine.states.WalkingState;
 import org.neo4j.graphdb.Node;
 
-public interface TowardsStationState<T extends StationState> extends TowardsState<T>{
+public interface TowardsStation<T extends StationState> extends Towards<T> {
     T fromNeighbour(StationState stationState, Node next, int cost);
     T fromStart(NotStartedState notStartedState, Node firstNode, int cost);
     T fromWalking(WalkingState walkingState, Node node, int cost);

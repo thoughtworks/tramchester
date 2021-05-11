@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsState;
+import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -14,7 +14,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
-    public static class Builder implements TowardsState<WalkingState> {
+    public static class Builder implements Towards<WalkingState> {
 
         @Override
         public void register(RegistersFromState registers) {

@@ -14,6 +14,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.TripRepository;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
@@ -90,6 +93,28 @@ public class TraversalOps {
 
     public TramTime getTimeFrom(Node node) {
         return nodeOperations.getTime(node);
+    }
+
+    public Trip getTrip(IdFor<Trip> tripId) {
+        return tripRepository.getTripById(tripId);
+    }
+
+    public List<Relationship> filterByServiceId(Iterable<Relationship> relationships, IdFor<Service> svcId) {
+        return Streams.stream(relationships).
+                filter(relationship -> serviceNodeMatches(relationship, svcId)).
+                collect(Collectors.toList());
+    }
+
+    private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {
+        // TODO Add ServiceID to Service Relationship??
+        Node svcNode = relationship.getEndNode();
+        IdFor<Service> svcId = getServiceIdFor(svcNode);
+        return currentSvcId.equals(svcId);
+    }
+
+    public boolean hasOutboundFor(Node node, IdFor<Service> serviceId) {
+        return Streams.stream(node.getRelationships(Direction.OUTGOING, TO_SERVICE)).
+                anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {

@@ -13,7 +13,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class TramStationState extends StationState {
 
-    public static class Builder implements TowardsStationState<TramStationState> {
+    public static class Builder implements TowardsStation<TramStationState> {
 
         @Override
         public void register(RegistersFromState registers) {
