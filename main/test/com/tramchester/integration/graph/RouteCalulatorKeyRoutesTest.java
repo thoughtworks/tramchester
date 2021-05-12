@@ -27,7 +27,7 @@ import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-class RouteCalulatorTestKeyRoutes {
+class RouteCalulatorKeyRoutesTest {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;
@@ -104,7 +104,7 @@ class RouteCalulatorTestKeyRoutes {
         final Optional<Integer> max = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare);
         assertTrue(max.isPresent());
         double longest = max.get();
-        assertEquals(testConfig.getMaxJourneyDuration(), longest, 4);
+        assertTrue(testConfig.getMaxJourneyDuration() > longest);
 
     }
 

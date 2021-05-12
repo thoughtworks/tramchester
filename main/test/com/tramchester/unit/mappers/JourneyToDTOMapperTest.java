@@ -76,7 +76,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private Route createRoute(String name) {
-        return new Route("routeId", "shortName", name, TestEnv.MetAgency(), TransportMode.Tram);
+        return new Route(StringIdFor.createId("routeId"), "shortName", name, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
     @Test
@@ -130,10 +130,15 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapJoruneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
+
         ConnectingStage connectingStage = new ConnectingStage(
                 BusStations.of(StopAtAltrinchamInterchange), TramStations.of(Altrincham), 1, time);
-        VehicleStage tramStage = getRawVehicleStage(TramStations.of(Altrincham), TramStations.of(TramStations.Shudehill),
-                createRoute("route"), time.plusMinutes(1), 35, 9, true);
+
+        final Station startStation = of(Altrincham);
+        Platform platform = new Platform(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
+        startStation.addPlatform(platform);
+        VehicleStage tramStage = getRawVehicleStage(startStation, TramStations.of(TramStations.Shudehill),
+                createRoute("route"), time.plusMinutes(1), 35, 9, platform);
 
         stages.add(connectingStage);
         stages.add(tramStage);
@@ -167,17 +172,23 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
         Station begin = of(Altrincham);
+        Platform platformA = new Platform(begin.forDTO() + "1", "platform name", begin.getLatLong());
+        begin.addPlatform(platformA);
         MyLocation middleA = nearPiccGardensLocation;
+
         Station middleB = of(MarketStreet);
+        Platform platformB = new Platform(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
+        middleB.addPlatform(platformB);
+
         Station end = of(Bury);
 
         VehicleStage rawStageA = getRawVehicleStage(begin, of(PiccadillyGardens),
-                createRoute("route text"), am10, 42, 8, true);
+                createRoute("route text"), am10, 42, 8, platformA);
 
         int walkCost = 10;
         WalkingToStationStage walkingStage = new WalkingToStationStage(middleA, middleB, walkCost, am10);
         VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42,
-                9, true);
+                9, platformA);
 
         stages.add(rawStageA);
         stages.add(walkingStage);
@@ -215,11 +226,14 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station start = transportData.getFirst();
         Station middle = transportData.getSecond();
         Station finish = transportData.getInterchange();
+        Platform platform = new Platform(start.forDTO() + "1", "platform name", start.getLatLong());
+
+
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
-                18, 8, true);
+                18, 8, platform);
         VehicleStage rawStageB = getRawVehicleStage(middle, finish, createRoute("route2 text"), startTime.plusMinutes(18),
-                42, 9, true);
+                42, 9, platform);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
@@ -246,16 +260,16 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     }
 
     private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
-                                            int cost, int passedStops, boolean hasPlatforms) {
+                                            int cost, int passedStops, Platform platform) {
+
 
         Trip validTrip = transportData.getTripById(StringIdFor.createId(TRIP_A_ID));
 
         List<Integer> passedStations = new ArrayList<>();
         VehicleStage vehicleStage = new VehicleStage(start, route, TransportMode.Tram, validTrip,
-                startTime.plusMinutes(1), finish, passedStations, hasPlatforms);
+                startTime.plusMinutes(1), finish, passedStations);
 
         vehicleStage.setCost(cost);
-        Platform platform = new Platform(start.forDTO() + "1", "platform name", start.getLatLong());
         vehicleStage.setPlatform(platform);
 
         return vehicleStage;

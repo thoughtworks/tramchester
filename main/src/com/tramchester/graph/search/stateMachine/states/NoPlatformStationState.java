@@ -115,7 +115,7 @@ public class NoPlatformStationState extends StationState {
     private void boardVehicle(Node node, JourneyStateUpdate journeyState) {
         try {
             TransportMode actualMode = GraphProps.getTransportMode(node);
-            journeyState.board(actualMode, node);
+            journeyState.board(actualMode, node, false);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board vehicle", e);
         }

@@ -22,7 +22,6 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     protected final TransportMode mode;
     private final List<Integer> stopSequenceNumbers;
-    private final boolean hasPlatforms;
     private final Trip trip;
     private final TramTime departFirstStationTime;
     private final Route route;
@@ -32,13 +31,11 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     public VehicleStage(Station firstStation, Route route, TransportMode mode, Trip trip,
                         TramTime departFirstStationTime, Station lastStation,
-                        List<Integer> stopSequenceNumbers,
-                        boolean hasPlatforms) {
+                        List<Integer> stopSequenceNumbers) {
         this.firstStation = firstStation;
         this.route = route;
         this.mode = mode;
         this.stopSequenceNumbers = stopSequenceNumbers;
-        this.hasPlatforms = hasPlatforms;
         this.platform = null;
         this.trip = trip;
         this.departFirstStationTime = departFirstStationTime;
@@ -80,8 +77,8 @@ public class VehicleStage implements TransportStage<Station, Station> {
     }
 
     public void setPlatform(Platform platform) {
-        if (!hasPlatforms) {
-            throw new RuntimeException("Adding platforms to a zero-platform vehicle stage " + toString());
+        if (!firstStation.hasPlatforms()) {
+            throw new RuntimeException("Adding platforms to a zero-platform vehicle stage " + this);
         }
         this.platform = platform;
     }
@@ -95,7 +92,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     @Override
     public boolean hasBoardingPlatform() {
-        return hasPlatforms;
+        return firstStation.hasPlatforms();
     }
 
     public int getCost() {
@@ -141,7 +138,6 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
         VehicleStage that = (VehicleStage) o;
 
-        if (hasPlatforms != that.hasPlatforms) return false;
         if (cost != that.cost) return false;
         if (!firstStation.equals(that.firstStation)) return false;
         if (!lastStation.equals(that.lastStation)) return false;
@@ -159,7 +155,6 @@ public class VehicleStage implements TransportStage<Station, Station> {
         result = 31 * result + lastStation.hashCode();
         result = 31 * result + mode.hashCode();
         result = 31 * result + stopSequenceNumbers.hashCode();
-        result = 31 * result + (hasPlatforms ? 1 : 0);
         result = 31 * result + trip.hashCode();
         result = 31 * result + departFirstStationTime.hashCode();
         result = 31 * result + route.hashCode();
@@ -175,7 +170,6 @@ public class VehicleStage implements TransportStage<Station, Station> {
                 ", lastStation=" + asId(lastStation) +
                 ", mode=" + mode +
                 ", passedStations=" + stopSequenceNumbers +
-                ", hasPlatforms=" + hasPlatforms +
                 ", trip=" + asId(trip) +
                 ", departFirstStationTime=" + departFirstStationTime +
                 ", route=" + asId(route) +

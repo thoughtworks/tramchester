@@ -31,18 +31,21 @@ public class RouteStationStateEndTrip extends RouteStationState {
             return RouteStationStateEndTrip.class;
         }
 
-        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Entity node, int cost, Iterable<Relationship> routeStationOutbound) {
+        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, int cost, Iterable<Relationship> routeStationOutbound) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
-            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, transportMode);
+            return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, transportMode, node);
         }
 
     }
 
     private final TransportMode mode;
+    private final Node routeStationNode;
 
-    private RouteStationStateEndTrip(MinuteState minuteState, Iterable<Relationship> routeStationOutbound, int cost, TransportMode mode) {
+    private RouteStationStateEndTrip(MinuteState minuteState, Iterable<Relationship> routeStationOutbound, int cost,
+                                     TransportMode mode, Node routeStationNode) {
         super(minuteState, routeStationOutbound, cost);
         this.mode = mode;
+        this.routeStationNode = routeStationNode;
     }
 
     @Override
@@ -64,7 +67,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     private void leaveVehicle(JourneyStateUpdate journeyState) {
         try {
-            journeyState.leave(mode, getTotalCost());
+            journeyState.leave(mode, getTotalCost(), routeStationNode);
         } catch (TramchesterException e) {
             throw new RuntimeException("Unable to leave " + mode, e);
         }

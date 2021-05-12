@@ -6,6 +6,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -40,7 +41,7 @@ public class MinuteState extends TraversalState {
             return MinuteState.class;
         }
 
-        public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip existingTrip) {
+        public TraversalState fromHour(HourState hourState, Node node, int cost, ExistingTrip existingTrip, JourneyStateUpdate journeyState) {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO
                 ,FERRY_GOES_TO, SUBWAY_GOES_TO);
 
@@ -53,6 +54,7 @@ public class MinuteState extends TraversalState {
             } else {
                 // starting a brand new journey
                 IdFor<Trip> newTripId = getTrip(node);
+                journeyState.beginTrip(newTripId);
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
             }
         }

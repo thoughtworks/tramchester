@@ -33,7 +33,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
         public PlatformState from(TramStationState tramStationState, Node node, int cost) {
             return new PlatformState(tramStationState,
-                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node.getId(), cost);
+                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost);
         }
 
         public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, int cost) {
@@ -42,14 +42,14 @@ public class PlatformState extends TraversalState implements NodeId {
             List<Relationship> towardsDest = routeStationStateOnTrip.traversalOps.
                     getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
             if (!towardsDest.isEmpty()) {
-                return new PlatformState(routeStationStateOnTrip, towardsDest, node.getId(), cost);
+                return new PlatformState(routeStationStateOnTrip, towardsDest, node, cost);
             }
 
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
             Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
-            return new PlatformState(routeStationStateOnTrip, filterExcludingEndNode, node.getId(), cost);
+            return new PlatformState(routeStationStateOnTrip, filterExcludingEndNode, node, cost);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
@@ -57,40 +57,40 @@ public class PlatformState extends TraversalState implements NodeId {
             List<Relationship> towardsDest = routeStationState.traversalOps.
                     getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
             if (!towardsDest.isEmpty()) {
-                return new PlatformState(routeStationState, towardsDest, node.getId(), cost);
+                return new PlatformState(routeStationState, towardsDest, node, cost);
             }
 
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
-            return new PlatformState(routeStationState, platformRelationships, node.getId(), cost);
+            return new PlatformState(routeStationState, platformRelationships, node, cost);
         }
 
     }
 
-    private final long platformNodeId;
+    private final Node platformNode;
 
-    private PlatformState(TraversalState parent, Stream<Relationship> relationships, long platformNodeId, int cost) {
+    private PlatformState(TraversalState parent, Stream<Relationship> relationships, Node platformNode, int cost) {
         super(parent, relationships, cost);
-        this.platformNodeId = platformNodeId;
+        this.platformNode = platformNode;
     }
 
-    private PlatformState(TraversalState parent, Iterable<Relationship> relationships, long platformNodeId, int cost) {
+    private PlatformState(TraversalState parent, Iterable<Relationship> relationships, Node platformNode, int cost) {
         super(parent, relationships, cost);
-        this.platformNodeId = platformNodeId;
+        this.platformNode = platformNode;
     }
 
     @Override
     public String toString() {
         return "PlatformState{" +
-                "platformNodeId=" + platformNodeId +
+                "platformNodeId=" + platformNode.getId() +
                 "} " + super.toString();
     }
 
     @Override
     protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyStateUpdate journeyState) {
         try {
-            journeyState.board(TransportMode.Tram, node);
+            journeyState.board(TransportMode.Tram, platformNode, true);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board tram", e);
         }
@@ -109,6 +109,6 @@ public class PlatformState extends TraversalState implements NodeId {
 
     @Override
     public long nodeId() {
-        return platformNodeId;
+        return platformNode.getId();
     }
 }

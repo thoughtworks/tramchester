@@ -263,8 +263,7 @@ public class MapPathToStages implements PathToStages {
             VehicleStage vehicleStage = new VehicleStage(boardingStation, route,
                     transportMode, trip, boardingTime,
                     departStation,
-                    new LinkedList<>(passedStopSequenceNumbers),
-                    boardingStation.hasPlatforms());
+                    new LinkedList<>(passedStopSequenceNumbers));
 
             boardingPlatform.ifPresent(vehicleStage::setPlatform);
             vehicleStage.setCost(tripCost);

@@ -44,12 +44,12 @@ public class HourState extends TraversalState {
     protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyStateUpdate journeyState) {
         try {
             TramTime time = traversalOps.getTimeFrom(node);
-            journeyState.recordVehicleDetails(time, getTotalCost());
+            journeyState.recordTime(time, getTotalCost());
         } catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);
         }
 
-        return towardsMinute.fromHour(this, node, cost, maybeExistingTrip);
+        return towardsMinute.fromHour(this, node, cost, maybeExistingTrip, journeyState);
     }
 
     @Override

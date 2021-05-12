@@ -194,7 +194,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
     }
 
-
     public void dispose() {
         if (child!=null) {
             child.dispose();

@@ -394,9 +394,11 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         // TODO
         List<Integer> passedStations = new ArrayList<>();
-        VehicleStage vehicleStage = new VehicleStage(of(Ashton), TestEnv.getTramTestRoute(), Tram,
-                trip, departTime, of(PiccadillyGardens), passedStations, true);
         Platform platform = new Platform(platformId, "platformName", latLong);
+        final Station firstStation = of(Ashton);
+        firstStation.addPlatform(platform);
+        VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,
+                trip, departTime, of(PiccadillyGardens), passedStations);
         vehicleStage.setPlatform(platform);
         return vehicleStage;
     }

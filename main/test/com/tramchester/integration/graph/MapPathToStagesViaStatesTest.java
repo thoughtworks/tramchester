@@ -2,6 +2,8 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -28,7 +30,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MapPathToStagesViaStatesTest {
     private static final int TXN_TIMEOUT = 5*60;
@@ -81,12 +84,61 @@ public class MapPathToStagesViaStatesTest {
 
     @Test
     void shouldMapSimpleRoute() {
-
         TramTime queryTime = TramTime.of(9,15);
         int numChanges = 1;
-        Station startStation = stationRepository.getStationById(TramStations.TraffordBar.getId());
+        Station startStation = stationRepository.getStationById(TraffordBar.getId());
         Station destination = stationRepository.getStationById(TramStations.Altrincham.getId());
 
+        List<TransportStage<?, ?>> result = getStagesFor(queryTime, numChanges, startStation, destination);
+
+        assertFalse(result.isEmpty());
+        TransportStage<?, ?> firstStage = result.get(0);
+        assertEquals(startStation, firstStage.getFirstStation());
+        assertEquals(destination, firstStage.getLastStation());
+        assertEquals("Piccadilly - Altrincham", firstStage.getRoute().getName());
+        assertEquals(TramTime.of(9,36), firstStage.getFirstDepartureTime());
+        assertEquals(TramTime.of(9, 54), firstStage.getExpectedArrivalTime());
+        assertEquals(18, firstStage.getDuration());
+        assertTrue(firstStage.hasBoardingPlatform());
+        assertTrue(startStation.getPlatforms().contains(firstStage.getBoardingPlatform()));
+
+        final List<StopCall> callingPoints = firstStage.getCallingPoints();
+        assertEquals(OldTrafford.getId(), callingPoints.get(0).getStationId());
+        assertEquals(NavigationRoad.getId(), callingPoints.get(callingPoints.size()-1).getStationId());
+        assertEquals(7, firstStage.getPassedStopsCount());
+    }
+
+    @Test
+    void shouldMapWithChange() {
+        TramTime queryTime = TramTime.of(9,15);
+        int numChanges = 1;
+        Station startStation = stationRepository.getStationById(TramStations.ManAirport.getId());
+        Station destination = stationRepository.getStationById(TramStations.Altrincham.getId());
+
+        List<TransportStage<?, ?>> result = getStagesFor(queryTime, numChanges, startStation, destination);
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+        TransportStage<?, ?> firstStage = result.get(0);
+        TransportStage<?, ?> secondStage = result.get(1);
+
+        assertEquals(startStation, firstStage.getFirstStation());
+        final IdFor<Station> changeStation = TraffordBar.getId();
+        assertEquals(changeStation, firstStage.getLastStation().getId());
+        assertEquals(changeStation, secondStage.getFirstStation().getId());
+        assertEquals(destination, secondStage.getLastStation());
+        assertNotEquals(firstStage.getRoute(), secondStage.getRoute());
+        assertTrue(firstStage.hasBoardingPlatform());
+        assertTrue(secondStage.hasBoardingPlatform());
+
+        assertTrue(secondStage.getFirstDepartureTime().isAfter(firstStage.getExpectedArrivalTime()));
+        assertEquals(42, firstStage.getDuration());
+        assertEquals(18, secondStage.getDuration());
+
+        assertEquals(17, firstStage.getPassedStopsCount());
+        assertEquals(7, secondStage.getPassedStopsCount());
+    }
+
+    private List<TransportStage<?, ?>> getStagesFor(TramTime queryTime, int numChanges, Station startStation, Station destination) {
         Set<Station> endStations = Collections.singleton(destination);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150);
@@ -95,9 +147,7 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(timedPaths.isEmpty());
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        List<TransportStage<?, ?>> result = mapper.mapDirect(timedPath, journeyRequest, endStations);
-
-        assertFalse(result.isEmpty());
+        return mapper.mapDirect(timedPath, journeyRequest, endStations);
     }
 
     private List<RouteCalculator.TimedPath> getPathFor(Station startStation, Station destination, Set<Station> endStations, JourneyRequest journeyRequest) {

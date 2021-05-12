@@ -1,5 +1,7 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -79,7 +81,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
     }
 
-    public void recordVehicleDetails(TramTime boardingTime, int currentCost) throws TramchesterException {
+    public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
         if (! (onBoard()) ) {
             throw new TramchesterException("Not on a bus or tram");
         }
@@ -88,12 +90,17 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.journeyOffset = currentCost;
     }
 
+    @Override
+    public void beginTrip(IdFor<Trip> newTripId) {
+        // noop
+    }
+
     private boolean onBoard() {
         return !transportMode.equals(TransportMode.NotSet);
     }
 
     @Override
-    public void leave(TransportMode mode, int totalCost) throws TramchesterException {
+    public void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException {
         if (!transportMode.equals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + transportMode);
         }
@@ -132,7 +139,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void board(TransportMode mode, Node node) throws TramchesterException {
+    public void board(TransportMode mode, Node node, boolean hasPlatform) throws TramchesterException {
         guardAlreadyOnboard();
         numberOfBoardings = numberOfBoardings + 1;
         transportMode = mode;

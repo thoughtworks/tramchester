@@ -5,7 +5,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -16,9 +15,9 @@ import org.neo4j.graphdb.Relationship;
 import java.util.Collection;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
-    private final long routeStationNodeId;
     private final IdFor<Trip> tripId;
     private final TransportMode transportMode;
+    private final Node routeStationNode;
 
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
@@ -35,14 +34,14 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
         public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, int cost,
                                                        Collection<Relationship> routeStationOutbound) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
-            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node.getId(), minuteState.getTripId(), transportMode);
+            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node, minuteState.getTripId(), transportMode);
         }
     }
 
     private RouteStationStateOnTrip(TraversalState parent, Iterable<Relationship> relationships, int cost,
-                                    long routeStationNodeId, IdFor<Trip> tripId, TransportMode transportMode) {
+                                    Node routeStationNode, IdFor<Trip> tripId, TransportMode transportMode) {
         super(parent, relationships, cost);
-        this.routeStationNodeId = routeStationNodeId;
+        this.routeStationNode = routeStationNode;
         this.tripId = tripId;
         this.transportMode = transportMode;
     }
@@ -50,7 +49,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     @Override
     public String toString() {
         return "RouteStationStateOnTrip{" +
-                "routeStationNodeId=" + routeStationNodeId +
+                "routeStationNodeId=" + routeStationNode.getId() +
                 ", tripId=" + tripId +
                 ", transportMode=" + transportMode +
                 "} " + super.toString();
@@ -74,17 +73,17 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
         return towardsPlatform.fromRouteStationOnTrip(this, node, cost);
     }
 
-    private void leaveVehicle(JourneyStateUpdate journeyState, TransportMode transportMode, String s) {
+    private void leaveVehicle(JourneyStateUpdate journeyState, TransportMode transportMode, String diag) {
         try {
-            journeyState.leave(transportMode, getTotalCost());
+            journeyState.leave(transportMode, getTotalCost(), routeStationNode);
         } catch (TramchesterException e) {
-            throw new RuntimeException(s, e);
+            throw new RuntimeException(diag, e);
         }
     }
 
     @Override
     public long nodeId() {
-        return routeStationNodeId;
+        return routeStationNode.getId();
     }
 
 }
