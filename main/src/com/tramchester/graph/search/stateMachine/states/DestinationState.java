@@ -14,9 +14,7 @@ public class DestinationState extends TraversalState
             registers.add(NoPlatformStationState.class, this);
             registers.add(WalkingState.class, this);
             registers.add(TramStationState.class, this);
-            registers.add(PlatformState.class, this);
-//            registers.add(RouteStationStateOnTrip.class, this);
-//            registers.add(RouteStationStateEndTrip.class, this);
+//            registers.add(PlatformState.class, this);
             registers.add(GroupedStationState.class, this);
         }
 
@@ -37,16 +35,8 @@ public class DestinationState extends TraversalState
             return new DestinationState(tramStationState, cost);
         }
 
-        public DestinationState from(PlatformState state, int cost) {
-            return new DestinationState(state, cost);
-        }
-
-//        public DestinationState from(RouteStationStateOnTrip routeStationStateOnTrip, int cost) {
-//            return new DestinationState(routeStationStateOnTrip, cost);
-//        }
-//
-//        public DestinationState from(RouteStationStateEndTrip endTrip, int cost) {
-//            return new DestinationState(endTrip, cost);
+//        public DestinationState from(PlatformState state, int cost) {
+//            return new DestinationState(state, cost);
 //        }
 
         public DestinationState from(GroupedStationState groupedStationState, int cost) {

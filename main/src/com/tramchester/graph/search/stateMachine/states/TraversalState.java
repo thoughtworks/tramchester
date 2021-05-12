@@ -144,11 +144,12 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     private TraversalState toTramStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {
-        if (traversalOps.isDestination(nodeId)) {
-            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);
-        } else {
-            return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
-        }
+        return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
+//        if (traversalOps.isDestination(nodeId)) {
+//            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);
+//        } else {
+//            return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
+//        }
     }
 
     private TraversalState toStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {
