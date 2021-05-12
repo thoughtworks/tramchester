@@ -123,7 +123,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected DestinationState toDestination(DestinationState.Builder towardsDestination, int cost) {
+    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
@@ -145,7 +145,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     private TraversalState toTramStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {
         if (traversalOps.isDestination(nodeId)) {
-            return toDestination(builders.getTowardsDestination(this.getClass()), cost);
+            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);
         } else {
             return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
         }
@@ -153,7 +153,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     private TraversalState toStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {
         if (traversalOps.isDestination(nodeId)) {
-            return toDestination(builders.getTowardsDestination(this.getClass()), cost);
+            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);
         } else {
             return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
         }
@@ -161,7 +161,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     private TraversalState toGrouped(Node node, int cost, JourneyStateUpdate journeyState, long nodeId) {
         if (traversalOps.isDestination(nodeId)) {
-            return toDestination(builders.getTowardsDestination(this.getClass()), cost);
+            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);
         } else {
             return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState);
         }

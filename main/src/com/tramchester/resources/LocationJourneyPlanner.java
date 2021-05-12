@@ -15,6 +15,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -67,14 +68,8 @@ public class LocationJourneyPlanner {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", latLong,
                 destination.getId(), destination.getName(), journeyRequest));
 
-        List<Relationship> addedRelationships = new LinkedList<>();
-
-        List<StationWalk> walksToStart = getStationWalks(latLong);
-
         Node startOfWalkNode = createWalkingNode(txn, latLong, journeyRequest);
-
-        walksToStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startOfWalkNode, stationWalk,
-                TransportRelationshipTypes.WALKS_TO)));
+        List<Relationship> addedRelationships = createWalksToStations(txn, latLong, startOfWalkNode);
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -89,19 +84,28 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
+    @NotNull
+    public List<Relationship> createWalksToStations(Transaction txn, LatLong latLong, Node startOfWalkNode) {
+        List<StationWalk> walksToStart = getStationWalks(latLong);
+        List<Relationship> addedRelationships = new LinkedList<>();
+        walksToStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startOfWalkNode, stationWalk,
+                TransportRelationshipTypes.WALKS_TO)));
+        return addedRelationships;
+    }
+
     public Stream<Journey> quickestRouteForLocation(Transaction txn, Station start, LatLong destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(), destination, journeyRequest));
 
-        Set<Station> destinationStations = new HashSet<>();
-        List<Relationship> addedRelationships = new LinkedList<>();
-
-        List<StationWalk> walksToDest = getStationWalks(destination);
         Node endWalk = createWalkingNode(txn, destination, journeyRequest);
 
-        walksToDest.forEach(stationWalk -> {
-            destinationStations.add(stationWalk.getStation());
-            addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk, TransportRelationshipTypes.WALKS_FROM));
-        });
+        List<StationWalk> walksToDest = getStationWalks(destination);
+
+        List<Relationship> addedRelationships = new LinkedList<>();
+        walksToDest.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk,
+                TransportRelationshipTypes.WALKS_FROM)));
+
+        Set<Station> destinationStations = new HashSet<>();
+        walksToDest.forEach(stationWalk -> destinationStations.add(stationWalk.getStation()));
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -153,12 +157,11 @@ public class LocationJourneyPlanner {
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, startNode, midWalkNode, endWalk));
-
         return journeys;
-
     }
 
-    private Relationship createWalkRelationship(Transaction txn, Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
+    public Relationship createWalkRelationship(Transaction txn, Node walkNode, StationWalk stationWalk,
+                                                TransportRelationshipTypes direction) {
         Station walkStation = stationWalk.getStation();
         int cost = stationWalk.getCost();
         logger.info(format("Add %s relationship between %s (%s) to %s cost %s direction",
@@ -178,7 +181,7 @@ public class LocationJourneyPlanner {
         return walkingRelationship;
     }
 
-    private Node createWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
+    public Node createWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
         Node startOfWalkNode = nodeTypeRepository.createQueryNode(graphDatabase, txn);
         GraphProps.setLatLong(startOfWalkNode, origin);
         GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
@@ -188,7 +191,7 @@ public class LocationJourneyPlanner {
 
     // TODO Creation and deletion of walk nodes into own facade which can then be auto-closable
     @Deprecated
-    private void removeWalkNodeAndRelationships(List<Relationship> relationshipsToDelete, Node... nodesToDelete) {
+    public void removeWalkNodeAndRelationships(List<Relationship> relationshipsToDelete, Node... nodesToDelete) {
         logger.info("Removed added walks and walk node(s)");
         relationshipsToDelete.forEach(relationship -> {
             nodeOperations.deleteFromCostCache(relationship);
@@ -199,7 +202,7 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private List<StationWalk> getStationWalks(LatLong latLong) {
+    public List<StationWalk> getStationWalks(LatLong latLong) {
         int maxResults = config.getNumOfNearestStopsForWalking();
         double rangeInKM = config.getNearestStopForWalkingRangeKM();
         List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, maxResults, rangeInKM);

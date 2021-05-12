@@ -88,7 +88,7 @@ public class TramStationState extends StationState {
 
     @Override
     protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
-        journeyState.walkingConnection();
+        journeyState.beginWalk(node, false);
         return towardsWalk.fromStation(this, node, cost);
     }
 

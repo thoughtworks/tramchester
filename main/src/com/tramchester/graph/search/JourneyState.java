@@ -95,6 +95,16 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         // noop
     }
 
+    @Override
+    public void beginWalk(Node beforeWalkNode, boolean atStart) {
+        numberOfWalkingConnections = numberOfWalkingConnections + 1;
+    }
+
+    @Override
+    public void endWalk(Node stationNode, boolean atDestination) {
+        // noop
+    }
+
     private boolean onBoard() {
         return !transportMode.equals(TransportMode.NotSet);
     }
@@ -146,9 +156,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         hasBegun = true;
     }
 
-    public void walkingConnection() {
-        numberOfWalkingConnections = numberOfWalkingConnections + 1;
-    }
+//    public void walkingConnection() {
+//        numberOfWalkingConnections = numberOfWalkingConnections + 1;
+//    }
 
     private void guardAlreadyOnboard() throws TramchesterException {
         if (!transportMode.equals(TransportMode.NotSet)) {
