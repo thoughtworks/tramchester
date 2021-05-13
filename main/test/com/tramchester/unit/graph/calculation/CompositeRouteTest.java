@@ -2,7 +2,6 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
@@ -14,7 +13,10 @@ import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
+import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
@@ -22,14 +24,13 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.FIRST_STATION;
-import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.INTERCHANGE;
+import static com.tramchester.testSupport.TestEnv.nearAltrincham;
+import static com.tramchester.testSupport.TestEnv.nearKnutsfordBusStation;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CompositeRouteTest {
@@ -42,8 +43,10 @@ class CompositeRouteTest {
 
     private TramServiceDate queryDate;
     private Transaction txn;
-    private CompositeStation compositeStation;
+    private CompositeStation startCompositeStation;
     private TramTime queryTime;
+    private CompositeStation fourthStationComposite;
+    private LocationJourneyPlannerTestFacade locationJourneyPlanner;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -66,15 +69,21 @@ class CompositeRouteTest {
     void beforeEachTestRuns() {
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
         calculator = componentContainer.get(RouteCalculator.class);
 
         queryDate = new TramServiceDate(LocalDate.of(2014,6,30));
         queryTime = TramTime.of(7, 57);
 
         CompositeStationRepository compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
-        compositeStation = compositeStationRepository.findByName("startStation");
+        startCompositeStation = compositeStationRepository.findByName("startStation");
+        fourthStationComposite = compositeStationRepository.findByName("Station4");
 
         txn = database.beginTx();
+
+        locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
+                stationRepository, txn);
+
     }
 
     @NotNull
@@ -89,73 +98,83 @@ class CompositeRouteTest {
     }
 
     @Test
-    void shouldHaveCompositeStation() {
-        assertNotNull(compositeStation);
-        Set<Station> grouped = compositeStation.getContained();
+    void shouldHaveFirstCompositeStation() {
+        assertNotNull(startCompositeStation);
+        Set<Station> grouped = startCompositeStation.getContained();
         assertEquals(2, grouped.size());
         assertTrue(grouped.contains(transportData.getFirst()));
         assertTrue(grouped.contains(transportData.getFirstDupName()));
     }
 
     @Test
-    void shouldTestSimpleJourneyIsPossibleFromComposite() {
-        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
-        //journeyRequest.setDiag(true);
-
-        Set<Journey> journeys = calculator.calculateRoute(txn, compositeStation,
-                transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
-        Assertions.assertEquals(1, journeys.size());
-
-        assertFirstAndLast(journeys, FIRST_STATION, INTERCHANGE, 1, queryTime);
-        journeys.forEach(journey-> Assertions.assertEquals(2, journey.getStages().size()));
+    void shouldHaveFourthCompositeStation() {
+        assertNotNull(fourthStationComposite);
+        Set<Station> grouped = fourthStationComposite.getContained();
+        assertEquals(2, grouped.size());
+        assertTrue(grouped.contains(transportData.getFourthStation()));
+        assertTrue(grouped.contains(transportData.getFourthStationDupName()));
     }
 
     @Test
-    void shouldTestSimpleJourneyIsPossibleToInterchange() {
+    void shouldHaveJourneyFromComposite() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
-        Assertions.assertEquals(1, journeys.size());
+        final CompositeStation start = this.startCompositeStation;
+        final Station destination = transportData.getInterchange();
 
-        journeys.forEach(journey-> Assertions.assertEquals(1, journey.getStages().size()));
+        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).
+                collect(Collectors.toSet());
+        Assertions.assertEquals(1, journeys.size());
+        Journey journey = (Journey) journeys.toArray()[0];
+
+        List<TransportStage<?,?>> stages = journey.getStages();
+        assertEquals(1, stages.size());
+        TransportStage<?,?> firstStage = stages.get(0);
+
+        assertEquals(transportData.getFirst(), firstStage.getFirstStation());
+        assertEquals(destination.getId(), firstStage.getLastStation().getId());
+    }
+
+    @Test
+    void shouldHaveJourneyFromNearComposite() {
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 3);
+
+        final Station destination = transportData.getInterchange();
+
+        // nearAltrincham = station 1
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(nearAltrincham,
+                destination, journeyRequest, 3);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldHaveJourneyToComposite() {
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
+
+        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
+                fourthStationComposite, journeyRequest).collect(Collectors.toSet());
+        assertTrue(journeys.size()>=1);
+        journeys.forEach(journey-> assertEquals(2, journey.getStages().size()));
+    }
+
+    @Test
+    void shouldHaveJourneyToNearComposite() {
+        JourneyRequest journeyRequest = createJourneyRequest(queryTime, 4);
+
+        // nearKnutsfordBusStation = station 4
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
+                nearKnutsfordBusStation, journeyRequest, 3);
+        assertFalse(journeys.isEmpty());
     }
 
     @Test
     void shouldHaveRouteCosts() {
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(43, routeCostCalculator.getApproxCostBetween(txn, compositeStation, transportData.getLast()));
+        assertEquals(43, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getLast()));
         assertEquals(43, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
 
-        assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), compositeStation));
-        assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, compositeStation, transportData.getFirst()));
-    }
-
-    @Test
-    void createDiagramOfTestNetwork() {
-        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        Assertions.assertAll(() -> creator.create(Path.of("composite_test_network.dot"),
-                transportData.getFirst(), 100, false));
-    }
-
-    private void assertFirstAndLast(Set<Journey> journeys, String firstNonComposite, String destination,
-                                          int passedStops, TramTime queryTime) {
-        Journey journey = (Journey)journeys.toArray()[0];
-        List<TransportStage<?,?>> stages = journey.getStages();
-        TransportStage<?,?> connectingStage = stages.get(0);
-        assertEquals(compositeStation, connectingStage.getFirstStation());
-        assertEquals(firstNonComposite, connectingStage.getLastStation().forDTO());
-
-        TransportStage<?,?> vehicleStage = stages.get(1);
-        assertEquals(firstNonComposite, vehicleStage.getFirstStation().forDTO());
-        assertEquals(destination, vehicleStage.getLastStation().forDTO());
-        assertEquals(passedStops,  vehicleStage.getPassedStopsCount());
-        assertTrue(vehicleStage.hasBoardingPlatform());
-
-        TramTime departTime = vehicleStage.getFirstDepartureTime();
-        assertTrue(departTime.isAfter(queryTime));
-
-        assertTrue(vehicleStage.getDuration()>0);
+        assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), startCompositeStation));
+        assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getFirst()));
     }
 
 }

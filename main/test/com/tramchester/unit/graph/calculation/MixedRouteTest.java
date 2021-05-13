@@ -99,9 +99,8 @@ class MixedRouteTest {
     @Test
     void shouldTestMultiStopJourneyIsPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getLast(), journeyRequest).
-                collect(Collectors.toSet());
+        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(), transportData.getLast(),
+                journeyRequest).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLastForOneStage(journeys, FIRST_STATION, LAST_STATION, 2, queryTime);
     }

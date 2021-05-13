@@ -66,7 +66,7 @@ class CoordinateTransformsTest {
 
         LatLong result = CoordinateTransforms.getLatLong(position);
 
-        LatLong expected = TestEnv.nearWythenshaweHosp();
+        LatLong expected = TestEnv.nearWythenshaweHosp;
         assertEquals(expected.getLat(), result.getLat(), 0.01);
         assertEquals(expected.getLon(), result.getLon(), 0.01);
     }

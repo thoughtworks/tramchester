@@ -74,8 +74,8 @@ public class RegistersStates implements RegistersFromState {
         @Override
         public String toString() {
             return "FromTo{" +
-                    "from=" + from +
-                    ", to=" + to +
+                    "from=" + from.getSimpleName() +
+                    ", to=" + to.getSimpleName() +
                     '}';
         }
 

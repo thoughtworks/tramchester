@@ -93,7 +93,7 @@ public class RouteCalculatorSupport {
     protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
         final int max = journeyRequest.getMaxChanges();
         final int min = 0;
-        logger.info("Check journey from " + min + " to " + max +" changes");
+        logger.info("Will check journey from " + min + " to " + max +" changes");
         return IntStream.rangeClosed(min, max).boxed();
     }
 

@@ -26,8 +26,8 @@ import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.PlatformRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
@@ -40,14 +40,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.GraphPropertyKey.STATION_ID;
+import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
 import static java.lang.String.format;
 
 @LazySingleton
 public class MapPathToStagesViaStates implements PathToStages {
+
+    // TODO INFO to DEBUG, tidy up logging here
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStagesViaStates.class);
 
-    private final StationRepository stationRepository;
+    private final CompositeStationRepository stationRepository;
     private final PlatformRepository platformRepository;
     private final TraversalStateFactory stateFactory;
     private final NodeContentsRepository nodeContentsRepository;
@@ -58,8 +61,8 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final ObjectMapper mapper;
 
     @Inject
-    public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository, TraversalStateFactory stateFactory,
-                                    NodeContentsRepository nodeContentsRepository,
+    public MapPathToStagesViaStates(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
+                                    TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
                                     TripRepository tripRepository, SortsPositions sortsPosition, GraphQuery graphQuery,
                                     GraphDatabase graphDatabase, ObjectMapper mapper) {
         this.stationRepository = stationRepository;
@@ -106,7 +109,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         for (Entity entity : path) {
             if (entity instanceof Relationship) {
                 Relationship relationship = (Relationship) entity;
-                logger.info("Seen " + relationship.getType().name());
+                logger.debug("Seen " + relationship.getType().name());
                 lastRelationshipCost = nodeContentsRepository.getCost(relationship);
                 if (lastRelationshipCost > 0) {
                     int total = previous.getTotalCost() + lastRelationshipCost;
@@ -119,7 +122,7 @@ public class MapPathToStagesViaStates implements PathToStages {
                 Node node = (Node) entity;
                 Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.from(node.getLabels());
                 TraversalState next = previous.nextState(labels, node, mapStatesToPath, lastRelationshipCost);
-                logger.info("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
+                logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
                 previous = next;
             }
         }
@@ -131,7 +134,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     private static class MapStatesToPath implements JourneyStateUpdate {
 
-        private final StationRepository stationRepository;
+        private final CompositeStationRepository stationRepository;
         private final PlatformRepository platformRepository;
         private final TripRepository tripRepository;
         private ArrayList<Integer> stopSequenceNumbers;
@@ -148,7 +151,8 @@ public class MapPathToStagesViaStates implements PathToStages {
         private LatLong walkStart;
         private final ObjectMapper mapper;
 
-        public MapStatesToPath(StationRepository stationRepository, PlatformRepository platformRepository, TripRepository tripRepository, TramTime queryTime, ObjectMapper mapper) {
+        public MapStatesToPath(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
+                               TripRepository tripRepository, TramTime queryTime, ObjectMapper mapper) {
             this.stationRepository = stationRepository;
             this.platformRepository = platformRepository;
             this.tripRepository = tripRepository;
@@ -160,8 +164,8 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         @Override
         public void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException {
-            logger.info("Board " + transportMode);
             actionStationId = GraphProps.getStationId(node);
+            logger.info("Board " + transportMode + " at " + actionStationId) ;
             if (hasPlatform) {
                 boardingPlatformId = GraphProps.getPlatformIdFrom(node);
             }
@@ -170,11 +174,11 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         @Override
         public void leave(TransportMode mode, int totalCost, Node routeStationNode) throws TramchesterException {
-            logger.info("Leave " + mode + " total cost = " + totalCost);
             if (actionTime ==null) {
                 throw new RuntimeException("Not boarded yet");
             }
             IdFor<Station> lastStationId = GraphProps.getStationId(routeStationNode);
+            logger.info("Leave " + mode + " at " + lastStationId + "  total cost = " + totalCost);
             Station firstStation = stationRepository.getStationById(actionStationId);
             Station lastStation = stationRepository.getStationById(lastStationId);
 
@@ -187,7 +191,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         }
 
         protected void passStop(Relationship fromMinuteNodeRelationship) {
-            logger.info("pass stop");
+            logger.debug("pass stop");
             if (actionTime != null) {
                 int stopSequenceNumber = GraphProps.getStopSequenceNumber(fromMinuteNodeRelationship);
                 stopSequenceNumbers.add(stopSequenceNumber);
@@ -196,14 +200,14 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         @Override
         public void updateJourneyClock(int totalCost) {
-            logger.info("Update journey clock " + totalCost);
+            logger.debug("Update journey clock " + totalCost);
             journeyClock = totalCost;
             // noop
         }
 
         @Override
         public void recordTime(TramTime time, int totalCost) throws TramchesterException {
-            logger.info("Record time " + time + " total cost:" + totalCost);
+            logger.debug("Record time " + time + " total cost:" + totalCost);
             if (actionTime ==null) {
                 logger.info("Boarding time set to " + time);
                 this.actionTime = time;
@@ -219,42 +223,42 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         @Override
         public void beginWalk(Node beforeWalkNode, boolean atStart) {
-            logger.info("Begin walk");
             beginWalkClock = journeyClock;
             if (atStart) {
                 walkStart = GraphProps.getLatLong(beforeWalkNode);
+                logger.info("Begin walk from start " + walkStart);
                 // TODO should work this backwards when we end up with real journey time set
                 actionTime = queryTime.plusMinutes(journeyClock);
                 actionStationId = null;
             } else {
                 actionStationId = GraphProps.getStationId(beforeWalkNode);
                 actionTime = queryTime.plusMinutes(journeyClock);
+                logger.info("Begin walk from start " + actionStationId + " at " + actionTime);
             }
         }
 
         @Override
         public void endWalk(Node endWalkNode, boolean atDestination) {
-            logger.info("End Walk");
 
             if (actionStationId == null) {
                 boolean atStation = GraphProps.hasProperty(STATION_ID, endWalkNode);
                 if (atStation) {
-                    logger.info("Walk to station");
                     MyLocation start = MyLocation.create(mapper, walkStart);
                     IdFor<Station> destinationStationId = GraphProps.getStationId(endWalkNode);
                     Station destination = stationRepository.getStationById(destinationStationId);
                     int duration = journeyClock - beginWalkClock;
+                    logger.info("End walk to station " + destinationStationId + " duration " + duration);
                     WalkingToStationStage stage = new WalkingToStationStage(start, destination, duration, actionTime);
                     stages.add(stage);
                 } else {
                     throw new RuntimeException("Ended walked at unexpected node " + endWalkNode.getAllProperties());
                 }
             } else {
-                logger.info("Walk from station");
                 LatLong walkEnd = GraphProps.getLatLong(endWalkNode);
                 MyLocation destination = MyLocation.create(mapper, walkEnd);
                 Station start = stationRepository.getStationById(actionStationId);
                 int duration = journeyClock - beginWalkClock;
+                logger.info("End walk from station to " +walkEnd + " duration " + duration);
                 WalkingFromStationStage stage = new WalkingFromStationStage(start, destination, duration, actionTime);
                 stages.add(stage);
             }

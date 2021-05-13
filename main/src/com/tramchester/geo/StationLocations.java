@@ -20,6 +20,9 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+/***
+ * Note: will return composites instead of stations if composite is within range
+ */
 @LazySingleton
 public class StationLocations implements StationLocationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);

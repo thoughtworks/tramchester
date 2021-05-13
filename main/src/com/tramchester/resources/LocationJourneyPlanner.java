@@ -2,7 +2,10 @@ package com.tramchester.resources;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
@@ -67,9 +70,18 @@ public class LocationJourneyPlanner {
                                                     JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", latLong,
                 destination.getId(), destination.getName(), journeyRequest));
+        if (!stationLocations.getBounds().contained(latLong)) {
+            logger.warn("Start not within station bounds " + latLong);
+        }
 
         Node startOfWalkNode = createWalkingNode(txn, latLong, journeyRequest);
         List<Relationship> addedRelationships = createWalksToStations(txn, latLong, startOfWalkNode);
+
+        if (addedRelationships.isEmpty()) {
+            removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
+            logger.warn("No relationships can be added from walking node to stations for start " +latLong);
+            return Stream.empty();
+        }
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -80,7 +92,6 @@ public class LocationJourneyPlanner {
 
         //noinspection ResultOfMethodCallIgnored
         journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode));
-
         return journeys;
     }
 
@@ -94,11 +105,19 @@ public class LocationJourneyPlanner {
     }
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, Station start, LatLong destination, JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(), destination, journeyRequest));
-
-        Node endWalk = createWalkingNode(txn, destination, journeyRequest);
+        logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
+                destination, journeyRequest));
+        if (!stationLocations.getBounds().contained(destination)) {
+            logger.warn("Destination not within station bounds " + destination);
+        }
 
         List<StationWalk> walksToDest = getStationWalks(destination);
+        if (walksToDest.isEmpty()) {
+            logger.warn("Cannot find any walks from " + destination + " to stations");
+            return Stream.empty();
+        }
+
+        Node endWalk = createWalkingNode(txn, destination, journeyRequest);
 
         List<Relationship> addedRelationships = new LinkedList<>();
         walksToDest.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk,
@@ -205,9 +224,11 @@ public class LocationJourneyPlanner {
     public List<StationWalk> getStationWalks(LatLong latLong) {
         int maxResults = config.getNumOfNearestStopsForWalking();
         double rangeInKM = config.getNearestStopForWalkingRangeKM();
-        List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong, maxResults, rangeInKM);
+        List<Station> nearbyStationsWithComposites = stationLocations.getNearestStationsTo(latLong, maxResults, rangeInKM);
 
-        List<Station> filtered = nearbyStations.stream().filter(graphFilter::shouldInclude).collect(Collectors.toList());
+        List<Station> filtered = CompositeStation.expandStations(nearbyStationsWithComposites).stream()
+                .filter(station -> !station.isComposite())
+                .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
         List<StationWalk> stationWalks = createWalks(latLong, filtered);
         logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));

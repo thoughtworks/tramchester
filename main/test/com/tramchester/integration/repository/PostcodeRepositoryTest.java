@@ -46,7 +46,7 @@ class PostcodeRepositoryTest {
     @Test
     void shouldLoadPostcodes() {
 
-        LatLong expected = TestEnv.nearWythenshaweHosp();
+        LatLong expected = TestEnv.nearWythenshaweHosp;
 
         PostcodeLocation result = repository.getPostcode(StringIdFor.createId(TestEnv.postcodeForWythenshaweHosp()));
 

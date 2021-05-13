@@ -112,6 +112,11 @@ public class NoPlatformStationState extends StationState {
         return towardsJustBoarded.fromNoPlatformStation(this, node, cost);
     }
 
+    @Override
+    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+        return towardsDestination.from(this, cost);
+    }
+
     private void boardVehicle(Node node, JourneyStateUpdate journeyState) {
         try {
             TransportMode actualMode = GraphProps.getTransportMode(node);

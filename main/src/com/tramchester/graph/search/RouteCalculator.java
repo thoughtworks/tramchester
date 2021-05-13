@@ -43,7 +43,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final CreateQueryTimes createQueryTimes;
 
     @Inject
-    public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, MapPathToStages pathToStages,
+    public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository,
                            CreateQueryTimes createQueryTimes, TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
@@ -92,7 +92,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              Set<Station> unexpanded, boolean walkAtStart) {
 
-        Set<Station> destinations = unexpandStations(unexpanded);
+        Set<Station> destinations = CompositeStation.expandStations(unexpanded);
+        if (destinations.size()!=unexpanded.size()) {
+            logger.info("Expanded destinations from " + unexpanded.size() + " to " + destinations.size());
+        }
 
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
@@ -112,19 +115,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             results.onClose(() -> previousSuccessfulVisit.reportStatsFor(journeyRequest));
         }
         return results;
-    }
-
-    private Set<Station> unexpandStations(Set<Station> stations) {
-        return stations.stream().flatMap(this::expandStation).collect(Collectors.toSet());
-    }
-
-    private Stream<Station> expandStation(Station station) {
-        if (!(station instanceof CompositeStation)) {
-            return Stream.of(station);
-        }
-
-        CompositeStation compositeStation = (CompositeStation) station;
-        return Streams.concat(compositeStation.getContained().stream(), Stream.of(station));
     }
 
     public static class TimedPath {

@@ -17,6 +17,7 @@ import org.neo4j.graphdb.Path;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
 
@@ -32,24 +33,40 @@ public class MapPathToLocations {
     }
 
     public List<Location<?>> mapToLocations(Path path) {
+        Location<?> previous = null;
         List<Location<?>> results = new ArrayList<>();
-        path.nodes().forEach(node -> mapNode(results, node));
+        for(Node node : path.nodes()) {
+            Optional<Location<?>> maybeLocation = mapNode(node);
+            maybeLocation.ifPresent(location -> {});
+            if (maybeLocation.isPresent()) {
+                Location<?> location = maybeLocation.get();
+                if (results.isEmpty()) {
+                    results.add(location);
+                } else  {
+                    if (!location.equals(previous)) {
+                        results.add(location);
+                    }
+                }
+                previous = location;
+            }
+        }
         return results;
     }
 
-    private void mapNode(List<Location<?>> results, Node node) {
+    private Optional<Location<?>> mapNode(Node node) {
         if (isStationNode(node)) {
             IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
-            results.add(stationRepository.getStationById(stationId));
+            return Optional.of(stationRepository.getStationById(stationId));
         }
         if (node.hasLabel(ROUTE_STATION)) {
             IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
-            results.add(stationRepository.getStationById(stationId));
-        } else if (node.hasLabel(QUERY_NODE)) {
-            LatLong latLong = GraphProps.getLatLong(node);
-            Location<MyLocation> location = MyLocation.create(mapper, latLong);
-            results.add(location);
+            return  Optional.of(stationRepository.getStationById(stationId));
         }
+        if (node.hasLabel(QUERY_NODE)) {
+            LatLong latLong = GraphProps.getLatLong(node);
+            return  Optional.of(MyLocation.create(mapper, latLong));
+        }
+        return Optional.empty();
     }
 
     private boolean isStationNode(Node node) {

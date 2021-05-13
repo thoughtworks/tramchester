@@ -21,7 +21,7 @@ public class GroupedStationState extends TraversalState {
         public void register(RegistersFromState registers) {
             registers.add(TramStationState.class, this);
             registers.add(NoPlatformStationState.class, this);
-            registers.add(WalkingState.class, this);
+//            registers.add(WalkingState.class, this);
             registers.add(NotStartedState.class, this);
         }
 
@@ -36,10 +36,10 @@ public class GroupedStationState extends TraversalState {
                     cost, node.getId());
         }
 
-        public TraversalState fromWalk(WalkingState walkingState, Node node, int cost) {
-            return new GroupedStationState(walkingState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
-                    cost, node.getId());
-        }
+//        public TraversalState fromWalk(WalkingState walkingState, Node node, int cost) {
+//            return new GroupedStationState(walkingState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
+//                    cost, node.getId());
+//        }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
             return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
@@ -75,4 +75,10 @@ public class GroupedStationState extends TraversalState {
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost);
     }
+
+    @Override
+    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+        return towardsDestination.from(this, cost);
+    }
+
 }

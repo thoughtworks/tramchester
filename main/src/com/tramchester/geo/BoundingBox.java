@@ -1,6 +1,7 @@
 package com.tramchester.geo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.presentation.LatLong;
 
 import javax.validation.Valid;
 
@@ -66,6 +67,11 @@ public class BoundingBox {
                         (position.getNorthings() <= getMaxNorthings()+margin);
     }
 
+
+    public boolean contained(LatLong destination) {
+        return contained(CoordinateTransforms.getGridPosition(destination));
+    }
+
     public boolean contained(GridPosition position) {
         if (!position.isValid()) {
             throw new RuntimeException("Invalid grid position " + position);
@@ -118,4 +124,5 @@ public class BoundingBox {
         result = 31 * result + topRight.hashCode();
         return result;
     }
+
 }

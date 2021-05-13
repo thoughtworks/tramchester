@@ -14,7 +14,6 @@ public class DestinationState extends TraversalState
             registers.add(NoPlatformStationState.class, this);
             registers.add(WalkingState.class, this);
             registers.add(TramStationState.class, this);
-//            registers.add(PlatformState.class, this);
             registers.add(GroupedStationState.class, this);
         }
 
@@ -34,10 +33,6 @@ public class DestinationState extends TraversalState
         public DestinationState from(TramStationState tramStationState, int cost) {
             return new DestinationState(tramStationState, cost);
         }
-
-//        public DestinationState from(PlatformState state, int cost) {
-//            return new DestinationState(state, cost);
-//        }
 
         public DestinationState from(GroupedStationState groupedStationState, int cost) {
             return new DestinationState(groupedStationState, cost);

@@ -95,7 +95,7 @@ class JourneyTest extends EasyMockSupport {
 
     private VehicleStage stageExpectionsFor(String platformId) {
         VehicleStage mockStage = createMock(VehicleStage.class);
-        Platform platform = new Platform(platformId, "platformName"+platformId, TestEnv.nearGreenwich);
+        Platform platform = new Platform(platformId, "platformName"+platformId, TestEnv.nearGreenwichLondon);
         EasyMock.expect(mockStage.hasBoardingPlatform()).andReturn(true);
         EasyMock.expect(mockStage.getBoardingPlatform()).andReturn(platform);
         return mockStage;

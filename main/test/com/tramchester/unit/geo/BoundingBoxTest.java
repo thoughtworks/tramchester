@@ -29,7 +29,7 @@ class BoundingBoxTest {
             assertTrue(box.contained(grid), grid.toString());
         });
 
-        LatLong outsideBox = TestEnv.nearGreenwich;
+        LatLong outsideBox = TestEnv.nearGreenwichLondon;
         assertFalse(box.contained(CoordinateTransforms.getGridPosition(outsideBox)));
     }
 

@@ -1,8 +1,8 @@
 package com.tramchester.graph.search;
 
 
-import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -20,19 +20,19 @@ import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.*;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.*;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static java.lang.String.format;
 
-@LazySingleton
 public class MapPathToStages implements PathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 
@@ -43,7 +43,6 @@ public class MapPathToStages implements PathToStages {
     private final TripRepository tripRepository;
     private final RouteRepository routeRepository;
 
-    @Inject
     public MapPathToStages(MyLocationFactory myLocationFactory, CompositeStationRepository stationRepository,
                            PlatformRepository platformRepository, TripRepository tripRepository, RouteRepository routeRepository) {
         this.myLocationFactory = myLocationFactory;
@@ -55,6 +54,12 @@ public class MapPathToStages implements PathToStages {
 
     @Override
     public List<TransportStage<?,?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest, Set<Station> endStations) {
+        throw new RuntimeException("no longer used");
+        //return getTransportStagesOLD(timedPath, journeyRequest);
+    }
+
+    @NotNull
+    private ArrayList<TransportStage<?, ?>> getTransportStagesOLD(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest) {
         Path path = timedPath.getPath();
         TramTime queryTime = timedPath.getQueryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",

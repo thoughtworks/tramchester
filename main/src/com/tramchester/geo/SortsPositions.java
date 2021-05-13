@@ -73,12 +73,12 @@ public class SortsPositions {
 
     }
 
-    public LatLong midPointFrom(Set<Station> destinationStation) {
-        Set<LatLong> dests = destinationStation.stream().map(Station::getLatLong).collect(Collectors.toSet());
+    public LatLong midPointFrom(Set<Station> destinationStations) {
+        Set<LatLong> dests = destinationStations.stream().map(Station::getLatLong).collect(Collectors.toSet());
         int size = dests.size();
 
         if (dests.isEmpty()) {
-            logger.warn("No destinations");
+            logger.warn("No destination locations found for " + destinationStations);
         }
 
         return dests.stream().
