@@ -54,8 +54,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
             // towards final destination, just follow this one
-            List<Relationship> towardsDest = routeStationState.traversalOps.
-                    getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
+            List<Relationship> towardsDest = routeStationState.traversalOps.getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationState, towardsDest, node, cost);
             }

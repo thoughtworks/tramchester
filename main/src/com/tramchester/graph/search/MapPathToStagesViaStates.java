@@ -7,7 +7,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -15,6 +14,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
+import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -23,7 +23,6 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import com.tramchester.graph.search.stateMachine.states.DestinationState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -107,6 +106,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         for (Entity entity : path) {
             if (entity instanceof Relationship) {
                 Relationship relationship = (Relationship) entity;
+                logger.info("Seen " + relationship.getType().name());
                 lastRelationshipCost = nodeContentsRepository.getCost(relationship);
                 if (lastRelationshipCost > 0) {
                     int total = previous.getTotalCost() + lastRelationshipCost;
@@ -119,13 +119,11 @@ public class MapPathToStagesViaStates implements PathToStages {
                 Node node = (Node) entity;
                 Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.from(node.getLabels());
                 TraversalState next = previous.nextState(labels, node, mapStatesToPath, lastRelationshipCost);
+                logger.info("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
                 previous = next;
-                if (previous instanceof DestinationState) {
-                    logger.info("got to destination state");
-                    break;
-                }
             }
         }
+        previous.toDestination(previous, path.endNode(), 0, mapStatesToPath);
 
         return mapStatesToPath.getStages();
     }
@@ -140,7 +138,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         private final List<TransportStage<?, ?>> stages;
         private final TramTime queryTime;
 
-        private IdFor<Station> actionStation;
+        private IdFor<Station> actionStationId;
         private IdFor<Trip> tripId;
         private IdFor<Platform> boardingPlatformId;
         private TramTime actionTime;
@@ -163,7 +161,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         @Override
         public void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException {
             logger.info("Board " + transportMode);
-            actionStation = GraphProps.getStationId(node);
+            actionStationId = GraphProps.getStationId(node);
             if (hasPlatform) {
                 boardingPlatformId = GraphProps.getPlatformIdFrom(node);
             }
@@ -177,7 +175,7 @@ public class MapPathToStagesViaStates implements PathToStages {
                 throw new RuntimeException("Not boarded yet");
             }
             IdFor<Station> lastStationId = GraphProps.getStationId(routeStationNode);
-            Station firstStation = stationRepository.getStationById(actionStation);
+            Station firstStation = stationRepository.getStationById(actionStationId);
             Station lastStation = stationRepository.getStationById(lastStationId);
 
             Trip trip = tripRepository.getTripById(tripId);
@@ -188,7 +186,6 @@ public class MapPathToStagesViaStates implements PathToStages {
             reset();
         }
 
-
         protected void passStop(Relationship fromMinuteNodeRelationship) {
             logger.info("pass stop");
             if (actionTime != null) {
@@ -198,9 +195,9 @@ public class MapPathToStagesViaStates implements PathToStages {
         }
 
         @Override
-        public void updateJourneyClock(int cost) {
-            logger.info("Update journey clock " + cost);
-            journeyClock = cost;
+        public void updateJourneyClock(int totalCost) {
+            logger.info("Update journey clock " + totalCost);
+            journeyClock = totalCost;
             // noop
         }
 
@@ -228,28 +225,40 @@ public class MapPathToStagesViaStates implements PathToStages {
                 walkStart = GraphProps.getLatLong(beforeWalkNode);
                 // TODO should work this backwards when we end up with real journey time set
                 actionTime = queryTime.plusMinutes(journeyClock);
-                actionStation = null;
+                actionStationId = null;
+            } else {
+                actionStationId = GraphProps.getStationId(beforeWalkNode);
+                actionTime = queryTime.plusMinutes(journeyClock);
             }
         }
 
         @Override
-        public void endWalk(Node stationNode, boolean atDestination) {
+        public void endWalk(Node endWalkNode, boolean atDestination) {
             logger.info("End Walk");
 
-            if (actionStation==null) {
-                // towards station
-                boolean atStation = GraphProps.hasProperty(STATION_ID, stationNode);
+            if (actionStationId == null) {
+                boolean atStation = GraphProps.hasProperty(STATION_ID, endWalkNode);
                 if (atStation) {
+                    logger.info("Walk to station");
                     MyLocation start = MyLocation.create(mapper, walkStart);
-                    IdFor<Station> destinationStationId = GraphProps.getStationId(stationNode);
+                    IdFor<Station> destinationStationId = GraphProps.getStationId(endWalkNode);
                     Station destination = stationRepository.getStationById(destinationStationId);
                     int duration = journeyClock - beginWalkClock;
                     WalkingToStationStage stage = new WalkingToStationStage(start, destination, duration, actionTime);
                     stages.add(stage);
                 } else {
-                    throw new RuntimeException("walk towards none station node " + stationNode.getAllProperties());
+                    throw new RuntimeException("Ended walked at unexpected node " + endWalkNode.getAllProperties());
                 }
+            } else {
+                logger.info("Walk from station");
+                LatLong walkEnd = GraphProps.getLatLong(endWalkNode);
+                MyLocation destination = MyLocation.create(mapper, walkEnd);
+                Station start = stationRepository.getStationById(actionStationId);
+                int duration = journeyClock - beginWalkClock;
+                WalkingFromStationStage stage = new WalkingFromStationStage(start, destination, duration, actionTime);
+                stages.add(stage);
             }
+
             reset();
         }
 
@@ -260,7 +269,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         private void reset() {
             stopSequenceNumbers = null;
             boardingPlatformId = null;
-            actionStation = null;
+            actionStationId = null;
             actionTime = null;
             costAtBoarding = Integer.MIN_VALUE;
             beginWalkClock = Integer.MIN_VALUE;

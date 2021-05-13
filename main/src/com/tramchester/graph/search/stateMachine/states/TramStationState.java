@@ -30,65 +30,66 @@ public class TramStationState extends StationState {
             return TramStationState.class;
         }
 
-        public TramStationState fromWalking(WalkingState walkingState, Node node, int cost) {
-            return new TramStationState(walkingState, node.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR), cost, node.getId());
+        public TramStationState fromWalking(WalkingState walkingState, Node stationNode, int cost) {
+            return new TramStationState(walkingState, stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR),
+                    cost, stationNode);
         }
 
-        public TramStationState fromPlatform(PlatformState platformState, Node node, int cost) {
+        public TramStationState fromPlatform(PlatformState platformState, Node stationNode, int cost) {
             return new TramStationState(platformState,
                     filterExcludingEndNode(
-                            node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT), platformState),
-                    cost, node.getId());
+                            stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT), platformState),
+                    cost, stationNode);
         }
 
-        public TramStationState fromStart(NotStartedState notStartedState, Node node, int cost) {
+        public TramStationState fromStart(NotStartedState notStartedState, Node stationNode, int cost) {
             return new TramStationState(notStartedState,
-                    node.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
-                    cost, node.getId());
+                    stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
+                    cost, stationNode);
         }
 
         @Override
-        public TramStationState fromNeighbour(StationState stationState, Node next, int cost) {
+        public TramStationState fromNeighbour(StationState stationState, Node stationNode, int cost) {
                 return new TramStationState(stationState,
-                        next.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT), cost, next.getId());
+                        stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT), cost, stationNode);
         }
 
-        public TramStationState fromGrouped(GroupedStationState groupedStationState, Node node, int cost) {
+        public TramStationState fromGrouped(GroupedStationState groupedStationState, Node stationNode, int cost) {
             return new TramStationState(groupedStationState,
-                    node.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR),
-                    cost,  node.getId());
+                    stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, NEIGHBOUR),
+                    cost, stationNode);
         }
 
     }
 
-    private final long stationNodeId;
+    private final Node stationNode;
 
-    private TramStationState(TraversalState parent, Stream<Relationship> relationships, int cost, long stationNodeId) {
+    private TramStationState(TraversalState parent, Stream<Relationship> relationships, int cost, Node stationNode) {
         super(parent, relationships, cost);
-        this.stationNodeId = stationNodeId;
+        this.stationNode = stationNode;
     }
 
-    private TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, long stationNodeId) {
+    private TramStationState(TraversalState parent, Iterable<Relationship> relationships, int cost, Node stationNode) {
         super(parent, relationships, cost);
-        this.stationNodeId = stationNodeId;
+        this.stationNode = stationNode;
     }
 
     @Override
     public String toString() {
         return "TramStationState{" +
-                "stationNodeId=" + stationNodeId +
+                "stationNodeId=" + stationNode.getId() +
                 "} " + super.toString();
     }
 
 
     @Override
     public long nodeId() {
-        return stationNodeId;
+        return stationNode.getId();
     }
 
     @Override
     protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
-        journeyState.beginWalk(node, false);
+        journeyState.beginWalk(stationNode, false);
         return towardsWalk.fromStation(this, node, cost);
     }
 
@@ -110,5 +111,10 @@ public class TramStationState extends StationState {
     @Override
     protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, int cost, JourneyStateUpdate journeyState) {
         return towardsPlatform.from(this, node, cost);
+    }
+
+    @Override
+    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+        return towardsDestination.from(this, cost);
     }
 }

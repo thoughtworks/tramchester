@@ -82,13 +82,18 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             case HOUR -> { return toHour(builders.getTowardsHour(from), node, cost); }
             case GROUPED -> { return toGrouped(node, cost, journeyState, nodeId); }
             case BUS_STATION, TRAIN_STATION, SUBWAY_STATION, FERRY_STATION -> { return toStation(node, journeyState, cost, nodeId); }
-            case TRAM_STATION -> { return toTramStation(node, journeyState, cost, nodeId); }
+            case TRAM_STATION -> { return toTramStation(node, journeyState, cost); }
             case SERVICE -> { return toService(builders.getTowardsService(from), node, cost); }
             case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(from), node, cost, journeyState); }
             case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(from), node, cost, journeyState);}
             case ROUTE_STATION -> { return toRouteStation(from, node, cost, journeyState, isInterchange); }
             default -> throw new UnexpectedNodeTypeException(node, "Unexpected at " + this + " label:" + nodeLabel);
         }
+    }
+
+
+    public void toDestination(TraversalState from, Node finalNode, int cost, JourneyStateUpdate journeyState) {
+        toDestination(builders.getTowardsDestination(from.getClass()), finalNode, cost, journeyState);
     }
 
     protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, int cost, JourneyStateUpdate journeyState) {
@@ -143,13 +148,8 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    private TraversalState toTramStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {
+    private TraversalState toTramStation(Node node, JourneyStateUpdate journeyState, int cost) {
         return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
-//        if (traversalOps.isDestination(nodeId)) {
-//            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);
-//        } else {
-//            return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
-//        }
     }
 
     private TraversalState toStation(Node node, JourneyStateUpdate journeyState, int cost, long nodeId) {

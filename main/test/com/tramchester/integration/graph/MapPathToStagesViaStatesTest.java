@@ -169,7 +169,6 @@ public class MapPathToStagesViaStatesTest {
                 14, timperley, 6);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldMapWithWalkAtEnd() {
         TramTime queryTime = TramTime.of(9,15);
@@ -178,7 +177,7 @@ public class MapPathToStagesViaStatesTest {
         LatLong destinationLocation = TestEnv.nearStPetersSquare;
 
         List<TransportStage<?, ?>> result = getStagesFor(queryTime, numChanges, start, destinationLocation);
-        assertEquals(2, result.size());
+        assertEquals(2, result.size(), result.toString());
     }
 
     private void validateWalkTo(TransportStage<?, ?> walkingStage, LatLong start, Station endOfWalk, int walkDuration) {
