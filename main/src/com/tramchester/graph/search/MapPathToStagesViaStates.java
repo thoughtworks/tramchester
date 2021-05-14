@@ -76,7 +76,6 @@ public class MapPathToStagesViaStates implements PathToStages {
         this.mapper = mapper;
     }
 
-
     private Set<Long> getDestinationNodeIds(Set<Station> endStations) {
         Set<Long> destinationNodeIds;
         try(Transaction txn = graphDatabase.beginTx()) {
@@ -131,7 +130,6 @@ public class MapPathToStagesViaStates implements PathToStages {
         return mapStatesToPath.getStages();
     }
 
-
     private static class MapStatesToPath implements JourneyStateUpdate {
 
         private final CompositeStationRepository stationRepository;
@@ -145,6 +143,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         private IdFor<Station> actionStationId;
         private IdFor<Platform> boardingPlatformId;
         private IdFor<Trip> tripId;
+        private int offsetAtBoarding;
 
         private int totalCost; // total cost of entire journey
         private TramTime actualTime;
@@ -152,6 +151,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         private TramTime beginWalkClock;
         private LatLong walkStart;
+        private TramTime boardingTime;
 
         public MapStatesToPath(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
                                TripRepository tripRepository, TramTime queryTime, ObjectMapper mapper) {
@@ -169,9 +169,11 @@ public class MapPathToStagesViaStates implements PathToStages {
         @Override
         public void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException {
             onVehicle = true;
+            boardingTime = null;
+            offsetAtBoarding = totalCost;
 
             actionStationId = GraphProps.getStationId(node);
-            logger.info("Board " + transportMode + " at " + actionStationId) ;
+            logger.info("Board " + transportMode + " " + actionStationId + " totalcost  " + totalCost);
             if (hasPlatform) {
                 boardingPlatformId = GraphProps.getPlatformIdFrom(node);
             }
@@ -186,14 +188,23 @@ public class MapPathToStagesViaStates implements PathToStages {
             onVehicle = false;
 
             IdFor<Station> lastStationId = GraphProps.getStationId(routeStationNode);
-            logger.info("Leave " + mode + " at " + lastStationId + "  total cost = " + totalCost);
+            int cost = totalCost - offsetAtBoarding;
+
+            logger.info("Leave " + mode + " at " + lastStationId + "  cost = " + cost + " " + getActualClock());
 
             Station firstStation = stationRepository.getStationById(actionStationId);
             Station lastStation = stationRepository.getStationById(lastStationId);
             Trip trip = tripRepository.getTripById(tripId);
             removeDestinationFrom(stopSequenceNumbers, trip, lastStationId);
 
-            addVehicleStage(mode, totalCost, firstStation, lastStation, trip);
+            final VehicleStage vehicleStage = new VehicleStage(firstStation, trip.getRoute(), mode, trip,
+                    boardingTime, lastStation, stopSequenceNumbers);
+            vehicleStage.setCost(cost);
+            if (boardingPlatformId!=null) {
+                final Optional<Platform> platformById = platformRepository.getPlatformById(boardingPlatformId);
+                platformById.ifPresent(vehicleStage::setPlatform);
+            }
+            stages.add(vehicleStage);
 
             reset();
         }
@@ -224,6 +235,9 @@ public class MapPathToStagesViaStates implements PathToStages {
             logger.debug("Record actual time " + time + " total cost:" + totalCost);
             this.actualTime = time;
             costOffsetAtActual = totalCost;
+            if (onVehicle && boardingTime == null) {
+                boardingTime = time;
+            }
         }
 
         private int costSinceLastTimeUpdate() {
@@ -290,17 +304,6 @@ public class MapPathToStagesViaStates implements PathToStages {
             actionStationId = null;
             beginWalkClock = null;
             walkStart = null;
-        }
-
-        private void addVehicleStage(TransportMode mode, int totalCost, Station firstStation, Station lastStation, Trip trip) {
-            final VehicleStage vehicleStage = new VehicleStage(firstStation, trip.getRoute(), mode, trip,
-                    actualTime, lastStation, stopSequenceNumbers);
-            vehicleStage.setCost(totalCost - costOffsetAtActual);
-            if (boardingPlatformId!=null) {
-                final Optional<Platform> platformById = platformRepository.getPlatformById(boardingPlatformId);
-                platformById.ifPresent(vehicleStage::setPlatform);
-            }
-            stages.add(vehicleStage);
         }
 
         private void removeDestinationFrom(ArrayList<Integer> stopSequenceNumbers, Trip trip, IdFor<Station> lastStationId) {
