@@ -109,11 +109,11 @@ public class MapPathToStagesViaStates implements PathToStages {
         for (Entity entity : path) {
             if (entity instanceof Relationship) {
                 Relationship relationship = (Relationship) entity;
-                logger.debug("Seen " + relationship.getType().name());
                 lastRelationshipCost = nodeContentsRepository.getCost(relationship);
+                logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
                 if (lastRelationshipCost > 0) {
                     int total = previous.getTotalCost() + lastRelationshipCost;
-                    mapStatesToPath.updateJourneyClock(total);
+                    mapStatesToPath.updateTotalCost(total);
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM.getText())) {
                     mapStatesToPath.passStop(relationship);
@@ -139,31 +139,37 @@ public class MapPathToStagesViaStates implements PathToStages {
         private final TripRepository tripRepository;
         private ArrayList<Integer> stopSequenceNumbers;
         private final List<TransportStage<?, ?>> stages;
-        private final TramTime queryTime;
-
-        private IdFor<Station> actionStationId;
-        private IdFor<Trip> tripId;
-        private IdFor<Platform> boardingPlatformId;
-        private TramTime actionTime;
-        private int costAtBoarding;
-        private int journeyClock;
-        private int beginWalkClock;
-        private LatLong walkStart;
         private final ObjectMapper mapper;
+
+        private boolean onVehicle;
+        private IdFor<Station> actionStationId;
+        private IdFor<Platform> boardingPlatformId;
+        private IdFor<Trip> tripId;
+
+        private int totalCost; // total cost of entire journey
+        private TramTime actualTime;
+        private int costOffsetAtActual; // cost at point got 'actual' time update
+
+        private TramTime beginWalkClock;
+        private LatLong walkStart;
 
         public MapStatesToPath(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
                                TripRepository tripRepository, TramTime queryTime, ObjectMapper mapper) {
             this.stationRepository = stationRepository;
             this.platformRepository = platformRepository;
             this.tripRepository = tripRepository;
-            this.queryTime = queryTime;
             this.mapper = mapper;
+
+            actualTime = queryTime;
             stages = new ArrayList<>();
-            journeyClock = 0;
+            onVehicle = false;
+            totalCost = 0;
         }
 
         @Override
         public void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException {
+            onVehicle = true;
+
             actionStationId = GraphProps.getStationId(node);
             logger.info("Board " + transportMode + " at " + actionStationId) ;
             if (hasPlatform) {
@@ -174,14 +180,16 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         @Override
         public void leave(TransportMode mode, int totalCost, Node routeStationNode) throws TramchesterException {
-            if (actionTime ==null) {
-                throw new RuntimeException("Not boarded yet");
+            if (!onVehicle) {
+                throw new RuntimeException("Not on vehicle");
             }
+            onVehicle = false;
+
             IdFor<Station> lastStationId = GraphProps.getStationId(routeStationNode);
             logger.info("Leave " + mode + " at " + lastStationId + "  total cost = " + totalCost);
+
             Station firstStation = stationRepository.getStationById(actionStationId);
             Station lastStation = stationRepository.getStationById(lastStationId);
-
             Trip trip = tripRepository.getTripById(tripId);
             removeDestinationFrom(stopSequenceNumbers, trip, lastStationId);
 
@@ -192,27 +200,34 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         protected void passStop(Relationship fromMinuteNodeRelationship) {
             logger.debug("pass stop");
-            if (actionTime != null) {
+            if (onVehicle) {
                 int stopSequenceNumber = GraphProps.getStopSequenceNumber(fromMinuteNodeRelationship);
                 stopSequenceNumbers.add(stopSequenceNumber);
+            } else {
+                logger.error("Passed stop but not on vehicle");
             }
         }
 
         @Override
-        public void updateJourneyClock(int totalCost) {
-            logger.debug("Update journey clock " + totalCost);
-            journeyClock = totalCost;
-            // noop
+        public void updateTotalCost(int totalCost) {
+            logger.debug("Update total journeyCost " + totalCost);
+            this.totalCost = totalCost;
+            logger.debug("Actual clock " + getActualClock());
+        }
+
+        private TramTime getActualClock() {
+            return actualTime.plusMinutes(costSinceLastTimeUpdate());
         }
 
         @Override
         public void recordTime(TramTime time, int totalCost) throws TramchesterException {
-            logger.debug("Record time " + time + " total cost:" + totalCost);
-            if (actionTime ==null) {
-                logger.info("Boarding time set to " + time);
-                this.actionTime = time;
-                costAtBoarding = totalCost;
-            }
+            logger.debug("Record actual time " + time + " total cost:" + totalCost);
+            this.actualTime = time;
+            costOffsetAtActual = totalCost;
+        }
+
+        private int costSinceLastTimeUpdate() {
+            return totalCost - costOffsetAtActual;
         }
 
         @Override
@@ -223,33 +238,32 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         @Override
         public void beginWalk(Node beforeWalkNode, boolean atStart, int cost) {
-            logger.info("Walk cost " + cost);
+            logger.debug("Walk cost " + cost);
             if (atStart) {
                 walkStart = GraphProps.getLatLong(beforeWalkNode);
-                beginWalkClock = journeyClock;
-                //actionTime = queryTime.plusMinutes(journeyClock);
-                logger.info("Begin walk from start " + walkStart + " at " + queryTime.plusMinutes(beginWalkClock));
+                beginWalkClock =  getActualClock();
                 actionStationId = null;
+                logger.info("Begin walk from start " + walkStart + " at " + beginWalkClock);
             } else {
-                beginWalkClock = journeyClock - cost;
+                walkStart = null;
+                beginWalkClock = getActualClock().minusMinutes(cost);
                 actionStationId = GraphProps.getStationId(beforeWalkNode);
-                //actionTime = queryTime.plusMinutes(journeyClock).minusMinutes(cost);
-                logger.info("Begin walk from station " + actionStationId + " at " + queryTime.plusMinutes(beginWalkClock));
+                logger.info("Begin walk from station " + actionStationId + " at " + beginWalkClock);
             }
         }
 
         @Override
         public void endWalk(Node endWalkNode, boolean atDestination) {
 
+            int duration = TramTime.diffenceAsMinutes(beginWalkClock, getActualClock());
             if (actionStationId == null) {
                 boolean atStation = GraphProps.hasProperty(STATION_ID, endWalkNode);
                 if (atStation) {
                     MyLocation start = MyLocation.create(mapper, walkStart);
                     IdFor<Station> destinationStationId = GraphProps.getStationId(endWalkNode);
                     Station destination = stationRepository.getStationById(destinationStationId);
-                    int duration = journeyClock - beginWalkClock;
                     logger.info("End walk to station " + destinationStationId + " duration " + duration);
-                    WalkingToStationStage stage = new WalkingToStationStage(start, destination, duration, actionTime);
+                    WalkingToStationStage stage = new WalkingToStationStage(start, destination, duration, beginWalkClock);
                     stages.add(stage);
                 } else {
                     throw new RuntimeException("Ended walked at unexpected node " + endWalkNode.getAllProperties());
@@ -258,9 +272,8 @@ public class MapPathToStagesViaStates implements PathToStages {
                 LatLong walkEnd = GraphProps.getLatLong(endWalkNode);
                 MyLocation destination = MyLocation.create(mapper, walkEnd);
                 Station start = stationRepository.getStationById(actionStationId);
-                int duration = journeyClock - beginWalkClock;
                 logger.info("End walk from station to " +walkEnd + " duration " + duration);
-                WalkingFromStationStage stage = new WalkingFromStationStage(start, destination, duration, actionTime);
+                WalkingFromStationStage stage = new WalkingFromStationStage(start, destination, duration, beginWalkClock);
                 stages.add(stage);
             }
 
@@ -275,16 +288,14 @@ public class MapPathToStagesViaStates implements PathToStages {
             stopSequenceNumbers = null;
             boardingPlatformId = null;
             actionStationId = null;
-            actionTime = null;
-            costAtBoarding = Integer.MIN_VALUE;
-            beginWalkClock = Integer.MIN_VALUE;
+            beginWalkClock = null;
             walkStart = null;
         }
 
         private void addVehicleStage(TransportMode mode, int totalCost, Station firstStation, Station lastStation, Trip trip) {
             final VehicleStage vehicleStage = new VehicleStage(firstStation, trip.getRoute(), mode, trip,
-                    actionTime, lastStation, stopSequenceNumbers);
-            vehicleStage.setCost(totalCost - costAtBoarding);
+                    actualTime, lastStation, stopSequenceNumbers);
+            vehicleStage.setCost(totalCost - costOffsetAtActual);
             if (boardingPlatformId!=null) {
                 final Optional<Platform> platformById = platformRepository.getPlatformById(boardingPlatformId);
                 platformById.ifPresent(vehicleStage::setPlatform);

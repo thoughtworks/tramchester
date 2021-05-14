@@ -71,7 +71,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
 
-    public void updateJourneyClock(int currentTotalCost) {
+    public void updateTotalCost(int currentTotalCost) {
         int costForTrip = currentTotalCost - journeyOffset;
 
         if (onBoard()) {

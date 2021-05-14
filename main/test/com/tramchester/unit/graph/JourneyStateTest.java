@@ -74,12 +74,12 @@ class JourneyStateTest extends EasyMockSupport {
         assertFalse(TransportMode.isTram(state));
 
         int currentCost = 0;
-        state.updateJourneyClock(currentCost);
+        state.updateTotalCost(currentCost);
         assertEquals(queryTime, state.getJourneyClock());
         assertFalse(TransportMode.isTram(state));
 
         currentCost = 14;
-        state.updateJourneyClock(currentCost);
+        state.updateTotalCost(currentCost);
         assertEquals(TramTime.of(9,29), state.getJourneyClock());
         assertFalse(TransportMode.isTram(state));
 
@@ -149,10 +149,10 @@ class JourneyStateTest extends EasyMockSupport {
         state.recordTime(boardingTime,10);
         assertEquals(boardingTime, state.getJourneyClock());
 
-        state.updateJourneyClock(15); // 15 - 10
+        state.updateTotalCost(15); // 15 - 10
         assertEquals(boardingTime.plusMinutes(5), state.getJourneyClock());
 
-        state.updateJourneyClock(20);  // 20 - 10
+        state.updateTotalCost(20);  // 20 - 10
         assertEquals(boardingTime.plusMinutes(10), state.getJourneyClock());
     }
 
@@ -169,7 +169,7 @@ class JourneyStateTest extends EasyMockSupport {
         assertEquals(TramTime.of(9,45), state.getJourneyClock()); // should be depart tram time
         assertFalse(TransportMode.isTram(state));
 
-        state.updateJourneyClock(35);
+        state.updateTotalCost(35);
         assertEquals(TramTime.of(9,55), state.getJourneyClock()); // i.e not just queryTime + 35 minutes
     }
 

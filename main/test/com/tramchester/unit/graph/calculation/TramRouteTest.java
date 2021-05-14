@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -126,21 +127,36 @@ class TramRouteTest {
     @Test
     void shouldHaveJourneyWithLocationBasedStart() {
         final LatLong start = TestEnv.nearWythenshaweHosp;
+        final Station destination = transportData.getInterchange();
+        final Station midway = transportData.getSecond();
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start,  transportData.getInterchange(),
-                createJourneyRequest(queryTime, 0), 2);
-
-        int walkCost = calcCostInMinutes(start, transportData.getSecond(), config.getWalkingMPH());
+        int walkCost = calcCostInMinutes(start, midway, config.getWalkingMPH());
         assertEquals(4, walkCost);
+
+        int tramDur = 9;
+        TramTime tramBoard = TramTime.of(8,11);
+
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
+                createJourneyRequest(queryTime, 0), 2);
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
-            assertEquals(transportData.getSecond(), stages.get(0).getLastStation());
             assertEquals(2, stages.size());
+
             final TransportStage<?, ?> walk = stages.get(0);
+            final TransportStage<?, ?> tram = stages.get(1);
+
+            assertEquals(midway, walk.getLastStation());
             assertEquals(walk.getMode(), TransportMode.Walk);
             assertEquals(walkCost, walk.getDuration());
+            assertEquals(queryTime.plusMinutes(4), walk.getExpectedArrivalTime());
+
+            assertEquals(midway, tram.getFirstStation());
+            assertEquals(destination, tram.getLastStation());
+            assertEquals(tramDur, tram.getDuration());
+            assertEquals(tramBoard, tram.getFirstDepartureTime());
+            assertEquals(tramBoard.plusMinutes(tramDur), tram.getExpectedArrivalTime());
         });
     }
 
@@ -150,10 +166,17 @@ class TramRouteTest {
         final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
         final LatLong destination = TestEnv.atMancArena;
-        int walkCost = calcCostInMinutes(destination, transportData.getInterchange(), config.getWalkingMPH());
+        final Station start = transportData.getSecond();
+        final Station midway = transportData.getInterchange();
+
+        int walkCost = calcCostInMinutes(destination, midway, config.getWalkingMPH());
         assertEquals(5, walkCost);
 
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getSecond(),
+        TramTime boardTime = TramTime.of(8,11);
+        final int tramDuration = 9;
+        final int depart = 1;
+
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start,
                 destination,
                 journeyRequest, 3);
 
@@ -162,10 +185,23 @@ class TramRouteTest {
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size());
-            assertEquals(stages.get(0).getLastStation(), transportData.getInterchange());
+            final TransportStage<?, ?> tram = stages.get(0);
             final TransportStage<?, ?> walk = stages.get(1);
+
+            assertEquals(tram.getFirstStation(), start);
+            assertEquals(tram.getLastStation(), midway);
+            assertEquals(tram.getFirstDepartureTime(), boardTime);
+            assertEquals(tram.getExpectedArrivalTime(), boardTime.plusMinutes(tramDuration));
+
             assertEquals(walk.getMode(), TransportMode.Walk);
+            assertEquals(walk.getFirstStation(), midway);
             assertEquals(walkCost, walk.getDuration());
+            assertEquals(walk.getFirstDepartureTime(), boardTime.plusMinutes(tramDuration+depart));
+            assertEquals(boardTime.plusMinutes(tramDuration+depart+walkCost), walk.getExpectedArrivalTime());
+
+            assertTrue(walk.getFirstDepartureTime().isAfter(tram.getExpectedArrivalTime()),
+                    tram.getExpectedArrivalTime().toString());
+
         });
     }
 

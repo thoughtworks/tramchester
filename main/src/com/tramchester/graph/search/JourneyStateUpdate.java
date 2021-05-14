@@ -10,7 +10,7 @@ import org.neo4j.graphdb.Node;
 public interface JourneyStateUpdate {
     void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException;
     void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException;
-    void updateJourneyClock(int total);
+    void updateTotalCost(int total);
     void recordTime(TramTime time, int totalCost) throws TramchesterException;
     void beginTrip(IdFor<Trip> newTripId);
     void beginWalk(Node beforeWalkNode, boolean atStart, int cost);

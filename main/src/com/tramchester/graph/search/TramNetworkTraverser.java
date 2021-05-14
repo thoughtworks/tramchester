@@ -137,7 +137,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             cost = nodeContentsRepository.getCost(path.lastRelationship());
             if (cost>0) {
                 int total = traversalState.getTotalCost() + cost;
-                journeyStateForChildren.updateJourneyClock(total);
+                journeyStateForChildren.updateTotalCost(total);
             }
         }
 
