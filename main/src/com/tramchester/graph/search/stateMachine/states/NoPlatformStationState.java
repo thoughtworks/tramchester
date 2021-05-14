@@ -97,7 +97,7 @@ public class NoPlatformStationState extends StationState {
 
     @Override
     protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
-        journeyState.beginWalk(node, false);
+        journeyState.beginWalk(node, false, cost);
         return towardsWalk.fromStation(this, node, cost);
     }
 

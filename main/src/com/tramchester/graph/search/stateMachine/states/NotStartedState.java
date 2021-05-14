@@ -22,7 +22,7 @@ public class NotStartedState extends TraversalState {
 
     @Override
     protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node node, int cost, JourneyStateUpdate journeyState) {
-        journeyState.beginWalk(node, true);
+        journeyState.beginWalk(node, true, cost);
         return towardsWalk.fromStart(this, node, cost);
     }
 

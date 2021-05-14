@@ -132,7 +132,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         tripZ.addStop(stopZ);
 
         Station second = new TestStation(TramTransportDataForTest.SECOND_STATION, "area1", "secondStation",
-                nearWythenshaweHosp, CoordinateTransforms.getGridPosition(nearWythenshaweHosp), Tram);
+                atRoundthornTram, CoordinateTransforms.getGridPosition(atRoundthornTram), Tram);
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         PlatformStopCall stopB = createStop(container, tripA, second, of(8, 11), of(8, 11), 2);

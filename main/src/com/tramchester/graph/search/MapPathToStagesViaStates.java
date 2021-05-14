@@ -217,23 +217,24 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         @Override
         public void beginTrip(IdFor<Trip> newTripId) {
-            logger.info("Begin trip:" + newTripId);
+            logger.debug("Begin trip:" + newTripId);
             this.tripId = newTripId;
         }
 
         @Override
-        public void beginWalk(Node beforeWalkNode, boolean atStart) {
-            beginWalkClock = journeyClock;
+        public void beginWalk(Node beforeWalkNode, boolean atStart, int cost) {
+            logger.info("Walk cost " + cost);
             if (atStart) {
                 walkStart = GraphProps.getLatLong(beforeWalkNode);
-                logger.info("Begin walk from start " + walkStart);
-                // TODO should work this backwards when we end up with real journey time set
-                actionTime = queryTime.plusMinutes(journeyClock);
+                beginWalkClock = journeyClock;
+                //actionTime = queryTime.plusMinutes(journeyClock);
+                logger.info("Begin walk from start " + walkStart + " at " + queryTime.plusMinutes(beginWalkClock));
                 actionStationId = null;
             } else {
+                beginWalkClock = journeyClock - cost;
                 actionStationId = GraphProps.getStationId(beforeWalkNode);
-                actionTime = queryTime.plusMinutes(journeyClock);
-                logger.info("Begin walk from start " + actionStationId + " at " + actionTime);
+                //actionTime = queryTime.plusMinutes(journeyClock).minusMinutes(cost);
+                logger.info("Begin walk from station " + actionStationId + " at " + queryTime.plusMinutes(beginWalkClock));
             }
         }
 

@@ -96,7 +96,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void beginWalk(Node beforeWalkNode, boolean atStart) {
+    public void beginWalk(Node beforeWalkNode, boolean atStart, int cost) {
         numberOfWalkingConnections = numberOfWalkingConnections + 1;
     }
 

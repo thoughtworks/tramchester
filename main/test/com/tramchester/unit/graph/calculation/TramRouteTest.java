@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
 import static com.tramchester.testSupport.TestEnv.nearWythenshaweHosp;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -124,14 +125,22 @@ class TramRouteTest {
 
     @Test
     void shouldHaveJourneyWithLocationBasedStart() {
-        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(nearWythenshaweHosp,  transportData.getInterchange(),
+        final LatLong start = TestEnv.nearWythenshaweHosp;
+
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start,  transportData.getInterchange(),
                 createJourneyRequest(queryTime, 0), 2);
+
+        int walkCost = calcCostInMinutes(start, transportData.getSecond(), config.getWalkingMPH());
+        assertEquals(4, walkCost);
 
         assertEquals(1, journeys.size());
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
+            assertEquals(transportData.getSecond(), stages.get(0).getLastStation());
             assertEquals(2, stages.size());
-            assertEquals(stages.get(0).getMode(), TransportMode.Walk);
+            final TransportStage<?, ?> walk = stages.get(0);
+            assertEquals(walk.getMode(), TransportMode.Walk);
+            assertEquals(walkCost, walk.getDuration());
         });
     }
 
@@ -140,8 +149,12 @@ class TramRouteTest {
 
         final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
+        final LatLong destination = TestEnv.atMancArena;
+        int walkCost = calcCostInMinutes(destination, transportData.getInterchange(), config.getWalkingMPH());
+        assertEquals(5, walkCost);
+
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getSecond(),
-                TestEnv.nearShudehill,
+                destination,
                 journeyRequest, 3);
 
         // TODO investigate why getting duplication here
@@ -150,7 +163,9 @@ class TramRouteTest {
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size());
             assertEquals(stages.get(0).getLastStation(), transportData.getInterchange());
-            assertEquals(stages.get(1).getMode(), TransportMode.Walk);
+            final TransportStage<?, ?> walk = stages.get(1);
+            assertEquals(walk.getMode(), TransportMode.Walk);
+            assertEquals(walkCost, walk.getDuration());
         });
     }
 

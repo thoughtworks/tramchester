@@ -13,6 +13,6 @@ public interface JourneyStateUpdate {
     void updateJourneyClock(int total);
     void recordTime(TramTime time, int totalCost) throws TramchesterException;
     void beginTrip(IdFor<Trip> newTripId);
-    void beginWalk(Node beforeWalkNode, boolean atStart);
+    void beginWalk(Node beforeWalkNode, boolean atStart, int cost);
     void endWalk(Node stationNode, boolean atDestination);
 }

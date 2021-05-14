@@ -106,10 +106,10 @@ class JourneyStateTest extends EasyMockSupport {
         JourneyState state = new JourneyState(queryTime, traversalState);
         assertFalse(TransportMode.isTram(state));
 
-        state.beginWalk(node, true);
+        state.beginWalk(node, true, 42);
         assertEquals(1, state.getNumberWalkingConnections());
 
-        state.beginWalk(node, true);
+        state.beginWalk(node, true, 42);
         assertEquals(2, state.getNumberWalkingConnections());
 
         state.endWalk(node, true);
@@ -194,7 +194,7 @@ class JourneyStateTest extends EasyMockSupport {
     @Test
     void shouldCreateNewState() throws TramchesterException {
         JourneyState journeyState = new JourneyState(TramTime.of(7,55), traversalState);
-        journeyState.beginWalk(node, true);
+        journeyState.beginWalk(node, true, 42);
 
         JourneyState newStateA = JourneyState.fromPrevious(journeyState);
         assertEquals(TramTime.of(7,55), journeyState.getJourneyClock());
@@ -206,7 +206,7 @@ class JourneyStateTest extends EasyMockSupport {
         newStateA.board(TransportMode.Tram, node, true);
         newStateA.recordTime(TramTime.of(8,15), 15);
         assertEquals(TramTime.of(8,15), newStateA.getJourneyClock());
-        newStateA.beginWalk(node, true);
+        newStateA.beginWalk(node, true, 42);
 
         JourneyState newStateB = JourneyState.fromPrevious(newStateA);
         assertTrue(newStateB.hasBegunJourney());

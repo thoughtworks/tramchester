@@ -101,7 +101,8 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(result.isEmpty());
         TransportStage<?, ?> firstStage = result.get(0);
 
-        validateAltyToTraffordBar(firstStage, startStation, destination, TramTime.of(9, 41), 17, NavigationRoad.getId(), 7);
+        validateAltyToTraffordBar(firstStage, startStation, destination, TramTime.of(9, 31),
+                17, NavigationRoad.getId(), 7);
     }
 
     @Test
@@ -165,7 +166,7 @@ public class MapPathToStagesViaStatesTest {
         validateWalkTo(walkingStage, start, endOfWalk, 14);
 
         TransportStage<?, ?> tramStage = result.get(1);
-        validateAltyToTraffordBar(tramStage, endOfWalk, destination, TramTime.of(9, 54),
+        validateAltyToTraffordBar(tramStage, endOfWalk, destination, TramTime.of(10, 4),
                 14, timperley, 6);
     }
 

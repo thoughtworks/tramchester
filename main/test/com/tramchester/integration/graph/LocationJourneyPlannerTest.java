@@ -78,7 +78,8 @@ class LocationJourneyPlannerTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0), false,
                 2, maxJourneyDuration);
-        Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, TramStations.PiccadillyGardens, journeyRequest, 3);
+        Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, TramStations.PiccadillyGardens,
+                journeyRequest, 3);
 
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
@@ -145,8 +146,8 @@ class LocationJourneyPlannerTest {
     void shouldFindJourneyWithWalkingEarlyMorning() {
 
         // TODO 3 changes here causes big performance drop off, 2 is fine
-        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0), false, 2,
-                maxJourneyDuration);
+        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0),
+                false, 2, maxJourneyDuration);
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, TramStations.Deansgate, request, 3);
 
         assertFalse(results.isEmpty());

@@ -50,11 +50,13 @@ public class TestEnv {
     public static final LatLong nearAltrinchamInterchange = new LatLong(53.3873279D,-2.3498573D);
     public static final LatLong nearPiccGardens = new LatLong(53.4805248D, -2.2394929D);
     public static final LatLong nearShudehill = new LatLong(53.485846, -2.239472);
+    public static final LatLong atMancArena = new LatLong(53.4871468,-2.2445687);
     public static final LatLong nearStockportBus = new LatLong(53.408735,-2.1656593);
     public static final LatLong nearGreenwichLondon = new LatLong(51.477928, -0.001545);
     public static final LatLong nearKnutsfordBusStation = new LatLong(53.3026112D,-2.3774635D);
     public static final LatLong nearStPetersSquare = new LatLong(53.4776898D,-2.2432105D);
-    public static LatLong nearWythenshaweHosp =  new LatLong(53.3874309,-2.2945628);
+    public final static LatLong nearWythenshaweHosp =  new LatLong(53.3874309,-2.2945628);
+    public final static LatLong atRoundthornTram = new LatLong(53.389264, -2.2971255);
 
     public static final GridPosition nearAltrinchamGrid;
     public static final GridPosition nearPiccGardensGrid;
