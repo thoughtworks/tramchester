@@ -54,7 +54,7 @@ public class MapPathToStagesViaStatesTest {
     private StationRepository stationRepository;
     private NodeContentsRepository nodeContentsRepository;
     private ReachabilityRepository reachabilityRepository;
-    private MapPathToStagesViaStates mapper;
+    private PathToStages pathToStages;
     private LocationJourneyPlanner locationJourneyPlanner;
 
     @BeforeAll
@@ -80,7 +80,7 @@ public class MapPathToStagesViaStatesTest {
         reachabilityRepository = componentContainer.get(ReachabilityRepository.class);
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        mapper = componentContainer.get(MapPathToStagesViaStates.class);
+        pathToStages = componentContainer.get(MapPathToStagesViaStates.class);
         locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
     }
 
@@ -231,7 +231,7 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        final List<TransportStage<?, ?>> transportStages = mapper.mapDirect(timedPath, journeyRequest, destinationStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, destinationStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, endNodeWalkNode);
 
@@ -252,7 +252,7 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        final List<TransportStage<?, ?>> transportStages = mapper.mapDirect(timedPath, journeyRequest, endStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, endStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
 
@@ -268,7 +268,7 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(timedPaths.isEmpty());
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        return mapper.mapDirect(timedPath, journeyRequest, endStations);
+        return pathToStages.mapDirect(timedPath, journeyRequest, endStations);
     }
 
     private List<RouteCalculator.TimedPath> getPathFor(Station startStation, Station destination, Set<Station> endStations,

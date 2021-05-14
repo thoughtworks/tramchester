@@ -33,6 +33,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static java.lang.String.format;
 
+@Deprecated
 public class MapPathToStages implements PathToStages {
     private static final Logger logger = LoggerFactory.getLogger(MapPathToStages.class);
 

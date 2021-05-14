@@ -45,7 +45,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     public RouteCalculatorForBoxes(TramchesterConfig config,
                                    TransportData transportData,
                                    GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
-                                   MapPathToStages pathToStages,
+                                   PathToStages pathToStages,
                                    NodeContentsRepository nodeOperations, NodeTypeRepository nodeTypeRepository,
                                    ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
