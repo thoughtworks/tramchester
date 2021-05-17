@@ -222,20 +222,21 @@ class TramRouteTest {
 
     @Test
     void shouldHaveWalkAtStartAndEnd() {
-        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 3);
-
-        journeyRequest.setDiag(true);
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 2);
 
         final LatLong start = TestEnv.nearWythenshaweHosp;
         final LatLong destination = TestEnv.atMancArena;
 
-        int walk1Cost = calcCostInMinutes(start, transportData.getSecond(), config.getWalkingMPH());
-        int walk2Cost = calcCostInMinutes(destination, transportData.getInterchange(), config.getWalkingMPH());
+        final Station endFirstWalk = transportData.getSecond();
+        final Station startSecondWalk = transportData.getInterchange();
+
+        int walk1Cost = calcCostInMinutes(start, endFirstWalk, config.getWalkingMPH());
+        int walk2Cost = calcCostInMinutes(destination, startSecondWalk, config.getWalkingMPH());
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start,
                 destination,
                 journeyRequest, 3);
-        assertEquals(1, journeys.size());
+        assertTrue(journeys.size() >= 1, "journeys");
         journeys.forEach(journey -> {
             assertEquals(3, journey.getStages().size());
             TransportStage<?, ?> walk1 = journey.getStages().get(0);
@@ -249,11 +250,17 @@ class TramRouteTest {
             assertEquals(walk1Cost, walk1.getDuration());
             assertEquals(walk2Cost, walk2.getDuration());
 
-            // WIP more assertions
+            assertEquals(endFirstWalk, walk1.getLastStation());
+            assertEquals(endFirstWalk, tram.getFirstStation());
+            assertEquals(startSecondWalk, tram.getLastStation());
+            assertEquals(startSecondWalk, walk2.getFirstStation());
+
+            assertTrue(tram.getFirstDepartureTime().isAfter(walk1.getExpectedArrivalTime()), "tram after walk 1");
+            assertTrue(tram.getExpectedArrivalTime().isBefore(walk2.getFirstDepartureTime()), "walk 2 affter tram");
 
             });
 
-        }
+    }
 
     @Test
     void shouldHaveJourneyWithLocationBasedEnd() {

@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM;
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static java.lang.String.format;
 
 @LazySingleton
@@ -100,7 +102,7 @@ public class LocationJourneyPlanner {
         List<StationWalk> walksToStart = getStationWalks(latLong);
         List<Relationship> addedRelationships = new LinkedList<>();
         walksToStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startOfWalkNode, stationWalk,
-                TransportRelationshipTypes.WALKS_TO)));
+                WALKS_TO)));
         return addedRelationships;
     }
 
@@ -118,10 +120,8 @@ public class LocationJourneyPlanner {
         }
 
         Node endWalk = createWalkingNode(txn, destination, journeyRequest);
-
         List<Relationship> addedRelationships = new LinkedList<>();
-        walksToDest.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk,
-                TransportRelationshipTypes.WALKS_FROM)));
+        walksToDest.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk, WALKS_FROM)));
 
         Set<Station> destinationStations = new HashSet<>();
         walksToDest.forEach(stationWalk -> destinationStations.add(stationWalk.getStation()));
@@ -147,22 +147,17 @@ public class LocationJourneyPlanner {
         // Add Walk at the Start
         List<StationWalk> walksAtStart = getStationWalks(startLatLong);
         Node startNode = createWalkingNode(txn, startLatLong, journeyRequest);
-        walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startNode, stationWalk,
-                TransportRelationshipTypes.WALKS_TO)));
+        walksAtStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startNode, stationWalk, WALKS_TO)));
 
         // Add Walks at the end
         Set<Station> destinationStations = new HashSet<>();
         List<StationWalk> walksToDest = getStationWalks(destLatLong);
-        // TODO is mid walk node still needed?
-        Node midWalkNode = createWalkingNode(txn, destLatLong, journeyRequest);
+        Node endWalk = createWalkingNode(txn, destLatLong, journeyRequest);
+
         walksToDest.forEach(stationWalk -> {
             destinationStations.add(stationWalk.getStation());
-            addedRelationships.add(createWalkRelationship(txn, midWalkNode, stationWalk, TransportRelationshipTypes.WALKS_FROM));
+            addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk, WALKS_FROM));
         });
-        Node endWalk = createWalkingNode(txn, destLatLong, journeyRequest);
-        Relationship relationshipTo = midWalkNode.createRelationshipTo(endWalk, TransportRelationshipTypes.FINISH_WALK);
-        GraphProps.setCostProp(relationshipTo, 0);
-        addedRelationships.add(relationshipTo);
 
         /// CALC
         Stream<Journey> journeys;
@@ -175,7 +170,7 @@ public class LocationJourneyPlanner {
         }
 
         //noinspection ResultOfMethodCallIgnored
-        journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, startNode, midWalkNode, endWalk));
+        journeys.onClose(() -> removeWalkNodeAndRelationships(addedRelationships, startNode, endWalk));
         return journeys;
     }
 
@@ -189,7 +184,7 @@ public class LocationJourneyPlanner {
         Relationship walkingRelationship;
         Node stationNode = graphQuery.getStationOrGrouped(txn, walkStation);
 
-        if (direction==TransportRelationshipTypes.WALKS_FROM) {
+        if (direction== WALKS_FROM) {
             walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
         } else {
             walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);

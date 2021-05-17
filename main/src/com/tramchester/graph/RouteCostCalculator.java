@@ -83,7 +83,6 @@ public class RouteCostCalculator {
                 INTERCHANGE_DEPART, Direction.OUTGOING,
                 WALKS_TO, Direction.OUTGOING,
                 WALKS_FROM, Direction.OUTGOING,
-                FINISH_WALK, Direction.OUTGOING,
                 NEIGHBOUR, Direction.OUTGOING,
                 GROUPED_TO_PARENT, Direction.OUTGOING,
                 GROUPED_TO_CHILD, Direction.OUTGOING
