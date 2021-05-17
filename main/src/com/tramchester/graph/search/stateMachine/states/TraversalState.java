@@ -80,7 +80,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         switch (nodeLabel) {
             case MINUTE -> { return toMinute(builders.getTowardsMinute(from), node, cost, journeyState); }
             case HOUR -> { return toHour(builders.getTowardsHour(from), node, cost); }
-            case GROUPED -> { return toGrouped(node, cost, journeyState, nodeId); }
+            case GROUPED -> { return toGrouped(node, cost, journeyState); }
             case BUS_STATION, TRAIN_STATION, SUBWAY_STATION, FERRY_STATION -> { return toStation(node, journeyState, cost); }
             case TRAM_STATION -> { return toTramStation(node, journeyState, cost); }
             case SERVICE -> { return toService(builders.getTowardsService(from), node, cost); }
@@ -155,7 +155,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
     }
 
-    private TraversalState toGrouped(Node node, int cost, JourneyStateUpdate journeyState, long nodeId) {
+    private TraversalState toGrouped(Node node, int cost, JourneyStateUpdate journeyState) {
         return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState);
 //        if (traversalOps.isDestination(nodeId)) {
 //            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);

@@ -78,6 +78,6 @@ public class PostcodeRepository {
     }
 
     public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, int meters) {
-        return FindNear.getNearTo(postcodes.getValues(), location, meters);
+        return FindNear.getNearTo(postcodes.getValuesStream(), location, meters);
     }
 }

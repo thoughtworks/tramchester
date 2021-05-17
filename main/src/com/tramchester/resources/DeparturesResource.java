@@ -17,6 +17,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.mappers.DeparturesMapper;
 import com.tramchester.repository.DueTramsSource;
 import com.tramchester.repository.StationRepository;
@@ -42,7 +43,7 @@ import static java.lang.String.format;
 public class DeparturesResource extends TransportResource {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
-    private final StationLocations stationLocations;
+    private final StationLocationsRepository stationLocations;
     private final DueTramsSource dueTramsSource;
     private final DeparturesMapper departuresMapper;
     private final ProvidesNotes providesNotes;
@@ -70,7 +71,7 @@ public class DeparturesResource extends TransportResource {
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                          @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
         LatLong latLong = new LatLong(lat,lon);
-        List<Station> nearbyStations = stationLocations.getNearestStationsTo(latLong,
+        List<Station> nearbyStations = stationLocations.nearestStationsSorted(latLong,
                 config.getNumOfNearestStopsToOffer(), config.getNearestStopRangeKM());
 
         LocalDate localDate = providesNow.getDate();

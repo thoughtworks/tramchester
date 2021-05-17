@@ -40,7 +40,7 @@ public class FindStationLinks {
         this.stationRepository = stationRepository;
     }
 
-    public Set<StationLink> findFor(TransportMode mode) {
+    public Set<StationLink> findLinkedFor(TransportMode mode) {
         logger.info(format("Find links for %s", mode));
         Map<String, Object> params = new HashMap<>();
         String stationLabel = GraphBuilder.Labels.forMode(mode).name();

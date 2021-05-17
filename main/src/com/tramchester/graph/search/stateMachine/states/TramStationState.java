@@ -95,11 +95,13 @@ public class TramStationState extends StationState {
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder toStation, Node node, int cost, JourneyStateUpdate journeyState) {
+        journeyState.toNeighbour(stationNode, node, cost);
         return toStation.fromNeighbour(this, node, cost);
     }
 
     @Override
     protected TramStationState toTramStation(Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+        journeyState.toNeighbour(stationNode, node, cost);
         return towardsStation.fromNeighbour(this, node, cost);
     }
 

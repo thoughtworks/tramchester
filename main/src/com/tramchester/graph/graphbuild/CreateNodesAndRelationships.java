@@ -74,11 +74,11 @@ public class CreateNodesAndRelationships {
     }
 
     private boolean addRelationshipFor(Node fromNode, Node toNode, int cost, TransportRelationshipTypes relationshipType) {
-        Set<Long> alreadyNeighbours = new HashSet<>();
+        Set<Long> alreadyRelationship = new HashSet<>();
         fromNode.getRelationships(Direction.OUTGOING, relationshipType).
-                forEach(relationship -> alreadyNeighbours.add(relationship.getEndNode().getId()));
+                forEach(relationship -> alreadyRelationship.add(relationship.getEndNode().getId()));
 
-        if (!alreadyNeighbours.contains(toNode.getId())) {
+        if (!alreadyRelationship.contains(toNode.getId())) {
             Relationship relationship = createRelationship(fromNode, toNode, relationshipType);
             GraphProps.setCostProp(relationship, cost);
             return true;

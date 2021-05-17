@@ -21,7 +21,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     public IntegrationBusTestConfig(String dbName) {
-        super(new GraphDBIntegrationBusTestConfig("integrationBusTest", dbName));
+        this("integrationBusTest", dbName);
+    }
+
+    protected IntegrationBusTestConfig(String folder, String dbName) {
+        super(new GraphDBIntegrationBusTestConfig(folder, dbName));
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/bus",
                 Collections.singleton(GTFSTransportationType.bus),
                 Collections.emptySet());

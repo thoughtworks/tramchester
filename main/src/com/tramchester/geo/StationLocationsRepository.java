@@ -14,8 +14,6 @@ public interface StationLocationsRepository {
 
     List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, double rangeInKM);
 
-    List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, double rangeInKM);
-
     Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM);
 
     BoundingBox getBounds();

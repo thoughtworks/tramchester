@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static java.lang.String.format;
@@ -132,6 +133,11 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         return compositeName;
     }
 
+    /***
+     * Provides composites instead of the stations contained in that composite
+     * @param mode
+     * @return
+     */
     @Override
     public Set<Station> getStationsForMode(TransportMode mode) {
         Set<Station> result = stationRepository.getStationsForMode(mode).stream().
@@ -139,6 +145,13 @@ public class CompositeStationRepository implements StationRepositoryPublic {
                 .collect(Collectors.toSet());
         result.addAll(getCompositesFor(mode));
         return result;
+    }
+
+    @Override
+    public Stream<Station> getStationStream() {
+        Stream<Station> stationStream = stationRepository.getStationStream().
+                filter(station -> !isUnderlyingStationComposite.contains(station.getId()));
+        return Stream.concat(stationStream, compositeStations.values().stream());
     }
 
     @Override
@@ -156,6 +169,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         }
         return stationRepository.hasStationId(stationId);
     }
+
 
     public IdSet<Station> resolve(IdFor<Station> id) {
         if (!compositeStations.containsKey(id)) {

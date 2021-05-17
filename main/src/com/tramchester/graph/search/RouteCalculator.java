@@ -1,6 +1,5 @@
 package com.tramchester.graph.search;
 
-import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
@@ -30,7 +29,6 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -44,8 +42,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
-                           TramchesterConfig config, ReachabilityRepository reachabilityRepository,
-                           CreateQueryTimes createQueryTimes, TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
+                           TramchesterConfig config, ReachabilityRepository reachabilityRepository, CreateQueryTimes createQueryTimes,
+                           TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            CompositeStationRepository compositeStationRepository) {

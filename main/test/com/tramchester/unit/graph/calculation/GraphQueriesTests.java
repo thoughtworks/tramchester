@@ -70,7 +70,7 @@ class GraphQueriesTests {
     void shouldHaveCorrectLinksBetweenStations() {
         FindStationLinks findStationLinks = componentContainer.get(FindStationLinks.class);
 
-        Set<StationLink> links = findStationLinks.findFor(Tram);
+        Set<StationLink> links = findStationLinks.findLinkedFor(Tram);
 
         assertEquals(5, links.size());
 

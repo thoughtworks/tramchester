@@ -62,17 +62,18 @@ class DeparturesResourceTest {
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
-        assertFalse(departureList.getNotes().isEmpty(), "no notes found for " + stationWithNotes.getName()); // off by deafult
+        // off by deafult
+        assertFalse(departureList.getNotes().isEmpty(), "no notes found for " + stationWithNotes.getName());
     }
 
     @Test
     @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimeNow() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
-        TramStations station = TramStations.StPetersSquare;
+        TramStations station = TramStations.ManAirport;
 
         SortedSet<DepartureDTO> departures = getDeparturesForStationTime(queryTime, station);
-        assertFalse(departures.isEmpty(), "no due trams");
+        assertFalse(departures.isEmpty(), "no due trams at " + station);
         departures.forEach(depart -> assertEquals(station.getName(),depart.getFrom()));
     }
 

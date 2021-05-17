@@ -64,6 +64,12 @@ class CompositeStationRepositoryTest {
     }
 
     @Test
+    void shouldFindExpectedCompositeStations() {
+        assertNotNull(repository.findByName("Shudehill Interchange"));
+        assertNotNull(repository.findByName("Altrincham Interchange"));
+    }
+
+    @Test
     void shouldHaveCorrectNumberOfComposites() {
         assertFalse(repository.getStationsForMode(Bus).isEmpty());
 

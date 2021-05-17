@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph.neighbours;
+package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -10,10 +10,10 @@ import java.util.List;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 
-class NeighboursTestConfig extends IntegrationBusTestConfig {
+public class NeighboursTestConfig extends IntegrationBusTestConfig {
 
     public NeighboursTestConfig() {
-        super("CreateNeighboursTest.db");
+        super("neighboursTest", "createNeighboursTest.db");
     }
 
     @Override
@@ -22,6 +22,7 @@ class NeighboursTestConfig extends IntegrationBusTestConfig {
                 new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
                         Collections.singleton(Tram)));
     }
+
 
     @Override
     public boolean getCreateNeighbours() {

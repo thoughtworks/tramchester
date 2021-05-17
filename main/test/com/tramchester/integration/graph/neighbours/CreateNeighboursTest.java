@@ -3,24 +3,16 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.CreateNeighbours;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -29,15 +21,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.NEIGHBOUR;
-import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
@@ -46,21 +33,18 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class CreateNeighboursTest {
 
-    private StationRepository stationRepository;
-    private static RouteCalculatorTestFacade routeCalculator;
-    private static TramchesterConfig config;
-    private CompositeStation shudehillBus;
+    private CompositeStation shudehillCompositeBus;
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
     private GraphQuery graphQuery;
     private Transaction txn;
     private CreateNeighbours createNeighbours;
+    private CompositeStationRepository compositeStationRepository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
-        config = new NeighboursTestConfig();
-        //TestEnv.deleteDBIfPresent(config);
+    static void onceBeforeAnyTestsRun() {
+        TramchesterConfig config = new NeighboursTestConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -74,27 +58,28 @@ class CreateNeighboursTest {
     @BeforeEach
     void onceBeforeEachTest() {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        stationRepository = componentContainer.get(StationRepository.class);
-        CompositeStationRepository compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
+
         graphQuery = componentContainer.get(GraphQuery.class);
-        shudehillBus = compositeStationRepository.findByName("Shudehill Interchange");
+        shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
         shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
 
         txn = graphDatabase.beginTx();
-        routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         // force creation and init
         createNeighbours = componentContainer.get(CreateNeighbours.class);
-    }
-
-    @Test
-    void shouldFindTheBusStation() {
-        assertNotNull(shudehillBus);
+        // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
+        componentContainer.get(StagedTransportGraphBuilder.class);
     }
 
     @AfterEach
     void onceAfterEachTestHasRun() {
         txn.close();
+    }
+
+    @Test
+    void shouldFindTheCompositeBusStation() {
+        assertNotNull(shudehillCompositeBus);
     }
 
     @Test
@@ -104,48 +89,59 @@ class CreateNeighboursTest {
 
         Station victoria = TramStations.of(TramStations.Victoria);
 
-        Set<Relationship> awayFrom = getRelationships(tramNode, OUTGOING);
+        Set<Relationship> outFromTram = getRelationships(tramNode, OUTGOING);
+        Set<Relationship> towardsTram = getRelationships(tramNode, INCOMING);
 
-        assertTrue(seenNode(txn, shudehillBus, awayFrom, Relationship::getEndNode));
-        assertFalse(seenNode(txn, victoria, awayFrom, Relationship::getEndNode));
-        assertFalse(seenNode(txn, shudehillTram, awayFrom, Relationship::getEndNode));
+        assertFalse(seenNode(txn, victoria, outFromTram, Relationship::getEndNode));
+        assertFalse(seenNode(txn, shudehillTram, outFromTram, Relationship::getEndNode));
+        assertFalse(seenNode(txn, victoria, towardsTram, Relationship::getStartNode));
 
-        Set<Relationship> towards = getRelationships(tramNode, INCOMING);
-        assertTrue(seenNode(txn, shudehillBus, towards, Relationship::getStartNode));
-        assertFalse(seenNode(txn, victoria, towards, Relationship::getStartNode));
+        shudehillCompositeBus.getContained().forEach(busStop -> {
+            assertTrue(seenNode(txn, busStop, outFromTram, Relationship::getEndNode));
+            assertTrue(seenNode(txn, busStop, towardsTram, Relationship::getStartNode));
+        });
+
     }
 
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromBus() {
-        Node busNode = graphQuery.getStationOrGrouped(txn, shudehillBus);
-        assertNotNull(busNode, "No node found for " + shudehillBus);
 
-        Set<Relationship> awayFrom = getRelationships(busNode, OUTGOING);
-        assertTrue(seenNode(txn, shudehillTram, awayFrom, Relationship::getEndNode));
-        assertFalse(seenNode(txn, shudehillBus, awayFrom, Relationship::getEndNode));
+        shudehillCompositeBus.getContained().forEach(busStop -> {
+            Node busNode = graphQuery.getStationOrGrouped(txn, busStop);
+            assertNotNull(busNode, "No node found for " + busStop);
 
-        Set<Relationship> towards = getRelationships(busNode, INCOMING);
-        assertTrue(seenNode(txn, shudehillTram, towards, Relationship::getStartNode));
-        assertFalse(seenNode(txn, shudehillBus, towards, Relationship::getStartNode));
-    }
+            Set<Relationship> awayFrom = getRelationships(busNode, OUTGOING);
+            assertTrue(seenNode(txn, shudehillTram, awayFrom, Relationship::getEndNode));
 
-    @Test
-    void shouldHaveListOfStationsThatNowHaveNeighboursBus() {
-        IdSet<Station> haveNeighboursBus = createNeighbours.getStationsWithNeighbours(Bus);
-        assertEquals(258, haveNeighboursBus.size());
-
-        assertTrue(haveNeighboursBus.contains(BusStations.StopAtAltrinchamInterchange.getId()));
-        assertFalse(haveNeighboursBus.contains(shudehillTram.getId()));
-        assertFalse(haveNeighboursBus.contains(BusStations.KnutsfordStationStand3.getId()));
+            Set<Relationship> towards = getRelationships(busNode, INCOMING);
+            assertTrue(seenNode(txn, shudehillTram, towards, Relationship::getStartNode));
+        });
 
     }
 
     @Test
-    void shouldHaveListOfStationsThatNowHaveNeighboursTram() {
-        IdSet<Station> haveNeighboursTram = createNeighbours.getStationsWithNeighbours(Tram);
-        assertTrue(haveNeighboursTram.contains(shudehillTram.getId()));
-        assertFalse(haveNeighboursTram.contains(shudehillBus.getId()));
-        assertFalse(haveNeighboursTram.contains(BusStations.KnutsfordStationStand3.getId()));
+    void shouldHaveCorrectNeighboursForAltrinchamTram() {
+        CompositeStation altrinchamComposite = compositeStationRepository.findByName("Altrincham Interchange");
+
+        IdSet<Station> neighbours = createNeighbours.getNeighboursFor(TramStations.Altrincham.getId());
+        IdSet<Station> ids = altrinchamComposite.getContained().stream().collect(IdSet.collector());
+
+        assertTrue(neighbours.containsAll(ids));
+    }
+
+    @Test
+    void shouldHaveCorrectNeighboursForTramAtShudehill() {
+        IdSet<Station> neighbours = createNeighbours.getNeighboursFor(Shudehill.getId());
+        IdSet<Station> busStops = shudehillCompositeBus.getContained().stream().collect(IdSet.collector());
+        assertTrue(neighbours.containsAll(busStops));
+    }
+
+    @Test
+    void shouldHaveCorrectNeighboursForBusAtShudehill() {
+        shudehillCompositeBus.getContained().forEach(station -> {
+            IdSet<Station> neighbours = createNeighbours.getNeighboursFor(station.getId());
+            assertTrue(neighbours.contains(shudehillTram.getId()));
+        });
     }
 
     private Set<Relationship> getRelationships(Node node, Direction direction) {
@@ -155,71 +151,10 @@ class CreateNeighboursTest {
         return result;
     }
 
-    @Test
-    void shouldDirectWalkIfStationIsNeighbourTramToBus() {
-        validateDirectWalk(shudehillTram, shudehillBus);
-    }
-
-    @Test
-    void shouldDirectWalkIfStationIsNeighbourBusToTram() {
-        validateDirectWalk(shudehillBus, shudehillTram);
-    }
-
-    @Test
-    void shouldTramNormally() {
-
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 8, config.getMaxJourneyDuration());
-
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Shudehill, request);
-
-        assertFalse(journeys.isEmpty());
-        journeys.forEach(journey -> {
-            assertEquals(1, journey.getStages().size(), journey.toString());
-            TransportStage<?,?> stage = journey.getStages().get(0);
-            assertEquals(Tram, stage.getMode());
-        });
-    }
-
-    @Test
-    void shouldTramThenWalk() {
-
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 0, config.getMaxJourneyDuration());
-
-        Station startStation = stationRepository.getStationById(Bury.getId());
-        Set<Journey> allJourneys = routeCalculator.calculateRouteAsSet(startStation, shudehillBus, request);
-
-        Set<Journey> maybeTram = allJourneys.stream().filter(journey -> journey.getStages().size()<=2).collect(Collectors.toSet());
-        assertFalse(maybeTram.isEmpty());
-
-        maybeTram.forEach(journey -> {
-            TransportStage<?,?> first = journey.getStages().get(0);
-            assertEquals(Tram, first.getMode());
-            TransportStage<?,?> second = journey.getStages().get(1);
-            assertEquals(TransportMode.Connect, second.getMode());
-        });
-    }
-
-    private void validateDirectWalk(Station start, Station end) {
-
-        JourneyRequest request =
-                new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
-                        false, 0, config.getMaxJourneyDuration());
-
-        Set<Journey> journeys =  routeCalculator.calculateRouteAsSet(start, end, request);
-
-        assertFalse(journeys.isEmpty());
-        journeys.forEach(journey -> {
-            assertEquals(1, journey.getStages().size(), journey.toString());
-            TransportStage<?,?> stage = journey.getStages().get(0);
-            assertEquals(TransportMode.Connect, stage.getMode());
-        });
-    }
-
     private boolean seenNode(Transaction txn, Station station, Set<Relationship> relationships, SelectNode selectNode) {
         Node nodeToFind = graphQuery.getStationOrGrouped(txn, station);
         assertNotNull(nodeToFind, "no node found for " + station);
+
         boolean seenNode = false;
         for (Relationship relationship : relationships) {
             if (selectNode.getNode(relationship).getId()==nodeToFind.getId()) {

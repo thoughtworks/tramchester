@@ -12,12 +12,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.domain.transportStages.VehicleStage;
-import com.tramchester.domain.transportStages.WalkingFromStationStage;
-import com.tramchester.domain.transportStages.WalkingStage;
-import com.tramchester.domain.transportStages.WalkingToStationStage;
+import com.tramchester.domain.transportStages.*;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.*;
+import org.checkerframework.checker.units.qual.C;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -30,8 +28,8 @@ import java.util.Optional;
 
 import static com.tramchester.graph.GraphPropertyKey.STATION_ID;
 
-class MapStatesToPath implements JourneyStateUpdate {
-    private static final Logger logger = LoggerFactory.getLogger(MapStatesToPath.class);
+class MapStatesToStages implements JourneyStateUpdate {
+    private static final Logger logger = LoggerFactory.getLogger(MapStatesToStages.class);
 
     private final CompositeStationRepository stationRepository;
     private final PlatformRepository platformRepository;
@@ -58,8 +56,8 @@ class MapStatesToPath implements JourneyStateUpdate {
     private VehicleStagePending vehicleStagePending;
 
 
-    public MapStatesToPath(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
-                           TripRepository tripRepository, TramTime queryTime, ObjectMapper mapper) {
+    public MapStatesToStages(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
+                             TripRepository tripRepository, TramTime queryTime, ObjectMapper mapper) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.tripRepository = tripRepository;
@@ -87,8 +85,8 @@ class MapStatesToPath implements JourneyStateUpdate {
     }
 
     @Override
-    public void recordTime(TramTime time, int totalCost) throws TramchesterException {
-        logger.info("Record actual time " + time + " total cost:" + totalCost);
+    public void recordTime(TramTime time, int totalCost) {
+        logger.debug("Record actual time " + time + " total cost:" + totalCost);
         this.actualTime = time;
         costOffsetAtActual = totalCost;
         if (onVehicle && boardingTime == null) {
@@ -104,7 +102,7 @@ class MapStatesToPath implements JourneyStateUpdate {
     }
 
     @Override
-    public void leave(TransportMode mode, int totalCost, Node routeStationNode) throws TramchesterException {
+    public void leave(TransportMode mode, int totalCost, Node routeStationNode) {
         if (!onVehicle) {
             throw new RuntimeException("Not on vehicle");
         }
@@ -190,6 +188,17 @@ class MapStatesToPath implements JourneyStateUpdate {
         }
 
         reset();
+    }
+
+    @Override
+    public void toNeighbour(Node startNode, Node endNode, int cost) {
+        IdFor<Station> startId = GraphProps.getStationId(startNode);
+        IdFor<Station> endId = GraphProps.getStationId(endNode);
+        Station start = stationRepository.getStationById(startId);
+        Station end = stationRepository.getStationById(endId);
+        ConnectingStage connectingStage = new ConnectingStage(start, end, cost, getActualClock());
+        logger.info("Added stage " + connectingStage);
+        stages.add(connectingStage);
     }
 
     public List<TransportStage<?, ?>> getStages() {

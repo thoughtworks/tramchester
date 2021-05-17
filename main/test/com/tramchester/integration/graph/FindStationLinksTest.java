@@ -43,7 +43,7 @@ class FindStationLinksTest {
 
     @Test
     void shouldFindExpectedLinksBetweenStations() {
-        Set<StationLink> results = findStationLinks.findFor(Tram);
+        Set<StationLink> results = findStationLinks.findLinkedFor(Tram);
         assertEquals(202, results.size());
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
@@ -64,7 +64,7 @@ class FindStationLinksTest {
 
     @Test
     void shouldHaveCorrectTransportMode() {
-        Set<StationLink> forTrams = findStationLinks.findFor(Tram);
+        Set<StationLink> forTrams = findStationLinks.findLinkedFor(Tram);
         long notTram = forTrams.stream().filter(link -> !link.getModes().contains(Tram)).count();
         assertEquals(0, notTram);
     }

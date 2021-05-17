@@ -2,15 +2,16 @@ package com.tramchester.resources;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.*;
+import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.filters.GraphFilter;
@@ -42,7 +43,7 @@ import static java.lang.String.format;
 public class LocationJourneyPlanner {
     private static final Logger logger = LoggerFactory.getLogger(LocationJourneyPlanner.class);
 
-    private final StationLocations stationLocations;
+    private final StationLocationsRepository stationLocations;
     private final GraphFilter graphFilter;
     private final TramchesterConfig config;
     private final RouteCalculator routeCalculator;
@@ -219,7 +220,7 @@ public class LocationJourneyPlanner {
     public List<StationWalk> getStationWalks(LatLong latLong) {
         int maxResults = config.getNumOfNearestStopsForWalking();
         double rangeInKM = config.getNearestStopForWalkingRangeKM();
-        List<Station> nearbyStationsWithComposites = stationLocations.getNearestStationsTo(latLong, maxResults, rangeInKM);
+        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(latLong, maxResults, rangeInKM);
 
         List<Station> filtered = CompositeStation.expandStations(nearbyStationsWithComposites).stream()
                 .filter(station -> !station.isComposite())

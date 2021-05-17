@@ -2,7 +2,6 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.HasGraphDBConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -134,7 +133,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link stations & platfoms")) {
             Transaction txn = timedTransaction.transaction();
-            transportData.getStations().stream().
+            transportData.getStationStream().
                     filter(Station::hasPlatforms).
                     filter(graphFilter::shouldInclude).
                     filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).

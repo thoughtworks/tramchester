@@ -15,4 +15,5 @@ public interface JourneyStateUpdate {
     void beginTrip(IdFor<Trip> newTripId);
     void beginWalk(Node beforeWalkNode, boolean atStart, int cost);
     void endWalk(Node stationNode, boolean atDestination);
+    void toNeighbour(Node startNode, Node endNode, int cost);
 }

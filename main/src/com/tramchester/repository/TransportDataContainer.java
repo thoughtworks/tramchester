@@ -107,6 +107,11 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
+    public Stream<Station> getStationStream() {
+        return stationsById.getValuesStream();
+    }
+
+    @Override
     public Set<Station> getStationsForMode(TransportMode mode) {
         return getStationsForModeStream(mode).collect(Collectors.toUnmodifiableSet());
     }

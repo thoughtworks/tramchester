@@ -9,7 +9,6 @@ import com.tramchester.domain.input.TramInterchanges;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.CreateNeighbours;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ public class InterchangeRepository  {
 
     private final FindStationsByNumberLinks findStationsByNumberConnections;
     private final StationRepository stationRepository;
-    private final CreateNeighbours createNeighbours;
+    private final NeighboursRepository neighboursRepository;
     private final CompositeStationRepository compositeStationRepository;
     private final TramchesterConfig config;
 
@@ -39,11 +38,11 @@ public class InterchangeRepository  {
 
     @Inject
     public InterchangeRepository(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
-                                 CreateNeighbours createNeighbours, CompositeStationRepository compositeStationRepository,
+                                 NeighboursRepository neighboursRepository, CompositeStationRepository compositeStationRepository,
                                  TramchesterConfig config) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
-        this.createNeighbours = createNeighbours;
+        this.neighboursRepository = neighboursRepository;
         this.compositeStationRepository = compositeStationRepository;
         this.config = config;
         interchanges = new ModeIdsMap<>();
@@ -102,7 +101,7 @@ public class InterchangeRepository  {
 
     private void addMultiModeStations() {
         // NOTE: by default the train data set contains mixed mode due to replacement buses, bus links, subways etc
-        Set<Station> multimodeStations = stationRepository.getStations().stream().
+        Set<Station> multimodeStations = stationRepository.getStationStream().
                 filter(station -> station.getTransportModes().size() > 1).
                 collect(Collectors.toSet());
         logger.info("Adding " + multimodeStations.size() + " multimode stations");
@@ -111,7 +110,7 @@ public class InterchangeRepository  {
 
     private void addStationsWithNeighbours(TransportMode mode) {
         if (config.getCreateNeighbours()) {
-            createNeighbours.getStationsWithNeighbours(mode).forEach(stationId -> {
+            neighboursRepository.getStationsWithNeighbours(mode).forEach(stationId -> {
                 interchanges.add(mode, stationId);
             });
         }

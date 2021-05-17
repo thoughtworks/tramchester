@@ -14,30 +14,26 @@ import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class StationLocationsTest extends EasyMockSupport {
 
     private StationLocations stationLocations;
-    private CompositeStationRepository stationRepository;
+    private StationRepository stationRepository;
+    private CompositeStationRepository compositeStationRepository;
     private TramchesterConfig config;
 
     @BeforeEach
     void onceBeforeEachTest() {
-        stationRepository = createMock(CompositeStationRepository.class);
+        stationRepository = createMock(StationRepository.class);
+        compositeStationRepository = createMock(CompositeStationRepository.class);
         config = createMock(TramchesterConfig.class);
-        stationLocations = new StationLocations(stationRepository, config);
-    }
-
-    private void setStationExceptations(Station... stations) {
-        Set<Station> toReturn = new HashSet<>(Arrays.asList(stations));
-        EasyMock.expect(config.getTransportModes()).andReturn(Collections.singleton(TransportMode.Tram));
-        EasyMock.expect(stationRepository.getStationsForMode(TransportMode.Tram)).andReturn(toReturn);
+        stationLocations = new StationLocations(stationRepository, compositeStationRepository);
     }
 
     @Test
@@ -59,35 +55,16 @@ class StationLocationsTest extends EasyMockSupport {
         assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA, 5));
     }
 
-    @Test
-    void shouldGetLatLongForStation() throws TransformException {
-        Station stationA = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
-        Station stationB = createTestStation("id789", "nameC", TestEnv.nearShudehill);
-        setStationExceptations(stationA, stationB);
-
-        LatLong resultA = stationA.getLatLong();
-        LatLong resultB = stationB.getLatLong();
-
-        replayAll();
-        stationLocations.start();
-        verifyAll();
-
-        assertEquals(TestEnv.nearPiccGardens.getLat(), resultA.getLat(), 0.00001);
-        assertEquals(TestEnv.nearPiccGardens.getLon(), resultA.getLon(), 0.00001);
-
-        assertEquals(TestEnv.nearShudehill.getLat(), resultB.getLat(), 0.00001);
-        assertEquals(TestEnv.nearShudehill.getLon(), resultB.getLon(), 0.00001);
-
-    }
-
     @NotNull
-    private Station createTestStation(String id, String name, LatLong location) throws TransformException {
+    private Station createTestStation(String id, String name, LatLong location) {
         return TestStation.forTest(id, "area", name, location, TransportMode.Tram);
     }
 
     @Test
-    void shouldFindNearbyStation() throws TransformException {
+    void shouldFindNearbyStation() {
+        int rangeInKM = 1;
         LatLong place = TestEnv.nearAltrincham;
+
         Station stationA = createTestStation("id123", "nameA", place);
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
@@ -97,13 +74,15 @@ class StationLocationsTest extends EasyMockSupport {
         GridPosition gridA = stationA.getGridPosition();
         GridPosition gridB = stationD.getGridPosition();
 
-        setStationExceptations(stationA, stationB, stationC, stationD);
+        //setStationExceptations(stationA, stationB, stationC, stationD);
+        EasyMock.expect(stationRepository.getStationStream()).andReturn(Stream.empty());
+        EasyMock.expect(compositeStationRepository.getStationStream()).andReturn(
+                Stream.of(stationA, stationB, stationC, stationD));
 
         replayAll();
         stationLocations.start();
+        List<Station> results = stationLocations.nearestStationsSorted(place, 3, rangeInKM);
         verifyAll();
-
-        int rangeInKM = 1;
 
         // validate within range on crude measure, but out of range on calculated position
         assertTrue(GridPositions.withinDistNorthing(gridA, gridB, 1000));
@@ -111,19 +90,18 @@ class StationLocationsTest extends EasyMockSupport {
         long distance = GridPositions.distanceTo(gridA, gridB);
         assertTrue(distance > Math.round(rangeInKM*1000) );
 
-        List<Station> results = stationLocations.nearestStationsSorted(place, 3, rangeInKM);
-
         assertEquals(1, results.size());
         assertEquals(stationA, results.get(0));
     }
 
     @Test
-    void shouldOrderClosestFirst() throws TransformException {
+    void shouldOrderClosestFirst() {
         Station stationA = createTestStation("id123", "nameA", TestEnv.nearAltrincham);
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
-        setStationExceptations(stationA, stationB, stationC);
+        EasyMock.expect(stationRepository.getStationStream()).andReturn(Stream.empty());
+        EasyMock.expect(compositeStationRepository.getStationStream()).andReturn(Stream.of(stationA, stationB, stationC));
 
         replayAll();
         stationLocations.start();
@@ -138,12 +116,13 @@ class StationLocationsTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldRespectLimitOnNumberResults() throws TransformException {
+    void shouldRespectLimitOnNumberResults() {
         Station stationA = createTestStation("id123", "nameA", TestEnv.nearAltrincham);
         Station stationB = createTestStation("id456", "nameB", TestEnv.nearPiccGardens);
         Station stationC = createTestStation("id789", "nameC", TestEnv.nearShudehill);
 
-        setStationExceptations(stationA, stationB, stationC);
+        EasyMock.expect(stationRepository.getStationStream()).andReturn(Stream.empty());
+        EasyMock.expect(compositeStationRepository.getStationStream()).andReturn(Stream.of(stationA, stationB, stationC));
 
         replayAll();
         stationLocations.start();
@@ -155,29 +134,29 @@ class StationLocationsTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldFindNearbyStationRespectingRange() throws TransformException {
+    void shouldFindNearbyStationRespectingRange() {
         Station testStation = createTestStation("id123", "name", TestEnv.nearAltrincham);
-        setStationExceptations(testStation);
+
+        EasyMock.expect(compositeStationRepository.getStationStream()).andReturn(Stream.of(testStation));
+        EasyMock.expect(compositeStationRepository.getStationStream()).andReturn(Stream.of(testStation));
 
         replayAll();
-        stationLocations.start();
         List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 1);
+        List<Station> further = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 20);
         verifyAll();
 
         assertEquals(0, results.size());
-
-        List<Station> further = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 20);
         assertEquals(1, further.size());
         assertEquals(testStation, further.get(0));
     }
 
     @Test
-    void shouldCaptureBoundingAreaForStations() throws TransformException {
+    void shouldCaptureBoundingAreaForStations() {
         Station testStationA = createTestStation("id123", "name", TestEnv.nearAltrincham);
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
-        setStationExceptations(testStationA, testStationB, testStationC);
+        EasyMock.expect(stationRepository.getStationStream()).andReturn(Stream.of(testStationA, testStationB, testStationC));
 
         GridPosition posA = testStationA.getGridPosition();
         GridPosition posB = testStationB.getGridPosition();
@@ -196,17 +175,19 @@ class StationLocationsTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldHaveExpectedBoundingBoxes() throws TransformException {
+    void shouldHaveExpectedBoundingBoxes() {
         long gridSize = 50;
 
         Station testStationA = createTestStation("id123", "name", TestEnv.nearPiccGardens);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearShudehill);
 
-        setStationExceptations(testStationA, testStationC);
+        EasyMock.expect(stationRepository.getStationStream()).andStubAnswer(() -> Stream.of(testStationA, testStationC));
 
         replayAll();
         stationLocations.start();
         BoundingBox area = stationLocations.getBounds();
+        Set<BoundingBox> found = stationLocations.getBoundingBoxsFor(gridSize).collect(Collectors.toSet());
+        verifyAll();
 
         Set<BoundingBox> expected = new HashSet<>();
         for (long x = area.getMinEastings(); x <= area.getMaxEasting(); x = x + gridSize) {
@@ -217,8 +198,6 @@ class StationLocationsTest extends EasyMockSupport {
         }
         assertEquals(12, expected.size());
 
-        Set<BoundingBox> found = stationLocations.getBoundingBoxsFor(gridSize).collect(Collectors.toSet());
-
         assertEquals(expected.size(), found.size());
         Set<BoundingBox> notFound = new HashSet<>(expected);
         notFound.removeAll(found);
@@ -226,18 +205,17 @@ class StationLocationsTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldGridUpStations() throws TransformException {
+    void shouldGridUpStations() {
 
         Station testStationA = createTestStation("id123", "name", TestEnv.nearAltrincham);
         Station testStationB = createTestStation("id456", "name", TestEnv.nearShudehill);
         Station testStationC = createTestStation("id789", "nameB", TestEnv.nearPiccGardens);
 
-        setStationExceptations(testStationA, testStationB, testStationC);
+        EasyMock.expect(stationRepository.getStationStream()).andStubAnswer(() -> Stream.of(testStationA, testStationB, testStationC));
 
         replayAll();
         stationLocations.start();
         List<BoundingBoxWithStations> boxedStations = stationLocations.getGroupedStations(1000).collect(Collectors.toList());
-        verifyAll();
 
         assertEquals(2, boxedStations.size());
 
@@ -251,7 +229,6 @@ class StationLocationsTest extends EasyMockSupport {
         assertTrue(centralBox.contained(CoordinateTransforms.getGridPosition(TestEnv.nearShudehill)));
         assertTrue(centralBox.contained(CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens)));
 
-
         // other box should contain the one non-central
         Optional<BoundingBoxWithStations> maybeAlty = boxedStations.stream().filter(box -> box.getStaions().size() == 1).findFirst();
         assertTrue(maybeAlty.isPresent());
@@ -260,5 +237,9 @@ class StationLocationsTest extends EasyMockSupport {
         assertEquals(1, alty.size());
         assertTrue(alty.contains(testStationA));
         assertTrue(altyBox.contained(CoordinateTransforms.getGridPosition(TestEnv.nearAltrincham)));
+
+        verifyAll();
+
     }
+
 }

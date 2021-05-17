@@ -4,10 +4,12 @@ import com.google.common.collect.Sets;
 import com.tramchester.domain.GraphProperty;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.function.*;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
@@ -72,6 +74,10 @@ public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
     private IdMap<T> addAll(IdMap<T> others) {
         theMap.putAll(others.theMap);
         return this;
+    }
+
+    public Stream<T> getValuesStream() {
+        return theMap.values().stream();
     }
 
     public interface Creates<T> {

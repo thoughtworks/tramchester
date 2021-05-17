@@ -6,20 +6,15 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FindStationLinksTestBus {
@@ -52,7 +47,7 @@ class FindStationLinksTestBus {
 
     @Test
     void shouldHaveCorrectTransportMode() {
-        Set<StationLink> forBus = findStationLinks.findFor(Bus);
+        Set<StationLink> forBus = findStationLinks.findLinkedFor(Bus);
         long notBus = forBus.stream().filter(link -> !link.getModes().contains(Bus)).count();
         assertEquals(0, notBus);
 

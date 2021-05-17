@@ -47,22 +47,22 @@ class BusStationsLocationsTest {
 
     @Test
     void shouldGetAllStationsCloseToPiccGardens() {
-        List<Station> result = stationLocations.getNearestStationsTo(TestPostcodes.NearPiccadillyGardens.getLatLong(),
+        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens.getLatLong(),
                 500, nearestStopRangeKM);
-        assertEquals(50, result.size());
+        assertEquals(24, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralBury() {
-        List<Station> result = stationLocations.getNearestStationsTo(TestPostcodes.CentralBury.getLatLong(),
+        List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury.getLatLong(),
                 500, nearestStopRangeKM);
-        assertEquals(19, result.size());
+        assertEquals(11, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
-        List<Station> result = stationLocations.getNearestStationsTo(TramStations.Altrincham.getLatLong(),
+        List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.getLatLong(),
                 500, nearestStopRangeKM);
-        assertEquals(9, result.size());
+        assertEquals(10, result.size());
     }
 }

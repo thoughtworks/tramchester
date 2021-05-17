@@ -16,6 +16,8 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ReachabilityRepository;
@@ -27,6 +29,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
@@ -101,7 +104,7 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(result.isEmpty());
         TransportStage<?, ?> firstStage = result.get(0);
 
-        validateAltyToTraffordBar(firstStage, startStation, destination, TramTime.of(9, 31),
+        validateAltyToTraffordBar(firstStage, startStation, destination, TramTime.of(9, 21),
                 17, NavigationRoad.getId(), 7);
     }
 
@@ -156,19 +159,18 @@ public class MapPathToStagesViaStatesTest {
         int numChanges = 1;
         final LatLong start = TestEnv.nearAltrincham;
         Station destination = stationRepository.getStationById(TraffordBar.getId());
-        Station endOfWalk = stationRepository.getStationById(NavigationRoad.getId());
-        IdFor<Station> timperley = StringIdFor.createId("9400ZZMATIM");
+        Station endOfWalk = stationRepository.getStationById(Altrincham.getId());
 
         List<TransportStage<?, ?>> result = getStagesFor(queryTime, numChanges, start, destination);
         assertEquals(2, result.size());
 
         TransportStage<?, ?> walkingStage = result.get(0);
-        validateWalkTo(walkingStage, start, endOfWalk, 14);
+        validateWalkTo(walkingStage, start, endOfWalk, 4);
 
         TransportStage<?, ?> tramStage = result.get(1);
-        final TramTime tramDepart = TramTime.of(10, 4);
+        final TramTime tramDepart = TramTime.of(9, 31);
         validateAltyToTraffordBar(tramStage, endOfWalk, destination, tramDepart,
-                14, timperley, 6);
+                17, NavigationRoad.getId(), 7);
     }
 
     @Test
@@ -295,7 +297,22 @@ public class MapPathToStagesViaStatesTest {
         RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryTime, numChanges,
                 serviceHeuristics);
 
-        return routeCalculator.findShortestPath(txn, destinationNodeIds, endStations,
-                reasons, pathRequest, previous).collect(Collectors.toList());
+        final List<RouteCalculator.TimedPath> timedPaths = routeCalculator.findShortestPath(txn, destinationNodeIds, endStations, reasons, pathRequest,
+                previous).collect(Collectors.toList());
+        // Sort to give consistent test results, otherwise order is undefined
+        return sorted(timedPaths);
+    }
+
+    private List<RouteCalculator.TimedPath> sorted(List<RouteCalculator.TimedPath> timedPaths) {
+        return timedPaths.stream().sorted(Comparator.comparing(a -> getFirstTime(a.getPath()))).collect(Collectors.toList());
+    }
+
+    private TramTime getFirstTime(Path path) {
+        for (Node node : path.nodes()) {
+            if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
+                return GraphProps.getTime(node);
+            }
+        }
+        return TramTime.of(23,59);
     }
 }

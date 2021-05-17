@@ -85,7 +85,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPosition, endStations,
                 destinationNodeIds, destinationLatLon);
 
-        MapStatesToPath mapStatesToPath = new MapStatesToPath(stationRepository, platformRepository, tripRepository, queryTime, mapper);
+        MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime, mapper);
 
         TraversalState previous = new NotStartedState(traversalOps, stateFactory);
 
@@ -94,25 +94,29 @@ public class MapPathToStagesViaStates implements PathToStages {
             if (entity instanceof Relationship) {
                 Relationship relationship = (Relationship) entity;
                 lastRelationshipCost = nodeContentsRepository.getCost(relationship);
+
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
+
                 if (lastRelationshipCost > 0) {
                     int total = previous.getTotalCost() + lastRelationshipCost;
-                    mapStatesToPath.updateTotalCost(total);
+                    mapStatesToStages.updateTotalCost(total);
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM.getText())) {
-                    mapStatesToPath.passStop(relationship);
+                    mapStatesToStages.passStop(relationship);
                 }
             } else {
                 Node node = (Node) entity;
                 Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.from(node.getLabels());
-                TraversalState next = previous.nextState(labels, node, mapStatesToPath, lastRelationshipCost);
+                TraversalState next = previous.nextState(labels, node, mapStatesToStages, lastRelationshipCost);
+
                 logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
+
                 previous = next;
             }
         }
-        previous.toDestination(previous, path.endNode(), 0, mapStatesToPath);
+        previous.toDestination(previous, path.endNode(), 0, mapStatesToStages);
 
-        return mapStatesToPath.getStages();
+        return mapStatesToStages.getStages();
     }
 
 

@@ -90,10 +90,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.journeyOffset = currentCost;
     }
 
-    @Override
-    public void beginTrip(IdFor<Trip> newTripId) {
-        // noop
-    }
+
 
     @Override
     public void beginWalk(Node beforeWalkNode, boolean atStart, int cost) {
@@ -101,8 +98,18 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public void beginTrip(IdFor<Trip> newTripId) {
+        // noop
+    }
+
+    @Override
     public void endWalk(Node stationNode, boolean atDestination) {
         // noop
+    }
+
+    @Override
+    public void toNeighbour(Node startNode, Node endNode, int cost) {
+        numberOfWalkingConnections = numberOfWalkingConnections + 1;
     }
 
     private boolean onBoard() {

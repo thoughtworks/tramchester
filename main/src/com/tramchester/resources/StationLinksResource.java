@@ -4,11 +4,9 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
-import com.tramchester.domain.StationPair;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.StationRefDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.graph.search.FindStationLinks;
+import com.tramchester.repository.NeighboursRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,8 +26,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
-
 @Api
 @Path("/links")
 @Produces(MediaType.APPLICATION_JSON)
@@ -37,18 +33,20 @@ public class StationLinksResource {
     private static final Logger logger = LoggerFactory.getLogger(StationLinksResource.class);
 
     private final FindStationLinks findStationLinks;
+    private final NeighboursRepository neighboursRepository;
     private final TramchesterConfig config;
 
     @Inject
-    public StationLinksResource(FindStationLinks findStationLinks, TramchesterConfig config) {
+    public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository, TramchesterConfig config) {
         this.findStationLinks = findStationLinks;
+        this.neighboursRepository = neighboursRepository;
         this.config = config;
     }
 
     @GET
     @Timed
     @Path("/all")
-    @ApiOperation(value = "Get all pairs of station links for given transport mode", response = StationRefDTO.class,
+    @ApiOperation(value = "Get all pairs of station links for given transport mode", response = StationLinkDTO.class,
             responseContainer = "List")
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
@@ -57,7 +55,7 @@ public class StationLinksResource {
         ArrayList<StationLink> allLinks = new ArrayList<>();
 
         config.getTransportModes().forEach(transportMode -> {
-            Set<StationLink> links = findStationLinks.findFor(transportMode);
+            Set<StationLink> links = findStationLinks.findLinkedFor(transportMode);
             allLinks.addAll(links);
         });
 
@@ -66,6 +64,29 @@ public class StationLinksResource {
                 map(StationLinkDTO::create).collect(Collectors.toList());
 
         return Response.ok(results).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/neighbours")
+    @ApiOperation(value = "Get all pairs of neighbours", response = StationLinkDTO.class, responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public Response getNeighbours() {
+        logger.info("Get station neighbours");
+
+        if (!config.getCreateNeighbours()) {
+            logger.warn("Neighbours disabled");
+            return Response.ok(Collections.<StationLinkDTO>emptyList()).build();
+        }
+
+        List<StationLink> allLinks = neighboursRepository.getAll();
+
+        List<StationLinkDTO> results = allLinks.stream().
+                filter(StationLink::hasValidLatlongs).
+                map(StationLinkDTO::create).collect(Collectors.toList());
+
+        return Response.ok(results).build();
+
     }
 
 }
