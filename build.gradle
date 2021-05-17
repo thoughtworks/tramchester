@@ -50,7 +50,7 @@ dependencies {
     implementation('software.amazon.awssdk:cloudformation:2.16.56')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.97.0',
-            'software.amazon.awscdk:s3:1.97.0',
+            'software.amazon.awscdk:s3:1.104.0',
             'software.amazon.awscdk:ec2:1.97.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.97.0',
             'software.amazon.awscdk:autoscaling:1.97.0',
