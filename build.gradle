@@ -39,9 +39,9 @@ dependencies {
             'commons-io:commons-io:2.8.0',
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
-            'com.github.ben-manes.caffeine:caffeine:2.8.1'
+            'com.github.ben-manes.caffeine:caffeine:3.0.2'
     implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.2')
-    implementation('com.fasterxml.jackson.module:jackson-module-afterburner:2.12.2')
+    implementation('com.fasterxml.jackson.module:jackson-module-afterburner:2.12.3')
     implementation('com.smoketurner:dropwizard-swagger:2.0.12-1')
 
     // aws sdk
