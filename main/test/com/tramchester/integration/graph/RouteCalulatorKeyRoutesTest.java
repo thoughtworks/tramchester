@@ -104,7 +104,7 @@ class RouteCalulatorKeyRoutesTest {
         final Optional<Integer> max = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Integer::compare);
         assertTrue(max.isPresent());
         double longest = max.get();
-        assertTrue(testConfig.getMaxJourneyDuration() > longest);
+        assertTrue(testConfig.getMaxJourneyDuration() >= longest, "longest was " + longest);
 
     }
 

@@ -105,11 +105,10 @@ public class RouteCalculatorTest {
         results.forEach(journey -> {
             List<Location<?>> pathCallingPoints = journey.getPath();
 
-            // TODO this is double counting start and end, should be 11
-            assertEquals(13, pathCallingPoints.size());
+            assertEquals(11, pathCallingPoints.size());
             assertEquals(Altrincham.getId(), pathCallingPoints.get(0).getId());
             assertEquals(LocationType.Station, pathCallingPoints.get(0).getLocationType());
-            assertEquals(TramStations.Deansgate.getId(), pathCallingPoints.get(12).getId());
+            assertEquals(TramStations.Deansgate.getId(), pathCallingPoints.get(10).getId());
 
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size());
@@ -266,7 +265,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, TramStations.StPetersSquare, TramStations.MediaCityUK);
         assertGetAndCheckJourneys(journeyRequest, TramStations.ExchangeSquare, TramStations.MediaCityUK);
     }
-
 
     public static int costOfJourney(Journey journey) {
         List<TransportStage<?,?>> stages = journey.getStages();

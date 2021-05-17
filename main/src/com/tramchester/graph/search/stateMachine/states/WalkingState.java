@@ -54,12 +54,6 @@ public class WalkingState extends TraversalState {
         return "WalkingState{} " + super.toString();
     }
 
-//    @Override
-//    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node node, int cost, JourneyStateUpdate journeyState) {
-//        journeyState.endWalk(node, false);
-//        return towardsGroup.fromWalk(this, node, cost);
-//    }
-
     @Override
     protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
         journeyState.endWalk(node, false);

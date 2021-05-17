@@ -112,7 +112,9 @@ class PostcodeTramJourneyPlannerTest {
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHavePostcodeToPostcodeJourney(JourneyRequest request) {
+
         PostcodeLocation buryPostcode = repository.getPostcode(TestPostcodes.CentralBury.getId());
+
         Set<Journey> journeySet = planner.quickestRouteForLocation(centralLocation.getLatLong(),
                 buryPostcode.getLatLong(), request, maxStages);
 

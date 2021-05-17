@@ -99,7 +99,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     public String toString() {
         return "WalkingStage{" +
                 "start=" + start +
-                ", destination=" + destination +
+                ", destination=" + destination.getId() +
                 ", duration=" + duration +
                 ", beginTime=" + beginTime +
                 '}';

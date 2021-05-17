@@ -162,7 +162,9 @@ class TramRouteTest {
             assertEquals(midway, walk.getLastStation());
             assertEquals(walk.getMode(), TransportMode.Walk);
             assertEquals(walkCost, walk.getDuration());
-            assertEquals(queryTime.plusMinutes(4), walk.getExpectedArrivalTime());
+            final int boardingCost =  2;
+            assertEquals(tramBoard.minusMinutes(boardingCost + walkCost), walk.getFirstDepartureTime());
+            assertEquals(tramBoard.minusMinutes(boardingCost), walk.getExpectedArrivalTime());
 
             assertEquals(midway, tram.getFirstStation());
             assertEquals(destination, tram.getLastStation());
@@ -171,6 +173,87 @@ class TramRouteTest {
             assertEquals(tramBoard.plusMinutes(tramDur), tram.getExpectedArrivalTime());
         });
     }
+
+    @Test
+    void shouldHaveWalkDirectFromStart() {
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        final LatLong start = TestEnv.nearWythenshaweHosp;
+        final Station destination = transportData.getSecond();
+
+        int walkCost = calcCostInMinutes(start, destination, config.getWalkingMPH());
+        assertEquals(4, walkCost);
+
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
+                journeyRequest, 2);
+
+        assertEquals(1, journeys.size());
+        journeys.forEach(journey -> {
+            assertEquals(1, journey.getStages().size());
+            TransportStage<?, ?> walk = journey.getStages().get(0);
+            assertEquals(TransportMode.Walk, walk.getMode());
+            assertEquals(destination, walk.getLastStation());
+            assertEquals(queryTime, walk.getFirstDepartureTime());
+            assertEquals(walkCost, walk.getDuration());
+        });
+    }
+
+    @Test
+    void shouldHaveWalkDirectAtEnd() {
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
+        final Station start = transportData.getSecond();
+        final LatLong destination = TestEnv.nearWythenshaweHosp;
+
+        int walkCost = calcCostInMinutes(destination, start, config.getWalkingMPH());
+        assertEquals(4, walkCost);
+
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination,
+                journeyRequest, 2);
+
+        assertEquals(1, journeys.size());
+        journeys.forEach(journey -> {
+            assertEquals(1, journey.getStages().size());
+            TransportStage<?, ?> walk = journey.getStages().get(0);
+            assertEquals(TransportMode.Walk, walk.getMode());
+            assertEquals(start, walk.getFirstStation());
+            assertEquals(queryTime, walk.getFirstDepartureTime());
+            assertEquals(walkCost, walk.getDuration());
+        });
+    }
+
+    @Test
+    void shouldHaveWalkAtStartAndEnd() {
+        final JourneyRequest journeyRequest = createJourneyRequest(queryTime, 3);
+
+        journeyRequest.setDiag(true);
+
+        final LatLong start = TestEnv.nearWythenshaweHosp;
+        final LatLong destination = TestEnv.atMancArena;
+
+        int walk1Cost = calcCostInMinutes(start, transportData.getSecond(), config.getWalkingMPH());
+        int walk2Cost = calcCostInMinutes(destination, transportData.getInterchange(), config.getWalkingMPH());
+
+        Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start,
+                destination,
+                journeyRequest, 3);
+        assertEquals(1, journeys.size());
+        journeys.forEach(journey -> {
+            assertEquals(3, journey.getStages().size());
+            TransportStage<?, ?> walk1 = journey.getStages().get(0);
+            TransportStage<?, ?> tram = journey.getStages().get(1);
+            TransportStage<?, ?> walk2 = journey.getStages().get(2);
+
+            assertEquals(TransportMode.Walk, walk1.getMode());
+            assertEquals(TransportMode.Walk, walk2.getMode());
+            assertEquals(TransportMode.Tram, tram.getMode());
+
+            assertEquals(walk1Cost, walk1.getDuration());
+            assertEquals(walk2Cost, walk2.getDuration());
+
+            // WIP more assertions
+
+            });
+
+        }
 
     @Test
     void shouldHaveJourneyWithLocationBasedEnd() {

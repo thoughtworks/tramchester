@@ -166,7 +166,8 @@ public class MapPathToStagesViaStatesTest {
         validateWalkTo(walkingStage, start, endOfWalk, 14);
 
         TransportStage<?, ?> tramStage = result.get(1);
-        validateAltyToTraffordBar(tramStage, endOfWalk, destination, TramTime.of(10, 4),
+        final TramTime tramDepart = TramTime.of(10, 4);
+        validateAltyToTraffordBar(tramStage, endOfWalk, destination, tramDepart,
                 14, timperley, 6);
     }
 

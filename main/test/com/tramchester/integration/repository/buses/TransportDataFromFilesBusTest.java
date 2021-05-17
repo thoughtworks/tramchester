@@ -66,7 +66,7 @@ class TransportDataFromFilesBusTest {
         assertEquals(40, transportData.getAgencies().size());
 
         int numberRoutes = transportData.getRoutes().size();
-        assertTrue(withinNPercent(1500, numberRoutes, 0.1F), Integer.toString(numberRoutes));
+        assertTrue(withinNPercent(1271, numberRoutes, 0.1F), Integer.toString(numberRoutes));
 
         int numStations = transportData.getStations().size();
         assertTrue(numStations > 15400, "big change");
@@ -80,7 +80,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertTrue(withinNPercent(480, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
+        assertTrue(withinNPercent(294, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
     }
 
     @Test
