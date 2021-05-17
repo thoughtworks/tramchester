@@ -110,8 +110,10 @@ task cleanGraph() {
                 'databases/integrationTramTest',
                 'databases/integrationTrainTest',
                 'databases/integrationNeighboursTest',
+                'databases/neighboursTest',
                 'databases/tramchesterAcceptance.db',
-                'tramchester.db', 'buses.db', 'trains.db'
+                'databases/all.db',
+                'tramchester.db', 'buses.db', 'trains.db', 'all.db'
     }
 }
 
