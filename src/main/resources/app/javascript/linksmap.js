@@ -5,6 +5,7 @@ var Vue = require('vue');
 Vue.use(require('bootstrap-vue'));
 
 var L = require('leaflet');
+import 'leaflet-arrowheads'
 
 require('file-loader?name=[name].[ext]!../links.html');
 
@@ -62,6 +63,7 @@ var mapApp = new Vue({
             map: null,
             networkError: false,
             links: [],
+            neighbours: [],
             feedinfo: [],
         }
     },
@@ -80,23 +82,23 @@ var mapApp = new Vue({
             stationLayerGroup.addTo(map);
         },
 
-        addLinks: function(map, links) {
-            var routeLayerGroup = L.layerGroup();
+        addLinks: function(map, links, colourForLinks) {
+            var linkLayerGroup = L.layerGroup();
         
             links.forEach(link => {
                 var steps = [];
                 steps.push([link.begin.latLong.lat, link.begin.latLong.lon]);
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
 
-                var line = L.polyline(steps); 
-                line.bindTooltip("Modes: " + link.transportModes); // + "<br>" + "'" + route.id + "' (" + route.transportMode+")");
-                // line.setStyle({className: this.classForRoute(route), weight: 6});
+                var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' }); 
+                line.bindTooltip("Modes: " + link.transportModes); 
+                line.setStyle({color: colourForLinks});
 
-                routeLayerGroup.addLayer(line);
+                linkLayerGroup.addLayer(line);
             })
         
             // faster to add this way for larger numbers of lines/points
-            routeLayerGroup.addTo(map);
+            linkLayerGroup.addTo(map);
         }, 
         findAndSetMapBounds: function(map, links) {
             let minLat = 1000;
@@ -120,7 +122,8 @@ var mapApp = new Vue({
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
 
-            mapApp.addLinks(mapApp.map, mapApp.links);
+            mapApp.addLinks(mapApp.map, mapApp.links, "red");
+            mapApp.addLinks(mapApp.map, mapApp.neighbours, "green");
             mapApp.addStations(mapApp.map, mapApp.links);
         }
     },
@@ -136,15 +139,19 @@ var mapApp = new Vue({
                 console.log(error);
             });
 
-        axios.get("/api/links/all")
-            .then(function (response) {
+        axios.all([
+            axios.get("/api/links/all"),
+            axios.get("/api/links/neighbours")
+        ]).then(axios.spread((linksResp, neighboursResp) => {
                 mapApp.networkError = false;
-                mapApp.links = response.data;
+                mapApp.links = linksResp.data;
+                mapApp.neighbours = neighboursResp.data;
                 mapApp.draw();
-            }).catch(function (error){
+            })).catch(error => {
                 mapApp.networkError = true;
                 console.log(error);
             });
+
     }, 
     computed: {
         havePos: function () {
