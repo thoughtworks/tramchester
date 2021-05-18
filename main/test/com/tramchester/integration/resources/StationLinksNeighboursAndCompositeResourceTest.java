@@ -3,16 +3,15 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
-import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,26 +22,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
-class StationLinksResourceNeighboursTest {
+class StationLinksNeighboursAndCompositeResourceTest {
     private static final AppConfiguration configuration = new NeighboursTestConfig();
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;
-    private final String shudehill_interchange = "Shudehill Interchange";
-    private CompositeStationRepository compositeStationRepository;
     private CompositeStation shudehillCompositeBus;
     private Station shudehillTram;
+    private CompositeStationRepository compositeStationRepository;
 
     @BeforeAll
     public static void beforeAnyTestsRun() {
@@ -53,6 +49,7 @@ class StationLinksResourceNeighboursTest {
     @BeforeEach
     public void onceBeforeEachTest() {
         compositeStationRepository = dependencies.get(CompositeStationRepository.class);
+        String shudehill_interchange = "Shudehill Interchange";
         shudehillCompositeBus = compositeStationRepository.findByName(shudehill_interchange);
         shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
     }
@@ -93,7 +90,6 @@ class StationLinksResourceNeighboursTest {
                 map(link -> link.getBegin().getId()).
                 collect(Collectors.toSet());
         assertFalse(fromShudehillBusToTram.isEmpty());
-
     }
 
     @Test
@@ -102,11 +98,36 @@ class StationLinksResourceNeighboursTest {
         assertEquals(2488, results.size(), "count");
     }
 
+    @Test
+    void shouldGetCompositeStations() {
+        final String altrinchamInterchange = "Altrincham Interchange";
+        CompositeStation actualComposite = compositeStationRepository.findByName(altrinchamInterchange);
+        Set<String> expectedIds = actualComposite.getContained().stream().
+                map(Station::forDTO).
+                collect(Collectors.toSet());
+
+        Response response = IntegrationClient.getApiResponse(appExtension, "links/composites");
+        assertEquals(200, response.getStatus(), "status");
+
+        List<StationGroupDTO> groups = response.readEntity(new GenericType<>() {});
+        assertFalse(groups.isEmpty());
+
+        Optional<StationGroupDTO> found = groups.stream().
+                filter(item -> item.getParent().getName().equals(altrinchamInterchange)).findFirst();
+        assertTrue(found.isPresent());
+
+        StationGroupDTO group = found.get();
+        assertEquals(expectedIds.size(), group.getContained().size());
+
+        Set<String> receivedIds = group.getContained().stream().map(StationRefDTO::getId).collect(Collectors.toSet());
+        assertTrue(expectedIds.containsAll(receivedIds));
+
+    }
+
     @NotNull
     private List<StationLinkDTO> getLinks() {
-        String endPoint = "links/neighbours";
 
-        Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response response = IntegrationClient.getApiResponse(appExtension, "links/neighbours");
         assertEquals(200, response.getStatus(), "status");
 
        return response.readEntity(new GenericType<>() {});

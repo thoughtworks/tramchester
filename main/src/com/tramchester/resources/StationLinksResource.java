@@ -4,8 +4,13 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.FindStationLinks;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.NeighboursRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
@@ -25,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Api
 @Path("/links")
@@ -34,12 +40,14 @@ public class StationLinksResource {
 
     private final FindStationLinks findStationLinks;
     private final NeighboursRepository neighboursRepository;
+    private final CompositeStationRepository compositeStationRepository;
     private final TramchesterConfig config;
 
     @Inject
-    public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository, TramchesterConfig config) {
+    public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository, CompositeStationRepository compositeStationRepository, TramchesterConfig config) {
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
+        this.compositeStationRepository = compositeStationRepository;
         this.config = config;
     }
 
@@ -86,7 +94,24 @@ public class StationLinksResource {
                 map(StationLinkDTO::create).collect(Collectors.toList());
 
         return Response.ok(results).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/composites")
+    @ApiOperation(value = "Get all pairs of composites (parent & child)", response = StationGroupDTO.class, responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public Response getLinks() {
+        logger.info("Get composite links");
+
+        List<StationGroupDTO> groups = new ArrayList<>();
+        config.getTransportModes().forEach(mode ->
+                groups.addAll(compositeStationRepository.getCompositesFor(mode).stream().
+                        map(StationGroupDTO::create).collect(Collectors.toSet())));
+
+        return Response.ok(groups).build();
 
     }
+
 
 }
