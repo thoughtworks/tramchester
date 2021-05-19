@@ -33,7 +33,7 @@ public class PostcodeBoundingBoxs {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeBoundingBoxs.class);
 
     public final static String HINTS_FILES = "postcode_hints.csv";
-    private final Map<Path, BoundingBox> postcodeBounds;
+    private final Map<String, BoundingBox> postcodeBounds;
     private final boolean enabled;
     private final CsvMapper mapper;
     private boolean playback;
@@ -94,7 +94,7 @@ public class PostcodeBoundingBoxs {
         DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFilePath, PostcodeHintData.class, mapper);
 
         Stream<PostcodeHintData> data = loader.load();
-        data.forEach(item -> postcodeBounds.put(Path.of(item.getFile()),
+        data.forEach(item -> postcodeBounds.put(item.getCode(),
                 new BoundingBox(item.getMinEasting(), item.getMinNorthing(), item.getMaxEasting(), item.getMaxNorthing())));
         data.close();
         logger.info("Loaded " + postcodeBounds.size() +" bounding boxes");
@@ -125,29 +125,36 @@ public class PostcodeBoundingBoxs {
             return false;
         }
 
+        String code = convertPathToCode(sourceFilePath);
+
         if (playback) {
-            if (postcodeBounds.containsKey(sourceFilePath)) {
-                return postcodeBounds.get(sourceFilePath).contained(postcode.getGridPosition());
+            if (postcodeBounds.containsKey(code)) {
+                return postcodeBounds.get(code).contained(postcode.getGridPosition());
             }
             logger.warn("Missing file when in playback mode: " + sourceFilePath);
         } else {
-            if (postcodeBounds.containsKey(sourceFilePath)) {
-                BoundingBox boundingBox = postcodeBounds.get(sourceFilePath);
+            if (postcodeBounds.containsKey(code)) {
+                BoundingBox boundingBox = postcodeBounds.get(code);
                 if (!boundingBox.contained(postcode.getGridPosition())) {
-                    updateFor(sourceFilePath, postcode, boundingBox);
+                    updateFor(code, postcode, boundingBox);
                 }
             } else {
                 // initially just the first one
                 GridPosition gridPosition = postcode.getGridPosition();
-                postcodeBounds.put(sourceFilePath, new BoundingBox(gridPosition.getEastings(), gridPosition.getNorthings(),
+                postcodeBounds.put(code, new BoundingBox(gridPosition.getEastings(), gridPosition.getNorthings(),
                         gridPosition.getEastings(), gridPosition.getNorthings()));
             }
         }
         return true;
     }
 
-    private void updateFor(Path path, PostcodeData postcode, BoundingBox boundingBox) {
-        logger.debug("Upadating bounds for " + path + " from " + postcode.getId());
+    public String convertPathToCode(Path sourceFilePath) {
+        String name = sourceFilePath.getFileName().toString().toLowerCase();
+        return name.replace(PostcodeDataImporter.CSV, "");
+    }
+
+    private void updateFor(String code, PostcodeData postcode, BoundingBox boundingBox) {
+        logger.debug("Upadating bounds for " + code + " from " + postcode.getId());
         GridPosition gridPosition = postcode.getGridPosition();
         long postcodeEastings = gridPosition.getEastings();
         long postcodeNorthings = gridPosition.getNorthings();
@@ -157,11 +164,11 @@ public class PostcodeBoundingBoxs {
         long newMaxEasting = Math.max(postcodeEastings, boundingBox.getMaxEasting());
         long newMaxNorthing = Math.max(postcodeNorthings, boundingBox.getMaxNorthings());
 
-        postcodeBounds.put(path, new BoundingBox(newMinEasting, newMinNorthing, newMaxEasting, newMaxNorthing));
+        postcodeBounds.put(code, new BoundingBox(newMinEasting, newMinNorthing, newMaxEasting, newMaxNorthing));
     }
 
     public BoundingBox getBoundsFor(Path file) {
-        return postcodeBounds.get(file);
+        return postcodeBounds.get(convertPathToCode(file));
     }
 
     public boolean isLoaded() {
@@ -169,6 +176,6 @@ public class PostcodeBoundingBoxs {
     }
 
     public boolean hasBoundsFor(Path file) {
-        return postcodeBounds.containsKey(file);
+        return postcodeBounds.containsKey(convertPathToCode(file));
     }
 }

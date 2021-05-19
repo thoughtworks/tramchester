@@ -50,6 +50,12 @@ class PostcodeBoundingBoxsTest {
     }
 
     @Test
+    void shouldMapFilenameToCode() {
+        assertEquals("de", postcodeBoundingBoxs.convertPathToCode(Path.of("de.csv")));
+        assertEquals("cm", postcodeBoundingBoxs.convertPathToCode(Path.of("data/postcodes/Data/CSV/cm.csv")));
+    }
+
+    @Test
     void shouldPersitBoundsForPostcodesInFile() throws IOException {
 
         postcodeBoundingBoxs.start();
@@ -83,7 +89,7 @@ class PostcodeBoundingBoxsTest {
         List<PostcodeHintData> loadedFromFile = loader.load().collect(Collectors.toList());
         assertEquals(1, loadedFromFile.size());
         PostcodeHintData hintData = loadedFromFile.get(0);
-        assertEquals("fileA.csv", hintData.getFile());
+        assertEquals("filea", hintData.getCode());
         assertEquals(10, hintData.getMinEasting());
         assertEquals(19, hintData.getMaxEasting());
         assertEquals(5, hintData.getMinNorthing());

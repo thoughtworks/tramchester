@@ -5,7 +5,7 @@ import com.tramchester.geo.BoundingBox;
 import java.nio.file.Path;
 
 public class PostcodeHintData {
-    private String file;
+    private String code;
     private long minEasting;
     private long minNorthing;
     private long maxEasting;
@@ -15,9 +15,9 @@ public class PostcodeHintData {
         // for deserialization
     }
 
-    public PostcodeHintData(Path path, BoundingBox boundingBox)
+    public PostcodeHintData(String code, BoundingBox boundingBox)
     {
-        this.file = path.toString();
+        this.code = code;
         this.minEasting = boundingBox.getMinEastings();
         this.minNorthing = boundingBox.getMinNorthings();
         this.maxEasting = boundingBox.getMaxEasting();
@@ -25,8 +25,8 @@ public class PostcodeHintData {
 
     }
 
-    public String getFile() {
-        return file;
+    public String getCode() {
+        return code;
     }
 
     public long getMinEasting() {

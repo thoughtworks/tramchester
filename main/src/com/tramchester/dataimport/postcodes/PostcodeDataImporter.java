@@ -32,7 +32,7 @@ public class PostcodeDataImporter {
     // Useful geographic tram map at https://tfgm.com/public-transport/tram/geographical/network-map
 
     private static final Logger logger = LoggerFactory.getLogger(PostcodeDataImporter.class);
-    private static final String CSV = ".csv";
+    public static final String CSV = ".csv";
     public static final String POSTCODES_CONFIG_NAME = "postcodes";
 
     private static final Path dataFolder = Paths.get("Data", "CSV");

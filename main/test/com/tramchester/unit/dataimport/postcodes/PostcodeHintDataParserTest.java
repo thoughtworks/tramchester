@@ -11,14 +11,14 @@ class PostcodeHintDataParserTest extends ParserTestHelper<PostcodeHintData> {
 
     @BeforeEach
     void beforeEach() {
-        super.before(PostcodeHintData.class, "file,minEasting,minNorthing,maxEasting,maxNorthing");
+        super.before(PostcodeHintData.class, "code,minEasting,minNorthing,maxEasting,maxNorthing");
     }
 
     @Test
     void shouldParseData() {
-        PostcodeHintData result = parse("data/codepo_gb/Data/CSV/pl.csv,185207,41008,271210,95036");
+        PostcodeHintData result = parse("pl,185207,41008,271210,95036");
 
-        assertEquals("data/codepo_gb/Data/CSV/pl.csv", result.getFile());
+        assertEquals("pl", result.getCode());
         assertEquals(185207, result.getMinEasting());
         assertEquals(41008, result.getMinNorthing());
         assertEquals(271210, result.getMaxEasting());
