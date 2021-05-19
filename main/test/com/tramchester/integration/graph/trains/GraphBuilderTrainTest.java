@@ -12,6 +12,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Direction;
@@ -27,6 +28,7 @@ import static com.tramchester.testSupport.reference.TrainStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class GraphBuilderTrainTest {
     private static ComponentContainer componentContainer;
@@ -80,7 +82,7 @@ class GraphBuilderTrainTest {
         Iterable<Relationship> outboundLinks = manPiccNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
-        assertEquals(16, list.size());
+        assertEquals(14, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());

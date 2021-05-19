@@ -13,7 +13,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.BusTest;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCalculatorTest {
 
@@ -76,7 +77,6 @@ class BusRouteCalculatorTest {
         txn.close();
     }
 
-    @BusTest
     @Test
     void shouldHaveStockToAltyJourneyAndBackAgain() {
 
@@ -152,7 +152,6 @@ class BusRouteCalculatorTest {
         assertFalse(results.isEmpty());
     }
 
-    @BusTest
     @Test
     void shouldNotRevisitSameBusStationAltyToKnutsford() {
         CompositeStation start = compositeStationRepository.findByName("Altrincham Interchange");
@@ -176,7 +175,6 @@ class BusRouteCalculatorTest {
         });
     }
 
-    @BusTest
     @Test
     void shouldHavePiccadilyToStockportJourney() {
         int maxChanges = 2;

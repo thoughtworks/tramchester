@@ -15,6 +15,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -32,6 +33,7 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class SubGraphAroundKnutsfordTrainTest {
     private static ComponentContainer componentContainer;

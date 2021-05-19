@@ -15,6 +15,8 @@ import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -35,22 +37,34 @@ public class SendMetricsToCloudWatch {
 
     private CloudWatchClient client;
 
-    // TODO Pass in provides local now
-
     @Inject
     public SendMetricsToCloudWatch(ProvidesNow providesNow) {
         this.providesNow = providesNow;
         countersDimenion = Collections.singletonList(Dimension.builder().name("tramchester").value("counters").build());
         resourcesDimension = Collections.singletonList(Dimension.builder().name("tramchester").value("api").build());
+    }
 
+    @PostConstruct
+    public void start() {
+        logger.info("starting");
         // see http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html
         // For local dev best to set AWS_REGION env var
         try {
             client = CloudWatchClient.create();
+            logger.info("started");
         }
         catch (AwsServiceException | SdkClientException exception) {
             logger.warn("Unable to init cloud watch client, no metrics will be sent", exception);
         }
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("Stopping");
+        if (client!=null) {
+            client.close();
+        }
+        logger.info("Stopped");
     }
 
     private List<MetricDatum> createTimerDatums(Instant timestamp, String name, Timer timer) {

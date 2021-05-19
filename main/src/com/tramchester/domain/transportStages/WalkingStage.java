@@ -98,7 +98,7 @@ public abstract class  WalkingStage<FROM extends Location<?>, DEST extends Locat
     @Override
     public String toString() {
         return "WalkingStage{" +
-                "start=" + start +
+                "start=" + start.getId() +
                 ", destination=" + destination.getId() +
                 ", duration=" + duration +
                 ", beginTime=" + beginTime +

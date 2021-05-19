@@ -11,6 +11,7 @@ import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.BusRoutesForTesting;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class ReachabilityRepositoryBusTest {
     private static ComponentContainer componentContainer;

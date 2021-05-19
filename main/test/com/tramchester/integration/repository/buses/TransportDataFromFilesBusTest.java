@@ -21,6 +21,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import org.junit.jupiter.api.*;
@@ -35,6 +36,7 @@ import static com.tramchester.testSupport.TestEnv.WarringtonsOwnBuses;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 class TransportDataFromFilesBusTest {
 
     private static ComponentContainer componentContainer;

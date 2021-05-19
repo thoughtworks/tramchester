@@ -87,14 +87,16 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
         } else {
             logger.info("No rebuild of graph");
+            try(Transaction tx = graphDatabase.beginTx()) {
+                graphDatabase.waitForIndexesReady(tx.schema());
+            }
         }
+        logger.info("started");
     }
 
     private void buildGraphwithFilter(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
         logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
-
-        graphDatabase.createIndexs();
 
         try(Timing ignored = new Timing(logger, "Graph rebuild")) {
 
@@ -114,8 +116,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             addVersionNode(graphDatabase, transportData.getDataSourceInfo());
 
             try(Transaction tx = graphDatabase.beginTx()) {
-                logger.info("Wait for indexes online");
-                graphDatabase.waitForIndexesReady(tx);
+                graphDatabase.waitForIndexesReady(tx.schema());
             }
 
         } catch (Exception except) {
@@ -140,7 +141,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     forEach(station -> linkStationAndPlatforms(txn, station, builderCache));
             timedTransaction.commit();
         }
-
     }
 
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {

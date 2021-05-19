@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -28,6 +29,7 @@ import java.util.stream.Stream;
 import static com.tramchester.testSupport.TestEnv.ArrivaTrainsWales;
 import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
 class TransportDataFromFilesTrainTest {
 
     private static ComponentContainer componentContainer;

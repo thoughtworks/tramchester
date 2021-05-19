@@ -10,6 +10,7 @@ import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -19,7 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 
+@TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@Disabled("currently take too long")
 class TrainRouteCalculatorCombinationTests {
 
     // TODO this needs to be > time for whole test fixture, see note below in @After

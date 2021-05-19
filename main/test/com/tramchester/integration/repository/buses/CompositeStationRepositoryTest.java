@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +25,7 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.reference.BusStations.ManchesterAirportStation;
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 class CompositeStationRepositoryTest {
     private CompositeStationRepository repository;
     private StationRepository fullRepository;

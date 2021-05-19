@@ -18,6 +18,7 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -33,6 +34,7 @@ import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class PostcodeBusRouteCalculatorTest {
     // TODO this needs to be > time for whole test fixture, see note below in @After
@@ -66,6 +68,7 @@ class PostcodeBusRouteCalculatorTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
+        planner.closeAfterNumJourneysFound(1);
     }
 
     @AfterEach
@@ -76,14 +79,14 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToPicc() {
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
-                createRequest(5), 7);
+                createRequest(2), 7);
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToShudehill() {
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearShudehill,
-                createRequest(5), 6);
+                createRequest(3), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
     }
@@ -125,7 +128,6 @@ class PostcodeBusRouteCalculatorTest {
         assertWalkAtStart(journeys);
     }
 
-
     @Test
     void shouldPlanJourneyFromPostcodeToBusStationCentral() {
         JourneyRequest journeyRequest = createRequest(3);
@@ -155,11 +157,9 @@ class PostcodeBusRouteCalculatorTest {
         journeys.forEach(journey -> {
             // connecting stage first as bus only
             List<TransportStage<?, ?>> stages = journey.getStages();
-            int size = stages.size();
-
-            assertEquals( TransportMode.Connect, stages.get(0).getMode());
-            assertEquals( TransportMode.Walk, stages.get(size-1).getMode());
-            assertEquals(3, size);
+            assertEquals(2, stages.size(), journey.toString());
+            assertEquals( TransportMode.Bus, stages.get(0).getMode(), journey.toString());
+            assertEquals( TransportMode.Walk, stages.get(1).getMode(), journey.toString());
         });
     }
 
@@ -171,21 +171,25 @@ class PostcodeBusRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode());
-            assertEquals(1, journey.getStages().size(), journey.toString());
-            //assertEquals(BusStations.BuryInterchange.getId().forDTO(), journey.getEnd().getId());
+            final List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(3, stages.size(), journey.toString());
+            assertEquals(TransportMode.Walk, stages.get(0).getMode());
+            assertEquals(TransportMode.Bus, stages.get(1).getMode());
+            assertEquals(TransportMode.Walk, stages.get(2).getMode());
         });
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusNorthbound() {
+        final int maxChanges = 5;
+
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.NearShudehill, BuryInterchange,
-                createRequest(5), 6);
+                createRequest(maxChanges), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
 
         Set<Journey> fromPicc = planner.quickestRouteForLocation(TestPostcodes.NearPiccadillyGardens, BuryInterchange,
-                createRequest(5), 6);
+                createRequest(maxChanges), 6);
         assertFalse(fromPicc.isEmpty());
         assertWalkAtStart(fromPicc);
     }

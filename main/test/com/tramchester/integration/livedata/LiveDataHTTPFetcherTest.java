@@ -13,8 +13,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.TransportData;
-import com.tramchester.repository.TransportDataFromFiles;
-import com.tramchester.testSupport.LiveDataTestCategory;
+import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 

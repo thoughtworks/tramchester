@@ -14,6 +14,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import static com.tramchester.testSupport.reference.TrainStations.Knutsford;
 import static com.tramchester.testSupport.reference.TrainStations.Mobberley;
 import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainRouteReachableTest {
     private static ComponentContainer componentContainer;

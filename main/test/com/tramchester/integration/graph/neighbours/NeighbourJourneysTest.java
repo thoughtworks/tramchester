@@ -18,6 +18,7 @@ import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -33,6 +34,7 @@ import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class NeighbourJourneysTest {
     private StationRepository stationRepository;
@@ -91,7 +93,7 @@ public class NeighbourJourneysTest {
     void shouldTramNormally() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 8, config.getMaxJourneyDuration());
+                TramTime.of(11,53), false, 2, config.getMaxJourneyDuration());
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Shudehill, request);
 

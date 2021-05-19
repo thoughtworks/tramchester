@@ -24,6 +24,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -39,7 +40,7 @@ import static com.tramchester.testSupport.TestEnv.NoopRegisterMetrics;
 import static com.tramchester.testSupport.TestEnv.deleteDBIfPresent;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@BusTest
 class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static ComponentContainer componentContainer;

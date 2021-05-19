@@ -15,21 +15,19 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.BusRoutesForTesting;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.tramchester.testSupport.reference.BusStations;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteReachableBusTest {
     private static ComponentContainer componentContainer;
@@ -118,6 +116,7 @@ class RouteReachableBusTest {
 
     }
 
+    @Disabled("some routes do seem to be isolated")
     @Test
     void shouldNotHaveStationsWithZeroReachability() {
         Set<RouteStation> routeStations = stationRepository.getRouteStations().stream().
@@ -131,11 +130,6 @@ class RouteReachableBusTest {
 
         assertEquals(0, noInterchangeOnRoute.size());
 
-//        Set<RouteStation> cutOffRouteStations = noInterchangeOnRoute.stream().
-//                filter(routeStation -> reachable.getReachableStationsOnRoute(routeStation).isEmpty()).
-//                collect(Collectors.toSet());
-//
-//        assertEquals(Collections.emptySet(), cutOffRouteStations);
     }
 
 }

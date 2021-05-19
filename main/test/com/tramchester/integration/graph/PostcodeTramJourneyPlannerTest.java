@@ -35,8 +35,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeTramJourneyPlannerTest {
 
-    // TODO WIP
-
     private static final int TXN_TIMEOUT = 5*60;
 
     private static ComponentContainer componentContainer;
@@ -69,6 +67,7 @@ class PostcodeTramJourneyPlannerTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner =  new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
+        planner.closeAfterNumJourneysFound(3);
         repository = componentContainer.get(PostcodeRepository.class);
         centralLocation = repository.getPostcode(TestPostcodes.NearPiccadillyGardens.getId());
     }

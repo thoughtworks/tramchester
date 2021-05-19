@@ -20,6 +20,7 @@ public class LocationJourneyPlannerTestFacade {
     private final LocationJourneyPlanner planner;
     private final StationRepository stationRepository;
     private final Transaction txn;
+    private int maxJourneys = 100;
 
     public LocationJourneyPlannerTestFacade(LocationJourneyPlanner thePlanner, StationRepository stationRepository, Transaction txn) {
         this.planner = thePlanner;
@@ -65,9 +66,15 @@ public class LocationJourneyPlannerTestFacade {
 
     @NotNull
     private Set<Journey> asSetClosed(Stream<Journey> theStream, int maxStages) {
-        Set<Journey> result = theStream.filter(journey -> journey.getStages().size()<=maxStages).collect(Collectors.toSet());
+        Set<Journey> result = theStream.
+                filter(journey -> journey.getStages().size()<=maxStages).
+                limit(maxJourneys).
+                collect(Collectors.toSet());
         theStream.close();
         return result;
     }
 
+    public void closeAfterNumJourneysFound(int maxJourneys) {
+        this.maxJourneys = maxJourneys;
+    }
 }

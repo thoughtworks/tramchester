@@ -12,6 +12,7 @@ import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.TrainStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class ReachabilityRepositoryTrainTest {
     private ReachabilityRepository repository;

@@ -22,7 +22,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
-import com.tramchester.testSupport.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;

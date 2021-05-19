@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -19,6 +20,7 @@ import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -33,9 +35,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TrainStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class TrainRouteCalculatorTest {
     // TODO this needs to be > time for whole test fixture, see note below in @After
@@ -78,29 +80,37 @@ class TrainRouteCalculatorTest {
     void shouldHaveSimpleJourneyEustonToManchester() {
         TramTime travelTime = TramTime.of(8, 0);
 
-        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
                 3*60);
         Set<Journey> journeys = testFacade.calculateRouteAsSet(TrainStations.LondonEuston, ManchesterPiccadilly,
                 request, 3);
         assertFalse(journeys.isEmpty());
 
-        // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
-        assertFalse(direct.isEmpty());
+        journeys.forEach(journey -> {
+            List<TransportStage<?, ?>> stages = journey.getStages();
+            assertEquals(1, stages.size());
 
-        List<TransportStage<?, ?>> stages = direct.get(1).getStages();
-        assertEquals(1, stages.size());
+            TransportStage<?, ?> trainStage = stages.get(0);
 
-        TransportStage<?, ?> trainStage = stages.get(0);
+            assertEquals(TransportMode.Train, trainStage.getMode());
+            assertEquals(19, trainStage.getPassedStopsCount(), trainStage.toString());
 
-        assertEquals(19, trainStage.getPassedStopsCount(), trainStage.toString());
-        List<StopCall> callingPoints = trainStage.getCallingPoints();
-
-        assertEquals(4, callingPoints.size());
-        assertEquals("MKC", callingPoints.get(0).getStationId().forDTO());
-        assertEquals("SOT", callingPoints.get(1).getStationId().forDTO());
-        assertEquals("MAC", callingPoints.get(2).getStationId().forDTO());
-        assertEquals("SPT", callingPoints.get(3).getStationId().forDTO());
+            List<StopCall> callingPoints = trainStage.getCallingPoints();
+            final int numCallingPoints = callingPoints.size();
+            assertTrue(numCallingPoints==3 || numCallingPoints==4, callingPoints.toString());
+            if (numCallingPoints==4) {
+                // milton K -> Stoke -> Macclesfield -> Stockport
+                assertEquals("MKC", callingPoints.get(0).getStationId().forDTO());
+                assertEquals("SOT", callingPoints.get(1).getStationId().forDTO());
+                assertEquals("MAC", callingPoints.get(2).getStationId().forDTO());
+                assertEquals("SPT", callingPoints.get(3).getStationId().forDTO());
+            } else {
+                // crewe -> wilmslow -> stockport
+                assertEquals("CRE", callingPoints.get(0).getStationId().forDTO());
+                assertEquals("WML", callingPoints.get(1).getStationId().forDTO());
+                assertEquals("SPT", callingPoints.get(2).getStationId().forDTO());
+            }
+        });
     }
 
     @Test

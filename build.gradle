@@ -160,21 +160,7 @@ task cdkApp(type:JavaExec, dependsOn:classes) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task allowhost(dependsOn: cfnassist) {
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: environment) {
-            WhiteList(port: '443', tag: 'web')
-        }
-    }
-}
 
-task blockhost(dependsOn: cfnassist) {
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: environment) {
-            BlackList(port: '443', tag: 'web')
-        }
-    }
-}
 
 task buses(type:JavaExec, dependsOn: 'webpack') {
     main = mainClassName
@@ -235,6 +221,36 @@ task integration(type: Test, dependsOn: compileJava) {
         excludeTags "liveDataMessages" // hopefully temporary exclusion
         //excludeTags "liveData" // live data is down currently
         //excludeTags "dataExpiry" // ONLY exclude when impending data expiry causes issues
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
+task integrationBus(type: Test, dependsOn: compileJava) {
+    minHeapSize = "1000m"
+    maxHeapSize = "2500m"
+    useJUnitPlatform {
+        includeTags "BusTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+    }
+}
+
+task integrationTrain(type: Test, dependsOn: compileJava) {
+    minHeapSize = "1000m"
+    maxHeapSize = "2500m"
+    useJUnitPlatform {
+        includeTags "TrainTest"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -496,6 +512,22 @@ task allowHostUAT(dependsOn: cfnassist) {
 task denyHostUAT(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
+            BlackList(port: '443', tag: 'web')
+        }
+    }
+}
+
+task allowhost(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(project: 'tramchesterB', env: environment) {
+            WhiteList(port: '443', tag: 'web')
+        }
+    }
+}
+
+task blockhost(dependsOn: cfnassist) {
+    doLast {
+        ant.cfnassist(project: 'tramchesterB', env: environment) {
             BlackList(port: '443', tag: 'web')
         }
     }

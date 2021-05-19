@@ -44,18 +44,6 @@ class SendMetricsLimitCheckTest {
         sendDatum(createDatum(SendMetricsToCloudWatch.LOWER_LIMIT, "lowerLimit", now));
     }
 
-    @Disabled("SDK V2 does not throw this exception in same way as V1 did")
-    @Test
-    void shouldThrowBelowLowerLimitOk() {
-        try {
-            sendDatum(createDatum(belowLimit, "belowLimitShouldThrow", now));
-            Assertions.fail("expected to throw");
-        }
-        catch (InvalidParameterValueException expectedException) {
-            // expected
-        }
-    }
-
     @Test
     void shouldConvertToZeroCorrectly() {
         sendDatum(createDatum(SendMetricsToCloudWatch.zeroFilter(belowLimit), "filteredBelowLimit", now));

@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.testSupport.testTags;
 
 import org.junit.jupiter.api.Tag;
 
@@ -7,9 +7,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ ElementType.METHOD })
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Tag("liveData")
-public @interface LiveDataTestCategory {
-    // NOTE: these tests will fail if API key not available in env var TFGMAPIKEY
+@Tag("BusTest")
+public @interface BusTest {
 }

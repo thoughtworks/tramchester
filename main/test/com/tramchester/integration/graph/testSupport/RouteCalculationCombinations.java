@@ -44,7 +44,8 @@ public class RouteCalculationCombinations {
 
     public Optional<Journey> findJourneys(Transaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
         return calculator.calculateRoute(txn, stationRepository.getStationById(start),
-                stationRepository.getStationById(dest), journeyRequest).limit(1).findAny();
+                stationRepository.getStationById(dest), journeyRequest)
+                .limit(1).findAny();
     }
 
     public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,

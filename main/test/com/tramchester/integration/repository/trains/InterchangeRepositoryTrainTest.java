@@ -6,6 +6,7 @@ import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
 class InterchangeRepositoryTrainTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository interchangeRepository;

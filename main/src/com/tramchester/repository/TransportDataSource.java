@@ -14,7 +14,7 @@ public class TransportDataSource {
     final Stream<TripData> trips;
     final Stream<StopTimeData> stopTimes;
     final Stream<CalendarData> calendars;
-    final Stream<FeedInfo> feedInfo;
+    private final Stream<FeedInfo> feedInfo;
     final Stream<CalendarDateData> calendarsDates;
     private final GTFSSourceConfig config;
     final Stream<AgencyData> agencies;
@@ -48,6 +48,10 @@ public class TransportDataSource {
         feedInfo.close();
         calendarsDates.close();
         agencies.close();
+    }
+
+    protected Stream<FeedInfo> getFeedInfoStream() {
+        return feedInfo;
     }
 
     public DataSourceInfo getDataSourceInfo() {

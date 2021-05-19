@@ -26,6 +26,7 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
+import org.neo4j.graphdb.schema.IndexType;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.logging.Level;
@@ -110,7 +111,7 @@ public class GraphDatabase implements DatabaseEventListener {
             databaseService = createGraphDatabaseService(graphFile, graphDBConfig);
         }
 
-        logger.info("graph db started " + graphFile.toString());
+        logger.info("graph db started " + graphFile);
     }
 
     @PreDestroy
@@ -121,17 +122,14 @@ public class GraphDatabase implements DatabaseEventListener {
     }
 
     private void stopManagementService() {
-        try (Timing timing = new Timing(logger, "DatabaseManagementService stopping")){
+        try (Timing ignored = new Timing(logger, "DatabaseManagementService stopping")){
             if (managementService==null) {
                 logger.error("Already stopped? Unable to obtain DatabaseManagementService for shutdown");
             } else {
-                long begin = System.currentTimeMillis();
                 logger.info("Shutting down DatabaseManagementService");
                 managementService.shutdown();
-                long duration = System.currentTimeMillis() - begin;
                 managementService = null;
                 databaseService = null;
-                logger.info("DatabaseManagementService is shutdown, took " + duration);
             }
         } catch (Exception exceptionInClose) {
             logger.error("DatabaseManagementService Exception during close down " + graphDBConfig.getDbPath(), exceptionInClose);
@@ -184,7 +182,7 @@ public class GraphDatabase implements DatabaseEventListener {
                     }
                 } else {
                     upToDate.put(sourceInfo, false);
-                    logger.warn("Could not find version for " + name + " properties were " + allProps.toString());
+                    logger.warn("Could not find version for " + name + " properties were " + allProps);
                 }
             });
         }
@@ -218,7 +216,7 @@ public class GraphDatabase implements DatabaseEventListener {
     private GraphDatabaseService createGraphDatabaseService(Path graphFile, GraphDBConfig config) {
         logger.info("Create GraphDatabaseService");
 
-        try (Timing timing = new Timing(logger, "DatabaseManagementService build")) {
+        try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
             managementService = new DatabaseManagementServiceBuilder( graphFile ).
             setConfig(GraphDatabaseSettings.track_query_allocation, false).
             setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
@@ -233,7 +231,7 @@ public class GraphDatabase implements DatabaseEventListener {
             setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
 
             // txn logs, no need to save beyond current ones
-            //setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
+            setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
 
             // operating in embedded mode
             setConfig(HttpConnector.enabled, false).
@@ -277,35 +275,46 @@ public class GraphDatabase implements DatabaseEventListener {
 
     public void createIndexs() {
 
-        try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Constraints"))
+        try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Constraints & indexes"))
         {
             Transaction tx = timed.transaction();
             Schema schema = tx.schema();
 
-            schema.constraintFor(GraphBuilder.Labels.ROUTE_STATION).
-                    assertPropertyIsUnique(GraphPropertyKey.ROUTE_STATION_ID.getText()).create();
-            schema.constraintFor(GraphBuilder.Labels.TRAM_STATION).
-                    assertPropertyIsUnique(GraphPropertyKey.STATION_ID.getText()).create();
-            schema.constraintFor(GraphBuilder.Labels.BUS_STATION).
-                    assertPropertyIsUnique(GraphPropertyKey.STATION_ID.getText()).create();
-            schema.constraintFor(GraphBuilder.Labels.TRAIN_STATION).
-                    assertPropertyIsUnique(GraphPropertyKey.STATION_ID.getText()).create();
+            configuration.getTransportModes().forEach(mode -> {
+                GraphBuilder.Labels label = GraphBuilder.Labels.forMode(mode);
+                createUniqueIdConstraintFor(schema, label, GraphPropertyKey.STATION_ID);
+                schema.indexFor(label).on(GraphPropertyKey.ROUTE_ID.getText()).create();
+            });
 
+            createUniqueIdConstraintFor(schema, GraphBuilder.Labels.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
             schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
             schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
-            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
 
-//            schema.indexFor(GraphBuilder.Labels.SERVICE).on(GraphPropertyKey.SERVICE_ID.getText()).create();
+            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
 
             tx.commit();
         }
     }
 
-    public void waitForIndexesReady(Transaction tx) {
-        tx.schema().awaitIndexesOnline(5, TimeUnit.SECONDS);
+    private void createUniqueIdConstraintFor(Schema schema, GraphBuilder.Labels label, GraphPropertyKey property) {
+        schema.indexFor(label).on(property.getText()).create();
+//        schema.constraintFor(label).
+//                assertPropertyIsUnique(property.getText()).withIndexType(IndexType.BTREE).create();
+    }
 
-        tx.schema().getIndexes().forEach(indexDefinition -> logger.info(String.format("Index label %s keys %s",
-                indexDefinition.getLabels(), indexDefinition.getPropertyKeys())));
+    public void waitForIndexesReady(Schema schema) {
+        logger.info("Wait for indexs online");
+        schema.awaitIndexesOnline(5, TimeUnit.SECONDS);
+
+        schema.getIndexes().forEach(indexDefinition -> {
+            Schema.IndexState state = schema.getIndexState(indexDefinition);
+            logger.info(String.format("Index label %s keys %s state %s",
+                indexDefinition.getLabels(), indexDefinition.getPropertyKeys(), state));
+        });
+
+        schema.getConstraints().forEach(definition -> logger.info(String.format("Constraint label %s keys %s type %s",
+                definition.getLabel(), definition.getPropertyKeys(), definition.getConstraintType()
+                )));
     }
 
     public Node createNode(Transaction tx, GraphBuilder.Labels label) {

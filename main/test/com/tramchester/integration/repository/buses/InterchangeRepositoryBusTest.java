@@ -10,7 +10,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.BusTest;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import static com.tramchester.integration.repository.common.InterchangeRepositor
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class InterchangeRepositoryBusTest {
     private static ComponentContainer componentContainer;
@@ -50,7 +50,6 @@ class InterchangeRepositoryBusTest {
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
     }
 
-    @BusTest
     @Test
     void shouldFindBusInterchanges() {
         IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(Bus);
@@ -64,7 +63,6 @@ class InterchangeRepositoryBusTest {
 
     }
 
-    @BusTest
     @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
         Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, stationRepository, Bus);

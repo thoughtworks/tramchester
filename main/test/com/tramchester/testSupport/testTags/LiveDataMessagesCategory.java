@@ -1,4 +1,5 @@
-package com.tramchester.testSupport;
+package com.tramchester.testSupport.testTags;
+
 
 import org.junit.jupiter.api.Tag;
 
@@ -9,6 +10,6 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Tag("BusTest")
-public @interface BusTest {
+@Tag("liveDataMessages")
+public @interface LiveDataMessagesCategory {
 }

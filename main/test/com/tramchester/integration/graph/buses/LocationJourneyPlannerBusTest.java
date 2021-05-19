@@ -13,7 +13,7 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
-import com.tramchester.testSupport.BusTest;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
@@ -28,6 +28,7 @@ import static com.tramchester.testSupport.TestEnv.nearAltrinchamInterchange;
 import static com.tramchester.testSupport.reference.BusStations.StopAtStockportBusStation;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class LocationJourneyPlannerBusTest {
     private static final int TXN_TIMEOUT = 5*60;
@@ -61,6 +62,7 @@ class LocationJourneyPlannerBusTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
+        planner.closeAfterNumJourneysFound(2);
         maxDuration = testConfig.getMaxJourneyDuration();
     }
 
@@ -69,7 +71,6 @@ class LocationJourneyPlannerBusTest {
         txn.close();
     }
 
-    @BusTest
     @Test
     void shouldHaveSimpleWalkAndBus() {
         TramTime travelTime = TramTime.of(8, 0);
@@ -83,7 +84,6 @@ class LocationJourneyPlannerBusTest {
         assertFalse(results.isEmpty());
     }
 
-    @BusTest
     @Test
     void shouldHaveSimpleBusAndWalk() {
 
@@ -99,7 +99,6 @@ class LocationJourneyPlannerBusTest {
         assertFalse(results.isEmpty());
     }
 
-    @BusTest
     @Test
     void shouldFindAltyToKnutford() {
 

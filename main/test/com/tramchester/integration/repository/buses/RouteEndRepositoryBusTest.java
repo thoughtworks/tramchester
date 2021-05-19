@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.RouteEndRepository;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteEndRepositoryBusTest {
     private static ComponentContainer componentContainer;
@@ -46,7 +48,7 @@ class RouteEndRepositoryBusTest {
 
         assertFalse(result.contains(StringIdFor.createId("2500LAA15791"))); // Accrington, opp Infant Street
 
-        assertEquals(1079, result.size());
+        assertEquals(1065, result.size());
 
     }
 }

@@ -7,6 +7,7 @@ import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,12 +19,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@TrainTest
 class ValidateTrainTestStations {
 
     private static ComponentContainer componentContainer;
 
-    private StationRepository transportData;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -38,7 +39,7 @@ class ValidateTrainTestStations {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = componentContainer.get(StationRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @Test
@@ -48,7 +49,7 @@ class ValidateTrainTestStations {
         testStations.forEach(enumValue -> {
             Station testStation = TrainStations.of(enumValue);
 
-            Station realStation = transportData.getStationById(testStation.getId());
+            Station realStation = stationRepository.getStationById(testStation.getId());
 
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());

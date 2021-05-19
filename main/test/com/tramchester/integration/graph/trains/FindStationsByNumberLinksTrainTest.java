@@ -10,6 +10,7 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
+import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TrainTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class FindStationsByNumberLinksTrainTest {
     private static ComponentContainer componentContainer;
@@ -45,7 +47,7 @@ class FindStationsByNumberLinksTrainTest {
     void shouldIdForkPointsFromTrainNetwork() {
         int threshhold = 3;
         IdSet<Station> found = discoverer.findAtLeastNConnectionsFrom(TransportMode.Train, threshhold);
-        assertEquals(910, found.size());
+
 
         assertTrue(found.contains(TrainStations.ManchesterPiccadilly.getId()));
         assertTrue(found.contains(TrainStations.LondonEuston.getId()));
@@ -53,6 +55,8 @@ class FindStationsByNumberLinksTrainTest {
 
         assertFalse(found.contains(TrainStations.Mobberley.getId()));
         assertFalse(found.contains(TrainStations.Hale.getId()));
+
+        assertEquals(901, found.size());
     }
 
 }

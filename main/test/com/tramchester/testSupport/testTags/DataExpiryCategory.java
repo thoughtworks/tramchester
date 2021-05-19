@@ -1,4 +1,4 @@
-package com.tramchester.testSupport;
+package com.tramchester.testSupport.testTags;
 
 import org.junit.jupiter.api.Tag;
 

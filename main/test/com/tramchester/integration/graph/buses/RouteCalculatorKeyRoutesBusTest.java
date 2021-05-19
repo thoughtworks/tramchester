@@ -8,16 +8,19 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-@Disabled("takes too long for thousands of stations")
+@BusTest
+@Disabled("takes too long for this many of stations")
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RouteCalculatorKeyRoutesBusTest {
 
@@ -30,8 +33,9 @@ class RouteCalculatorKeyRoutesBusTest {
     private JourneyRequest journeyRequest;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationBusTestConfig();
+    static void onceBeforeAnyTestsRun() throws IOException {
+        testConfig = new IntegrationBusTestConfig("warringtonsOwnBuses.db");
+        TestEnv.deleteDBIfPresent(testConfig);
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorKeyRoutesBusTest::configureFilter).
                 create(testConfig, TestEnv.NoopRegisterMetrics());
@@ -43,8 +47,9 @@ class RouteCalculatorKeyRoutesBusTest {
     }
 
     @AfterAll
-    static void OnceAfterAllTestsAreFinished() {
+    static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
+        TestEnv.deleteDBIfPresent(testConfig);
     }
 
     @BeforeEach

@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,6 +18,7 @@ import java.util.Set;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 class FindStationLinksTestBus {
 
     private static ComponentContainer componentContainer;

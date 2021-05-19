@@ -52,9 +52,10 @@ public class PostcodeRepository {
             return;
         }
 
-        // TODO make importer use PostConstruct
+        // TODO make importer use PostConstruct?
         List<Stream<PostcodeData>> sources = importer.loadLocalPostcodes();
 
+        logger.info("Processing " + sources.size() + " postcode streams");
         sources.forEach(source-> {
             source.forEach(code -> postcodes.add(new PostcodeLocation(getLatLong(code.getGridPosition()), code.getId())));
             source.close();

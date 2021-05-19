@@ -27,6 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -82,10 +83,14 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
         if(sourceConfig.getHasFeedInfo()) {
             // replace version string (which is from mod time) with the one from the feedinfo file, if present
-            FeedInfo feedInfo = dataSource.feedInfo.findFirst().get();
-            buildable.addDataSourceInfo(new DataSourceInfo(sourceName, feedInfo.getVersion(),
-                    dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes()));
-            buildable.addFeedInfo(sourceName, feedInfo);
+            Optional<FeedInfo> maybeFeedinfo = dataSource.getFeedInfoStream().findFirst();
+            maybeFeedinfo.ifPresent(feedInfo -> {
+                logger.info("Updating data source info from " + feedInfo);
+                buildable.addDataSourceInfo(new DataSourceInfo(sourceName, feedInfo.getVersion(),
+                        dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes()));
+                buildable.addFeedInfo(sourceName, feedInfo);
+            });
+
         } else {
             logger.warn("No feedinfo for " + sourceName);
             buildable.addDataSourceInfo(dataSourceInfo);

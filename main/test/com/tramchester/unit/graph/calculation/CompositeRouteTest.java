@@ -83,6 +83,7 @@ class CompositeRouteTest {
 
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepository, txn);
+        locationJourneyPlanner.closeAfterNumJourneysFound(2);
 
     }
 

@@ -81,6 +81,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
         logMemory("Before graph build");
 
+        graphDatabase.createIndexs();
+
         try (Timing timing = new Timing(logger, "graph rebuild")) {
             try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding stations")) {
                 Transaction tx = timedTransaction.transaction();

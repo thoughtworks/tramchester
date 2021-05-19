@@ -17,7 +17,7 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.IntegrationClient;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.BusTest;
+import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.experimental.categories.Category;
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class JourneyPlannerBusTest {
@@ -87,7 +88,6 @@ class JourneyPlannerBusTest {
         assertEquals(expected, results);
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldBusJourneyWestEast() {
         TramTime queryTime = TramTime.of(8,45);
@@ -95,7 +95,6 @@ class JourneyPlannerBusTest {
         validateHasJourney(queryTime, StopAtStockportBusStation, StopAtAltrinchamInterchange, 3);
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldPlanBusJourneySouthern() {
         TramTime queryTime = TramTime.of(8,45);
@@ -103,7 +102,6 @@ class JourneyPlannerBusTest {
         validateHasJourney(queryTime, StopAtStockportBusStation, ShudehillInterchange, 3);
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldPlanBusJourneyNorthern() {
         TramTime queryTime = TramTime.of(8,45);
@@ -111,11 +109,11 @@ class JourneyPlannerBusTest {
         validateHasJourney(queryTime, BuryInterchange, ShudehillInterchange, 3);
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldPlanBusJourneyNoLoops() {
         TramTime queryTime = TramTime.of(8,56);
-        JourneyPlanRepresentation plan = createPlan(queryTime, StopAtAltrinchamInterchange, ManchesterAirportStation, 2, false);
+        JourneyPlanRepresentation plan = createPlan(queryTime, StopAtAltrinchamInterchange, ManchesterAirportStation,
+                2, false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -130,7 +128,6 @@ class JourneyPlannerBusTest {
         });
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
@@ -141,7 +138,6 @@ class JourneyPlannerBusTest {
         Assertions.assertFalse(found.isEmpty());
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldPlanDirectWalkToBusStopFromLocation() {
         TramTime queryTime = TramTime.of(8,15);
@@ -152,7 +148,6 @@ class JourneyPlannerBusTest {
         Assertions.assertFalse(found.isEmpty());
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);

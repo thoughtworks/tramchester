@@ -7,23 +7,23 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@BusTest
 class ValidateBusTestStations {
 
     private static ComponentContainer componentContainer;
 
-    private StationRepository transportData;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -38,7 +38,7 @@ class ValidateBusTestStations {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        transportData = componentContainer.get(StationRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @Test
@@ -48,13 +48,13 @@ class ValidateBusTestStations {
         testStations.forEach(enumValue -> {
             Station testStation = BusStations.of(enumValue);
 
-            Station realStation = transportData.getStationById(testStation.getId());
+            Station realStation = stationRepository.getStationById(testStation.getId());
 
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
             //assertEquals(realStation.getArea(), testStation.getArea(),"area wrong for " + testStationName);
             assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
-            TestEnv.assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.0001,
+            TestEnv.assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001,
                     "latlong wrong for " + testStationName);
         });
 
