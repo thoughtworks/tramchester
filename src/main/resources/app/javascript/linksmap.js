@@ -47,10 +47,20 @@ function addStationToMap(station, stationLayerGroup, displayed) {
 
     var lat = station.latLong.lat;
     var lon = station.latLong.lon;
-    var marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 1 });
+    var marker = new L.circleMarker(L.latLng(lat, lon), { title: station.name, radius: 2 });
     marker.bindTooltip(station.name + "<br> '" + station.id + "' (" + station.transportModes + ")");
     displayed.push(station.id);
     stationLayerGroup.addLayer(marker);
+}
+
+function getColourFor(mode) {
+    switch(mode) {
+        case "Tram": return "Blue";
+        case "Bus": return "Green";
+        case "Train": return "Red";
+        case "Walk": return "Purple"
+        default: return "Grey";
+    }
 }
 
 var mapApp = new Vue({
@@ -64,6 +74,7 @@ var mapApp = new Vue({
             networkError: false,
             links: [],
             neighbours: [],
+            comps: [],
             feedinfo: [],
         }
     },
@@ -81,25 +92,43 @@ var mapApp = new Vue({
             })
             stationLayerGroup.addTo(map);
         },
-
-        addLinks: function(map, links, colourForLinks) {
+        addLinks: function(map, links) {
             var linkLayerGroup = L.layerGroup();
         
             links.forEach(link => {
                 var steps = [];
                 steps.push([link.begin.latLong.lat, link.begin.latLong.lon]);
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
-
-                var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' }); 
-                line.bindTooltip("Modes: " + link.transportModes); 
-                line.setStyle({color: colourForLinks});
-
-                linkLayerGroup.addLayer(line);
+                link.transportModes.forEach(mode => {
+                    var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' }); 
+                    line.bindTooltip("Mode: " + mode); 
+                    var colour = getColourFor(mode);
+                    line.setStyle({color: colour, opacity: 0.6});
+                    linkLayerGroup.addLayer(line);
+                })
             })
         
             // faster to add this way for larger numbers of lines/points
             linkLayerGroup.addTo(map);
         }, 
+        addGroups: function(map, groups) {
+            var groupLayer = L.layerGroup();
+            groups.forEach(group => {
+                var steps = [];
+                group.contained.forEach(station => {
+                    steps.push([station.latLong.lat, station.latLong.lon]);
+                })
+                var first = group.contained[0];
+                steps.push([first.latLong.lat, first.latLong.lon]);
+                var shape = L.polygon(steps);
+                shape.setStyle({color: "pink", opacity: 0.7, fill: true, fillOpacity: 0.5});
+                var parent = group.parent;
+                shape.bindTooltip(parent.name + "<br>  (" + parent.transportModes + ")");
+                groupLayer.addLayer(shape);
+            })
+            groupLayer.addTo(map);
+
+        },
         findAndSetMapBounds: function(map, links) {
             let minLat = 1000;
             let maxLat = -1000;
@@ -122,9 +151,10 @@ var mapApp = new Vue({
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
 
-            mapApp.addLinks(mapApp.map, mapApp.links, "red");
+            mapApp.addLinks(mapApp.map, mapApp.links, "blue");
             mapApp.addLinks(mapApp.map, mapApp.neighbours, "green");
             mapApp.addStations(mapApp.map, mapApp.links);
+            mapApp.addGroups(mapApp.map, mapApp.groups);
         }
     },
     mounted () {
@@ -141,11 +171,13 @@ var mapApp = new Vue({
 
         axios.all([
             axios.get("/api/links/all"),
-            axios.get("/api/links/neighbours")
-        ]).then(axios.spread((linksResp, neighboursResp) => {
+            axios.get("/api/links/neighbours"),
+            axios.get("/api/links/composites")
+        ]).then(axios.spread((linksResp, neighboursResp, compsResp) => {
                 mapApp.networkError = false;
                 mapApp.links = linksResp.data;
                 mapApp.neighbours = neighboursResp.data;
+                mapApp.groups = compsResp.data;
                 mapApp.draw();
             })).catch(error => {
                 mapApp.networkError = true;
