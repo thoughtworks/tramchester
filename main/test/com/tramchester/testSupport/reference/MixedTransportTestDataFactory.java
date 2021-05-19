@@ -59,7 +59,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     }
 
     private static final Route FERRY_ROUTE = new Route(StringIdFor.createId("FER:42:C"), "42", "Lakes",
-            new Agency(DataSourceID.GBRail(), "FER", "ferryAgency"), TransportMode.Ferry);
+            new Agency(DataSourceID.GBRail(), StringIdFor.createId("FER"), "ferryAgency"), TransportMode.Ferry);
 
     private void populateTestData(TransportDataContainer container) {
         Route routeA = BusRoutesForTesting.AIR_TO_BUXTON;
@@ -102,14 +102,14 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         serviceC.setCalendar(serviceCalendarC);
 
         // tripA: FIRST_STATION -> SECOND_STATION -> INTERCHANGE -> LAST_STATION
-        Trip tripA = new Trip(MixedTransportTestData.TRIP_A_ID, "headSign", serviceA, routeA);
+        Trip tripA = new Trip(StringIdFor.createId(MixedTransportTestData.TRIP_A_ID), "headSign", serviceA, routeA);
 
         Station first = new TestNoPlatformStation(MixedTransportTestData.FIRST_STATION, "area1", "startStation",
                 TestEnv.nearAltrincham, TestEnv.nearAltrinchamGrid, TransportMode.Bus);
         addAStation(container, first);
         addRouteStation(container, first, routeA);
         NoPlatformStopCall stopA = createStop(tripA, first, TramTime.of(8, 0),
-                TramTime.of(8, 0), 1, TransportMode.Bus);
+                TramTime.of(8, 0), 1);
         tripA.addStop(stopA);
 
         Station second = new TestNoPlatformStation(MixedTransportTestData.SECOND_STATION, "area2", "secondStation", TestEnv.nearPiccGardens,
@@ -117,7 +117,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addAStation(container, second);
         addRouteStation(container, second, routeA);
         NoPlatformStopCall stopB = createStop(tripA, second, TramTime.of(8, 11),
-                TramTime.of(8, 11), 2, TransportMode.Bus);
+                TramTime.of(8, 11), 2);
         tripA.addStop(stopB);
 
         Station interchangeStation = new TestNoPlatformStation(MixedTransportTestData.INTERCHANGE, "area3", "cornbrookStation", TestEnv.nearShudehill,
@@ -125,7 +125,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addAStation(container, interchangeStation);
         addRouteStation(container, interchangeStation, routeA);
         NoPlatformStopCall stopC = createStop(tripA, interchangeStation, TramTime.of(8, 20),
-                TramTime.of(8, 20), 3, TransportMode.Bus);
+                TramTime.of(8, 20), 3);
         tripA.addStop(stopC);
 
         Station last = new TestNoPlatformStation(MixedTransportTestData.LAST_STATION, "area4", "endStation", TestEnv.nearPiccGardens,
@@ -133,7 +133,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addAStation(container, last);
         addRouteStation(container, last, routeA);
         NoPlatformStopCall stopD = createStop(tripA, last, TramTime.of(8, 40),
-                TramTime.of(8, 40), 4, TransportMode.Bus);
+                TramTime.of(8, 40), 4);
         tripA.addStop(stopD);
 
         // service A
@@ -148,12 +148,12 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         addAStation(container, stationFive);
 
         //
-        Trip tripC = new Trip("tripCId", "headSignC", serviceC, routeC);
+        Trip tripC = new Trip(StringIdFor.createId("tripCId"), "headSignC", serviceC, routeC);
         NoPlatformStopCall stopG = createStop(tripC, interchangeStation, TramTime.of(8, 26),
-                TramTime.of(8, 27), 1, TransportMode.Bus);
+                TramTime.of(8, 27), 1);
         addRouteStation(container, interchangeStation, routeC);
         NoPlatformStopCall stopH = createStop(tripC, stationFive, TramTime.of(8, 31),
-                TramTime.of(8, 33), 2, TransportMode.Bus);
+                TramTime.of(8, 33), 2);
         addRouteStation(container, stationFive, routeC);
         tripC.addStop(stopG);
         tripC.addStop(stopH);
@@ -187,19 +187,19 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,
                                                         Station interchangeStation, Station station, LocalTime startTime, String tripId) {
-        Trip trip = new Trip(tripId, "headSignTripB2", service, route);
+        Trip trip = new Trip(StringIdFor.createId(tripId), "headSignTripB2", service, route);
         NoPlatformStopCall stop1 = createStop(trip, interchangeStation, TramTime.of(startTime),
-                TramTime.of(startTime.plusMinutes(5)), 1, TransportMode.Bus);
+                TramTime.of(startTime.plusMinutes(5)), 1);
         trip.addStop(stop1);
         NoPlatformStopCall stop2 = createStop(trip, station, TramTime.of(startTime.plusMinutes(5)),
-                TramTime.of(startTime.plusMinutes(8)), 2, TransportMode.Bus);
+                TramTime.of(startTime.plusMinutes(8)), 2);
         trip.addStop(stop2);
         route.addTrip(trip);
         container.addTrip(trip);
     }
 
     private static NoPlatformStopCall createStop(Trip trip, Station station,
-                                                 TramTime arrivalTime, TramTime departureTime, int sequenceNum, TransportMode mode) {
+                                                 TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         StopTimeData stopTimeData = new StopTimeData(trip.getId().forDTO(), arrivalTime, departureTime, station.forDTO(),
                 sequenceNum, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
         return new NoPlatformStopCall(station, stopTimeData);

@@ -4,6 +4,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
@@ -12,7 +13,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +31,7 @@ class TripTest {
     void beforeEachTestRuns() {
         Service service = new Service("svcId");
 
-        trip = new Trip("tripId","headSign", service, TestEnv.getTramTestRoute());
+        trip = new Trip(StringIdFor.createId("tripId"),"headSign", service, TestEnv.getTramTestRoute());
 
         stationA = TramStations.Ashton;
         stationB = TramStations.Broadway;
@@ -42,12 +42,12 @@ class TripTest {
     void shouldKnowIfTramTrip() {
         Service service = new Service("svcId");
 
-        Trip tripA = new Trip("tripId", "headSign", service, TestEnv.getTramTestRoute());
+        Trip tripA = new Trip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
-        Route busRoute = new Route("busRouteId", "busRouteCode", "busRouteName",
-                new Agency(DataSourceID.TFGM(), "BUS", "agencyName"),
+        Route busRoute = new Route(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
+                new Agency(DataSourceID.TFGM(), StringIdFor.createId("BUS"), "agencyName"),
                 TransportMode.Bus);
-        Trip tripB = new Trip("tripId", "headSign", service, busRoute);
+        Trip tripB = new Trip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));
     }
 

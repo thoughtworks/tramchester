@@ -71,10 +71,13 @@ public class TestEnv {
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
     private static final Agency MET = new Agency(DataSourceID.TFGM(), Agency.METL, "Metrolink");
-    public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(), "AW", "Arriva Trains Wales");
+    public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(),
+            StringIdFor.createId("AW"), "Arriva Trains Wales");
 
-    public static final Agency StagecoachManchester = new Agency(DataSourceID.TFGM(), "SCMN", "Stagecoach Manchester");
-    public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(), "WBTR", "Warrington's Own Buses");
+    public static final Agency StagecoachManchester = new Agency(DataSourceID.TFGM(),
+            StringIdFor.createId("SCMN"), "Stagecoach Manchester");
+    public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(),
+            StringIdFor.createId("WBTR"), "Warrington's Own Buses");
 
     public static final String TFGM_TIMETABLE_URL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
     public static final String NAPTAN_URL = "https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv";
@@ -214,7 +217,6 @@ public class TestEnv {
     public static BoundingBox getTrainBounds() {
         return new BoundingBox(147588, 30599, 654747, 967921);
     }
-
 
     public static LatLong stPetersSquareLocation() {
         return new LatLong(53.47825,-2.24314);
