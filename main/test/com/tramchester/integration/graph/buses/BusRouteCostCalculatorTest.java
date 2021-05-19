@@ -3,27 +3,37 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.testSupport.BusTest;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
+import com.tramchester.testSupport.reference.BusStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCostCalculatorTest {
+    public static final int SHUDEHILL_TO_ALTY = 59;
+    public static final int ALTY_TO_STOCKPORT = 40;
+    public static final int SHUDEHILL_TO_STOCKPORT = 47;
     private static ComponentContainer componentContainer;
 
     private Transaction txn;
     private RouteCostCalculator routeCost;
-    private StationRepository stationRepository;
+    private CompositeStation altrinchamInterchange;
+    private CompositeStation stockportBusStation;
+    private CompositeStation shudehillInterchange;
+    private CompositeStationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -39,9 +49,15 @@ class BusRouteCostCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        routeCost = componentContainer.get(RouteCostCalculator.class);
-        stationRepository = componentContainer.get(StationRepository.class);
+        stationRepository = componentContainer.get(CompositeStationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
+
+        altrinchamInterchange = stationRepository.findByName("Altrincham Interchange");
+        stockportBusStation = stationRepository.findByName("Stockport Bus Station");
+        shudehillInterchange = stationRepository.findByName("Shudehill Interchange");
+
+        routeCost = componentContainer.get(RouteCostCalculator.class);
+
         txn = database.beginTx();
     }
 
@@ -52,28 +68,61 @@ class BusRouteCostCalculatorTest {
 
     @BusTest
     @Test
+    void shouldHaveStations() {
+        assertNotNull(altrinchamInterchange);
+        assertNotNull(stockportBusStation);
+        assertNotNull(shudehillInterchange);
+    }
+
+    @BusTest
+    @Test
+    void shouldFindCostsCorrectlyForAltyStockportComp() {
+        Assertions.assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
+        Assertions.assertEquals(42, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
+    }
+
+    @BusTest
+    @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        Assertions.assertEquals(36, getApproxCostBetween(StopAtAltrinchamInterchange, StopAtStockportBusStation));
+        Assertions.assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(StopAtAltrinchamInterchange, StopAtStockportBusStation));
         Assertions.assertEquals(42, getApproxCostBetween(StopAtStockportBusStation, StopAtAltrinchamInterchange));
     }
 
     @BusTest
     @Test
+    void shouldFindCostsCorrectlyForShudehillAltyComp() {
+        Assertions.assertEquals(55, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
+        Assertions.assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
+    }
+
+    @BusTest
+    @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        Assertions.assertEquals(56, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
         Assertions.assertEquals(57, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
+        Assertions.assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
+    }
+
+    @BusTest
+    @Test
+    void shouldFindCostsCorrectlyForShudehillStockportComp() {
+        Assertions.assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(shudehillInterchange, stockportBusStation));
+        Assertions.assertEquals(44, getApproxCostBetween(stockportBusStation, shudehillInterchange));
     }
 
     @BusTest
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        Assertions.assertEquals(36, getApproxCostBetween(ShudehillInterchange, StopAtStockportBusStation));
-        Assertions.assertEquals(40, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
+        Assertions.assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(ShudehillInterchange, StopAtStockportBusStation));
+        Assertions.assertEquals(46, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
     }
 
     private int getApproxCostBetween(BusStations start, BusStations end) {
         return routeCost.getApproxCostBetween(txn,
                 TestStation.real(stationRepository,start), TestStation.real(stationRepository,end));
+    }
+
+    private int getApproxCostBetween(Station start, Station end) {
+        return routeCost.getApproxCostBetween(txn, start, end);
     }
 
 }

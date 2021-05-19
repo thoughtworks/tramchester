@@ -181,7 +181,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         if (from.hasRelationship(OUTGOING, LINKED)) {
             Iterable<Relationship> existings = from.getRelationships(OUTGOING, LINKED);
 
-            // if there is an existing link between staions then update iff the transport mode not already present
+            // if there is an existing link between stations then update iff the transport mode not already present
             for (Relationship existing : existings) {
                 if (existing.getEndNode().equals(to)) {
                     Set<TransportMode> existingModes = getTransportModes(existing);

@@ -104,7 +104,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             // TODO Agencies could be done in parallel as should be no overlap except at station level?
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
-                    try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId())) {
+                    try (Timing agencyTiming = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
                         buildForAgency(graphDatabase, agency, builderCache);
                     }
                 }
@@ -158,13 +158,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return;
         }
 
-        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "onRoutes")) {
+        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "onRoute for " + agency.getId())) {
             Transaction tx = timedTransaction.transaction();
             getRoutesForAgency(agency).forEach(route -> createOnRouteRelationships(tx, route, builderCache));
             timedTransaction.commit();
         }
 
-        try(Timing timing = new Timing(logger,"service, hour")) {
+        try(Timing timing = new Timing(logger,"service, hour for " + agency.getId())) {
             getRoutesForAgency(agency).parallel().forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
                     createServiceAndHourNodesForRoute(tx, route, builderCache);
@@ -173,7 +173,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             });
         }
 
-        try(Timing timing = new Timing(logger,"time and update for trips")) {
+        try(Timing timing = new Timing(logger,"time and update for trips for " + agency.getId())) {
             getRoutesForAgency(agency).parallel().forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
                     ServiceRelationshipTrips serviceRelationshipTrips = new ServiceRelationshipTrips();
@@ -184,7 +184,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             });
         }
 
-        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "boards & departs")) {
+        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "boards & departs for " + agency.getId())) {
             Transaction tx = timedTransaction.transaction();
             getRoutesForAgency(agency).forEach(route -> buildGraphForBoardsAndDeparts(route, builderCache, tx));
             timedTransaction.commit();

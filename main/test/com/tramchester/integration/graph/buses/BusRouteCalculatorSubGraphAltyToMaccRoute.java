@@ -163,6 +163,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     @Test
     void shouldHaveJourneyKnutsfordToAlty() {
+        // NOTE: can cause (ignorable) errors on destination station node ID search as some of the these stations are
+        // not on the specified filtered routes, so not present in the DB
         CompositeStation start = compositeStationRepository.findByName("Bus Station, Knutsford");
         CompositeStation end = compositeStationRepository.findByName("Altrincham Interchange");
 

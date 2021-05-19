@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,8 +68,18 @@ public class MapPathToStagesViaStates implements PathToStages {
         try(Transaction txn = graphDatabase.beginTx()) {
             destinationNodeIds = endStations.stream().
                     map(station -> graphQuery.getStationOrGrouped(txn, station)).
+                    filter(Objects::nonNull).
                     map(Entity::getId).
                     collect(Collectors.toSet());
+        }
+        if (endStations.size()!=destinationNodeIds.size()) {
+            logger.error("Could not find destination node ids for all end stations (is the graph filtered?)");
+            try(Transaction txn = graphDatabase.beginTx()) {
+                IdSet<Station> noNodeFound = endStations.stream().
+                        filter(station -> graphQuery.getStationOrGrouped(txn, station) == null).
+                        collect(IdSet.collector());
+                logger.error("Missing nodes id for these desinations: " + noNodeFound);
+            }
         }
         return destinationNodeIds;
     }

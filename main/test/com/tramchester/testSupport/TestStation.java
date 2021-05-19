@@ -8,6 +8,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.StationRepositoryPublic;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -86,7 +87,7 @@ public class TestStation extends Station {
         return super.getRoutes();
     }
 
-    public static Station real(StationRepository repository, TestStations hasId) {
+    public static Station real(StationRepositoryPublic repository, TestStations hasId) {
         return repository.getStationById(hasId.getId());
     }
 

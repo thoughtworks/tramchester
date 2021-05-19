@@ -86,8 +86,7 @@ public class ReachabilityRepository {
         private Map<IdFor<RouteStation>, IdSet<Station>> reachableFrom;
 
         private Repository() {
-            //canReachInterchange = new IdSet<>();
-            //reachableFrom = new HashMap<>();
+
         }
 
         public void dispose() {

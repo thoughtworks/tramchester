@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.ON_ROUTE;
 import static java.lang.String.format;
@@ -31,15 +30,17 @@ public class RouteReachable {
     private final StationRepository stationRepository;
     private final GraphQuery graphQuery;
     private final RouteCallingStations routeCallingStations;
+    private final InterchangeRepository interchangeRepository;
 
     @Inject
     public RouteReachable(GraphDatabase graphDatabaseService, StationRepository stationRepository,
                           GraphQuery graphQuery, RouteCallingStations routeCallingStations,
-                          StagedTransportGraphBuilder.Ready ready) {
+                          StagedTransportGraphBuilder.Ready ready, InterchangeRepository interchangeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.graphQuery = graphQuery;
         this.routeCallingStations = routeCallingStations;
+        this.interchangeRepository = interchangeRepository;
     }
 
     /***
@@ -49,6 +50,10 @@ public class RouteReachable {
      */
     public boolean isInterchangeReachableOnRoute(RouteStation start) {
         logger.debug("Checking interchange reachability from " + start.getStationId());
+
+        if (interchangeRepository.isInterchange(start.getStationId())) {
+            return true;
+        }
 
         boolean result;
         try (Transaction txn = graphDatabaseService.beginTx()) {
@@ -61,7 +66,7 @@ public class RouteReachable {
     }
 
     /***
-     * Filters destinations based on whether reachable from start on same route, no interchanges
+     * Finds destinations based on whether reachable from start on same route, no interchanges
      * @param start starting point
      * @return destinations reachable from start via same route
      */
@@ -89,10 +94,11 @@ public class RouteReachable {
         params.put("route_station_id", start.getId().getGraphId());
         params.put("route_id", start.getRoute().getId().getGraphId());
 
-        String query = "MATCH (begin:ROUTE_STATION)-[:ON_ROUTE*0..]->(dest:INTERCHANGE) " +
+        String query = "MATCH (begin:ROUTE_STATION)-[route:ON_ROUTE*1..]->(dest:INTERCHANGE) " +
                 "WHERE (begin.route_station_id = $route_station_id) " +
                 "AND (dest.route_id = $route_id) " +
-                "RETURN DISTINCT dest";
+                "RETURN DISTINCT dest " +
+                "LIMIT 1";
 
         boolean foundRoute;
         Result result = txn.execute(query, params);
@@ -112,7 +118,8 @@ public class RouteReachable {
                 "WHERE (begin.route_station_id = $route_station_id) " +
                 " AND (dest.route_id = $route_id) " +
                 " AND (dest.station_id = $station_id) " +
-                "RETURN DISTINCT dest";
+                "RETURN DISTINCT dest " +
+                "LIMIT 1";
 
         boolean foundRoute;
         Result result = txn.execute(query, params);

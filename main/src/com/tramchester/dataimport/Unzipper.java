@@ -90,7 +90,7 @@ public class Unzipper {
             logger.warn(format("File %s exists but size (%s) does not match (%s)",
                     file, file.length(), zipEntry.getSize()));
         } else {
-            logger.info(format("File %s exists size (%s) matches (%s)",
+            logger.debug(format("File %s exists size (%s) matches (%s)",
                     file, file.length(), zipEntry.getSize()));
         }
         return sizeMatches;
@@ -103,7 +103,7 @@ public class Unzipper {
             logger.info(format("File %s exists but mod time (%s) does not match (%s)",
                     file, file.lastModified(), zipEntry.getLastModifiedTime()));
         } else {
-            logger.info(format("File %s mod time (%s) match (%s)",
+            logger.debug(format("File %s mod time (%s) match (%s)",
                     file, file.lastModified(), zipEntry.getLastModifiedTime()));
         }
         return modTimeMatches;
