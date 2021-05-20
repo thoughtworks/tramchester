@@ -233,7 +233,7 @@ task integration(type: Test, dependsOn: compileJava) {
 
 task integrationBus(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
-    maxHeapSize = "2500m"
+    maxHeapSize = "3000m"
     useJUnitPlatform {
         includeTags "BusTest"
     }
