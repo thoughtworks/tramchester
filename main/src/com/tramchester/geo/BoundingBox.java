@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.presentation.LatLong;
 
 import javax.validation.Valid;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Valid
 public class BoundingBox {
@@ -97,6 +100,34 @@ public class BoundingBox {
             return false;
         }
         return true;
+    }
+
+    public Set<BoundingBox> quadrants() {
+        Set<BoundingBox> result = new HashSet<>();
+        final long left = bottomLeft.getEastings();
+        final long top = topRight.getNorthings();
+        final long bottom = bottomLeft.getNorthings();
+        final long right = topRight.getEastings();
+
+        long midEasting = left + ((right - left) / 2);
+        long midNorthing = bottom +  ((top - bottom) / 2);
+
+        GridPosition middle = new GridPosition(midEasting, midNorthing);
+
+        BoundingBox bottomLeftQuadrant = new BoundingBox(bottomLeft, middle);
+        BoundingBox topRightQuadrant = new BoundingBox(middle, topRight);
+
+        BoundingBox topLeftQuadrant = new BoundingBox(
+                new GridPosition(left, midNorthing), new GridPosition(midEasting, top));
+        BoundingBox bottomRightQuadrant = new BoundingBox(
+                new GridPosition(midEasting, bottom), new GridPosition(right, midNorthing));
+
+        result.add(bottomLeftQuadrant);
+        result.add(topRightQuadrant);
+        result.add(topLeftQuadrant);
+        result.add(bottomRightQuadrant);
+
+        return result;
     }
 
     @Override

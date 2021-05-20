@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public class FindNear {
 
-    public static <T extends Location<T>>  Stream<T> getNearTo(Stream<T> positions, GridPosition otherPosition,
+    public static <T extends Location<T>> Stream<T> getNearTo(Stream<T> positions, GridPosition otherPosition,
                                                                MarginInMeters rangeInMeters) {
         return FindNear.getNearbyCrude(positions, otherPosition, rangeInMeters).
                 filter(entry -> GridPositions.withinDist(otherPosition, entry.getGridPosition(), rangeInMeters));

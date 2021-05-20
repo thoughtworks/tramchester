@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -17,6 +18,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.neo4j.graphdb.Transaction;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
@@ -118,17 +120,20 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldPlanRouteEndingInAWalk() {
+        final LocalTime queryTime = LocalTime.of(20, 9);
         Set<JourneyDTO> journeys = validateJourneyToLocation(Deansgate.getId(), TestEnv.nearAltrincham,
-                LocalTime.of(20,9), false);
+                queryTime, false);
 
         journeys.forEach(journeyDTO -> {
+            assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime.atDate(when)));
+
             List<StageDTO> stages = journeyDTO.getStages();
             assertEquals(2, stages.size());
-            StageDTO walkingStage = stages.get(1);
+            assertEquals(TransportMode.Tram, stages.get(0).getMode());
+            assertEquals(TransportMode.Walk, stages.get(1).getMode());
 
-            assertEquals(Altrincham.forDTO(), walkingStage.getFirstStation().getId());
+            StageDTO walkingStage = stages.get(1);
             assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
-            assertEquals(4, walkingStage.getDuration());
         });
     }
 
@@ -138,18 +143,18 @@ class JourneyPlannerLocationResourceTest {
         Set<JourneyDTO> results = validateJourneyToLocation(Deansgate.getId(), TestEnv.nearAltrincham,
                 queryTime, true);
 
-        List<JourneyDTO> journeys = results.stream().filter(journeyDTO -> journeyDTO.getStages().size() == 2).collect(Collectors.toList());
+        List<JourneyDTO> journeys = results.stream().
+                filter(journeyDTO -> journeyDTO.getStages().size() == 2).collect(Collectors.toList());
         assertFalse(journeys.isEmpty());
 
         JourneyDTO firstJourney = journeys.get(0);
-        List<StageDTO> stages = firstJourney.getStages();
-        StageDTO walkingStage = stages.get(1);
         assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.atDate(when)));
 
-        assertEquals(Altrincham.forDTO(), walkingStage.getFirstStation().getId());
-        assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
-        assertEquals(4, walkingStage.getDuration());
-    }
+        List<StageDTO> stages = firstJourney.getStages();
+        assertEquals(2, stages.size());
+        assertEquals(TransportMode.Tram, stages.get(0).getMode());
+        assertEquals(TransportMode.Walk, stages.get(1).getMode());
+   }
 
     @Test
     void shouldGiveWalkingRouteFromMyLocationToNearbyStop() {

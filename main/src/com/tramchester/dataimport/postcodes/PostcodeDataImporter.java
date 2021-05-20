@@ -103,7 +103,7 @@ public class PostcodeDataImporter {
     private PostcodeDataStream loadDataFromFile(Path file, BoundingBox loadedStationsBounds) {
         logger.debug("Load postcode data from " + file.toAbsolutePath());
 
-        MarginInMeters marginInMeters = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        MarginInMeters walkingDistance = stationLocations.getWalkingDistance();
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
         Stream<PostcodeData> stream = getPostcodesFor(loader);
@@ -116,8 +116,8 @@ public class PostcodeDataImporter {
                 logger.info("Postcode in file match bounds " + file);
                 return new PostcodeDataStream(code, true,
                         stream.
-                        filter(postcode -> loadedStationsBounds.within(marginInMeters, postcode.getGridPosition())).
-                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), marginInMeters)));
+                        filter(postcode -> loadedStationsBounds.within(walkingDistance, postcode.getGridPosition())).
+                        filter(postcode -> stationLocations.withinWalkingDistance(postcode.getGridPosition())));
             } else {
                 logger.debug("Skipping " + file + " as contains no positions overlapping with current bounds");
                 return PostcodeDataStream.empty(code);
@@ -127,8 +127,8 @@ public class PostcodeDataImporter {
             return new PostcodeDataStream(code, true,
                 stream.
                     filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
-                    filter(postcode -> loadedStationsBounds.within(marginInMeters, postcode.getGridPosition())).
-                    filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), marginInMeters)));
+                    filter(postcode -> loadedStationsBounds.within(walkingDistance, postcode.getGridPosition())).
+                    filter(postcode -> stationLocations.withinWalkingDistance(postcode.getGridPosition())));
         }
     }
 

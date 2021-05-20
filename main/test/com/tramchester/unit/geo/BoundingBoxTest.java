@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BoundingBoxTest {
 
@@ -87,7 +87,6 @@ class BoundingBoxTest {
         assertTrue(boxB.overlapsWith(boxA));
     }
 
-
     @Test
     void shouldHaveNotOverlaps() {
         BoundingBox boxA = new BoundingBox(1,2, 10,12);
@@ -95,6 +94,30 @@ class BoundingBoxTest {
 
         assertFalse(boxA.overlapsWith(boxB));
         assertFalse(boxB.overlapsWith(boxA));
+    }
+
+    @Test
+    void shouldHaveQuadrants() {
+        BoundingBox box = new BoundingBox(0, 0, 32, 48);
+        Set<BoundingBox> results = box.quadrants();
+        assertEquals(4, results.size());
+        assertTrue(results.contains(new BoundingBox(0,0,16,24)));
+        assertTrue(results.contains(new BoundingBox(16,24,32,48)));
+        assertTrue(results.contains(new BoundingBox(0,24,16,48)));
+        assertTrue(results.contains(new BoundingBox(16,0,32,24)));
+
+    }
+
+    @Test
+    void shouldHaveQuadrantsOffset() {
+        BoundingBox box = new BoundingBox(10, 10, 42, 58);
+        Set<BoundingBox> results = box.quadrants();
+        assertEquals(4, results.size());
+        assertTrue(results.contains(new BoundingBox(10,10,26,34)));
+        assertTrue(results.contains(new BoundingBox(26,34,42,58)));
+        assertTrue(results.contains(new BoundingBox(10,34,26,58)));
+        assertTrue(results.contains(new BoundingBox(26,10,42,34)));
+
     }
 
 }

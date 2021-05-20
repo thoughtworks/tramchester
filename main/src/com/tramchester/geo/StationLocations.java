@@ -1,6 +1,7 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.CompositeStationRepository;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,22 +25,24 @@ import java.util.stream.Stream;
 @LazySingleton
 public class StationLocations implements StationLocationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
+    private static final int DEPTH_LIMIT = 4;
 
     private final StationRepository stationRepository;
     private final CompositeStationRepository compositeRepository;
+    private final Set<BoundingBox> populatedQuadrants;
+    private final MarginInMeters walkingDistance;
 
     private long minEastings;
     private long maxEasting;
     private long minNorthings;
     private long maxNorthings;
 
-    // split comp and non comp?
-//    private final Set<Station> positions;
-
     @Inject
-    public StationLocations(StationRepository stationRepository, CompositeStationRepository compositeRepository) {
+    public StationLocations(StationRepository stationRepository, CompositeStationRepository compositeRepository, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.compositeRepository = compositeRepository;
+        this.walkingDistance = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        populatedQuadrants = new HashSet<>();
 
         // bounding box for all stations
         minEastings = Long.MAX_VALUE;
@@ -51,7 +55,41 @@ public class StationLocations implements StationLocationsRepository {
     public void start() {
         logger.info("starting");
         updateBoundingBox();
+        createQuadrantsList();
         logger.info("started");
+    }
+
+    private void createQuadrantsList() {
+        BoundingBox box = getBounds();
+        populateQuadrants(box, DEPTH_LIMIT);
+        logger.info("Added " + populatedQuadrants.size() + " quadrants");
+    }
+
+    private void populateQuadrants(BoundingBox box, int depthLimit) {
+        int currentLimit = depthLimit - 1;
+        if (currentLimit<=0) {
+            logger.debug("Added " + box);
+            populatedQuadrants.add(box);
+            return;
+        }
+
+        Set<BoundingBox> newQuadrants = box.quadrants();
+        newQuadrants.forEach(quadrant -> {
+            if (containsAny(box, quadrant)) {
+                populateQuadrants(quadrant, currentLimit);
+            }
+        });
+    }
+
+    private boolean containsAny(BoundingBox parent, BoundingBox quadrant) {
+        return getStationStream().
+                filter(station -> parent.within(walkingDistance, station.getGridPosition())).
+                anyMatch(station -> quadrant.within(walkingDistance, station.getGridPosition()));
+    }
+
+    private Stream<Station> getStationStream() {
+        return stationRepository.getStationStream().
+                filter(station -> station.getGridPosition().isValid());
     }
 
     @PreDestroy
@@ -60,10 +98,11 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     private void updateBoundingBox() {
-        stationRepository.getStationStream().
+        getStationStream().
                 map(Station::getGridPosition).
                 filter(GridPosition::isValid).
                 forEach(this::updateBoundingBox);
+        logger.info("Found bounds as " + getBounds());
     }
 
     private void updateBoundingBox(GridPosition gridPosition) {
@@ -105,15 +144,27 @@ public class StationLocations implements StationLocationsRepository {
 
     @Override
     public Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters) {
-        return FindNear.getNearTo(stationRepository.getStationStream(), station.getGridPosition(), rangeInMeters);
+        return FindNear.getNearTo(getStationStream(), station.getGridPosition(), rangeInMeters);
     }
 
     public BoundingBox getBounds() {
         return new BoundingBox(minEastings, minNorthings, maxEasting, maxNorthings);
     }
 
-    public boolean hasAnyNearby(GridPosition hasGridPosition, MarginInMeters rangeInMeters) {
-        return  FindNear.getNearTo(stationRepository.getStationStream(), hasGridPosition, rangeInMeters).findAny().isPresent();
+    public boolean withinWalkingDistance(GridPosition position) {
+        Set<BoundingBox> quadrants = populatedQuadrants.stream().
+                filter(quadrant -> quadrant.within(walkingDistance, position)).
+                collect(Collectors.toSet());
+        if (quadrants.isEmpty()) {
+            logger.debug("No quadrant contains " + position);
+            return false;
+        }
+
+        Stream<Station> candidateStations = getStationStream().
+                filter(station -> quadrants.stream().anyMatch(quad -> quad.contained(station.getGridPosition())));
+
+        return FindNear.getNearTo(candidateStations, position, walkingDistance).
+                findAny().isPresent();
     }
 
     public Stream<BoundingBoxWithStations> getGroupedStations(long gridSize) {
@@ -126,6 +177,13 @@ public class StationLocations implements StationLocationsRepository {
         return getBoundingBoxsFor(gridSize).
                 map(box -> new BoundingBoxWithStations(box, getStationsWithin(box))).
                 filter(BoundingBoxWithStations::hasStations);
+    }
+
+    private Set<Station> getStationsWithin(BoundingBox box) {
+        // TODO need more efficient way to do this?
+        return getStationStream().
+                filter(entry -> box.contained(entry.getGridPosition())).
+                collect(Collectors.toSet());
     }
 
     public Stream<BoundingBox> getBoundingBoxsFor(long gridSize) {
@@ -144,11 +202,7 @@ public class StationLocations implements StationLocationsRepository {
         return LongStream.iterate(minNorthings, current -> current <= maxNorthings, current -> current + gridSize).boxed();
     }
 
-    private Set<Station> getStationsWithin(BoundingBox box) {
-        // TODO need more efficient way to do this?
-        return stationRepository.getStationStream().
-                filter(entry -> box.contained(entry.getGridPosition())).
-                collect(Collectors.toSet());
+    public MarginInMeters getWalkingDistance() {
+        return walkingDistance;
     }
-
 }

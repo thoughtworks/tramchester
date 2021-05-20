@@ -93,13 +93,11 @@ public class PostcodeRepository {
     public boolean hasPostcode(IdFor<PostcodeLocation> postcode) {
         return postcodesAreas.values().stream().
                 anyMatch(map -> map.hasId(postcode));
-//        return postcodesAreas.hasId(postcode);
     }
 
     public Collection<PostcodeLocation> getPostcodes() {
         return postcodesAreas.values().stream().
                 flatMap(IdMap::getValuesStream).collect(Collectors.toSet());
-//        return Collections.unmodifiableCollection(postcodesAreas.getValues());
     }
 
     public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, MarginInMeters meters) {
@@ -108,6 +106,5 @@ public class PostcodeRepository {
                 filter(entry -> codes.contains(entry.getKey())).
                 map(entry -> entry.getValue().getValuesStream()).
                 flatMap(postcodeLocations -> FindNear.getNearTo(postcodeLocations, location, meters));
-//        return FindNear.getNearTo(postcodesAreas.getValuesStream(), location, meters);
     }
 }
