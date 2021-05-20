@@ -76,7 +76,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
 
         try(Transaction tx = graphDatabaseService.beginTx() ) {
             JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
-                    queryTime, config.getMaxJourneyDuration());
+                    queryTime, config.getMaxJourneyDuration(), config.getMaxNumResults());
 
             Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
             JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(dtoStream.collect(Collectors.toSet()));
@@ -125,7 +125,7 @@ public class JourneyPlannerResource extends UsesRecentCookie {
 
         try {
             JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
-                    queryTime, config.getMaxJourneyDuration());
+                    queryTime, config.getMaxJourneyDuration(), config.getMaxNumResults());
             Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
 
             JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
@@ -142,12 +142,12 @@ public class JourneyPlannerResource extends UsesRecentCookie {
 
     @NotNull
     private JourneyRequest createJourneyRequest(String departureDateRaw, String arriveByRaw, int maxChanges,
-                                                TramTime queryTime, int maxJourneyDuration) {
+                                                TramTime queryTime, int maxJourneyDuration, long maxNumberOfJourneys) {
         LocalDate date = LocalDate.parse(departureDateRaw);
         TramServiceDate queryDate = new TramServiceDate(date);
 
         boolean arriveBy = Boolean.parseBoolean(arriveByRaw);
-        return new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges, maxJourneyDuration);
+        return new JourneyRequest(queryDate, queryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys);
     }
 
 

@@ -57,7 +57,8 @@ class RouteCalculatorKeyRoutesBusTest {
         combinations = new RouteCalculationCombinations(componentContainer);
         time = TramTime.of(8, 0);
         int numberChanges = 3;
-        journeyRequest = new JourneyRequest(when, time, false, numberChanges, testConfig.getMaxJourneyDuration());
+        journeyRequest = new JourneyRequest(when, time, false, numberChanges,
+                testConfig.getMaxJourneyDuration(), 1);
     }
 
     @Test

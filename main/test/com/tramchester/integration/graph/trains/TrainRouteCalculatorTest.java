@@ -81,9 +81,9 @@ class TrainRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 0,
-                3*60);
+                3*60, 3);
         Set<Journey> journeys = testFacade.calculateRouteAsSet(TrainStations.LondonEuston, ManchesterPiccadilly,
-                request, 3);
+                request);
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
@@ -118,7 +118,7 @@ class TrainRouteCalculatorTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                30);
+                30, 1);
 
         atLeastOneDirect(request, Stockport, ManchesterPiccadilly);
     }
@@ -128,7 +128,7 @@ class TrainRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                30);
+                30, 1);
         atLeastOneDirect(request, Hale, Knutsford);
     }
 
@@ -137,29 +137,28 @@ class TrainRouteCalculatorTest {
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
-                30);
+                30, 1);
         atLeastOneDirect(request, Knutsford, Hale);
     }
 
-
-    @NotNull
-    private List<Pair<IdFor<Station>, IdFor<Station>>> queryForJourneys(JourneyRequest request, IdSet<Station> stationIds) {
-        List<Pair<IdFor<Station>, IdFor<Station>>> failed = new ArrayList<>();
-        for(IdFor<Station> begin : stationIds) {
-            for(IdFor<Station> end : stationIds) {
-                if (!begin.equals(end)) {
-                    Set<Journey> journeys = testFacade.calculateRouteAsSet(begin, end, request, 1);
-                    if (journeys.isEmpty()) {
-                        failed.add(Pair.of(begin,end));
-                    }
-                }
-            }
-        }
-        return failed;
-    }
+//    @NotNull
+//    private List<Pair<IdFor<Station>, IdFor<Station>>> queryForJourneys(JourneyRequest request, IdSet<Station> stationIds) {
+//        List<Pair<IdFor<Station>, IdFor<Station>>> failed = new ArrayList<>();
+//        for(IdFor<Station> begin : stationIds) {
+//            for(IdFor<Station> end : stationIds) {
+//                if (!begin.equals(end)) {
+//                    Set<Journey> journeys = testFacade.calculateRouteAsSet(begin, end, request);
+//                    if (journeys.isEmpty()) {
+//                        failed.add(Pair.of(begin,end));
+//                    }
+//                }
+//            }
+//        }
+//        return failed;
+//    }
 
     private void atLeastOneDirect(JourneyRequest request, TrainStations start, TrainStations dest) {
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request, 1);
+        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
         assertFalse(journeys.isEmpty());
 
         // At least one direct

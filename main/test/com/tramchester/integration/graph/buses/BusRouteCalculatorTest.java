@@ -87,8 +87,8 @@ class BusRouteCalculatorTest {
         LocalDate nextMonday = TestEnv.nextMonday();
 
         JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 2,
-                maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(stockport, alty, requestA, 3);
+                maxJourneyDuration, 3);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(stockport, alty, requestA);
         assertFalse(journeys.isEmpty());
 
         // At least one direct
@@ -98,8 +98,8 @@ class BusRouteCalculatorTest {
         assertFalse(direct.isEmpty());
 
         JourneyRequest requestB = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 4,
-                maxJourneyDuration);
-        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(alty, stockport, requestB, 3);
+                maxJourneyDuration, 3);
+        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(alty, stockport, requestB);
 
         // algo seems to return very large number of changes even when 2 is possible??
         List<Journey> journeys2Stages = journeysMaxChanges.stream().
@@ -121,7 +121,7 @@ class BusRouteCalculatorTest {
 
         final LocalDate futureDate = LocalDate.now().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
-                TramTime.of(8,19), false, 3, maxJourneyDuration);
+                TramTime.of(8,19), false, 3, maxJourneyDuration, 1);
 
         @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
         assertFalse(results.isEmpty());
@@ -133,7 +133,8 @@ class BusRouteCalculatorTest {
         CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
 
         TramTime time = TramTime.of(10, 40);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, 120);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
+                120, 1);
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -145,7 +146,8 @@ class BusRouteCalculatorTest {
         CompositeStation end = compositeStationRepository.findByName("Altrincham Interchange");
 
         TramTime time = TramTime.of(11, 20);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3, 120);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
+                3, 120, 1);
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
@@ -160,7 +162,7 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(15, 55);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
-                maxJourneyDuration);
+                maxJourneyDuration, 3);
         Set<Journey> journeys = calculator.calculateRouteAsSet(start, end, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -179,8 +181,8 @@ class BusRouteCalculatorTest {
     void shouldHavePiccadilyToStockportJourney() {
         int maxChanges = 2;
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0), false, maxChanges,
-                maxJourneyDuration);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, StopAtStockportBusStation, journeyRequest, 3);
+                maxJourneyDuration, 3);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, StopAtStockportBusStation, journeyRequest);
         assertFalse(journeys.isEmpty());
         List<Journey> threeStagesOrLess = journeys.stream().filter(journey -> journey.getStages().size() <= (maxChanges + 1)).collect(Collectors.toList());
         assertFalse(threeStagesOrLess.isEmpty());
@@ -192,7 +194,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHaveSimpleTramJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0), false, 5,
-                maxJourneyDuration);
-        calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.Cornbrook, journeyRequest, 1);
+                maxJourneyDuration, 1);
+        calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.Cornbrook, journeyRequest);
     }
 }

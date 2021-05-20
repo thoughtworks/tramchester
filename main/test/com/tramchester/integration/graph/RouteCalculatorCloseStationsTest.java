@@ -68,25 +68,25 @@ class RouteCalculatorCloseStationsTest {
     @Test
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
-                2,120 );
-        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest, 1);
+                2, 120, 1);
+        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
     }
     
     @Test
     void shouldFindRouteAroundClosedStation() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when),TramTime.of(8,0), false,
-                2,120 );
+                2, 120, 1);
         Set<Journey> result = calculator.calculateRouteAsSet(TramStations.PiccadillyGardens, TramStations.Victoria,
-                journeyRequest, 1);
+                journeyRequest);
         assertFalse(result.isEmpty());
     }
 
     @Test
     void shouldNotFindRouteToClosedStation() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0),
-                false, 1, 120);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Shudehill, journeyRequest,1);
+                false, 1, 120, 1);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.Shudehill, journeyRequest);
         assertTrue(journeys.isEmpty());
     }
 

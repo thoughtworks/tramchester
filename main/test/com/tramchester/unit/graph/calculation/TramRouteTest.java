@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
-import static com.tramchester.testSupport.TestEnv.nearWythenshaweHosp;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -87,7 +86,7 @@ class TramRouteTest {
 
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
-        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration());
+        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration(), 3);
     }
 
     @AfterEach

@@ -68,7 +68,6 @@ class PostcodeBusRouteCalculatorTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
-        planner.closeAfterNumJourneysFound(1);
     }
 
     @AfterEach
@@ -79,7 +78,7 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToPicc() {
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
-                createRequest(2), 7);
+                createRequest(2), 4);
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
@@ -196,7 +195,9 @@ class PostcodeBusRouteCalculatorTest {
 
     @NotNull
     private JourneyRequest createRequest(int maxChanges) {
-        return new JourneyRequest(new TramServiceDate(day), time, false, maxChanges, testConfig.getMaxJourneyDuration());
+        long maxNumberOfJourneys = 1;
+        return new JourneyRequest(new TramServiceDate(day), time, false, maxChanges, testConfig.getMaxJourneyDuration(),
+                maxNumberOfJourneys);
     }
 
     private void assertWalkAtStart(Set<Journey> journeys) {

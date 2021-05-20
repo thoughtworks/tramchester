@@ -83,13 +83,12 @@ class CompositeRouteTest {
 
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepository, txn);
-        locationJourneyPlanner.closeAfterNumJourneysFound(2);
 
     }
 
     @NotNull
     private JourneyRequest createJourneyRequest(TramTime queryTime, int maxChanges) {
-        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration());
+        return new JourneyRequest(queryDate, queryTime, false, maxChanges, config.getMaxJourneyDuration(), 2);
     }
 
     @AfterEach

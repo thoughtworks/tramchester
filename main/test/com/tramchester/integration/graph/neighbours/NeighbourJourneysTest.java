@@ -93,7 +93,7 @@ public class NeighbourJourneysTest {
     void shouldTramNormally() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 2, config.getMaxJourneyDuration());
+                TramTime.of(11,53), false, 2, config.getMaxJourneyDuration(), 1);
 
         Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Shudehill, request);
 
@@ -109,7 +109,7 @@ public class NeighbourJourneysTest {
     void shouldTramThenWalk() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 0, config.getMaxJourneyDuration());
+                TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
 
         Station startStation = stationRepository.getStationById(Bury.getId());
         Set<Journey> allJourneys = routeCalculator.calculateRouteAsSet(startStation, shudeHillStop, request);
@@ -130,7 +130,7 @@ public class NeighbourJourneysTest {
     private void validateDirectWalk(Station start, Station end) {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
-                        false, 0, config.getMaxJourneyDuration());
+                        false, 0, config.getMaxJourneyDuration(), 1);
 
         Set<Journey> journeys =  routeCalculator.calculateRouteAsSet(start, end, request);
 

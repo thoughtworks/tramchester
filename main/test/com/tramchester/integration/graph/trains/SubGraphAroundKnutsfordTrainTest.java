@@ -128,15 +128,15 @@ class SubGraphAroundKnutsfordTrainTest {
     @NotNull
     private Set<Journey> getJourneys(TestStations start, TestStations destination, LocalDate when) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                30);
+                30, 1);
         return testFacade.calculateRouteAsSet(start,destination, journeyRequest);
     }
 
     private void validateAtLeastOneJourney(TestStations start, TestStations dest) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                30);
+                30, 1);
 
-        Set<Journey> results = testFacade.calculateRouteAsSet(start, dest, journeyRequest, 1);
+        Set<Journey> results = testFacade.calculateRouteAsSet(start, dest, journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest);
     }
 

@@ -89,9 +89,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         latLongHint = TramStations.ManAirport.getLatLong();
         destinationNodeId = 88L;
 
+        long maxNumberOfJourneys = 2;
         JourneyRequest journeyRequest = new JourneyRequest(
                 TramServiceDate.of(TestEnv.nextSaturday()), TramTime.of(8,15), false,
-                3, config.getMaxJourneyDuration());
+                3, config.getMaxJourneyDuration(), maxNumberOfJourneys);
         reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesLocalNow, 3);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);

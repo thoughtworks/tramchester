@@ -40,17 +40,16 @@ public class FastestRoutesForBoxes {
         this.dtoMapper = dtoMapper;
     }
 
-    public Stream<BoundingBoxWithCost> findForGrid(Station destination, long gridSize,
-                                                   JourneyRequest journeyRequest, long numberToFind)  {
+    public Stream<BoundingBoxWithCost> findForGrid(Station destination, long gridSize, JourneyRequest journeyRequest)  {
 
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
         GridPosition gridPosition = destination.getGridPosition();
 
-        return findForGrid(gridPosition, gridSize, journeyRequest, numberToFind);
+        return findForGrid(gridPosition, gridSize, journeyRequest);
     }
 
     @NotNull
-    public Stream<BoundingBoxWithCost> findForGrid(GridPosition destination, long gridSize, JourneyRequest journeyRequest, long numberToFind) {
+    public Stream<BoundingBoxWithCost> findForGrid(GridPosition destination, long gridSize, JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
@@ -63,7 +62,7 @@ public class FastestRoutesForBoxes {
         Set<Station> destinations = searchBoxWithDest.get().getStaions();
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
-        return calculator.calculateRoutes(destinations, journeyRequest, grouped, numberToFind).
+        return calculator.calculateRoutes(destinations, journeyRequest, grouped).
                 map(box->cheapest(box, destination, journeyRequest));
     }
 

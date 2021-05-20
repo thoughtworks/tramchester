@@ -4,6 +4,7 @@ import com.tramchester.App;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,15 +103,20 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldPlanJourneyFromPostcodeToBusStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(TestPostcodes.CentralBury), BusStations.ShudehillInterchange.forDTO(), time, day,
-                null, false, 5);
+                null, false, 1);
 
         assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
-        journeys.forEach(journeyDTO -> assertEquals(journeyDTO.getStages().get(0).getMode(), TransportMode.Walk));
-        journeys.forEach(journeyDTO -> assertEquals(journeyDTO.getEnd().getId(), BusStations.ShudehillInterchange.forDTO()));
+        journeys.forEach(journey -> {
+            final List<StageDTO> stages = journey.getStages();
+            assertEquals(2, stages.size(), journey.toString());
+            assertEquals(stages.get(0).getMode(), TransportMode.Walk, journey.toString());
+            assertEquals(stages.get(1).getMode(), TransportMode.Bus);
+            assertEquals(journey.getEnd().getId(), BusStations.ShudehillInterchange.forDTO(), journey.toString());
+        });
     }
 
     @Test

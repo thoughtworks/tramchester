@@ -86,15 +86,17 @@ public class JourneysForGridResource {
         TramTime queryTime = maybeDepartureTime.get();
         LocalDate date = LocalDate.parse(departureDateRaw);
 
+        // just find the first one -- todo this won't be lowest cost route....
+        long maxNumberOfJourneys = 1;
+
         TramServiceDate tramServiceDate = new TramServiceDate(date);
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, queryTime,
-                false, maxChanges, maxDuration);
+                false, maxChanges, maxDuration, maxNumberOfJourneys);
         journeyRequest.setWarnIfNoResults(false);
-        long numberToFind = maxChanges;
 
         logger.info("Create search");
         Stream<BoxWithCostDTO> results = search.
-                findForGrid(destination, gridSize, journeyRequest, numberToFind).
+                findForGrid(destination, gridSize, journeyRequest).
                 map(box -> transformToDTO(box, tramServiceDate));
         logger.info("Creating stream");
         JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results, objectMapper);

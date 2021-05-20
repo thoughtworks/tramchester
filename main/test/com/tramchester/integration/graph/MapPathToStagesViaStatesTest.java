@@ -3,7 +3,6 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -212,7 +211,8 @@ public class MapPathToStagesViaStatesTest {
 
 
     private List<TransportStage<?, ?>> getStagesFor(TramTime queryTime, int numChanges, Station startStation, LatLong walkingDest) {
-        JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150);
+        JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges,
+                150, 1);
 
         Node startNode = graphQuery.getStationNode(txn, startStation);
         Node endNodeWalkNode = locationJourneyPlanner.createWalkingNode(txn, walkingDest, journeyRequest);
@@ -243,7 +243,7 @@ public class MapPathToStagesViaStatesTest {
 
     private List<TransportStage<?, ?>> getStagesFor(TramTime queryTime, int numChanges, LatLong start, Station destination) {
         Set<Station> endStations = Collections.singleton(destination);
-        JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150);
+        JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150, 1);
 
         Node endNode = graphQuery.getStationNode(txn, destination);
         Node startOfWalkNode = locationJourneyPlanner.createWalkingNode(txn, start, journeyRequest);
@@ -265,7 +265,7 @@ public class MapPathToStagesViaStatesTest {
     private List<TransportStage<?, ?>> getStagesFor(TramTime queryTime, int numChanges, Station startStation, Station destination) {
         Set<Station> endStations = Collections.singleton(destination);
 
-        JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150);
+        JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges, 150, 1);
 
         List<RouteCalculator.TimedPath> timedPaths = getPathFor(startStation, destination, endStations, journeyRequest);
         assertFalse(timedPaths.isEmpty());

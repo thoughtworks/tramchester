@@ -21,7 +21,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.Collections;
 import java.util.List;
@@ -95,7 +94,7 @@ class FastestRoutesForBoxesTest {
     }
 
     @Test
-    void shouldFindRoutesForAllExceptStart() throws TransformException {
+    void shouldFindRoutesForAllExceptStart() {
         TramStations testStationWithInvalidPosition = TramStations.StPetersSquare;
 
         LatLong latLong = TestEnv.stPetersSquareLocation();
@@ -103,10 +102,10 @@ class FastestRoutesForBoxesTest {
         Station destination = new Station(testStationWithInvalidPosition.getId(), testStationWithInvalidPosition.getArea(),
                 testStationWithInvalidPosition.getName(), latLong, grid);
         TramTime time = TramTime.of(9,15);
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), time, false, 3, 120);
-        long numberToFind = 3;
+        JourneyRequest journeyRequest = new JourneyRequest(
+                new TramServiceDate(TestEnv.testDay()), time, false, 2, 120, 3);
 
-        Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest, numberToFind);
+        Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 
         List<BoundingBoxWithCost> noRoute = results.filter(result -> result.getMinutes() <= 0).collect(Collectors.toList());
 

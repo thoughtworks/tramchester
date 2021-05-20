@@ -7,8 +7,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
-import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
 
@@ -20,7 +18,6 @@ public class LocationJourneyPlannerTestFacade {
     private final LocationJourneyPlanner planner;
     private final StationRepository stationRepository;
     private final Transaction txn;
-    private int maxJourneys = 100;
 
     public LocationJourneyPlannerTestFacade(LocationJourneyPlanner thePlanner, StationRepository stationRepository, Transaction txn) {
         this.planner = thePlanner;
@@ -68,13 +65,9 @@ public class LocationJourneyPlannerTestFacade {
     private Set<Journey> asSetClosed(Stream<Journey> theStream, int maxStages) {
         Set<Journey> result = theStream.
                 filter(journey -> journey.getStages().size()<=maxStages).
-                limit(maxJourneys).
                 collect(Collectors.toSet());
         theStream.close();
         return result;
     }
 
-    public void closeAfterNumJourneysFound(int maxJourneys) {
-        this.maxJourneys = maxJourneys;
-    }
 }

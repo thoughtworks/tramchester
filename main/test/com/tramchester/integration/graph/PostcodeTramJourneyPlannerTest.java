@@ -67,7 +67,6 @@ class PostcodeTramJourneyPlannerTest {
         txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner =  new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
-        planner.closeAfterNumJourneysFound(3);
         repository = componentContainer.get(PostcodeRepository.class);
         centralLocation = repository.getPostcode(TestPostcodes.NearPiccadillyGardens.getId());
     }
@@ -82,9 +81,10 @@ class PostcodeTramJourneyPlannerTest {
         int maxJourneyDuration = testConfig.getMaxJourneyDuration();
         TramServiceDate date = new TramServiceDate(when);
         int maxChanges = 2;
+        long maxNumberOfJourneys = 3;
         return Stream.of(
-                new JourneyRequest(date, planningTime, false, maxChanges, maxJourneyDuration),
-                new JourneyRequest(date, planningTime, true, maxChanges, maxJourneyDuration));
+                new JourneyRequest(date, planningTime, false, maxChanges, maxJourneyDuration, maxNumberOfJourneys),
+                new JourneyRequest(date, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys));
     }
 
     @ParameterizedTest

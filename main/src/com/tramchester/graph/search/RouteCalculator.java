@@ -107,6 +107,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                         map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, previousSuccessfulVisit)).
+                limit(journeyRequest.getMaxNumberOfJourneys()).
                 map(path -> createJourney(journeyRequest, path, destinations));
 
         if (journeyRequest.getDiagnosticsEnabled()) {

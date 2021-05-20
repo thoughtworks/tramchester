@@ -13,37 +13,28 @@ public class JourneyRequest {
     private final int maxChanges;
     private final UUID uid;
     private final int maxJourneyDuration;
+    private final long maxNumberOfJourneys;
 
     private boolean diagnostics;
     private boolean warnIfNoResults;
 
-    public JourneyRequest(LocalDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration) {
-        this(new TramServiceDate(date), time, arriveBy, maxChanges, maxJourneyDuration);
+    public JourneyRequest(LocalDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration,
+                          long maxNumberOfJourneys) {
+        this(new TramServiceDate(date), time, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys);
     }
 
-    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration) {
+    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy, int maxChanges,
+                          int maxJourneyDuration, long maxNumberOfJourneys) {
         this.date = date;
         this.time = time;
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
         this.maxJourneyDuration = maxJourneyDuration;
+        this.maxNumberOfJourneys = maxNumberOfJourneys;
         this.uid = UUID.randomUUID();
         
         diagnostics = false;
         warnIfNoResults = true;
-    }
-
-    @Override
-    public String toString() {
-        return "JourneyRequest{" +
-                "uid=" + uid +
-                ", date=" + date +
-                ", time=" + time +
-                ", arriveBy=" + arriveBy +
-                ", maxChanges=" + maxChanges +
-                ", diagnostics=" + diagnostics +
-                ", maxJourneyDuration=" + maxJourneyDuration +
-                '}';
     }
 
     public TramServiceDate getDate() {
@@ -111,4 +102,22 @@ public class JourneyRequest {
         return uid;
     }
 
+    public long getMaxNumberOfJourneys() {
+        return maxNumberOfJourneys;
+    }
+
+    @Override
+    public String toString() {
+        return "JourneyRequest{" +
+                "date=" + date +
+                ", time=" + time +
+                ", arriveBy=" + arriveBy +
+                ", maxChanges=" + maxChanges +
+                ", uid=" + uid +
+                ", maxJourneyDuration=" + maxJourneyDuration +
+                ", maxNumberOfJourneys=" + maxNumberOfJourneys +
+                ", diagnostics=" + diagnostics +
+                ", warnIfNoResults=" + warnIfNoResults +
+                '}';
+    }
 }

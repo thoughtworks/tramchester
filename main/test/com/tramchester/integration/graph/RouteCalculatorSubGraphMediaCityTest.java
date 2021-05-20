@@ -13,10 +13,10 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -28,11 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RouteCalculatorSubGraphMediaCityTest {
@@ -116,7 +114,7 @@ class RouteCalculatorSubGraphMediaCityTest {
                         LocalDate day = when.plusDays(i);
                         JourneyRequest journeyRequest =
                                 new JourneyRequest(new TramServiceDate(day), TramTime.of(9,0), false,
-                                        3, config.getMaxJourneyDuration());
+                                        3, config.getMaxJourneyDuration(), 1);
                         Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
                         if (journeys.isEmpty()) {
                             failures.add(day.getDayOfWeek() +": "+start+"->"+destination);
@@ -141,7 +139,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(12, 0), false, 3,
-                config.getMaxJourneyDuration());
+                config.getMaxJourneyDuration(), 1);
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, MediaCityUK, journeyRequest);
         Assertions.assertTrue(results.size()>0);
     }
@@ -159,8 +157,9 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, LocalDate date) {
-        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5, config.getMaxJourneyDuration());
-        Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest, 1);
+        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
+                config.getMaxJourneyDuration(), 1);
+        Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest);
         assertFalse(results.isEmpty());
     }
 }

@@ -66,7 +66,7 @@ class TrainRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, 8*60);
+                10, 8*60, 1);
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Train), request);
     }
@@ -76,7 +76,7 @@ class TrainRouteCalculatorCombinationTests {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false,
-                10, 8*60);
+                10, 8*60, 1);
 
         combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Train), request);
     }

@@ -54,7 +54,7 @@ class RouteCalulatorKeyRoutesTest {
     void beforeEachTestRuns() {
         maxJourneyDuration = testConfig.getMaxJourneyDuration();
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
-                maxJourneyDuration);
+                maxJourneyDuration, 1);
         combinations = new RouteCalculationCombinations(componentContainer);
     }
 
@@ -85,7 +85,7 @@ class RouteCalulatorKeyRoutesTest {
             LocalDate testDate = avoidChristmasDate(when.plusDays(day));
 
             JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
-                    maxJourneyDuration);
+                    maxJourneyDuration, 1);
             combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), request);
         }
     }
@@ -95,7 +95,7 @@ class RouteCalulatorKeyRoutesTest {
         List<Journey> allResults = new ArrayList<>();
 
         JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 2,
-                maxJourneyDuration * 2);
+                maxJourneyDuration * 2, 1);
 
         Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results =
                 combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
@@ -125,7 +125,7 @@ class RouteCalulatorKeyRoutesTest {
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(queryDate), queryTime, false,
-                                3, maxJourneyDuration);
+                                3, maxJourneyDuration, 1);
                         Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),
                                 journeyRequest);
                         RouteCalculationCombinations.JourneyOrNot journeyOrNot =

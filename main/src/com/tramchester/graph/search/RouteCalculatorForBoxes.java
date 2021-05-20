@@ -19,8 +19,6 @@ import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
-import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +56,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     }
 
     public Stream<JourneysForBox> calculateRoutes(Set<Station> destinations, JourneyRequest journeyRequest,
-                                                  List<BoundingBoxWithStations> grouped, long numberToFind) {
+                                                  List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
 
         final TramTime time = journeyRequest.getTime();
@@ -87,7 +85,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         map(timedPath -> createJourney(journeyRequest, timedPath, destinations));
 
                 // TODO Limit here, or return the stream?
-                List<Journey> collect = journeys.limit(numberToFind).collect(Collectors.toList());
+                List<Journey> collect = journeys.limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
 
                 // yielding
                 return new JourneysForBox(box, collect);

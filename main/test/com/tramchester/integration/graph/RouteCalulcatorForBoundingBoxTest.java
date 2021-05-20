@@ -11,7 +11,6 @@ import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -79,13 +78,13 @@ class RouteCalulcatorForBoundingBoxTest {
 
         List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
+        long maxNumberOfJourneys = 3;
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,30),
-                false, 3, testConfig.getMaxJourneyDuration());
+                false, 3, testConfig.getMaxJourneyDuration(), maxNumberOfJourneys);
 
         Set<Station> destinations = Collections.singleton(TestStation.real(stationRepository, TramStations.StPetersSquare));
 
-        long numberToFind = 3;
-        Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped, numberToFind);
+        Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped);
         List<JourneysForBox> groupedJourneys = stream.collect(Collectors.toList());
 
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).collect(Collectors.toList());

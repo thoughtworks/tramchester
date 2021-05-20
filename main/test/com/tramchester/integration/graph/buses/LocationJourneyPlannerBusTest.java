@@ -62,7 +62,6 @@ class LocationJourneyPlannerBusTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
-        planner.closeAfterNumJourneysFound(2);
         maxDuration = testConfig.getMaxJourneyDuration();
     }
 
@@ -76,10 +75,10 @@ class LocationJourneyPlannerBusTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
-                maxDuration);
+                maxDuration, 1);
 
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrinchamInterchange, StopAtStockportBusStation,
-                journeyRequest, 10);
+                journeyRequest, 5);
 
         assertFalse(results.isEmpty());
     }
@@ -92,9 +91,9 @@ class LocationJourneyPlannerBusTest {
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
-                maxDuration);
+                maxDuration, 1);
 
-        Set<Journey> results = planner.quickestRouteForLocation(stockportBusStation, nearAltrinchamInterchange, journeyRequest, 10);
+        Set<Journey> results = planner.quickestRouteForLocation(stockportBusStation, nearAltrinchamInterchange, journeyRequest, 5);
 
         assertFalse(results.isEmpty());
     }
@@ -107,8 +106,8 @@ class LocationJourneyPlannerBusTest {
         TramTime travelTime = TramTime.of(10, 30);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
-                maxDuration);
-        Set<Journey> journeys =  planner.quickestRouteForLocation(alty, TestEnv.nearKnutsfordBusStation, request, 10);
+                maxDuration, 1);
+        Set<Journey> journeys =  planner.quickestRouteForLocation(alty, TestEnv.nearKnutsfordBusStation, request, 5);
 
         assertFalse(journeys.isEmpty());
     }

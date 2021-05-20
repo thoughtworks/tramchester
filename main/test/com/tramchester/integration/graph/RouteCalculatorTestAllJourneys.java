@@ -53,7 +53,7 @@ class RouteCalculatorTestAllJourneys {
         Set<Station> allStations = data.getStationsForMode(Tram);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
-                testConfig.getMaxJourneyDuration());
+                testConfig.getMaxJourneyDuration(), 1);
 
         // pairs of stations to check
         Set<StationIdPair> stationIdPairs = allStations.stream().flatMap(start -> allStations.stream().
@@ -62,7 +62,6 @@ class RouteCalculatorTestAllJourneys {
                 filter(pair -> !combinations.betweenInterchange(pair)).
                 filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
-
 
         Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results =
                 combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest);

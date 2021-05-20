@@ -107,13 +107,16 @@ public class TransportDataFromFiles implements TransportDataFactory {
         allAgencies.clear();
 
         TripAndServices tripsAndServices = loadTripsAndServices(buildable, dataSource.trips, excludedRoutes, entityFactory);
+
         excludedRoutes.clear();
 
         IdMap<Service> services = populateStopTimes(buildable, dataSource.stopTimes, allStations, tripsAndServices.trips, entityFactory,
                 sourceConfig);
+
         allStations.clear();
 
         populateCalendars(buildable, dataSource.calendars, dataSource.calendarsDates, services, sourceConfig, entityFactory);
+
         tripsAndServices.clear();
 
         buildable.reportNumbers();
@@ -283,6 +286,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         });
         if (!excludedStations.isEmpty()) {
             logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations);
+            excludedStations.clear();
         }
         logger.info("Loaded " + count.get() + " stop times");
         return addedServices;

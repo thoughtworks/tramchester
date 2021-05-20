@@ -27,7 +27,6 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
@@ -156,7 +155,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         CompositeStation end = compositeStationRepository.findByName("Bus Station, Knutsford");
 
         TramTime time = TramTime.of(10, 40);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, 120);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
+                120, 2);
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -170,7 +170,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         CompositeStation end = compositeStationRepository.findByName("Altrincham Interchange");
 
         TramTime time = TramTime.of(11, 20);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3, 120);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
+                3, 120, 2);
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
@@ -188,7 +189,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
             Station firstStation = stationsAlongRoute.get(0);
 
             TramTime time = TramTime.of(9, 20);
-            JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, 120);
+            JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
+                    1, 120, 1);
 
             for (int i = 1; i <= knutsfordIndex; i++) {
                 Station secondStation = stationsAlongRoute.get(i);

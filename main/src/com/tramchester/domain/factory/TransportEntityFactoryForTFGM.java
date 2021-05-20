@@ -29,17 +29,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
 
         IdFor<Route> routeId = createRouteId(routeData.getId());
-
         String routeName = routeData.getLongName();
-
-        // no longer needed
-//        if (config.getRemoveRouteNameSuffix()) {
-//            int indexOf = routeName.indexOf("(");
-//            if (indexOf > -1) {
-//                routeName = routeName.substring(0,indexOf).trim();
-//            }
-//        }
-
         return new Route(routeId, routeData.getShortName().trim(), routeName, agency, TransportMode.fromGTFS(routeType));
     }
 
@@ -55,7 +45,6 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         }
 
         // Check for duplicate names - handled by CompositeStationRepository
-
         return new Station(stationId, area, workAroundName(stopData.getName()),
                 stopData.getLatLong(), position);
     }

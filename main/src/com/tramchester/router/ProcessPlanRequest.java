@@ -75,10 +75,7 @@ public class ProcessPlanRequest {
     }
 
     private Stream<JourneyDTO> mapToDTOStream(TramServiceDate queryDate, Stream<Journey> journeyStream) {
-        return journeyStream.
-                map(journey -> journeyToDTOMapper.createJourneyDTO(journey, queryDate)).
-                // TODO Check, ideally remove from here and push down into traverser code?
-                limit(config.getMaxNumResults());
+        return journeyStream.map(journey -> journeyToDTOMapper.createJourneyDTO(journey, queryDate));
     }
 
     private Stream<Journey> createJourneyPlan(Transaction txn, String startId, String endId, JourneyRequest journeyRequest) {
