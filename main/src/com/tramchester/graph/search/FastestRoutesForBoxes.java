@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -73,30 +75,44 @@ public class FastestRoutesForBoxes {
         }
 
         if (journeysForBox.getJourneys().isEmpty()) {
-            logger.warn("No journeys for " + journeysForBox.getBox());
+            logger.info("No journeys for " + journeysForBox.getBox());
             return new BoundingBoxWithCost(journeysForBox.getBox(), -1, null);
         }
 
-        int currentLowestCost = Integer.MAX_VALUE;
-        Journey currentBest = null;
-
-        for (Journey journey: journeysForBox.getJourneys()) {
-            JourneyDTO dto = dtoMapper.createJourneyDTO(journey, request.getDate());
-            long minutes = getDiffInMinutes(dto);
-            if (minutes < currentLowestCost) {
-                currentBest = journey;
-                currentLowestCost = (int) minutes;
-            }
+        Optional<Journey> findEarliest = journeysForBox.getJourneys().stream().min(Comparator.comparing(Journey::getArrivalTime));
+        if (findEarliest.isPresent()) {
+            Journey journey = findEarliest.get();
+            int cost = TramTime.diffenceAsMinutes(journey.getDepartTime(), journey.getArrivalTime());
+            return new BoundingBoxWithCost(journeysForBox.getBox(), cost, journey);
+        } else {
+            logger.error("Could not find any cheapest journey for " + journeysForBox);
+            return new BoundingBoxWithCost(journeysForBox.getBox(), -1, null);
         }
 
-        return new BoundingBoxWithCost(journeysForBox.getBox(), currentLowestCost, currentBest);
+//        int currentLowestCost = Integer.MAX_VALUE;
+//        Journey currentBestJourney = null;
+//
+//        for (Journey journey: journeysForBox.getJourneys()) {
+//            if (journey.getStages().isEmpty()) {
+//                logger.error("Cannot map journey with no stages: " + journey);
+//            } else {
+//                JourneyDTO dto = dtoMapper.createJourneyDTO(journey, request.getDate());
+//                long minutes = getDiffInMinutes(dto);
+//                if (minutes < currentLowestCost) {
+//                    currentBestJourney = journey;
+//                    currentLowestCost = (int) minutes;
+//                }
+//            }
+//        }
+//
+//        return new BoundingBoxWithCost(journeysForBox.getBox(), currentLowestCost, currentBestJourney);
     }
 
-    private long getDiffInMinutes(JourneyDTO dto) {
-        LocalDateTime depart = dto.getFirstDepartureTime();
-        LocalDateTime arrive = dto.getExpectedArrivalTime();
-        Duration period = Duration.between(depart, arrive);
-        return Math.abs(period.getSeconds()) / 60;
-    }
+//    private long getDiffInMinutes(JourneyDTO dto) {
+//        LocalDateTime depart = dto.getFirstDepartureTime();
+//        LocalDateTime arrive = dto.getExpectedArrivalTime();
+//        Duration period = Duration.between(depart, arrive);
+//        return Math.abs(period.getSeconds()) / 60;
+//    }
 
 }

@@ -75,7 +75,9 @@ public class ProcessPlanRequest {
     }
 
     private Stream<JourneyDTO> mapToDTOStream(TramServiceDate queryDate, Stream<Journey> journeyStream) {
-        return journeyStream.map(journey -> journeyToDTOMapper.createJourneyDTO(journey, queryDate));
+        return journeyStream.
+                filter(journey -> !journey.getStages().isEmpty()).
+                map(journey -> journeyToDTOMapper.createJourneyDTO(journey, queryDate));
     }
 
     private Stream<Journey> createJourneyPlan(Transaction txn, String startId, String endId, JourneyRequest journeyRequest) {

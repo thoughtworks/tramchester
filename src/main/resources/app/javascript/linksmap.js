@@ -75,6 +75,7 @@ var mapApp = new Vue({
             links: [],
             neighbours: [],
             comps: [],
+            quadrants: [],
             feedinfo: [],
         }
     },
@@ -129,6 +130,17 @@ var mapApp = new Vue({
             groupLayer.addTo(map);
 
         },
+        addQuadrants: function(map, quadrants) {
+            var quadrantLayer = L.layerGroup();
+            quadrants.forEach(quadrant => {
+                var bottomLeft = quadrant.bottomLeft;
+                var topRight = quadrant.topRight;
+                var bounds = [ [bottomLeft.lat, bottomLeft.lon], [topRight.lat, topRight.lon] ];
+                var box = L.rectangle(bounds, { color: "black", stroke: false });
+                quadrantLayer.addLayer(box);
+            });
+            quadrantLayer.addTo(map);
+        },
         findAndSetMapBounds: function(map, links) {
             let minLat = 1000;
             let maxLat = -1000;
@@ -155,6 +167,7 @@ var mapApp = new Vue({
             mapApp.addLinks(mapApp.map, mapApp.neighbours, "green");
             mapApp.addStations(mapApp.map, mapApp.links);
             mapApp.addGroups(mapApp.map, mapApp.groups);
+            mapApp.addQuadrants(mapApp.map, mapApp.quadrants);
         }
     },
     mounted () {
@@ -172,12 +185,14 @@ var mapApp = new Vue({
         axios.all([
             axios.get("/api/links/all"),
             axios.get("/api/links/neighbours"),
-            axios.get("/api/links/composites")
-        ]).then(axios.spread((linksResp, neighboursResp, compsResp) => {
+            axios.get("/api/links/composites"),
+            axios.get("/api/links/quadrants")
+        ]).then(axios.spread((linksResp, neighboursResp, compsResp, quadResp) => {
                 mapApp.networkError = false;
                 mapApp.links = linksResp.data;
                 mapApp.neighbours = neighboursResp.data;
                 mapApp.groups = compsResp.data;
+                mapApp.quadrants = quadResp.data;
                 mapApp.draw();
             })).catch(error => {
                 mapApp.networkError = true;

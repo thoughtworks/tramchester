@@ -229,7 +229,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
+        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList(),
+                queryTime.plusMinutes(5), queryTime.plusMinutes(10));
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, serviceDate);
@@ -255,7 +256,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
                 andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
+        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList(),
+                queryTime.plusMinutes(5), queryTime.plusMinutes(10));
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, serviceDate);
@@ -286,7 +288,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), localDate, queryTime))
                 .andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList());
+        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList(),
+                queryTime.plusMinutes(5), queryTime.plusMinutes(10));
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, queryDate);
@@ -328,7 +331,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         List<TransportStage<?,?>> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
-        Journey journey = new Journey(stages, queryTime, Collections.emptyList());
+        Journey journey = new Journey(stages, queryTime, Collections.emptyList(), queryTime.plusMinutes(5), queryTime.plusMinutes(10));
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, serviceDate);

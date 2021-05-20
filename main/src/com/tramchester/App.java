@@ -156,9 +156,13 @@ public class App extends Application<AppConfiguration>  {
         }
 
         // report specific metrics to AWS cloudwatch
-        final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
-                container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
-        cloudWatchReporter.start(1, TimeUnit.MINUTES);
+        if (configuration.getSendCloudWatchMetrics()) {
+            final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
+                    container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
+            cloudWatchReporter.start(1, TimeUnit.MINUTES);
+        } else {
+            logger.warn("Cloudwatch metrics are disabled in config");
+        }
 
         container.registerHealthchecksInto(environment.healthChecks());
 

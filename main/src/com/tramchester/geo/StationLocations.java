@@ -25,7 +25,8 @@ import java.util.stream.Stream;
 @LazySingleton
 public class StationLocations implements StationLocationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationLocations.class);
-    private static final int DEPTH_LIMIT = 4;
+    private static final int DEPTH_LIMIT = 20;
+    private static final int GRID_SIZE_METERS = 1000;
 
     private final StationRepository stationRepository;
     private final CompositeStationRepository compositeRepository;
@@ -67,7 +68,8 @@ public class StationLocations implements StationLocationsRepository {
 
     private void populateQuadrants(BoundingBox box, int depthLimit) {
         int currentLimit = depthLimit - 1;
-        if (currentLimit<=0) {
+
+        if (currentLimit<=0 || box.width() <= GRID_SIZE_METERS || box.height() <= GRID_SIZE_METERS) {
             logger.debug("Added " + box);
             populatedQuadrants.add(box);
             return;
@@ -152,9 +154,13 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     public boolean withinWalkingDistance(GridPosition position) {
+//        return populatedQuadrants.stream().
+//                anyMatch(quadrant -> quadrant.within(walkingDistance, position));
+
         Set<BoundingBox> quadrants = populatedQuadrants.stream().
                 filter(quadrant -> quadrant.within(walkingDistance, position)).
                 collect(Collectors.toSet());
+
         if (quadrants.isEmpty()) {
             logger.debug("No quadrant contains " + position);
             return false;
@@ -204,5 +210,9 @@ public class StationLocations implements StationLocationsRepository {
 
     public MarginInMeters getWalkingDistance() {
         return walkingDistance;
+    }
+
+    public Set<BoundingBox> getQuadrants() {
+        return populatedQuadrants;
     }
 }

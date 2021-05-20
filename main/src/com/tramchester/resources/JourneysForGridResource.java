@@ -87,7 +87,7 @@ public class JourneysForGridResource {
         LocalDate date = LocalDate.parse(departureDateRaw);
 
         // just find the first one -- todo this won't be lowest cost route....
-        long maxNumberOfJourneys = 1;
+        long maxNumberOfJourneys = 3;
 
         TramServiceDate tramServiceDate = new TramServiceDate(date);
         JourneyRequest journeyRequest = new JourneyRequest(tramServiceDate, queryTime,

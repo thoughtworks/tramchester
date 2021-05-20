@@ -69,4 +69,13 @@ public class RouteRefDTO {
         return id.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return "RouteRefDTO{" +
+                "id='" + id + '\'' +
+                ", routeName='" + routeName + '\'' +
+                ", transportMode=" + transportMode +
+                ", shortName='" + shortName + '\'' +
+                '}';
+    }
 }

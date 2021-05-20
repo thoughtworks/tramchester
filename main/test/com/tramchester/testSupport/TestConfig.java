@@ -28,6 +28,11 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean getChangeAtInterchangeOnly() { return true; }
 
     @Override
+    public boolean getSendCloudWatchMetrics() {
+        return false;
+    }
+
+    @Override
     public Integer getStaticAssetCacheTimeSeconds() {
         return 5*60;
     }

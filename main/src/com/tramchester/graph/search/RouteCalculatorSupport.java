@@ -2,7 +2,9 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
@@ -23,6 +25,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -120,8 +123,36 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path, Set<Station> endStations) {
-        return new Journey(pathToStages.mapDirect(path, journeyRequest, endStations),
-                path.getQueryTime(), mapPathToLocations.mapToLocations(path.getPath()));
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, endStations);
+        final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
+
+        if (stages.isEmpty()) {
+            logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
+        }
+        TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
+        TramTime departTime = getDepartTimeFor(stages, journeyRequest);
+        return new Journey(stages, path.getQueryTime(), locationList, departTime, arrivalTime);
+    }
+
+    private TramTime getDepartTimeFor(List<TransportStage<?, ?>> stages, JourneyRequest journeyRequest) {
+        if (stages.isEmpty()) {
+            logger.warn("No stages were mapped, can't get depart time");
+            return journeyRequest.getTime();
+        } else {
+            TransportStage<?, ?> firstStage = stages.get(0);
+            return firstStage.getFirstDepartureTime();
+        }
+    }
+
+    private TramTime getArrivalTimeFor(List<TransportStage<?, ?>> stages, JourneyRequest journeyRequest) {
+        int size = stages.size();
+        if (size == 0) {
+            logger.warn("No stages were mapped, can't get arrival time");
+            return journeyRequest.getTime();
+        } else {
+            TransportStage<?, ?> lastStage = stages.get(size - 1);
+            return lastStage.getExpectedArrivalTime();
+        }
     }
 
     @NotNull

@@ -3,7 +3,10 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -138,6 +141,20 @@ class BusRouteCalculatorTest {
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
 
         assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldRepoduceErrorWithZeroStages() {
+        IdFor<Station> start = StringIdFor.createId("1800EB00011");
+        IdFor<Station> end = StringIdFor.createId("1800EB33741");
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(7,30), false, 3,
+                120, 1);
+
+        Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
+
+        assertFalse(results.isEmpty());
+        results.forEach(journey -> assertFalse(journey.getStages().isEmpty()));
     }
 
     @Test

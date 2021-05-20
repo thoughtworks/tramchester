@@ -130,6 +130,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("bounds")
     private BoundingBox bounds;
 
+    @NotNull
+    @JsonProperty("sendCloudWatchMetrics")
+    private boolean sendCloudWatchMetrics;
+
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -268,6 +272,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxWalkingConnections() {
         return maxWalkingConnections;
+    }
+
+    @Override
+    public boolean getSendCloudWatchMetrics() {
+        return sendCloudWatchMetrics;
     }
 
 }

@@ -38,7 +38,7 @@ class JourneyTest extends EasyMockSupport {
     @Test
     void shouldHaveExpecetdTransportModesSingle() {
         stages.add(stageExpectionsFor(Tram));
-        Journey journey = new Journey(stages, queryTime, path);
+        Journey journey = new Journey(stages, queryTime, path, queryTime.plusMinutes(5), queryTime.plusMinutes(10));
 
         replayAll();
         Set<TransportMode> result = journey.getTransportModes();
@@ -53,7 +53,7 @@ class JourneyTest extends EasyMockSupport {
         stages.add(stageExpectionsFor(Bus));
         stages.add(stageExpectionsFor(Train));
 
-        Journey journey = new Journey(stages, queryTime, path);
+        Journey journey = new Journey(stages, queryTime, path, queryTime.plusMinutes(5), queryTime.plusMinutes(10));
 
         replayAll();
         Set<TransportMode> result = journey.getTransportModes();
@@ -66,6 +66,15 @@ class JourneyTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldHaveDepartAndArrivalTime() {
+        Journey journey = new Journey(stages, queryTime, path, queryTime.plusMinutes(5), queryTime.plusMinutes(10));
+
+        assertEquals(queryTime, journey.getQueryTime());
+        assertEquals(queryTime.plusMinutes(5), journey.getDepartTime());
+        assertEquals(queryTime.plusMinutes(10), journey.getArrivalTime());
+    }
+
+    @Test
     void shouldHaveCallingPlatformIds() {
         stages.add(stageExpectionsFor("platformId1"));
         stages.add(stageExpectionsFor("platformId2"));
@@ -75,7 +84,7 @@ class JourneyTest extends EasyMockSupport {
 
         stages.add(noPlatformStage);
 
-        Journey journey = new Journey(stages, queryTime, path);
+        Journey journey = new Journey(stages, queryTime, path, queryTime.plusMinutes(5), queryTime.plusMinutes(10));
 
         replayAll();
         IdSet<Platform> result = journey.getCallingPlatformIds();

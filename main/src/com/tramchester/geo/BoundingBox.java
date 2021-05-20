@@ -70,7 +70,6 @@ public class BoundingBox {
                         (position.getNorthings() <= getMaxNorthings()+marginInMeters.get());
     }
 
-
     public boolean contained(LatLong destination) {
         return contained(CoordinateTransforms.getGridPosition(destination));
     }
@@ -156,4 +155,11 @@ public class BoundingBox {
         return result;
     }
 
+    public long width() {
+        return Math.abs(bottomLeft.getEastings() - topRight.getEastings());
+    }
+
+    public long height() {
+        return Math.abs(bottomLeft.getNorthings() - topRight.getNorthings());
+    }
 }

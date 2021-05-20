@@ -84,8 +84,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                 createServiceReasons(journeyRequest, time, pathRequest), pathRequest, previousSuccessfulVisit)).
                         map(timedPath -> createJourney(journeyRequest, timedPath, destinations));
 
-                // TODO Limit here, or return the stream?
-                List<Journey> collect = journeys.limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
+                List<Journey> collect = journeys.
+                        filter(journey -> !journey.getStages().isEmpty()).
+                        limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
 
                 // yielding
                 return new JourneysForBox(box, collect);

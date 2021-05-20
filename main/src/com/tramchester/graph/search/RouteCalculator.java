@@ -138,6 +138,15 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         public int getNumChanges() {
             return numChanges;
         }
+
+        @Override
+        public String toString() {
+            return "TimedPath{" +
+                    "path=" + path +
+                    ", queryTime=" + queryTime +
+                    ", numChanges=" + numChanges +
+                    '}';
+        }
     }
 }
 

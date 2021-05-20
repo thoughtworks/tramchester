@@ -4,6 +4,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +35,14 @@ public class SendMetricsToCloudWatch {
     // lower limit set by AWS, request will thrown exception if between zero and this number
     public static final double LOWER_LIMIT = 8.515920e-109;
     private final ProvidesNow providesNow;
+    private final TramchesterConfig config;
 
     private CloudWatchClient client;
 
     @Inject
-    public SendMetricsToCloudWatch(ProvidesNow providesNow) {
+    public SendMetricsToCloudWatch(ProvidesNow providesNow, TramchesterConfig config) {
         this.providesNow = providesNow;
+        this.config = config;
         countersDimenion = Collections.singletonList(Dimension.builder().name("tramchester").value("counters").build());
         resourcesDimension = Collections.singletonList(Dimension.builder().name("tramchester").value("api").build());
     }
@@ -47,6 +50,11 @@ public class SendMetricsToCloudWatch {
     @PostConstruct
     public void start() {
         logger.info("starting");
+        if (!config.getSendCloudWatchMetrics()) {
+            logger.warn("Disabled in config");
+            return;
+        }
+
         // see http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html
         // For local dev best to set AWS_REGION env var
         try {
@@ -111,6 +119,10 @@ public class SendMetricsToCloudWatch {
 
     public <T extends Number> void putMetricData(String nameSpace, SortedMap<String, Timer> timers,
                               SortedMap<String, Gauge<T>> intGauges, SortedMap<String, Meter> metersToSend) {
+        if (!config.getSendCloudWatchMetrics()) {
+            logger.info("Disabled in config");
+            return;
+        }
         if (!started()) {
             logger.warn("No cloud watch client available, will not send metrics");
             return;

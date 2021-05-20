@@ -41,6 +41,12 @@ public class JourneyToDTOMapper {
         List<StageDTO> stages = new ArrayList<>();
 
         List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
+        if (rawJourneyStages.isEmpty()) {
+            final String msg = "Journey has no stages " + journey;
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
         TramTime queryTime = journey.getQueryTime();
 
         for(TransportStage<?,?> rawStage : rawJourneyStages) {
@@ -57,21 +63,12 @@ public class JourneyToDTOMapper {
     }
 
     private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage<?,?> rawStage) {
-        switch (rawStage.getMode()) {
-            case Tram:
-            case Bus:
-            case RailReplacementBus:
-            case Train:
-            case Ferry:
-            case Subway:
-                return decideActionForStations(stages);
-            case Walk:
-                return decideWalkingAction(rawStage);
-            case Connect:
-                return TravelAction.ConnectTo;
-            default:
-                throw new RuntimeException("Not defined for " + rawStage.getMode());
-        }
+        return switch (rawStage.getMode()) {
+            case Tram, Bus, RailReplacementBus, Train, Ferry, Subway -> decideActionForStations(stages);
+            case Walk -> decideWalkingAction(rawStage);
+            case Connect -> TravelAction.ConnectTo;
+            default -> throw new RuntimeException("Not defined for " + rawStage.getMode());
+        };
     }
 
     private TravelAction decideWalkingAction(TransportStage<?,?> rawStage) {

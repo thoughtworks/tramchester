@@ -4,11 +4,11 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
-import com.tramchester.domain.places.CompositeStation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.NeighboursRepository;
@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Api
 @Path("/links")
@@ -42,13 +41,17 @@ public class StationLinksResource {
     private final NeighboursRepository neighboursRepository;
     private final CompositeStationRepository compositeStationRepository;
     private final TramchesterConfig config;
+    private final StationLocations stationLocations;
 
     @Inject
-    public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository, CompositeStationRepository compositeStationRepository, TramchesterConfig config) {
+    public StationLinksResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
+                                CompositeStationRepository compositeStationRepository, TramchesterConfig config,
+                                StationLocations stationLocations) {
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
         this.compositeStationRepository = compositeStationRepository;
         this.config = config;
+        this.stationLocations = stationLocations;
     }
 
     @GET
@@ -111,6 +114,20 @@ public class StationLinksResource {
 
         return Response.ok(groups).build();
 
+    }
+
+    @GET
+    @Timed
+    @Path("/quadrants")
+    @ApiOperation(value = "Get station location quadrants", response = BoxDTO.class, responseContainer = "List")
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public Response getQuadrants() {
+        logger.info("Get quadrants");
+
+        List<BoxDTO> quadrantDTOs = stationLocations.getQuadrants().stream().
+                map(BoxDTO::new).collect(Collectors.toList());
+
+        return Response.ok(quadrantDTOs).build();
     }
 
 

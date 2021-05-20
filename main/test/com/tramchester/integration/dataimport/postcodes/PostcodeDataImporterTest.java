@@ -53,10 +53,6 @@ class PostcodeDataImporterTest {
                 filter(PostcodeDataImporter.PostcodeDataStream::wasLoaded).
                 flatMap(PostcodeDataImporter.PostcodeDataStream::getDataStream).
                 forEach(postcodeData -> loadedPostcodes.add(postcodeData));
-//        importer.loadLocalPostcodes().forEach(source -> {
-//            source.getDataStream().forEach(item -> loadedPostcodes.add(item));
-//            source.close();
-//        });
     }
 
     @AfterEach
@@ -71,7 +67,7 @@ class PostcodeDataImporterTest {
 
         Set<String> postcodes = loadedPostcodes.stream().map(PostcodeData::getId).collect(Collectors.toSet());
 
-        assertFalse(postcodes.contains("EC1A1XH")); // no london, outside area
+        assertFalse(postcodes.contains("EC1A1XH")); // in london, outside area
         assertTrue(postcodes.contains("WA141EP"));
         assertTrue(postcodes.contains("M44BF")); // central manchester
         assertTrue(postcodes.contains(TestEnv.postcodeForWythenshaweHosp()));
@@ -83,10 +79,10 @@ class PostcodeDataImporterTest {
     }
 
     @Test
-    void shouldHaveStationsBounds() {
+    void shouldMatchStationsBounds() {
 
         // Check bounding box formed by stations plus margin
-        long margin = Math.round(testConfig.getNearestStopRangeKM() * 1000D);
+        long margin = Math.round(testConfig.getNearestStopForWalkingRangeKM() * 1000D);
 
         BoundingBox bounds = stationLocations.getBounds();
 
@@ -99,8 +95,8 @@ class PostcodeDataImporterTest {
         long northingsMax = loadedPostcodes.stream().map(data -> data.getGridPosition().getNorthings()).max(Long::compareTo).get();
         long northingsMin = loadedPostcodes.stream().map(data -> data.getGridPosition().getNorthings()).min(Long::compareTo).get();
 
-        assertTrue(northingsMax < bounds.getMaxNorthings()+margin);
-        assertTrue(northingsMin > bounds.getMinNorthings()-margin);
+        assertTrue(northingsMax <= bounds.getMaxNorthings()+margin);
+        assertTrue(northingsMin >= bounds.getMinNorthings()-margin, northingsMin + " " + bounds.getMinNorthings() + " " +margin);
 
     }
 
@@ -116,7 +112,7 @@ class PostcodeDataImporterTest {
     private boolean outsideStationRange(PostcodeData postcode) {
         LatLong latLong = CoordinateTransforms.getLatLong(postcode.getGridPosition());
         List<Station> found = stationLocations.nearestStationsSorted(latLong, 1,
-                MarginInMeters.of(testConfig.getNearestStopRangeKM()));
+                MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM()));
         return found.isEmpty();
     }
 }

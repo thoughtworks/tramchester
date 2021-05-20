@@ -113,6 +113,7 @@ public class StageDTO {
         return mode;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public PlatformDTO getPlatform() {
         return platform;
     }
