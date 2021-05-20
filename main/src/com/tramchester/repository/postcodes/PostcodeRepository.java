@@ -2,10 +2,12 @@ package com.tramchester.repository.postcodes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.FindNear;
 import com.tramchester.geo.GridPosition;
@@ -15,13 +17,11 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.dataimport.postcodes.PostcodeDataImporter.POSTCODES_CONFIG_NAME;
-import static com.tramchester.geo.CoordinateTransforms.getLatLong;
 
 @LazySingleton
 public class PostcodeRepository {
@@ -29,18 +29,23 @@ public class PostcodeRepository {
 
     private final PostcodeDataImporter importer;
     private final TramchesterConfig config;
+    private final PostcodeBoundingBoxs boundingBoxs;
 
-    private final IdMap<PostcodeLocation> postcodes; // Id -> PostcodeLocation
+    private final Map<String, IdMap<PostcodeLocation>> postcodesAreas; // Id -> PostcodeLocation
 
     @Inject
-    public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config) {
+    public PostcodeRepository(PostcodeDataImporter importer, TramchesterConfig config, PostcodeBoundingBoxs boundingBoxs) {
         this.importer = importer;
         this.config = config;
-        postcodes = new IdMap<>();
+        this.boundingBoxs = boundingBoxs;
+        postcodesAreas = new HashMap<>();
     }
 
     public PostcodeLocation getPostcode(IdFor<PostcodeLocation> postcodeId) {
-        return postcodes.get(postcodeId);
+        Optional<PostcodeLocation> maybeFound = postcodesAreas.values().stream().
+                filter(map -> map.hasId(postcodeId)).
+                map(matchingMap -> matchingMap.get(postcodeId)).findFirst();
+        return maybeFound.orElse(null);
     }
 
     @PostConstruct
@@ -52,33 +57,56 @@ public class PostcodeRepository {
             return;
         }
 
-        // TODO make importer use PostConstruct?
-        List<Stream<PostcodeData>> sources = importer.loadLocalPostcodes();
+        List<PostcodeDataImporter.PostcodeDataStream> sources = importer.loadLocalPostcodes();
 
         logger.info("Processing " + sources.size() + " postcode streams");
-        sources.forEach(source-> {
-            source.forEach(code -> postcodes.add(new PostcodeLocation(getLatLong(code.getGridPosition()), code.getId())));
-            source.close();
-        });
-
-        logger.info("Loaded " + postcodes.size() + " postcodes");
+        sources.forEach(this::load);
+        logger.info("Loaded " + postcodesAreas.size() + " postcodes");
         logger.info("started");
+    }
+
+    private void load(PostcodeDataImporter.PostcodeDataStream source) {
+        if (!source.wasLoaded()) {
+            logger.warn("Data was not loaded for " + source.getCode());
+        }
+        String postcodeArea = source.getCode();
+        Stream<PostcodeData> stream = source.getDataStream();
+
+        final IdMap<PostcodeLocation> postcodes = new IdMap<>();
+        stream.map(postcodeData -> new PostcodeLocation(postcodeData.getGridPosition(),
+                StringIdFor.createId(postcodeData.getId()), postcodeArea)).
+                forEach(postcodes::add);
+        stream.close();
+        postcodesAreas.put(postcodeArea, postcodes);
+
+        if (!postcodes.isEmpty()) {
+            logger.info("Added " + postcodes.size() + " postcodes for " + source.getCode());
+        }
     }
 
     @PreDestroy
     public void stop() {
-        postcodes.clear();
+        postcodesAreas.clear();
     }
 
     public boolean hasPostcode(IdFor<PostcodeLocation> postcode) {
-        return postcodes.hasId(postcode);
+        return postcodesAreas.values().stream().
+                anyMatch(map -> map.hasId(postcode));
+//        return postcodesAreas.hasId(postcode);
     }
 
     public Collection<PostcodeLocation> getPostcodes() {
-        return Collections.unmodifiableCollection(postcodes.getValues());
+        return postcodesAreas.values().stream().
+                flatMap(IdMap::getValuesStream).collect(Collectors.toSet());
+//        return Collections.unmodifiableCollection(postcodesAreas.getValues());
     }
 
     public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, int meters) {
-        return FindNear.getNearTo(postcodes.getValuesStream(), location, meters);
+        Set<String> codes = boundingBoxs.getCodesFor(location, meters);
+        return postcodesAreas.entrySet().stream().
+                filter(entry -> codes.contains(entry.getKey())).
+                map(entry -> entry.getValue().getValuesStream()).
+                flatMap(postcodeLocations -> FindNear.getNearTo(postcodeLocations, location, meters));
+//        return FindNear.getNearTo(postcodesAreas.getValuesStream(), location, meters);
     }
 }

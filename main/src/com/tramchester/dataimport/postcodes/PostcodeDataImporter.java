@@ -59,7 +59,7 @@ public class PostcodeDataImporter {
         this.enabled = config.hasDataSourceConfig(POSTCODES_CONFIG_NAME);
     }
 
-    public List<Stream<PostcodeData>> loadLocalPostcodes() {
+    public List<PostcodeDataStream> loadLocalPostcodes() {
         if (!enabled) {
             logger.warn("load postcodes attempted when data source not present");
             return Collections.emptyList();
@@ -93,33 +93,42 @@ public class PostcodeDataImporter {
             logger.info("Found " + csvFiles.size() + " files in " + dataFilesDirectory.toAbsolutePath());
         }
 
-        return csvFiles.stream().map(file -> loadDataFromFile(file, stationBounds)).collect(Collectors.toList());
+        return csvFiles.stream().
+                map(file -> loadDataFromFile(file, stationBounds)).
+                filter(postcodeDataStream -> postcodeDataStream.wasLoaded).
+                collect(Collectors.toList());
     }
 
-    private Stream<PostcodeData> loadDataFromFile(Path file, BoundingBox loadedStationsBounds) {
-        logger.info("Load postcode data from " + file.toAbsolutePath());
+    private PostcodeDataStream loadDataFromFile(Path file, BoundingBox loadedStationsBounds) {
+        logger.debug("Load postcode data from " + file.toAbsolutePath());
 
         Double rangeInKm = config.getNearestStopForWalkingRangeKM();
         long marginInM = Math.round(rangeInKm * 1000D);
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
-        Stream<PostcodeData> postcodeDataStream = getPostcodesFor(loader);
+        Stream<PostcodeData> stream = getPostcodesFor(loader);
+
+        String code = postcodeBounds.convertPathToCode(file);
 
         if (postcodeBounds.isLoaded() && postcodeBounds.hasBoundsFor(file)) {
             BoundingBox boundsForPostcodeFile = postcodeBounds.getBoundsFor(file);
             if (boundsForPostcodeFile.overlapsWith(loadedStationsBounds)) {
-                return postcodeDataStream.
+                logger.info("Postcode in file match bounds " + file);
+                return new PostcodeDataStream(code, true,
+                        stream.
                         filter(postcode -> loadedStationsBounds.within(marginInM, postcode.getGridPosition())).
-                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm));
+                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm)));
             } else {
-                logger.info("Skipping " + file + " as contains no positions overlapping with current bounds");
-                return Stream.empty();
+                logger.debug("Skipping " + file + " as contains no positions overlapping with current bounds");
+                return PostcodeDataStream.empty(code);
             }
         } else {
-            return postcodeDataStream.
+            logger.info("Loading without pre-cached bounds " + file);
+            return new PostcodeDataStream(code, true,
+                stream.
                     filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
                     filter(postcode -> loadedStationsBounds.within(marginInM, postcode.getGridPosition())).
-                    filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm));
+                    filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm)));
         }
     }
 
@@ -131,5 +140,33 @@ public class PostcodeDataImporter {
     public LocalDateTime getTargetFolderModTime() {
         RemoteDataSourceConfig dataSourceConfig = config.getDataSourceConfig(POSTCODES_CONFIG_NAME);
         return fetchFileModTime.getFor(dataSourceConfig.getDataPath());
+    }
+
+    public static class PostcodeDataStream {
+        private final String code;
+        private final boolean wasLoaded;
+        private final Stream<PostcodeData> dataStream;
+
+        public PostcodeDataStream(String code, boolean wasLoaded, Stream<PostcodeData> dataStream) {
+            this.code = code;
+            this.wasLoaded = wasLoaded;
+            this.dataStream = dataStream;
+        }
+
+        public static PostcodeDataStream empty(String code) {
+            return new PostcodeDataStream(code, false, Stream.empty());
+        }
+
+        public boolean wasLoaded() {
+            return wasLoaded;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public Stream<PostcodeData> getDataStream() {
+            return dataStream;
+        }
     }
 }

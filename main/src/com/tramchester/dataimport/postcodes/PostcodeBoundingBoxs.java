@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -177,5 +178,19 @@ public class PostcodeBoundingBoxs {
 
     public boolean hasBoundsFor(Path file) {
         return postcodeBounds.containsKey(convertPathToCode(file));
+    }
+
+    /***
+     * Uses bounded boxes and not the actual postcode area, so can produce some unexpected results as bounding boxes
+     * cover significantly more area and overlap, which postcodes themselves don't
+     * @param location location for find area code for
+     * @param marginInKM Margin in Kilometers
+     * @return the areas found
+     */
+    public Set<String> getCodesFor(GridPosition location, int marginInKM) {
+        return postcodeBounds.entrySet().stream().
+                filter(entry -> entry.getValue().within(marginInKM, location)).
+                map(Map.Entry::getKey).
+                collect(Collectors.toSet());
     }
 }

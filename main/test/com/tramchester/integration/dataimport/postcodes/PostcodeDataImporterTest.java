@@ -48,10 +48,14 @@ class PostcodeDataImporterTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         loadedPostcodes = new HashSet<>();
-        importer.loadLocalPostcodes().forEach(source -> {
-            source.forEach(item -> loadedPostcodes.add(item));
-            source.close();
-        });
+        importer.loadLocalPostcodes().stream().
+                filter(PostcodeDataImporter.PostcodeDataStream::wasLoaded).
+                flatMap(PostcodeDataImporter.PostcodeDataStream::getDataStream).
+                forEach(postcodeData -> loadedPostcodes.add(postcodeData));
+//        importer.loadLocalPostcodes().forEach(source -> {
+//            source.getDataStream().forEach(item -> loadedPostcodes.add(item));
+//            source.close();
+//        });
     }
 
     @AfterEach

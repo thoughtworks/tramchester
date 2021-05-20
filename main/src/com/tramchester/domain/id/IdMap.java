@@ -80,6 +80,10 @@ public class IdMap<T extends HasId<T> & GraphProperty> implements Iterable<T> {
         return theMap.values().stream();
     }
 
+    public boolean isEmpty() {
+        return theMap.isEmpty();
+    }
+
     public interface Creates<T> {
         T create();
     }

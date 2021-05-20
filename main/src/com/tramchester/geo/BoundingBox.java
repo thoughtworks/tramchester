@@ -57,14 +57,14 @@ public class BoundingBox {
         return topRight.getNorthings();
     }
 
-    public boolean within(long margin, GridPosition position) {
+    public boolean within(long marginInKM, GridPosition position) {
         if (!position.isValid()) {
             throw new RuntimeException("Invalid grid position " + position);
         }
-                return (position.getEastings() >= getMinEastings()-margin) &&
-                        (position.getEastings() <= getMaxEasting()+margin) &&
-                        (position.getNorthings() >= getMinNorthings()-margin) &&
-                        (position.getNorthings() <= getMaxNorthings()+margin);
+                return (position.getEastings() >= getMinEastings()-marginInKM) &&
+                        (position.getEastings() <= getMaxEasting()+marginInKM) &&
+                        (position.getNorthings() >= getMinNorthings()-marginInKM) &&
+                        (position.getNorthings() <= getMaxNorthings()+marginInKM);
     }
 
 

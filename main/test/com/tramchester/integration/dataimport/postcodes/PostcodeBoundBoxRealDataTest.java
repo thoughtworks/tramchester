@@ -8,6 +8,7 @@ import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
@@ -116,6 +117,18 @@ public class PostcodeBoundBoxRealDataTest {
                 boundsForPostcodeFile + " no overlap with " + containsStations);
         assertTrue(containsStations.overlapsWith(boundsForPostcodeFile),
                 containsStations + " no overlap with " + boundsForPostcodeFile);
+
+    }
+
+    @Test
+    void shouldGetCodeForLocation() {
+        // NOTE: these are bounding boxs which cover significantly more area than the postcodes themselves,
+        // and can overlap
+        Set<String> codes = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearShudehill), 0);
+        assertTrue(codes.contains("m"));
+
+        Set<String> codesForAlty = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearAltrincham), 0);
+        assertTrue(codesForAlty.contains("wa"));
 
     }
 

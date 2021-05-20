@@ -15,14 +15,27 @@ import java.util.Set;
 
 public class PostcodeLocation implements Location<PostcodeLocation> {
 
-    private final LatLong latLong;
     private final IdFor<PostcodeLocation> id;
     private final String name;
 
-    public PostcodeLocation(com.tramchester.domain.presentation.LatLong latLong, String id) {
+    private LatLong latLong;
+    private GridPosition gridPosition;
+    private final String area;
+
+    public PostcodeLocation(LatLong latLong, String id, String area) {
+        this.area = area;
+        gridPosition = null;
         this.latLong = latLong;
         this.id = StringIdFor.createId(id);
         this.name = id;
+    }
+
+    public PostcodeLocation(GridPosition gridPosition, IdFor<PostcodeLocation> id, String area) {
+        this.gridPosition = gridPosition;
+        this.area = area;
+        this.latLong = null;
+        this.id = id;
+        this.name = id.forDTO();
     }
 
     @Override
@@ -37,26 +50,23 @@ public class PostcodeLocation implements Location<PostcodeLocation> {
 
     @Override
     public LatLong getLatLong() {
+        if (latLong==null) {
+            latLong = CoordinateTransforms.getLatLong(gridPosition);
+        }
         return latLong;
     }
 
     @Override
     public GridPosition getGridPosition() {
-        return CoordinateTransforms.getGridPosition(latLong);
+        if (gridPosition==null) {
+            gridPosition = CoordinateTransforms.getGridPosition(latLong);
+        }
+        return gridPosition;
     }
 
     @Override
     public String getArea() {
-        if (name.length()==5) {
-            return name.substring(0,2);
-        }
-        if (name.length()==6) {
-            return name.substring(0,3);
-        }
-        if (name.length()==7) {
-            return name.substring(0,4);
-        }
-        return name;
+        return area;
     }
 
     @Override
@@ -100,10 +110,12 @@ public class PostcodeLocation implements Location<PostcodeLocation> {
     @Override
     public String toString() {
         return "PostcodeLocation{" +
-                "LatLong=" + latLong +
-                ", id=" + id +
+                "id=" + id +
                 ", name='" + name + '\'' +
-                "} " + super.toString();
+                ", latLong=" + latLong +
+                ", gridPosition=" + gridPosition +
+                ", area='" + area + '\'' +
+                '}';
     }
 
     public String forDTO()  {
