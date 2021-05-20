@@ -7,10 +7,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
-import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.GridPosition;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.*;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -102,7 +99,7 @@ public class PostcodeBoundBoxRealDataTest {
                 filter(GridPosition::isValid).collect(Collectors.toSet());
 
         long matched = validGrids.stream().
-                filter(grid -> boundsFor.within(0, grid)).count();
+                filter(grid -> boundsFor.within( MarginInMeters.of(0), grid)).count();
 
         assertEquals(validGrids.size(), matched);
     }
@@ -124,10 +121,12 @@ public class PostcodeBoundBoxRealDataTest {
     void shouldGetCodeForLocation() {
         // NOTE: these are bounding boxs which cover significantly more area than the postcodes themselves,
         // and can overlap
-        Set<String> codes = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearShudehill), 0);
+        Set<String> codes = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearShudehill),
+                MarginInMeters.of(0));
         assertTrue(codes.contains("m"));
 
-        Set<String> codesForAlty = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearAltrincham), 0);
+        Set<String> codesForAlty = boundingBoxs.getCodesFor(CoordinateTransforms.getGridPosition(TestEnv.nearAltrincham),
+                MarginInMeters.of(0));
         assertTrue(codesForAlty.contains("wa"));
 
     }

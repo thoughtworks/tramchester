@@ -139,10 +139,10 @@ class LocationJourneyPlannerTest {
 
         assertTrue(walkStage.getFirstDepartureTime().isAfter(tramStage.getExpectedArrivalTime()), walkStage.toString());
         assertEquals(TramStations.Deansgate.getId(), tramStage.getFirstStation().getId());
-        assertEquals(TramStations.NavigationRoad.getId(), tramStage.getLastStation().getId());
-        assertEquals(TramStations.NavigationRoad.getId(), walkStage.getFirstStation().getId());
+        assertEquals(TramStations.Altrincham.getId(), tramStage.getLastStation().getId());
+        assertEquals(TramStations.Altrincham.getId(), walkStage.getFirstStation().getId());
         assertEquals("MyLocationPlaceholderId", walkStage.getLastStation().forDTO());
-        assertEquals(TramStations.NavigationRoad.getId(), walkStage.getActionStation().getId());
+        assertEquals(TramStations.Altrincham.getId(), walkStage.getActionStation().getId());
     }
 
     @Test
@@ -191,7 +191,8 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorningArriveBy() {
         TramTime queryTime = TramTime.of(8, 0);
-        final JourneyRequest request = new JourneyRequest(date, queryTime, true, 2, maxJourneyDuration, maxNumberOfJourneys);
+        final JourneyRequest request = new JourneyRequest(date, queryTime, true, 2,
+                maxJourneyDuration, maxNumberOfJourneys);
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Deansgate, nearAltrincham, request, 3);
         List<Journey> journeyList = sortByCost(journeySet);
@@ -201,10 +202,10 @@ class LocationJourneyPlannerTest {
 
         journeyList.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(11, callingPoints.size());
             assertEquals(TramStations.Deansgate.getId(), callingPoints.get(0).getId());
-            assertEquals(TramStations.NavigationRoad.getId(), callingPoints.get(9).getId());
-            assertEquals(nearAltrincham, callingPoints.get(10).getLatLong());
+            assertEquals(12, callingPoints.size());
+            assertEquals(TramStations.Altrincham.getId(), callingPoints.get(10).getId());
+            assertEquals(nearAltrincham, callingPoints.get(11).getLatLong());
         });
     }
 

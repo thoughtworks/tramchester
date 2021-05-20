@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
@@ -41,7 +42,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
     private final StationLocationsRepository stationLocations;
     private final GraphQuery graphQuery;
     private final TramchesterConfig config;
-    private final double rangeInKM;
+    private final MarginInMeters marginInMeters;
     private final GraphFilter filter;
 
     // ONLY link stations of different types
@@ -65,7 +66,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
         this.stationRepository = repository;
         this.stationLocations = stationLocations;
         this.config = config;
-        this.rangeInKM = config.getDistanceToNeighboursKM();
+        this.marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
 
         neighbours = new HashMap<>();
     }
@@ -131,7 +132,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
 
     private void createNeighboursFor(TransportMode mode) {
         Set<Station> allStationsForMode = stationRepository.getStationsForMode(mode);
-        logger.info(format("Adding neighbouring stations for %s stations and range %s KM", allStationsForMode.size(), rangeInKM));
+        logger.info(format("Adding neighbouring stations for %s stations and range %s", allStationsForMode.size(), marginInMeters));
 
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create neighbours for " + mode)) {
             Transaction txn = timedTransaction.transaction();
@@ -140,7 +141,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
                         filter(filter::shouldInclude).
                         forEach(station -> {
                         // nearby could be any transport mode
-                        Stream<Station> nearby = stationLocations.nearestStationsUnsorted(station, rangeInKM)
+                        Stream<Station> nearby = stationLocations.nearestStationsUnsorted(station, marginInMeters)
                                 .filter(found -> !found.equals(station))
                                 .filter(found -> DIFF_MODES_ONLY && !found.getTransportModes().contains(mode));
                         neighbours.put(station.getId(), new IdSet<>());

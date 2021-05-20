@@ -2,12 +2,12 @@ package com.tramchester.geo;
 
 public class GridPositions {
 
-    public static boolean withinDistEasting(GridPosition gridPositionA, GridPosition gridPositionB, long rangeInMeters) {
-        return rangeInMeters >= getDistEasting(gridPositionA, gridPositionB) ;
+    public static boolean withinDistEasting(GridPosition gridPositionA, GridPosition gridPositionB, MarginInMeters rangeInMeters) {
+        return rangeInMeters.get() >= getDistEasting(gridPositionA, gridPositionB) ;
     }
 
-    public static boolean withinDistNorthing(GridPosition gridPositionA, GridPosition gridPositionB, long rangeInMeters) {
-        return rangeInMeters >= getDistNorthing(gridPositionA, gridPositionB);
+    public static boolean withinDistNorthing(GridPosition gridPositionA, GridPosition gridPositionB, MarginInMeters rangeInMeters) {
+        return rangeInMeters.get() >= getDistNorthing(gridPositionA, gridPositionB);
     }
 
     private static long getDistNorthing(GridPosition gridPositionA, GridPosition gridPositionB) {
@@ -24,8 +24,9 @@ public class GridPositions {
         return (distHorz * distHorz) + (distVert * distVert);
     }
 
-    public static boolean withinDist(GridPosition gridPositionA, GridPosition gridPositionB, long rangeInMeters) {
-        long hypSquared = rangeInMeters*rangeInMeters;
+    public static boolean withinDist(GridPosition gridPositionA, GridPosition gridPositionB, MarginInMeters rangeInMeters) {
+        long meters = rangeInMeters.get();
+        long hypSquared = meters*meters;
         long sum = getSumSquaresDistance(gridPositionA, gridPositionB);
         return sum<=hypSquared;
     }

@@ -12,9 +12,9 @@ import java.util.stream.Stream;
 @ImplementedBy(StationLocations.class)
 public interface StationLocationsRepository {
 
-    List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, double rangeInKM);
+    List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, MarginInMeters rangeInMeters);
 
-    Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM);
+    Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters);
 
     BoundingBox getBounds();
 

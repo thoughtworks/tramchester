@@ -7,6 +7,7 @@ import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.MarginInMeters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class NaptanRespository {
         logger.info("Loading data for " + bounds);
         Double range = config.getNearestStopForWalkingRangeKM();
 
-        long margin = Math.round(range * 1000D);
+        MarginInMeters margin = MarginInMeters.of(range);
         Stream<StopsData> dataStream = dataImporter.getAll();
         stopData = dataStream.
                 filter(item -> item.getGridPosition().isValid()).

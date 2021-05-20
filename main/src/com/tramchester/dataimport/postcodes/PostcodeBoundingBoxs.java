@@ -10,6 +10,7 @@ import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.MarginInMeters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,13 +184,10 @@ public class PostcodeBoundingBoxs {
     /***
      * Uses bounded boxes and not the actual postcode area, so can produce some unexpected results as bounding boxes
      * cover significantly more area and overlap, which postcodes themselves don't
-     * @param location location for find area code for
-     * @param marginInKM Margin in Kilometers
-     * @return the areas found
      */
-    public Set<String> getCodesFor(GridPosition location, int marginInKM) {
+    public Set<String> getCodesFor(GridPosition location, MarginInMeters margin) {
         return postcodeBounds.entrySet().stream().
-                filter(entry -> entry.getValue().within(marginInKM, location)).
+                filter(entry -> entry.getValue().within(margin, location)).
                 map(Map.Entry::getKey).
                 collect(Collectors.toSet());
     }

@@ -85,13 +85,12 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, double rangeInKM) {
+    public List<Station> nearestStationsSorted(LatLong latLong, int maxToFind, MarginInMeters rangeInMeters) {
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
-        return nearestStationsSorted(gridPosition, maxToFind, rangeInKM);
+        return nearestStationsSorted(gridPosition, maxToFind, rangeInMeters);
     }
 
-    private List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, double rangeInKM) {
-        long rangeInMeters = Math.round(rangeInKM * 1000D);
+    private List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters) {
 
         if (maxToFind > 1) {
             // only sort if more than one, as sorting potentially expensive
@@ -105,8 +104,7 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public Stream<Station> nearestStationsUnsorted(Station station, double rangeInKM) {
-        long rangeInMeters = Math.round(rangeInKM * 1000D);
+    public Stream<Station> nearestStationsUnsorted(Station station, MarginInMeters rangeInMeters) {
         return FindNear.getNearTo(stationRepository.getStationStream(), station.getGridPosition(), rangeInMeters);
     }
 
@@ -114,8 +112,7 @@ public class StationLocations implements StationLocationsRepository {
         return new BoundingBox(minEastings, minNorthings, maxEasting, maxNorthings);
     }
 
-    public boolean hasAnyNearby(GridPosition hasGridPosition, double rangeInKM) {
-        long rangeInMeters = Math.round(rangeInKM * 1000D);
+    public boolean hasAnyNearby(GridPosition hasGridPosition, MarginInMeters rangeInMeters) {
         return  FindNear.getNearTo(stationRepository.getStationStream(), hasGridPosition, rangeInMeters).findAny().isPresent();
     }
 

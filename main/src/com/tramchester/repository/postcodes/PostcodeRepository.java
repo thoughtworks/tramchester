@@ -11,6 +11,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.FindNear;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.MarginInMeters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,10 +73,10 @@ public class PostcodeRepository {
         String postcodeArea = source.getCode();
         Stream<PostcodeData> stream = source.getDataStream();
 
-        final IdMap<PostcodeLocation> postcodes = new IdMap<>();
-        stream.map(postcodeData -> new PostcodeLocation(postcodeData.getGridPosition(),
-                StringIdFor.createId(postcodeData.getId()), postcodeArea)).
-                forEach(postcodes::add);
+        final IdMap<PostcodeLocation> postcodes = stream.
+                map(postcodeData -> new PostcodeLocation(postcodeData.getGridPosition(),
+                        StringIdFor.createId(postcodeData.getId()), postcodeArea)).
+                collect(IdMap.collector());
         stream.close();
         postcodesAreas.put(postcodeArea, postcodes);
 
@@ -101,7 +102,7 @@ public class PostcodeRepository {
 //        return Collections.unmodifiableCollection(postcodesAreas.getValues());
     }
 
-    public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, int meters) {
+    public Stream<PostcodeLocation> getPostcodesNear(GridPosition location, MarginInMeters meters) {
         Set<String> codes = boundingBoxs.getCodesFor(location, meters);
         return postcodesAreas.entrySet().stream().
                 filter(entry -> codes.contains(entry.getKey())).

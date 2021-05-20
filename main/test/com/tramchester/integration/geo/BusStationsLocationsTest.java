@@ -3,6 +3,7 @@ package com.tramchester.integration.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -10,7 +11,6 @@ import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ class BusStationsLocationsTest {
     private static IntegrationBusTestConfig testConfig;
 
     private StationLocations stationLocations;
-    private Double nearestStopRangeKM;
+    private MarginInMeters inMeters;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -34,7 +34,7 @@ class BusStationsLocationsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         stationLocations = componentContainer.get(StationLocations.class);
-        nearestStopRangeKM = testConfig.getNearestStopForWalkingRangeKM();
+        inMeters =  MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM());
     }
 
     @AfterAll
@@ -49,21 +49,21 @@ class BusStationsLocationsTest {
     @Test
     void shouldGetAllStationsCloseToPiccGardens() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens.getLatLong(),
-                500, nearestStopRangeKM);
+                500, inMeters);
         assertEquals(24, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralBury() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury.getLatLong(),
-                500, nearestStopRangeKM);
+                500, inMeters);
         assertEquals(11, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
         List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.getLatLong(),
-                500, nearestStopRangeKM);
+                500, inMeters);
         assertEquals(10, result.size());
     }
 }

@@ -16,6 +16,7 @@ import com.tramchester.domain.presentation.DTO.DepartureListDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.ProvidesNotes;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.mappers.DeparturesMapper;
@@ -71,8 +72,11 @@ public class DeparturesResource extends TransportResource {
     public Response getNearestDepartures(@PathParam("lat") double lat, @PathParam("lon") double lon,
                                          @DefaultValue("") @QueryParam("querytime") String queryTimeRaw) {
         LatLong latLong = new LatLong(lat,lon);
+        MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
+        logger.info("Get departures within " + margin + " of " + latLong + " at " + queryTimeRaw);
+
         List<Station> nearbyStations = stationLocations.nearestStationsSorted(latLong,
-                config.getNumOfNearestStopsToOffer(), config.getNearestStopRangeKM());
+                config.getNumOfNearestStopsToOffer(), margin);
 
         LocalDate localDate = providesNow.getDate();
         TramServiceDate queryDate = new TramServiceDate(localDate);

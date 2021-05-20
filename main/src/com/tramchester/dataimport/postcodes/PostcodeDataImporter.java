@@ -8,6 +8,7 @@ import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,8 +103,7 @@ public class PostcodeDataImporter {
     private PostcodeDataStream loadDataFromFile(Path file, BoundingBox loadedStationsBounds) {
         logger.debug("Load postcode data from " + file.toAbsolutePath());
 
-        Double rangeInKm = config.getNearestStopForWalkingRangeKM();
-        long marginInM = Math.round(rangeInKm * 1000D);
+        MarginInMeters marginInMeters = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
         DataLoader<PostcodeData> loader = new DataLoader<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
         Stream<PostcodeData> stream = getPostcodesFor(loader);
@@ -116,8 +116,8 @@ public class PostcodeDataImporter {
                 logger.info("Postcode in file match bounds " + file);
                 return new PostcodeDataStream(code, true,
                         stream.
-                        filter(postcode -> loadedStationsBounds.within(marginInM, postcode.getGridPosition())).
-                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm)));
+                        filter(postcode -> loadedStationsBounds.within(marginInMeters, postcode.getGridPosition())).
+                        filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), marginInMeters)));
             } else {
                 logger.debug("Skipping " + file + " as contains no positions overlapping with current bounds");
                 return PostcodeDataStream.empty(code);
@@ -127,8 +127,8 @@ public class PostcodeDataImporter {
             return new PostcodeDataStream(code, true,
                 stream.
                     filter(postcode -> postcodeBounds.checkOrRecord(file, postcode)).
-                    filter(postcode -> loadedStationsBounds.within(marginInM, postcode.getGridPosition())).
-                    filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), rangeInKm)));
+                    filter(postcode -> loadedStationsBounds.within(marginInMeters, postcode.getGridPosition())).
+                    filter(postcode -> stationLocations.hasAnyNearby(postcode.getGridPosition(), marginInMeters)));
         }
     }
 

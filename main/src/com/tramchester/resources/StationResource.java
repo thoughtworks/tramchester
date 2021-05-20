@@ -16,6 +16,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.DataSourceRepository;
@@ -85,7 +86,6 @@ public class StationResource extends UsesRecentCookie  {
 
         try {
             TransportMode mode = TransportMode.valueOf(rawMode);
-            Set<Station> matching = stationRepository.getStationsForMode(mode);
 
             LocalDateTime modTime = dataSourceRepository.getNewestModTimeFor(mode);
             Date date = Date.from(modTime.toInstant(ZoneOffset.UTC));
@@ -93,14 +93,16 @@ public class StationResource extends UsesRecentCookie  {
             Response.ResponseBuilder builder = request.evaluatePreconditions(date);
 
             if (builder==null) {
-                logger.debug("modified");
+                Set<Station> matching = stationRepository.getStationsForMode(mode);
                 List<StationRefDTO> results = toStationRefDTOList(matching);
                 if (results.isEmpty()) {
-                    logger.info("No stations found for " + mode.name());
+                    logger.warn("No stations found for " + mode.name());
+                } else {
+                    logger.info("Returning " + results.size() + " stations for mode " + mode);
                 }
                 return Response.ok(results).lastModified(date).build();
             } else {
-                logger.debug("Not modified");
+                logger.info("Returning Not Modified for stations mode " + mode);
                 return builder.build();
             }
         }
@@ -116,11 +118,13 @@ public class StationResource extends UsesRecentCookie  {
     @ApiOperation(value = "Get stations close to a given lat/lon", response = StationRefDTO.class, responseContainer = "List")
     @CacheControl(noCache = true)
     public Response getNear(@QueryParam("lat") double lat, @QueryParam("lon") double lon) {
-        logger.info(format("Get stations near to %s,%s", lat, lon));
+        MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
+        logger.info(format("Get stations with %s of %s,%s", margin, lat, lon));
+
         LatLong latLong = new LatLong(lat,lon);
 
-        List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong, config.getNumOfNearestStopsToOffer(),
-                config.getNearestStopRangeKM());
+        List<Station> nearestStations = stationLocations.nearestStationsSorted(latLong,
+                config.getNumOfNearestStopsToOffer(), margin);
 
         List<StationRefDTO> results = toStationRefDTOList(nearestStations);
 

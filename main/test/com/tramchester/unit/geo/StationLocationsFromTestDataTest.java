@@ -3,6 +3,7 @@ package com.tramchester.unit.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.TransportData;
@@ -55,42 +56,42 @@ public class StationLocationsFromTestDataTest {
 
     @Test
     void shouldFindFirstStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham, 3, 1);
+        List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham, 3, MarginInMeters.of(1000));
         assertEquals(1, results.size(), results.toString());
         assertEquals(compositeStationRepository.findByName("startStation"), results.get(0));
     }
 
     @Test
     void shouldFindFourthStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearKnutsfordBusStation, 3, 1);
+        List<Station> results = stationLocations.nearestStationsSorted(nearKnutsfordBusStation, 3, MarginInMeters.of(1000));
         assertEquals(1, results.size(), results.toString());
         assertEquals(compositeStationRepository.findByName("Station4"), results.get(0));
     }
 
     @Test
     void shouldFindSecondStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearWythenshaweHosp, 3, 0.5);
+        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearWythenshaweHosp, 3, MarginInMeters.of(500));
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getSecond()));
     }
 
     @Test
     void shouldFindLastStation() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearPiccGardens, 3, 0.5);
+        List<Station> results = stationLocations.nearestStationsSorted(nearPiccGardens, 3, MarginInMeters.of(500));
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getLast()));
     }
 
     @Test
     void shouldFindInterchange() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearShudehill, 3, 0.5);
+        List<Station> results = stationLocations.nearestStationsSorted(nearShudehill, 3, MarginInMeters.of(500));
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getInterchange()));
     }
 
     @Test
     void shouldFindNearStockport() {
-        List<Station> results = stationLocations.nearestStationsSorted(nearStockportBus, 3, 0.5);
+        List<Station> results = stationLocations.nearestStationsSorted(nearStockportBus, 3, MarginInMeters.of(500));
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getFifthStation()));
     }

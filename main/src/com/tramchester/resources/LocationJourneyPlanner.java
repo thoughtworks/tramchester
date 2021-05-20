@@ -7,8 +7,7 @@ import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.geo.StationLocations;
-import com.tramchester.geo.StationLocationsRepository;
+import com.tramchester.geo.*;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -27,10 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +48,7 @@ public class LocationJourneyPlanner {
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabase;
     private final NodeTypeRepository nodeTypeRepository;
+    private final MarginInMeters margin;
 
     @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
@@ -67,22 +64,25 @@ public class LocationJourneyPlanner {
         this.nodeTypeRepository = nodeTypeRepository;
         this.stationLocations = stationLocations;
         this.graphFilter = graphFilter;
+        this.margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong latLong, Station destination,
+    public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong start, Station destination,
                                                     JourneyRequest journeyRequest) {
-        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", latLong,
+        logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start,
                 destination.getId(), destination.getName(), journeyRequest));
-        if (!stationLocations.getBounds().contained(latLong)) {
-            logger.warn("Start not within station bounds " + latLong);
+
+        GridPosition startGrid = CoordinateTransforms.getGridPosition(start);
+        if (!stationLocations.getBounds().within(margin, startGrid)) {
+            logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getBounds()));
         }
 
-        Node startOfWalkNode = createWalkingNode(txn, latLong, journeyRequest);
-        List<Relationship> addedRelationships = createWalksToStations(txn, latLong, startOfWalkNode);
+        Node startOfWalkNode = createWalkingNode(txn, start, journeyRequest);
+        List<Relationship> addedRelationships = createWalksToStations(txn, start, startOfWalkNode);
 
         if (addedRelationships.isEmpty()) {
             removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
-            logger.warn("No relationships can be added from walking node to stations for start " +latLong);
+            logger.warn("No relationships can be added from walking node to stations for start " +start);
             return Stream.empty();
         }
 
@@ -110,6 +110,12 @@ public class LocationJourneyPlanner {
     public Stream<Journey> quickestRouteForLocation(Transaction txn, Station start, LatLong destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
+
+        GridPosition endGrid = CoordinateTransforms.getGridPosition(destination);
+        if (!stationLocations.getBounds().within(margin, endGrid)) {
+            logger.warn(format("Destination %s not within %s of station bounds %s", endGrid, margin, stationLocations.getBounds()));
+        }
+
         if (!stationLocations.getBounds().contained(destination)) {
             logger.warn("Destination not within station bounds " + destination);
         }
@@ -218,16 +224,21 @@ public class LocationJourneyPlanner {
     }
 
     public List<StationWalk> getStationWalks(LatLong latLong) {
+
         int maxResults = config.getNumOfNearestStopsForWalking();
-        double rangeInKM = config.getNearestStopForWalkingRangeKM();
-        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(latLong, maxResults, rangeInKM);
+        List<Station> nearbyStationsWithComposites = stationLocations.nearestStationsSorted(latLong, maxResults, margin);
+
+        if (nearbyStationsWithComposites.isEmpty()) {
+            logger.warn(format("Failed to find stations within %s of %s", margin, latLong));
+            return Collections.emptyList();
+        }
 
         List<Station> filtered = CompositeStation.expandStations(nearbyStationsWithComposites).stream()
                 .filter(station -> !station.isComposite())
                 .filter(graphFilter::shouldInclude).collect(Collectors.toList());
 
         List<StationWalk> stationWalks = createWalks(latLong, filtered);
-        logger.info(format("Stops within %s of %s are [%s]", rangeInKM, latLong, stationWalks));
+        logger.info(format("Stops within %s of %s are [%s]", maxResults, latLong, stationWalks));
         return stationWalks;
     }
 

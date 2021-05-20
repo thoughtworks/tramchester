@@ -26,13 +26,11 @@ class StationLocationsTest extends EasyMockSupport {
     private StationLocations stationLocations;
     private StationRepository stationRepository;
     private CompositeStationRepository compositeStationRepository;
-    private TramchesterConfig config;
 
     @BeforeEach
     void onceBeforeEachTest() {
         stationRepository = createMock(StationRepository.class);
         compositeStationRepository = createMock(CompositeStationRepository.class);
-        config = createMock(TramchesterConfig.class);
         stationLocations = new StationLocations(stationRepository, compositeStationRepository);
     }
 
@@ -46,13 +44,13 @@ class StationLocationsTest extends EasyMockSupport {
         assertEquals(5, GridPositions.distanceTo(origin, gridPositionA));
         assertEquals(5, GridPositions.distanceTo(gridPositionA, origin));
 
-        assertFalse(GridPositions.withinDistEasting(origin, gridPositionA, 2));
-        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA, 3));
-        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA, 4));
+        assertFalse(GridPositions.withinDistEasting(origin, gridPositionA, MarginInMeters.of(2)));
+        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.of(3)));
+        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.of(4)));
 
-        assertFalse(GridPositions.withinDistNorthing(origin, gridPositionA, 2));
-        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA, 4));
-        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA, 5));
+        assertFalse(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(2)));
+        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(4)));
+        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(5)));
     }
 
     @NotNull
@@ -62,7 +60,7 @@ class StationLocationsTest extends EasyMockSupport {
 
     @Test
     void shouldFindNearbyStation() {
-        int rangeInKM = 1;
+        MarginInMeters marginInMeters = MarginInMeters.of(1000);
         LatLong place = TestEnv.nearAltrincham;
 
         Station stationA = createTestStation("id123", "nameA", place);
@@ -81,14 +79,14 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        List<Station> results = stationLocations.nearestStationsSorted(place, 3, rangeInKM);
+        List<Station> results = stationLocations.nearestStationsSorted(place, 3, marginInMeters);
         verifyAll();
 
         // validate within range on crude measure, but out of range on calculated position
-        assertTrue(GridPositions.withinDistNorthing(gridA, gridB, 1000));
-        assertTrue(GridPositions.withinDistEasting(gridA, gridB, 1000));
+        assertTrue(GridPositions.withinDistNorthing(gridA, gridB, marginInMeters));
+        assertTrue(GridPositions.withinDistEasting(gridA, gridB, marginInMeters));
         long distance = GridPositions.distanceTo(gridA, gridB);
-        assertTrue(distance > Math.round(rangeInKM*1000) );
+        assertTrue(distance > marginInMeters.get() );
 
         assertEquals(1, results.size());
         assertEquals(stationA, results.get(0));
@@ -105,7 +103,8 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 3, 20);
+        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 3,
+                MarginInMeters.of(20000));
         verifyAll();
 
         assertEquals(3, results.size());
@@ -126,7 +125,8 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 1, 20);
+        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearAltrincham, 1,
+                MarginInMeters.of(20));
         verifyAll();
 
         assertEquals(1, results.size());
@@ -141,8 +141,10 @@ class StationLocationsTest extends EasyMockSupport {
         EasyMock.expect(compositeStationRepository.getStationStream()).andReturn(Stream.of(testStation));
 
         replayAll();
-        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 1);
-        List<Station> further = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3, 20);
+        List<Station> results = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3,
+                MarginInMeters.of(1));
+        List<Station> further = stationLocations.nearestStationsSorted(TestEnv.nearPiccGardens, 3,
+                MarginInMeters.of(20000));
         verifyAll();
 
         assertEquals(0, results.size());

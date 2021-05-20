@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramStations.Deansgate;
-import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -127,9 +126,9 @@ class JourneyPlannerLocationResourceTest {
             assertEquals(2, stages.size());
             StageDTO walkingStage = stages.get(1);
 
-            assertEquals(NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
+            assertEquals(Altrincham.forDTO(), walkingStage.getFirstStation().getId());
             assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
-            assertEquals(14, walkingStage.getDuration());
+            assertEquals(4, walkingStage.getDuration());
         });
     }
 
@@ -147,9 +146,9 @@ class JourneyPlannerLocationResourceTest {
         StageDTO walkingStage = stages.get(1);
         assertTrue(firstJourney.getFirstDepartureTime().isBefore(queryTime.atDate(when)));
 
-        assertEquals(NavigationRoad.forDTO(), walkingStage.getFirstStation().getId());
+        assertEquals(Altrincham.forDTO(), walkingStage.getFirstStation().getId());
         assertEquals(TestEnv.nearAltrincham, walkingStage.getLastStation().getLatLong());
-        assertEquals(14, walkingStage.getDuration());
+        assertEquals(4, walkingStage.getDuration());
     }
 
     @Test

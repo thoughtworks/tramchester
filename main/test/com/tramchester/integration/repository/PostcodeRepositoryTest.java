@@ -6,6 +6,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -60,7 +61,7 @@ class PostcodeRepositoryTest {
     void shouldHavePostcodesNear() {
         GridPosition place = TestEnv.nearPiccGardensGrid;
 
-        Set<PostcodeLocation> found = repository.getPostcodesNear(place, 500).collect(Collectors.toSet());
+        Set<PostcodeLocation> found = repository.getPostcodesNear(place, MarginInMeters.of(500)).collect(Collectors.toSet());
         assertFalse(found.isEmpty());
     }
 }

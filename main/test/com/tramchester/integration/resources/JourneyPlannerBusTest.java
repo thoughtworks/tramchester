@@ -6,6 +6,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
@@ -16,6 +17,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
@@ -53,7 +55,6 @@ class JourneyPlannerBusTest {
         when = TestEnv.testDay();
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldHaveBusStations() {
         Response result = IntegrationClient.getApiResponse(appExt, "stations/mode/Bus");
@@ -62,9 +63,10 @@ class JourneyPlannerBusTest {
 
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        App app =  appExt.getApplication();
-        StationRepository stationRepo = app.getDependencies().get(StationRepository.class);
-        Set<String> stationsIds = stationRepo.getStationsForModeStream(TransportMode.Bus).
+        App app = appExt.getApplication();
+
+        CompositeStationRepository stationRepo = app.getDependencies().get(CompositeStationRepository.class);
+        Set<String> stationsIds = stationRepo.getStationsForMode(TransportMode.Bus).stream().
                 map(station -> station.getId().forDTO()).collect(Collectors.toSet());
 
         assertEquals(stationsIds.size(), results.size());
@@ -74,14 +76,14 @@ class JourneyPlannerBusTest {
         assertTrue(stationsIds.containsAll(resultIds));
     }
 
-    @Category({BusTest.class})
     @Test
     void shouldGetTransportModes() {
-        Response responce = IntegrationClient.getApiResponse(appExt, "version/modes");
-        assertEquals(200, responce.getStatus());
+        Response response = IntegrationClient.getApiResponse(appExt, "version/modes");
+        assertEquals(200, response.getStatus());
 
-        List<TransportMode> results = responce.readEntity(new GenericType<>() {});
+        ConfigDTO result = response.readEntity(new GenericType<>() {});
 
+        List<TransportMode> results = result.getModes();
         assertFalse(results.isEmpty());
 
         List<TransportMode> expected = Collections.singletonList(TransportMode.Bus);

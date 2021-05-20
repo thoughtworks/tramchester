@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.TestEnv;
@@ -115,7 +116,7 @@ class PostcodeDataImporterTest {
     private boolean outsideStationRange(PostcodeData postcode) {
         LatLong latLong = CoordinateTransforms.getLatLong(postcode.getGridPosition());
         List<Station> found = stationLocations.nearestStationsSorted(latLong, 1,
-                testConfig.getNearestStopRangeKM());
+                MarginInMeters.of(testConfig.getNearestStopRangeKM()));
         return found.isEmpty();
     }
 }
