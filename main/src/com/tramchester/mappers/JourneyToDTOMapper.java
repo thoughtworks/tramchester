@@ -2,11 +2,10 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.transportStages.WalkingStage;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.ProvidesNotes;
@@ -15,10 +14,12 @@ import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.WalkingStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,13 +27,11 @@ import java.util.stream.Collectors;
 @LazySingleton
 public class JourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyToDTOMapper.class);
-    private final JourneyDTOFactory journeyFactory;
     private final StageDTOFactory stageFactory;
     private final ProvidesNotes providesNotes;
 
     @Inject
-    public JourneyToDTOMapper(JourneyDTOFactory journeyFactory, StageDTOFactory stageFactory, ProvidesNotes providesNotes) {
-        this.journeyFactory = journeyFactory;
+    public JourneyToDTOMapper(StageDTOFactory stageFactory, ProvidesNotes providesNotes) {
         this.stageFactory = stageFactory;
         this.providesNotes = providesNotes;
     }
@@ -56,10 +55,23 @@ public class JourneyToDTOMapper {
             stages.add(stageDTO);
         }
 
-        List<StationRefWithPosition> mappedPath = journey.getPath().stream().map(StationRefWithPosition::new).collect(Collectors.toList());
-
         List<Note> notes = providesNotes.createNotesForJourney(journey, queryDate);
-        return journeyFactory.build(stages, queryTime, notes, mappedPath, queryDate.getDate());
+
+        StationRefWithPosition begin = new StationRefWithPosition(journey.getBeginning());
+
+        List<StationRefWithPosition> changeStations = asListOf(journey.getChangeStations());
+
+        List<StationRefWithPosition> path = asListOf(journey.getPath());
+
+        LocalDate date = queryDate.getDate();
+        return new JourneyDTO(begin, stages,
+                journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
+                changeStations, queryTime, notes,
+                path, date);
+    }
+
+    private List<StationRefWithPosition> asListOf(List<Location<?>> locations) {
+        return locations.stream().map(StationRefWithPosition::new).collect(Collectors.toList());
     }
 
     private TravelAction decideTravelAction(List<StageDTO> stages, TransportStage<?,?> rawStage) {

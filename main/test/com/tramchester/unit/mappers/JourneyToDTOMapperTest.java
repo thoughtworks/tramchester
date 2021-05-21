@@ -1,15 +1,19 @@
 package com.tramchester.unit.mappers;
 
 
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.IdForDTO;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.factory.JourneyDTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -34,6 +38,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.StopAtAltrinchamInterchange;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -47,7 +52,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     private JourneyToDTOMapper mapper;
     private List<TransportStage<?,?>> stages;
     private TramServiceDate tramServiceDate;
-    private JourneyDTOFactory journeyFactory;
+
     private StageDTOFactory stageFactory;
     private ProvidesNotes providesNotes;
     private List<Note> notes;
@@ -63,13 +68,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        journeyFactory = createMock(JourneyDTOFactory.class);
         stageFactory = createMock(StageDTOFactory.class);
         providesNotes = createMock(ProvidesNotes.class);
 
         notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", of(StPetersSquare)));
 
-        mapper = new JourneyToDTOMapper(journeyFactory, stageFactory, providesNotes);
+        mapper = new JourneyToDTOMapper(stageFactory, providesNotes);
         stages = new LinkedList<>();
         tramServiceDate = new TramServiceDate(when);
         nearPiccGardensLocation = new MyLocation("Manchester", TestEnv.nearPiccGardens);
@@ -89,19 +93,24 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         StageDTO stageDTOA = new StageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOA);
 
-        JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Deansgate)));
-        EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes, refWithPositions, when)).andReturn(journeyDTO);
-
-        Journey journey = new Journey(stages, pm10, Collections.singletonList(of(Deansgate)), pm10.plusMinutes(5), pm10.plusMinutes(10));
+        final List<Location<?>> path = Collections.singletonList(of(Deansgate));
+        Journey journey = new Journey(stages, pm10, path, pm10.plusMinutes(5), pm10.plusMinutes(10));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
         JourneyDTO result = mapper.createJourneyDTO(journey, tramServiceDate);
         verifyAll();
 
-        assertEquals(journeyDTO, result);
+        assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
+        assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
+        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(notes, result.getNotes());
+        assertEquals(stageDTOA, result.getStages().get(0));
+        assertEquals(when, result.getQueryDate());
+        validateStationList(path, result.getPath());
+        validateStationList(Collections.emptyList(), result.getChangeStations());
     }
+
 
     @Test
     void shouldMapWalkingStageJourneyToMyLocation() {
@@ -113,10 +122,6 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         StageDTO stageDTOA = new StageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, when)).andReturn(stageDTOA);
 
-        JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Deansgate)));
-        EasyMock.expect(journeyFactory.build(Collections.singletonList(stageDTOA), pm10, notes, refWithPositions, when)).andReturn(journeyDTO);
-
         Journey journey = new Journey(stages, pm10, Collections.singletonList(of(Deansgate)), pm10.plusMinutes(5), pm10.plusMinutes(10));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
@@ -124,47 +129,57 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         JourneyDTO result = mapper.createJourneyDTO(journey, tramServiceDate);
         verifyAll();
 
-        assertEquals(journeyDTO, result);
+        assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
+        assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
+        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(notes, result.getNotes());
+        assertEquals(stageDTOA, result.getStages().get(0));
+        assertEquals(when, result.getQueryDate());
+        validateStationList(Collections.singletonList(of(Deansgate)), result.getPath());
+        validateStationList(Collections.emptyList(), result.getChangeStations());
     }
 
     @Test
-    void shouldMapJoruneyWithConnectingStage() {
+    void shouldMapJourneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
-
-        ConnectingStage connectingStage = new ConnectingStage(
-                BusStations.of(StopAtAltrinchamInterchange), TramStations.of(Altrincham), 1, time);
-
         final Station startStation = of(Altrincham);
         Platform platform = new Platform(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
         startStation.addPlatform(platform);
+
+        ConnectingStage connectingStage = new ConnectingStage(
+                BusStations.of(StopAtAltrinchamInterchange), startStation, 1, time);
+
         VehicleStage tramStage = getRawVehicleStage(startStation, TramStations.of(TramStations.Shudehill),
-                createRoute("route"), time.plusMinutes(1), 35, 9, platform);
+                createRoute("route"), time.plusMinutes(1), 35, platform);
 
         stages.add(connectingStage);
         stages.add(tramStage);
 
         StageDTO stageDTOA = new StageDTO();
         StageDTO stageDTOB = new StageDTO();
-        List<StageDTO> dtoStages = Arrays.asList(stageDTOA, stageDTOB);
 
         EasyMock.expect(stageFactory.build(connectingStage, TravelAction.ConnectTo, when)).andReturn(stageDTOA);
-
-        // TODO Should be board
+        // TODO Should be board?
         EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change, when)).andReturn(stageDTOB);
 
-        JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(of(Altrincham)));
-
-        EasyMock.expect(journeyFactory.build(dtoStages,time, notes, refWithPositions, when)).andReturn(journeyDTO);
-
-        Journey journey = new Journey(stages, time, Collections.singletonList(of(Altrincham)), time.plusMinutes(5), time.plusMinutes(10));
+        final List<Location<?>> path = Collections.singletonList(of(Altrincham));
+        Journey journey = new Journey(stages, time, path, time.plusMinutes(5), time.plusMinutes(10));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
         JourneyDTO result = mapper.createJourneyDTO(journey, tramServiceDate);
         verifyAll();
 
-        assertEquals(journeyDTO, result);
+        assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
+        assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
+        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(notes, result.getNotes());
+        assertEquals(journey.getStages().size(), result.getStages().size());
+        assertEquals(stageDTOA, result.getStages().get(0));
+        assertEquals(stageDTOB, result.getStages().get(1));
+        assertEquals(when, result.getQueryDate());
+        validateStationList(path, result.getPath());
+        validateStationList(Collections.singletonList(startStation), result.getChangeStations());
     }
 
     // TODO MAKE REALISTIC
@@ -174,8 +189,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station begin = of(Altrincham);
         Platform platformA = new Platform(begin.forDTO() + "1", "platform name", begin.getLatLong());
         begin.addPlatform(platformA);
-        MyLocation middleA = nearPiccGardensLocation;
 
+        MyLocation middleA = nearPiccGardensLocation;
         Station middleB = of(MarketStreet);
         Platform platformB = new Platform(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
         middleB.addPlatform(platformB);
@@ -183,12 +198,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station end = of(Bury);
 
         VehicleStage rawStageA = getRawVehicleStage(begin, of(PiccadillyGardens),
-                createRoute("route text"), am10, 42, 8, platformA);
+                createRoute("route text"), am10, 42, platformA);
 
         int walkCost = 10;
         WalkingToStationStage walkingStage = new WalkingToStationStage(middleA, middleB, walkCost, am10);
         VehicleStage finalStage = getRawVehicleStage(middleB, end, createRoute("route3 text"), am10, 42,
-                9, platformA);
+                platformA);
 
         stages.add(rawStageA);
         stages.add(walkingStage);
@@ -198,26 +213,30 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         StageDTO stageDTOB = new StageDTO();
         StageDTO stageDTOC = new StageDTO();
 
-        List<StageDTO> dtoStages = Arrays.asList(stageDTOA, stageDTOB, stageDTOC);
-
         EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOB);
         // TODO Ought to be Board?
         EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change, when)).andReturn(stageDTOC);
 
-        JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(begin));
-
-        EasyMock.expect(journeyFactory.build(dtoStages, am10, notes, refWithPositions, when)).andReturn(journeyDTO);
-
-        Journey journey = new Journey(stages, am10, Collections.singletonList(begin), am10.plusMinutes(5), am10.plusMinutes(10));
+        final List<Location<?>> path = Collections.singletonList(begin);
+        Journey journey = new Journey(stages, am10, path, am10.plusMinutes(5), am10.plusMinutes(10));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
         JourneyDTO result = mapper.createJourneyDTO(journey, tramServiceDate);
         verifyAll();
 
-        assertEquals(journeyDTO, result);
+        assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
+        assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
+        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(notes, result.getNotes());
+        assertEquals(journey.getStages().size(), result.getStages().size());
+        assertEquals(stageDTOA, result.getStages().get(0));
+        assertEquals(stageDTOB, result.getStages().get(1));
+        assertEquals(stageDTOC, result.getStages().get(2));
+        assertEquals(when, result.getQueryDate());
+        validateStationList(path, result.getPath());
+        validateStationList(Arrays.asList( middleA, middleB ), result.getChangeStations());
     }
 
     @Test
@@ -229,36 +248,41 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Platform platform = new Platform(start.forDTO() + "1", "platform name", start.getLatLong());
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,
-                18, 8, platform);
+                18, platform);
         VehicleStage rawStageB = getRawVehicleStage(middle, finish, createRoute("route2 text"), startTime.plusMinutes(18),
-                42, 9, platform);
+                42, platform);
 
         stages.add(rawStageA);
         stages.add(rawStageB);
 
         StageDTO stageDTOA = new StageDTO();
         StageDTO stageDTOB = new StageDTO();
-        List<StageDTO> dtoStages = Arrays.asList(stageDTOA, stageDTOB);
 
         EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
         EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, when)).andReturn(stageDTOB);
 
-        JourneyDTO journeyDTO = new JourneyDTO();
-        List<StationRefWithPosition> refWithPositions = Collections.singletonList(new StationRefWithPosition(start));
-        EasyMock.expect(journeyFactory.build(dtoStages, startTime, notes, refWithPositions, when)).andReturn(journeyDTO);
-
-        Journey journey = new Journey(stages, startTime, Collections.singletonList(start), startTime.plusMinutes(5), startTime.plusMinutes(10));
+        final List<Location<?>> path = Collections.singletonList(start);
+        Journey journey = new Journey(stages, startTime, path, startTime.plusMinutes(5), startTime.plusMinutes(10));
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
         JourneyDTO result = mapper.createJourneyDTO(journey, tramServiceDate);
         verifyAll();
 
-        assertEquals(journeyDTO, result);
+        assertEquals(journey.getArrivalTime().asLocalTime(), result.getExpectedArrivalTime().toLocalTime());
+        assertEquals(journey.getDepartTime().asLocalTime(), result.getFirstDepartureTime().toLocalTime());
+        assertEquals(journey.getBeginning().forDTO(), result.getBegin().getId());
+        assertEquals(notes, result.getNotes());
+        assertEquals(journey.getStages().size(), result.getStages().size());
+        assertEquals(stageDTOA, result.getStages().get(0));
+        assertEquals(stageDTOB, result.getStages().get(1));
+        assertEquals(when, result.getQueryDate());
+        validateStationList(path, result.getPath());
+        validateStationList(Collections.singletonList(middle), result.getChangeStations());
     }
 
     private VehicleStage getRawVehicleStage(Station start, Station finish, Route route, TramTime startTime,
-                                            int cost, int passedStops, Platform platform) {
+                                            int cost, Platform platform) {
 
 
         Trip validTrip = transportData.getTripById(StringIdFor.createId(TRIP_A_ID));
@@ -272,6 +296,13 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         return vehicleStage;
 
+    }
+
+    private void validateStationList(List<Location<?>> expected, List<StationRefWithPosition> results) {
+        assertEquals(expected.size(), results.size());
+        List<String> expectedIds = expected.stream().map(IdForDTO::forDTO).collect(Collectors.toList());
+        List<String> resultIds = results.stream().map(StationRefDTO::getId).collect(Collectors.toList());
+        assertEquals(expectedIds, resultIds);
     }
 
 }

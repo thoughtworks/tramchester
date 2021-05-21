@@ -3,11 +3,14 @@ package com.tramchester.domain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.presentation.DTO.StageDTO;
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -100,6 +103,20 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
             }
         }
         return stages.get(0).getFirstStation();
+    }
+
+    public List<Location<?>> getChangeStations() {
+        List<Location<?>> result = new ArrayList<>();
+
+        if (isDirect()) {
+            return result;
+        }
+
+        for(int index = 1; index< stages.size(); index++) {
+            result.add(stages.get(index).getFirstStation());
+        }
+
+        return result;
     }
 
 }
