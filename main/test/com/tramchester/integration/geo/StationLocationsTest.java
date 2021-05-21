@@ -69,13 +69,15 @@ public class StationLocationsTest {
 
     @Test
     void shouldHaveExpectedStationLocations() {
-        assertTrue(locations.withinWalkingDistance(TestEnv.nearShudehillGrid));
-        assertTrue(locations.withinWalkingDistance(TestEnv.nearPiccGardensGrid));
+        MarginInMeters margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
-        assertTrue(locations.withinWalkingDistance(TestEnv.nearAltrinchamGrid));
+        assertTrue(locations.withinRangeOfStation(TestEnv.nearShudehillGrid, margin));
+        assertTrue(locations.withinRangeOfStation(TestEnv.nearPiccGardensGrid, margin));
 
-        assertFalse(locations.withinWalkingDistance(TestEnv.nearGreenwichGrid));
-        assertFalse(locations.withinWalkingDistance(CoordinateTransforms.getGridPosition(TestEnv.nearStockportBus)));
+        assertTrue(locations.withinRangeOfStation(TestEnv.nearAltrinchamGrid, margin));
+
+        assertFalse(locations.withinRangeOfStation(TestEnv.nearGreenwichGrid, margin));
+        assertFalse(locations.withinRangeOfStation(CoordinateTransforms.getGridPosition(TestEnv.nearStockportBus), margin));
     }
 
 }

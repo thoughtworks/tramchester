@@ -99,6 +99,7 @@ public class JourneysForGridResource {
         Stream<BoxWithCostDTO> results = search.
                 findForGrid(destination, gridSize, journeyRequest).
                 map(box -> transformToDTO(box, tramServiceDate));
+        
         logger.info("Creating stream");
         JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results, objectMapper);
 

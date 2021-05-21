@@ -31,20 +31,16 @@ public class StationLocations implements StationLocationsRepository {
     private final CompositeStationRepository compositeStationRepository;
     private final Set<BoundingBox> quadrants;
 
-    // TODO Remove this
-    private final MarginInMeters walkingDistance;
-
     private final Map<BoundingBox, Set<Station>> stations;
     private BoundingBox bounds;
 
     @Inject
-    public StationLocations(StationRepository stationRepository, CompositeStationRepository compositeRepository, TramchesterConfig config) {
+    public StationLocations(StationRepository stationRepository, CompositeStationRepository compositeRepository) {
         this.allStationRepository = stationRepository;
         this.compositeStationRepository = compositeRepository;
-        this.walkingDistance = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        // TODO Remove this
         quadrants = new HashSet<>();
         stations = new HashMap<>();
-
     }
 
     @PostConstruct
@@ -67,6 +63,8 @@ public class StationLocations implements StationLocationsRepository {
         populateQuadrants(bounds, DEPTH_LIMIT);
         logger.info("Added " + quadrants.size() + " quadrants");
         quadrants.forEach(quadrant -> {
+            // NOTE assumption - composite stations cannot be outside bounds defined by stations themselves since
+            // composite location defined to be middle of composed stations
             Set<Station> foundInQuadrant = getNonComposites().
                     filter(station -> quadrant.contained(station.getGridPosition())).
                     collect(Collectors.toSet());
@@ -105,6 +103,7 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     // TODO Use quadrants for this search
+    // NOTE: uses composite stations
     private List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters) {
 
         if (maxToFind > 1) {
@@ -124,12 +123,7 @@ public class StationLocations implements StationLocationsRepository {
         return FindNear.getNearTo(getNonComposites(), station.getGridPosition(), rangeInMeters);
     }
 
-    @Deprecated
-    public boolean withinWalkingDistance(GridPosition position) {
-        return withinWalkingDistance(position, walkingDistance);
-    }
-
-    public boolean withinWalkingDistance(GridPosition position, MarginInMeters margin) {
+    public boolean withinRangeOfStation(GridPosition position, MarginInMeters margin) {
 
         // find if within range of a box, if we then need to check if also within range of an actual station
         Set<BoundingBox> quadrantsWithinRange = getQuadrantsWithinRange(position, margin);
@@ -151,18 +145,18 @@ public class StationLocations implements StationLocationsRepository {
 
         logger.info("Getting groupded stations for grid size " + gridSize);
 
-        return getBoundingBoxsFor(gridSize).
+        return createBoundingBoxsFor(gridSize).
                 map(box -> new BoundingBoxWithStations(box, getStationsWithin(box))).
                 filter(BoundingBoxWithStations::hasStations);
     }
 
-    public Stream<BoundingBox> getBoundingBoxsFor(long gridSize) {
+    public Stream<BoundingBox> createBoundingBoxsFor(long gridSize) {
         // addresses performance and memory usages on very large grids
         return getEastingsStream(gridSize).
                 flatMap(x -> getNorthingsStream(gridSize).
                         map(y -> new BoundingBox(x, y, x + gridSize, y + gridSize)));
     }
-    
+
     @NotNull
     private Set<BoundingBox> getQuadrantsWithinRange(GridPosition position, MarginInMeters range) {
         return this.quadrants.stream().
@@ -177,7 +171,6 @@ public class StationLocations implements StationLocationsRepository {
         return candidateStations.filter(box::contained).collect(Collectors.toSet());
     }
 
-
     private Stream<Long> getEastingsStream(long gridSize) {
         long minEastings = bounds.getMinEastings();
         long maxEasting = bounds.getMaxEasting();
@@ -189,11 +182,6 @@ public class StationLocations implements StationLocationsRepository {
         long minNorthings = bounds.getMinNorthings();
         long maxNorthings = bounds.getMaxNorthings();
         return LongStream.iterate(minNorthings, current -> current <= maxNorthings, current -> current + gridSize).boxed();
-    }
-
-    @Deprecated
-    public MarginInMeters getWalkingDistance() {
-        return walkingDistance;
     }
 
     private boolean containsAnyStations(BoundingBox parent, BoundingBox quadrant) {
