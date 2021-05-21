@@ -1,6 +1,7 @@
 package com.tramchester.geo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.LatLong;
 
 import javax.validation.Valid;
@@ -68,6 +69,10 @@ public class BoundingBox {
                         (position.getEastings() <= getMaxEasting()+marginInMeters.get()) &&
                         (position.getNorthings() >= getMinNorthings()-marginInMeters.get()) &&
                         (position.getNorthings() <= getMaxNorthings()+marginInMeters.get());
+    }
+
+    public boolean contained(Location<?> hasPosition) {
+        return contained(hasPosition.getGridPosition());
     }
 
     public boolean contained(LatLong destination) {
