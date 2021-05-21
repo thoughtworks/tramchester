@@ -57,10 +57,10 @@ remoteSources:
     dataPath: data/naptan
     filename: naptan_csv.zip
 bounds:
-  minEastings: 333211
-  minNorthings: 373264
-  maxEasting: 414492
-  maxNorthings: 437779
+  minEastings: 112685
+  minNorthings: 015490
+  maxEasting: 619307
+  maxNorthings: 1108843
 createNeighbours: true
 distanceToNeighboursKM: 0.2
 maxWait: 35
