@@ -43,7 +43,7 @@ class BusStationsLocationsTest {
     }
 
     //
-    // to support tuning config parameters for num and distance of stations
+    // these tests here to support tuning config parameters for num and distance of stations
     //
 
     @Test

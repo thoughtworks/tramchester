@@ -136,7 +136,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     /***
      * Provides composites instead of the stations contained in that composite
      * @param mode
-     * @return
+     * @return stations for transport mode
      */
     @Override
     public Set<Station> getStationsForMode(TransportMode mode) {
@@ -147,6 +147,10 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         return result;
     }
 
+    /***
+     * Provides composites instead of the stations contained in that composite
+     * @return stations
+     */
     @Override
     public Stream<Station> getStationStream() {
         Stream<Station> stationStream = stationRepository.getStationStream().
