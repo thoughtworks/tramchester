@@ -36,8 +36,7 @@ public interface TransportStage<FROM extends Location<?>, DEST extends Location<
     int getPassedStopsCount();
 
     /***
-     * Stops where actually vehicle actually stops
-     * @return
+     * Stops where actually vehicle actually *calls*
      */
     List<StopCall> getCallingPoints();
 

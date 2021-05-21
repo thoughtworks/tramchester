@@ -108,7 +108,7 @@ public class ProvidesNotes {
         return notes;
     }
 
-    private <T extends CallsAtPlatforms> List<Note> liveNotesForJourney(T journey, LocalDate queryDate) {
+    private List<Note> liveNotesForJourney(Journey journey, LocalDate queryDate) {
         // Map: Note -> Location
         List<Note> notes = new ArrayList<>();
 

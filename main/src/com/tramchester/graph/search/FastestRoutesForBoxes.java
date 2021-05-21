@@ -5,19 +5,15 @@ import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.mappers.JourneyToDTOMapper;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +29,11 @@ public class FastestRoutesForBoxes {
 
     private final StationLocations stationLocations;
     private final RouteCalculatorForBoxes calculator;
-    private final JourneyToDTOMapper dtoMapper;
 
     @Inject
-    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculatorForBoxes calculator, JourneyToDTOMapper dtoMapper) {
+    public FastestRoutesForBoxes(StationLocations stationLocations, RouteCalculatorForBoxes calculator) {
         this.stationLocations = stationLocations;
         this.calculator = calculator;
-        this.dtoMapper = dtoMapper;
     }
 
     public Stream<BoundingBoxWithCost> findForGrid(Station destination, long gridSize, JourneyRequest journeyRequest)  {
@@ -65,10 +59,10 @@ public class FastestRoutesForBoxes {
 
         logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
         return calculator.calculateRoutes(destinations, journeyRequest, grouped).
-                map(box->cheapest(box, destination, journeyRequest));
+                map(box -> cheapest(box, destination));
     }
 
-    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, GridPosition destination, JourneyRequest request) {
+    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, GridPosition destination) {
 
         if (journeysForBox.getBox().contained(destination)) {
             return new BoundingBoxWithCost(journeysForBox.getBox(), 0, null);
@@ -89,30 +83,5 @@ public class FastestRoutesForBoxes {
             return new BoundingBoxWithCost(journeysForBox.getBox(), -1, null);
         }
 
-//        int currentLowestCost = Integer.MAX_VALUE;
-//        Journey currentBestJourney = null;
-//
-//        for (Journey journey: journeysForBox.getJourneys()) {
-//            if (journey.getStages().isEmpty()) {
-//                logger.error("Cannot map journey with no stages: " + journey);
-//            } else {
-//                JourneyDTO dto = dtoMapper.createJourneyDTO(journey, request.getDate());
-//                long minutes = getDiffInMinutes(dto);
-//                if (minutes < currentLowestCost) {
-//                    currentBestJourney = journey;
-//                    currentLowestCost = (int) minutes;
-//                }
-//            }
-//        }
-//
-//        return new BoundingBoxWithCost(journeysForBox.getBox(), currentLowestCost, currentBestJourney);
     }
-
-//    private long getDiffInMinutes(JourneyDTO dto) {
-//        LocalDateTime depart = dto.getFirstDepartureTime();
-//        LocalDateTime arrive = dto.getExpectedArrivalTime();
-//        Duration period = Duration.between(depart, arrive);
-//        return Math.abs(period.getSeconds()) / 60;
-//    }
-
 }

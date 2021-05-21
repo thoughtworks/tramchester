@@ -6,9 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.CallsAtPlatforms;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.*;
@@ -19,14 +16,12 @@ import java.util.List;
 
 @JsonTypeName("journey")
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
-public class JourneyDTO implements CallsAtPlatforms {
+public class JourneyDTO {
 
     private StationRefWithPosition begin;
-    private StationRefWithPosition end;
     private List<StageDTO> stages;
     private LocalDateTime expectedArrivalTime; // need to handle 'next day' results
     private LocalDateTime firstDepartureTime;  // need to handle 'next day' results
-    private boolean isDirect;
     private List<StationRefWithPosition> changeStations;
     private TramTime queryTime;
     private List<Note> notes;
@@ -37,16 +32,14 @@ public class JourneyDTO implements CallsAtPlatforms {
         // Deserialization
     }
 
-    public JourneyDTO(StationRefWithPosition begin, StationRefWithPosition end, List<StageDTO> stages,
-                      LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime, boolean isDirect,
+    public JourneyDTO(StationRefWithPosition begin, List<StageDTO> stages,
+                      LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<StationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
                       List<StationRefWithPosition> path, LocalDate queryDate) {
         this.begin = begin;
-        this.end = end;
         this.stages = stages;
         this.expectedArrivalTime = expectedArrivalTime;
         this.firstDepartureTime = firstDepartureTime;
-        this.isDirect = isDirect;
         this.changeStations = changeStations;
         this.queryTime = queryTime;
         this.notes = notes;
@@ -74,14 +67,6 @@ public class JourneyDTO implements CallsAtPlatforms {
         return begin;
     }
 
-    public StationRefDTO getEnd() {
-        return end;
-    }
-
-    public boolean getIsDirect() {
-        return isDirect;
-    }
-
     public List<StationRefWithPosition> getChangeStations() {
         return changeStations;
     }
@@ -90,24 +75,12 @@ public class JourneyDTO implements CallsAtPlatforms {
     public String toString() {
         return "JourneyDTO{" +
                 "begin=" + begin +
-                ", end=" + end +
                 ", stages=" + stages +
                 ", expectedArrivalTime=" + expectedArrivalTime +
                 ", firstDepartureTime=" + firstDepartureTime +
-                ", isDirect=" + isDirect +
                 ", changeStations=" + changeStations +
                 ", queryTime=" + queryTime +
                 '}';
-    }
-
-    @JsonIgnore
-    @Override
-    public IdSet<Platform> getCallingPlatformIds() {
-        return stages.stream().
-                filter(StageDTO::getHasPlatform).
-                map(StageDTO::getPlatform).
-                map(PlatformDTO::getPlatformId).
-                collect(IdSet.idCollector());
     }
 
     @JsonSerialize(using = TramTimeJsonSerializer.class)

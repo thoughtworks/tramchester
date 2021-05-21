@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Walk;
-
 public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms {
 
     private final List<Location<?>> path;
@@ -84,7 +82,7 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
         if (size == 1) {
             return true;
         }
-        if (size == 2 && stages.get(0).getMode()==Walk) {
+        if (firstStageIsWalk() && size == 2) {
             return true;
         }
         return false;
@@ -93,4 +91,15 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
     public boolean firstStageIsWalk() {
         return stages.get(0).getMode()==TransportMode.Walk;
     }
+
+    public Location<?> getBeginning() {
+        if (firstStageIsWalk()) {
+            // TODO Check if this workaround still needed or used?
+            if (stages.size()>1) {
+                return stages.get(1).getFirstStation();
+            }
+        }
+        return stages.get(0).getFirstStation();
+    }
+
 }

@@ -76,8 +76,6 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         assertEquals(LocalDateTime.of(when, LocalTime.of(10, 20)), journeyDTO.getExpectedArrivalTime());
         assertEquals(LocalDateTime.of(when, LocalTime.of(10, 8)), journeyDTO.getFirstDepartureTime());
         assertEquals(stationA.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(stationB.forDTO(), journeyDTO.getEnd().getId());
-        assertTrue(journeyDTO.getIsDirect());
         assertEquals(1,journeyDTO.getStages().size());
         assertEquals(transportStage, journeyDTO.getStages().get(0));
         assertEquals(notes, journeyDTO.getNotes());
@@ -97,8 +95,6 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         assertEquals(LocalDateTime.of(when, LocalTime.of(10, 8)), journeyDTO.getFirstDepartureTime());
         assertEquals(LocalDateTime.of(when, LocalTime.of(11, 45)), journeyDTO.getExpectedArrivalTime());
         assertEquals(stationA.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(stationB.forDTO(), journeyDTO.getEnd().getId());
-        assertFalse(journeyDTO.getIsDirect());
         assertEquals(2,journeyDTO.getStages().size());
         assertEquals(transportStageA, journeyDTO.getStages().get(0));
         assertEquals(transportStageB, journeyDTO.getStages().get(1));
@@ -136,17 +132,10 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(2, journeyDTO.getStages().size());
-        assertFalse(journeyDTO.getIsDirect());
         assertEquals(Altrincham.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(Deansgate.forDTO(), journeyDTO.getEnd().getId());
         assertEquals(1, journeyDTO.getChangeStations().size());
         assertEquals(TramStations.Cornbrook.forDTO(), journeyDTO.getChangeStations().get(0).getId());
 
-        IdSet<Platform> callingPlatformIds = journeyDTO.getCallingPlatformIds();
-        assertEquals(2, callingPlatformIds.size());
-        Set<String> ids = callingPlatformIds.stream().map(IdFor::forDTO).collect(Collectors.toSet());
-        assertTrue(ids.contains(boardingPlatformA.getId()));
-        assertTrue(ids.contains(boardingPlatformB.getId()));
     }
 
     private LocalDateTime timeToday(int hour, int minute) {
@@ -165,9 +154,7 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         JourneyDTO journeyDTO = factory.build(stages, queryTime, notes, path, when);
         verifyAll();
 
-        assertFalse(journeyDTO.getIsDirect());
         assertEquals(Altrincham.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(TramStations.Bury.forDTO(), journeyDTO.getEnd().getId());
 
         List<String> changes = journeyDTO.getChangeStations().stream().
                 map(StationRefDTO::getName).collect(Collectors.toList());
@@ -189,11 +176,10 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
 
         assertEquals(LocalDateTime.of(when, LocalTime.of(8,13)), journey.getFirstDepartureTime());
         Assertions.assertTrue(journey.getChangeStations().isEmpty());
-        Assertions.assertTrue(journey.getIsDirect());
     }
 
     @Test
-    void shouldHaveBeginAndEnd() {
+    void shouldHaveBegin() {
         List<StageDTO> stages = createThreeStages();
 
         replayAll();
@@ -201,7 +187,6 @@ class JourneyDTOFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(Altrincham.forDTO(), journeyDTO.getBegin().getId());
-        assertEquals(TramStations.ExchangeSquare.forDTO(), journeyDTO.getEnd().getId());
     }
 
     @Test

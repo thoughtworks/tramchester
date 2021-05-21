@@ -20,13 +20,11 @@ public class JourneyDTOFactory {
 
     public JourneyDTO build(List<StageDTO> stages, TramTime queryTime, List<Note> notes,
                             List<StationRefWithPosition> path, LocalDate queryDate) {
-        boolean isDirect = isDirect(stages);
         StationRefWithPosition begin = getBegin(stages);
-        StationRefWithPosition end = getEnd(stages);
 
-        return new JourneyDTO(begin, end, stages, getExpectedArrivalTime(stages, queryDate),
+        return new JourneyDTO(begin, stages, getExpectedArrivalTime(stages, queryDate),
                 getFirstDepartureTime(stages, queryDate),
-                isDirect, getChangeStationNames(stages), queryTime, notes, path, queryDate);
+                getChangeStationNames(stages), queryTime, notes, path, queryDate);
     }
 
 
@@ -40,10 +38,6 @@ public class JourneyDTOFactory {
             }
         }
         return getFirstStage(allStages).getFirstStation();
-    }
-
-    private StationRefWithPosition getEnd(List<StageDTO> allStages) {
-        return getLastStage(allStages).getLastStation();
     }
 
     private boolean isDirect(List<StageDTO> allStages) {

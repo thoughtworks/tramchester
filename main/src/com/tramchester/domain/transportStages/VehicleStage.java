@@ -36,10 +36,12 @@ public class VehicleStage implements TransportStage<Station, Station> {
         this.route = route;
         this.mode = mode;
         this.stopSequenceNumbers = stopSequenceNumbers;
-        this.platform = null;
         this.trip = trip;
         this.departFirstStationTime = departFirstStationTime;
         this.lastStation = lastStation;
+
+        this.platform = null;
+        this.cost = Integer.MAX_VALUE;
     }
 
     public Station getFirstStation() {
@@ -92,7 +94,7 @@ public class VehicleStage implements TransportStage<Station, Station> {
 
     @Override
     public boolean hasBoardingPlatform() {
-        return firstStation.hasPlatforms();
+        return platform != null;
     }
 
     public int getCost() {

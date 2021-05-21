@@ -32,13 +32,13 @@ public class TestStation extends Station {
 
     private void guardPlatformsAddedIntent() {
         if (!platformsAdded) {
-            throw new RuntimeException("Use real Station");
+            throw new RuntimeException("No platforms for test station " + getName());
         }
     }
 
     private void guardRoutesAddedIntent() {
         if (!routesAdded) {
-            throw new RuntimeException("Use real Station");
+            throw new RuntimeException("No routes for test station " + getName());
         }
     }
 

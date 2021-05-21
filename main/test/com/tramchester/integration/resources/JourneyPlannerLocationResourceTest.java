@@ -18,7 +18,6 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.neo4j.graphdb.Transaction;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
@@ -30,7 +29,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Deansgate;
+import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -203,7 +203,6 @@ class JourneyPlannerLocationResourceTest {
         List<StageDTO> stages = first.getStages();
         assertEquals(LocalDateTime.of(when, LocalTime.of(9,0)), first.getFirstDepartureTime(), journeys.toString());
         assertEquals(LocalDateTime.of(when, LocalTime.of(9,3)), first.getExpectedArrivalTime(), journeys.toString());
-        assertEquals(TramStations.PiccadillyGardens.forDTO(), first.getEnd().getId());
 
         assertEquals(1, stages.size());
         StageDTO stage = stages.get(0);
@@ -217,7 +216,6 @@ class JourneyPlannerLocationResourceTest {
                 LocalTime.of(19,47), false);
 
         journeys.forEach(journey -> {
-            assertEquals(TramStations.Ashton.forDTO(), journey.getEnd().getId());
             assertEquals(3, journey.getStages().size());
         });
     }
