@@ -61,6 +61,7 @@ dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
 createNeighbours: false
 distanceToNeighboursKM: 0.4
+sendCloudWatchMetrics: true
 
 swagger:
   resourcePackage: com.tramchester.resources
