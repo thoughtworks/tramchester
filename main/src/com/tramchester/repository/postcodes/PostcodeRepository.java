@@ -3,11 +3,11 @@ package com.tramchester.repository.postcodes;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
-import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.dataimport.postcodes.PostcodeData;
+import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
+import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.FindNear;
 import com.tramchester.geo.GridPosition;
@@ -42,7 +42,7 @@ public class PostcodeRepository {
         postcodesAreas = new HashMap<>();
     }
 
-    public PostcodeLocation getPostcode(IdFor<PostcodeLocation> postcodeId) {
+    public PostcodeLocation getPostcode(CaseInsensitiveId<PostcodeLocation> postcodeId) {
         Optional<PostcodeLocation> maybeFound = postcodesAreas.values().stream().
                 filter(map -> map.hasId(postcodeId)).
                 map(matchingMap -> matchingMap.get(postcodeId)).findFirst();
@@ -75,7 +75,7 @@ public class PostcodeRepository {
 
         final IdMap<PostcodeLocation> postcodes = stream.
                 map(postcodeData -> new PostcodeLocation(postcodeData.getGridPosition(),
-                        StringIdFor.createId(postcodeData.getId()), postcodeArea)).
+                        CaseInsensitiveId.createIdFor(postcodeData.getId()), postcodeArea)).
                 collect(IdMap.collector());
         stream.close();
         postcodesAreas.put(postcodeArea, postcodes);
@@ -90,7 +90,7 @@ public class PostcodeRepository {
         postcodesAreas.clear();
     }
 
-    public boolean hasPostcode(IdFor<PostcodeLocation> postcode) {
+    public boolean hasPostcode(CaseInsensitiveId<PostcodeLocation> postcode) {
         return postcodesAreas.values().stream().
                 anyMatch(map -> map.hasId(postcode));
     }

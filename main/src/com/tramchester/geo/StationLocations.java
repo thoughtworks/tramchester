@@ -154,8 +154,6 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     public boolean withinWalkingDistance(GridPosition position) {
-//        return populatedQuadrants.stream().
-//                anyMatch(quadrant -> quadrant.within(walkingDistance, position));
 
         Set<BoundingBox> quadrants = populatedQuadrants.stream().
                 filter(quadrant -> quadrant.within(walkingDistance, position)).

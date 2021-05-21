@@ -130,9 +130,11 @@ class JourneyPlannerPostcodeBusResourceTest {
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
-        journeys.forEach(journeyDTO -> assertEquals(2, journeyDTO.getStages().size()));
-        journeys.forEach(journeyDTO -> assertEquals(journeyDTO.getStages().get(0).getMode(), TransportMode.Bus));
-        journeys.forEach(journeyDTO -> assertEquals(journeyDTO.getEnd().getId(), BusStations.ShudehillInterchange.forDTO()));
+        journeys.forEach(journeyDTO -> {
+            assertEquals(2, journeyDTO.getStages().size());
+            assertEquals(journeyDTO.getStages().get(0).getMode(), TransportMode.Bus);
+            assertEquals(journeyDTO.getEnd().getId(), BusStations.ShudehillInterchange.forDTO());
+        });
     }
 
 }

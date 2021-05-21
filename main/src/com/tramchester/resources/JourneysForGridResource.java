@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.domain.BoundingBoxWithCost;
+import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MyLocation;
@@ -113,7 +114,7 @@ public class JourneysForGridResource {
             LatLong latLong = decodeLatLong(lat, lon);
             destination = CoordinateTransforms.getGridPosition(latLong);
         } else if (PostcodeDTO.isPostcodeId(idText)) {
-            IdFor<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(idText);
+            CaseInsensitiveId<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(idText);
             PostcodeLocation postcode = postcodeRepository.getPostcode(postcodeId);
             destination = postcode.getGridPosition();
         } else {

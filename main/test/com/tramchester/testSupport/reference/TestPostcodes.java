@@ -1,5 +1,6 @@
 package com.tramchester.testSupport.reference;
 
+import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -12,7 +13,8 @@ public class TestPostcodes {
 
     @NotNull
     private static PostcodeLocation createLocation(String id, int eastings, int northings, String area) {
-        return new PostcodeLocation(CoordinateTransforms.getLatLong(new GridPosition(eastings, northings)), id, area);
+        return new PostcodeLocation(CoordinateTransforms.getLatLong(new GridPosition(eastings, northings)),
+                CaseInsensitiveId.createIdFor(id), area);
     }
 
 }

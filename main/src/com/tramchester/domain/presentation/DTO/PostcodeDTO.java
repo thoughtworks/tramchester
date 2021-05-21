@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -31,9 +32,9 @@ public class PostcodeDTO extends LocationDTO {
         return startId.startsWith(PREFIX);
     }
 
-    public static IdFor<PostcodeLocation> decodePostcodeId(String text) {
+    public static CaseInsensitiveId<PostcodeLocation> decodePostcodeId(String text) {
         String prefixRemovedText = text.replaceFirst(PostcodeDTO.PREFIX, "");
-        return StringIdFor.createId(prefixRemovedText);
+        return CaseInsensitiveId.createIdFor(prefixRemovedText);
     }
 
     public boolean getPostcode() {

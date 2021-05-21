@@ -8,7 +8,7 @@ import org.neo4j.graphdb.Entity;
 public class StringIdFor<T extends GraphProperty> implements Comparable<StringIdFor<T>>, IdFor<T> {
     private final String theId;
 
-    private StringIdFor(String theId) {
+    protected StringIdFor(String theId) {
         this.theId = theId;
     }
 

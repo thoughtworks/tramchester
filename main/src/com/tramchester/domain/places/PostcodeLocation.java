@@ -1,8 +1,8 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.*;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.id.CaseInsensitiveId;
+import com.tramchester.domain.id.HasCaseInsensitiveId;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -13,33 +13,34 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public class PostcodeLocation implements Location<PostcodeLocation> {
+public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInsensitiveId {
 
-    private final IdFor<PostcodeLocation> id;
+    private final CaseInsensitiveId<PostcodeLocation> id;
     private final String name;
 
     private LatLong latLong;
     private GridPosition gridPosition;
     private final String area;
 
-    public PostcodeLocation(LatLong latLong, String id, String area) {
-        this.area = area;
-        gridPosition = null;
-        this.latLong = latLong;
-        this.id = StringIdFor.createId(id);
-        this.name = id;
+    public PostcodeLocation(LatLong latLong, CaseInsensitiveId<PostcodeLocation> id, String area) {
+        this(id, area, latLong, null);
     }
 
-    public PostcodeLocation(GridPosition gridPosition, IdFor<PostcodeLocation> id, String area) {
-        this.gridPosition = gridPosition;
-        this.area = area;
-        this.latLong = null;
+    public PostcodeLocation(GridPosition gridPosition, CaseInsensitiveId<PostcodeLocation> id, String area) {
+        this(id, area, null, gridPosition);
+    }
+
+    private PostcodeLocation(CaseInsensitiveId<PostcodeLocation> id, String area, LatLong latLong, GridPosition gridPosition) {
         this.id = id;
         this.name = id.forDTO();
+        this.area = area;
+
+        this.latLong = latLong;
+        this.gridPosition = gridPosition;
     }
 
     @Override
-    public IdFor<PostcodeLocation> getId() {
+    public CaseInsensitiveId<PostcodeLocation> getId() {
         return id;
     }
 

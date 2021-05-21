@@ -3,6 +3,7 @@ package com.tramchester.router;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -142,7 +143,7 @@ public class ProcessPlanRequest {
 
     private PostcodeLocation getPostcode(String text, String diagnostic) {
 
-        IdFor<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(text);
+        CaseInsensitiveId<PostcodeLocation> postcodeId = PostcodeDTO.decodePostcodeId(text);
 
         if (!postcodeRepository.hasPostcode(postcodeId)) {
             String msg = "Unable to find " + diagnostic +" postcode from:  "+ postcodeId;
