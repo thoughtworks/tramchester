@@ -57,7 +57,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
                                     JourneyStateUpdate journeyState, int cost) {
-        long nodeId = node.getId();
 
         boolean isInterchange = nodeLabels.contains(GraphBuilder.Labels.INTERCHANGE);
 
@@ -157,11 +156,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     private TraversalState toGrouped(Node node, int cost, JourneyStateUpdate journeyState) {
         return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState);
-//        if (traversalOps.isDestination(nodeId)) {
-//            return toDestination(builders.getTowardsDestination(this.getClass()), node, cost, journeyState);
-//        } else {
-//            return toGrouped(builders.getTowardsGroup(this.getClass()), node, cost, journeyState);
-//        }
     }
 
     private RouteStationState toRouteStation(Class<? extends TraversalState> from, Node node, int cost, JourneyStateUpdate journeyState,

@@ -45,8 +45,15 @@ public class NaptanRespository {
         } else {
             loadDataForConfiguredArea();
         }
-
         logger.info("started");
+    }
+
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stopping");
+        stopData.clear();
+        logger.info("stopped");
     }
 
     private void loadDataForConfiguredArea() {
@@ -64,12 +71,6 @@ public class NaptanRespository {
         logger.info("Loaded " + stopData.size() + " stops");
     }
 
-    @PreDestroy
-    public void stop() {
-        logger.info("stopping");
-        stopData.clear();
-        logger.info("stopped");
-    }
 
     public boolean contains(IdFor<Station> actoCode) {
         return stopData.containsKey(actoCode.forDTO());

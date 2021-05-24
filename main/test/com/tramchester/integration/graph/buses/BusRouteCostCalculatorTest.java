@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class BusRouteCostCalculatorTest {
     public static final int SHUDEHILL_TO_ALTY = 59;
     public static final int ALTY_TO_STOCKPORT = 40;
-    public static final int SHUDEHILL_TO_STOCKPORT = 47;
+    public static final int SHUDEHILL_TO_STOCKPORT = 42;
     private static ComponentContainer componentContainer;
 
     private Transaction txn;

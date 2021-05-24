@@ -49,9 +49,9 @@ public class TraversalOps {
                 collect(Collectors.toList());
     }
 
-    public boolean isDestination(long nodeId) {
-        return destinationNodeIds.contains(nodeId);
-    }
+//    public boolean isDestination(long nodeId) {
+//        return destinationNodeIds.contains(nodeId);
+//    }
 
     public IdFor<Service> getServiceIdFor(Node svcNode) {
         return nodeOperations.getServiceId(svcNode);
@@ -104,7 +104,7 @@ public class TraversalOps {
             id = relationship.getId();
             this.relationship = relationship;
 
-            // TODO this needs to go via the cache layer
+            // TODO this needs to go via the cache layer?
             this.stationId = GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
         }
 

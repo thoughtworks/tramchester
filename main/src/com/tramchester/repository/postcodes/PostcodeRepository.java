@@ -66,6 +66,16 @@ public class PostcodeRepository {
         logger.info("started");
     }
 
+
+    @PreDestroy
+    public void stop() {
+        logger.info("stopping");
+        postcodesAreas.values().forEach(IdMap::clear);
+        postcodesAreas.clear();
+        logger.info("stopped");
+    }
+
+
     private void load(PostcodeDataImporter.PostcodeDataStream source) {
         if (!source.wasLoaded()) {
             logger.warn("Data was not loaded for " + source.getCode());
@@ -85,10 +95,6 @@ public class PostcodeRepository {
         }
     }
 
-    @PreDestroy
-    public void stop() {
-        postcodesAreas.clear();
-    }
 
     public boolean hasPostcode(CaseInsensitiveId<PostcodeLocation> postcode) {
         return postcodesAreas.values().stream().

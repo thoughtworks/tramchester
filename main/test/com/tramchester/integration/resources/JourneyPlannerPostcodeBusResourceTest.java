@@ -52,7 +52,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(TestPostcodes.CentralBury), prefix(TestPostcodes.NearPiccadillyGardens), time, day,
-                null, false, 5);
+                null, false, 0);
         assertEquals(200, response.getStatus());
 
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
@@ -60,14 +60,18 @@ class JourneyPlannerPostcodeBusResourceTest {
 
         assertFalse(journeys.isEmpty());
 
-        journeys.forEach(journeyDTO -> assertEquals(3,journeyDTO.getStages().size()));
+        journeys.forEach(journeyDTO -> {
+                assertEquals(3,journeyDTO.getStages().size(), journeyDTO.toString());
+                assertEquals(TransportMode.Walk, journeyDTO.getStages().get(0).getMode());
+                assertEquals(TransportMode.Walk, journeyDTO.getStages().get(2).getMode());
+        });
     }
 
     @Test
     void shouldWalkFromPostcodeToNearbyStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(TestPostcodes.CentralBury), BusStations.BuryInterchange.forDTO(), time, day,
-                null, false, 5);
+                null, false, 1);
         assertEquals(200, response.getStatus());
 
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
@@ -84,7 +88,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldWalkFromStationToNearbyPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 BusStations.BuryInterchange.forDTO(), prefix(TestPostcodes.CentralBury),  time, day,
-                null, false, 5);
+                null, false, 2);
         assertEquals(200, response.getStatus());
 
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
@@ -102,7 +106,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldPlanJourneyFromPostcodeToBusStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(TestPostcodes.CentralBury), BusStations.ShudehillInterchange.forDTO(), time, day,
-                null, false, 1);
+                null, false, 0);
 
         assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
@@ -121,7 +125,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldPlanJourneyFromBusStationToPostcode() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 BusStations.ShudehillInterchange.forDTO(), prefix(TestPostcodes.CentralBury), time, day,
-                null, false, 5);
+                null, false, 0);
 
         assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
@@ -129,7 +133,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journeyDTO -> {
-            assertEquals(2, journeyDTO.getStages().size());
+            assertEquals(2, journeyDTO.getStages().size(), journeyDTO.toString());
             assertEquals(journeyDTO.getStages().get(0).getMode(), TransportMode.Bus);
         });
     }

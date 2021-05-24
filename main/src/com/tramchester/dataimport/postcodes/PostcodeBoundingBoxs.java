@@ -57,8 +57,10 @@ public class PostcodeBoundingBoxs {
 
     @PreDestroy
     public void dispose() {
+        logger.info("stopping");
         stop();
         postcodeBounds.clear();
+        logger.info("stopped");
     }
 
     @PostConstruct
