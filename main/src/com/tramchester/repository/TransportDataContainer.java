@@ -31,8 +31,8 @@ public class TransportDataContainer implements TransportData {
     private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
     private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
-
     private final Map<String, Station> tramStationsByName = new HashMap<>();  // tram station name -> station
+
     private final Set<DataSourceInfo> dataSourceInfos = new HashSet<>();
 
     // data source name -> feedinfo (if present)
@@ -49,7 +49,8 @@ public class TransportDataContainer implements TransportData {
     }
 
     public void dispose() {
-        logger.info("Stopping");
+        logger.info("stopping for " + sourceName);
+        // clear's are here due to memory usage during testing
         trips.forEach(Trip::dispose);
         trips.clear();
         stationsById.clear();
@@ -64,7 +65,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     public void reportNumbers() {
-        logger.info("From " + dataSourceInfos);
+        logger.info("From " + dataSourceInfos + " name:" + sourceName);
         logger.info(format("%s agencies", agencies.size()));
         logger.info(format("%s routes", routes.size()));
         logger.info(stationsById.size() + " stations " + platforms.size() + " platforms ");

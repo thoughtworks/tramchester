@@ -71,6 +71,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         serviceNodeCache.invalidateAll();
         tripIdRelationshipCache.invalidateAll();
         timeNodeCache.invalidateAll();
+        routeStationIdCache.invalidateAll();
     }
 
     @NonNull

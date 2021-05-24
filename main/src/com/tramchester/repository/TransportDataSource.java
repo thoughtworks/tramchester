@@ -14,10 +14,11 @@ public class TransportDataSource {
     final Stream<TripData> trips;
     final Stream<StopTimeData> stopTimes;
     final Stream<CalendarData> calendars;
-    private final Stream<FeedInfo> feedInfo;
     final Stream<CalendarDateData> calendarsDates;
-    private final GTFSSourceConfig config;
     final Stream<AgencyData> agencies;
+    private final Stream<FeedInfo> feedInfo;
+
+    private final GTFSSourceConfig config;
     final private DataSourceInfo dataSourceInfo;
     final private TransportEntityFactory entityFactory;
 

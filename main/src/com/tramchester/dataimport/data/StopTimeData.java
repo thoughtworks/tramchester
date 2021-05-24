@@ -89,4 +89,8 @@ public class StopTimeData {
     public IdFor<Platform> getPlatformId() {
         return StringIdFor.createId(stopId);
     }
+
+    public boolean arriveDepartSameTime() {
+        return arrivalTime.equals(departureTime);
+    }
 }

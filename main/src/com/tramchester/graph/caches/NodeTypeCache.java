@@ -57,6 +57,16 @@ public class NodeTypeCache implements NodeTypeRepository {
         logger.info("started");
     }
 
+    @PreDestroy
+    public void dispose() {
+        logger.info("dispose");
+        if (!queryNodes.isEmpty()) {
+            logger.warn("Query nodes remaining " + queryNodes.keySet());
+            queryNodes.clear();
+        }
+        labelMap.clear();
+    }
+
     private void populateCaches() {
         // populate
         try (TimedTransaction timed = new TimedTransaction(graphDatabase, logger, "populate node type cache")) {
@@ -77,12 +87,6 @@ public class NodeTypeCache implements NodeTypeRepository {
         }
     }
 
-    @PreDestroy
-    public void dispose() {
-        logger.info("dispose");
-        queryNodes.clear();
-        labelMap.clear();
-    }
 
     private int getCapacity(GraphBuilder.Labels label) {
         return numbersOfNodes.numberOf(label).intValue();

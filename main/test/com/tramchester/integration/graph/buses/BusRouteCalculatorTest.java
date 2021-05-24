@@ -3,8 +3,6 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,13 +11,13 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.testTags.BusTest;
-import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -32,8 +30,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.BusStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.testSupport.reference.BusStations.PiccadilyStationStopA;
+import static com.tramchester.testSupport.reference.BusStations.StopAtStockportBusStation;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -126,8 +126,11 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
                 TramTime.of(8,19), false, 3, maxJourneyDuration, 1);
 
-        @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
-        assertFalse(results.isEmpty());
+//        for (int i = 0; i < 20000; i++) {
+            @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
+            assertFalse(results.isEmpty(), "no journeys");
+//        }
+
     }
 
     @Test
@@ -192,7 +195,7 @@ class BusRouteCalculatorTest {
             List<String> seenId = new ArrayList<>();
             journey.getStages().forEach(stage -> {
                 String actionStation = stage.getActionStation().forDTO();
-                assertFalse(seenId.contains(actionStation), "Already seen " + actionStation + " for " + journey.toString());
+                assertFalse(seenId.contains(actionStation), "Already seen " + actionStation + " for " + journey);
                 seenId.add(actionStation);
             });
         });

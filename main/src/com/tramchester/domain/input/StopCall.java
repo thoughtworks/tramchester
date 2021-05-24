@@ -13,15 +13,21 @@ import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 public abstract class StopCall {
     protected final Station station;
     private final TramTime arrivalTime;
-    private final TramTime departureTime;
+//    private final TramTime departureTime;
     private final int sequenceNumber;
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;
+    private final int dwellTime;
 
     protected StopCall(Station station, StopTimeData stopTimeData) {
         this.station = station;
         this.arrivalTime = stopTimeData.getArrivalTime();
-        this.departureTime = stopTimeData.getDepartureTime();
+        if (stopTimeData.arriveDepartSameTime()) {
+            this.dwellTime = 0;
+        } else {
+            TramTime departureTime = stopTimeData.getDepartureTime();
+            dwellTime = TramTime.diffenceAsMinutes(arrivalTime, departureTime);
+        }
         this.sequenceNumber = stopTimeData.getStopSequence();
         this.pickupType = stopTimeData.getPickupType();
         this.dropoffType = stopTimeData.getDropOffType();
@@ -32,7 +38,10 @@ public abstract class StopCall {
     }
 
     public TramTime getDepartureTime() {
-        return departureTime;
+        if (dwellTime==0) {
+            return arrivalTime;
+        }
+        return arrivalTime.plusMinutes(dwellTime);
     }
 
     public Station getStation() {
@@ -62,7 +71,7 @@ public abstract class StopCall {
         return "StopCall{" +
                 "station=" + HasId.asId(station) +
                 ", arrivalTime=" + arrivalTime +
-                ", departureTime=" + departureTime +
+                ", dwellTime=" + dwellTime +
                 ", sequenceNumber=" + sequenceNumber +
                 ", pickupType=" + pickupType +
                 ", dropoffType=" + dropoffType +
