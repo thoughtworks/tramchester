@@ -54,6 +54,7 @@ public class StationLocations implements StationLocationsRepository {
     @PreDestroy
     public void dispose() {
         logger.info("Stopping");
+        stations.values().forEach(Set::clear);
         stations.clear();
         quadrants.clear();
         logger.info("Stopped");

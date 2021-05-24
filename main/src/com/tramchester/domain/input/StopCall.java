@@ -13,7 +13,6 @@ import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
 public abstract class StopCall {
     protected final Station station;
     private final TramTime arrivalTime;
-//    private final TramTime departureTime;
     private final int sequenceNumber;
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;

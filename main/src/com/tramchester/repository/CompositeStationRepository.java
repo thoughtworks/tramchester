@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +52,14 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         isUnderlyingStationComposite = new IdSet<>();
         compositeStations = new HashMap<>();
         compositeStationsByName = new HashMap<>();
+    }
+
+    @PreDestroy
+    public void stop() {
+        logger.info("Stopping");
+        compositeStations.clear();
+        compositeStationsByName.clear();
+        logger.info("Stopped");
     }
 
     @PostConstruct

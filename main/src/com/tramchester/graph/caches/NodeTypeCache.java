@@ -36,7 +36,6 @@ public class NodeTypeCache implements NodeTypeRepository {
     private final GraphDatabase graphDatabase;
     private final NumberOfNodesAndRelationshipsRepository numbersOfNodes;
 
-    // TODO use NumberOfNodesAndRelationshipsRepository here
     @Inject
     public NodeTypeCache(GraphDatabase graphDatabase, NumberOfNodesAndRelationshipsRepository numbersOfNodes,
                          StagedTransportGraphBuilder.Ready ready) {
@@ -64,6 +63,7 @@ public class NodeTypeCache implements NodeTypeRepository {
             logger.warn("Query nodes remaining " + queryNodes.keySet());
             queryNodes.clear();
         }
+        labelMap.values().forEach(Set::clear);
         labelMap.clear();
     }
 
@@ -90,17 +90,6 @@ public class NodeTypeCache implements NodeTypeRepository {
 
     private int getCapacity(GraphBuilder.Labels label) {
         return numbersOfNodes.numberOf(label).intValue();
-        // approx. sizings
-//        return switch (label) {
-//            case ROUTE_STATION -> 282;
-//            case TRAM_STATION -> 93;
-//            case TRAIN_STATION -> 3000;
-//            case PLATFORM -> 185;
-//            case SERVICE -> 8680;
-//            case HOUR -> 62525;
-//            case MINUTE -> 314150;
-//            default -> 0;
-//        };
     }
 
     public void put(long id, GraphBuilder.Labels label) {

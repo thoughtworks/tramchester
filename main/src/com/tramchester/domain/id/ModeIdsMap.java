@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModeIdsMap<T extends GraphProperty>  {
-    private Map<TransportMode, IdSet<T>> theMap;
+    private final Map<TransportMode, IdSet<T>> theMap;
 
     public ModeIdsMap() {
         theMap = new HashMap<>();
@@ -20,7 +20,6 @@ public class ModeIdsMap<T extends GraphProperty>  {
     public void addAll(TransportMode mode, IdSet<T> ids) {
         getOrCreateFor(mode).addAll(ids);
     }
-
 
     public void add(TransportMode mode, IdFor<T> id) {
         getOrCreateFor(mode).add(id);
@@ -45,13 +44,6 @@ public class ModeIdsMap<T extends GraphProperty>  {
             throw new RuntimeException("No values held for " + mode);
         }
         return theMap.get(mode);
-    }
-
-    public long sizeFor(TransportMode mode) {
-        if (!theMap.containsKey(mode)) {
-            return 0;
-        }
-        return theMap.get(mode).size();
     }
 
     public long size() {

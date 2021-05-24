@@ -251,7 +251,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdSet<Station> excludedStations = new IdSet<>();
 
         AtomicInteger count = new AtomicInteger();
-        stopTimes.filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).forEach((stopTimeData) -> {
+        stopTimes.
+                filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).
+                forEach((stopTimeData) -> {
             String stopId = stopTimeData.getStopId();
             IdFor<Station> stationId = Station.formId(stopId);
 
