@@ -2,16 +2,20 @@ package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
@@ -19,6 +23,7 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.TripRepository;
+import org.checkerframework.checker.units.qual.C;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +35,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
+import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
+import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_PARENT;
 import static java.lang.String.format;
+import static org.neo4j.graphdb.Direction.INCOMING;
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
 public class MapPathToStagesViaStates implements PathToStages {
@@ -128,7 +137,30 @@ public class MapPathToStagesViaStates implements PathToStages {
         }
         previous.toDestination(previous, path.endNode(), 0, mapStatesToStages);
 
-        return mapStatesToStages.getStages();
+        final List<TransportStage<?, ?>> stages = mapStatesToStages.getStages();
+        if (stages.isEmpty()) {
+            if (path.length()==2) {
+                if (path.startNode().hasRelationship(OUTGOING, GROUPED_TO_PARENT) && (path.endNode().hasRelationship(INCOMING,
+                        GROUPED_TO_CHILD))) {
+                    addViaCompositeStation(path, journeyRequest, stages);
+                }
+            } else {
+                logger.warn("Did not map any stages for path length:" + path.length() + " path:" + timedPath + " request: " + journeyRequest);
+            }
+        }
+        return stages;
+    }
+
+    private void addViaCompositeStation(Path path, JourneyRequest journeyRequest, List<TransportStage<?, ?>> stages) {
+        logger.info("Add ConnectingStage Journey via single composite node");
+
+        IdFor<Station> startId = GraphProps.getStationId(path.startNode());
+        IdFor<Station> endId = GraphProps.getStationId(path.endNode());
+
+        Station start = stationRepository.getStationById(startId);
+        Station end = stationRepository.getStationById(endId);
+        ConnectingStage connectingStage = new ConnectingStage(start, end, 0, journeyRequest.getTime());
+        stages.add(connectingStage);
     }
 
 

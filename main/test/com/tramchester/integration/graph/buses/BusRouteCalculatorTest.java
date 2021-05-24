@@ -144,11 +144,15 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldRepoduceErrorWithZeroStages() {
-        IdFor<Station> start = StringIdFor.createId("1800EB00011");
-        IdFor<Station> end = StringIdFor.createId("1800EB33741");
+    void shouldHandleJourneyDirectViaSingleComposite() {
 
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(7,30), false, 3,
+        CompositeStation piccadillyComp = compositeStationRepository.findByName("Piccadilly Rail Station");
+        List<Station> stations = new ArrayList<>(piccadillyComp.getContained());
+        assertTrue(stations.size()>2);
+        Station start = stations.get(0);
+        Station end = stations.get(1);
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(7,30), false, 1,
                 120, 1);
 
         Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);

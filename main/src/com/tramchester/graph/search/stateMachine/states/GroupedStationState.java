@@ -21,7 +21,6 @@ public class GroupedStationState extends TraversalState {
         public void register(RegistersFromState registers) {
             registers.add(TramStationState.class, this);
             registers.add(NoPlatformStationState.class, this);
-//            registers.add(WalkingState.class, this);
             registers.add(NotStartedState.class, this);
         }
 
@@ -35,11 +34,6 @@ public class GroupedStationState extends TraversalState {
                     filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
                     cost, node.getId());
         }
-
-//        public TraversalState fromWalk(WalkingState walkingState, Node node, int cost) {
-//            return new GroupedStationState(walkingState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
-//                    cost, node.getId());
-//        }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node node, int cost) {
             return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),

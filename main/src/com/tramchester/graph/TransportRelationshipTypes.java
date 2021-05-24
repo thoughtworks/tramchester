@@ -55,10 +55,6 @@ public enum TransportRelationshipTypes implements RelationshipType {
         };
     }
 
-    public static boolean isNeighbourOrGrouped(Relationship relationship) {
-        return relationship.isType(NEIGHBOUR) || relationship.isType(GROUPED_TO_CHILD) || relationship.isType(GROUPED_TO_PARENT);
-    }
-
     public static boolean hasCost(TransportRelationshipTypes relationshipType) {
         return switch (relationshipType) {
             case TO_HOUR,TO_MINUTE, TO_SERVICE -> false;
