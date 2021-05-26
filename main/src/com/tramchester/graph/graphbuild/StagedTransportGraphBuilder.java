@@ -371,7 +371,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             });
         });
 
-        // assumed cost between nodes does not change for this route
+        // TODO assumed cost between nodes does not change for this specific route i.e. trips on route have same costs
+        // which might not be true?
         pairs.forEach((pair, cost) -> {
             Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getBeginId());
             Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getEndId());

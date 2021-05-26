@@ -1,6 +1,9 @@
 package com.tramchester.graph;
 
+import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -56,7 +59,7 @@ public class RouteCostCalculator {
 
     // startNode and endNode must have been found within supplied txn
     public int getApproxCostBetween(Transaction txn, Node startNode, Node endNode) {
-        PathExpander<Double> forTypesAndDirections = fullExpanderForRoutes();
+        PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation();
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
@@ -70,7 +73,34 @@ public class RouteCostCalculator {
         return (int) weight;
     }
 
-    private PathExpander<Double> fullExpanderForRoutes() {
+    public long getNumberHops(Transaction txn, RouteStation start, RouteStation end) {
+        PathExpander<Double> forTypesAndDirections = expanderForNumberHops();
+
+        EvaluationContext context = graphDatabaseService.createContext(txn);
+        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
+
+        Node startNode = graphQuery.getRouteStationNode(txn, start);
+        Node endNode = graphQuery.getRouteStationNode(txn, end);
+
+        WeightedPath path = finder.findSinglePath(startNode, endNode);
+        if (path==null) {
+            logger.error("No path found ");
+            return -1;
+        }
+        return Streams.stream(path.nodes()).
+                filter(node -> node.getId()!=startNode.getId()).
+                filter(node -> node.getId()!=endNode.getId()).
+                count();
+    }
+
+    private PathExpander<Double> expanderForNumberHops() {
+        return PathExpanders.forTypesAndDirections(
+                ON_ROUTE, Direction.OUTGOING,
+                CONNECT_ROUTES, Direction.OUTGOING
+        );
+    }
+
+    private PathExpander<Double> fullExpanderForCostApproximation() {
         return PathExpanders.forTypesAndDirections(
                 ON_ROUTE, Direction.OUTGOING,
                 ENTER_PLATFORM, Direction.OUTGOING,
