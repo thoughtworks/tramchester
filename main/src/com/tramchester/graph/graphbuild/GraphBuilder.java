@@ -48,7 +48,7 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
         VERSION,
         NEIGHBOURS_ENABLED,
         COMPOSITES_ADDED,
-        INTERCHANGE;
+        INTERCHANGE; // label added to stations if they are interchanges
 
         public static Labels forMode(TransportMode mode) {
             return switch (mode) {

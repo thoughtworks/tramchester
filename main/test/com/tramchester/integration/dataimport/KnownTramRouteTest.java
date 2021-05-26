@@ -42,13 +42,6 @@ class KnownTramRouteTest {
 
         assertEquals(knownRoutes.size(), loadedRoutes.size());
 
-//        IdSet<Route> knownRouteIds = knownRoutes.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
-
-//        for (Route loaded: loadedRoutes) {
-//            IdFor<Route> id = loaded.getId();
-//            assertTrue(knownRouteIds.contains(id), id.toString());
-//        }
-
         Set<String> knownRouteNames = knownRoutes.stream().map(Enum::name).collect(Collectors.toSet());
 
         for (Route loaded: loadedRoutes) {

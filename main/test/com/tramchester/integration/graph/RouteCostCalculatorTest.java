@@ -17,7 +17,6 @@ class RouteCostCalculatorTest {
 
     private static ComponentContainer componentContainer;
 
-    private GraphDatabase database;
     private RouteCostCalculator routeCostCalc;
     private Transaction txn;
 
@@ -36,7 +35,7 @@ class RouteCostCalculatorTest {
     @BeforeEach
     void beforeEachTestRuns() {
         routeCostCalc = componentContainer.get(RouteCostCalculator.class);
-        database = componentContainer.get(GraphDatabase.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
     }
 

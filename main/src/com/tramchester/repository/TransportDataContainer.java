@@ -133,6 +133,13 @@ public class TransportDataContainer implements TransportData {
     }
 
     @Override
+    public Set<RouteStation> getRouteStationsFor(IdFor<Station> stationId) {
+        return routeStations.getValuesStream().
+                filter(routeStation -> routeStation.getStation().getId().equals(stationId)).
+                collect(Collectors.toSet());
+    }
+
+    @Override
     public RouteStation getRouteStationById(IdFor<RouteStation> routeStationId) {
         return routeStations.get(routeStationId);
     }

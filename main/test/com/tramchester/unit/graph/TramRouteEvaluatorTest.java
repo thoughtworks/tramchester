@@ -113,14 +113,14 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @NotNull
     private NotStartedState getNotStartedState() {
-        Set<Long> destinationNodeIds = new HashSet<>();
-        destinationNodeIds.add(destinationNodeId);
+//        Set<Long> destinationNodeIds = new HashSet<>();
+//        destinationNodeIds.add(destinationNodeId);
 
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, config);
 
         return new NotStartedState(new TraversalOps(nodeOperations, tripRepository, sortsPositions, destinationStations,
-                destinationNodeIds, latLongHint), traversalStateFactory);
+                latLongHint), traversalStateFactory);
     }
 
     @NotNull

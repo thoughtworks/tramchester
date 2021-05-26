@@ -36,7 +36,10 @@ public class RouteCallingStations {
 
     @PreDestroy
     public void dispose() {
+        logger.info("stopping");
+        stations.values().forEach(List::clear);
         stations.clear();
+        logger.info("stopped");
     }
 
     @PostConstruct

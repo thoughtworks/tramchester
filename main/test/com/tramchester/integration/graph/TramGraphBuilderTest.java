@@ -13,7 +13,9 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -36,11 +38,11 @@ import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TramGraphBuilderTest {
     private static ComponentContainer componentContainer;
+    private static IntegrationTramTestConfig testConfig;
 
     private TransportData transportData;
     private Transaction txn;
@@ -50,10 +52,11 @@ class TramGraphBuilderTest {
     private Route tramRouteEcclesAshton;
     private Route tramRouteAltPicc;
     private TramRouteHelper tramRouteHelper;
+    private InterchangeRepository interchangeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
+        testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -68,7 +71,11 @@ class TramGraphBuilderTest {
         graphQuery = componentContainer.get(GraphQuery.class);
         transportData = componentContainer.get(TransportData.class);
         stationRepository = componentContainer.get(StationRepository.class);
+        interchangeRepository = componentContainer.get(InterchangeRepository.class);
         GraphDatabase service = componentContainer.get(GraphDatabase.class);
+
+        StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
+        builder.getReady();
         txn = service.beginTx();
     }
 
@@ -215,11 +222,11 @@ class TramGraphBuilderTest {
 
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
-        List<Relationship> graphOutbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.OUTGOING);
+        List<Relationship> routeStationOutbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.OUTGOING);
 
-        assertTrue(graphOutbounds.size()>0);
+        assertTrue(routeStationOutbounds.size()>0);
 
-        List<IdFor<Service>> serviceRelatIds = graphOutbounds.stream().
+        List<IdFor<Service>> serviceRelatIds = routeStationOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 map(GraphProps::getServiceId).
                 collect(Collectors.toList());
@@ -238,6 +245,14 @@ class TramGraphBuilderTest {
         // each svc should be one outbound, no dups, so use list not set of ids
         assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
+
+        long routeConnected = routeStationOutbounds.stream().
+                filter(relationship -> relationship.isType(TransportRelationshipTypes.CONNECT_ROUTES)).count();
+        if (testConfig.getChangeAtInterchangeOnly() && interchangeRepository.isInterchange(tramStation.getId())) {
+            assertNotEquals(0, routeConnected);
+        } else {
+            assertEquals(0, routeConnected);
+        }
     }
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {

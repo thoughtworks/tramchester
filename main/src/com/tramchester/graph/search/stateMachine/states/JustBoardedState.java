@@ -39,6 +39,8 @@ public class JustBoardedState extends RouteStationState {
                     noPlatformStation);
             Stream<Relationship> services = orderServicesByDistance(node, noPlatformStation.traversalOps);
             return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
+//            Stream<Relationship> services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
+//            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
         }
 
         /***

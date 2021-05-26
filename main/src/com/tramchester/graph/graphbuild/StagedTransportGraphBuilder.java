@@ -2,6 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.HasGraphDBConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -32,10 +33,12 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.INTERCHANGE;
+import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.PLATFORM;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -59,6 +62,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private final TransportData transportData;
     private final InterchangeRepository interchangeRepository;
+    private final TramchesterConfig config;
 
     // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -67,12 +71,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     @Inject
     public StagedTransportGraphBuilder(GraphDatabase graphDatabase, HasGraphDBConfig config, GraphFilter graphFilter,
-                                       TransportData transportData,
-                                       InterchangeRepository interchangeRepository, GraphBuilderCache builderCache,
-                                       StationsAndLinksGraphBuilder.Ready readyToken) {
+                                       TransportData transportData, InterchangeRepository interchangeRepository,
+                                       GraphBuilderCache builderCache, StationsAndLinksGraphBuilder.Ready readyToken,
+                                       TramchesterConfig config1) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
+        this.config = config1;
     }
 
     @PostConstruct
@@ -112,6 +117,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 }
             }
 
+            linkRouteStations(builderCache);
+
             // only add version node if we manage to build graph, so partial builds that fail we cause a rebuild
             addVersionNode(graphDatabase, transportData.getDataSourceInfo());
 
@@ -126,7 +133,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         builderCache.fullClear();
         reportStats();
-        System.gc();
+        System.gc(); // for testing, was causing issue on the main test run
         logMemory("After graph build");
     }
 
@@ -140,6 +147,45 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                     forEach(station -> linkStationAndPlatforms(txn, station, builderCache));
             timedTransaction.commit();
+        }
+    }
+
+    private void linkRouteStations(GraphBuilderCache builderCache) {
+        boolean interchangeOnly = config.getChangeAtInterchangeOnly();
+        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link adjacent route stations")) {
+            Transaction txn = timedTransaction.transaction();
+            if (interchangeOnly) {
+                logger.info("Creating links for adjacent interchange route stations only");
+                interchangeRepository.getAllInterchanges().stream().
+                        filter(graphFilter::shouldInclude).
+                        map(transportData::getRouteStationsFor).
+                        forEach(routeStationGroup -> linkRouteStations(txn, builderCache, routeStationGroup));
+            } else {
+                logger.info("Create links for ALL adjacent route stations");
+                transportData.getStations().stream().
+                        filter(graphFilter::shouldInclude).
+                        map(station -> transportData.getRouteStationsFor(station.getId())).
+                        forEach(routeStationGroup -> linkRouteStations(txn, builderCache, routeStationGroup));
+            }
+
+            timedTransaction.commit();
+        }
+    }
+
+    private void linkRouteStations(Transaction txn, GraphBuilderCache builderCache, Set<RouteStation> toGroup) {
+        List<IdFor<RouteStation>> ids = toGroup.stream().
+                filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
+                map(RouteStation::getId).
+                collect(Collectors.toList());
+        for (int i = 0; i < ids.size(); i++) {
+            for (int j = 0; j < ids.size(); j++) {
+                if (i!=j) {
+                    Node nodeA = builderCache.getRouteStation(txn, ids.get(i));
+                    Node nodeB = builderCache.getRouteStation(txn, ids.get(j));
+                    Relationship to = nodeA.createRelationshipTo(nodeB, CONNECT_ROUTES);
+                    GraphProps.setCostProp(to, 0); // todo approx this, although depends on board etc cost
+                }
+            }
         }
     }
 
@@ -325,6 +371,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             });
         });
 
+        // assumed cost between nodes does not change for this route
         pairs.forEach((pair, cost) -> {
             Node startNode = routeBuilderCache.getRouteStation(tx, route, pair.getBeginId());
             Node endNode = routeBuilderCache.getRouteStation(tx, route, pair.getEndId());
@@ -340,6 +387,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                          Route route, Trip trip) {
 
         // TODO when filtering this isn't really valid, we might only see a small segment of a larger trip....
+        // in unfiltered situations (i.e. non test) it is fine
         boolean isFirstStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfFirstStop(); //stop seq num, not index
         boolean isLastStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfLastStop();
 
@@ -382,7 +430,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             createDeparts(routeBuilderCache, station, isInterchange, platformOrStation, routeStationId, routeStationNode);
         }
 
-        // TODO seems normal in most data sets
+        // TODO seems normal in most data sets, we go past stops without calling in
 //        if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
 //            // this is normal for trains, timetable lists all passed stations, whether train stops or not
 //            logger.warn("No pickup or dropoff for " + stopCall);

@@ -197,8 +197,15 @@ public abstract class TraversalState implements ImmuatableTraversalState {
     }
 
     protected static Stream<Relationship> filterExcludingEndNode(Iterable<Relationship> relationships, NodeId hasNodeId) {
+        return filterExcludingEndNode(Streams.stream(relationships), hasNodeId);
+//        long nodeId = hasNodeId.nodeId();
+//        return Streams.stream(relationships).
+//                filter(relationship -> relationship.getEndNode().getId() != nodeId);
+    }
+
+    protected static Stream<Relationship> filterExcludingEndNode(Stream<Relationship> relationships, NodeId hasNodeId) {
         long nodeId = hasNodeId.nodeId();
-        return Streams.stream(relationships).
+        return relationships.
                 filter(relationship -> relationship.getEndNode().getId() != nodeId);
     }
 

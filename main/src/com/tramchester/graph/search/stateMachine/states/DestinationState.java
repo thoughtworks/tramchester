@@ -5,6 +5,11 @@ import com.tramchester.graph.search.stateMachine.Towards;
 
 import java.util.LinkedList;
 
+/**
+ * Used for the path to state mapping
+ * The traversal code will stop before reaching here as it checks the destination node id's before invoking the next
+ * state.
+ */
 public class DestinationState extends TraversalState
 {
     public static class Builder implements Towards<DestinationState> {

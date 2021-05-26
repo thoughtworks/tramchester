@@ -44,8 +44,8 @@ class JourneyStateTest extends EasyMockSupport {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         LatLong latLongHint = TramStations.ManAirport.getLatLong();
-        Set<Long> destinationNodeIds = new HashSet<>();
-        destinationNodeIds.add(42L);
+//        Set<Long> destinationNodeIds = new HashSet<>();
+//        destinationNodeIds.add(42L);
 
         node = EasyMock.createMock(Node.class);
 
@@ -64,7 +64,7 @@ class JourneyStateTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, config);
         traversalState = new NotStartedState(new TraversalOps(cachedNodeOperations, tripRepository, sortsPositions, destinations,
-                destinationNodeIds, latLongHint), traversalStateFactory);
+                latLongHint), traversalStateFactory);
         queryTime = TramTime.of(9, 15);
     }
 

@@ -141,4 +141,10 @@ public class InterchangeRepository  {
     public IdSet<Station> getInterchangesFor(TransportMode mode) {
         return interchanges.get(mode);
     }
+
+    public IdSet<Station> getAllInterchanges() {
+        return config.getTransportModes().stream().
+                flatMap(mode -> interchanges.get(mode).stream()).
+                collect(IdSet.idCollector());
+    }
 }

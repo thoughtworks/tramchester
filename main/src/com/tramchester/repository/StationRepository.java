@@ -32,4 +32,6 @@ public interface StationRepository extends StationRepositoryPublic {
     RouteStation getRouteStation(Station station, Route route);
 
     Stream<Station> getStationsForModeStream(TransportMode mode);
+
+    Set<RouteStation> getRouteStationsFor(IdFor<Station> stationId);
 }

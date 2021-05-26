@@ -22,6 +22,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -40,8 +41,7 @@ import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.TramStations.Altrincham;
-import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TransportDataFromFilesTramTest {
@@ -152,6 +152,18 @@ class TransportDataFromFilesTramTest {
 
         // todo lockdown 14->12
         assertEquals(12, tramRoutes);
+    }
+
+    @Test
+    void shouldGetRouteStationsForStation() {
+        Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
+        assertEquals(4, routeStations.size());
+        List<String> names = routeStations.stream().map(routeStation -> routeStation.getRoute().getShortName()).collect(Collectors.toList());
+        assertEquals(4, names.size());
+        assertTrue(names.contains(VictoriaWythenshaweManchesterAirport.shortName()));
+        assertTrue(names.contains(ManchesterAirportWythenshaweVictoria.shortName()));
+        assertTrue(names.contains(BuryPiccadilly.shortName()));
+        assertTrue(names.contains(PiccadillyBury.shortName()));
     }
 
     @Test

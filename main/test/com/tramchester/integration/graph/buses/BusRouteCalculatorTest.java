@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.PiccadilyStationStopA;
 import static com.tramchester.testSupport.reference.BusStations.StopAtStockportBusStation;
+import static java.time.Month.MAY;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -86,10 +88,10 @@ class BusRouteCalculatorTest {
         CompositeStation stockport = compositeStationRepository.findByName("Stockport Bus Station");
         CompositeStation alty = compositeStationRepository.findByName("Altrincham Interchange");
 
-        TramTime travelTime = TramTime.of(8, 0);
+        TramTime travelTime = TramTime.of(9,0);
         LocalDate nextMonday = TestEnv.nextMonday();
 
-        JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 2,
+        JourneyRequest requestA = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 0,
                 maxJourneyDuration, 3);
         Set<Journey> journeys = calculator.calculateRouteAsSet(stockport, alty, requestA);
         assertFalse(journeys.isEmpty());
@@ -98,7 +100,7 @@ class BusRouteCalculatorTest {
         List<Journey> direct = journeys.stream().
                 filter(journey -> countNonConnectStages(journey) == 1).
                 collect(Collectors.toList());
-        assertFalse(direct.isEmpty());
+        assertFalse(direct.isEmpty(), "none direct");
 
         JourneyRequest requestB = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 4,
                 maxJourneyDuration, 3);
@@ -212,13 +214,19 @@ class BusRouteCalculatorTest {
         assertFalse(threeStagesOrLess.isEmpty());
     }
 
-
-    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-    @Disabled("not loading tram stations")
     @Test
-    void shouldHaveSimpleTramJourney() {
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0), false, 5,
-                maxJourneyDuration, 1);
-        calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.Cornbrook, journeyRequest);
+    void shouldReproIssueWithSlowPerformance() {
+        int maxChanges = 3;
+        LocalDate date = LocalDate.of(2021, MAY, 25);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), TramTime.of(9,20),
+                false, maxChanges, maxJourneyDuration, 3);
+
+        CompositeStation shudehill = compositeStationRepository.findByName("Shudehill Interchange");
+        Station asdaBroadhealth = compositeStationRepository.getStationById(StringIdFor.createId("1800SJ18511"));
+
+        Set<Journey> journeys = calculator.calculateRouteAsSet(shudehill, asdaBroadhealth, journeyRequest);
+        assertFalse(journeys.isEmpty());
+
     }
+
 }

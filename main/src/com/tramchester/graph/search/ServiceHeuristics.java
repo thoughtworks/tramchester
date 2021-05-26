@@ -132,7 +132,6 @@ public class ServiceHeuristics {
         }
 
         for(Station endStation : journeyConstraints.getEndStations()) {
-            // TODO Verison of below that takes the list of end stations
             if (reachabilityRepository.stationReachable(routeStation, endStation)) {
                 return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
             }

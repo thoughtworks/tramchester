@@ -28,6 +28,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     GROUPED_TO_PARENT, // between composite stations to/from contained stations
     GROUPED_TO_CHILD,
     ON_ROUTE,  // route stations on same route
+    CONNECT_ROUTES,
     NEIGHBOUR, // stations within N meters, different transport modes
     LINKED; // station to station by transport mode
 

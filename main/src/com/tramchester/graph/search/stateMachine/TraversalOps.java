@@ -1,7 +1,9 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
@@ -9,6 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.TripRepository;
@@ -28,18 +31,20 @@ public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
     private final TripRepository tripRepository;
     private final IdSet<Station> destinationStationIds;
-    private final Set<Long> destinationNodeIds;
+    private final IdSet<Route> destinationRoutes;
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
 
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        SortsPositions sortsPositions, Set<Station> destinationStations, Set<Long> destinationNodeIds,
+                        SortsPositions sortsPositions, Set<Station> destinationStations,
                         LatLong destinationLatLon) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
-        this.destinationNodeIds = destinationNodeIds;
         this.destinationStationIds = destinationStations.stream().collect(IdSet.collector());
+        this.destinationRoutes = destinationStations.stream().
+                flatMap(station -> station.getRoutes().stream()).
+                collect(IdSet.collector());
         this.destinationLatLon = destinationLatLon;
     }
 
@@ -49,10 +54,6 @@ public class TraversalOps {
                 collect(Collectors.toList());
     }
 
-//    public boolean isDestination(long nodeId) {
-//        return destinationNodeIds.contains(nodeId);
-//    }
-
     public IdFor<Service> getServiceIdFor(Node svcNode) {
         return nodeOperations.getServiceId(svcNode);
     }
@@ -61,6 +62,26 @@ public class TraversalOps {
         return Streams.stream(relationships).
                 filter(relationship -> nodeOperations.getTrip(relationship).equals(existingTripId)).
                 collect(Collectors.toList());
+    }
+
+    public Stream<Relationship> orderBoardingRelationsByDestRoute(Stream<Relationship> relationships) {
+        return relationships.map(RelationshipWithRoute::new).
+                sorted(this::onDestRouteFirst).
+                map(RelationshipWithRoute::getRelationship);
+    }
+
+    public int onDestRouteFirst(HasId<Route> a, HasId<Route> b) {
+        IdFor<Route> routeA = a.getId();
+        IdFor<Route> routeB = b.getId();
+        boolean toDestA = destinationRoutes.contains(routeA);
+        boolean toDestB = destinationRoutes.contains(routeB);
+        if (toDestA == toDestB) {
+            return 0;
+        }
+        if (toDestA) {
+            return -1;
+        }
+        return 1;
     }
 
     public Stream<Relationship> orderRelationshipsByDistance(Iterable<Relationship> relationships) {
@@ -131,6 +152,34 @@ public class TraversalOps {
         @Override
         public Relationship getContained() {
             return relationship;
+        }
+    }
+
+    private static class RelationshipWithRoute implements HasId<Route> {
+        private final Relationship relationship;
+        private final IdFor<Route> routeId;
+
+        public RelationshipWithRoute(Relationship relationship) {
+            routeId = GraphProps.getRouteId(relationship);
+            this.relationship = relationship;
+        }
+
+        public IdFor<Route> getRouteId() {
+            return routeId;
+        }
+
+        public Relationship getRelationship() {
+            return relationship;
+        }
+
+        @Override
+        public GraphPropertyKey getProp() {
+            return null;
+        }
+
+        @Override
+        public IdFor<Route> getId() {
+            return routeId;
         }
     }
 }

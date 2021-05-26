@@ -266,7 +266,7 @@ public class DiagramCreator {
         return switch (relationshipType) {
             case ENTER_PLATFORM -> "E";
             case LEAVE_PLATFORM -> "L";
-            case WALKS_TO -> "W";
+            case WALKS_TO -> "WT";
             case BOARD -> "B";
             case TO_SERVICE -> "Svc";
             case TO_HOUR -> "H";
@@ -284,6 +284,8 @@ public class DiagramCreator {
             case SUBWAY_GOES_TO -> "Subway";
             case GROUPED_TO_CHILD -> "groupChild";
             case GROUPED_TO_PARENT -> "groupParent";
+            case CONNECT_ROUTES -> "CR";
+            case WALKS_FROM -> "WF";
             default -> "Unkn";
         };
     }
