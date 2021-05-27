@@ -38,7 +38,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.INTERCHANGE;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.PLATFORM;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -158,30 +157,35 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 logger.info("Creating links for adjacent interchange route stations only");
                 interchangeRepository.getAllInterchanges().stream().
                         filter(graphFilter::shouldInclude).
-                        map(transportData::getRouteStationsFor).
-                        forEach(routeStationGroup -> linkRouteStations(txn, builderCache, routeStationGroup));
+                        map(station -> (StationAndRouteStations) () -> station).
+                        forEach(stationAndRouteStations -> linkRouteStations(txn, builderCache, stationAndRouteStations));
             } else {
                 logger.info("Create links for ALL adjacent route stations");
                 transportData.getStations().stream().
                         filter(graphFilter::shouldInclude).
-                        map(station -> transportData.getRouteStationsFor(station.getId())).
-                        forEach(routeStationGroup -> linkRouteStations(txn, builderCache, routeStationGroup));
+                        map(station -> (StationAndRouteStations) station::getId).
+                        forEach(stationAndRouteStations -> linkRouteStations(txn, builderCache, stationAndRouteStations));
             }
 
             timedTransaction.commit();
         }
     }
 
-    private void linkRouteStations(Transaction txn, GraphBuilderCache builderCache, Set<RouteStation> toGroup) {
-        List<IdFor<RouteStation>> ids = toGroup.stream().
+    private void linkRouteStations(Transaction txn, GraphBuilderCache builderCache, StationAndRouteStations stationAndRouteStations) {
+        List<IdFor<RouteStation>> routeStationIds = stationAndRouteStations.getRouteStations(transportData).stream().
                 filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
                 map(RouteStation::getId).
                 collect(Collectors.toList());
-        for (int i = 0; i < ids.size(); i++) {
-            for (int j = 0; j < ids.size(); j++) {
+
+        if (routeStationIds.isEmpty()) {
+            return; // all filtered out, likely a route filter is in place
+        }
+
+        for (int i = 0; i < routeStationIds.size(); i++) {
+            for (int j = 0; j < routeStationIds.size(); j++) {
                 if (i!=j) {
-                    Node nodeA = builderCache.getRouteStation(txn, ids.get(i));
-                    Node nodeB = builderCache.getRouteStation(txn, ids.get(j));
+                    Node nodeA = builderCache.getRouteStation(txn, routeStationIds.get(i));
+                    Node nodeB = builderCache.getRouteStation(txn, routeStationIds.get(j));
                     Relationship to = nodeA.createRelationshipTo(nodeB, CONNECT_ROUTES);
                     GraphProps.setCostProp(to, 0); // todo approx this, although depends on board etc cost
                 }
@@ -604,11 +608,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         public void add(long id, IdFor<Trip> tripId) {
             map.computeIfAbsent(id, key -> new IdSet<>());
             map.computeIfPresent(id, (key,ids) -> ids.add(tripId));
-//            if (map.containsKey(id)) {
-//                map.get(id).add(tripId);
-//                return;
-//            }
-//            map.put(id, new IdSet<>(tripId));
+        }
+    }
+
+    public interface StationAndRouteStations {
+        IdFor<Station> getStation();
+
+        default Set<RouteStation> getRouteStations(TransportData transportData) {
+            return transportData.getRouteStationsFor(getStation());
         }
     }
 

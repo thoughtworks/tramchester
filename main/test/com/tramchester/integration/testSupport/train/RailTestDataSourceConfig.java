@@ -35,7 +35,7 @@ public class RailTestDataSourceConfig implements GTFSSourceConfig {
     }
 
     @Override
-    public Set<GTFSTransportationType> getTransportModes() {
+    public Set<GTFSTransportationType> getTransportGTFSModes() {
         return Collections.singleton(GTFSTransportationType.train);
     }
 
@@ -46,6 +46,11 @@ public class RailTestDataSourceConfig implements GTFSSourceConfig {
 
     @Override
     public Set<LocalDate> getNoServices() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getAdditionalInterchanges() {
         return Collections.emptySet();
     }
 }

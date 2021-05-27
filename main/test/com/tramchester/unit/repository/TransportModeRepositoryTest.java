@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TransportModeRepositoryTest {
 
     private final Set<TransportMode> modesWithPlatforms = Collections.singleton(TransportMode.Tram);
+    private final Set<String> additionalInterchanges = Collections.emptySet();
 
     @Test
     void shouldHaveCorrectTransportModesSingle() {
@@ -56,13 +57,13 @@ class TransportModeRepositoryTest {
         configModesSourceA.add(GTFSTransportationType.train);
 
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
-        GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms);
+        GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms, additionalInterchanges);
         dataSources.add(sourceA);
 
         Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
         configModesSourceB.add(GTFSTransportationType.bus);
         configModesSourceB.add(GTFSTransportationType.train);
-        GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms);
+        GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms, additionalInterchanges);
         dataSources.add(sourceB);
 
         TramchesterConfig config = new ModeConfig(dataSources);
@@ -79,7 +80,7 @@ class TransportModeRepositoryTest {
     @NotNull
     private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
-        GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig("folder/some/path", configModes, modesWithPlatforms);
+        GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig("folder/some/path", configModes, modesWithPlatforms, additionalInterchanges);
         dataSources.add(tramConfig);
         return new ModeConfig(dataSources);
     }

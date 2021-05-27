@@ -23,6 +23,6 @@ public class TransportModeRepository {
         return config.getGTFSDataSource().stream().
                 map(GTFSSourceConfig::getTransportModes).
                 flatMap(Collection::stream).
-                map(TransportMode::fromGTFS).collect(Collectors.toSet());
+                collect(Collectors.toSet());
     }
 }

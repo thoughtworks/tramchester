@@ -2,7 +2,6 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.HasGraphDBConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -32,7 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
-import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -132,7 +131,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 filteredStations.stream().filter(station -> station.servesRoute(route)).
                         forEach(station -> {
                             RouteStation routeStation = transportData.getRouteStation(station, route);
-                            createRouteStationNode(tx, routeStation, builderCache);
+                            Node routeStationNode = createRouteStationNode(tx, routeStation, builderCache);
+                            linkStationAndRouteStation(tx, station, routeStationNode);
                         });
 
                 createLinkRelationships(tx, route, builderCache);
@@ -141,6 +141,16 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             });
             timedTransaction.commit();
         }
+    }
+
+    private void linkStationAndRouteStation(Transaction txn, Station station, Node routeStationNode) {
+        Node stationNode = builderCache.getStation(txn, station.getId());
+
+        final Relationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
+        final Relationship routeToStation = routeStationNode.createRelationshipTo(stationNode, ROUTE_TO_STATION);
+
+        GraphProps.setCostProp(stationToRoute, 0);
+        GraphProps.setCostProp(routeToStation, 0);
     }
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
@@ -208,7 +218,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createRouteStationNode(Transaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
+    private Node createRouteStationNode(Transaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
         Node routeStationNode = createGraphNode(tx, Labels.ROUTE_STATION);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
@@ -224,6 +234,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
 
         builderCache.putRouteStation(routeStation.getId(), routeStationNode);
+        return routeStationNode;
     }
 
 

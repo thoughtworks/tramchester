@@ -60,7 +60,6 @@ public class GraphBuilderCache {
 
     // memory usage management
     protected void routeClear() {
-//        platforms.clear();
         svcNodes.clear();
         hourNodes.clear();
         logger.debug("Route Clear");

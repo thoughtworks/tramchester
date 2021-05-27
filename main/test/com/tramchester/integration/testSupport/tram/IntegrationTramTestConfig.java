@@ -3,16 +3,15 @@ package com.tramchester.integration.testSupport.tram;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.input.AdditionalTramInterchanges;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestLiveDataConfig;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         super(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName));
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
-                TransportMode.Tram);
+                TransportMode.Tram, AdditionalTramInterchanges.get());
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
     }
 

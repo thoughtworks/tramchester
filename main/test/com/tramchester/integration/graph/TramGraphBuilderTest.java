@@ -22,6 +22,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -34,7 +35,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -174,7 +175,6 @@ class TramGraphBuilderTest {
         outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAshtonEcclesRoute, Direction.OUTGOING);
 
         assertTrue(outbounds.size()>1);
-
     }
 
     @Test
@@ -247,12 +247,19 @@ class TramGraphBuilderTest {
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
 
         long routeConnected = routeStationOutbounds.stream().
-                filter(relationship -> relationship.isType(TransportRelationshipTypes.CONNECT_ROUTES)).count();
+                filter(relationship -> relationship.isType(CONNECT_ROUTES)).count();
         if (testConfig.getChangeAtInterchangeOnly() && interchangeRepository.isInterchange(tramStation.getId())) {
             assertNotEquals(0, routeConnected);
         } else {
             assertEquals(0, routeConnected);
         }
+
+        long connectedToRouteStation = routeStationOutbounds.stream().filter(relationship -> relationship.isType(ROUTE_TO_STATION)).count();
+        assertNotEquals(0, connectedToRouteStation);
+
+        List<Relationship> incomingToRouteStation = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
+        long fromStation = Streams.stream(incomingToRouteStation).filter(relationship -> relationship.isType(STATION_TO_ROUTE)).count();
+        assertNotEquals(0, fromStation);
     }
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {

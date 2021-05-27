@@ -6,7 +6,6 @@ import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
@@ -100,7 +99,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return getGTFSDataSource().stream().
                 map(GTFSSourceConfig::getTransportModes).
                 flatMap(Collection::stream).
-                map(TransportMode::fromGTFS).
                 collect(Collectors.toSet());
     }
 

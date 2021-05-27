@@ -41,15 +41,15 @@ public enum TransportMode implements HasTransportMode {
         this.number = number;
     }
 
-    public static TransportMode fromGTFS(GTFSTransportationType routeType) {
-        return switch (routeType) {
+    public static TransportMode fromGTFS(GTFSTransportationType transportationType) {
+        return switch (transportationType) {
             case tram -> TransportMode.Tram;
             case bus -> TransportMode.Bus;
             case train -> TransportMode.Train;
             case ferry -> TransportMode.Ferry;
             case subway -> TransportMode.Subway;
             case replacementBus -> TransportMode.RailReplacementBus;
-            default -> throw new RuntimeException("Unexpected route type (check config?) " + routeType);
+            default -> throw new RuntimeException("Unexpected route type (check config?) " + transportationType);
         };
     }
 

@@ -20,7 +20,7 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
-                GTFSTransportationType.tram, Tram);
+                GTFSTransportationType.tram, Tram, Collections.emptySet());
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 

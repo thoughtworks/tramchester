@@ -108,7 +108,8 @@ class ConfigMismatchTest {
             GTFSSourceConfig dataSourceConfig = foundgtfsDataSource.get(i);
 
             assertEquals(expectedDataSource.getNoServices(), dataSourceConfig.getNoServices());
-            assertEquals(expectedDataSource.getTransportModes(), dataSourceConfig.getTransportModes());
+            assertEquals(expectedDataSource.getTransportGTFSModes(), dataSourceConfig.getTransportGTFSModes());
+            assertEquals(expectedDataSource.getAdditionalInterchanges(), dataSourceConfig.getAdditionalInterchanges());
         }
 
         List<RemoteDataSourceConfig> expectedRemoteDataSourceConfig = expected.getRemoteDataSourceConfig();

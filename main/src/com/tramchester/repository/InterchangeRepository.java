@@ -1,15 +1,14 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.ModeIdsMap;
-import com.tramchester.domain.input.TramInterchanges;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
+import com.tramchester.graph.filters.GraphFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +16,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.reference.TransportMode.isBus;
 import static java.lang.String.format;
 
@@ -33,18 +32,20 @@ public class InterchangeRepository  {
     private final NeighboursRepository neighboursRepository;
     private final CompositeStationRepository compositeStationRepository;
     private final TramchesterConfig config;
+    private final GraphFilter graphFilter;
 
     private final ModeIdsMap<Station> interchanges;
 
     @Inject
     public InterchangeRepository(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
                                  NeighboursRepository neighboursRepository, CompositeStationRepository compositeStationRepository,
-                                 TramchesterConfig config) {
+                                 TramchesterConfig config, GraphFilter graphFilter) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
         this.neighboursRepository = neighboursRepository;
         this.compositeStationRepository = compositeStationRepository;
         this.config = config;
+        this.graphFilter = graphFilter;
         interchanges = new ModeIdsMap<>();
     }
 
@@ -59,9 +60,10 @@ public class InterchangeRepository  {
         Set<TransportMode> enabledModes = config.getTransportModes();
 
         enabledModes.forEach(this::populateInterchangesFor);
-        addAdditionalTramInterchanges();
+        addAdditionalInterchanges(config.getGTFSDataSource());
         addMultiModeStations();
         enabledModes.forEach(this::addStationsWithNeighbours);
+
         logger.info("started");
     }
 
@@ -92,10 +94,64 @@ public class InterchangeRepository  {
         return 3;
     }
 
-    private void addAdditionalTramInterchanges() {
-        // TODO should really check data source as well
-        if (config.getTransportModes().contains(Tram)) {
-            TramInterchanges.stations().forEach(tramInterchange -> interchanges.add(Tram, tramInterchange));
+    private IdFor<Station> formStationId(String raw) {
+        return StringIdFor.createId(raw);
+    }
+
+    private void addAdditionalInterchanges(List<GTFSSourceConfig> gtfsDataSource) {
+        long countBefore = interchanges.size();
+
+        gtfsDataSource.stream().
+            filter(dataSource -> !dataSource.getAdditionalInterchanges().isEmpty()).
+            forEach(this::addAdditionalInterchangesForSource);
+
+        if (countBefore==interchanges.size()) {
+            logger.info("No additional interchanges to add from any data sources");
+        }
+    }
+
+    private void addAdditionalInterchangesForSource(GTFSSourceConfig dataSource) {
+        final String name = dataSource.getName();
+        final Set<String> additionalInterchanges = dataSource.getAdditionalInterchanges();
+        logger.info("For source " + name + " attempt to add " + additionalInterchanges.size() + " interchange stations");
+
+        Set<Station> validStationsFromConfig = additionalInterchanges.stream().
+                map(this::formStationId).
+                filter(graphFilter::shouldInclude).
+                filter(stationRepository::hasStationId).
+                map(stationRepository::getStationById).
+                collect(Collectors.toSet());
+
+        if (validStationsFromConfig.isEmpty()) {
+            final String msg = "For " + name + " no valid interchange station id's found to add from " + additionalInterchanges;
+            if (graphFilter.isFiltered()) {
+                logger.warn(msg);
+            } else {
+                logger.error(msg);
+            }
+            return;
+        }
+
+        if (validStationsFromConfig.size() != additionalInterchanges.size()) {
+            IdSet<Station> invalidIds = additionalInterchanges.stream().
+                    map(this::formStationId).
+                    filter(id -> !stationRepository.hasStationId(id)).collect(IdSet.idCollector());
+            logger.error("For " + name + " additional interchange station ids invalid:" + invalidIds);
+        }
+
+        addInterchangesWhereModesMatch(dataSource.getTransportModes(), validStationsFromConfig);
+    }
+
+    private void addInterchangesWhereModesMatch(Set<TransportMode> enabledModes, Set<Station> stations) {
+        long countBefore = interchanges.size();
+        stations.forEach(station -> enabledModes.forEach(enabledMode -> {
+            if (station.getTransportModes().contains(enabledMode)) {
+                interchanges.add(enabledMode, station.getId());
+                logger.info("Added interchange " + station.getId() + " for mode "+ enabledMode);
+            }
+        }));
+        if (countBefore==interchanges.size()) {
+            logger.warn("Added no interchanges (mode mismatches?) from " + HasId.asIds(stations));
         }
     }
 

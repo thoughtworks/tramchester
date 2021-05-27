@@ -19,15 +19,17 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     private final String dataFolder;
     private final Set<GTFSTransportationType> sourceModes;
     private final Set<TransportMode> modesWithPlatforms;
+    private final Set<String> additionalInterchanges;
 
-    public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes, Set<TransportMode> modesWithPlatforms) {
+    public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes, Set<TransportMode> modesWithPlatforms, Set<String> additionalInterchanges) {
         this.dataFolder = dataFolder;
         this.sourceModes = sourceModes;
         this.modesWithPlatforms = modesWithPlatforms;
+        this.additionalInterchanges = additionalInterchanges;
     }
 
-    public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform) {
-        this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform));
+    public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform, Set<String> additionalInterchanges) {
+        this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform), additionalInterchanges);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     }
 
     @Override
-    public Set<GTFSTransportationType> getTransportModes() {
+    public Set<GTFSTransportationType> getTransportGTFSModes() {
         return sourceModes;
     }
 
@@ -58,5 +60,10 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     @Override
     public Set<LocalDate> getNoServices() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getAdditionalInterchanges() {
+        return additionalInterchanges;
     }
 }

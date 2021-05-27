@@ -32,8 +32,6 @@ class RouteCostCalculatorTest {
 
     private RouteCostCalculator routeCostCalc;
     private Transaction txn;
-    private StationRepository stationRepository;
-    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -49,8 +47,6 @@ class RouteCostCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationRepository = componentContainer.get(StationRepository.class);
-        routeRepository = componentContainer.get(RouteRepository.class);
         routeCostCalc = componentContainer.get(RouteCostCalculator.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
@@ -81,34 +77,21 @@ class RouteCostCalculatorTest {
     }
 
     @Test
-    void shouldComputeNumberOfRouteHops() {
-        Route route = TestEnv.findTramRoute(routeRepository, AltrinchamPiccadilly);
-
-        RouteStation altyTowardsPicc = stationRepository.getRouteStation(of(Altrincham), route);
-        RouteStation stPetersTowardsPicc = stationRepository.getRouteStation(of(StPetersSquare), route);
-
-        assertEquals(12, routeCostCalc.getNumberHops(txn, altyTowardsPicc, stPetersTowardsPicc));
+    void shouldComputeNumberOfRouteHopsSameRoute() {
+        assertEquals(11, routeCostCalc.getNumberHops(txn, of(Altrincham), of(StPetersSquare)));
+        assertEquals(11, routeCostCalc.getNumberHops(txn, of(StPetersSquare), of(Altrincham)));
     }
 
     @Test
     void shouldComputeNumberOfRouteHopsWithChange() {
-        Route routeA = TestEnv.findTramRoute(routeRepository, AltrinchamPiccadilly);
-        Route routeB = TestEnv.findTramRoute(routeRepository, VictoriaWythenshaweManchesterAirport);
-
-        RouteStation altyTowardsPicc = stationRepository.getRouteStation(of(Altrincham), routeA);
-        RouteStation manchesterAirport = stationRepository.getRouteStation(of(ManAirport), routeB);
-
-        assertEquals(27, routeCostCalc.getNumberHops(txn, altyTowardsPicc, manchesterAirport));
+        assertEquals(26, routeCostCalc.getNumberHops(txn, of(Altrincham), of(ManAirport)));
+        assertEquals(26, routeCostCalc.getNumberHops(txn, of(ManAirport), of(Altrincham)));
     }
 
     @Test
-    void shouldFindNoRoutesIfWrongDirection() {
-        Route towardsAlty = TestEnv.findTramRoute(routeRepository, PiccadillyAltrincham);
-
-        RouteStation alty = stationRepository.getRouteStation(of(Altrincham), towardsAlty);
-        RouteStation stPeters = stationRepository.getRouteStation(of(StPetersSquare), towardsAlty);
-
-        assertEquals(-1, routeCostCalc.getNumberHops(txn, alty, stPeters));
+    void shouldComputeNumberOfRouteHopsCentral() {
+        assertEquals(2, routeCostCalc.getNumberHops(txn, of(StPetersSquare), of(Shudehill)));
+        assertEquals(2, routeCostCalc.getNumberHops(txn, of(Shudehill), of(StPetersSquare)));
     }
 
     private int getApproxCostBetween(Transaction txn, TramStations start, TramStations dest) {

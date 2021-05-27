@@ -60,7 +60,7 @@ public class TransportDataLoaderFiles implements TransportDataLoader {
         LocalDateTime modTime = fetchFileModTime.getFor(config);
         DataSourceID name = new DataSourceID(config.getName());
         return new DataSourceInfo(name, modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), modTime,
-                TransportMode.fromGTFS(config.getTransportModes()));
+                TransportMode.fromGTFS(config.getTransportGTFSModes()));
     }
 
 }

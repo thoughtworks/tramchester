@@ -42,6 +42,10 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @JsonProperty("noServices")
     private Set<LocalDate> noServices;
 
+    @NotNull
+    @JsonProperty("additionalInterchanges")
+    private Set<String> additionalInterchanges;
+
     @Override
     public String getName() {
         return name;
@@ -53,7 +57,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public Set<GTFSTransportationType> getTransportModes() {
+    public Set<GTFSTransportationType> getTransportGTFSModes() {
         return transportModes;
     }
 
@@ -65,6 +69,11 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @Override
     public Set<LocalDate> getNoServices() {
         return noServices;
+    }
+
+    @Override
+    public Set<String> getAdditionalInterchanges() {
+        return additionalInterchanges;
     }
 
     @Override

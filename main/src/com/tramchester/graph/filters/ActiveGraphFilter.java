@@ -70,11 +70,13 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
 
     @Override
     public boolean shouldInclude(Station station) {
+        // TODO ROUTE
         return shouldInclude(station.getId());
     }
 
     @Override
     public boolean shouldInclude(StopCall call) {
+        // TODO route?
         return shouldInclude(call.getStationId());
     }
 

@@ -253,8 +253,8 @@ class GraphDatabaseLifecycleTest {
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
 
-        dataSourceConfigs.add(createDataSource(SRC_1_NAME.getName()));
-        dataSourceConfigs.add(createDataSource(SRC_2_NAME.getName()));
+        dataSourceConfigs.add(createEmptyDataSource(SRC_1_NAME.getName()));
+        dataSourceConfigs.add(createEmptyDataSource(SRC_2_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, "version42", lastModTime, modes));
 
@@ -283,9 +283,9 @@ class GraphDatabaseLifecycleTest {
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Bus);
 
-        dataSourceConfigs.add(createDataSource(SRC_1_NAME.getName()));
+        dataSourceConfigs.add(createEmptyDataSource(SRC_1_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
-        dataSourceConfigs.add(createDataSource(SRC_2_NAME.getName()));
+        dataSourceConfigs.add(createEmptyDataSource(SRC_2_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, VERSION_2_VALID, lastModTime, modes));
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();
@@ -295,7 +295,7 @@ class GraphDatabaseLifecycleTest {
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
 
-        dataSourceConfigs.add(createDataSource(SRC_1_NAME.getName()));
+        dataSourceConfigs.add(createEmptyDataSource(SRC_1_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         graphDatabase = new GraphDatabase(config, repository);
         graphDatabase.start();
@@ -311,7 +311,7 @@ class GraphDatabaseLifecycleTest {
         return count;
     }
 
-    private GTFSSourceConfig createDataSource(String name) {
+    private GTFSSourceConfig createEmptyDataSource(String name) {
         return new GTFSSourceConfig() {
 
             @Override
@@ -330,7 +330,7 @@ class GraphDatabaseLifecycleTest {
             }
 
             @Override
-            public Set<GTFSTransportationType> getTransportModes() {
+            public Set<GTFSTransportationType> getTransportGTFSModes() {
                 return null;
             }
 
@@ -341,6 +341,11 @@ class GraphDatabaseLifecycleTest {
 
             @Override
             public Set<LocalDate> getNoServices() {
+                return Collections.emptySet();
+            }
+
+            @Override
+            public Set<String> getAdditionalInterchanges() {
                 return Collections.emptySet();
             }
         };

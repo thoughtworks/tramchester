@@ -5,10 +5,14 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class TramInterchanges {
+@Deprecated
+public class AdditionalTramInterchanges {
 
     // TODO Into config?
+    // TODO Into test support only
 
     private enum Interchanges {
         // official
@@ -35,7 +39,12 @@ public class TramInterchanges {
         Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(StringIdFor.createId(interchange.stationId)));
     }
 
+    @Deprecated
     public static IdSet<Station> stations() {
         return ids;
+    }
+
+    public static Set<String> get() {
+        return Arrays.stream(Interchanges.values()).map(interchange -> interchange.stationId).collect(Collectors.toSet());
     }
 }

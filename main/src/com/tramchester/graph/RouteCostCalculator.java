@@ -5,12 +5,14 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
+import org.reflections.vfs.Vfs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,30 +75,32 @@ public class RouteCostCalculator {
         return (int) weight;
     }
 
-    public long getNumberHops(Transaction txn, RouteStation start, RouteStation end) {
+    public long getNumberHops(Transaction txn, Station start, Station end) {
         PathExpander<Double> forTypesAndDirections = expanderForNumberHops();
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
 
-        Node startNode = graphQuery.getRouteStationNode(txn, start);
-        Node endNode = graphQuery.getRouteStationNode(txn, end);
+        Node startNode = graphQuery.getStationNode(txn, start);
+        Node endNode = graphQuery.getStationNode(txn, end);
 
         WeightedPath path = finder.findSinglePath(startNode, endNode);
         if (path==null) {
             logger.error("No path found ");
             return -1;
         }
-        return Streams.stream(path.nodes()).
-                filter(node -> node.getId()!=startNode.getId()).
-                filter(node -> node.getId()!=endNode.getId()).
+
+        return Streams.stream(path.relationships()).
+                filter(relationship -> relationship.isType(ON_ROUTE)).
                 count();
     }
 
     private PathExpander<Double> expanderForNumberHops() {
         return PathExpanders.forTypesAndDirections(
                 ON_ROUTE, Direction.OUTGOING,
-                CONNECT_ROUTES, Direction.OUTGOING
+                CONNECT_ROUTES, Direction.OUTGOING,
+                ROUTE_TO_STATION, Direction.OUTGOING,
+                STATION_TO_ROUTE, Direction.OUTGOING
         );
     }
 

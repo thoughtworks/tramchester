@@ -25,12 +25,17 @@ public enum TransportRelationshipTypes implements RelationshipType {
     TO_SERVICE,
     TO_HOUR,
     TO_MINUTE,
-    GROUPED_TO_PARENT, // between composite stations to/from contained stations
+    // between composite stations to/from contained stations
+    GROUPED_TO_PARENT,
     GROUPED_TO_CHILD,
+    // routes, allow faster initial estimation of cost and 'hop' counts travesing minimal number of nodes
     ON_ROUTE,  // route stations on same route
-    CONNECT_ROUTES,
+    CONNECT_ROUTES, // link adjacent route stations TODO Still needed?
+    ROUTE_TO_STATION,
+    STATION_TO_ROUTE,
+
     NEIGHBOUR, // stations within N meters, different transport modes
-    LINKED; // station to station by transport mode
+    LINKED; // station to station by transport mode, supports network visualisation and analysis
 
     private static final TransportRelationshipTypes[] forPlanning;
 

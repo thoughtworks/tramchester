@@ -28,7 +28,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         super(new GraphDBIntegrationBusTestConfig(folder, dbName));
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/bus",
                 Collections.singleton(GTFSTransportationType.bus),
-                Collections.emptySet());
+                Collections.emptySet(), Collections.emptySet());
         remoteDataSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
     }
 

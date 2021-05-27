@@ -372,7 +372,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     private IdSet<Route> populateRoutes(TransportDataContainer buildable, Stream<RouteData> routeDataStream,
                                         IdMap<Agency> allAgencies, IdMap<Station> allStations,
                                         GTFSSourceConfig sourceConfig, TransportEntityFactory factory) {
-        Set<GTFSTransportationType> transportModes = sourceConfig.getTransportModes();
+        Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
         AtomicInteger count = new AtomicInteger();
 
         logger.info("Loading routes for transport modes " + transportModes.toString());

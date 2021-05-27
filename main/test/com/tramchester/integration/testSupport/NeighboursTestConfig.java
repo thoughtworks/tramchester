@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.domain.input.AdditionalTramInterchanges;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -20,7 +21,7 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         return Collections.singletonList(
                 new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
-                        Collections.singleton(Tram)));
+                        Collections.singleton(Tram), AdditionalTramInterchanges.get()));
     }
 
 

@@ -285,6 +285,8 @@ public class DiagramCreator {
             case GROUPED_TO_CHILD -> "groupChild";
             case GROUPED_TO_PARENT -> "groupParent";
             case CONNECT_ROUTES -> "CR";
+            case ROUTE_TO_STATION -> "RS";
+            case STATION_TO_ROUTE -> "SR";
             case WALKS_FROM -> "WF";
             default -> "Unkn";
         };
