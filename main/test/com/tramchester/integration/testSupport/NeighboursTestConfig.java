@@ -1,7 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.domain.input.AdditionalTramInterchanges;
+import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestEnv;

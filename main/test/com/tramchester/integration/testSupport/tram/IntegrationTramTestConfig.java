@@ -3,7 +3,7 @@ package com.tramchester.integration.testSupport.tram;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.domain.input.AdditionalTramInterchanges;
+import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;

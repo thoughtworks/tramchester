@@ -28,6 +28,7 @@ gtfsSourceConfig:
     transportModes: [ train, bus, subway, ferry, replacementBus ]
     transportModesWithPlatforms: []
     noServices: []
+    additionalInterchanges: []
 remoteSources:
   -
     name: gb-rail

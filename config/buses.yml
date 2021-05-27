@@ -29,6 +29,7 @@ gtfsSourceConfig:
     transportModes: [ bus ]
     transportModesWithPlatforms: []
     noServices: []
+    additionalInterchanges: []
 remoteSources:
   -
     name: tfgm

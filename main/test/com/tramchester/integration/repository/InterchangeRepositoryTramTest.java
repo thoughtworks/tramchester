@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.input.AdditionalTramInterchanges;
+import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.graph.neighbours.NeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;

@@ -30,6 +30,8 @@ gtfsSourceConfig:
     transportModes: [ tram, bus ]
     transportModesWithPlatforms: [ Tram ]
     noServices: []
+    additionalInterchanges: [ "9400ZZMACRN", "9400ZZMASTP", "9400ZZMAPGD", "9400ZZMATRA", "9400ZZMASTW",
+                              "9400ZZMAVIC", "9400ZZMAGMX", "9400ZZMAPIC" ]
   -
     name: rail
     dataPath: data/trains
@@ -37,6 +39,7 @@ gtfsSourceConfig:
     transportModes: [ train ]
     transportModesWithPlatforms: []
     noServices: []
+    additionalInterchanges: []
 remoteSources:
   -
     name: gb-rail

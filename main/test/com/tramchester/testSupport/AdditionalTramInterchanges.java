@@ -1,4 +1,4 @@
-package com.tramchester.domain.input;
+package com.tramchester.testSupport;
 
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
@@ -8,14 +8,10 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Deprecated
 public class AdditionalTramInterchanges {
 
-    // TODO Into config?
-    // TODO Into test support only
-
     private enum Interchanges {
-        // official
+        // official interchange points not autodetected by InterchangeRepository
         CORNBROOK("9400ZZMACRN"),
         ST_PETERS_SQUARE("9400ZZMASTP"),
         PIC_GARDENS("9400ZZMAPGD"),
