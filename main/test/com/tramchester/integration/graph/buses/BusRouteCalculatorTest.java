@@ -34,8 +34,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.BusStations.PiccadilyStationStopA;
 import static com.tramchester.testSupport.reference.BusStations.StopAtStockportBusStation;
 import static java.time.Month.MAY;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -217,12 +216,15 @@ class BusRouteCalculatorTest {
     @Test
     void shouldReproIssueWithSlowPerformance() {
         int maxChanges = 3;
-        LocalDate date = LocalDate.of(2021, MAY, 25);
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), TramTime.of(9,20),
-                false, maxChanges, maxJourneyDuration, 3);
+
+        //LocalDate date = LocalDate.of(2021, MAY, 25); // now in the past
+
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,40),
+                false, maxChanges, maxJourneyDuration, 1);
 
         CompositeStation shudehill = compositeStationRepository.findByName("Shudehill Interchange");
         Station asdaBroadhealth = compositeStationRepository.getStationById(StringIdFor.createId("1800SJ18511"));
+        assertNotNull(asdaBroadhealth);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(shudehill, asdaBroadhealth, journeyRequest);
         assertFalse(journeys.isEmpty());

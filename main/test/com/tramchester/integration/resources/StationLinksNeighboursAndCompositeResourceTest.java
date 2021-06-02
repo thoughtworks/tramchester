@@ -98,7 +98,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void expectedNumbers() {
         List<StationLinkDTO> results = getLinks();
-        assertEquals(2490, results.size(), "count of links");
+        assertEquals(2502, results.size(), "count of links");
     }
 
     @Test
