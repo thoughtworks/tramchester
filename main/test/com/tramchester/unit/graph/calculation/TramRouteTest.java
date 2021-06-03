@@ -12,6 +12,7 @@ import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
@@ -35,8 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.geo.CoordinateTransforms.calcCostInMinutes;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteTest {
 
@@ -448,6 +448,25 @@ class TramRouteTest {
             assertEquals(expectedPath, journey.getPath());
 
         });
+    }
+
+    @Test
+    void shouldHaveRouteCostCalculationAsExpected() {
+        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
+        assertEquals(43, costCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
+        assertEquals(-1, costCalculator.getApproxCostBetween(txn, transportData.getLast(), transportData.getFirst()));
+    }
+
+    @Test
+    void shouldHaveNumberHopsAsExpected() {
+        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
+        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getSecond()));
+        assertEquals(2, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getInterchange()));
+        assertEquals(3, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getFourthStation()));
+        assertEquals(3, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getFifthStation()));
+        assertEquals(3, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getLast()));
+
+        assertEquals(-1, costCalculator.getNumberHops(txn, transportData.getLast(), transportData.getFirst()));
     }
 
     @Test

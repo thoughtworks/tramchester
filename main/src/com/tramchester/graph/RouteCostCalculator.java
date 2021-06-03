@@ -2,17 +2,13 @@ package com.tramchester.graph;
 
 import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
-import org.reflections.vfs.Vfs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,10 +79,18 @@ public class RouteCostCalculator {
 
         Node startNode = graphQuery.getStationNode(txn, start);
         Node endNode = graphQuery.getStationNode(txn, end);
+        if (startNode==null) {
+            logger.error("Start node is null");
+            return -1;
+        }
+        if (endNode==null) {
+            logger.error("End node is null");
+            return -1;
+        }
 
         WeightedPath path = finder.findSinglePath(startNode, endNode);
         if (path==null) {
-            logger.error("No path found ");
+            logger.error("No path found between " + start.getId() + " and " + end.getId());
             return -1;
         }
 
@@ -100,7 +104,10 @@ public class RouteCostCalculator {
                 ON_ROUTE, Direction.OUTGOING,
                 CONNECT_ROUTES, Direction.OUTGOING,
                 ROUTE_TO_STATION, Direction.OUTGOING,
-                STATION_TO_ROUTE, Direction.OUTGOING
+                STATION_TO_ROUTE, Direction.OUTGOING,
+                GROUPED_TO_PARENT, Direction.OUTGOING,
+                GROUPED_TO_CHILD, Direction.OUTGOING
+                //NEIGHBOUR, Direction.OUTGOING
         );
     }
 

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -75,38 +75,64 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportComp() {
-        Assertions.assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
-        Assertions.assertEquals(39, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
+        assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
+        assertEquals(39, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        Assertions.assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(StopAtAltrinchamInterchange, StopAtStockportBusStation));
-        Assertions.assertEquals(41, getApproxCostBetween(StopAtStockportBusStation, StopAtAltrinchamInterchange));
+        assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(StopAtAltrinchamInterchange, StopAtStockportBusStation));
+        assertEquals(41, getApproxCostBetween(StopAtStockportBusStation, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        Assertions.assertEquals(54, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
-        Assertions.assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
+        assertEquals(54, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
+        assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        Assertions.assertEquals(56, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
-        Assertions.assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
+        assertEquals(56, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
+        assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockportComp() {
-        Assertions.assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(shudehillInterchange, stockportBusStation));
-        Assertions.assertEquals(42, getApproxCostBetween(stockportBusStation, shudehillInterchange));
+        assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(shudehillInterchange, stockportBusStation));
+        assertEquals(42, getApproxCostBetween(stockportBusStation, shudehillInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        Assertions.assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(ShudehillInterchange, StopAtStockportBusStation));
-        Assertions.assertEquals(44, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
+        assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(ShudehillInterchange, StopAtStockportBusStation));
+        assertEquals(44, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
+    }
+
+    @Test
+    void shouldFindHopsCorrectlyForShudehillStockport() {
+        assertEquals(38, getHopsBetween(ShudehillInterchange, StopAtStockportBusStation));
+    }
+
+    @Test
+    void shouldFindHopsForStockportShudehill() {
+        assertEquals(37, getHopsBetween(StopAtStockportBusStation, ShudehillInterchange));
+    }
+
+    @Test
+    void shouldFindHopsCorrectlyForShudehillAlty() {
+        assertEquals(50, getHopsBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
+    }
+
+    @Test
+    void shouldFindHopsCorrectlyForAltyShudehill() {
+        // 48 with composites modelled correctly, 55 without
+        assertEquals(48, getHopsBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
+    }
+
+    private long getHopsBetween(BusStations start, BusStations end) {
+        return routeCost.getNumberHops(txn,
+                TestStation.real(stationRepository,start), TestStation.real(stationRepository,end));
     }
 
     private int getApproxCostBetween(BusStations start, BusStations end) {

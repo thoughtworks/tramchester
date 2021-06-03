@@ -13,8 +13,8 @@ public class TimedTransaction implements AutoCloseable{
     private final String name;
     private final Timing timing;
 
-    public TimedTransaction(GraphDatabase databaseService, Logger logger, String name) {
-        this.transaction = databaseService.beginTx();
+    public TimedTransaction(GraphDatabase graphDatabase, Logger logger, String name) {
+        this.transaction = graphDatabase.beginTx();
         this.logger = logger;
         this.name = name;
         timing = new Timing(logger, "transcation " + name);

@@ -2,6 +2,7 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -175,6 +177,20 @@ class CompositeRouteTest {
 
         assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), startCompositeStation));
         assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getFirst()));
+    }
+
+    @Disabled("for wip checkin")
+    @Test
+    void shouldHaveCorrectRouteHopsForComposites() {
+
+        fail("todo - link composite route stations");
+    }
+
+    @Test
+    void createDiagramOfTestNetwork() {
+        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+        Assertions.assertAll(() -> creator.create(Path.of("composite_test_network.dot"), transportData.getFirst(),
+                Integer.MAX_VALUE, false));
     }
 
 }
