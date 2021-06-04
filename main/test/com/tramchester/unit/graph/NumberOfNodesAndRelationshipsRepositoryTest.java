@@ -53,12 +53,12 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
         assertEquals(0, repository.numberOf(GraphBuilder.Labels.QUERY_NODE));
         assertEquals(0, repository.numberOf(GraphBuilder.Labels.TRAIN_STATION));
 
-        assertEquals(8, repository.numberOf(GraphBuilder.Labels.TRAM_STATION));
+        assertEquals(9, repository.numberOf(GraphBuilder.Labels.TRAM_STATION));
         assertEquals(6, repository.numberOf(GraphBuilder.Labels.HOUR));
         assertEquals(5, repository.numberOf(GraphBuilder.Labels.SERVICE));
         assertEquals(7, repository.numberOf(GraphBuilder.Labels.MINUTE));
-        assertEquals(8, repository.numberOf(GraphBuilder.Labels.PLATFORM));
-        assertEquals(10, repository.numberOf(GraphBuilder.Labels.ROUTE_STATION));
+        assertEquals(9, repository.numberOf(GraphBuilder.Labels.PLATFORM));
+        assertEquals(11, repository.numberOf(GraphBuilder.Labels.ROUTE_STATION));
 
     }
 
@@ -77,10 +77,10 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
         assertEquals(5, repository.numberOf(TransportRelationshipTypes.TO_SERVICE));
         assertEquals(6, repository.numberOf(TransportRelationshipTypes.TO_HOUR));
         assertEquals(7, repository.numberOf(TransportRelationshipTypes.TO_MINUTE));
-        assertEquals(5, repository.numberOf(TransportRelationshipTypes.BOARD));
-        assertEquals(5, repository.numberOf(TransportRelationshipTypes.DEPART));
-        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
-        assertEquals(3, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
+        assertEquals(4, repository.numberOf(TransportRelationshipTypes.BOARD));
+        assertEquals(4, repository.numberOf(TransportRelationshipTypes.DEPART));
+        assertEquals(4, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_BOARD));
+        assertEquals(4, repository.numberOf(TransportRelationshipTypes.INTERCHANGE_DEPART));
 
 
     }

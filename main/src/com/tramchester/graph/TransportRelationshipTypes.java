@@ -14,6 +14,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     FERRY_GOES_TO,
     SUBWAY_GOES_TO,
 
+    // journey planning
     BOARD,
     DEPART,
     INTERCHANGE_BOARD,
@@ -25,13 +26,15 @@ public enum TransportRelationshipTypes implements RelationshipType {
     TO_SERVICE,
     TO_HOUR,
     TO_MINUTE,
+
     // between composite stations to/from contained stations
     GROUPED_TO_PARENT,
     GROUPED_TO_CHILD,
-    // routes, allow faster initial estimation of cost and 'hop' counts travesing minimal number of nodes
-    ON_ROUTE,  // route stations on same route
+
+    // routes, allow faster initial estimation of cost and 'hop' counts while traversing minimal number of nodes
+    ON_ROUTE,  // links route stations on same route
     CONNECT_ROUTES, // link adjacent route stations
-    ROUTE_TO_STATION,
+    ROUTE_TO_STATION, // link stations and routes irrespective of whether have platforms or not
     STATION_TO_ROUTE,
 
     NEIGHBOUR, // stations within N meters, different transport modes

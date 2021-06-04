@@ -111,7 +111,7 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindHopsCorrectlyForShudehillStockport() {
-        assertEquals(38, getHopsBetween(ShudehillInterchange, StopAtStockportBusStation));
+        assertEquals(45, getHopsBetween(ShudehillInterchange, StopAtStockportBusStation));
     }
 
     @Test
@@ -121,13 +121,12 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindHopsCorrectlyForShudehillAlty() {
-        assertEquals(50, getHopsBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
+        assertEquals(52, getHopsBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindHopsCorrectlyForAltyShudehill() {
-        // 48 with composites modelled correctly, 55 without
-        assertEquals(48, getHopsBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
+        assertEquals(42, getHopsBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
     }
 
     private long getHopsBetween(BusStations start, BusStations end) {

@@ -134,9 +134,13 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<RouteStation> getRouteStationsFor(IdFor<Station> stationId) {
-        return routeStations.getValuesStream().
+        final Set<RouteStation> result = routeStations.getValuesStream().
                 filter(routeStation -> routeStation.getStation().getId().equals(stationId)).
                 collect(Collectors.toSet());
+        if (result.isEmpty()) {
+            logger.warn("Found no route stations for " + stationId);
+        }
+        return result;
     }
 
     @Override

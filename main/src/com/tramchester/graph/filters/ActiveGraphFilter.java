@@ -6,6 +6,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 
 import java.util.Set;
@@ -68,10 +69,21 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
         return routes.stream().anyMatch(route -> routeIds.contains(route.getId()));
     }
 
+    public boolean shouldInclude(CompositeStation compositeStation) {
+        return compositeStation.getContained().stream().anyMatch(this::shouldInclude);
+    }
+
+    /**
+     * Checks station and route
+     * @param station
+     * @return true iff station serves routes and station id is included
+     */
     @Override
     public boolean shouldInclude(Station station) {
-        // TODO ROUTE
-        return shouldInclude(station.getId());
+        if (shouldIncludeRoutes(station.getRoutes())) {
+            return shouldInclude(station.getId());
+        }
+        return false;
     }
 
     @Override

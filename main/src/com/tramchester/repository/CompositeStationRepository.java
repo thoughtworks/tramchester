@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.repository.naptan.NaptanRespository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -37,6 +39,8 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
     private final NaptanRespository naptanRespository;
+    private final GraphFilter graphFilter;
+
     private final IdSet<Station> isUnderlyingStationComposite;
 
     // TODO use IdMap<CompositeStation>
@@ -45,10 +49,11 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     @Inject
     public CompositeStationRepository(StationRepository stationRepository, TramchesterConfig config,
-                                      NaptanRespository naptanRespository) {
+                                      NaptanRespository naptanRespository, GraphFilter graphFilter) {
         this.stationRepository = stationRepository;
         this.config = config;
         this.naptanRespository = naptanRespository;
+        this.graphFilter = graphFilter;
         isUnderlyingStationComposite = new IdSet<>();
         compositeStations = new HashMap<>();
         compositeStationsByName = new HashMap<>();
@@ -76,6 +81,9 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     }
 
     private void capture(TransportMode mode) {
+        if (graphFilter.isFiltered()) {
+            logger.warn("Filtering is enabled");
+        }
         Set<String> duplicatedNames = getDuplicatedNamesFor(mode);
 
         if (duplicatedNames.isEmpty()) {
@@ -87,6 +95,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
                 " out of " + stationRepository.getNumberOfStations());
 
         Map<String, Set<Station>> groupedByName = stationRepository.getStationsForMode(mode).stream().
+                filter(graphFilter::shouldInclude).
                 filter(station -> !station.getArea().isBlank()).
                 filter(station -> duplicatedNames.contains(station.getName())).
                 collect(Collectors.groupingBy(Station::getName, Collectors.toSet()));
@@ -98,6 +107,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     @NotNull
     private Set<String> getDuplicatedNamesFor(TransportMode mode) {
         return stationRepository.getStationsForModeStream(mode).
+                filter(graphFilter::shouldInclude).
                 map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
                 entrySet().stream().
@@ -183,7 +193,6 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         return stationRepository.hasStationId(stationId);
     }
 
-
     public IdSet<Station> resolve(IdFor<Station> id) {
         if (!compositeStations.containsKey(id)) {
             logger.warn(id + " was not a composite station");
@@ -205,5 +214,9 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     public CompositeStation findByName(String name) {
         return compositeStationsByName.get(name);
+    }
+
+    public Set<CompositeStation> getAllComposites() {
+        return new HashSet<>(compositeStations.values());
     }
 }

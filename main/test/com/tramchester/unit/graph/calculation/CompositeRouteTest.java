@@ -103,9 +103,10 @@ class CompositeRouteTest {
     void shouldHaveFirstCompositeStation() {
         assertNotNull(startCompositeStation);
         Set<Station> grouped = startCompositeStation.getContained();
-        assertEquals(2, grouped.size());
+        assertEquals(3, grouped.size());
         assertTrue(grouped.contains(transportData.getFirst()));
         assertTrue(grouped.contains(transportData.getFirstDupName()));
+        assertTrue(grouped.contains(transportData.getFirstDup2Name()));
     }
 
     @Test
@@ -172,18 +173,19 @@ class CompositeRouteTest {
     @Test
     void shouldHaveRouteCosts() {
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(43, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getLast()));
-        assertEquals(43, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
+        assertEquals(42, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getLast()));
+        assertEquals(42, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
 
         assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, transportData.getFirst(), startCompositeStation));
         assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getFirst()));
     }
 
-    @Disabled("for wip checkin")
     @Test
     void shouldHaveCorrectRouteHopsForComposites() {
+        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
+        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getSecond()));
+        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirstDupName(), transportData.getSecond()));
 
-        fail("todo - link composite route stations");
     }
 
     @Test

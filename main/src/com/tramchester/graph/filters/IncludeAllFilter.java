@@ -4,6 +4,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 
 import java.util.Set;
@@ -32,6 +33,11 @@ public class IncludeAllFilter implements GraphFilter {
 
     @Override
     public boolean shouldInclude(Station station) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldInclude(CompositeStation compositeStation) {
         return true;
     }
 

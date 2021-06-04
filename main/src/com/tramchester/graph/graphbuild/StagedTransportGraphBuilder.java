@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -19,6 +20,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +64,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final TransportData transportData;
     private final InterchangeRepository interchangeRepository;
     private final TramchesterConfig config;
+    private final CompositeStationRepository compositeStationRepository;
 
     // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -72,11 +75,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     public StagedTransportGraphBuilder(GraphDatabase graphDatabase, HasGraphDBConfig config, GraphFilter graphFilter,
                                        TransportData transportData, InterchangeRepository interchangeRepository,
                                        GraphBuilderCache builderCache, StationsAndLinksGraphBuilder.Ready readyToken,
-                                       TramchesterConfig config1) {
+                                       TramchesterConfig config1, CompositeStationRepository compositeStationRepository) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
         this.config = config1;
+        this.compositeStationRepository = compositeStationRepository;
     }
 
     @PostConstruct
@@ -116,7 +120,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 }
             }
 
-            linkRouteStations(builderCache);
+            linkRouteStationsAtComposites(builderCache);
+            linkRouteStationsAtInterchanges(builderCache);
 
             // only add version node if we manage to build graph, so partial builds that fail we cause a rebuild
             addVersionNode(graphDatabase, transportData.getDataSourceInfo());
@@ -143,49 +148,97 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             transportData.getStationStream().
                     filter(Station::hasPlatforms).
                     filter(graphFilter::shouldInclude).
-                    filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
+//                    filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                     forEach(station -> linkStationAndPlatforms(txn, station, builderCache));
             timedTransaction.commit();
         }
     }
 
-    private void linkRouteStations(GraphBuilderCache builderCache) {
+    private void linkRouteStationsAtComposites(GraphBuilderCache builderCache) {
+        logger.info("Link route stations at composites");
+
+        Set<CompositeStation> stations = compositeStationRepository.getAllComposites();
+        logger.info("Linking route stations for " + stations.size() + " composite stations");
+
+        stations.stream().filter(graphFilter::shouldInclude).
+                forEach(compositeStation -> {
+                    List<IdFor<RouteStation>> routeStationsToLink = compositeStation.getContained().stream().
+                            filter(graphFilter::shouldInclude).
+                            flatMap(station -> transportData.getRouteStationsFor(station.getId()).stream()).
+                            distinct().
+                            filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
+                            map(RouteStation::getId).
+                            collect(Collectors.toList());
+                    final int size = routeStationsToLink.size();
+                    if (size==0 || size ==1) {
+                        if (!graphFilter.isFiltered()) {
+                            logger.warn("Found " + size +" route stations to link for " + compositeStation.getId());
+                        }
+                    } else {
+                        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger,
+                                "link route stations at composite" + compositeStation)) {
+                            Transaction txn = timedTransaction.transaction();
+                            linkRouteStations(txn, builderCache, routeStationsToLink);
+                            timedTransaction.commit();
+                        }
+                    }
+        });
+
+    }
+
+    private void linkRouteStationsAtInterchanges(GraphBuilderCache builderCache) {
         boolean interchangeOnly = config.getChangeAtInterchangeOnly();
-        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link adjacent route stations")) {
+        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link route stations at interchanges")) {
             Transaction txn = timedTransaction.transaction();
             if (interchangeOnly) {
                 logger.info("Creating links for adjacent interchange route stations only");
                 interchangeRepository.getAllInterchanges().stream().
                         filter(graphFilter::shouldInclude).
                         map(station -> (StationAndRouteStations) () -> station).
-                        forEach(stationAndRouteStations -> linkRouteStations(txn, builderCache, stationAndRouteStations));
+                        forEach(stationAndRouteStations -> linkRouteStationsForStation(txn, builderCache, stationAndRouteStations));
             } else {
                 logger.info("Create links for ALL adjacent route stations");
                 transportData.getStations().stream().
                         filter(graphFilter::shouldInclude).
                         map(station -> (StationAndRouteStations) station::getId).
-                        forEach(stationAndRouteStations -> linkRouteStations(txn, builderCache, stationAndRouteStations));
+                        forEach(stationAndRouteStations -> linkRouteStationsForStation(txn, builderCache, stationAndRouteStations));
             }
-
             timedTransaction.commit();
         }
     }
 
-    private void linkRouteStations(Transaction txn, GraphBuilderCache builderCache, StationAndRouteStations stationAndRouteStations) {
-        List<IdFor<RouteStation>> routeStationIds = stationAndRouteStations.getRouteStations(transportData).stream().
+    private void linkRouteStationsForStation(Transaction txn, GraphBuilderCache builderCache, StationAndRouteStations stationAndRouteStations) {
+        List<IdFor<RouteStation>> routeStationsForStation = stationAndRouteStations.getRouteStations(transportData).stream().
                 filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
                 map(RouteStation::getId).
                 collect(Collectors.toList());
 
-        if (routeStationIds.isEmpty()) {
+        final IdFor<Station> station = stationAndRouteStations.getStation();
+        if (routeStationsForStation.isEmpty()) {
+            if (!graphFilter.isFiltered()) {
+                logger.warn("No route stations found for " + station);
+            }
             return; // all filtered out, likely a route filter is in place
         }
 
-        for (int i = 0; i < routeStationIds.size(); i++) {
-            for (int j = 0; j < routeStationIds.size(); j++) {
-                if (i!=j) {
-                    Node nodeA = builderCache.getRouteStation(txn, routeStationIds.get(i));
-                    Node nodeB = builderCache.getRouteStation(txn, routeStationIds.get(j));
+        if (routeStationsForStation.size()==1) {
+            if (!graphFilter.isFiltered()) {
+                logger.warn("Only one route station for " + station + ", not creating links");
+            }
+            return;
+        }
+
+        logger.info("Linking " + routeStationsForStation.size() + " route stations adjacent to " + station);
+        linkRouteStations(txn, builderCache, routeStationsForStation);
+    }
+
+    private void linkRouteStations(Transaction txn, GraphBuilderCache builderCache, List<IdFor<RouteStation>> routeStations) {
+        logger.debug("Linking " + routeStations.size() + " route stations");
+        for (int i = 0; i < routeStations.size(); i++) {
+            for (int j = 0; j < routeStations.size(); j++) {
+                if (i != j) {
+                    Node nodeA = builderCache.getRouteStation(txn, routeStations.get(i));
+                    Node nodeB = builderCache.getRouteStation(txn, routeStations.get(j));
                     Relationship to = nodeA.createRelationshipTo(nodeB, CONNECT_ROUTES);
                     GraphProps.setCostProp(to, 0); // todo approx this, although depends on board etc cost
                 }

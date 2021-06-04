@@ -104,10 +104,7 @@ public class RouteCostCalculator {
                 ON_ROUTE, Direction.OUTGOING,
                 CONNECT_ROUTES, Direction.OUTGOING,
                 ROUTE_TO_STATION, Direction.OUTGOING,
-                STATION_TO_ROUTE, Direction.OUTGOING,
-                GROUPED_TO_PARENT, Direction.OUTGOING,
-                GROUPED_TO_CHILD, Direction.OUTGOING
-                //NEIGHBOUR, Direction.OUTGOING
+                STATION_TO_ROUTE, Direction.OUTGOING
         );
     }
 

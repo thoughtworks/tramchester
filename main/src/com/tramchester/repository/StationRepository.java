@@ -23,7 +23,7 @@ public interface StationRepository extends StationRepositoryPublic {
 
     /***
      * Use with care, return includes route stations present due to rare circumstances, such as return to depot
-     * Nomrally use RouteCallingStations instead if you want stations for a 'normally' defined route
+     * Normally use class RouteCallingStations instead if you want stations for a 'normally' defined route
      * @return all route stations
      */
     Set<RouteStation> getRouteStations();

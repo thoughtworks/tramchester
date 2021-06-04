@@ -131,6 +131,14 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         PlatformStopCall stopZ = createStop(container, tripZ, firstDupName, of(12, 0), of(12, 0), 1);
         tripZ.addStop(stopZ);
 
+        // trip Z, firstNameDup2 - for composite station testing
+        Station firstDup2Name = new TestStation(TramTransportDataForTest.FIRST_STATION_DUP2_NAME, "area1",
+                "startStation", nearAltrincham, nearAltrinchamGrid, Tram);
+        addAStation(container, firstDup2Name);
+        addRouteStation(container, firstDup2Name, routeD);
+        PlatformStopCall stopZZ = createStop(container, tripZ, firstDup2Name, of(12, 0), of(12, 0), 1);
+        tripZ.addStop(stopZZ);
+
         Station second = new TestStation(TramTransportDataForTest.SECOND_STATION, "area1", "secondStation",
                 atRoundthornTram, CoordinateTransforms.getGridPosition(atRoundthornTram), Tram);
         addAStation(container, second);
@@ -251,6 +259,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         public static final String TRIP_A_ID = "tripAId";
         public static final String FIRST_STATION = METROLINK_PREFIX + "FIRST";
         public static final String FIRST_STATION_DUP_NAME = METROLINK_PREFIX + "FIRSTDUP";
+        public static final String FIRST_STATION_DUP2_NAME = METROLINK_PREFIX + "FIRSTDUP2";
         public static final String SECOND_STATION = METROLINK_PREFIX + "SECOND";
         public static final String LAST_STATION = METROLINK_PREFIX + "LAST";
         public static final String INTERCHANGE = TramStations.Cornbrook.forDTO();
@@ -268,6 +277,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         public Station getFirstDupName() {
             return getStationById(StringIdFor.createId(FIRST_STATION_DUP_NAME));
+        }
+
+        public Station getFirstDup2Name() {
+            return getStationById(StringIdFor.createId(FIRST_STATION_DUP2_NAME));
         }
 
         public Station getSecond() {

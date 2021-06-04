@@ -126,7 +126,7 @@ class TramRouteTest {
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(origin,  transportData.getSecond(),
                 journeyRequest, 3);
 
-        assertEquals(2, journeys.size(), journeys.toString());
+        assertEquals(3, journeys.size(), journeys.toString());
         journeys.forEach(journey ->{
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size(), "stages: " + stages);
@@ -453,7 +453,7 @@ class TramRouteTest {
     @Test
     void shouldHaveRouteCostCalculationAsExpected() {
         RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(43, costCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
+        assertEquals(42, costCalculator.getApproxCostBetween(txn, transportData.getFirst(), transportData.getLast()));
         assertEquals(-1, costCalculator.getApproxCostBetween(txn, transportData.getLast(), transportData.getFirst()));
     }
 

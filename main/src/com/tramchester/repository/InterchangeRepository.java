@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -68,20 +69,31 @@ public class InterchangeRepository  {
     }
 
     private void populateInterchangesFor(TransportMode mode) {
-        logger.info("Finding interchanges for " + mode);
         int linkThreshhold = getLinkThreshhold(mode);
+
+        logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
+
         IdSet<Station> found = findStationsByNumberConnections.findAtLeastNConnectionsFrom(mode, linkThreshhold);
         logger.info(format("Added %s interchanges for %s and link threshold %s", found.size(), mode, linkThreshhold));
 
+        logger.info("Adding composite stations as interchanges");
         Set<CompositeStation> composites = compositeStationRepository.getCompositesFor(mode);
-        IdSet<Station> allContainedStations = composites.stream().
-                map(CompositeStation::getContained).
-                filter(contained -> contained.size() > linkThreshhold).
-                flatMap(Collection::stream).
-                map(Station::getId).
-                collect(IdSet.idCollector());
-        logger.info(format("Added %s interchanges for %s composites", allContainedStations.size(), composites.size()));
-        found.addAll(allContainedStations);
+        if (!composites.isEmpty()) {
+            IdSet<Station> matchingCompositeStations = composites.stream().
+                    map(CompositeStation::getContained).
+                    filter(contained -> contained.size() >= linkThreshhold).
+                    flatMap(Collection::stream).
+                    map(Station::getId).
+                    collect(IdSet.idCollector());
+            if (matchingCompositeStations.isEmpty()) {
+                logger.warn(format("Did not find any composites matching threshold %s out of %s composites", linkThreshhold, composites.size()));
+            } else {
+                logger.info(format("Added %s interchanges for %s composites", matchingCompositeStations.size(), composites.size()));
+            }
+            found.addAll(matchingCompositeStations);
+        } else {
+            logger.info("No composites to add");
+        }
 
         interchanges.addAll(mode, found);
     }
@@ -194,10 +206,18 @@ public class InterchangeRepository  {
         return false;
     }
 
+    /***
+     * Composites - only the linked stations returned
+     * @return interchanges
+     */
     public IdSet<Station> getInterchangesFor(TransportMode mode) {
         return interchanges.get(mode);
     }
 
+    /***
+     * Composites - only the linked stations returned
+     * @return interchanges
+     */
     public IdSet<Station> getAllInterchanges() {
         return config.getTransportModes().stream().
                 flatMap(mode -> interchanges.get(mode).stream()).

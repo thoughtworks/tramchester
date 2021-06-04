@@ -113,7 +113,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
-                filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
+//                filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                 forEach(station -> {
                     int cost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
                     Node childNode = builderCache.getStation(txn, station.getId());
