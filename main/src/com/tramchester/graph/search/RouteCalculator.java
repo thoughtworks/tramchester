@@ -46,9 +46,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                           CompositeStationRepository compositeStationRepository) {
+                           CompositeStationRepository compositeStationRepository, NumberHopsForDestination numberHops) {
         super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
-                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository, transportData, config, transportData);
+                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
+                transportData, config, transportData);
         this.serviceRepository = transportData;
         this.config = config;
         this.createQueryTimes = createQueryTimes;
@@ -108,7 +109,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, previousSuccessfulVisit)).
                 limit(journeyRequest.getMaxNumberOfJourneys()).
-                map(path -> createJourney(journeyRequest, path, destinations));
+                map(path -> createJourney(txn, journeyRequest, path, destinations));
 
         if (journeyRequest.getDiagnosticsEnabled()) {
             results.onClose(() -> previousSuccessfulVisit.reportStatsFor(journeyRequest));

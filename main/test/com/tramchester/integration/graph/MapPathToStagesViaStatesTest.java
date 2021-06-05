@@ -234,7 +234,7 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, destinationStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, destinationStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, endNodeWalkNode);
 
@@ -255,7 +255,7 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(timedPath, journeyRequest, endStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, endStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
 
@@ -271,7 +271,7 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(timedPaths.isEmpty());
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        return pathToStages.mapDirect(timedPath, journeyRequest, endStations);
+        return pathToStages.mapDirect(txn, timedPath, journeyRequest, endStations);
     }
 
     private List<RouteCalculator.TimedPath> getPathFor(Station startStation, Station destination, Set<Station> endStations,

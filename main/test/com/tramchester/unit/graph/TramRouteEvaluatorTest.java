@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 
@@ -64,6 +65,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private Long destinationNodeId;
     private Relationship lastRelationship;
     private TripRepository tripRepository;
+    private NumberHopsForDestination numberHops;
+    private Transaction txn;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -100,6 +103,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         path = createMock(Path.class);
         node = createMock(Node.class);
         lastRelationship = createMock(Relationship.class);
+        numberHops = createMock(NumberHopsForDestination.class);
+        txn = createMock(Transaction.class);
 
         howIGotHere = HowIGotHere.forTest(42L, 24L);
 
@@ -113,8 +118,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @NotNull
     private NotStartedState getNotStartedState() {
-//        Set<Long> destinationNodeIds = new HashSet<>();
-//        destinationNodeIds.add(destinationNodeId);
 
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, config);
@@ -185,25 +188,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
         verifyAll();
     }
-
-//    @Test
-//    void shouldUseCachedResultForMultipleJourneyInclude() {
-//        long destinationNodeId = 42;
-//        TramRouteEvaluator evaluator = getEvaluator(destinationNodeId);
-//
-//        BranchState<JourneyState> state = new TestBranchState();
-//
-//        TramTime time = TramTime.of(8, 15);
-//        NotStartedState traversalState = getNotStartedState();
-//        state.setState(new JourneyState(time, traversalState));
-//
-//        EasyMock.expect(previousSuccessfulVisit.getPreviousResult(42L, time)).andReturn(ServiceReason.ReasonCode.HourOk);
-//
-//        replayAll();
-//        Evaluation result = evaluator.evaluate(path, state);
-//        assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
-//        verifyAll();
-//    }
 
     @Test
     void shouldUseCachedResultForMultipleJourneyExclude() {

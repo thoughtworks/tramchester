@@ -14,10 +14,12 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.search.NumberHopsForDestination;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.HashSet;
 import java.util.List;

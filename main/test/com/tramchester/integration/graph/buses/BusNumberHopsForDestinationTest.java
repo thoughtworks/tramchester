@@ -52,9 +52,9 @@ public class BusNumberHopsForDestinationTest {
         stationRepository = componentContainer.get(StationRepository.class);
     }
 
-    @Disabled("takes far far too long")
+    //@Disabled("takes far far too long")
     @Test
-    void shouldTestSomething() {
+    void shouldFindStockportToAllDestinations() {
         Map<IdFor<Station>, Long> hops = numberHops.calculateFor(BusStations.of(StopAtStockportBusStation));
         assertEquals(stationRepository.getNumberOfStations(), hops.size());
         
@@ -64,4 +64,6 @@ public class BusNumberHopsForDestinationTest {
         assertEquals(-1, hops.get(StopAtAltrinchamInterchange.getId()));
 
     }
+
+
 }

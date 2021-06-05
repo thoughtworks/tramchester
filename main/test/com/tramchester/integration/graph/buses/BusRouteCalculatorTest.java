@@ -17,7 +17,6 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.PiccadilyStationStopA;
 import static com.tramchester.testSupport.reference.BusStations.StopAtStockportBusStation;
-import static java.time.Month.MAY;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest

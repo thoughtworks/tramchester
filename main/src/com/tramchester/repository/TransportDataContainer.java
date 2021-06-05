@@ -80,7 +80,7 @@ public class TransportDataContainer implements TransportData {
         Optional<Integer> count = trips.getValues().stream().
                 map(trip -> trip.getStopCalls().numberOfCallingPoints()).
                 reduce(Integer::sum);
-        return count.get();
+        return count.orElse(Integer.MIN_VALUE);
     }
 
     public Service getService(IdFor<Service> serviceId) {

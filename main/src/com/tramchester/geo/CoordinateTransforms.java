@@ -105,7 +105,6 @@ public class CoordinateTransforms {
         double deltaLon = Math.abs(point1.getLon()-point2.getLon());
 
         return Math.sqrt((deltaLat*deltaLat)+(deltaLon*deltaLon));
-
     }
 
     public static int calcCostInMinutes(Station stationA, Station stationB, double mph) {

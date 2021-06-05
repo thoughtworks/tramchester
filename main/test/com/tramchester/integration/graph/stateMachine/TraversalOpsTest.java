@@ -7,17 +7,17 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.search.NumberHopsForDestination;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +32,8 @@ public class TraversalOpsTest {
     private TripRepository tripRepository;
     private SortsPositions sortsPositions;
     private StationRepository stationRepository;
+    private NumberHopsForDestination numberHops;
+    private Transaction txn;
 
 
     @BeforeAll
@@ -52,7 +54,14 @@ public class TraversalOpsTest {
         tripRepository = componentContainer.get(TripRepository.class);
         sortsPositions = componentContainer.get(SortsPositions.class);
         stationRepository = componentContainer.get(StationRepository.class);
+        numberHops = componentContainer.get(NumberHopsForDestination.class);
+        GraphDatabase database = componentContainer.get(GraphDatabase.class);
+        txn = database.beginTx();
+    }
 
+    @AfterEach
+    void afterEachTestRuns() {
+        txn.close();
     }
 
     @Test

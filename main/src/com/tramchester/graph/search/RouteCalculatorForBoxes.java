@@ -47,9 +47,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    NodeContentsRepository nodeOperations, NodeTypeRepository nodeTypeRepository,
                                    ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                                   CompositeStationRepository compositeStationRepository) {
+                                   CompositeStationRepository compositeStationRepository, NumberHopsForDestination numberHops) {
         super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
-                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository, transportData, config, transportData);
+                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
+                transportData, config, transportData);
         this.config = config;
         this.serviceRepository = transportData;
         this.graphDatabaseService = graphDatabaseService;
@@ -82,7 +83,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                 map(numChanges -> createPathRequest(startNode, time, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, time, pathRequest), pathRequest, previousSuccessfulVisit)).
-                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations));
+                        map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations));
 
                 List<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).
