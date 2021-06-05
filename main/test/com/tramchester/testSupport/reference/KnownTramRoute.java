@@ -10,7 +10,10 @@ import static com.tramchester.domain.reference.RouteDirection.Inbound;
 import static com.tramchester.domain.reference.RouteDirection.Outbound;
 import static java.lang.String.format;
 
-// Note: these are validated against tfgm data as part of Integration tests
+/**
+ * see also TramRouteHelper
+ * Note: these are validated against tfgm data as part of Integration tests
+ */
 public enum KnownTramRoute {
     AltrinchamPiccadilly("Purple", Inbound),
     PiccadillyAltrincham("Purple", Outbound),

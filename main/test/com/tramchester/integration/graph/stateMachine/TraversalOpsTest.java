@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.search.NumberHopsForDestination;
+import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -32,7 +32,7 @@ public class TraversalOpsTest {
     private TripRepository tripRepository;
     private SortsPositions sortsPositions;
     private StationRepository stationRepository;
-    private NumberHopsForDestination numberHops;
+    private RouteToRouteCosts numberHops;
     private Transaction txn;
 
 
@@ -54,7 +54,7 @@ public class TraversalOpsTest {
         tripRepository = componentContainer.get(TripRepository.class);
         sortsPositions = componentContainer.get(SortsPositions.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        numberHops = componentContainer.get(NumberHopsForDestination.class);
+        numberHops = componentContainer.get(RouteToRouteCosts.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
     }

@@ -46,7 +46,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                           CompositeStationRepository compositeStationRepository, NumberHopsForDestination numberHops) {
+                           CompositeStationRepository compositeStationRepository, RouteToRouteCosts numberHops) {
         super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
                 transportData, config, transportData);

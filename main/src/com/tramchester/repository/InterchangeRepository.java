@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
@@ -15,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ public class InterchangeRepository  {
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
 
+    // TODO Ideally needs to be Station not IdFor<Station> to remove split on modes and simplify code
     private final ModeIdsMap<Station> interchanges;
 
     @Inject
@@ -222,5 +224,9 @@ public class InterchangeRepository  {
         return config.getTransportModes().stream().
                 flatMap(mode -> interchanges.get(mode).stream()).
                 collect(IdSet.idCollector());
+    }
+
+    public Set<Station> getInterchangesOn(Route route) {
+        return Collections.emptySet();
     }
 }
