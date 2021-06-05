@@ -248,7 +248,7 @@ class TramGraphBuilderTest {
 
         long routeConnected = routeStationOutbounds.stream().
                 filter(relationship -> relationship.isType(CONNECT_ROUTES)).count();
-        if (testConfig.getChangeAtInterchangeOnly() && interchangeRepository.isInterchange(tramStation.getId())) {
+        if (testConfig.getChangeAtInterchangeOnly() && interchangeRepository.isInterchange(TramStations.of(tramStation))) {
             assertNotEquals(0, routeConnected);
         } else {
             assertEquals(0, routeConnected);

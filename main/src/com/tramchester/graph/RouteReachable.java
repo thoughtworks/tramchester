@@ -51,7 +51,7 @@ public class RouteReachable {
     public boolean isInterchangeReachableOnRoute(RouteStation start) {
         logger.debug("Checking interchange reachability from " + start.getStationId());
 
-        if (interchangeRepository.isInterchange(start.getStationId())) {
+        if (interchangeRepository.isInterchange(start.getStation())) {
             return true;
         }
 

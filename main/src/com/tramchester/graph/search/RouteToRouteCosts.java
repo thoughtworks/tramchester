@@ -76,6 +76,9 @@ public class RouteToRouteCosts {
     }
 
     public long getFor(Route routeA, Route routeB) {
+        if (routeA.equals(routeB)) {
+            return 0;
+        }
         Key key = new Key(routeA, routeB);
         return costs.get(key);
     }

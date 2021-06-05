@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class AdditionalTramInterchanges {
 
     private enum Interchanges {
-        // official interchange points not autodetected by InterchangeRepository
+        // official interchange points not auto-detected by InterchangeRepository, see config for tram routing also
         CORNBROOK("9400ZZMACRN"),
         ST_PETERS_SQUARE("9400ZZMASTP"),
         PIC_GARDENS("9400ZZMAPGD"),
@@ -35,7 +35,6 @@ public class AdditionalTramInterchanges {
         Arrays.asList(Interchanges.values()).forEach(interchange -> ids.add(StringIdFor.createId(interchange.stationId)));
     }
 
-    @Deprecated
     public static IdSet<Station> stations() {
         return ids;
     }

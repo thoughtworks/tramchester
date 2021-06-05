@@ -123,8 +123,8 @@ public class RouteCalculationCombinations {
         return combinations;
     }
 
-    public boolean betweenInterchange(StationIdPair pair) {
-        return interchangeRepository.isInterchange(pair.getBeginId()) && interchangeRepository.isInterchange(pair.getEndId());
+    public boolean betweenInterchanges(Station start, Station dest) {
+        return interchangeRepository.isInterchange(start) && interchangeRepository.isInterchange(dest);
     }
 
     public boolean betweenEndsOfRoute(StationIdPair pair) {

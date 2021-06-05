@@ -57,9 +57,9 @@ class RouteCalculatorTestAllJourneys {
 
         // pairs of stations to check
         Set<StationIdPair> stationIdPairs = allStations.stream().flatMap(start -> allStations.stream().
+                filter(dest -> !combinations.betweenInterchanges(start, dest)).
                 map(dest -> StationIdPair.of(start, dest))).
                 filter(pair -> !pair.same()).
-                filter(pair -> !combinations.betweenInterchange(pair)).
                 filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
 

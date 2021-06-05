@@ -12,6 +12,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
 import java.util.Set;
@@ -48,8 +49,9 @@ public class InterchangeRepositoryTramTest {
 
     @Test
     void shouldHaveOfficialTramInterchanges() {
-        for (IdFor<Station> interchange : AdditionalTramInterchanges.stations()) {
-            Assertions.assertTrue(interchangeRepository.isInterchange(Tram, interchange), interchange.toString());
+        for (IdFor<Station> interchangeId : AdditionalTramInterchanges.stations()) {
+            Station interchange = stationRepository.getStationById(interchangeId);
+            Assertions.assertTrue(interchangeRepository.isInterchange(interchange), interchange.toString());
         }
     }
 
@@ -68,7 +70,8 @@ public class InterchangeRepositoryTramTest {
      */
     @Test
     public void shudehillNotAnInterchange() {
-        assertFalse(interchangeRepository.isInterchange(Tram, Shudehill.getId()));
+        Station shudehill = stationRepository.getStationById(Shudehill.getId());
+        assertFalse(interchangeRepository.isInterchange(shudehill));
     }
 
 }
