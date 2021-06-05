@@ -4,15 +4,14 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.graph.neighbours.NeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
 import java.util.Set;
@@ -23,7 +22,7 @@ import static com.tramchester.integration.repository.common.InterchangeRepositor
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class InterchangeRepositoryTramTest {
+public class InterchangesTramTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository interchangeRepository;
     private StationRepository stationRepository;

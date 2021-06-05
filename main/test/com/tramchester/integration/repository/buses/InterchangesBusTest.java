@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class InterchangeRepositoryBusTest {
+class InterchangesBusTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository interchangeRepository;
     private StationRepository stationRepository;
