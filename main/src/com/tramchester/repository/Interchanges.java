@@ -63,12 +63,15 @@ public class Interchanges implements InterchangeRepository {
         enabledModes.forEach(mode -> {
             int linkThreshhold = getLinkThreshhold(mode);
             populateInterchangesFor(mode, linkThreshhold);
-            addCompositeStations(mode, linkThreshhold);
+            addCompositeStations(mode, 3); // 3 otherwise all 'pairs' of stations on single routes included
         });
 
         addAdditionalInterchanges(config.getGTFSDataSource());
         addMultiModeStations();
-        enabledModes.forEach(this::addStationsWithNeighbours);
+
+        if (config.getCreateNeighbours()) {
+            enabledModes.forEach(this::addStationsWithNeighbours);
+        }
 
         logger.info("started");
     }
@@ -214,8 +217,8 @@ public class Interchanges implements InterchangeRepository {
      * @return interchanges
      */
     @Override
-    public IdSet<Station> getAllInterchanges() {
-        return interchanges.stream().collect(IdSet.collector());
+    public Set<Station> getAllInterchanges() {
+        return interchanges;
     }
 
     @Override
@@ -223,5 +226,10 @@ public class Interchanges implements InterchangeRepository {
         return interchanges.stream().
                 filter(station -> station.servesRoute(route)).
                 collect(Collectors.toSet());
+    }
+
+    @Override
+    public int size() {
+        return interchanges.size();
     }
 }

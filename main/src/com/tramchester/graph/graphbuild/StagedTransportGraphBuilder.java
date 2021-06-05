@@ -193,6 +193,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             if (interchangeOnly) {
                 logger.info("Creating links for adjacent interchange route stations only");
                 interchangeRepository.getAllInterchanges().stream().
+                        map(Station::getId).
                         filter(graphFilter::shouldInclude).
                         map(station -> (StationAndRouteStations) () -> station).
                         forEach(stationAndRouteStations -> linkRouteStationsForStation(txn, builderCache, stationAndRouteStations));

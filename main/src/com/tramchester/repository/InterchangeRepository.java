@@ -14,7 +14,9 @@ public interface InterchangeRepository {
 
     IdSet<Station> getInterchangesFor(TransportMode mode);
 
-    IdSet<Station> getAllInterchanges();
+    Set<Station> getAllInterchanges();
 
     Set<Station> getInterchangesOn(Route route);
+
+    int size();
 }

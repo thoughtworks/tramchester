@@ -3,13 +3,20 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -22,6 +29,7 @@ public class BusRouteToRouteCostsTest {
     private static ComponentContainer componentContainer;
 
     private RouteToRouteCosts routeToRouteCosts;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -38,11 +46,22 @@ public class BusRouteToRouteCostsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
     }
 
     @Test
-    void shouldTestSomething() {
-        fail("WIP");
+    void shouldHaveCorrectCostBetweenRoutesDiffDirections() {
+        IdFor<Agency> agencyId = StringIdFor.createId("DAGC");
+        Set<Route> altyToKnutsford = routeRepository.findRoutesByName(agencyId,
+                "Altrincham - Wilmslow - Knutsford - Macclesfield");
+        assertEquals(1, altyToKnutsford.size());
+        Set<Route> knutsfordToAlty = routeRepository.findRoutesByName(agencyId,
+                "Macclesfield - Knutsford - Wilmslow - Altrincham");
+        assertEquals(1, knutsfordToAlty.size());
+
+
+        assertEquals(1, routeToRouteCosts.getFor(altyToKnutsford.iterator().next(), knutsfordToAlty.iterator().next()));
+
     }
 
 
