@@ -32,8 +32,8 @@ public class TraversalOpsTest {
     private TripRepository tripRepository;
     private SortsPositions sortsPositions;
     private StationRepository stationRepository;
-    private RouteToRouteCosts numberHops;
     private Transaction txn;
+    private RouteToRouteCosts routeToRouteCosts;
 
 
     @BeforeAll
@@ -54,7 +54,7 @@ public class TraversalOpsTest {
         tripRepository = componentContainer.get(TripRepository.class);
         sortsPositions = componentContainer.get(SortsPositions.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        numberHops = componentContainer.get(RouteToRouteCosts.class);
+        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
     }
@@ -72,7 +72,7 @@ public class TraversalOpsTest {
         destinationStations.add(manchesterAirport);
         LatLong destinationLatLon = TestEnv.nearPiccGardens;
         TraversalOps traversalOps = new TraversalOps(nodeOperations, tripRepository,
-                sortsPositions, destinationStations, destinationLatLon);
+                sortsPositions, destinationStations, destinationLatLon, routeToRouteCosts);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
         HasId<Route> otherRoute = altrincham.getRoutes().iterator().next();

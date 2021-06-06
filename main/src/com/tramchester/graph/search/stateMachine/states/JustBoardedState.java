@@ -1,9 +1,11 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
+import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -37,10 +39,21 @@ public class JustBoardedState extends RouteStationState {
         public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
             Stream<Relationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART),
                     noPlatformStation);
-            Stream<Relationship> services = orderServicesByDistance(node, noPlatformStation.traversalOps);
+            Stream<Relationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps);
             return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
 //            Stream<Relationship> services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
 //            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
+        }
+
+        /**
+         * order by least number connections to routes
+         * @param node start node
+         * @param traversalOps supporting ops
+         * @return ordered by least number routes interconnects first
+         */
+        private Stream<Relationship> orderServicesByRouteMetric(Node node, TraversalOps traversalOps) {
+            Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
+            return traversalOps.orderBoardingRelationsByRouteConnections(toServices);
         }
 
         /***

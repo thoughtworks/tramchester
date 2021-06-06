@@ -4,6 +4,8 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
@@ -14,7 +16,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.util.Id;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RouteToRouteCostsTest {
@@ -50,14 +60,14 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.get(KnownTramRoute.AltrinchamPiccadilly);
+        Route routeA = routeHelper.get(AltrinchamPiccadilly);
 
         assertEquals(0,routeCosts.getFor(routeA, routeA));
     }
 
     @Test
     void shouldComputeCostsRouteOtherDirection() {
-        Route routeA = routeHelper.get(KnownTramRoute.AltrinchamPiccadilly);
+        Route routeA = routeHelper.get(AltrinchamPiccadilly);
         Route routeB = routeHelper.get(KnownTramRoute.PiccadillyAltrincham);
 
         assertEquals(1,routeCosts.getFor(routeA, routeB));
@@ -67,10 +77,28 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldComputeCostsDifferentRoutes() {
         // only ever one hop between routes on tram network
-        Route routeA = routeHelper.get(KnownTramRoute.AltrinchamPiccadilly);
-        Route routeB = routeHelper.get(KnownTramRoute.VictoriaWythenshaweManchesterAirport);
+        Route routeA = routeHelper.get(AltrinchamPiccadilly);
+        Route routeB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
 
         assertEquals(1,routeCosts.getFor(routeA, routeB));
         assertEquals(1,routeCosts.getFor(routeB, routeA));
+    }
+
+    @Test
+    void shouldSortAsExpected() {
+        Route routeA = routeHelper.get(CornbrookTheTraffordCentre);
+        Route routeB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
+        Route routeC = routeHelper.get(BuryPiccadilly);
+
+        List<HasId<Route>> toSort = Arrays.asList(routeC, routeB, routeA);
+
+        IdSet<Route> destinations = new IdSet<>(routeA.getId());
+        Stream<HasId<Route>> results = routeCosts.sortByDestinations(destinations, toSort.stream());
+
+        List<HasId<Route>> list = results.collect(Collectors.toList());
+        assertEquals(toSort.size(), list.size());
+        assertEquals(routeA.getId(), list.get(0).getId());
+        assertEquals(routeB.getId(), list.get(1).getId());
+        assertEquals(routeC.getId(), list.get(2).getId());
     }
 }

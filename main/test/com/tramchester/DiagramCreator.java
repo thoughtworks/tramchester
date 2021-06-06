@@ -173,7 +173,7 @@ public class DiagramCreator {
         relationshipSeen.add(edge.getId());
 
         if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
-            String routeId = GraphProps.getRouteId(edge).getGraphId();
+            String routeId = GraphProps.getRouteIdFrom(edge).getGraphId();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "R:"+routeId));
         } else if (relationshipType== LINKED) {
             Set<TransportMode> modes = GraphProps.getTransportModes(edge);
@@ -223,7 +223,7 @@ public class DiagramCreator {
             // TODO Look up station name from the ID?
             String stationId = GraphProps.getStationId(node).getGraphId();
             TransportMode mode = GraphProps.getTransportMode(node);
-            String routeId = GraphProps.getRouteId(node).getGraphId();
+            String routeId = GraphProps.getRouteIdFrom(node).getGraphId();
             return format("%s\n%s\n%s", routeId, stationId, mode.name());
         }
         if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {

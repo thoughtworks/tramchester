@@ -2,16 +2,20 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -134,6 +138,28 @@ public class RouteToRouteCosts {
     public int size() {
         return costs.size();
     }
+
+    public <T extends HasId<Route>> Stream<T> sortByDestinations(IdSet<Route> destinationRouteIds, Stream<T> startingRoutes) {
+        Set<Route> destinations = destinationRouteIds.stream().map(routeRepository::getRouteById).collect(Collectors.toSet());
+        return startingRoutes.
+                map(start -> findLowestCost(destinations, start)).
+                sorted(Comparator.comparingInt(Pair::getLeft)).
+                map(Pair::getRight);
+    }
+
+    private <T extends HasId<Route>> Pair<Integer, T> findLowestCost(Set<Route> destinations, T hasStartId) {
+        Route start = routeRepository.getRouteById(hasStartId.getId());
+        if (destinations.contains(start)) {
+            return Pair.of(0, hasStartId); // start on route that is present at destination
+        }
+
+        int result = destinations.stream().map(destination -> new Key(start, destination)).
+                filter(costs::containsKey).
+                map(key -> (int) costs.get(key)).
+                min(Comparator.comparingInt(a -> a)).orElse(Integer.MAX_VALUE);
+        return Pair.of(result, hasStartId);
+    }
+
 
     private static class Key {
 

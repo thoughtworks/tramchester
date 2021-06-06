@@ -14,8 +14,8 @@ import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -27,7 +27,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.Collections;
 import java.util.Set;
@@ -47,7 +46,6 @@ class JourneyStateTest extends EasyMockSupport {
         LatLong latLongHint = TramStations.ManAirport.getLatLong();
 
         node = EasyMock.createMock(Node.class);
-        Transaction txn = createMock(Transaction.class);
 
         Station station = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1,1), TransportMode.Tram);
         station.addRoute(TestEnv.getTramTestRoute());
@@ -58,7 +56,7 @@ class JourneyStateTest extends EasyMockSupport {
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         TripRepository tripRepository = createMock(TripRepository.class);
-        RouteToRouteCosts numberHops = createMock(RouteToRouteCosts.class);
+        RouteToRouteCosts routeToRouteCosts = createMock(RouteToRouteCosts.class);
         NodeContentsRepository cachedNodeOperations = createMock(NodeContentsRepository.class);
         final TramchesterConfig config = TestEnv.GET();
 
@@ -66,7 +64,7 @@ class JourneyStateTest extends EasyMockSupport {
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, config);
 
         traversalState = new NotStartedState(new TraversalOps(cachedNodeOperations, tripRepository, sortsPositions, destinations,
-                latLongHint), traversalStateFactory);
+                latLongHint, routeToRouteCosts), traversalStateFactory);
         queryTime = TramTime.of(9, 15);
     }
 

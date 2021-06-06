@@ -121,7 +121,7 @@ class BusRouteCalculatorTest {
         CompositeStation start = compositeStationRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
         CompositeStation end = compositeStationRepository.findByName("Altrincham Interchange");
 
-        final LocalDate futureDate = LocalDate.now().plusDays(14);
+        final LocalDate futureDate = TestEnv.testDay().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
                 TramTime.of(8,19), false, 3, maxJourneyDuration, 1);
 
@@ -214,8 +214,6 @@ class BusRouteCalculatorTest {
     @Test
     void shouldReproIssueWithSlowPerformance() {
         int maxChanges = 3;
-
-        //LocalDate date = LocalDate.of(2021, MAY, 25); // now in the past
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 1);

@@ -53,12 +53,13 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabase;
     private final ObjectMapper mapper;
+    private final RouteToRouteCosts routeToRouteCosts;
 
     @Inject
     public MapPathToStagesViaStates(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
                                     TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
                                     TripRepository tripRepository, SortsPositions sortsPosition, GraphQuery graphQuery,
-                                    GraphDatabase graphDatabase, ObjectMapper mapper) {
+                                    GraphDatabase graphDatabase, ObjectMapper mapper, RouteToRouteCosts routeToRouteCosts) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;
@@ -68,6 +69,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         this.graphQuery = graphQuery;
         this.graphDatabase = graphDatabase;
         this.mapper = mapper;
+        this.routeToRouteCosts = routeToRouteCosts;
     }
 
     private Set<Long> getDestinationNodeIds(Set<Station> endStations) {
@@ -102,7 +104,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPosition, endStations,
-                destinationLatLon);
+                destinationLatLon, routeToRouteCosts);
 
         MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime, mapper);
 

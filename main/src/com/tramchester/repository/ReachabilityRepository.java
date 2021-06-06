@@ -52,8 +52,7 @@ public class ReachabilityRepository {
         logger.info("stopping");
         repositorys.values().forEach(Repository::dispose);
         repositorys.clear();
-        logger.info("stopped" +
-                "");
+        logger.info("stopped");
     }
 
     @PostConstruct
@@ -120,32 +119,6 @@ public class ReachabilityRepository {
                     filter(routeStation -> graphFilter.shouldIncludeRoute(routeStation.getRoute())).
                     filter(routeStation -> routeStation.getTransportModes().contains(mode));
         }
-
-//        public void populateFor(Set<RouteStation> startingPoints, RouteReachable routeReachable) {
-//
-//            Set<RouteStation> cannotReachInterchange = new HashSet<>();
-//
-//            startingPoints.forEach(start -> {
-//                if (routeReachable.isInterchangeReachableOnRoute(start))  {
-//                    canReachInterchange.add(start.getId());
-//                } else {
-//                    cannotReachInterchange.add(start);
-//                }
-//            });
-//
-//            cannotReachInterchange.forEach(start -> {
-//                IdSet<Station> reachableStations = routeReachable.getReachableStationsOnRoute(start);
-//                reachableFrom.put(start.getId(), reachableStations);
-//            });
-//
-//            long zeroReachable = reachableFrom.values().stream().filter(IdSet::isEmpty).count();
-//            long viaRoute = reachableFrom.size() - zeroReachable;
-//
-//            logger.info(format("For %s route stations, via interchange %s, route %s, none %s",
-//                    startingPoints.size(), canReachInterchange.size(), viaRoute, zeroReachable));
-//
-//            cannotReachInterchange.clear();
-//        }
 
         private boolean stationReachable(IdFor<RouteStation> routeStationId, IdFor<Station> destinationStationId) {
             if (canReachInterchange.contains(routeStationId)) {

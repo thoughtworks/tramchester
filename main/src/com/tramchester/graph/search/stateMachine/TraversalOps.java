@@ -14,6 +14,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -34,10 +35,11 @@ public class TraversalOps {
     private final IdSet<Route> destinationRoutes;
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
+    private final RouteToRouteCosts routeToRouteCosts;
 
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, Set<Station> destinationStations,
-                        LatLong destinationLatLon) {
+                        LatLong destinationLatLon, RouteToRouteCosts routeToRouteCosts) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
@@ -46,6 +48,7 @@ public class TraversalOps {
                 flatMap(station -> station.getRoutes().stream()).
                 collect(IdSet.collector());
         this.destinationLatLon = destinationLatLon;
+        this.routeToRouteCosts = routeToRouteCosts;
     }
 
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
@@ -64,11 +67,7 @@ public class TraversalOps {
                 collect(Collectors.toList());
     }
 
-    public Stream<Relationship> orderBoardingRelationsByDestRoute(Stream<Relationship> relationships) {
-        return relationships.map(RelationshipWithRoute::new).
-                sorted(this::onDestRouteFirst).
-                map(RelationshipWithRoute::getRelationship);
-    }
+
 
     public int onDestRouteFirst(HasId<Route> a, HasId<Route> b) {
         IdFor<Route> routeA = a.getId();
@@ -88,6 +87,18 @@ public class TraversalOps {
         Set<SortsPositions.HasStationId<Relationship>> wrapped = new HashSet<>();
         relationships.forEach(svcRelationship -> wrapped.add(new RelationshipFacade(svcRelationship)));
         return sortsPositions.sortedByNearTo(destinationLatLon, wrapped);
+    }
+
+    public Stream<Relationship> orderBoardingRelationsByDestRoute(Stream<Relationship> relationships) {
+        return relationships.map(RelationshipWithRoute::new).
+                sorted(this::onDestRouteFirst).
+                map(RelationshipWithRoute::getRelationship);
+    }
+
+    public Stream<Relationship> orderBoardingRelationsByRouteConnections(Iterable<Relationship> toServices) {
+        Stream<RelationshipWithRoute> withRouteId = Streams.stream(toServices).map(RelationshipWithRoute::new);
+        Stream<RelationshipWithRoute> sorted = routeToRouteCosts.sortByDestinations(destinationRoutes, withRouteId);
+        return sorted.map(RelationshipWithRoute::getRelationship);
     }
 
     public TramTime getTimeFrom(Node node) {
@@ -115,6 +126,8 @@ public class TraversalOps {
         return Streams.stream(node.getRelationships(Direction.OUTGOING, TO_SERVICE)).
                 anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
+
+
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
         private final Relationship relationship;
@@ -160,7 +173,7 @@ public class TraversalOps {
         private final IdFor<Route> routeId;
 
         public RelationshipWithRoute(Relationship relationship) {
-            routeId = GraphProps.getRouteId(relationship);
+            routeId = GraphProps.getRouteIdFrom(relationship);
             this.relationship = relationship;
         }
 

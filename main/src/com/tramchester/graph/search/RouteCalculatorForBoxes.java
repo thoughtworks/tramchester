@@ -47,10 +47,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    NodeContentsRepository nodeOperations, NodeTypeRepository nodeTypeRepository,
                                    ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                                   CompositeStationRepository compositeStationRepository, RouteToRouteCosts numberHops) {
+                                   CompositeStationRepository compositeStationRepository, RouteToRouteCosts routeToRouteCosts) {
         super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
-                transportData, config, transportData);
+                transportData, config, transportData, routeToRouteCosts);
         this.config = config;
         this.serviceRepository = transportData;
         this.graphDatabaseService = graphDatabaseService;

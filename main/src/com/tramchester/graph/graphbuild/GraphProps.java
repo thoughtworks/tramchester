@@ -169,9 +169,6 @@ public class GraphProps {
         return new LatLong(lat, lon);
     }
 
-    public static IdFor<Route> getRouteId(Entity entity) {
-        return getRouteIdFrom(entity);
-    }
 
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
         entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString()+"_"+uid.toString());
@@ -185,6 +182,10 @@ public class GraphProps {
     public static int getStopSequenceNumber(Relationship relationship) {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
+
+//    public static IdFor<Route> getRouteId(Entity entity) {
+//        return getRouteIdFrom(entity);
+//    }
 
     public static IdFor<Route> getRouteIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, ROUTE_ID);

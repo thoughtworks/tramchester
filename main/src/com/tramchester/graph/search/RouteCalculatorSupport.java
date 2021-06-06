@@ -48,12 +48,14 @@ public class RouteCalculatorSupport {
     private final TramchesterConfig config;
     private final TripRepository tripRepository;
     private final TraversalStateFactory traversalStateFactory;
+    private final RouteToRouteCosts routeToRouteCosts;
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeOperations,
                                      NodeTypeRepository nodeTypeRepository, ReachabilityRepository reachabilityRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory, ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition,
                                      MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository,
-                                     StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository) {
+                                     StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
+                                     RouteToRouteCosts routeToRouteCosts) {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeOperations = nodeOperations;
@@ -68,6 +70,7 @@ public class RouteCalculatorSupport {
         this.stationRepository = stationRepository;
         this.config = config;
         this.tripRepository = tripRepository;
+        this.routeToRouteCosts = routeToRouteCosts;
     }
 
     protected Node getStationNodeSafe(Transaction txn, Station station) {
@@ -114,7 +117,7 @@ public class RouteCalculatorSupport {
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest.serviceHeuristics, compositeStationRepository, sortsPosition, nodeOperations,
                 tripRepository, traversalStateFactory, endStations, config, nodeTypeRepository, destinationNodeIds,
-                reasons, previousSuccessfulVisit);
+                reasons, previousSuccessfulVisit, routeToRouteCosts);
 
         return tramNetworkTraverser.
                 findPaths(txn, pathRequest.startNode).

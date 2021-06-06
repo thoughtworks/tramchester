@@ -75,14 +75,12 @@ public class RouteCostCalculator {
         return (int) weight;
     }
 
+    // TODO Remove this and code in Staged Graph builder, not used
     public long getNumberHops(Transaction txn, Station start, Station end) {
         PathExpander<Double> forTypesAndDirections = expanderForNumberHops();
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
 
-//        PathFinder<WeightedPath> finder = GraphAlgoFactory.aStar(context, forTypesAndDirections,
-//                (relationship, direction) -> (double) GraphProps.getCost(relationship),
-//                (node, goal) -> costBetween(GraphProps.getStationId(node), GraphProps.getStationId(goal)));
         PathFinder < WeightedPath > finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
 
         Node startNode = graphQuery.getStationNode(txn, start);
@@ -105,20 +103,6 @@ public class RouteCostCalculator {
         return Streams.stream(path.relationships()).
                 filter(relationship -> relationship.isType(ON_ROUTE)).
                 count();
-    }
-
-    private Double costBetween(IdFor<Station> startId, IdFor<Station> endId) {
-        Station start = stationRepository.getStationById(startId);
-        Station end = stationRepository.getStationById(endId);
-
-        return weightingBetween(start.getGridPosition(), end.getGridPosition());
-    }
-
-    private Double weightingBetween(GridPosition start, GridPosition end) {
-        long northings = Math.abs(start.getNorthings() - end.getNorthings());
-        long eastings = Math.abs(start.getEastings() - end.getEastings());
-
-        return sqrt((northings*northings)+(eastings*eastings));
     }
 
     private PathExpander<Double> expanderForNumberHops() {
