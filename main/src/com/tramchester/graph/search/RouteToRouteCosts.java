@@ -12,17 +12,17 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
 public class RouteToRouteCosts {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
+    public static final int DEPTH = 3;
 
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
 
-    // size is a real issue here
+    // size is a real issue here, > 2M entries for buses
     private final Map<Key, Byte> costs;
 
     @Inject
@@ -49,7 +49,7 @@ public class RouteToRouteCosts {
         logger.info("Have " +  costs.size() + " connections from " + interchangeRepository.size() + " interchanges");
 
         // for existing connections infer next degree of connections, stop if no more added
-        for (byte currentDegree = 1; currentDegree < 6; currentDegree++) {
+        for (byte currentDegree = 1; currentDegree < DEPTH; currentDegree++) {
             Map<Route, Set<Route>> newLinks = addConnectionsFor(currentDegree, linksForRoutes);
             if (newLinks.isEmpty()) {
                 linksForRoutes.clear();
@@ -72,8 +72,7 @@ public class RouteToRouteCosts {
             Set<Route> newConnections = connectedToRoute.stream().
                     map(linksPreviousDegree::get).
                     filter(found -> !found.isEmpty()).
-                    flatMap(Collection::stream).
-                    collect(Collectors.toSet());
+                    collect(HashSet::new, HashSet::addAll, HashSet::addAll);
 
             if (!newConnections.isEmpty()) {
                 final Route route = entry.getKey();
