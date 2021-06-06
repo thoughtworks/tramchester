@@ -49,6 +49,12 @@ public class BusRouteToRouteCostsTest {
         routeRepository = componentContainer.get(RouteRepository.class);
     }
 
+    // For testing, likely to vary a lot with timetable updates
+    @Test
+    void shouldHaveExpectedNumber() {
+        assertEquals(2390116, routeToRouteCosts.size());
+    }
+
     @Test
     void shouldHaveCorrectCostBetweenRoutesDiffDirections() {
         IdFor<Agency> agencyId = StringIdFor.createId("DAGC");

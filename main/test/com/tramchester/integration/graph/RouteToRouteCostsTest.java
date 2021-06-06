@@ -44,6 +44,11 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
+    void shouldHaveExpectedNumberOfInterconnections() {
+        assertEquals(144, routeCosts.size());
+    }
+
+    @Test
     void shouldComputeCostsSameRoute() {
         Route routeA = routeHelper.get(KnownTramRoute.AltrinchamPiccadilly);
 
