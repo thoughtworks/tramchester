@@ -8,9 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.time.TramTime.nextDay;
 import static com.tramchester.domain.time.TramTime.of;
@@ -135,6 +134,16 @@ class TramTimeTest {
         set.add(timeB);
 
         assertEquals(timeB,set.first());
+    }
+
+    @Test
+    void shouldImplementComparableOnSteams() {
+        List<TramTime> list = Arrays.asList(of(10,12), of(8,15), of(9,57));
+
+        List<TramTime> result = list.stream().sorted(TramTime.comparing(tramTime -> tramTime)).collect(Collectors.toList());
+        assertEquals(of(8,15), result.get(0));
+        assertEquals(of(9,57), result.get(1));
+        assertEquals(of(10,12), result.get(2));
     }
 
     @Test

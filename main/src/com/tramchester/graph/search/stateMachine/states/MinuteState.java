@@ -25,10 +25,10 @@ public class MinuteState extends TraversalState {
 
     public static class Builder implements Towards<MinuteState> {
 
-        private final TramchesterConfig config;
+        private final boolean changeAtInterchangeOnly;
 
         public Builder(TramchesterConfig config) {
-            this.config = config;
+            this.changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
         }
 
         @Override
@@ -45,7 +45,6 @@ public class MinuteState extends TraversalState {
             Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TRAM_GOES_TO, BUS_GOES_TO, TRAIN_GOES_TO
                 ,FERRY_GOES_TO, SUBWAY_GOES_TO);
 
-            boolean changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
             if (existingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = existingTrip.getTripId();
                 Iterable<Relationship> filterBySingleTripId =

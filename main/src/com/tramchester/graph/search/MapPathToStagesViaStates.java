@@ -2,16 +2,14 @@ package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphBuilder;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -28,9 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
 import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
@@ -50,47 +46,25 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
     private final SortsPositions sortsPosition;
-    private final GraphQuery graphQuery;
-    private final GraphDatabase graphDatabase;
     private final ObjectMapper mapper;
     private final RouteToRouteCosts routeToRouteCosts;
+    private final TramchesterConfig config;
 
     @Inject
     public MapPathToStagesViaStates(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
                                     TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
-                                    TripRepository tripRepository, SortsPositions sortsPosition, GraphQuery graphQuery,
-                                    GraphDatabase graphDatabase, ObjectMapper mapper, RouteToRouteCosts routeToRouteCosts) {
+                                    TripRepository tripRepository, SortsPositions sortsPosition,
+                                    ObjectMapper mapper, RouteToRouteCosts routeToRouteCosts, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
         this.sortsPosition = sortsPosition;
-        this.graphQuery = graphQuery;
-        this.graphDatabase = graphDatabase;
+
         this.mapper = mapper;
         this.routeToRouteCosts = routeToRouteCosts;
-    }
-
-    private Set<Long> getDestinationNodeIds(Set<Station> endStations) {
-        Set<Long> destinationNodeIds;
-        try(Transaction txn = graphDatabase.beginTx()) {
-            destinationNodeIds = endStations.stream().
-                    map(station -> graphQuery.getStationOrGrouped(txn, station)).
-                    filter(Objects::nonNull).
-                    map(Entity::getId).
-                    collect(Collectors.toSet());
-        }
-        if (endStations.size()!=destinationNodeIds.size()) {
-            logger.error("Could not find destination node ids for all end stations (is the graph filtered?)");
-            try(Transaction txn = graphDatabase.beginTx()) {
-                IdSet<Station> noNodeFound = endStations.stream().
-                        filter(station -> graphQuery.getStationOrGrouped(txn, station) == null).
-                        collect(IdSet.collector());
-                logger.error("Missing nodes id for these desinations: " + noNodeFound);
-            }
-        }
-        return destinationNodeIds;
+        this.config = config;
     }
 
     @Override

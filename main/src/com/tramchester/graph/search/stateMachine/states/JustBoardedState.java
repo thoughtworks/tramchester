@@ -1,11 +1,9 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -17,6 +15,12 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class JustBoardedState extends RouteStationState {
 
     public static class Builder extends TowardsRouteStation<JustBoardedState> {
+
+        private final boolean depthFirst;
+
+        public Builder(boolean depthFirst) {
+            this.depthFirst = depthFirst;
+        }
 
         @Override
         public void register(RegistersFromState registers) {
@@ -32,8 +36,15 @@ public class JustBoardedState extends RouteStationState {
         public JustBoardedState fromPlatformState(PlatformState platformState, Node node, int cost) {
             Stream<Relationship> otherPlatforms = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
                     platformState);
-            Stream<Relationship> toServices = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
-            return new JustBoardedState(platformState, Stream.concat(otherPlatforms, toServices), cost);
+
+            Stream<Relationship> services;
+            if (depthFirst) {
+                services = orderServicesByRouteMetric(node, platformState.traversalOps);
+            } else {
+                services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
+            }
+
+            return new JustBoardedState(platformState, Stream.concat(otherPlatforms, services), cost);
         }
 
         public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {
@@ -41,12 +52,10 @@ public class JustBoardedState extends RouteStationState {
                     noPlatformStation);
             Stream<Relationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps);
             return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
-//            Stream<Relationship> services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
-//            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost);
         }
 
         /**
-         * order by least number connections to routes
+         * order by least number connections required to destination routes
          * @param node start node
          * @param traversalOps supporting ops
          * @return ordered by least number routes interconnects first

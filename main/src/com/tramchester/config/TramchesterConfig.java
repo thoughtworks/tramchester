@@ -120,4 +120,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public boolean liveDataEnabled() {
         return getLiveDataConfig()!=null;
     }
+
+    public final boolean getDepthFirst() {
+        return false;
+    }
 }

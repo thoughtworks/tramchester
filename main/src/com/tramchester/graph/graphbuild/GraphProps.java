@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.tramchester.domain.id.StringIdFor.getCompositeIdFromGraphEntity;
 import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
@@ -38,7 +37,7 @@ public class GraphProps {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
-    public static <C extends GraphProperty>  void setProperty(Entity entity, TransportMode mode) {
+    public static void setProperty(Entity entity, TransportMode mode) {
         entity.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
     }
 

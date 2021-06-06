@@ -23,6 +23,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;
+
     private final Iterable<Relationship> outbounds;
     private final int costForLastEdge;
     private final int parentCost;
@@ -134,15 +135,18 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation, Node node, int cost, boolean isInterchange) {
+    protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
+                                                           Node node, int cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation, Node node, int cost, boolean isInterchange) {
+    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
+                                                             Node node, int cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected RouteStationState toRouteStationTowardsDest(RouteStationStateEndTrip.Builder towardsRouteStation, Node node, int cost) {
+    protected RouteStationState toRouteStationTowardsDest(RouteStationStateEndTrip.Builder towardsRouteStation,
+                                                          Node node, int cost) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 

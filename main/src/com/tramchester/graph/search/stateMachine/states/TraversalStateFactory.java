@@ -27,14 +27,15 @@ public class TraversalStateFactory {
     @PostConstruct
     public void start() {
         logger.info("starting");
+        final boolean depthFirst = config.getDepthFirst();
         registersStates.addBuilder(new RouteStationStateOnTrip.Builder());
         registersStates.addBuilder(new RouteStationStateEndTrip.Builder());
-        registersStates.addBuilder(new HourState.Builder());
-        registersStates.addBuilder(new JustBoardedState.Builder());
+        registersStates.addBuilder(new HourState.Builder(depthFirst));
+        registersStates.addBuilder(new JustBoardedState.Builder(depthFirst));
         registersStates.addBuilder(new NoPlatformStationState.Builder());
         registersStates.addBuilder(new TramStationState.Builder());
         registersStates.addBuilder(new WalkingState.Builder());
-        registersStates.addBuilder(new ServiceState.Builder());
+        registersStates.addBuilder(new ServiceState.Builder(depthFirst));
         registersStates.addBuilder(new PlatformState.Builder());
         registersStates.addBuilder(new MinuteState.Builder(config));
         registersStates.addBuilder(new DestinationState.Builder());

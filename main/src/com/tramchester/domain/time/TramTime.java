@@ -2,9 +2,11 @@ package com.tramchester.domain.time;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -180,6 +182,16 @@ public class  TramTime implements Comparable<TramTime> {
         return Integer.compare(this.offsetDays, other.offsetDays);
     }
 
+    public static <T> Comparator<T> comparing(ToTramTimeFunction<? super T> keyExtractor) {
+        Objects.requireNonNull(keyExtractor);
+        return (Comparator<T> & Serializable)
+                (c1, c2) -> TramTime.compare(keyExtractor.applyAsTramTime(c1), keyExtractor.applyAsTramTime(c2));
+    }
+
+    private static int compare(TramTime a, TramTime b) {
+        return a.compareTo(b);
+    }
+
     public LocalTime asLocalTime() {
         return LocalTime.of(hour, minute);
     }
@@ -299,5 +311,10 @@ public class  TramTime implements Comparable<TramTime> {
                     : TramTime.of(0,0);
         }
         return between(startOfInterval, time);
+    }
+
+    @FunctionalInterface
+    public interface ToTramTimeFunction<T> {
+        TramTime applyAsTramTime(T value);
     }
 }

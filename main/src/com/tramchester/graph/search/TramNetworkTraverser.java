@@ -28,6 +28,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_BREADTH_FIRST;
+import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_DEPTH_FIRST;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
@@ -72,6 +74,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
+        final boolean depthFirst = config.getDepthFirst();
+        if (depthFirst) {
+            logger.warn("EXPERIMENTAL depth first is enabled");
+        }
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
                 destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );
@@ -85,6 +91,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         logger.info("Create traversal");
 
+        final BranchOrderingPolicies selector = depthFirst ? PREORDER_DEPTH_FIRST : PREORDER_BREADTH_FIRST;
         TraversalDescription traversalDesc =
                 graphDatabaseService.traversalDescription(txn).
                 relationships(TRAM_GOES_TO, Direction.OUTGOING).
@@ -109,7 +116,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 expand(this, initialJourneyState).
                 evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
-                order(BranchOrderingPolicies.PREORDER_BREADTH_FIRST); // TODO Breadth first hits shortest trips sooner??
+                order(selector);
 
         Traverser traverse = traversalDesc.traverse(startNode);
         Spliterator<Path> spliterator = traverse.spliterator();

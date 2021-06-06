@@ -1,13 +1,17 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.google.common.collect.Streams;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -16,8 +20,14 @@ public class HourState extends TraversalState {
 
     public static class Builder implements Towards<HourState> {
 
+        private final boolean depthFirst;
+
+        public Builder(boolean depthFirst) {
+            this.depthFirst = depthFirst;
+        }
+
         public HourState fromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
-            Iterable<Relationship> relationships = node.getRelationships(OUTGOING, TO_MINUTE);
+            Stream<Relationship> relationships = getMinuteRelationships(node);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost);
         }
 
@@ -30,11 +40,19 @@ public class HourState extends TraversalState {
         public Class<HourState> getDestination() {
             return HourState.class;
         }
+
+        Stream<Relationship> getMinuteRelationships(Node node) {
+            Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, TO_MINUTE));
+            if (depthFirst) {
+                return relationships.sorted(TramTime.comparing(GraphProps::getTime));
+            }
+            return relationships;
+        }
     }
 
     private final ExistingTrip maybeExistingTrip;
 
-    private HourState(TraversalState parent, Iterable<Relationship> relationships,
+    private HourState(TraversalState parent, Stream<Relationship> relationships,
                       ExistingTrip maybeExistingTrip, int cost) {
         super(parent, relationships, cost);
         this.maybeExistingTrip = maybeExistingTrip;
