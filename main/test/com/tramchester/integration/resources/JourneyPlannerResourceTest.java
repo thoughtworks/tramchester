@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.tramchester.App;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -42,8 +43,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -150,6 +153,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 
+        // note: Cornbrook, StPetersSquare, Deansgate all valid but have same cost
+
         JourneyPlanRepresentation plan = getJourneyPlan(TramStations.Altrincham, TramStations.Ashton, tramServiceDate,
                 LocalTime.of(17,45), false, 1);
 
@@ -167,21 +172,17 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             StageDTO secondStage = journey.getStages().get(1);
             PlatformDTO platform2 = secondStage.getPlatform();
 
-            // TODO Need to rework this next part to split different journey routes and assert for those
-
             // seems can be either 1 or 2
             String platformNumber = platform2.getPlatformNumber();
             assertTrue("12".contains(platformNumber));
             // multiple possible places to change depending on timetable etc
             assertThat(platform2.getName(), is(oneOf(
-                    "Piccadilly platform 1",
                     "Cornbrook platform 1",
-                    "St Peter's Square platform 2",
-                    "Piccadilly Gardens platform 1")));
-            assertThat( platform2.getId(), is(oneOf(TramStations.Piccadilly.forDTO()+platformNumber,
-                    TramStations.Cornbrook.forDTO()+platformNumber,
-                    TramStations.StPetersSquare.forDTO()+platformNumber,
-                    TramStations.PiccadillyGardens.forDTO()+platformNumber)));
+                    "Deansgate-Castlefield platform 1",
+                    "St Peter's Square platform 2")));
+            assertThat( platform2.getId(), is(oneOf(Cornbrook.forDTO()+platformNumber,
+                    Deansgate.forDTO()+platformNumber,
+                    StPetersSquare.forDTO()+platformNumber)));
         });
 
     }

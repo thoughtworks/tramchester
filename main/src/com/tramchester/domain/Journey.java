@@ -24,7 +24,8 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
     private final TramTime departTime;
     private final TramTime arrivalTime;
 
-    public Journey(List<TransportStage<?, ?>> stages, TramTime queryTime, List<Location<?>> path, TramTime departTime, TramTime arrivalTime) {
+    public Journey(List<TransportStage<?, ?>> stages, TramTime queryTime, List<Location<?>> path, TramTime departTime,
+                   TramTime arrivalTime) {
         this.stages = stages;
         this.queryTime = queryTime;
         this.path = path;

@@ -52,7 +52,11 @@ public class TraversalOps {
     }
 
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
-        return Streams.stream(outgoing).
+        return getTowardsDestination(Streams.stream(outgoing));
+    }
+
+    private List<Relationship> getTowardsDestination(Stream<Relationship> outgoing) {
+        return outgoing.
                 filter(depart -> destinationStationIds.contains(GraphProps.getStationIdFrom(depart))).
                 collect(Collectors.toList());
     }
@@ -109,10 +113,9 @@ public class TraversalOps {
         return tripRepository.getTripById(tripId);
     }
 
-    public List<Relationship> filterByServiceId(Iterable<Relationship> relationships, IdFor<Service> svcId) {
+    public Stream<Relationship> filterByServiceId(Iterable<Relationship> relationships, IdFor<Service> svcId) {
         return Streams.stream(relationships).
-                filter(relationship -> serviceNodeMatches(relationship, svcId)).
-                collect(Collectors.toList());
+                filter(relationship -> serviceNodeMatches(relationship, svcId));
     }
 
     private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {

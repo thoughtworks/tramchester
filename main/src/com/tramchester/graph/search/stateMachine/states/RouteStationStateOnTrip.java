@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.google.common.collect.Streams;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
@@ -14,11 +15,10 @@ import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_DEPART;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
@@ -52,34 +52,39 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             List<Relationship> towardsDestination = minuteState.traversalOps.getTowardsDestination(allDeparts);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
-                return new RouteStationStateOnTrip(minuteState, towardsDestination, cost, node, trip.getId(), transportMode);
+                return new RouteStationStateOnTrip(minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode);
             }
 
             // outbound service relationships that continue the current trip
-            List<Relationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE),
+            Stream<Relationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE),
                     minuteState.traversalOps, trip);
-            List<Relationship> outboundsToFollow = new ArrayList<>(towardsServiceForTrip);
 
             // now add outgoing to platforms/stations
+            Stream<Relationship> departs;
             if (interchangesOnly) {
                 if (isInterchange) {
-                    Iterable<Relationship> interchanges = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
-                    interchanges.forEach(outboundsToFollow::add);
-                } // else add none
+                    departs = Streams.stream(node.getRelationships(OUTGOING, INTERCHANGE_DEPART));
+                } else {
+                    departs = Stream.empty();
+                }
             } else {
-                allDeparts.forEach(outboundsToFollow::add);
+                departs = Streams.stream(allDeparts);
             }
 
-            return new RouteStationStateOnTrip(minuteState, outboundsToFollow, cost, node, trip.getId(), transportMode);
+            // NOTE: order of the concatenation matters here for depth first, need to do departs first to
+            // explore routes including changes over continuing on possibly much longer trip
+            return new RouteStationStateOnTrip(minuteState, Stream.concat(departs, towardsServiceForTrip),
+                    cost, node, trip.getId(), transportMode);
         }
 
-        private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, TraversalOps traversalOps, Trip trip) {
+        private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, TraversalOps traversalOps, Trip trip) {
             IdFor<Service> currentSvcId = trip.getService().getId();
             return traversalOps.filterByServiceId(svcRelationships, currentSvcId);
         }
+
     }
 
-    private RouteStationStateOnTrip(TraversalState parent, Iterable<Relationship> relationships, int cost,
+    private RouteStationStateOnTrip(TraversalState parent, Stream<Relationship> relationships, int cost,
                                     Node routeStationNode, IdFor<Trip> tripId, TransportMode transportMode) {
         super(parent, relationships, cost);
         this.routeStationNode = routeStationNode;

@@ -47,6 +47,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
             Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
+
             List<Relationship> towardsDestination = minuteState.traversalOps.getTowardsDestination(allDeparts);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
