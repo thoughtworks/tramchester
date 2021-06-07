@@ -123,6 +123,12 @@ function earliestDepartTime(journeys) {
     return earliestDepart;
 }
 
+function getKeyFromChanges(changeStations) {
+    var result = "";
+    changeStations.forEach(station => result = result + station.id);
+    return result;
+}
+
 function lastDepartTime(journeys) {
 
     var lastDepart = null;
@@ -176,8 +182,8 @@ export default {
                 var journey = item.journey;
                 var depart = journey.firstDepartureTime;
                 var arrive = journey.expectedArrivalTime;
-                var numStages = journey.stages.length;
-                var key = depart+"_"+arrive+"_"+numStages;
+                var changes = getKeyFromChanges(journey.changeStations);
+                var key = depart+"_"+arrive+"_"+changes;
                 if (!seen.includes(key)) {
                     result.push(item);
                     seen.push(key);
