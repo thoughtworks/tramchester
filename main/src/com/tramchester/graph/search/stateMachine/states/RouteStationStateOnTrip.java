@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
@@ -9,10 +10,16 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_DEPART;
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
     private final IdFor<Trip> tripId;
@@ -20,6 +27,12 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private final Node routeStationNode;
 
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
+
+        private final boolean interchangesOnly;
+
+        public Builder(boolean interchangesOnly) {
+            this.interchangesOnly = interchangesOnly;
+        }
 
         @Override
         public void register(RegistersFromState registers) {
@@ -31,10 +44,38 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return RouteStationStateOnTrip.class;
         }
 
-        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, int cost,
-                                                       Collection<Relationship> routeStationOutbound) {
+        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, int cost, boolean isInterchange, Trip trip) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
-            return new RouteStationStateOnTrip(minuteState, routeStationOutbound, cost, node, minuteState.getTripId(), transportMode);
+
+            Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
+
+            List<Relationship> towardsDestination = minuteState.traversalOps.getTowardsDestination(allDeparts);
+            if (!towardsDestination.isEmpty()) {
+                // we've nearly arrived
+                return new RouteStationStateOnTrip(minuteState, towardsDestination, cost, node, trip.getId(), transportMode);
+            }
+
+            // outbound service relationships that continue the current trip
+            List<Relationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE),
+                    minuteState.traversalOps, trip);
+            List<Relationship> outboundsToFollow = new ArrayList<>(towardsServiceForTrip);
+
+            // now add outgoing to platforms/stations
+            if (interchangesOnly) {
+                if (isInterchange) {
+                    Iterable<Relationship> interchanges = node.getRelationships(OUTGOING, INTERCHANGE_DEPART);
+                    interchanges.forEach(outboundsToFollow::add);
+                } // else add none
+            } else {
+                allDeparts.forEach(outboundsToFollow::add);
+            }
+
+            return new RouteStationStateOnTrip(minuteState, outboundsToFollow, cost, node, trip.getId(), transportMode);
+        }
+
+        private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, TraversalOps traversalOps, Trip trip) {
+            IdFor<Service> currentSvcId = trip.getService().getId();
+            return traversalOps.filterByServiceId(svcRelationships, currentSvcId);
         }
     }
 

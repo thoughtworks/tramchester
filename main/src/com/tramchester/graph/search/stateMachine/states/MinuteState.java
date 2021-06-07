@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
@@ -10,12 +9,8 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
-import org.geotools.data.store.EmptyIterator;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -27,8 +22,8 @@ public class MinuteState extends TraversalState {
 
         private final boolean changeAtInterchangeOnly;
 
-        public Builder(TramchesterConfig config) {
-            this.changeAtInterchangeOnly = config.getChangeAtInterchangeOnly();
+        public Builder(boolean changeAtInterchangeOnly) {
+            this.changeAtInterchangeOnly = changeAtInterchangeOnly;
         }
 
         @Override
@@ -88,52 +83,15 @@ public class MinuteState extends TraversalState {
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
                                                            Node routeStationNode, int cost, boolean isInterchange) {
 
-        // outbound service relationships that continue the current trip
-        List<Relationship> towardsServiceForTrip = filterByTripId(routeStationNode.getRelationships(OUTGOING, TO_SERVICE));
-        List<Relationship> outboundsToFollow = new ArrayList<>(towardsServiceForTrip);
-
-        // now add outgoing to platforms/stations
-        if (interchangesOnly) {
-            if (isInterchange) {
-                Iterable<Relationship> interchanges = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
-                interchanges.forEach(outboundsToFollow::add);
-            } // else add none
-        } else {
-            Iterable<Relationship> allDeparts = routeStationNode.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
-            allDeparts.forEach(outboundsToFollow::add);
-        }
-
-        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, outboundsToFollow);
+        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange, trip);
     }
 
     @Override
     protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
                                                              Node routeStationNode,
                                                              int cost, boolean isInterchange) {
-        Iterable<Relationship> outboundsToFollow;
-        if (interchangesOnly) {
-            if (isInterchange) {
-                outboundsToFollow = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
-            } else {
-                // trip ended here but not an interchange
-                outboundsToFollow = EmptyIterator::new;
-            }
-        } else {
-            outboundsToFollow = routeStationNode.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
-        }
 
-        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, outboundsToFollow);
-    }
-
-    @Override
-    protected RouteStationState toRouteStationTowardsDest(RouteStationStateEndTrip.Builder towardsRouteStation, Node node, int cost) {
-        Iterable<Relationship> outboundsToFollow = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
-        return towardsRouteStation.fromMinuteState(this, node, cost, outboundsToFollow);
-    }
-
-    private List<Relationship> filterByTripId(Iterable<Relationship> svcRelationships) {
-        IdFor<Service> currentSvcId = trip.getService().getId();
-        return traversalOps.filterByServiceId(svcRelationships, currentSvcId);
+        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange);
     }
 
     @Override

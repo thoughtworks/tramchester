@@ -10,14 +10,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static com.tramchester.graph.TransportRelationshipTypes.DEPART;
-import static com.tramchester.graph.TransportRelationshipTypes.INTERCHANGE_DEPART;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
 
@@ -145,11 +140,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected RouteStationState toRouteStationTowardsDest(RouteStationStateEndTrip.Builder towardsRouteStation,
-                                                          Node node, int cost) {
-        throw new RuntimeException("No such transition at " + this.getClass());
-    }
-
     private TraversalState toTramStation(Node node, JourneyStateUpdate journeyState, int cost) {
         return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
     }
@@ -170,13 +160,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         }
 
         if (from.equals(MinuteState.class)) {
-            // Ignore whether interchanges only if leads to our destination
-            Iterable<Relationship> allDeparts = node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
-            List<Relationship> towardsDestination = traversalOps.getTowardsDestination(allDeparts);
-            if (!towardsDestination.isEmpty()) {
-                // we've nearly arrived
-                return toRouteStationTowardsDest(builders.getTowardsRouteStationEndTrip(from),node, cost);
-            }
 
             MinuteState minuteState = (MinuteState) this;
             if (traversalOps.hasOutboundFor(node, minuteState.getServiceId())) {
