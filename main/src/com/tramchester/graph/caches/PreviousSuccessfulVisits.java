@@ -23,10 +23,12 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
 
     private final Cache<Long, ServiceReason.ReasonCode> timeNodePrevious;
     private final Cache<NodeIdAndTime, ServiceReason.ReasonCode> hourNodePrevious;
+    private int lowestCost;
 
     public PreviousSuccessfulVisits() {
         timeNodePrevious = createCache();
         hourNodePrevious = createCache();
+        lowestCost = Integer.MAX_VALUE;
     }
 
     @NotNull
@@ -75,6 +77,14 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
         stats().forEach(pair -> {
             logger.info("Cache stats for " + pair.getLeft() + " " + pair.getRight().toString());
         });
+    }
+
+    public int getLowestCost() {
+        return lowestCost;
+    }
+
+    public void setLowestCost(int cost) {
+        this.lowestCost = cost;
     }
 
     private static class NodeIdAndTime {

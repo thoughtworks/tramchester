@@ -52,10 +52,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final RouteToRouteCosts routeToRouteCosts;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
-                                CompositeStationRepository stationRepository, SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository,
-                                TripRepository tripRespository, TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config, NodeTypeRepository nodeTypeRepository,
-                                Set<Long> destinationNodeIds, ServiceReasons reasons, PreviousSuccessfulVisits previousSuccessfulVisit,
-                                RouteToRouteCosts routeToRouteCosts) {
+                                CompositeStationRepository stationRepository, SortsPositions sortsPosition,
+                                NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
+                                TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
+                                NodeTypeRepository nodeTypeRepository, Set<Long> destinationNodeIds, ServiceReasons reasons,
+                                PreviousSuccessfulVisits previousSuccessfulVisit, RouteToRouteCosts routeToRouteCosts) {
         this.graphDatabaseService = graphDatabaseService;
         this.serviceHeuristics = serviceHeuristics;
         this.stationRepository = stationRepository;
@@ -80,7 +81,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         }
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
-                destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config );
+                destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config, startNode.getId());
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 

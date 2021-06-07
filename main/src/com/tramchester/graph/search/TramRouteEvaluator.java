@@ -1,7 +1,6 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
@@ -16,10 +15,8 @@ import org.neo4j.graphdb.traversal.PathEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
@@ -31,31 +28,25 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceReasons reasons;
     private final PreviousSuccessfulVisits previousSuccessfulVisits;
 
-    private final Set<Long> stationNodes;
-    private final boolean loopDetection;
     private final int maxWait;
     private final int maxInitialWait;
+    private final long startNodeId;
 
     private int success;
-    private int currentLowestCost;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeTypeRepository nodeTypeRepository, ServiceReasons reasons,
-                              PreviousSuccessfulVisits previousSuccessfulVisits, TramchesterConfig config) {
+                              PreviousSuccessfulVisits previousSuccessfulVisits, TramchesterConfig config, long startNodeId) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         this.previousSuccessfulVisits = previousSuccessfulVisits;
-        Set<TransportMode> transportModes = config.getTransportModes();
         maxWait = config.getMaxWait();
         maxInitialWait = config.getMaxInitialWait();
+        this.startNodeId = startNodeId;
 
-        // TODO Should be by TransportMode AND Datasource
-        loopDetection =  (transportModes.size()>1) || !transportModes.contains(Tram);
         success = 0;
-        currentLowestCost = Integer.MAX_VALUE;
-        stationNodes = new HashSet<>();
     }
 
     public void dispose() {
@@ -93,7 +84,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             case ServiceDateOk, ServiceTimeOk, NumChangesOK, NumConnectionsOk, TimeOk, HourOk, Reachable, ReachableNoCheck,
                     DurationOk, WalkOk, StationOpen, Continue -> Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived -> Evaluation.INCLUDE_AND_PRUNE;
-            case LongerPath, SeenBusStationBefore, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
+            case LongerPath, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, NotAtQueryTime, NotOnQueryDate,
                     AlreadyDeparted, StationClosed -> Evaluation.EXCLUDE_AND_PRUNE;
             default -> throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
@@ -109,13 +100,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
             int totalCost = previousTraversalState.getTotalCost();
-            if (totalCost <= currentLowestCost) {
+            if (totalCost <= previousSuccessfulVisits.getLowestCost()) {
                 // a better route than seen so far
                 // <= equals so we include multiple options and routes in the results
                 // An alternative to this would be to search over a finer grained list of times and catch alternatives
                 // that way
                 success = success + 1;
-                currentLowestCost = totalCost;
+                previousSuccessfulVisits.setLowestCost(totalCost);
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
             } else {
@@ -124,9 +115,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ServiceReason.ReasonCode.LongerPath;
             }
         } else if (success>0) {
-            // Not arrived, but we do have at least one successful route to our destination
+            // Not arrived, but we do have at least one successful route to our destination that is shorter?
             int totalCost = previousTraversalState.getTotalCost();
-            if (totalCost>currentLowestCost) {
+            if (totalCost > previousSuccessfulVisits.getLowestCost()) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
@@ -155,6 +146,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // journey too long?
         if (!serviceHeuristics.journeyDurationUnderLimit(previousTraversalState.getTotalCost(), howIGotHere, reasons).isValid()) {
             return ServiceReason.ReasonCode.TookTooLong;
+        }
+
+        // returned to the start?
+        if (journeyState.hasBegunJourney() && nextNodeId==startNodeId) {
+            reasons.recordReason(ServiceReason.ReturnedToStart(howIGotHere));
+            return ServiceReason.ReasonCode.ReturnedToStart;
         }
 
         // these next are ordered by frequency / number of nodes of type
@@ -195,17 +192,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
             if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.StationClosed;
-            }
-        }
-
-        // seeing loops?
-        if (loopDetection) {
-            if (nodeTypeRepository.isBusStation(nextNode) || nodeTypeRepository.isTrainStation(nextNode)) {
-                if (stationNodes.contains(nextNodeId)) {
-                    reasons.recordReason(ServiceReason.SeenBusStationBefore(howIGotHere));
-                    return ServiceReason.ReasonCode.SeenBusStationBefore;
-                }
-                stationNodes.add(nextNodeId);
             }
         }
 

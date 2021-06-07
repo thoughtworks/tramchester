@@ -195,9 +195,26 @@ public class RouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, 0,
                 maxJourneyDuration, 1);
-        Set<Journey> results = calculator.calculateRouteAsSet(Altrincham, TramStations.ManAirport, request);
+        Set<Journey> results = calculator.calculateRouteAsSet(Altrincham, ManAirport, request);
 
         assertEquals(0, results.size());
+    }
+
+    @Test
+    void shouldNotReturnBackToStartOnJourney() {
+        TramServiceDate today = TramServiceDate.of(TestEnv.testDay());
+
+        JourneyRequest request = new JourneyRequest(today, TramTime.of(20, 9), false, 2,
+                maxJourneyDuration, 6);
+
+        Set<Journey> results = calculator.calculateRouteAsSet(Deansgate, ManAirport, request);
+
+        assertFalse(results.isEmpty(),"no journeys found");
+
+        results.forEach(result -> {
+            long seenStart = result.getPath().stream().filter(location -> location.getId().equals(Deansgate.getId())).count();
+            assertEquals(1, seenStart, "seen start location again");
+        });
     }
 
     @Test
@@ -206,7 +223,7 @@ public class RouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, maxChanges,
                 maxJourneyDuration, config.getMaxNumResults());
-        Set<Journey> results =  calculator.calculateRouteAsSet(Altrincham, TramStations.ManAirport, request);
+        Set<Journey> results =  calculator.calculateRouteAsSet(Altrincham, ManAirport, request);
 
         assertTrue(results.size()>0, "no results");    // results is iterator
         for (Journey result : results) {
@@ -214,7 +231,7 @@ public class RouteCalculatorTest {
             assertEquals(2,stages.size());
             VehicleStage firstStage = (VehicleStage) stages.get(0);
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
-            assertEquals(TramStations.TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
+            assertEquals(TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
             assertEquals(TransportMode.Tram, firstStage.getMode());
             assertEquals(7, firstStage.getPassedStopsCount());
 

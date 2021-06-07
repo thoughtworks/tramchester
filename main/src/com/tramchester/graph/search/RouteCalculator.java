@@ -114,6 +114,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         if (journeyRequest.getDiagnosticsEnabled()) {
             results.onClose(() -> previousSuccessfulVisit.reportStatsFor(journeyRequest));
         }
+        previousSuccessfulVisit.clear();
         return results;
     }
 

@@ -69,6 +69,15 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
             return label == TRAM_STATION || isNoPlatformStation(label);
         }
 
+        public static boolean isStation(Iterable<Label> nodeLabels) {
+            for(Label nodeLabel : nodeLabels) {
+                if (isStation(valueOf(nodeLabel.toString()))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static boolean isNoPlatformStation(Labels label) {
             return label == BUS_STATION || label == TRAIN_STATION || label == FERRY_STATION
                     || label == SUBWAY_STATION;
@@ -79,6 +88,7 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
             labels.forEach(label -> result.add(valueOf(label.toString())));
             return result;
         }
+
     }
 
     protected final GraphDBConfig graphDBConfig;

@@ -65,6 +65,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private Relationship lastRelationship;
     private TripRepository tripRepository;
     private RouteToRouteCosts routeToRouteCosts;
+    private long startNodeId;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -89,6 +90,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         latLongHint = TramStations.ManAirport.getLatLong();
         destinationNodeId = 88L;
+        startNodeId = 128L;
 
         long maxNumberOfJourneys = 2;
         JourneyRequest journeyRequest = new JourneyRequest(
@@ -127,7 +129,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private TramRouteEvaluator getEvaluator(long destinationNodeId) {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
-        return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, nodeTypeCache, reasons, previousSuccessfulVisit, config);
+        return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, nodeTypeCache, reasons, previousSuccessfulVisit, config, startNodeId);
     }
 
     @Test
@@ -150,7 +152,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     @Test
     void shouldHaveReasonsThatExclude() {
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.LongerPath));
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.SeenBusStationBefore));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.ReturnedToStart));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.PathTooLong));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.TooManyChanges));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotReachable));
@@ -177,6 +179,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         state.setState(new JourneyState(time, traversalState));
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(42L, time)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
+        EasyMock.expect(previousSuccessfulVisit.getLowestCost()).andReturn(1000);
+        previousSuccessfulVisit.setLowestCost(0);
+        EasyMock.expectLastCall();
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Arrived, 42L, TramTime.of(8,15));
         EasyMock.expectLastCall();
 

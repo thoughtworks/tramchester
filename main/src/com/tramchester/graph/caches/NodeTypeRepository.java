@@ -10,10 +10,11 @@ import java.util.Set;
 public interface NodeTypeRepository {
     boolean isTime(Node node);
     boolean isHour(Node node);
-    boolean isBusStation(Node node);
     boolean isRouteStation(Node node);
     boolean isService(Node node);
+
     boolean isTrainStation(Node node);
+    boolean isBusStation(Node node);
 
     Node createQueryNode(GraphDatabase graphDatabase, Transaction txn);
     void deleteQueryNode(Node queryNode);

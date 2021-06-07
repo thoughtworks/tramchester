@@ -31,7 +31,7 @@ public abstract class ServiceReason {
         OnBus,
         OnTrain,
         NotOnVehicle,
-        SeenBusStationBefore,
+        ReturnedToStart,
         TooManyChanges,
         TooManyWalkingConnections,
         StationClosed,
@@ -135,16 +135,16 @@ public abstract class ServiceReason {
         }
     }
 
-    private static class SeenBusStationBefore extends ServiceReason
+    private static class ReturnedToStart extends ServiceReason
     {
-        protected SeenBusStationBefore(HowIGotHere path) {
+        protected ReturnedToStart(HowIGotHere path) {
 
-            super(ReasonCode.SeenBusStationBefore, path);
+            super(ReasonCode.ReturnedToStart, path);
         }
 
         @Override
         public String textForGraph() {
-            return ReasonCode.SeenBusStationBefore.name();
+            return ReasonCode.ReturnedToStart.name();
         }
 
         @Override
@@ -319,8 +319,8 @@ public abstract class ServiceReason {
         return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
     }
 
-    public static ServiceReason SeenBusStationBefore(HowIGotHere path) {
-        return new ServiceReason.SeenBusStationBefore(path);
+    public static ServiceReason ReturnedToStart(HowIGotHere path) {
+        return new ReturnedToStart(path);
     }
 
     public static ServiceReason StationClosed(HowIGotHere howIGotHere, Station closed) {

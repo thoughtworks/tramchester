@@ -90,6 +90,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
 
                 // yielding
+                previousSuccessfulVisit.clear();
                 return new JourneysForBox(box, collect);
             }
         });
