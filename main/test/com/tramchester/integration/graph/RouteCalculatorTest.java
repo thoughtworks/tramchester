@@ -214,7 +214,7 @@ public class RouteCalculatorTest {
             assertEquals(2,stages.size());
             VehicleStage firstStage = (VehicleStage) stages.get(0);
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
-            assertEquals(TramStations.TraffordBar.getId(), firstStage.getLastStation().getId());
+            assertEquals(TramStations.TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
             assertEquals(TransportMode.Tram, firstStage.getMode());
             assertEquals(7, firstStage.getPassedStopsCount());
 

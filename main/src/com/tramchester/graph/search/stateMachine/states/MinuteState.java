@@ -51,7 +51,7 @@ public class MinuteState extends TraversalState {
                         hourState.traversalOps.filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
-                // starting a brand new journey
+                // starting a brand new journey, since at minute node now have specific tripid to use
                 IdFor<Trip> newTripId = getTrip(node);
                 journeyState.beginTrip(newTripId);
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
@@ -62,7 +62,8 @@ public class MinuteState extends TraversalState {
     private final boolean interchangesOnly;
     private final Trip trip;
 
-    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, int cost, boolean interchangesOnly) {
+    private MinuteState(TraversalState parent, Iterable<Relationship> relationships, IdFor<Trip> tripId, int cost,
+                        boolean interchangesOnly) {
         super(parent, relationships, cost);
         this.trip = traversalOps.getTrip(tripId);
         this.interchangesOnly = interchangesOnly;
@@ -96,7 +97,7 @@ public class MinuteState extends TraversalState {
             if (isInterchange) {
                 Iterable<Relationship> interchanges = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
                 interchanges.forEach(outboundsToFollow::add);
-            }
+            } // else add none
         } else {
             Iterable<Relationship> allDeparts = routeStationNode.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART);
             allDeparts.forEach(outboundsToFollow::add);
@@ -106,13 +107,15 @@ public class MinuteState extends TraversalState {
     }
 
     @Override
-    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation, Node routeStationNode,
+    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
+                                                             Node routeStationNode,
                                                              int cost, boolean isInterchange) {
         Iterable<Relationship> outboundsToFollow;
         if (interchangesOnly) {
             if (isInterchange) {
                 outboundsToFollow = routeStationNode.getRelationships(OUTGOING, INTERCHANGE_DEPART);
             } else {
+                // trip ended here but not an interchange
                 outboundsToFollow = EmptyIterator::new;
             }
         } else {

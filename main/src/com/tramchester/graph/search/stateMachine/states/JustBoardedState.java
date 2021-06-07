@@ -44,7 +44,7 @@ public class JustBoardedState extends RouteStationState {
                 services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
             }
 
-            return new JustBoardedState(platformState, Stream.concat(otherPlatforms, services), cost);
+            return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost);
         }
 
         public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, int cost) {

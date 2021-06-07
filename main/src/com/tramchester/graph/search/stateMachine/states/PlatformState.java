@@ -32,6 +32,7 @@ public class PlatformState extends TraversalState implements NodeId {
         }
 
         public PlatformState from(TramStationState tramStationState, Node node, int cost) {
+            // inc. board here since might be starting journey
             return new PlatformState(tramStationState,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost);
         }
@@ -45,6 +46,7 @@ public class PlatformState extends TraversalState implements NodeId {
                 return new PlatformState(routeStationStateOnTrip, towardsDest, node, cost);
             }
 
+            // inc. board here since might be starting journey
             Iterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
                     BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip

@@ -47,15 +47,6 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    public String toString() {
-        return "RouteStationStateOnTrip{" +
-                "routeStationNodeId=" + routeStationNode.getId() +
-                ", tripId=" + tripId +
-                ", transportMode=" + transportMode +
-                "} " + super.toString();
-    }
-
-    @Override
     protected TraversalState toService(ServiceState.Builder towardsService, Node node, int cost) {
         return towardsService.fromRouteStation(this, tripId, node, cost);
     }
@@ -85,5 +76,15 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     public long nodeId() {
         return routeStationNode.getId();
     }
+
+    @Override
+    public String toString() {
+        return "RouteStationStateOnTrip{" +
+                "routeStationNodeId=" + routeStationNode.getId() +
+                ", tripId=" + tripId +
+                ", transportMode=" + transportMode +
+                "} " + super.toString();
+    }
+
 
 }

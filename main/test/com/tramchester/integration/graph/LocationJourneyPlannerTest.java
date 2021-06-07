@@ -80,7 +80,7 @@ class LocationJourneyPlannerTest {
         TramServiceDate queryDate = new TramServiceDate(when);
 
         JourneyRequest journeyRequest = new JourneyRequest(queryDate, TramTime.of(9, 0), false,
-                2, maxJourneyDuration, maxNumberOfJourneys);
+                0, maxJourneyDuration, maxNumberOfJourneys);
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens,
                 journeyRequest, 3);
 

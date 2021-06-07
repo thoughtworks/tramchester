@@ -6,6 +6,7 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
@@ -31,7 +32,15 @@ public class WalkingState extends TraversalState {
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, Node firstNode, int cost) {
-            return new WalkingState(notStartedState, firstNode.getRelationships(OUTGOING, WALKS_TO), cost);
+            final Iterable<Relationship> relationships = firstNode.getRelationships(OUTGOING, WALKS_TO);
+            List<Relationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(relationships);
+
+            // prioritise a direct walk from start if one is available
+            if (towardsDest.isEmpty()) {
+                return new WalkingState(notStartedState, relationships, cost);
+            } else {
+                return new WalkingState(notStartedState, towardsDest.stream(), cost);
+            }
         }
 
         public TraversalState fromStation(StationState station, Node node, int cost) {
@@ -55,19 +64,22 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TramStationState toTramStation(TramStationState.Builder towardsStation, Node node, int cost,
+                                             JourneyStateUpdate journeyState) {
         journeyState.endWalk(node, false);
         return towardsStation.fromWalking(this, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, int cost,
+                                                 JourneyStateUpdate journeyState) {
         journeyState.endWalk(node, false);
         return towardsStation.fromWalking(this, node, cost);
     }
 
     @Override
-    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost,
+                                             JourneyStateUpdate journeyState) {
         journeyState.endWalk(node, true);
         return towardsDestination.from(this, cost);
     }

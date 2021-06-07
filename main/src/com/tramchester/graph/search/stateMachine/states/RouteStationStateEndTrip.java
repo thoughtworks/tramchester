@@ -30,7 +30,8 @@ public class RouteStationStateEndTrip extends RouteStationState {
             return RouteStationStateEndTrip.class;
         }
 
-        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, int cost, Iterable<Relationship> routeStationOutbound) {
+        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, Node node, int cost,
+                                                        Iterable<Relationship> routeStationOutbound) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
             return new RouteStationStateEndTrip(minuteState, routeStationOutbound, cost, transportMode, node);
         }

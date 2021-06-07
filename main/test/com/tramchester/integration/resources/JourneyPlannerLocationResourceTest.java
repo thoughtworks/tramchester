@@ -128,7 +128,7 @@ class JourneyPlannerLocationResourceTest {
             assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime.atDate(when)));
 
             List<StageDTO> stages = journeyDTO.getStages();
-            assertEquals(2, stages.size());
+            assertEquals(2, stages.size(), stages.toString());
             assertEquals(TransportMode.Tram, stages.get(0).getMode());
             assertEquals(TransportMode.Walk, stages.get(1).getMode());
 
