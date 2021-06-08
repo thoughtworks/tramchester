@@ -38,10 +38,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -262,6 +259,27 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Assertions.assertEquals(2,recentJourneys.getRecentIds().size());
         assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start, now)));
         assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end, now)));
+    }
+
+    @Test
+    void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
+
+        TramTime queryTime = TramTime.of(17,45);
+
+        JourneyPlanRepresentation results = getJourneyPlan(Altrincham, Ashton, queryTime, TestEnv.testDay());
+
+        Set<JourneyDTO> journeys = results.getJourneys();
+
+        Optional<TramTime> earliest = journeys.stream().map(JourneyDTO::getFirstDepartureTime).
+                map(LocalDateTime::toLocalTime).
+                map(TramTime::of).
+                min(TramTime.comparing(time->time));
+
+        assertTrue(earliest.isPresent());
+
+        final TramTime firstDepartTime = earliest.get();
+        int elapsed = TramTime.diffenceAsMinutes(queryTime, firstDepartTime);
+        assertTrue(elapsed<15, "first result too far in future " + firstDepartTime);
     }
 
     @Test

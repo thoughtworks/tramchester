@@ -48,13 +48,12 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final SortsPositions sortsPosition;
     private final ObjectMapper mapper;
     private final RouteToRouteCosts routeToRouteCosts;
-    private final TramchesterConfig config;
 
     @Inject
     public MapPathToStagesViaStates(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
                                     TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
                                     TripRepository tripRepository, SortsPositions sortsPosition,
-                                    ObjectMapper mapper, RouteToRouteCosts routeToRouteCosts, TramchesterConfig config) {
+                                    ObjectMapper mapper, RouteToRouteCosts routeToRouteCosts) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;
@@ -64,7 +63,6 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         this.mapper = mapper;
         this.routeToRouteCosts = routeToRouteCosts;
-        this.config = config;
     }
 
     @Override

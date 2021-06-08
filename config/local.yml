@@ -57,7 +57,7 @@ distanceToNeighboursKM: 0.4
 maxWait: 25
 maxInitialWait: 13
 numberQueries: 3
-queryInterval: 12
+queryInterval: 10
 maxNumberResults: 5
 maxWalkingConnections: 3
 maxJourneyDuration: 124

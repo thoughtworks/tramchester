@@ -36,7 +36,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final GraphDatabase graphDatabaseService;
-    private final ServiceHeuristics serviceHeuristics;
+    //private final ServiceHeuristics serviceHeuristics;
     private final NodeContentsRepository nodeContentsRepository;
     private final NodeTypeRepository nodeTypeRepository;
     private final CompositeStationRepository stationRepository;
@@ -50,19 +50,18 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final PreviousSuccessfulVisits previousSuccessfulVisit;
     private final TraversalStateFactory traversalStateFactory;
     private final RouteToRouteCosts routeToRouteCosts;
+    private final RouteCalculatorSupport.PathRequest pathRequest;
 
-    public TramNetworkTraverser(GraphDatabase graphDatabaseService, ServiceHeuristics serviceHeuristics,
+    public TramNetworkTraverser(GraphDatabase graphDatabaseService, RouteCalculatorSupport.PathRequest pathRequest,
                                 CompositeStationRepository stationRepository, SortsPositions sortsPosition,
                                 NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
                                 NodeTypeRepository nodeTypeRepository, Set<Long> destinationNodeIds, ServiceReasons reasons,
                                 PreviousSuccessfulVisits previousSuccessfulVisit, RouteToRouteCosts routeToRouteCosts) {
         this.graphDatabaseService = graphDatabaseService;
-        this.serviceHeuristics = serviceHeuristics;
         this.stationRepository = stationRepository;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
-        this.queryTime = serviceHeuristics.getQueryTime();
         this.tripRespository = tripRespository;
         this.traversalStateFactory = traversalStateFactory;
         this.destinationNodeIds = destinationNodeIds;
@@ -72,15 +71,18 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
         this.routeToRouteCosts = routeToRouteCosts;
+        this.pathRequest = pathRequest;
+
+        this.queryTime = pathRequest.getServiceHeuristics().getQueryTime();
     }
 
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {
-            logger.warn("EXPERIMENTAL depth first is enabled");
+            logger.warn("Depth first is enabled");
         }
 
-        final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(serviceHeuristics,
+        final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config, startNode.getId());
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
@@ -126,7 +128,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
-            reasons.reportReasons(txn, stationRepository);
+            reasons.reportReasons(txn, stationRepository, pathRequest);
             tramRouteEvaluator.dispose();
             traversalState.dispose();
         });

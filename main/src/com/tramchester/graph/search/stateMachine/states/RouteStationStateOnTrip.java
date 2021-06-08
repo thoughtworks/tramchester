@@ -73,8 +73,8 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
             // NOTE: order of the concatenation matters here for depth first, need to do departs first to
             // explore routes including changes over continuing on possibly much longer trip
-            return new RouteStationStateOnTrip(minuteState, Stream.concat(departs, towardsServiceForTrip),
-                    cost, node, trip.getId(), transportMode);
+            final Stream<Relationship> relationships = Stream.concat(departs, towardsServiceForTrip);
+            return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode);
         }
 
         private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, TraversalOps traversalOps, Trip trip) {

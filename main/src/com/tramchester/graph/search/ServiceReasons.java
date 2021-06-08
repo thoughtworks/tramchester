@@ -54,21 +54,21 @@ public class ServiceReasons {
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(Transaction transaction, CompositeStationRepository stationRepository) {
+    public void reportReasons(Transaction transaction, CompositeStationRepository stationRepository, RouteCalculatorSupport.PathRequest pathRequest) {
         if (diagnosticsEnabled) {
             createGraphFile(transaction, stationRepository);
         }
 
         if (!success || diagnosticsEnabled) {
-            reportStats();
+            reportStats(pathRequest);
         }
 
         reset();
     }
 
-    private void reportStats() {
+    private void reportStats(RouteCalculatorSupport.PathRequest pathRequest) {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for " + journeyRequest + " at " + queryTime + " max changes " + numChanges);
+            logger.warn("No result found for " + journeyRequest + " at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges());
         }
         logger.info("Service reasons for query time: " + queryTime);
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());

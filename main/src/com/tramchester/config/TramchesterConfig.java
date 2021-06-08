@@ -122,6 +122,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     }
 
     public final boolean getDepthFirst() {
-        return false;
+        return true;
     }
 }

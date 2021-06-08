@@ -115,9 +115,11 @@ public class RouteCalculatorSupport {
                                                                  PreviousSuccessfulVisits previousSuccessfulVisit) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
-                pathRequest.serviceHeuristics, compositeStationRepository, sortsPosition, nodeOperations,
+                pathRequest, compositeStationRepository, sortsPosition, nodeOperations,
                 tripRepository, traversalStateFactory, endStations, config, nodeTypeRepository, destinationNodeIds,
                 reasons, previousSuccessfulVisit, routeToRouteCosts);
+
+        logger.info("Traverse for " + pathRequest);
 
         return tramNetworkTraverser.
                 findPaths(txn, pathRequest.startNode).
@@ -126,6 +128,7 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Journey createJourney(Transaction txn, JourneyRequest journeyRequest, RouteCalculator.TimedPath path, Set<Station> endStations) {
+
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(txn, path, journeyRequest, endStations);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
 
@@ -184,6 +187,28 @@ public class RouteCalculatorSupport {
             this.queryTime = queryTime;
             this.numChanges = numChanges;
             this.serviceHeuristics = serviceHeuristics;
+        }
+
+        public ServiceHeuristics getServiceHeuristics() {
+            return serviceHeuristics;
+        }
+
+        public TramTime getActualQueryTime() {
+            return queryTime;
+        }
+
+        public int getNumChanges() {
+            return numChanges;
+        }
+
+        @Override
+        public String toString() {
+            return "PathRequest{" +
+                    "startNode=" + startNode +
+                    ", queryTime=" + queryTime +
+                    ", numChanges=" + numChanges +
+                    ", serviceHeuristics=" + serviceHeuristics +
+                    '}';
         }
     }
 

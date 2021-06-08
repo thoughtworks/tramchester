@@ -51,8 +51,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.hasBegun = previousState.hasBegun;
     }
 
-    public static InitialBranchState<JourneyState> initialState(TramTime queryTime,
-                                                                TraversalState traversalState) {
+    public static InitialBranchState<JourneyState> initialState(TramTime queryTime, TraversalState traversalState) {
         return new InitialBranchState<>() {
             @Override
             public JourneyState initialState(Path path) {

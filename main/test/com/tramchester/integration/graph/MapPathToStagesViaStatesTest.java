@@ -297,8 +297,8 @@ public class MapPathToStagesViaStatesTest {
         RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryTime, numChanges,
                 serviceHeuristics);
 
-        final List<RouteCalculator.TimedPath> timedPaths = routeCalculator.findShortestPath(txn, destinationNodeIds, endStations, reasons, pathRequest,
-                previous).collect(Collectors.toList());
+        final List<RouteCalculator.TimedPath> timedPaths = routeCalculator.findShortestPath(txn, destinationNodeIds, endStations,
+                reasons, pathRequest, previous).collect(Collectors.toList());
         // Sort to give consistent test results, otherwise order is undefined
         return sorted(timedPaths);
     }

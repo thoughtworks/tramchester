@@ -147,6 +147,45 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
+        final TramTime queryTime = TramTime.of(17, 45);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, queryTime, config.getMaxNumResults());
+
+        Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequest);
+
+        Optional<Journey> earliest = journeys.stream().min(TramTime.comparing(Journey::getDepartTime));
+        assertTrue(earliest.isPresent());
+
+        final TramTime firstDeparttime = earliest.get().getDepartTime();
+        int elapsed = TramTime.diffenceAsMinutes(queryTime, firstDeparttime);
+        assertTrue(elapsed<=16, "first result too far in future " + firstDeparttime);
+    }
+
+    @Test
+    void shouldHaveSameResultWithinReasonableTime() {
+        final TramTime queryTimeA = TramTime.of(8, 51);
+        final TramTime queryTimeB = queryTimeA.plusMinutes(4);
+
+        JourneyRequest journeyRequestA = standardJourneyRequest(when, queryTimeA, config.getMaxNumResults());
+        JourneyRequest journeyRequestB = standardJourneyRequest(when, queryTimeB, config.getMaxNumResults());
+
+        Set<Journey> journeysA = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequestA);
+        Set<Journey> journeysB = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequestB);
+
+        Optional<Journey> earliestA = journeysA.stream().min(TramTime.comparing(Journey::getDepartTime));
+        assertTrue(earliestA.isPresent());
+
+        Optional<Journey> earliestB = journeysB.stream().min(TramTime.comparing(Journey::getDepartTime));
+        assertTrue(earliestB.isPresent());
+
+        final TramTime firstDeparttimeA = earliestA.get().getDepartTime();
+        final TramTime firstDeparttimeB = earliestB.get().getDepartTime();
+
+        assertTrue(firstDeparttimeA.isAfter(queryTimeB)); // check assumption first
+        assertEquals(firstDeparttimeA, firstDeparttimeB);
+    }
+
+    @Test
     void shouldHaveReasonableJourneyAltyToDeansgate() {
         JourneyRequest request = standardJourneyRequest(when, TramTime.of(10, 15), config.getMaxNumResults());
 
