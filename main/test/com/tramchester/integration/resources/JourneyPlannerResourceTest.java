@@ -3,9 +3,8 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -43,7 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -106,9 +104,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
             assertEquals("Altrincham platform 1", platform.getName());
             assertEquals(TramStations.Altrincham.forDTO() + "1", platform.getId());
 
-            journey.getStages().forEach(stage -> {
-                assertEquals(when, stage.getQueryDate());
-            });
+            journey.getStages().forEach(stage -> assertEquals(when, stage.getQueryDate()));
         });
     }
 

@@ -125,10 +125,8 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
                 TramTime.of(8,19), false, 3, maxJourneyDuration, 1);
 
-//        for (int i = 0; i < 20000; i++) {
-            @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
-            assertFalse(results.isEmpty(), "no journeys");
-//        }
+        @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, end, journeyRequest);
+        assertFalse(results.isEmpty(), "no journeys");
 
     }
 
@@ -185,7 +183,7 @@ class BusRouteCalculatorTest {
         TramTime travelTime = TramTime.of(15, 55);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
-                maxJourneyDuration, 3);
+                maxJourneyDuration, 1);
         Set<Journey> journeys = calculator.calculateRouteAsSet(start, end, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");

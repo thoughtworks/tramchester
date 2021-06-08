@@ -39,7 +39,7 @@ public class JustBoardedState extends RouteStationState {
 
             Stream<Relationship> services;
             if (depthFirst) {
-                services = orderServicesByRouteMetric(node, platformState.traversalOps);
+                services = orderServicesByDistance(node, platformState.traversalOps);
             } else {
                 services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
             }

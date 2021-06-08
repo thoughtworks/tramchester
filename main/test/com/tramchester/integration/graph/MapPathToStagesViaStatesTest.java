@@ -175,7 +175,7 @@ public class MapPathToStagesViaStatesTest {
     @Test
     void shouldMapWithWalkAtEnd() {
         TramTime queryTime = TramTime.of(9,15);
-        int numChanges = 1;
+        int numChanges = 0;
         Station start = stationRepository.getStationById(Altrincham.getId());
         LatLong destinationLocation = TestEnv.nearStPetersSquare;
 

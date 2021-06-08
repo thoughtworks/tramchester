@@ -148,12 +148,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             transportData.getStationStream().
                     filter(Station::hasPlatforms).
                     filter(graphFilter::shouldInclude).
-//                    filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                     forEach(station -> linkStationAndPlatforms(txn, station, builderCache));
             timedTransaction.commit();
         }
     }
 
+    // TODO NO Longer needed?
     private void linkRouteStationsAtComposites(GraphBuilderCache builderCache) {
         logger.info("Link route stations at composites");
 
