@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.places.MyLocation.MY_LOCATION_PLACEHOLDER_ID;
 import static java.lang.String.format;
 
 @LazySingleton

@@ -5,7 +5,6 @@ import com.tramchester.domain.time.TramTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 

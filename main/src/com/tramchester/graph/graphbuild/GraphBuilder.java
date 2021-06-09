@@ -2,18 +2,10 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.HasGraphDBConfig;
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.GraphFilter;
-import org.neo4j.graphdb.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 

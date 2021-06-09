@@ -1,7 +1,6 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
@@ -11,8 +10,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.util.List;
-
-import static java.lang.String.format;
 
 @LazySingleton
 public class UnzipFetchedData  {

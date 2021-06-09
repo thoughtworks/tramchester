@@ -12,8 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 
-import static java.lang.String.format;
-
 class SummaryOfRoutesAndServicesTest {
 
     private static ComponentContainer componentContainer;

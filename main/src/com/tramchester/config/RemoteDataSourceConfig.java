@@ -2,8 +2,6 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.nio.file.Path;
-
 @JsonDeserialize(as=RemoteDataSourceAppConfig.class)
 public interface RemoteDataSourceConfig extends HasDataPath {
 

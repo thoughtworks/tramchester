@@ -10,7 +10,6 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 
 @BusTest

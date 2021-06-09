@@ -6,7 +6,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.reference.RouteDirection;
 
 import java.util.Objects;
 

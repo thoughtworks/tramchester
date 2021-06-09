@@ -2,8 +2,6 @@ package com.tramchester.geo;
 
 import com.tramchester.domain.places.Location;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public class FindNear {

@@ -6,7 +6,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import org.neo4j.internal.batchimport.stats.Stat;
 
 import java.util.Optional;
 import java.util.Set;

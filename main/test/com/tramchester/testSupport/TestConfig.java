@@ -11,7 +11,6 @@ import io.dropwizard.server.ServerFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 

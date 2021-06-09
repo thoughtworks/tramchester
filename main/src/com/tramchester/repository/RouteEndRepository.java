@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.TransportMode.isBus;
-
 @LazySingleton
 public class RouteEndRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteEndRepository.class);

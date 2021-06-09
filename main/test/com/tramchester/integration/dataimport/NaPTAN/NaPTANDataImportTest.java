@@ -6,7 +6,6 @@ import com.tramchester.dataimport.NaPTAN.NaPTANDataImporter;
 import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
-import com.tramchester.repository.TransportDataFactory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;

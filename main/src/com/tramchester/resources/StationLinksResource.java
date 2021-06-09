@@ -7,7 +7,6 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
-import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.CompositeStationRepository;

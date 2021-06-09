@@ -4,10 +4,7 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.util.Collections;
 import java.util.Set;
-
-import static com.tramchester.domain.reference.TransportMode.Tram;
 
 public class StationLinkDTO {
     private StationRefWithPosition begin;

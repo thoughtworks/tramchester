@@ -2,8 +2,6 @@ package com.tramchester.dataimport.data;
 
 import com.tramchester.geo.BoundingBox;
 
-import java.nio.file.Path;
-
 public class PostcodeHintData {
     private String code;
     private long minEasting;

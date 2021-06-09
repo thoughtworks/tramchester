@@ -2,10 +2,8 @@ package com.tramchester.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.tramchester.domain.ServiceTimeLimits;
-import com.tramchester.domain.time.TramTime;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 public abstract class TramchesterHealthCheck extends HealthCheck {
 

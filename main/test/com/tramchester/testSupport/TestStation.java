@@ -7,7 +7,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
 
 import java.util.HashSet;

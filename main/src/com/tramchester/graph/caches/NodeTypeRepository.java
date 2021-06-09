@@ -1,11 +1,8 @@
 package com.tramchester.graph.caches;
 
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.graphbuild.GraphBuilder;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-
-import java.util.Set;
 
 public interface NodeTypeRepository {
     boolean isTime(Node node);

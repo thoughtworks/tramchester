@@ -4,8 +4,6 @@ import com.tramchester.domain.time.TramTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import java.time.LocalTime;
-
 public class Stage {
     private final WebElement row;
 

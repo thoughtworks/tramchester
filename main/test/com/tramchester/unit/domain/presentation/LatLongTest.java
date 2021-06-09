@@ -6,7 +6,6 @@ import com.tramchester.domain.presentation.LatLong;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opengis.geometry.DirectPosition;

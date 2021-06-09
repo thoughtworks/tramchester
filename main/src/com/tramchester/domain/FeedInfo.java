@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.dataimport.data.ParsesDate;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class FeedInfo extends ParsesDate {
 

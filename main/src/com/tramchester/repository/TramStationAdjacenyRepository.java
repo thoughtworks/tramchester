@@ -4,9 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
