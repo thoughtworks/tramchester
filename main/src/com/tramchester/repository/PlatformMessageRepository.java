@@ -115,12 +115,17 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         if (platformsSeenForUpdate.contains(platformId)) {
             if (!departureInfo.getMessage().isEmpty()) {
                 PlatformMessage current = messageCache.getIfPresent(platformId);
-                String currentMessage = current.getMessage();
-                if (!departureInfo.getMessage().equals(currentMessage)) {
-                    logger.warn("Mutiple messages for " + platformId + " displayId: " + departureInfo.getDisplayId() +
-                            " Received: '" + departureInfo.getMessage() + "' was '" + currentMessage + "' displayId: "
-                            + current.getDisplayId());
+                if (current!=null) {
+                    String currentMessage = current.getMessage();
+                    if (!departureInfo.getMessage().equals(currentMessage)) {
+                        logger.warn("Mutiple messages for " + platformId + " displayId: " + departureInfo.getDisplayId() +
+                                " Received: '" + departureInfo.getMessage() + "' was '" + currentMessage + "' displayId: "
+                                + current.getDisplayId());
+                    }
+                } else {
+                    logger.error("Could not find message in cache for " + platformId);
                 }
+
             } else {
                 logger.info("Multiple (but empty) message for " + platformId + " displayId: " + departureInfo.getDisplayId());
             }

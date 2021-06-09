@@ -135,7 +135,7 @@ public class ClientForS3 {
         logger.info(format("Key: %s Content type: %s Length %s ", key, response.contentType(), contentLength));
         byte[] bytes = new byte[contentLength];
         int offset = 0;
-        int read = 0;
+        int read;
         try {
             do {
                 read = inputStream.read(bytes, offset, contentLength-offset);

@@ -51,29 +51,21 @@ class s3KeysTest {
 
     @Test
     void shouldThrowOnBadDate() {
-        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> {
-            s3Keys.parse("test/2020xx29/15:42:55");
-        });
+        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> s3Keys.parse("test/2020xx29/15:42:55"));
     }
 
     @Test
     void shouldThrowOnBadTime() {
-        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> {
-            s3Keys.parse("test/20201129/15:xx:55");
-        });
+        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> s3Keys.parse("test/20201129/15:xx:55"));
     }
 
     @Test
     void shouldThrowOnBadStructureExtra() {
-        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> {
-            s3Keys.parse("test/20201129/15:xx:55/");
-        });
+        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> s3Keys.parse("test/20201129/15:xx:55/"));
     }
 
     @Test
     void shouldThrowOnBadStructureMissing() {
-        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> {
-            s3Keys.parse("test/");
-        });
+        Assertions.assertThrows(S3Keys.S3KeyException.class, () -> s3Keys.parse("test/"));
     }
 }

@@ -36,7 +36,7 @@ public class CompositeId<DOMAINTYPE extends GraphProperty> implements IdFor<DOMA
             IdFor<T> id = StringIdFor.createId(part);
             ids.add(id);
         }
-        return new CompositeId<T>(ids);
+        return new CompositeId<>(ids);
     }
 
     public static boolean isComposite(String text) {

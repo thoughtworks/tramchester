@@ -154,7 +154,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     /***
      * Provides composites instead of the stations contained in that composite
-     * @param mode
+     * @param mode transport mode
      * @return stations for transport mode
      */
     @Override

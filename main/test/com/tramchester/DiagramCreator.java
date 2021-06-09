@@ -275,7 +275,6 @@ public class DiagramCreator {
             case ROUTE_TO_STATION -> "RS";
             case STATION_TO_ROUTE -> "SR";
             case WALKS_FROM -> "WF";
-            default -> "Unkn";
         };
     }
 

@@ -74,9 +74,7 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
 
     public void reportStatsFor(JourneyRequest journeyRequest) {
         logger.info("Cache stats for " + journeyRequest.getUid());
-        stats().forEach(pair -> {
-            logger.info("Cache stats for " + pair.getLeft() + " " + pair.getRight().toString());
-        });
+        stats().forEach(pair -> logger.info("Cache stats for " + pair.getLeft() + " " + pair.getRight().toString()));
     }
 
     public int getLowestCost() {

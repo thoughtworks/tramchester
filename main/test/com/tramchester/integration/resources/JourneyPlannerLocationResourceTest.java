@@ -215,9 +215,7 @@ class JourneyPlannerLocationResourceTest {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, TramStations.Ashton.getId(),
                 LocalTime.of(19,47), false);
 
-        journeys.forEach(journey -> {
-            assertEquals(3, journey.getStages().size());
-        });
+        journeys.forEach(journey -> assertEquals(3, journey.getStages().size()));
     }
 
     @Test

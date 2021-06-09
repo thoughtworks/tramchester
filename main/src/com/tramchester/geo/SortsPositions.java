@@ -81,7 +81,8 @@ public class SortsPositions {
 
         return dests.stream().
                 reduce((A, B) -> new LatLong(A.getLat()+B.getLat(), A.getLon()+B.getLon())).
-                map(latLong -> new LatLong(latLong.getLat()/ size, latLong.getLon()/ size)).get();
+                map(latLong -> new LatLong(latLong.getLat()/ size, latLong.getLon()/ size)).
+                orElse(LatLong.Invalid);
     }
 
 

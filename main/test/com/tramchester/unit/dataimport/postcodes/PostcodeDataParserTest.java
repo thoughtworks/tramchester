@@ -28,7 +28,7 @@ class PostcodeDataParserTest  {
 
     protected PostcodeData parse(String text) {
         StringReader reader = new StringReader(text+System.lineSeparator());
-        return dataDataLoader.load(reader).findFirst().get();
+        return dataDataLoader.load(reader).findFirst().orElseThrow();
     }
 
     @Test

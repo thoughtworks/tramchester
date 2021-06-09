@@ -86,17 +86,22 @@ class PostcodeDataImporterTest {
 
         BoundingBox bounds = stationLocations.getBounds();
 
-        long eastingsMax = loadedPostcodes.stream().map(data -> data.getGridPosition().getEastings()).max(Long::compareTo).get();
-        long eastingsMin = loadedPostcodes.stream().map(data -> data.getGridPosition().getEastings()).min(Long::compareTo).get();
+        long eastingsMax = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getEastings()).max(Long::compareTo).orElse(-1L);
+        long eastingsMin = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getEastings()).min(Long::compareTo).orElse(-1L);
 
         assertTrue(eastingsMax <= bounds.getMaxEasting()+margin);
         assertTrue(eastingsMin >= bounds.getMinEastings()-margin);
 
-        long northingsMax = loadedPostcodes.stream().map(data -> data.getGridPosition().getNorthings()).max(Long::compareTo).get();
-        long northingsMin = loadedPostcodes.stream().map(data -> data.getGridPosition().getNorthings()).min(Long::compareTo).get();
+        long northingsMax = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getNorthings()).max(Long::compareTo).orElse(-1L);
+        long northingsMin = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getNorthings()).min(Long::compareTo).orElse(-1L);
 
         assertTrue(northingsMax <= bounds.getMaxNorthings()+margin);
-        assertTrue(northingsMin >= bounds.getMinNorthings()-margin, northingsMin + " " + bounds.getMinNorthings() + " " +margin);
+        assertTrue(northingsMin >= bounds.getMinNorthings()-margin,
+                northingsMin + " " + bounds.getMinNorthings() + " " +margin);
 
     }
 

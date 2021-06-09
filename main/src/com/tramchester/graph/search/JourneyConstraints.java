@@ -23,7 +23,6 @@ public class JourneyConstraints {
     private static final int FERRY_MAX_PATH_LENGTH = 200; // todo right value?
     private static final int SUBWAY_MAX_PATH_LENGTH = 400; // todo right value?
 
-
     private static final Logger logger = LoggerFactory.getLogger(JourneyConstraints.class);
 
     private final RunningServices runningServices;
@@ -59,7 +58,7 @@ public class JourneyConstraints {
     }
 
     private int computeMaxPathLength() {
-        return config.getTransportModes().stream().map(this::getPathMaxFor).max(Integer::compareTo).get();
+        return config.getTransportModes().stream().map(this::getPathMaxFor).max(Integer::compareTo).orElseThrow();
     }
 
     private int getPathMaxFor(TransportMode mode) {

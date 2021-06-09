@@ -75,7 +75,7 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
 
     /**
      * Checks station and route
-     * @param station
+     * @param station station to check
      * @return true iff station serves routes and station id is included
      */
     @Override

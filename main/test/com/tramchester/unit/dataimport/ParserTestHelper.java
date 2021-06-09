@@ -18,6 +18,6 @@ public class ParserTestHelper<T> {
 
     protected T parse(String text) {
         StringReader reader = new StringReader(header+System.lineSeparator()+text+System.lineSeparator());
-        return dataDataLoader.load(reader).findFirst().get();
+        return dataDataLoader.load(reader).findFirst().orElseThrow();
     }
 }

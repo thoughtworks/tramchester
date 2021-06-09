@@ -61,7 +61,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private Long numberFor(Set<TransportRelationshipTypes> types) {
         return types.stream().
                 map(numberOfNodesAndRelationshipsRepository::numberOf).
-                reduce(Long::sum).get();
+                reduce(Long::sum).orElse(0L);
     }
 
     @PreDestroy

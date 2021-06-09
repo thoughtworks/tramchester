@@ -15,6 +15,7 @@ public class Stage {
     public TramTime getDepartTime() {
         String fieldText = getFieldText("departTime");
         fieldText = fieldText.replace(" +1d","+24").trim();
+        // TODO or else?
         return TramTime.parse(fieldText).get();
     }
 

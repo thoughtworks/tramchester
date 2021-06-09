@@ -63,10 +63,12 @@ public class StopTimeData {
     }
 
     public TramTime getArrivalTime() {
+        // TODO or else
         return TramTime.parse(arrivalTime).get();
     }
 
     public TramTime getDepartureTime() {
+        // TODO or else
         return TramTime.parse(departureTime).get();
     }
 

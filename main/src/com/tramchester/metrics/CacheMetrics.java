@@ -75,6 +75,7 @@ public class CacheMetrics {
         Optional<T> value = classStats.stream().
                 filter(pair -> pair.getLeft().equals(cacheName)).
                 map(Pair::getRight).map(getStat).limit(1).findFirst();
+        // TODO or else?
         return value.get();
     }
 

@@ -90,9 +90,7 @@ class SubGraphAroundKnutsfordTrainTest {
 
     @Test
     void shouldValidateFilterStationsAreValid() {
-        stations.forEach(station -> {
-            assertNotNull(stationRepository.getStationById(station.getId()));
-        });
+        stations.forEach(station -> assertNotNull(stationRepository.getStationById(station.getId())));
     }
 
     @Test

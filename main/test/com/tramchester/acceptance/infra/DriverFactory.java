@@ -24,16 +24,12 @@ public class DriverFactory {
     }
 
     private ProvidesDriver create(boolean enableGeo, String browserName) {
-        switch (browserName) {
-            case ProvidesFirefoxDriver.Name:
-                return new ProvidesFirefoxDriver(enableGeo);
-            case ProvidesChromeDriver.Name:
-                return new ProvidesChromeDriver(enableGeo);
-            case ProvidesChromeOnAndroid.Name:
-                return new ProvidesChromeOnAndroid();
-            default:
-                throw new RuntimeException("Unknown browser " + browserName);
-        }
+        return switch (browserName) {
+            case ProvidesFirefoxDriver.Name -> new ProvidesFirefoxDriver(enableGeo);
+            case ProvidesChromeDriver.Name -> new ProvidesChromeDriver(enableGeo);
+            case ProvidesChromeOnAndroid.Name -> new ProvidesChromeOnAndroid();
+            default -> throw new RuntimeException("Unknown browser " + browserName);
+        };
     }
 
     public void close() {
