@@ -4,7 +4,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.CompositeStationRepository;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,6 @@ public class ServiceReasons {
     private final TramTime queryTime;
     private final ProvidesLocalNow providesLocalNow;
     private final JourneyRequest journeyRequest;
-    private final int numChanges;
     private final List<ServiceReason> reasons;
     // stats
     private final Map<ServiceReason.ReasonCode, AtomicInteger> statistics;
@@ -36,11 +34,10 @@ public class ServiceReasons {
 
     private boolean success;
 
-    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesLocalNow providesLocalNow, int numChanges) {
+    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesLocalNow providesLocalNow) {
         this.queryTime = queryTime;
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;
-        this.numChanges = numChanges;
         reasons = new ArrayList<>();
         statistics = new EnumMap<>(ServiceReason.ReasonCode.class);
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));

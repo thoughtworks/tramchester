@@ -6,7 +6,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class Page {
-    protected WebDriver driver;
+    protected final WebDriver driver;
     private static final long timeOut = 4;
 
     public Page(WebDriver driver) {

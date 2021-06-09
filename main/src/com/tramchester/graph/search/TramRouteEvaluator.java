@@ -49,9 +49,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         success = 0;
     }
 
-    public void dispose() {
-    }
-
     @Override
     public Evaluation evaluate(Path path) {
         return null;

@@ -47,8 +47,6 @@ public class AppPage extends Page {
     }
 
     public boolean waitForToStops() {
-        //TramStations station = TramStations.ManAirport;
-        int expected = TramStations.NumberOf;
         return waitForStops(FROM_STOP) && waitForStops(TO_STOP);
     }
 
@@ -56,8 +54,6 @@ public class AppPage extends Page {
         WebElement fromStopElement = createWait().until(presenceOfElementLocated(By.id(stopId)));
 
         createWait().until(presenceOfNestedElementLocatedBy(fromStopElement, By.className("stop")));
-        //createWait().until(numberOfElementsToBe(By.className("stop"), 10));
-        //createWait().until(textToBePresentInElement(fromStopElement, station.getName()));
 
         return fromStopElement.isEnabled() && fromStopElement.isDisplayed();
     }

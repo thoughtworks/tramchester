@@ -27,12 +27,10 @@ import java.util.concurrent.TimeUnit;
 public class DataVersionResource {
     private static final Logger logger = LoggerFactory.getLogger(DataVersionResource.class);
 
-    private final TramchesterConfig config;
     private final ProvidesFeedInfo providesFeedInfo;
 
     @Inject
     public DataVersionResource(TramchesterConfig config, ProvidesFeedInfo providesFeedInfo) {
-        this.config = config;
         this.providesFeedInfo = providesFeedInfo;
     }
 

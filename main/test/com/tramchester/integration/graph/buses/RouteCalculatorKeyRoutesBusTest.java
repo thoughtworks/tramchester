@@ -29,7 +29,6 @@ class RouteCalculatorKeyRoutesBusTest {
 
     private final LocalDate when = TestEnv.testDay();
     private RouteCalculationCombinations combinations;
-    private TramTime time;
     private JourneyRequest journeyRequest;
 
     @BeforeAll
@@ -55,7 +54,7 @@ class RouteCalculatorKeyRoutesBusTest {
     @BeforeEach
     void beforeEachTestRuns() {
         combinations = new RouteCalculationCombinations(componentContainer);
-        time = TramTime.of(8, 0);
+        TramTime time = TramTime.of(8, 0);
         int numberChanges = 3;
         journeyRequest = new JourneyRequest(when, time, false, numberChanges,
                 testConfig.getMaxJourneyDuration(), 1);

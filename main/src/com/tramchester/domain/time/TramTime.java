@@ -253,7 +253,7 @@ public class  TramTime implements Comparable<TramTime> {
 
         int newOffsetDays = offsetDays - daysToSubtract;
         if (newOffsetDays<0) {
-            throw new RuntimeException("Result is in the past for " + this.toString() + " minus " + amount + " minutes");
+            throw new RuntimeException("Result is in the past for " + this + " minus " + amount + " minutes");
         }
 
         return TramTime.of(newHours, newMins, newOffsetDays);

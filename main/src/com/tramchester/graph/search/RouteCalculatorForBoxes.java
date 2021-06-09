@@ -82,7 +82,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         flatMap(startNode -> numChangesRange(journeyRequest).
                                 map(numChanges -> createPathRequest(startNode, time, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                createServiceReasons(journeyRequest, time, pathRequest), pathRequest, previousSuccessfulVisit)).
+                                createServiceReasons(journeyRequest, time), pathRequest, previousSuccessfulVisit)).
                         map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations));
 
                 List<Journey> collect = journeys.

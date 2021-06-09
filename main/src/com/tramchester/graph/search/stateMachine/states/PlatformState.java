@@ -103,11 +103,6 @@ public class PlatformState extends TraversalState implements NodeId {
         return towardsStation.fromPlatform(this, node, cost);
     }
 
-//    @Override
-//    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyState) {
-//        return towardsDestination.from(this, cost);
-//    }
-
     @Override
     public long nodeId() {
         return platformNode.getId();

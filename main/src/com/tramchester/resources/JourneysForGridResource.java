@@ -127,11 +127,7 @@ public class JourneysForGridResource {
     }
 
     private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramServiceDate serviceDate) {
-        try {
-            return BoxWithCostDTO.createFrom(dtoMapper, serviceDate, box);
-        } catch (TransformException exception) {
-            throw new RuntimeException("Unable to convert coordinates ", exception);
-        }
+        return BoxWithCostDTO.createFrom(dtoMapper, serviceDate, box);
     }
 
     private LatLong decodeLatLong(String lat, String lon) {

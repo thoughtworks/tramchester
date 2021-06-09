@@ -13,7 +13,7 @@ public class GridPosition {
     }
 
     // National grid positions as always +ve
-    public static GridPosition Invalid =  new GridPosition(Long.MIN_VALUE, Long.MIN_VALUE);
+    public static final GridPosition Invalid =  new GridPosition(Long.MIN_VALUE, Long.MIN_VALUE);
 
     public long getEastings() {
         return eastings;

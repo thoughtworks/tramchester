@@ -56,7 +56,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
         String host = url.getHost();
         int port = (url.getPort()==-1) ? 80 : url.getPort();
         logger.info(format("Attempt to getPlatformById instance user data from host:%s port%s url:%s",
-                host, port, url.toString()));
+                host, port, url));
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url.toString());
         RequestConfig config = RequestConfig.custom()
@@ -98,8 +98,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
     }
 
     private String createDiagnosticMessage(String exceptionName, URL url, String exceptionMessage) {
-        String msg = format("type:%s message:'%s' Diagnostic: Cannot connect to '%s' likely not running in the cloud",
+        return format("type:%s message:'%s' Diagnostic: Cannot connect to '%s' likely not running in the cloud",
                 exceptionName, exceptionMessage, url);
-        return msg;
     }
 }

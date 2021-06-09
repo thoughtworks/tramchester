@@ -141,22 +141,6 @@ class TrainRouteCalculatorTest {
         atLeastOneDirect(request, Knutsford, Hale);
     }
 
-//    @NotNull
-//    private List<Pair<IdFor<Station>, IdFor<Station>>> queryForJourneys(JourneyRequest request, IdSet<Station> stationIds) {
-//        List<Pair<IdFor<Station>, IdFor<Station>>> failed = new ArrayList<>();
-//        for(IdFor<Station> begin : stationIds) {
-//            for(IdFor<Station> end : stationIds) {
-//                if (!begin.equals(end)) {
-//                    Set<Journey> journeys = testFacade.calculateRouteAsSet(begin, end, request);
-//                    if (journeys.isEmpty()) {
-//                        failed.add(Pair.of(begin,end));
-//                    }
-//                }
-//            }
-//        }
-//        return failed;
-//    }
-
     private void atLeastOneDirect(JourneyRequest request, TrainStations start, TrainStations dest) {
         Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
         assertFalse(journeys.isEmpty());

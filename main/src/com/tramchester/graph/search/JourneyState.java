@@ -162,10 +162,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         hasBegun = true;
     }
 
-//    public void walkingConnection() {
-//        numberOfWalkingConnections = numberOfWalkingConnections + 1;
-//    }
-
     private void guardAlreadyOnboard() throws TramchesterException {
         if (!transportMode.equals(TransportMode.NotSet)) {
             throw new TramchesterException("Already on a " + transportMode);

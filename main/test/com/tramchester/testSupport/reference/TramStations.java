@@ -59,9 +59,9 @@ public enum TramStations implements TestStations {
     PeelHall("9400ZZMAPLL","Peel Hall", "Peel Hall", pos(53.37373, -2.25038)),
     Intu("9400ZZMATRC", "The Trafford Centre", "The Trafford Centre", pos(53.46782, -2.34751));
 
-    public static int NumberOf = 99;
+    public static final int NumberOf = 99;
 
-    public static Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
+    public static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
             ManAirport,
             Eccles,
             EastDidsbury,
@@ -72,10 +72,6 @@ public enum TramStations implements TestStations {
 
     public static Set<TramStations> Interchanges = new HashSet<>(Arrays.asList(Cornbrook, StPetersSquare, PiccadillyGardens,
             TraffordBar, StWerburghsRoad, Victoria, Deansgate, Piccadilly, HarbourCity, ShawAndCrompton));
-
-//    public static boolean isInterchange(HasId<Station> station) {
-//        return containedIn(station, Interchanges);
-//    }
 
     public static boolean isEndOfLine(HasId<Station> station) {
         return containedIn(station, EndOfTheLine);

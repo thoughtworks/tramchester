@@ -48,18 +48,18 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
         logger.info(format("Checking if %s data is expired or will expire with %d days of %s", name, days, validUntil));
 
         if (currentDate.isAfter(validUntil) || currentDate.isEqual(validUntil)) {
-            String message = name + " data expired on " + validUntil.toString();
+            String message = name + " data expired on " + validUntil;
             logger.error(message);
             return Result.unhealthy(message);
         }
 
         LocalDate boundary = validUntil.minusDays(days);
         if (currentDate.isAfter(boundary) || currentDate.isEqual(boundary)) {
-            String message = name + " data will expire on " + validUntil.toString();
+            String message = name + " data will expire on " + validUntil;
             return Result.unhealthy(message);
         }
 
-        String message = name + " data is not due to expire until " + validUntil.toString();
+        String message = name + " data is not due to expire until " + validUntil;
         logger.info(message);
         return Result.healthy(message);
     }

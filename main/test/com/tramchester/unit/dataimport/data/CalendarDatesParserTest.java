@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 
 class CalendarDatesParserTest extends ParserTestHelper<CalendarDateData> {
-    private final String example = "Serv000001,20200831,2";
 
     @BeforeEach
     void beforeEach() {
@@ -19,6 +18,7 @@ class CalendarDatesParserTest extends ParserTestHelper<CalendarDateData> {
     @Test
     void shouldParseData() {
 
+        String example = "Serv000001,20200831,2";
         CalendarDateData result = parse(example);
 
         Assertions.assertEquals(result.getServiceId().forDTO(), "Serv000001");

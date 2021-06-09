@@ -50,7 +50,7 @@ public enum CentralZoneStation {
         return stationId;
     }
 
-    public static IdSet<Station> ids;
+    public static final IdSet<Station> ids;
     public static final Map<IdFor<Station>, CentralZoneStation> map;
 
     static {

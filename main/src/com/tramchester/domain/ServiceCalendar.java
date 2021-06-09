@@ -76,10 +76,10 @@ public class ServiceCalendar {
         printStream.printf("starts %s ends %s days %s%n",
                 startDate, endDate, reportDays());
         if (!additional.isEmpty()) {
-            printStream.println("Additional on: " + additional.toString());
+            printStream.println("Additional on: " + additional);
         }
         if (!removed.isEmpty()) {
-            printStream.println("Not running on: " + removed.toString());
+            printStream.println("Not running on: " + removed);
         }
     }
 

@@ -8,6 +8,7 @@ import com.tramchester.domain.Service;
 
 import java.time.LocalDate;
 
+@SuppressWarnings("unused")
 public class CalendarData extends ParsesDate {
 
     @JsonProperty("service_id")

@@ -290,7 +290,7 @@ public class MapPathToStagesViaStatesTest {
             JourneyRequest journeyRequest, Node startNode, Set<Long> destinationNodeIds, Set<Station> endStations,
                                                                          int numChanges, TramTime queryTime) {
         PreviousSuccessfulVisits previous = new PreviousSuccessfulVisits();
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, numChanges);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, endStations);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,
                 journeyConstraints, queryTime, numChanges);

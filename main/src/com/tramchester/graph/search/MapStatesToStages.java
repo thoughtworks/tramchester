@@ -72,7 +72,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException {
+    public void board(TransportMode transportMode, Node node, boolean hasPlatform) {
         onVehicle = true;
         boardingTime = null;
 

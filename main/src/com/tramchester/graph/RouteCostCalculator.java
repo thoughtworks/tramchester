@@ -2,13 +2,12 @@ package com.tramchester.graph;
 
 import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.GridPosition;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.repository.StationRepository;
-import org.neo4j.graphalgo.*;
+import org.neo4j.graphalgo.EvaluationContext;
+import org.neo4j.graphalgo.GraphAlgoFactory;
+import org.neo4j.graphalgo.PathFinder;
+import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import javax.inject.Inject;
 
 import static com.tramchester.graph.GraphPropertyKey.COST;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static java.lang.Math.sqrt;
 
 @LazySingleton
 public class RouteCostCalculator {
@@ -25,14 +23,12 @@ public class RouteCostCalculator {
 
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;
-    private final StationRepository stationRepository;
 
     @Inject
     public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService,
-                               StagedTransportGraphBuilder.Ready ready, StationRepository stationRepository) {
+                               StagedTransportGraphBuilder.Ready ready) {
         this.graphQuery = graphQuery;
         this.graphDatabaseService = graphDatabaseService;
-        this.stationRepository = stationRepository;
     }
 
     public int getApproxCostBetween(Transaction txn, Station station, Node endNode) {

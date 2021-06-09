@@ -11,7 +11,7 @@ public class LatLong {
     private double lat; // north/south
     private double lon; // east/west
 
-    public static LatLong Invalid = new LatLong(-1000,-1000);
+    public static final LatLong Invalid = new LatLong(-1000,-1000);
 
     // for json
     public LatLong() {

@@ -11,10 +11,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class StopTimeDataParseTest extends ParserTestHelper<StopTimeData> {
 
-    private final String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type";
-
     @BeforeEach
     void beforeEachTestRuns() {
+        String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type";
         super.before(StopTimeData.class, header);
     }
 

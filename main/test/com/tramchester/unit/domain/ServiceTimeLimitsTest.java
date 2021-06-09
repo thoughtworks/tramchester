@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceTimeLimitsTest {
 
-    private ServiceTimeLimits timeLimits = new ServiceTimeLimits();
+    private final ServiceTimeLimits timeLimits = new ServiceTimeLimits();
 
     @Test
     void shouldHaveCorrectTimeRanges() {

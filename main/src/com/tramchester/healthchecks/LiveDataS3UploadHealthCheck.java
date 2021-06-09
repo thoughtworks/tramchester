@@ -56,7 +56,7 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
     }
 
     @Override
-    public Result check() throws Exception {
+    public Result check() {
         logger.info("Check for live data in S3");
         LocalDateTime checkTime = providesLocalNow.getDateTime().minus(checkDuration);
 

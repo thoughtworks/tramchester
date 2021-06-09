@@ -297,8 +297,6 @@ public class GraphDatabase implements DatabaseEventListener {
 
     private void createUniqueIdConstraintFor(Schema schema, GraphLabel label, GraphPropertyKey property) {
         schema.indexFor(label).on(property.getText()).create();
-//        schema.constraintFor(label).
-//                assertPropertyIsUnique(property.getText()).withIndexType(IndexType.BTREE).create();
     }
 
     public void waitForIndexesReady(Schema schema) {

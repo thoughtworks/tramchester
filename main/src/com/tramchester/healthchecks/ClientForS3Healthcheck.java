@@ -33,7 +33,7 @@ public class ClientForS3Healthcheck extends TramchesterHealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         LiveDataConfig liveDataConfig = config.getLiveDataConfig();
 
         if (clientForS3.isStarted()) {

@@ -32,7 +32,7 @@ public class BoxWithCostDTO {
     }
 
     public static BoxWithCostDTO createFrom(JourneyToDTOMapper mapper, TramServiceDate serviceDate,
-                                            BoundingBoxWithCost box) throws TransformException {
+                                            BoundingBoxWithCost box) {
 
         // TODO Assuming valid positions here
         LatLong bottomLeft = CoordinateTransforms.getLatLong(box.getBottomLeft());

@@ -24,11 +24,6 @@ public class StopCalls {
         orderedStopCalls = new TreeMap<>();
     }
 
-    public void dispose() {
-        //logger.debug("dispose");
-        //orderedStopCalls.clear();
-    }
-
     public void add(StopCall stop) {
         Station station = stop.getStation();
         if (station==null) {

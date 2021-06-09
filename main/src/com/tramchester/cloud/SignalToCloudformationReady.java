@@ -44,7 +44,7 @@ public class SignalToCloudformationReady {
             HttpResponse response = httpClient.execute(put);
             StatusLine statusLine = response.getStatusLine();
             if (statusLine.getStatusCode()!= HttpServletResponse.SC_OK) {
-                logger.error("Unexpected status for cloud formation triggered " + statusLine.toString());
+                logger.error("Unexpected status for cloud formation triggered " + statusLine);
             } else {
                 logger.info("cloud formation POST made OK");
             }

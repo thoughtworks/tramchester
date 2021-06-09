@@ -81,8 +81,6 @@ public class NoPlatformStationState extends StationState {
         }
 
         Stream<Relationship> boardRelationshipsPlus(TraversalOps ops, Node node, TransportRelationshipTypes... others) {
-//            Stream<Relationship> board = ops.orderBoardingRelationsByDestRoute(
-//                    Streams.stream(node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD)));
             Stream<Relationship> board = Streams.stream(node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD));
             Stream<Relationship> other = Streams.stream(node.getRelationships(OUTGOING, others));
             return Stream.concat(board, other);

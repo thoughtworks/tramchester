@@ -34,15 +34,13 @@ public class TramPositionsResource {
     private final TramPositionInference positionInference;
     private final DeparturesMapper depatureMapper;
     private final ProvidesNow providesNow;
-    private final TramchesterConfig config;
 
     @Inject
     public TramPositionsResource(TramPositionInference positionInference, DeparturesMapper depatureMapper,
-                                 ProvidesNow providesNow, TramchesterConfig config) {
+                                 ProvidesNow providesNow) {
         this.positionInference = positionInference;
         this.depatureMapper = depatureMapper;
         this.providesNow = providesNow;
-        this.config = config;
     }
 
     @GET
@@ -67,7 +65,7 @@ public class TramPositionsResource {
                         pos.getCost())).
                 collect(Collectors.toList());
 
-        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList, config.getTransportModes().contains(Bus));
+        TramsPositionsDTO dto = new TramsPositionsDTO(dtoList);
         return Response.ok(dto).build();
     }
 

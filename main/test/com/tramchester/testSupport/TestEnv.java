@@ -64,10 +64,10 @@ public class TestEnv {
     public static final GridPosition nearStockportBusGrid;
     public static final GridPosition nearGreenwichGrid;
 
-    public static DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    public static DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
-    public static Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
-    public static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
+    public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
+    public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
+    public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
     private static final Agency MET = new Agency(DataSourceID.TFGM(), Agency.METL, "Metrolink");

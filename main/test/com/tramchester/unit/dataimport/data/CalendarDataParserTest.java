@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CalendarDataParserTest extends ParserTestHelper<CalendarData> {
-    private final String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
 
     @BeforeEach
     void beforeEach() {
@@ -20,6 +19,7 @@ class CalendarDataParserTest extends ParserTestHelper<CalendarData> {
     @Test
     void shouldParseCalendarEntry() {
 
+        String calendar = "Serv000001,1,1,1,1,1,0,0,20141020,20141219";
         CalendarData calendarData = parse(calendar);
         assertThat(calendarData.getServiceId().forDTO()).isEqualTo("Serv000001");
         assertThat(calendarData.isMonday()).isEqualTo(true);

@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class AppUserJourneyLocationsTest extends UserJourneyTest {
     private static final String configPath = "config/localAcceptance.yml";
 
-    public static AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
+    public static final AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
 
     private final String bury = TramStations.Bury.getName();
     private final String altrincham = TramStations.Altrincham.getName();

@@ -9,7 +9,7 @@ import java.util.Set;
 @LazySingleton
 public class RegistersStates implements RegistersFromState {
 
-    HashMap<FromTo, Towards<? extends TraversalState>> map;
+    final HashMap<FromTo, Towards<? extends TraversalState>> map;
 
     public RegistersStates() {
         map = new HashMap<>();

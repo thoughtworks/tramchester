@@ -51,7 +51,7 @@ public class TransportDataContainer implements TransportData {
     public void dispose() {
         logger.info("stopping for " + sourceName);
         // clear's are here due to memory usage during testing
-        trips.forEach(Trip::dispose);
+//        trips.forEach(Trip::dispose);
         trips.clear();
         stationsById.clear();
         tramStationsByName.clear();

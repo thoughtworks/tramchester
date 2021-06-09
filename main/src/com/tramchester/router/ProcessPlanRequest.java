@@ -36,7 +36,6 @@ import static java.lang.String.format;
 public class ProcessPlanRequest {
     private static final Logger logger = LoggerFactory.getLogger(ProcessPlanRequest.class);
 
-    private final TramchesterConfig config;
     private final LocationJourneyPlanner locToLocPlanner;
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
@@ -48,7 +47,6 @@ public class ProcessPlanRequest {
     public ProcessPlanRequest(TramchesterConfig config, LocationJourneyPlanner locToLocPlanner, RouteCalculator routeCalculator,
                               RouteCalculatorArriveBy routeCalculatorArriveBy, CompositeStationRepository stationRepository,
                               PostcodeRepository postcodeRepository, JourneyToDTOMapper journeyToDTOMapper) {
-        this.config = config;
         this.locToLocPlanner = locToLocPlanner;
 
         this.routeCalculator = routeCalculator;

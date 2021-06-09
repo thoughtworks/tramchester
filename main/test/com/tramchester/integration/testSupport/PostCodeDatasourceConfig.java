@@ -30,19 +30,4 @@ public class PostCodeDatasourceConfig implements RemoteDataSourceConfig {
         return "postcodes";
     }
 
-//
-//    @Override
-//    public boolean getLoadPostcodes() {
-//        return false;
-//    }
-//
-//    @Override
-//    public Path getPostcodeDataPath() {
-//        return Path.of("data", "codepo_gb", "Data", "CSV");
-//    }
-//
-//    @Override
-//    public Path getPostcodeZip() {
-//        return Path.of("data", "codepo_gb.zip");
-//    }
 }

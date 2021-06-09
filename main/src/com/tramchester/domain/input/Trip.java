@@ -38,11 +38,6 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         firstIndex = Integer.MAX_VALUE;
     }
 
-    // test memory support
-    public void dispose() {
-        stopCalls.dispose();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -30,7 +30,6 @@ class TrainRouteCalculatorCombinationTests {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private static TramchesterConfig config;
     private RouteCalculationCombinations combinations;
 
     private final LocalDate when = TestEnv.testDay();
@@ -38,7 +37,7 @@ class TrainRouteCalculatorCombinationTests {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTrainTestConfig();
+        TramchesterConfig config = new IntegrationTrainTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

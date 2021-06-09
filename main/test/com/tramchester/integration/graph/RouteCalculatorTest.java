@@ -500,7 +500,7 @@ public class RouteCalculatorTest {
             for (TransportStage<?,?> stage : stages) {
                 if (earliestAtNextStage!=null) {
                     assertFalse(
-                            stage.getFirstDepartureTime().isBefore(earliestAtNextStage), stage.toString() + " arrived before " + earliestAtNextStage);
+                            stage.getFirstDepartureTime().isBefore(earliestAtNextStage), stage + " arrived before " + earliestAtNextStage);
                 }
                 earliestAtNextStage = stage.getFirstDepartureTime().plusMinutes(stage.getDuration());
             }

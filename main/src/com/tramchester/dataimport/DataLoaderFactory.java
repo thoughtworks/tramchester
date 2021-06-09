@@ -5,8 +5,9 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import java.nio.file.Path;
 
 public class DataLoaderFactory {
+    private final static String extension = ".txt";
+
     private final Path path;
-    private final String extension = ".txt";
     private final CsvMapper mapper;
 
     public DataLoaderFactory(Path path, CsvMapper mapper) {

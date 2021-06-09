@@ -162,13 +162,13 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time, PathRequest pathRequest) {
-        return new ServiceReasons(journeyRequest, time, providesLocalNow, pathRequest.numChanges);
+    protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time) {
+        return new ServiceReasons(journeyRequest, time, providesLocalNow);
     }
 
     @NotNull
     protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, PathRequest pathRequest) {
-        return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesLocalNow, pathRequest.numChanges);
+        return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesLocalNow);
     }
 
     public PathRequest createPathRequest(Node startNode, TramTime queryTime, int numChanges, JourneyConstraints journeyConstraints) {

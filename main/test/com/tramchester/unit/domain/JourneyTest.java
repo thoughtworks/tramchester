@@ -31,7 +31,7 @@ class JourneyTest {
 
     private TramTime queryTime;
     private List<Location<?>> path;
-    private Route route = TestEnv.getTramTestRoute();
+    private final Route route = TestEnv.getTramTestRoute();
     private Trip trip;
     private List<Integer> stopSequenceNumbers;
     private MyLocation myLocation;

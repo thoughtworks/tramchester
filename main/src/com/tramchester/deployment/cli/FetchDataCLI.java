@@ -16,7 +16,7 @@ public class FetchDataCLI extends BaseCLI {
 
     // used during build to download latest tram data from tfgm site during deployment
     // which is subsequently uploaded into S3
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(FetchDataCLI.class);
 
         if (args.length != 1) {

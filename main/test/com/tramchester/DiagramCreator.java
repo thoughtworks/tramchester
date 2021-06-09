@@ -147,19 +147,6 @@ public class DiagramCreator {
 
         // add services for this node
         // Node -> Service End Node
-//        for (Relationship tramGoesToRelationship : goesToRelationships.values()) {
-//            String id;
-//            if (GraphProps.hasProperty(TRIP_ID, tramGoesToRelationship)) {
-//                id = GraphProps.getTripId(tramGoesToRelationship).getGraphId();
-//            } else {
-//                id = GraphProps.getServiceId(tramGoesToRelationship).getGraphId();
-//            }
-//            if (id.isEmpty()) {
-//                id = "NO_ID";
-//            }
-//            builder.append(format("\"%s\"->\"%s\" [label=\"%s\"];\n",
-//                    createNodeId(startNode), createNodeId(tramGoesToRelationship.getEndNode()), id));
-//        }
     }
 
 

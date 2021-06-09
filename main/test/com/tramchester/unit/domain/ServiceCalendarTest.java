@@ -14,18 +14,6 @@ class ServiceCalendarTest {
 
     // TODO CalendarDates seen but no calendar??
 
-//    @Test
-//    void shouldReportNoDatesSetIncludingExceptions() {
-//        Service service = new Service("svcXXX", TestEnv.getTestRoute(IdFor.createId("ROUTE66")));
-//
-//        service.setDays(true, false, false, false, false, false, false);
-//
-//        assertTrue(service.HasMissingDates()); // missing dates
-//
-//        service.addExceptionDate(TestEnv.testDay(), CalendarDateData.ADDED);
-//        Assertions.assertFalse(service.HasMissingDates());
-//    }
-
     @Test
     void shouldSetStartDateAndEndDate() {
 

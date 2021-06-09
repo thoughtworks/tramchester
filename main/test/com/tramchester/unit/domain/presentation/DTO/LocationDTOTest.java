@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LocationDTOTest {
 
     @Test
-    void shouldCreateDTOAsExpected() throws TransformException {
+    void shouldCreateDTOAsExpected() {
 
         Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham", new LatLong(1,1), TransportMode.Tram);
 

@@ -60,9 +60,9 @@ public class RedirectToAppFilter implements Filter {
 
         if (forwardedSecure && "http".equals(protocol)) {
             URL secureURL = new URL(url.toString().replace(protocol, "https"));
-            redirection = secureURL.toString() + "app";
+            redirection = secureURL + "app";
         } else {
-            redirection = url.toString() + "app";
+            redirection = url + "app";
         }
         return redirection;
     }

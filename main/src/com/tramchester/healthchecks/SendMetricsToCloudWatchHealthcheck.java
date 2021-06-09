@@ -32,7 +32,7 @@ public class SendMetricsToCloudWatchHealthcheck extends TramchesterHealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         if (!config.getSendCloudWatchMetrics()) {
             return Result.healthy("Disabled in config");
         }

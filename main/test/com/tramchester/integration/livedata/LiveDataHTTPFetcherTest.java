@@ -97,8 +97,7 @@ class LiveDataHTTPFetcherTest {
 
         assertTrue(departureInfos.size()>0);
 
-        Set<Station> destinations = departureInfos.stream().map(entry -> entry.getDueTrams().stream()).
-                flatMap(Function.identity()).
+        Set<Station> destinations = departureInfos.stream().flatMap(entry -> entry.getDueTrams().stream()).
                 map(DueTram::getDestination).collect(Collectors.toSet());
 
         Set<String> stationNames = transportData.getStations().stream().map(Station::getName).collect(Collectors.toSet());

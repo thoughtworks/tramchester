@@ -16,7 +16,7 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 
 public class LocalTimeJsonDeserializer extends JsonDeserializer<LocalTime> {
 
-    public static DateTimeFormatter LOCAL_TIME = new DateTimeFormatterBuilder()
+    public static final DateTimeFormatter LOCAL_TIME = new DateTimeFormatterBuilder()
                 .appendValue(HOUR_OF_DAY, 2)
                 .appendLiteral(':')
                 .appendValue(MINUTE_OF_HOUR, 2).toFormatter();
