@@ -8,10 +8,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.repository.CompositeStationRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 
 import java.util.HashSet;
 
@@ -93,22 +90,25 @@ public class ReasonsToGraphViz {
 
     private String getIdsFor(Node node) {
         StringBuilder ids = new StringBuilder();
-        node.getLabels().forEach(label -> {
-            GraphLabel graphLabel = GraphLabel.valueOf(label.name());
-            if (!graphLabel.equals(GraphLabel.INTERCHANGE)) {
-                GraphPropertyKey key = GraphPropertyKey.keyForLabel(graphLabel);
-                String value = node.getProperty(key.getText()).toString();
-                if (ids.length() > 0) {
-                    ids.append(System.lineSeparator());
+        final Iterable<Label> labels = node.getLabels();
+
+        if (GraphLabel.isStation(labels)) {
+            IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
+            Station station = stationRepository.getStationById(stationIdFrom);
+            ids.append(System.lineSeparator()).append(station.getName());
+        } else {
+            labels.forEach(label -> {
+                GraphLabel graphLabel = GraphLabel.valueOf(label.name());
+                if (!graphLabel.equals(GraphLabel.INTERCHANGE)) {
+                    GraphPropertyKey key = GraphPropertyKey.keyForLabel(graphLabel);
+                    String value = node.getProperty(key.getText()).toString();
+                    if (ids.length() > 0) {
+                        ids.append(System.lineSeparator());
+                    }
+                    ids.append(value);
                 }
-                ids.append(value);
-            }
-            if (GraphLabel.isStation(graphLabel)) {
-                IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
-                Station station = stationRepository.getStationById(stationIdFrom);
-                ids.append(System.lineSeparator()).append(station.getName());
-            }
-        });
+            });
+        }
         return ids.toString();
     }
 

@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
+// todo rename PlatformStationState
 public class TramStationState extends StationState {
 
     public static class Builder implements TowardsStation<TramStationState> {

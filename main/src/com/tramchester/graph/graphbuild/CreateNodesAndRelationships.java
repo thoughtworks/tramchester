@@ -35,6 +35,10 @@ public class CreateNodesAndRelationships {
     protected Node createStationNode(Transaction tx, Station station) {
 
         Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
+        labels.add(GraphLabel.STATION);
+        if (station.hasPlatforms()) {
+            labels.add(GraphLabel.HAS_PLATFORMS);
+        }
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
         Node stationNode = createGraphNode(tx, labels);
         setProperty(stationNode, station);

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public enum GraphLabel implements Label {
     GROUPED,  // composite station node
     ROUTE_STATION,
+    STATION, // any station node must have this label
     TRAM_STATION,
     BUS_STATION,
     TRAIN_STATION,
@@ -23,6 +24,7 @@ public enum GraphLabel implements Label {
     VERSION,
     NEIGHBOURS_ENABLED,
     COMPOSITES_ADDED,
+    HAS_PLATFORMS, // label added to stations if have platforms
     INTERCHANGE; // label added to stations if they are interchanges
 
     public static GraphLabel forMode(TransportMode mode) {
@@ -41,25 +43,18 @@ public enum GraphLabel implements Label {
         return modes.stream().map(mode -> forMode(mode.getTransportMode())).collect(Collectors.toSet());
     }
 
-    public static boolean isStation(GraphLabel label) {
-        return label == TRAM_STATION || isNoPlatformStation(label);
-    }
-
-    /**
-     * should be based on data source config only
-     * @param label the graph label
-     * @return true if label is TRAM_STATION
-     */
-    @Deprecated
-    public static boolean isNoPlatformStation(GraphLabel label) {
-        return label == BUS_STATION || label == TRAIN_STATION || label == FERRY_STATION
-                || label == SUBWAY_STATION;
-    }
-
     public static Set<GraphLabel> from(Iterable<Label> labels) {
         Set<GraphLabel> result = new HashSet<>();
         labels.forEach(label -> result.add(valueOf(label.name())));
         return result;
     }
 
+    public static boolean isStation(Iterable<Label> labels) {
+        for (Label label : labels) {
+            if (label.name().equals(STATION.name())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

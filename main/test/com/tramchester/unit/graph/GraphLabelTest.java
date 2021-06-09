@@ -10,35 +10,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphLabelTest {
 
     @Test
     void shouldTestConversion() {
-        List<Label> graphDBLabels = Arrays.asList(GraphLabel.BUS_STATION, GraphLabel.INTERCHANGE);
+        List<Label> graphDBLabels = Arrays.asList(BUS_STATION, INTERCHANGE);
 
         Set<GraphLabel> result = GraphLabel.from(graphDBLabels);
         assertEquals(graphDBLabels.size(), result.size());
 
-        assertTrue(result.contains(GraphLabel.BUS_STATION));
-        assertTrue(result.contains(GraphLabel.INTERCHANGE));
-    }
-
-    @Test
-    void shouldIdStationsCrude() {
-        Set<GraphLabel> fromNames = Arrays.stream(GraphLabel.values()).
-                filter(label -> label.name().toLowerCase().contains("station")).
-                filter(label -> label!=GraphLabel.ROUTE_STATION).
-                collect(Collectors.toSet());
-
-        Set<GraphLabel> fromPredicate = Arrays.stream(GraphLabel.values()).filter(GraphLabel::isStation).collect(Collectors.toSet());
-
-        fromNames.stream().filter(graphLabel -> graphLabel!=GraphLabel.TRAM_STATION).forEach(graphLabel ->  {
-            assertTrue(GraphLabel.isNoPlatformStation(graphLabel), graphLabel.name());
-        });
-
-        assertEquals(fromNames, fromPredicate);
+        assertTrue(result.contains(BUS_STATION));
+        assertTrue(result.contains(INTERCHANGE));
     }
 
     @Test
@@ -48,5 +33,12 @@ public class GraphLabelTest {
         for(TransportMode mode : modes) {
             assertNotNull(GraphLabel.forMode(mode));
         }
+    }
+
+    @Test
+    void shouldIdStationNodes() {
+        assertFalse(GraphLabel.isStation(Arrays.asList(BUS_STATION, INTERCHANGE)));
+
+        assertTrue(GraphLabel.isStation(Arrays.asList(BUS_STATION, STATION)));
     }
 }

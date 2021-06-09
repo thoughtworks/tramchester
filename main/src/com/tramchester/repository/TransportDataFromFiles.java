@@ -246,7 +246,8 @@ public class TransportDataFromFiles implements TransportDataFactory {
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
                                              IdMap<Station> stations, IdMap<Trip> trips,
                                              TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
-        logger.info("Loading stop times");
+        String sourceName = dataSourceConfig.getName();
+        logger.info("Loading stop times for " + sourceName);
         IdMap<Service> addedServices = new IdMap<>();
         IdSet<Station> excludedStations = new IdSet<>();
 
@@ -287,10 +288,10 @@ public class TransportDataFromFiles implements TransportDataFactory {
             }
         });
         if (!excludedStations.isEmpty()) {
-            logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations);
+            logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations + " for " + sourceName);
             excludedStations.clear();
         }
-        logger.info("Loaded " + count.get() + " stop times");
+        logger.info("Loaded " + count.get() + " stop times for " + sourceName);
         return addedServices;
     }
 

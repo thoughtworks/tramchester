@@ -9,9 +9,7 @@ import com.tramchester.graph.search.stateMachine.UnexpectedNodeTypeException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 public abstract class TraversalState implements ImmuatableTraversalState {
@@ -55,34 +53,33 @@ public abstract class TraversalState implements ImmuatableTraversalState {
                                     JourneyStateUpdate journeyState, int cost) {
 
         boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
+        boolean hasPlatforms = nodeLabels.contains(GraphLabel.HAS_PLATFORMS);
+        boolean isStation = nodeLabels.contains(GraphLabel.STATION);
 
-        GraphLabel nodeLabel;
-        if (nodeLabels.size()==1) {
-            nodeLabel = nodeLabels.iterator().next();
-        } else if (nodeLabels.size()==2 && isInterchange && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
-            nodeLabel = GraphLabel.ROUTE_STATION;
+        GraphLabel actualNodeType;
+        final int numLabels = nodeLabels.size();
+        if (numLabels==1) {
+            actualNodeType = nodeLabels.iterator().next();
+        } else if (numLabels==2 && isInterchange && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
+            actualNodeType = GraphLabel.ROUTE_STATION;
+        } else if (isStation) {
+            actualNodeType = GraphLabel.STATION;
         } else {
-            long stations = nodeLabels.stream().filter(GraphLabel::isNoPlatformStation).count();
-            if (stations==nodeLabels.size()) {
-                // multi-mode station, all same case, so pick first one
-                nodeLabel = nodeLabels.iterator().next();
-            } else {
-                throw new RuntimeException("Unexpected multi-label condition: " + nodeLabels);
-            }
+            throw new RuntimeException("Not a station, unexpected multi-label condition: " + nodeLabels);
         }
 
         final Class<? extends TraversalState> from = this.getClass();
-        switch (nodeLabel) {
+        switch (actualNodeType) {
             case MINUTE -> { return toMinute(builders.getTowardsMinute(from), node, cost, journeyState); }
             case HOUR -> { return toHour(builders.getTowardsHour(from), node, cost); }
             case GROUPED -> { return toGrouped(node, cost, journeyState); }
-            case BUS_STATION, TRAIN_STATION, SUBWAY_STATION, FERRY_STATION -> { return toStation(node, journeyState, cost); }
-            case TRAM_STATION -> { return toTramStation(node, journeyState, cost); }
+            case STATION -> { return toStation(node, journeyState, cost, hasPlatforms); }
+//            case TRAM_STATION -> { return toTramStation(node, journeyState, cost); }
             case SERVICE -> { return toService(builders.getTowardsService(from), node, cost); }
             case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(from), node, cost, journeyState); }
             case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(from), node, cost, journeyState);}
             case ROUTE_STATION -> { return toRouteStation(from, node, cost, journeyState, isInterchange); }
-            default -> throw new UnexpectedNodeTypeException(node, "Unexpected at " + this + " label:" + nodeLabel);
+            default -> throw new UnexpectedNodeTypeException(node, "Unexpected at " + this + " label:" + actualNodeType);
         }
     }
 
@@ -140,12 +137,16 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    private TraversalState toTramStation(Node node, JourneyStateUpdate journeyState, int cost) {
+    private TraversalState toPlatformedStation(Node node, JourneyStateUpdate journeyState, int cost) {
         return toTramStation(builders.getTowardsStation(this.getClass()), node, cost, journeyState);
     }
 
-    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, int cost) {
-        return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
+    private TraversalState toStation(Node node, JourneyStateUpdate journeyState, int cost, boolean hasPlatforms) {
+        if (hasPlatforms) {
+            return toPlatformedStation(node, journeyState, cost);
+        } else {
+            return toNoPlatformStation(builders.getTowardsNoPlatformStation(this.getClass()), node, cost, journeyState);
+        }
     }
 
     private TraversalState toGrouped(Node node, int cost, JourneyStateUpdate journeyState) {

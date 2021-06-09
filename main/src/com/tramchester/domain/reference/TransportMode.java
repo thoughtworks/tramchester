@@ -34,7 +34,7 @@ public enum TransportMode implements HasTransportMode {
     }
 
     // used in graph propety
-    // TODO Can now use native enum instead with neo4j
+    // TODO Can now use native enum instead with neo4j now
     private final short number;
 
     TransportMode(short number) {

@@ -86,7 +86,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding stations")) {
                 Transaction tx = timedTransaction.transaction();
                 for(Station station : transportData.getStations()) {
-                    if (graphFilter.shouldInclude(station)) { // && graphFilter.shouldIncludeRoutes(station.getRoutes())) {
+                    if (graphFilter.shouldInclude(station)) {
                         Node stationNode = createStationNode(tx, station);
                         createPlatformsForStation(tx, station, builderCache);
                         builderCache.putStation(station.getId(), stationNode);
