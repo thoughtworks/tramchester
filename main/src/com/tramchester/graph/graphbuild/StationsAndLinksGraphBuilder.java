@@ -211,7 +211,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createPlatformsForStation(Transaction txn, Station station, GraphBuilderCache routeBuilderCache) {
         for (Platform platform : station.getPlatforms()) {
-            Node platformNode = createGraphNode(txn, Labels.PLATFORM);
+            Node platformNode = createGraphNode(txn, GraphLabel.PLATFORM);
             setProperty(platformNode, platform);
             setProperty(platformNode, station);
             routeBuilderCache.putPlatform(platform.getId(), platformNode);
@@ -219,7 +219,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     private Node createRouteStationNode(Transaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
-        Node routeStationNode = createGraphNode(tx, Labels.ROUTE_STATION);
+        Node routeStationNode = createGraphNode(tx, GraphLabel.ROUTE_STATION);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
         GraphProps.setProperty(routeStationNode, routeStation);

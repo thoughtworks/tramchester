@@ -3,7 +3,7 @@ package com.tramchester.graph.caches;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.metrics.TimedTransaction;
 import org.neo4j.graphdb.Node;
@@ -20,16 +20,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
+import static com.tramchester.graph.graphbuild.GraphLabel.*;
 
 @LazySingleton
 public class NodeTypeCache implements NodeTypeRepository {
     private static final Logger logger = LoggerFactory.getLogger(NodeTypeCache.class);
 
-    private final ConcurrentMap<GraphBuilder.Labels, Set<Long>> labelMap;
+    private final ConcurrentMap<GraphLabel, Set<Long>> labelMap;
     private final ConcurrentMap<Long, Boolean> queryNodes;
 
-    private final Set<GraphBuilder.Labels> nodesToCache = new HashSet<>(Arrays.asList(
+    private final Set<GraphLabel> nodesToCache = new HashSet<>(Arrays.asList(
             ROUTE_STATION, PLATFORM, SERVICE, HOUR, MINUTE, TRAM_STATION, BUS_STATION, TRAIN_STATION,
             FERRY_STATION, SUBWAY_STATION
     ));
@@ -43,7 +43,7 @@ public class NodeTypeCache implements NodeTypeRepository {
         this.numbersOfNodes = numbersOfNodes;
         labelMap = new ConcurrentHashMap<>();
 
-        for (GraphBuilder.Labels label: nodesToCache) {
+        for (GraphLabel label: nodesToCache) {
             labelMap.put(label, new HashSet<>(getCapacity(label), 0.8F));
         }
         queryNodes = new ConcurrentHashMap<>();
@@ -71,13 +71,13 @@ public class NodeTypeCache implements NodeTypeRepository {
         // populate
         try (TimedTransaction timed = new TimedTransaction(graphDatabase, logger, "populate node type cache")) {
             Transaction tx = timed.transaction();
-            for (GraphBuilder.Labels label : nodesToCache) {
+            for (GraphLabel label : nodesToCache) {
                 graphDatabase.findNodes(tx, label).stream().forEach(node -> put(node.getId(), label));
             }
         }
 
         // logging for diagnostics
-        for (GraphBuilder.Labels label : nodesToCache) {
+        for (GraphLabel label : nodesToCache) {
             int size = labelMap.get(label).size();
             if (size>0) {
                 logger.info("Loaded " + size + " for label " + label);
@@ -88,15 +88,15 @@ public class NodeTypeCache implements NodeTypeRepository {
     }
 
 
-    private int getCapacity(GraphBuilder.Labels label) {
+    private int getCapacity(GraphLabel label) {
         return numbersOfNodes.numberOf(label).intValue();
     }
 
-    public void put(long id, GraphBuilder.Labels label) {
+    public void put(long id, GraphLabel label) {
         labelMap.get(label).add(id);
     }
 
-    public void put(long id, Set<GraphBuilder.Labels> labels) {
+    public void put(long id, Set<GraphLabel> labels) {
         labels.forEach(label -> put(id, label));
     }
 
@@ -126,8 +126,8 @@ public class NodeTypeCache implements NodeTypeRepository {
     @Override
     public boolean isBusStation(Node node) { return has(BUS_STATION, node.getId()); }
 
-    private boolean has(final GraphBuilder.Labels label, final long nodeId) {
-        if (label == GraphBuilder.Labels.QUERY_NODE) {
+    private boolean has(final GraphLabel label, final long nodeId) {
+        if (label == GraphLabel.QUERY_NODE) {
             return queryNodes.containsKey(nodeId);
         }
         return labelMap.get(label).contains(nodeId);
@@ -136,7 +136,7 @@ public class NodeTypeCache implements NodeTypeRepository {
     // for creating query nodes, to support MyLocation journeys
     @Override
     public Node createQueryNode(GraphDatabase graphDatabase, Transaction txn) {
-        Node result = graphDatabase.createNode(txn, GraphBuilder.Labels.QUERY_NODE);
+        Node result = graphDatabase.createNode(txn, GraphLabel.QUERY_NODE);
         queryNodes.put(result.getId(), true);
         return result;
     }

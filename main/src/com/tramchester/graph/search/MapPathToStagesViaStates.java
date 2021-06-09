@@ -2,7 +2,6 @@ package com.tramchester.graph.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -11,7 +10,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -99,7 +98,7 @@ public class MapPathToStagesViaStates implements PathToStages {
                 }
             } else {
                 Node node = (Node) entity;
-                Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.from(node.getLabels());
+                Set<GraphLabel> labels = GraphLabel.from(node.getLabels());
                 TraversalState next = previous.nextState(labels, node, mapStatesToStages, lastRelationshipCost);
 
                 logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());

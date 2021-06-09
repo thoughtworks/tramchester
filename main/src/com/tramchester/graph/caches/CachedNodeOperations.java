@@ -11,7 +11,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ReportsCacheStats;
@@ -51,9 +51,9 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
         tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
-        routeStationIdCache = createCache("routeStationIdCache", GraphBuilder.Labels.ROUTE_STATION);
-        timeNodeCache = createCache("timeNodeCache", GraphBuilder.Labels.MINUTE);
-        serviceNodeCache = createCache("serviceNodeCache", GraphBuilder.Labels.SERVICE);
+        routeStationIdCache = createCache("routeStationIdCache", GraphLabel.ROUTE_STATION);
+        timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
+        serviceNodeCache = createCache("serviceNodeCache", GraphLabel.SERVICE);
 
         cacheMetrics.register(this);
     }
@@ -75,7 +75,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     }
 
     @NonNull
-    private <T> Cache<Long, T> createCache(String name, GraphBuilder.Labels label) {
+    private <T> Cache<Long, T> createCache(String name, GraphLabel label) {
         return createCache(name, numberOfNodesAndRelationshipsRepository.numberOf(label));
     }
 

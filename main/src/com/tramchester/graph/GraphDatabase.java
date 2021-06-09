@@ -5,7 +5,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
@@ -26,7 +26,6 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
-import org.neo4j.graphdb.schema.IndexType;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.logging.Level;
@@ -153,7 +152,7 @@ public class GraphDatabase implements DatabaseEventListener {
                 return false;
             }
 
-            List<Node> versionNodes = getNodes(transaction, GraphBuilder.Labels.VERSION);
+            List<Node> versionNodes = getNodes(transaction, GraphLabel.VERSION);
             if (versionNodes.isEmpty()) {
                 logger.warn("Missing VERSION node, cannot check versions");
                 return false;
@@ -190,7 +189,7 @@ public class GraphDatabase implements DatabaseEventListener {
     }
 
     private boolean neighboursEnabledMismatch(Transaction txn) {
-        List<Node> nodes = getNodes(txn, GraphBuilder.Labels.NEIGHBOURS_ENABLED);
+        List<Node> nodes = getNodes(txn, GraphLabel.NEIGHBOURS_ENABLED);
 
         boolean dbValue = !nodes.isEmpty(); // presence of node means neighbours present
         boolean configValue = configuration.getCreateNeighbours();
@@ -203,7 +202,7 @@ public class GraphDatabase implements DatabaseEventListener {
         return configValue != dbValue;
     }
 
-    private List<Node> getNodes(Transaction transaction, GraphBuilder.Labels label) {
+    private List<Node> getNodes(Transaction transaction, GraphLabel label) {
         ResourceIterator<Node> query = findNodes(transaction, label);
         List<Node> nodes = query.stream().collect(Collectors.toList());
 
@@ -281,22 +280,22 @@ public class GraphDatabase implements DatabaseEventListener {
             Schema schema = tx.schema();
 
             configuration.getTransportModes().forEach(mode -> {
-                GraphBuilder.Labels label = GraphBuilder.Labels.forMode(mode);
+                GraphLabel label = GraphLabel.forMode(mode);
                 createUniqueIdConstraintFor(schema, label, GraphPropertyKey.STATION_ID);
                 schema.indexFor(label).on(GraphPropertyKey.ROUTE_ID.getText()).create();
             });
 
-            createUniqueIdConstraintFor(schema, GraphBuilder.Labels.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
-            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
-            schema.indexFor(GraphBuilder.Labels.ROUTE_STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
+            createUniqueIdConstraintFor(schema, GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
+            schema.indexFor(GraphLabel.ROUTE_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();
+            schema.indexFor(GraphLabel.ROUTE_STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
 
-            schema.indexFor(GraphBuilder.Labels.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
+            schema.indexFor(GraphLabel.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
 
             tx.commit();
         }
     }
 
-    private void createUniqueIdConstraintFor(Schema schema, GraphBuilder.Labels label, GraphPropertyKey property) {
+    private void createUniqueIdConstraintFor(Schema schema, GraphLabel label, GraphPropertyKey property) {
         schema.indexFor(label).on(property.getText()).create();
 //        schema.constraintFor(label).
 //                assertPropertyIsUnique(property.getText()).withIndexType(IndexType.BTREE).create();
@@ -317,17 +316,17 @@ public class GraphDatabase implements DatabaseEventListener {
                 )));
     }
 
-    public Node createNode(Transaction tx, GraphBuilder.Labels label) {
+    public Node createNode(Transaction tx, GraphLabel label) {
         return tx.createNode(label);
     }
 
-    public Node createNode(Transaction tx, Set<GraphBuilder.Labels> labels) {
-        GraphBuilder.Labels[] toApply = new GraphBuilder.Labels[labels.size()];
+    public Node createNode(Transaction tx, Set<GraphLabel> labels) {
+        GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
         return tx.createNode(toApply);
     }
 
-    public Node findNode(Transaction tx, GraphBuilder.Labels labels, String idField, String idValue) {
+    public Node findNode(Transaction tx, GraphLabel labels, String idField, String idValue) {
         return tx.findNode(labels, idField, idValue);
     }
 
@@ -338,7 +337,7 @@ public class GraphDatabase implements DatabaseEventListener {
         return databaseService.isAvailable(timeoutMillis);
     }
 
-    public ResourceIterator<Node> findNodes(Transaction tx, GraphBuilder.Labels label) {
+    public ResourceIterator<Node> findNodes(Transaction tx, GraphLabel label) {
         return tx.findNodes(label);
     }
 

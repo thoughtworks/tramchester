@@ -30,67 +30,6 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
     protected static final int ENTER_INTER_PLATFORM_COST = 0;
     protected static final int LEAVE_INTER_PLATFORM_COST = 0;
 
-    // TODO Push up
-    public enum Labels implements Label
-    {
-        GROUPED,  // composite station node
-        ROUTE_STATION,
-        TRAM_STATION,
-        BUS_STATION,
-        TRAIN_STATION,
-        FERRY_STATION,
-        SUBWAY_STATION,
-        PLATFORM,
-        QUERY_NODE,
-        SERVICE,
-        HOUR,
-        MINUTE,
-        VERSION,
-        NEIGHBOURS_ENABLED,
-        COMPOSITES_ADDED,
-        INTERCHANGE; // label added to stations if they are interchanges
-
-        public static Labels forMode(TransportMode mode) {
-            return switch (mode) {
-                case Tram -> TRAM_STATION;
-                case Bus -> BUS_STATION;
-                case Train, RailReplacementBus -> TRAIN_STATION;
-                case Ferry -> FERRY_STATION;
-                case Subway -> SUBWAY_STATION;
-                default -> throw new RuntimeException("Unsupported mode " + mode);
-            };
-        }
-
-        public static Set<Labels> forMode(Set<TransportMode> modes) {
-            return modes.stream().map(mode -> forMode(mode.getTransportMode())).collect(Collectors.toSet());
-        }
-
-        public static boolean isStation(Labels label) {
-            return label == TRAM_STATION || isNoPlatformStation(label);
-        }
-
-        public static boolean isStation(Iterable<Label> nodeLabels) {
-            for(Label nodeLabel : nodeLabels) {
-                if (isStation(valueOf(nodeLabel.toString()))) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static boolean isNoPlatformStation(Labels label) {
-            return label == BUS_STATION || label == TRAIN_STATION || label == FERRY_STATION
-                    || label == SUBWAY_STATION;
-        }
-
-        public static Set<Labels> from(Iterable<Label> labels) {
-            Set<Labels> result = new HashSet<>();
-            labels.forEach(label -> result.add(valueOf(label.toString())));
-            return result;
-        }
-
-    }
-
     protected final GraphDBConfig graphDBConfig;
     protected final GraphFilter graphFilter;
     protected final GraphBuilderCache builderCache;

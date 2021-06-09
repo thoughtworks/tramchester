@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
@@ -33,7 +33,7 @@ public enum GraphPropertyKey {
         return text;
     }
 
-    public static GraphPropertyKey keyForLabel(GraphBuilder.Labels label) {
+    public static GraphPropertyKey keyForLabel(GraphLabel label) {
         return switch (label) {
             case TRAIN_STATION, BUS_STATION, TRAM_STATION, FERRY_STATION, SUBWAY_STATION, GROUPED -> STATION_ID;
             case ROUTE_STATION -> ROUTE_STATION_ID;

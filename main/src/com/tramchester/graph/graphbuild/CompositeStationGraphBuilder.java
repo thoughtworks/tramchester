@@ -102,7 +102,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private Node createGroupedStationNodes(Transaction txn, CompositeStation compositeStation) {
-        Node stationNode = CompositeStationGraphBuilder.this.createGraphNode(txn, GraphBuilder.Labels.GROUPED);
+        Node stationNode = CompositeStationGraphBuilder.this.createGraphNode(txn, GraphLabel.GROUPED);
         setProperty(stationNode, compositeStation);
         return stationNode;
     }
@@ -127,13 +127,13 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private boolean hasDBFlag(Transaction txn) {
-        ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphBuilder.Labels.COMPOSITES_ADDED);
+        ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphLabel.COMPOSITES_ADDED);
         List<Node> nodes = query.stream().collect(Collectors.toList());
         return !nodes.isEmpty();
     }
 
     private void addDBFlag(Transaction txn) {
-        txn.createNode(GraphBuilder.Labels.COMPOSITES_ADDED);
+        txn.createNode(GraphLabel.COMPOSITES_ADDED);
     }
 
     public static class Ready {

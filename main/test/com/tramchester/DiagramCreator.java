@@ -7,7 +7,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.CompositeStationRepository;
 import org.jetbrains.annotations.NotNull;
@@ -25,8 +25,8 @@ import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.HOUR;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
+import static com.tramchester.graph.graphbuild.GraphLabel.HOUR;
+import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static java.lang.String.format;
 
 
@@ -194,22 +194,22 @@ public class DiagramCreator {
     }
 
     private String getShapeFor(Node node) {
-        if (node.hasLabel(GraphBuilder.Labels.PLATFORM)) {
+        if (node.hasLabel(GraphLabel.PLATFORM)) {
             return "box";
         }
-        if (node.hasLabel(GraphBuilder.Labels.ROUTE_STATION)) {
+        if (node.hasLabel(GraphLabel.ROUTE_STATION)) {
             return "oval";
         }
         if (node.hasLabel(TRAM_STATION) || node.hasLabel(BUS_STATION) || node.hasLabel(TRAIN_STATION)) {
             return "house";
         }
-        if (node.hasLabel(GraphBuilder.Labels.SERVICE)) {
+        if (node.hasLabel(GraphLabel.SERVICE)) {
             return "octagon";
         }
         if (node.hasLabel(HOUR)) {
             return "box";
         }
-        if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
+        if (node.hasLabel(GraphLabel.MINUTE)) {
             return "box";
         }
         return "box";

@@ -4,7 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.HourNodeCache;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.*;
@@ -58,7 +58,7 @@ class NodeCachePopulationTests {
         List<Integer> expectedHours = Arrays.asList(8,9);
         HourNodeCache hourNodeCache = componentContainer.get(HourNodeCache.class);
 
-        ResourceIterator<Node> hourNodes = txn.findNodes(GraphBuilder.Labels.HOUR);
+        ResourceIterator<Node> hourNodes = txn.findNodes(GraphLabel.HOUR);
         while (hourNodes.hasNext()) {
             Node hourNode = hourNodes.next();
             int found = hourNodeCache.getHourFor(hourNode.getId());

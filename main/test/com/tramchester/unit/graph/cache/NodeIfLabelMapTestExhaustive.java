@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeTypeCache;
 import com.tramchester.graph.caches.NodeTypeRepository;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
@@ -55,25 +55,25 @@ class NodeIfLabelMapTestExhaustive {
 
     @Test
     void shouldHaveCorrectValuesInTime() {
-        checkFor(NodeTypeRepository::isTime, GraphBuilder.Labels.MINUTE);
+        checkFor(NodeTypeRepository::isTime, GraphLabel.MINUTE);
     }
 
     @Test
     void shouldHaveCorrectValuesInHour() {
-        checkFor(NodeTypeRepository::isHour, GraphBuilder.Labels.HOUR);
+        checkFor(NodeTypeRepository::isHour, GraphLabel.HOUR);
     }
 
     @Test
     void shouldHaveCorrectValuesInService() {
-        checkFor(NodeTypeRepository::isService, GraphBuilder.Labels.SERVICE);
+        checkFor(NodeTypeRepository::isService, GraphLabel.SERVICE);
     }
 
     @Test
     void shouldHaveCorrectValuesInRouteStation() {
-        checkFor(NodeTypeRepository::isRouteStation, GraphBuilder.Labels.ROUTE_STATION);
+        checkFor(NodeTypeRepository::isRouteStation, GraphLabel.ROUTE_STATION);
     }
 
-    private void checkFor(NodeTypeCacheTest.ValidatesFor validatesFor, GraphBuilder.Labels label) {
+    private void checkFor(NodeTypeCacheTest.ValidatesFor validatesFor, GraphLabel label) {
         Set<Node> directs = database.findNodes(txn, label).stream().collect(Collectors.toSet());
         assertFalse(directs.isEmpty(), "missing");
         for (Node direct : directs) {

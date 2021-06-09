@@ -3,7 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.repository.CompositeStationRepository;
@@ -94,8 +94,8 @@ public class ReasonsToGraphViz {
     private String getIdsFor(Node node) {
         StringBuilder ids = new StringBuilder();
         node.getLabels().forEach(label -> {
-            GraphBuilder.Labels graphLabel = GraphBuilder.Labels.valueOf(label.name());
-            if (!graphLabel.equals(GraphBuilder.Labels.INTERCHANGE)) {
+            GraphLabel graphLabel = GraphLabel.valueOf(label.name());
+            if (!graphLabel.equals(GraphLabel.INTERCHANGE)) {
                 GraphPropertyKey key = GraphPropertyKey.keyForLabel(graphLabel);
                 String value = node.getProperty(key.getText()).toString();
                 if (ids.length() > 0) {
@@ -103,7 +103,7 @@ public class ReasonsToGraphViz {
                 }
                 ids.append(value);
             }
-            if (GraphBuilder.Labels.isStation(graphLabel)) {
+            if (GraphLabel.isStation(graphLabel)) {
                 IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
                 Station station = stationRepository.getStationById(stationIdFrom);
                 ids.append(System.lineSeparator()).append(station.getName());

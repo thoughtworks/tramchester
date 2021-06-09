@@ -15,7 +15,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -309,7 +309,7 @@ public class MapPathToStagesViaStatesTest {
 
     private TramTime getFirstTime(Path path) {
         for (Node node : path.nodes()) {
-            if (node.hasLabel(GraphBuilder.Labels.MINUTE)) {
+            if (node.hasLabel(GraphLabel.MINUTE)) {
                 return GraphProps.getTime(node);
             }
         }

@@ -4,12 +4,8 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
-import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.graph.graphbuild.*;
 import com.tramchester.metrics.TimedTransaction;
-import com.tramchester.metrics.Timing;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -36,7 +32,7 @@ public class FindStationsByNumberLinks {
     public IdSet<Station> findAtLeastNConnectionsFrom(TransportMode mode, int threshhold) {
         logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
         Map<String, Object> params = new HashMap<>();
-        String stationLabel = GraphBuilder.Labels.forMode(mode).name();
+        String stationLabel = GraphLabel.forMode(mode).name();
         String modesProps = GraphPropertyKey.TRANSPORT_MODES.getText();
 
         params.put("count", threshhold);

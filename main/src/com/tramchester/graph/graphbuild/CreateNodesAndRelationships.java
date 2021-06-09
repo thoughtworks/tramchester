@@ -34,19 +34,19 @@ public class CreateNodesAndRelationships {
 
     protected Node createStationNode(Transaction tx, Station station) {
 
-        Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.forMode(station.getTransportModes());
+        Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
         Node stationNode = createGraphNode(tx, labels);
         setProperty(stationNode, station);
         return stationNode;
     }
 
-    protected Node createGraphNode(Transaction tx, GraphBuilder.Labels label) {
+    protected Node createGraphNode(Transaction tx, GraphLabel label) {
         numberNodes++;
         return graphDatabase.createNode(tx, label);
     }
 
-    private Node createGraphNode(Transaction tx, Set<GraphBuilder.Labels> labels) {
+    private Node createGraphNode(Transaction tx, Set<GraphLabel> labels) {
         numberNodes++;
         return graphDatabase.createNode(tx, labels);
     }

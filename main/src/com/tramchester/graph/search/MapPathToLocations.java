@@ -3,14 +3,12 @@ package com.tramchester.graph.search;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.CompositeStationRepository;
-import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
@@ -19,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.*;
+import static com.tramchester.graph.graphbuild.GraphLabel.*;
 
 @LazySingleton
 public class MapPathToLocations {

@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
@@ -51,18 +51,18 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         this.parentCost = parent.getTotalCost();
     }
 
-    public TraversalState nextState(Set<GraphBuilder.Labels> nodeLabels, Node node,
+    public TraversalState nextState(Set<GraphLabel> nodeLabels, Node node,
                                     JourneyStateUpdate journeyState, int cost) {
 
-        boolean isInterchange = nodeLabels.contains(GraphBuilder.Labels.INTERCHANGE);
+        boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
 
-        GraphBuilder.Labels nodeLabel;
+        GraphLabel nodeLabel;
         if (nodeLabels.size()==1) {
             nodeLabel = nodeLabels.iterator().next();
-        } else if (nodeLabels.size()==2 && isInterchange && nodeLabels.contains(GraphBuilder.Labels.ROUTE_STATION)) {
-            nodeLabel = GraphBuilder.Labels.ROUTE_STATION;
+        } else if (nodeLabels.size()==2 && isInterchange && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
+            nodeLabel = GraphLabel.ROUTE_STATION;
         } else {
-            long stations = nodeLabels.stream().filter(GraphBuilder.Labels::isNoPlatformStation).count();
+            long stations = nodeLabels.stream().filter(GraphLabel::isNoPlatformStation).count();
             if (stations==nodeLabels.size()) {
                 // multi-mode station, all same case, so pick first one
                 nodeLabel = nodeLabels.iterator().next();

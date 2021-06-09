@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphBuilder.Labels.INTERCHANGE;
+import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
 import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -250,7 +250,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
             logger.info("Adding version node to the DB");
-            Node node = createGraphNode(tx, Labels.VERSION);
+            Node node = createGraphNode(tx, GraphLabel.VERSION);
             infos.forEach(nameAndVersion -> setProp(node, nameAndVersion));
             tx.commit();
         }
@@ -383,7 +383,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
 
-        Node svcNode = createGraphNode(tx, Labels.SERVICE);
+        Node svcNode = createGraphNode(tx, GraphLabel.SERVICE);
         setProperty(svcNode, service);
         setProperty(svcNode, route);
         // TODO This is used to look up station and hence lat/long for distance ordering, store
@@ -604,7 +604,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private Node createTimeNodeAndRelationshipFromHour(Transaction tx, Trip trip, IdFor<Station> startId, TramTime departureTime,
                                                        GraphBuilderCache builderCache) {
 
-        Node timeNode = createGraphNode(tx, Labels.MINUTE);
+        Node timeNode = createGraphNode(tx, GraphLabel.MINUTE);
         setTimeProp(timeNode, departureTime);
         setProperty(timeNode, trip);
 
@@ -622,7 +622,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                                           Integer hour, GraphBuilderCache builderCache, Node serviceNode) {
 
         if (!builderCache.hasHourNode(routeId, service, startId, hour)) {
-            Node hourNode = createGraphNode(tx, Labels.HOUR);
+            Node hourNode = createGraphNode(tx, GraphLabel.HOUR);
             setHourProp(hourNode, hour);
             builderCache.putHour(routeId, service, startId, hour, hourNode);
 

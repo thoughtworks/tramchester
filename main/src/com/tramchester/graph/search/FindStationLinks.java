@@ -7,7 +7,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.metrics.TimedTransaction;
@@ -43,7 +43,7 @@ public class FindStationLinks {
     public Set<StationLink> findLinkedFor(TransportMode mode) {
         logger.info(format("Find links for %s", mode));
         Map<String, Object> params = new HashMap<>();
-        String stationLabel = GraphBuilder.Labels.forMode(mode).name();
+        String stationLabel = GraphLabel.forMode(mode).name();
         String modesProps = GraphPropertyKey.TRANSPORT_MODES.getText();
 
         params.put("mode", mode.getNumber());

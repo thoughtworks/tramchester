@@ -7,7 +7,7 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
@@ -108,10 +108,10 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
 
         try(Transaction tx = graphDatabase.beginTx()) {
-            graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
+            graphDatabase.createNode(tx, GraphLabel.QUERY_NODE);
             tx.commit();
         }
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
 
         graphDatabase.stop();
         assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
@@ -120,7 +120,7 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(1000));
         assertTrue(graphDatabase.isCleanDB());
         // query node gone, fresh DB
-        assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(0, countNodeType(GraphLabel.QUERY_NODE).intValue());
     }
 
 
@@ -130,13 +130,13 @@ class GraphDatabaseLifecycleTest {
 
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
-            Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
+            Node node = graphDatabase.createNode(tx, GraphLabel.VERSION);
             node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
             // create a node in the DB to check for when we reload the same DB file
-            graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
+            graphDatabase.createNode(tx, GraphLabel.QUERY_NODE);
             tx.commit();
         }
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
 
         graphDatabase.stop();
         assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
@@ -145,7 +145,7 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertFalse(graphDatabase.isCleanDB());
         // query node still present
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
     }
 
     @Test
@@ -154,14 +154,14 @@ class GraphDatabaseLifecycleTest {
 
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
-            Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
+            Node node = graphDatabase.createNode(tx, GraphLabel.VERSION);
             node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
             node.setProperty(SRC_2_NAME.getName(), VERSION_2_VALID);
             // create a node in the DB to check for when we reload the same DB file
-            graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
+            graphDatabase.createNode(tx, GraphLabel.QUERY_NODE);
             tx.commit();
         }
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
 
         graphDatabase.stop();
         assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
@@ -170,7 +170,7 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertFalse(graphDatabase.isCleanDB());
         // query node still present
-        AtomicInteger count = countNodeType(GraphBuilder.Labels.QUERY_NODE);
+        AtomicInteger count = countNodeType(GraphLabel.QUERY_NODE);
         assertEquals(1, count.intValue());
     }
 
@@ -180,15 +180,15 @@ class GraphDatabaseLifecycleTest {
 
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         try(Transaction tx = graphDatabase.beginTx()) {
-            Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
+            Node node = graphDatabase.createNode(tx, GraphLabel.VERSION);
             node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
             node.setProperty(SRC_2_NAME.getName(), VERSION_2_VALID);
             node.setProperty("src3", "anotherVersion");
             // create a node in the DB to check for when we reload the same DB file
-            graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
+            graphDatabase.createNode(tx, GraphLabel.QUERY_NODE);
             tx.commit();
         }
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
 
         graphDatabase.stop();
         assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
@@ -196,7 +196,7 @@ class GraphDatabaseLifecycleTest {
         graphDatabase.start();
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertTrue(graphDatabase.isCleanDB());
-        assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(0, countNodeType(GraphLabel.QUERY_NODE).intValue());
     }
 
     @Test
@@ -205,13 +205,13 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
 
         try(Transaction tx = graphDatabase.beginTx()) {
-            Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
+            Node node = graphDatabase.createNode(tx, GraphLabel.VERSION);
             node.setProperty(SRC_1_NAME.getName(), "XXXXXX");
             // create a node in the DB to check for when we reload the same DB file
-            graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
+            graphDatabase.createNode(tx, GraphLabel.QUERY_NODE);
             tx.commit();
         }
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
 
         graphDatabase.stop();
         assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
@@ -220,7 +220,7 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertTrue(graphDatabase.isCleanDB());
         // query node gone, fresh DB
-        assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(0, countNodeType(GraphLabel.QUERY_NODE).intValue());
     }
 
     @Test
@@ -229,14 +229,14 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(1000));
 
         try(Transaction tx = graphDatabase.beginTx()) {
-            Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
+            Node node = graphDatabase.createNode(tx, GraphLabel.VERSION);
             node.setProperty(SRC_1_NAME.getName(), VERSION_1_VALID);
             node.setProperty(SRC_2_NAME.getName(), "XXXXX");
             // create a node in the DB to check for when we reload the same DB file
-            graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
+            graphDatabase.createNode(tx, GraphLabel.QUERY_NODE);
             tx.commit();
         }
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
 
         graphDatabase.stop();
         assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
@@ -245,7 +245,7 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(1000));
         assertTrue(graphDatabase.isCleanDB());
         // query node gone, fresh DB
-        assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(0, countNodeType(GraphLabel.QUERY_NODE).intValue());
     }
 
     @Test
@@ -263,20 +263,20 @@ class GraphDatabaseLifecycleTest {
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
 
         try(Transaction tx = graphDatabase.beginTx()) {
-            Node node = graphDatabase.createNode(tx, GraphBuilder.Labels.VERSION);
+            Node node = graphDatabase.createNode(tx, GraphLabel.VERSION);
             node.setProperty(SRC_2_NAME.getName(), "version42");
             // create a node in the DB to check for when we reload the same DB file
-            graphDatabase.createNode(tx, GraphBuilder.Labels.QUERY_NODE);
+            graphDatabase.createNode(tx, GraphLabel.QUERY_NODE);
             tx.commit();
         }
-        assertEquals(1, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(1, countNodeType(GraphLabel.QUERY_NODE).intValue());
         graphDatabase.stop();
         assertFalse(isAvailable(SHUTDOWN_TIMEOUT_MILLI));
 
         graphDatabase.start();
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
         assertTrue(graphDatabase.isCleanDB());
-        assertEquals(0, countNodeType(GraphBuilder.Labels.QUERY_NODE).intValue());
+        assertEquals(0, countNodeType(GraphLabel.QUERY_NODE).intValue());
     }
 
     private void createWithTwoNamesAndVersions() {
@@ -302,7 +302,7 @@ class GraphDatabaseLifecycleTest {
     }
 
     @NotNull
-    private AtomicInteger countNodeType(GraphBuilder.Labels label) {
+    private AtomicInteger countNodeType(GraphLabel label) {
         AtomicInteger count = new AtomicInteger();
         try(Transaction tx = graphDatabase.beginTx()) {
             ResourceIterator<Node> nodes = graphDatabase.findNodes(tx, label);

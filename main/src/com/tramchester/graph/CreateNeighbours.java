@@ -11,10 +11,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
-import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.graph.graphbuild.*;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
@@ -100,7 +97,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
 
     private void loadStationsWithNeighbours(TransportMode mode) {
         logger.info("Populating stations with neighbours from existing DB");
-        String stationLabel = GraphBuilder.Labels.forMode(mode).name();
+        String stationLabel = GraphLabel.forMode(mode).name();
 
         String query = format("MATCH (a:%s)-[r:NEIGHBOUR]->(b) " +
                         "WHERE NOT b:%s " +
@@ -154,14 +151,14 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
     private boolean hasDBFlag() {
         boolean flag;
         try (Transaction txn = graphDatabase.beginTx()) {
-            flag = graphQuery.hasAnyNodesWithLabel(txn, GraphBuilder.Labels.NEIGHBOURS_ENABLED);
+            flag = graphQuery.hasAnyNodesWithLabel(txn, GraphLabel.NEIGHBOURS_ENABLED);
         }
         return flag;
     }
 
     private void addDBFlag() {
         try (Transaction txn = graphDatabase.beginTx()) {
-            txn.createNode(GraphBuilder.Labels.NEIGHBOURS_ENABLED);
+            txn.createNode(GraphLabel.NEIGHBOURS_ENABLED);
             txn.commit();
         }
     }

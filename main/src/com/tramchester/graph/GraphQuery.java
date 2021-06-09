@@ -5,9 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
-import com.tramchester.graph.graphbuild.GraphBuilder;
-import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.*;
 
 import javax.inject.Inject;
@@ -34,18 +32,18 @@ public class GraphQuery {
     }
 
     public Node getRouteStationNode(Transaction txn, HasId<RouteStation> id) {
-        return findNode(txn, GraphBuilder.Labels.ROUTE_STATION, id);
+        return findNode(txn, GraphLabel.ROUTE_STATION, id);
     }
 
     public Node getStationNode(Transaction txn, Station station) {
-        Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.forMode(station.getTransportModes());
+        Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
         // ought to be able find with any of the labels, so use the first one
-        GraphBuilder.Labels label = labels.iterator().next();
+        GraphLabel label = labels.iterator().next();
         return findNode(txn, label, station);
     }
 
     private Node getGroupedNode(Transaction txn, Station station) {
-        return findNode(txn, GraphBuilder.Labels.GROUPED, station);
+        return findNode(txn, GraphLabel.GROUPED, station);
     }
 
     public Node getStationOrGrouped(Transaction txn, Station station) {
@@ -56,7 +54,7 @@ public class GraphQuery {
         }
     }
 
-    private <C extends GraphProperty>  Node findNode(Transaction txn, GraphBuilder.Labels label, HasId<C> hasId) {
+    private <C extends GraphProperty>  Node findNode(Transaction txn, GraphLabel label, HasId<C> hasId) {
         return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
     }
 
@@ -70,7 +68,7 @@ public class GraphQuery {
         return result;
     }
 
-    public boolean hasAnyNodesWithLabel(Transaction txn, GraphBuilder.Labels label) {
+    public boolean hasAnyNodesWithLabel(Transaction txn, GraphLabel label) {
         ResourceIterator<Node> query = graphDatabase.findNodes(txn, label);
         List<Node> nodes = query.stream().collect(Collectors.toList());
         return !nodes.isEmpty();

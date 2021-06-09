@@ -4,7 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
@@ -48,17 +48,17 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
     @Test
     void shouldHaveCorrectNumberOfNodesOfType() {
 
-        assertEquals(0, repository.numberOf(GraphBuilder.Labels.SUBWAY_STATION));
-        assertEquals(0, repository.numberOf(GraphBuilder.Labels.BUS_STATION));
-        assertEquals(0, repository.numberOf(GraphBuilder.Labels.QUERY_NODE));
-        assertEquals(0, repository.numberOf(GraphBuilder.Labels.TRAIN_STATION));
+        assertEquals(0, repository.numberOf(GraphLabel.SUBWAY_STATION));
+        assertEquals(0, repository.numberOf(GraphLabel.BUS_STATION));
+        assertEquals(0, repository.numberOf(GraphLabel.QUERY_NODE));
+        assertEquals(0, repository.numberOf(GraphLabel.TRAIN_STATION));
 
-        assertEquals(9, repository.numberOf(GraphBuilder.Labels.TRAM_STATION));
-        assertEquals(6, repository.numberOf(GraphBuilder.Labels.HOUR));
-        assertEquals(5, repository.numberOf(GraphBuilder.Labels.SERVICE));
-        assertEquals(7, repository.numberOf(GraphBuilder.Labels.MINUTE));
-        assertEquals(9, repository.numberOf(GraphBuilder.Labels.PLATFORM));
-        assertEquals(11, repository.numberOf(GraphBuilder.Labels.ROUTE_STATION));
+        assertEquals(9, repository.numberOf(GraphLabel.TRAM_STATION));
+        assertEquals(6, repository.numberOf(GraphLabel.HOUR));
+        assertEquals(5, repository.numberOf(GraphLabel.SERVICE));
+        assertEquals(7, repository.numberOf(GraphLabel.MINUTE));
+        assertEquals(9, repository.numberOf(GraphLabel.PLATFORM));
+        assertEquals(11, repository.numberOf(GraphLabel.ROUTE_STATION));
 
     }
 

@@ -9,7 +9,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -154,7 +154,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             }
         }
 
-        Set<GraphBuilder.Labels> labels = GraphBuilder.Labels.from(endNode.getLabels());
+        Set<GraphLabel> labels = GraphLabel.from(endNode.getLabels());
 
         TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
                 journeyStateForChildren, cost);

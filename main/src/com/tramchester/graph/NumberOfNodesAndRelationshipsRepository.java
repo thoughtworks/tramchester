@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.graphbuild.GraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
@@ -21,14 +21,14 @@ public
 class NumberOfNodesAndRelationshipsRepository {
     private static final Logger logger = LoggerFactory.getLogger(NumberOfNodesAndRelationshipsRepository.class);
 
-    private final Map<GraphBuilder.Labels, Long> nodeCounts;
+    private final Map<GraphLabel, Long> nodeCounts;
     private final Map<TransportRelationshipTypes, Long> relationshipCounts;
     private final GraphDatabase graphDatabase;
 
     @Inject
     public NumberOfNodesAndRelationshipsRepository(GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
         this.graphDatabase = graphDatabase;
-        nodeCounts = new HashMap<>(GraphBuilder.Labels.values().length);
+        nodeCounts = new HashMap<>(GraphLabel.values().length);
         relationshipCounts = new HashMap<>(TransportRelationshipTypes.values().length);
     }
 
@@ -57,9 +57,9 @@ class NumberOfNodesAndRelationshipsRepository {
     }
 
     private void countNodeNumbers() {
-        GraphBuilder.Labels[] labels = GraphBuilder.Labels.values();
+        GraphLabel[] labels = GraphLabel.values();
         try (Transaction txn = graphDatabase.beginTx()) {
-            for (GraphBuilder.Labels label : labels) {
+            for (GraphLabel label : labels) {
                 long count = getCountFromQuery(txn,
                         "MATCH (node:" + label.name() + ") " + "RETURN count(*) as count");
                 nodeCounts.put(label, count);
@@ -84,7 +84,7 @@ class NumberOfNodesAndRelationshipsRepository {
         relationshipCounts.clear();
     }
 
-    public Long numberOf(GraphBuilder.Labels label) {
+    public Long numberOf(GraphLabel label) {
         if (!nodeCounts.containsKey(label)) {
             return 0L;
         }
