@@ -17,11 +17,11 @@ public enum TransportMode implements HasTransportMode {
     Subway((short)6),
     RailReplacementBus((short)7),
 
-    Depart((short)50),
-    Board((short)51),
     Connect((short)52),
-    NotSet((short)53),
-    Unknown((short)99);
+    NotSet((short)53);
+//    Depart((short)50),
+//    Board((short)51),
+//    Unknown((short)99);
 
     private static final Map<Short, TransportMode> theMap;
 

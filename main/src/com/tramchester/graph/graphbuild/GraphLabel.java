@@ -32,6 +32,7 @@ public enum GraphLabel implements Label {
             case Train, RailReplacementBus -> TRAIN_STATION;
             case Ferry -> FERRY_STATION;
             case Subway -> SUBWAY_STATION;
+            case Walk -> QUERY_NODE;
             default -> throw new RuntimeException("Unsupported mode " + mode);
         };
     }
@@ -44,15 +45,12 @@ public enum GraphLabel implements Label {
         return label == TRAM_STATION || isNoPlatformStation(label);
     }
 
-    public static boolean isStation(Iterable<Label> nodeLabels) {
-        for (Label nodeLabel : nodeLabels) {
-            if (isStation(valueOf(nodeLabel.toString()))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    /**
+     * should be based on data source config only
+     * @param label the graph label
+     * @return true if label is TRAM_STATION
+     */
+    @Deprecated
     public static boolean isNoPlatformStation(GraphLabel label) {
         return label == BUS_STATION || label == TRAIN_STATION || label == FERRY_STATION
                 || label == SUBWAY_STATION;
@@ -60,7 +58,7 @@ public enum GraphLabel implements Label {
 
     public static Set<GraphLabel> from(Iterable<Label> labels) {
         Set<GraphLabel> result = new HashSet<>();
-        labels.forEach(label -> result.add(valueOf(label.toString())));
+        labels.forEach(label -> result.add(valueOf(label.name())));
         return result;
     }
 
