@@ -3,7 +3,6 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
@@ -15,11 +14,8 @@ import java.util.stream.Collectors;
 
 public class Station implements Location<Station> {
 
-    @Deprecated
-    public static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
-
     private final String area;
-    private final IdFor<Station> id; // id is the "atoc code" for the tfgm data set
+    private final IdFor<Station> id;
     private final String name;
     private final LatLong latLong;
     private final GridPosition gridPosition;
@@ -53,16 +49,6 @@ public class Station implements Location<Station> {
     public LatLong getLatLong() {
         return latLong;
     }
-
-    // Metrolink stations ID the platform with a number on the end of the stationID
-//    public static IdFor<Station> formId(String text) {
-//        if (text.startsWith(METROLINK_PREFIX)) {
-//            // metrolink platform ids include platform as final digit, remove to give id of station itself
-//            int index = text.length()-1;
-//            return StringIdFor.createId(text.substring(0,index));
-//        }
-//        return StringIdFor.createId(text);
-//    }
 
     @Override
     public String getArea() {

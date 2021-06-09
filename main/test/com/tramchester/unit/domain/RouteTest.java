@@ -36,16 +36,4 @@ class RouteTest {
         Assertions.assertEquals(2, services.size());
     }
 
-    @Test
-    void shouldAddHeadsign() {
-        Route  route = new Route(StringIdFor.createId("id"),"code","name", TestEnv.MetAgency(), TransportMode.Tram);
-
-        route.addHeadsign("hs1");
-        route.addHeadsign("hs2");
-        route.addHeadsign("hs1");
-
-        Set<String> results = route.getHeadsigns();
-
-        Assertions.assertEquals(2, results.size());
-    }
 }

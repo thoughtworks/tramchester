@@ -20,7 +20,8 @@ import org.slf4j.LoggerFactory;
 
 public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
-    private static final String METROLINK_PREFIX = "9400ZZ";
+    private static final String METROLINK_ID_PREFIX = "9400ZZ";
+    private static final String METROLINK_NAME_POSTFIX = "(Manchester Metrolink)";
 
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
 
@@ -41,31 +42,55 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @Override
     public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
-        String area = stopData.getArea();
-        if (naptanRespository.isEnabled()) {
-            if (naptanRespository.contains(stationId)) {
-                area = getAreaFromNaptanData(stationId);
-            } else {
-                logger.warn("No naptan data found for " + stationId);
-            }
-        }
 
-        final boolean isMetrolinkTram = stopData.getId().startsWith(METROLINK_PREFIX);
+        String area = getAreaFor(stationId);
 
         // NOTE: Tram data has unique positions for each platform
         // TODO What is the right position to use for a tram station?
-        final Station station = new Station(stationId, area, workAroundName(stopData.getName()), stopData.getLatLong(), position);
+        final String stationName = createStationName(stopData);
+        final Station station = new Station(stationId, area, workAroundName(stationName), stopData.getLatLong(), position);
 
         // metrolink tram station, has platforms
-        if (isMetrolinkTram) {
-            Platform platform = createPlatform(stopData);
+        addPlatformIfMissing(stopData, station);
+
+        // Check for duplicate names - handled by CompositeStationRepository
+        return station;
+    }
+
+    @Override
+    public void updateStation(Station station, StopData stopData) {
+        addPlatformIfMissing(stopData, station);
+    }
+
+    private void addPlatformIfMissing(StopData stopData, Station station) {
+        if (isMetrolinkTram(stopData)) {
+            Platform platform = new Platform(stopData.getId(), createStationName(stopData), stopData.getLatLong());
             if (!station.getPlatforms().contains(platform)) {
                 station.addPlatform(platform);
             }
         }
+    }
 
-        // Check for duplicate names - handled by CompositeStationRepository
-        return station;
+    private String createStationName(StopData stopData) {
+        String text = stopData.getName();
+        text = text.replace("\"", "").trim();
+
+        if (text.endsWith(METROLINK_NAME_POSTFIX)) {
+            return text.replace(METROLINK_NAME_POSTFIX,"").trim();
+        } else {
+            return text;
+        }
+    }
+
+    protected String getAreaFor(IdFor<Station> stationId) {
+        if (naptanRespository.isEnabled()) {
+            if (naptanRespository.contains(stationId)) {
+                return getAreaFromNaptanData(stationId);
+            } else {
+                logger.warn("No naptan data found for " + stationId);
+            }
+        }
+        return "";
     }
 
     @Override
@@ -75,7 +100,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @NotNull
     public static IdFor<Station> getStationIdFor(String text) {
-        if (text.startsWith(METROLINK_PREFIX)) {
+        if (text.startsWith(METROLINK_ID_PREFIX)) {
             // metrolink platform ids include platform as final digit, remove to give id of station itself
             int index = text.length()-1;
             return StringIdFor.createId(text.substring(0,index));
@@ -83,8 +108,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return StringIdFor.createId(text);
     }
 
-    private Platform createPlatform(StopData stop) {
-        return new Platform(stop.getId(), stop.getName(), stop.getLatLong());
+    private boolean isMetrolinkTram(StopData stopData) {
+        return stopData.getId().startsWith(METROLINK_ID_PREFIX);
     }
 
     private String getAreaFromNaptanData(IdFor<Station> stationId) {
@@ -98,6 +123,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return area;
     }
 
+    // TODO Consolidate handling of various TFGM mappings and monitor if still needed
     // spelt different ways within data
     private String workAroundName(String name) {
         if ("St Peters Square".equals(name)) {

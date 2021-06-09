@@ -1,6 +1,7 @@
 package com.tramchester.domain.factory;
 
 import com.tramchester.dataimport.data.RouteData;
+import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -47,6 +48,11 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
     @Override
     public IdFor<Station> formStationId(String stopId) {
         return StringIdFor.createId(stopId);
+    }
+
+    @Override
+    public void updateStation(Station station, StopData stopData) {
+        logger.error("Did not expect to see stop with same ID again for " + stopData);
     }
 
     private String expandRouteNameFor(String original, IdMap<Station> allStations, Agency agency) {

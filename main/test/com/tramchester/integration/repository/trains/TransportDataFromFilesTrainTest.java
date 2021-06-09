@@ -5,10 +5,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataLoaderFiles;
+import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.ServiceCalendar;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -18,11 +21,16 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TrainStations;
 import com.tramchester.testSupport.testTags.TrainTest;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,13 +83,10 @@ class TransportDataFromFilesTrainTest {
         Route result = TestEnv.singleRoute(transportData, StringIdFor.createId("AW"), "AW:MIA->CTR");
 
         assertNotNull(result);
-        assertEquals("AW train service from MIA to CTR", result.getName());
+        assertEquals("Arriva Trains Wales train service from Manchester Airport to Chester", result.getName());
         assertEquals(ArrivaTrainsWales, result.getAgency());
        //assertEquals(routeId,result.getId().forDTO()); changes frequently
         assertTrue(TransportMode.isTrain(result));
-
-        Set<String> headsigns = result.getHeadsigns();
-        assertEquals(68, headsigns.size(), "expected headsigns");
     }
 
     @Test

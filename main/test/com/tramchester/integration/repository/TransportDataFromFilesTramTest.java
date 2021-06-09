@@ -4,14 +4,14 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.TransportDataLoaderFiles;
+import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
@@ -22,11 +22,10 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
-import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -38,9 +37,9 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,17 +97,11 @@ class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        //Route result = transportData.getRouteById(AshtonUnderLyneManchesterEccles.getId());
         Route result = TestEnv.findTramRoute(transportData, AshtonUnderLyneManchesterEccles);
         assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         assertTrue(result.getId().forDTO().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
-
-        Set<String> headsigns = result.getHeadsigns();
-        assertEquals(2, headsigns.size(), "expected headsigns");
-        assertTrue(headsigns.contains("Eccles"));
-        assertTrue(headsigns.contains("Trafford Bar"));
     }
 
     @Test
@@ -277,9 +270,12 @@ class TransportDataFromFilesTramTest {
         assertEquals("Altrincham", station.getName());
 
         assertTrue(station.hasPlatforms());
-        // only one platform at alty, well according to the timetable anyway....
+
         assertEquals(1, station.getPlatforms().size());
-        Platform platformOne = station.getPlatforms().stream().findFirst().get();
+        final Optional<Platform> maybePlatformOne = station.getPlatforms().stream().findFirst();
+        assertTrue(maybePlatformOne.isPresent());
+
+        Platform platformOne = maybePlatformOne.get();
         assertEquals( Altrincham.forDTO()+"1", platformOne.getId().forDTO());
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());

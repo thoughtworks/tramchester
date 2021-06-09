@@ -25,8 +25,7 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
 
         assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT1");
         assertThat(stopData.getCode()).isEqualTo("mantwjdw");
-        assertThat(stopData.getName()).isEqualTo("Wythenshawe Town Centre");
-        assertThat(stopData.getArea()).isEqualTo("");
+        assertThat(stopData.getName()).isEqualTo("Wythenshawe Town Centre (Manchester Metrolink)");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38001047220);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26370992844);
     }
@@ -38,7 +37,6 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
 
         assertThat(stopData.getId()).isEqualTo("1800NEH0341");
         assertThat(stopData.getCode()).isEqualTo("");
-        assertThat(stopData.getArea()).isEqualTo("");
         assertThat(stopData.getName()).isEqualTo("Evesham Road");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53488245121);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.18746922864);
@@ -51,7 +49,6 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
 
         assertThat(stopData.getId()).isEqualTo("1800NEH0341");
         assertThat(stopData.getCode()).isEqualTo("missing");
-        assertThat(stopData.getArea()).isEqualTo("");
         assertThat(stopData.getName()).isEqualTo("Evesham Road");
         assertFalse(stopData.getLatLong().isValid());
     }
@@ -69,7 +66,6 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
 
         assertThat(stopData.getId()).isEqualTo("HOP");
         assertThat(stopData.getCode()).isEqualTo("HOPD");
-        assertThat(stopData.getArea()).isEqualTo("");
         assertThat(stopData.getName()).isEqualTo("Hope (Derbyshire)");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.34611);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-1.72989);

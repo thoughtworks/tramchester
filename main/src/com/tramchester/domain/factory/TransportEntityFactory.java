@@ -45,10 +45,10 @@ public abstract class TransportEntityFactory {
 
     public Station createStation(IdFor<Station> stationId, StopData stopData, GridPosition position) {
 
-        return new Station(stationId, stopData.getArea(), stopData.getName(), stopData.getLatLong(), position);
-    }
+        final String area = "";
 
-//    public abstract Platform createPlatform(StopData stop) ;
+        return new Station(stationId, area, stopData.getName(), stopData.getLatLong(), position);
+    }
 
     public RouteStation createRouteStation(Station station, Route route) {
         return new RouteStation(station, route);
@@ -75,4 +75,6 @@ public abstract class TransportEntityFactory {
     }
 
     public abstract IdFor<Station> formStationId(String stopId);
+
+    public abstract void updateStation(Station station, StopData stopData);
 }

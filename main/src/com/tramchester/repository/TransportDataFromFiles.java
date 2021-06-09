@@ -240,7 +240,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
         } else {
             logger.warn(msg);
         }
-
     }
 
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
@@ -276,7 +275,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 Service service = trip.getService();
 
                 route.addTrip(trip);
-                route.addHeadsign(trip.getHeadsign());
                 route.addService(service);
 
                 addedServices.add(service);
@@ -454,15 +452,11 @@ public class TransportDataFromFiles implements TransportDataFactory {
         String stopId = stopData.getId();
         IdFor<Station> stationId = factory.formStationId(stopId);
 
-//        Station station =
-        allStations.getOrAdd(stationId, () -> factory.createStation(stationId, stopData, position));
-
-//        if (stopData.hasPlatforms()) {
-//            Platform platform = formPlatform(stopData, factory);
-//            if (!station.getPlatforms().contains(platform)) {
-//                station.addPlatform(platform);
-//            }
-//        }
+        if (allStations.hasId(stationId)) {
+            factory.updateStation(allStations.get(stationId), stopData);
+        } else {
+            allStations.add(factory.createStation(stationId, stopData, position));
+        }
     }
 
     private GridPosition getGridPosition(LatLong latLong) {

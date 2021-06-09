@@ -25,14 +25,16 @@ public class Platform implements HasId<Platform>, GraphProperty {
 
     public Platform(String id, String name, LatLong latLong) {
         this.id = StringIdFor.createId(id);
-        this.name = name.intern();
         platformNumber = id.substring(id.length()-1);
+
+        this.name = format("%s platform %s", name, platformNumber);
+
         this.latLong = latLong;
         servesRoutes = new HashSet<>();
     }
 
     public String getName() {
-        return format("%s platform %s", name, platformNumber);
+        return name;
     }
 
     @Override

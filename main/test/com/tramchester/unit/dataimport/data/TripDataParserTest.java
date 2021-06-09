@@ -18,22 +18,22 @@ class TripDataParserTest extends ParserTestHelper<TripData> {
     @Test
     void shouldParseMetrolink() {
 
-        TripData tripData = parse("MET:MET1:I:,Serv000001,Trip000001,\"Bury,Bury Interchange (Manchester Metrolink)\"");
+        TripData tripData = parse("MET:MET1:I:,Serv000001,Trip000001,Bury");
 
         assertThat(tripData.getRouteId()).isEqualTo(StringIdFor.createId("MET:MET1:I:"));
         assertThat(tripData.getServiceId()).isEqualTo(StringIdFor.createId("Serv000001"));
         assertThat(tripData.getTripId()).isEqualTo(StringIdFor.createId("Trip000001"));
-        assertThat(tripData.getHeadsign()).isEqualTo("Bury Interchange");
+        assertThat(tripData.getHeadsign()).isEqualTo("Bury");
     }
 
     @Test
     void shouldParseOther() {
-        TripData tripData = parse("CBL: 157:I:,Serv000153,Trip004334,\"Garswood, Garswood Station\"");
+        TripData tripData = parse("CBL: 157:I:,Serv000153,Trip004334,Garswood");
 
         assertThat(tripData.getRouteId()).isEqualTo(StringIdFor.createId("CBL:157:I:"));
         assertThat(tripData.getServiceId()).isEqualTo(StringIdFor.createId("Serv000153"));
         assertThat(tripData.getTripId()).isEqualTo(StringIdFor.createId("Trip004334"));
-        assertThat(tripData.getHeadsign()).isEqualTo("Garswood, Garswood Station");
+        assertThat(tripData.getHeadsign()).isEqualTo("Garswood");
     }
 
 }

@@ -4,12 +4,10 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
@@ -21,7 +19,6 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
     private final TransportMode transportMode;
     private final Set<Service> services;
     private final Set<Trip> trips;
-    private final Set<String> headsigns;
 
     public static final Route Walking;
     static {
@@ -42,7 +39,6 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
         this.agency = agency;
         this.transportMode = transportMode;
         services = new HashSet<>();
-        headsigns = new HashSet<>();
         trips  = new HashSet<>();
     }
 
@@ -68,14 +64,6 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
 
     public Agency getAgency() {
         return agency;
-    }
-
-    public Set<String> getHeadsigns() {
-        return headsigns;
-    }
-
-    public void addHeadsign(String headsign) {
-        headsigns.add(headsign);
     }
 
     @Override
@@ -111,7 +99,6 @@ public class Route implements HasId<Route>, HasTransportMode, GraphProperty {
                 ", transportMode=" + transportMode +
                 ", services=" + HasId.asIds(services) +
                 ", trips=" + HasId.asIds(trips) +
-                ", headsigns=" + headsigns +
                 '}';
     }
 

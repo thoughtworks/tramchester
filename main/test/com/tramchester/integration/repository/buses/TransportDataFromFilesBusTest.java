@@ -21,9 +21,9 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
-import static com.tramchester.testSupport.TestEnv.WarringtonsOwnBuses;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -99,22 +98,6 @@ class TransportDataFromFilesBusTest {
     }
 
     @Test
-    void shouldGetRouteWithHeadsignsAndCorrectServices() {
-        Set<Route> results = transportData.findRoutesByName(WarringtonsOwnBuses.getId(), "Altrincham - Partington - Thelwall - Warrington");
-        assertFalse(results.isEmpty());
-
-        results.forEach(result -> {
-            assertEquals("5A", result.getShortName());
-            assertTrue(TransportMode.isBus(result));
-
-            List<String> headsigns = new ArrayList<>(result.getHeadsigns());
-            assertEquals(1, headsigns.size(), "expected headsigns");
-            assertEquals("Warrington", headsigns.get(0));
-        });
-
-    }
-
-    @Test
     void shouldHaveNotHaveRoutesWithZeroTrips() {
         Set<Route> routes = transportData.getRoutes();
         Set<Route> emptyRoutes = routes.stream().filter(route -> route.getTrips().isEmpty()).collect(Collectors.toSet());
@@ -143,7 +126,6 @@ class TransportDataFromFilesBusTest {
         outbounds.forEach(outbound -> assertTrue(secondStation.servesRoute(outbound)));
     }
 
-
     @Test
     void shouldGetServicesByDate() {
         LocalDate nextSaturday = TestEnv.nextSaturday();
@@ -154,7 +136,7 @@ class TransportDataFromFilesBusTest {
         long onCorrectDate = results.stream().filter(svc -> svc.getCalendar().operatesOn(nextSaturday)).count();
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
-        LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate(); //transportData.getFeedInfo().validUntil().plusMonths(12);
+        LocalDate noBusesDate = TestEnv.LocalNow().plusMonths(36).toLocalDate();
         Set<Service> futureServices = transportData.getServicesOnDate(new TramServiceDate(noBusesDate));
         assertTrue(results.size() > futureServices.size());
     }

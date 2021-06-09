@@ -1,12 +1,11 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Station;
 
 public class TripData {
 
@@ -16,30 +15,11 @@ public class TripData {
     private String serviceId;
     @JsonProperty("trip_id")
     private String tripId;
+    @JsonProperty("trip_headsign")
     private String headsign;
 
     public TripData() {
         // deserialization
-    }
-
-    @JsonProperty("trip_headsign")
-    private void setHeadsign(String text) {
-        if (text.contains(Station.TRAM_STATION_POSTFIX)) {
-            setForMetrolink(text);
-        } else {
-            headsign = text;
-        }
-    }
-
-    private void setForMetrolink(String text) {
-        text = text.replace(Station.TRAM_STATION_POSTFIX,"").trim();
-        int indexOfDivider = text.indexOf(",");
-        if (indexOfDivider>0) {
-            // just the station part if present
-            headsign = text.substring(indexOfDivider+1).trim();
-        } else {
-            headsign = text;
-        }
     }
 
     private String removeSpaces(String text) {
