@@ -60,7 +60,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         info.add(createDepartureInfoWithDueTram(lastUpdate, "303", "platformIdB",
                 "some message", TramStations.of(Altrincham)));
 
-        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
+        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate.toLocalTime()));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");
@@ -88,7 +88,7 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         info.add(createDepartureInfoWithDueTram(lastUpdate.minusMinutes(25), "444", "platformIdC",
                 "some message", station));
 
-        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate));
+        EasyMock.expect(providesNow.getNow()).andStubReturn(TramTime.of(lastUpdate.toLocalTime()));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         EasyMock.expect(fetcher.fetch()).andReturn("someData");

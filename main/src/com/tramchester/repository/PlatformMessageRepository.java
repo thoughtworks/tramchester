@@ -224,7 +224,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
             return 0;
         }
 
-        Set<Station> haveMessages = getStationsWithMessages(queryDateTime);
+        Set<Station> haveMessages = getStationsWithMessages(queryDateTime.toLocalTime());
         logger.debug("Stations with messages " + haveMessages);
         return haveMessages.size();
     }
@@ -235,8 +235,8 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     @NotNull
-    public Set<Station> getStationsWithMessages(LocalDateTime queryDateTime) {
-        TramTime queryTime = TramTime.of(queryDateTime);
+    public Set<Station> getStationsWithMessages(LocalTime time) {
+        TramTime queryTime = TramTime.of(time);
         return messageCache.asMap().values().stream().
                 filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime())).
                 map(PlatformMessage::getStation).collect(Collectors.toSet());

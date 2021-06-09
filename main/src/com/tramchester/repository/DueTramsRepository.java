@@ -189,7 +189,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
             return 0;
         }
 
-        TramTime queryTime = TramTime.of(queryDateTime);
+        TramTime queryTime = TramTime.of(queryDateTime.toLocalTime());
         return getEntryStream(queryTime).
                 map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }
@@ -199,7 +199,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
             return 0;
         }
 
-        TramTime queryTime = TramTime.of(dateTime);
+        TramTime queryTime = TramTime.of(dateTime.toLocalTime());
         return getEntryStream(queryTime).filter(entry -> !entry.getDueTrams().isEmpty())
                 .map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }

@@ -71,7 +71,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         infos.add(departureInfoA);
         infos.add(departureInfoB);
 
-        TramTime updateTime = TramTime.of(lastUpdate);
+        TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         replayAll();
@@ -144,7 +144,8 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
     @Test
     void shouldGiveNoMessagesIfNoRefresh() {
         // no refresh
-        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(), TramTime.of(lastUpdate));
+        Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
+                TramTime.of(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
 
@@ -167,7 +168,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         // no refresh
         Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
-                TramTime.of(lastUpdate));
+                TramTime.of(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
 
@@ -189,7 +190,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         // no refresh
         Optional<PlatformMessage> result = repository.messagesFor(platform.getId(), lastUpdate.toLocalDate(),
-                TramTime.of(lastUpdate));
+                TramTime.of(lastUpdate.toLocalTime()));
         assertTrue(result.isEmpty());
     }
 
@@ -208,7 +209,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         infos.add(departureInfoA);
         infos.add(departureInfoB);
 
-        TramTime updateTime = TramTime.of(lastUpdate);
+        TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         replayAll();
@@ -236,7 +237,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         infos.add(departureInfoA);
         infos.add(departureInfoB);
 
-        TramTime updateTime = TramTime.of(lastUpdate);
+        TramTime updateTime = TramTime.of(lastUpdate.toLocalTime());
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
         replayAll();
@@ -260,7 +261,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         replayAll();
         List<PlatformMessage> messageForStation = repository.messagesFor(station, date, time);
         Optional<PlatformMessage> messageForPlatform = repository.messagesFor(StringIdFor.createId("platformId"), date, time);
-        Set<Station> stationsWithMessages = repository.getStationsWithMessages(LocalDateTime.now());
+        Set<Station> stationsWithMessages = repository.getStationsWithMessages(LocalTime.now());
         int numberOfEntries = repository.numberOfEntries();
         int numberStationsWithEntries = repository.numberStationsWithMessages(LocalDateTime.now());
         verifyAll();

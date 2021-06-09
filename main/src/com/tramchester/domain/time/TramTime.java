@@ -13,7 +13,7 @@ import java.util.Optional;
 import static java.lang.String.format;
 
 
-public class  TramTime implements Comparable<TramTime> {
+public class TramTime implements Comparable<TramTime> {
     private static final String nextDaySuffix = "+24";
 
     // TODO Need to handle hours>24 flag as next day
@@ -24,61 +24,9 @@ public class  TramTime implements Comparable<TramTime> {
     private final int hash;
     private final String toPattern;
 
-    private static final TramTime[][][] tramTimes = new TramTime[2][24][60];
+    private static final Factory factory = new Factory();
 
-    static {
-        for (int day = 0; day < 2; day++) {
-            for(int hour=0; hour<24; hour++) {
-                for(int minute=0; minute<60; minute++) {
-                    tramTimes[day][hour][minute] = new TramTime(hour, minute, day);
-                }
-            }
-        }
-    }
-
-    public static TramTime of(LocalTime time) {
-        return tramTimes[0][time.getHour()][time.getMinute()];
-    }
-
-    public static TramTime of(LocalDateTime dateAndTime) {
-        return of(dateAndTime.toLocalTime());
-    }
-
-    public static TramTime midnight() {
-        return tramTimes[1][0][0];
-    }
-
-    public static Optional<TramTime> parse(String text) {
-        int offsetDays = 0;
-
-        if (text.endsWith(nextDaySuffix)) {
-            offsetDays = 1;
-            text = text.replace(nextDaySuffix,"");
-        }
-
-        // Note: indexed parse faster than using String.split
-
-        int firstDivider = text.indexOf(':');
-
-        int hour = Integer.parseUnsignedInt(text,0, firstDivider ,10);
-        // gtfs standard represents service next day by time > 24:00:00
-        if (hour>=24) {
-            hour = hour - 24;
-            offsetDays = offsetDays + 1;
-        }
-        if (hour>23) {
-            // spanning 2 days, cannot handle yet, TODO very long ferry or train >2 days???
-            return Optional.empty();
-        }
-
-        int minutes = Integer.parseUnsignedInt(text, firstDivider+1, firstDivider+3, 10);
-        if (minutes > 59) {
-            return Optional.empty();
-        }
-        return Optional.of(TramTime.of(hour,minutes, offsetDays));
-    }
-
-    protected TramTime(int hour, int minute, int offsetDays) {
+    private TramTime(int hour, int minute, int offsetDays) {
         this.hour = hour;
         this.minute = minute;
         this.offsetDays = offsetDays;
@@ -86,16 +34,28 @@ public class  TramTime implements Comparable<TramTime> {
         toPattern = format("%02d:%02d",hour,minute); // expensive
     }
 
-    public static TramTime nextDay(int hour, int minute) {
-        return of(hour, minute, 1);
+    public static TramTime of(LocalTime time) {
+        return factory.of(time);
+    }
+
+    public static TramTime midnight() {
+        return factory.midnight();
     }
 
     private static TramTime of(int hours, int minutes, int offsetDays) {
-        return tramTimes[offsetDays][hours][minutes];
+        return factory.of(hours, minutes, offsetDays);
     }
 
     public static TramTime of(int hours, int minutes) {
-        return tramTimes[0][hours][minutes];
+        return factory.of(hours, minutes, 0);
+    }
+
+    public static Optional<TramTime> parse(String text) {
+        return factory.parse(text);
+    }
+
+    public static TramTime nextDay(int hour, int minute) {
+        return of(hour, minute, 1);
     }
 
     public static int diffenceAsMinutes(TramTime first, TramTime second) {
@@ -316,5 +276,61 @@ public class  TramTime implements Comparable<TramTime> {
     @FunctionalInterface
     public interface ToTramTimeFunction<T> {
         TramTime applyAsTramTime(T value);
+    }
+
+    private static class Factory {
+        private final TramTime[][][] tramTimes = new TramTime[2][24][60];
+
+        protected Factory() {
+            for (int day = 0; day < 2; day++) {
+                for(int hour=0; hour<24; hour++) {
+                    for(int minute=0; minute<60; minute++) {
+                        tramTimes[day][hour][minute] = new TramTime(hour, minute, day);
+                    }
+                }
+            }
+        }
+
+        public TramTime of(LocalTime time) {
+            return tramTimes[0][time.getHour()][time.getMinute()];
+        }
+
+        public TramTime midnight() {
+            return tramTimes[1][0][0];
+        }
+
+        public TramTime of(int hours, int minutes, int offsetDays) {
+            return tramTimes[offsetDays][hours][minutes];
+        }
+
+        public Optional<TramTime> parse(String text) {
+            int offsetDays = 0;
+
+            if (text.endsWith(nextDaySuffix)) {
+                offsetDays = 1;
+                text = text.replace(nextDaySuffix,"");
+            }
+
+            // Note: indexed parse faster than using String.split
+
+            int firstDivider = text.indexOf(':');
+
+            int hour = Integer.parseUnsignedInt(text,0, firstDivider ,10);
+            // gtfs standard represents service next day by time > 24:00:00
+            if (hour>=24) {
+                hour = hour - 24;
+                offsetDays = offsetDays + 1;
+            }
+            if (hour>23) {
+                // spanning 2 days, cannot handle yet, TODO very long ferry or train >2 days???
+                return Optional.empty();
+            }
+
+            int minutes = Integer.parseUnsignedInt(text, firstDivider+1, firstDivider+3, 10);
+            if (minutes > 59) {
+                return Optional.empty();
+            }
+            return Optional.of(TramTime.of(hour, minutes, offsetDays));
+        }
     }
 }

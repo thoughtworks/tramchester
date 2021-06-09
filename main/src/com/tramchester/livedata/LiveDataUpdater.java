@@ -112,7 +112,7 @@ public class LiveDataUpdater {
             logger.info("Received invalid update, date was " + updateDate);
             return false;
         }
-        TramTime updateTime = TramTime.of(newDepartureInfo.getLastUpdate());
+        TramTime updateTime = TramTime.of(newDepartureInfo.getLastUpdate().toLocalTime());
         if (TramTime.diffenceAsMinutes(now, updateTime) > TIME_LIMIT) {
             logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNow(), updateTime));
             return false;

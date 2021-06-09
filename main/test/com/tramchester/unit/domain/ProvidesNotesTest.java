@@ -363,7 +363,7 @@ class ProvidesNotesTest extends EasyMockSupport {
         LocalDate localDate = LocalDate.of(2016, 10, 25);
         TramServiceDate queryDate = new TramServiceDate(localDate);
 
-        TramTime queryTime = TramTime.of(lastUpdate);
+        TramTime queryTime = TramTime.of(lastUpdate.toLocalTime());
         EasyMock.expect(platformMessageSource.messagesFor(of(Pomona), localDate, queryTime)).
                 andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, of(Pomona), "second message")));
         EasyMock.expect(platformMessageSource.messagesFor(of(VeloPark), localDate, queryTime)).

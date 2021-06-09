@@ -16,7 +16,7 @@ public class ProvidesLocalNow implements ProvidesNow {
 
     @Override
     public TramTime getNow() {
-        return TramTime.of(getLocalNow());
+        return TramTime.of(getLocalNow().toLocalTime());
     }
 
     @Override
