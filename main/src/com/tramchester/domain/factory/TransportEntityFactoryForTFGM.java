@@ -4,18 +4,24 @@ import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRespository;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
+
+    private static final String METROLINK_PREFIX = "9400ZZ";
+
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
 
     private final NaptanRespository naptanRespository;
@@ -40,13 +46,45 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             if (naptanRespository.contains(stationId)) {
                 area = getAreaFromNaptanData(stationId);
             } else {
-                logger.warn("No naptap data found for " + stationId);
+                logger.warn("No naptan data found for " + stationId);
+            }
+        }
+
+        final boolean isMetrolinkTram = stopData.getId().startsWith(METROLINK_PREFIX);
+
+        // NOTE: Tram data has unique positions for each platform
+        // TODO What is the right position to use for a tram station?
+        final Station station = new Station(stationId, area, workAroundName(stopData.getName()), stopData.getLatLong(), position);
+
+        // metrolink tram station, has platforms
+        if (isMetrolinkTram) {
+            Platform platform = createPlatform(stopData);
+            if (!station.getPlatforms().contains(platform)) {
+                station.addPlatform(platform);
             }
         }
 
         // Check for duplicate names - handled by CompositeStationRepository
-        return new Station(stationId, area, workAroundName(stopData.getName()),
-                stopData.getLatLong(), position);
+        return station;
+    }
+
+    @Override
+    public IdFor<Station> formStationId(String text) {
+        return getStationIdFor(text);
+    }
+
+    @NotNull
+    public static IdFor<Station> getStationIdFor(String text) {
+        if (text.startsWith(METROLINK_PREFIX)) {
+            // metrolink platform ids include platform as final digit, remove to give id of station itself
+            int index = text.length()-1;
+            return StringIdFor.createId(text.substring(0,index));
+        }
+        return StringIdFor.createId(text);
+    }
+
+    private Platform createPlatform(StopData stop) {
+        return new Platform(stop.getId(), stop.getName(), stop.getLatLong());
     }
 
     private String getAreaFromNaptanData(IdFor<Station> stationId) {
@@ -70,15 +108,17 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     @Override
     public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
-        // NOTE: this data issue has been reported to TFGM
         GTFSTransportationType routeType = routeData.getRouteType();
         boolean isMetrolink = Agency.IsMetrolink(agencyId);
+
+        // NOTE: this data issue has been reported to TFGM
         if (isMetrolink && routeType!=GTFSTransportationType.tram) {
             logger.error("METROLINK Agency seen with transport type " + routeType.name() + " for " + routeData);
             logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
             return GTFSTransportationType.tram;
         }
 
+        // NOTE: this data issue has been reported to TFGM
         if ( (routeType==GTFSTransportationType.tram) && (!isMetrolink) ) {
             logger.error("Tram transport type seen for non-metrolink agency for " + routeData);
             logger.warn("Setting transport type to " + GTFSTransportationType.bus.name() + " for " + routeData);
@@ -88,4 +128,5 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return routeType;
 
     }
+
 }

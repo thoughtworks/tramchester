@@ -2,7 +2,6 @@ package com.tramchester.dataimport.data;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.TransportDataLoader;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.UnzipFetchedData;
@@ -85,7 +84,8 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
         } else if (DataSourceID.GBRail().equals(sourceName)) {
             return new TransportEntityFactoryForGBRail();
         } else {
-            return new TransportEntityFactory();
+            throw new RuntimeException("No entity factory is defined for " + sourceConfig.getName());
+//            return new TransportEntityFactory();
         }
     }
 

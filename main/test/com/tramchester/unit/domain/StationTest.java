@@ -46,13 +46,6 @@ class StationTest {
     }
 
     @Test
-    void testShouldFormIdByRemovingPlatformForTramStop() {
-        assertEquals(StringIdFor.createId("9400ZZid"), Station.formId("9400ZZid1"));
-        assertEquals(StringIdFor.createId("9400XXid1"), Station.formId("9400XXid1"));
-
-    }
-
-    @Test
     void shouldHaveCorrectTransportModes() {
         Station station = new Station(StringIdFor.createId("stationId"), "area", "name", TestEnv.nearPiccGardens,
                 CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens));

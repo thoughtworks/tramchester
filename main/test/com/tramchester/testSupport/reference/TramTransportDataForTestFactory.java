@@ -30,7 +30,6 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tramchester.domain.places.Station.METROLINK_PREFIX;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
@@ -255,6 +254,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         private static final String serviceAId = "serviceAId";
         private static final String serviceBId = "serviceBId";
         private static final String serviceCId = "serviceCId";
+
+        private static final String METROLINK_PREFIX = "9400ZZ";
 
         public static final String TRIP_A_ID = "tripAId";
         public static final String FIRST_STATION = METROLINK_PREFIX + "FIRST";

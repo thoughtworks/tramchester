@@ -14,7 +14,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 
-public class TransportEntityFactory {
+public abstract class TransportEntityFactory {
 
     public TransportEntityFactory() {
     }
@@ -48,9 +48,7 @@ public class TransportEntityFactory {
         return new Station(stationId, stopData.getArea(), stopData.getName(), stopData.getLatLong(), position);
     }
 
-    public Platform createPlatform(StopData stop) {
-        return new Platform(stop.getId(), stop.getName(), stop.getLatLong());
-    }
+//    public abstract Platform createPlatform(StopData stop) ;
 
     public RouteStation createRouteStation(Station station, Route route) {
         return new RouteStation(station, route);
@@ -75,4 +73,6 @@ public class TransportEntityFactory {
     public IdFor<Route> createRouteId(IdFor<Route> routeId) {
         return routeId;
     }
+
+    public abstract IdFor<Station> formStationId(String stopId);
 }

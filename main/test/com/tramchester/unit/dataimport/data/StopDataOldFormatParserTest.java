@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Deprecated
 class StopDataOldFormatParserTest extends ParserTestHelper<StopData> {
-
 
     @BeforeEach
     void beforeEach() {
@@ -30,7 +30,6 @@ class StopDataOldFormatParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getArea()).isEqualTo("Wythenshawe");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38003);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26381);
-        assertThat(stopData.hasPlatforms()).isEqualTo(true);
     }
 
     @Test
@@ -46,7 +45,6 @@ class StopDataOldFormatParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53509);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.19333);
         assertTrue(stopData.getLatLong().isValid());
-        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 
     @Test
@@ -59,7 +57,6 @@ class StopDataOldFormatParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getArea()).isEqualTo("Alkrington Garden Village");
         assertThat(stopData.getName()).isEqualTo("Alkrington Garden Village, nr School Evesham Road (E bnd, Hail and ride)");
         assertFalse(stopData.getLatLong().isValid());
-        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 
     @Test
@@ -79,6 +76,5 @@ class StopDataOldFormatParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getName()).isEqualTo("Hope (Derbyshire)");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.34611);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-1.72989);
-        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 }

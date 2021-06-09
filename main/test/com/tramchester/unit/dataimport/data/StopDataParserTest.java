@@ -29,7 +29,6 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getArea()).isEqualTo("");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38001047220);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26370992844);
-        assertThat(stopData.hasPlatforms()).isEqualTo(true);
     }
 
     @Test
@@ -44,7 +43,6 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53488245121);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.18746922864);
         assertTrue(stopData.getLatLong().isValid());
-        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 
     @Test
@@ -56,7 +54,6 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getArea()).isEqualTo("");
         assertThat(stopData.getName()).isEqualTo("Evesham Road");
         assertFalse(stopData.getLatLong().isValid());
-        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 
     @Test
@@ -76,6 +73,5 @@ class StopDataParserTest extends ParserTestHelper<StopData> {
         assertThat(stopData.getName()).isEqualTo("Hope (Derbyshire)");
         assertThat(stopData.getLatLong().getLat()).isEqualTo(53.34611);
         assertThat(stopData.getLatLong().getLon()).isEqualTo(-1.72989);
-        assertThat(stopData.hasPlatforms()).isEqualTo(false);
     }
 }

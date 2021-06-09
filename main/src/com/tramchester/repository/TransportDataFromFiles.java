@@ -244,7 +244,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private IdMap<Service> populateStopTimes(TransportDataContainer buildable, Stream<StopTimeData> stopTimes,
-                                             IdMap<Station> stations, IdMap<Trip> trips,
+                                             IdMap<Station> preloadStations, IdMap<Trip> trips,
                                              TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         String sourceName = dataSourceConfig.getName();
         logger.info("Loading stop times for " + sourceName);
@@ -256,15 +256,15 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).
                 forEach((stopTimeData) -> {
             String stopId = stopTimeData.getStopId();
-            IdFor<Station> stationId = Station.formId(stopId);
+            IdFor<Station> stationId = factory.formStationId(stopId);
 
-            if (stations.hasId(stationId)) {
+            if (preloadStations.hasId(stationId)) {
                 Trip trip = trips.get(stopTimeData.getTripId());
 
-                Station station = stations.get(stationId);
+                Station station = preloadStations.get(stationId);
                 Route route = trip.getRoute();
 
-                addStation(buildable, route, station, factory);
+                addStationTo(buildable, route, station, factory);
 
                 StopCall stopCall = createStopCall(buildable, stopTimeData, route, station, factory, dataSourceConfig);
                 trip.addStop(stopCall);
@@ -317,20 +317,20 @@ public class TransportDataFromFiles implements TransportDataFactory {
         }
     }
 
-    private void addStation(TransportDataContainer buildable, Route route, Station station, TransportEntityFactory factory) {
+    private void addStationTo(TransportDataContainer container, Route route, Station station, TransportEntityFactory factory) {
         station.addRoute(route);
 
         IdFor<Station> stationId = station.getId();
-        if (!buildable.hasStationId(stationId)) {
-            buildable.addStation(station);
+        if (!container.hasStationId(stationId)) {
+            container.addStation(station);
             if (station.hasPlatforms()) {
-                station.getPlatforms().forEach(buildable::addPlatform);
+                station.getPlatforms().forEach(container::addPlatform);
             }
         }
 
-        if (!buildable.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
+        if (!container.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
             RouteStation routeStation = factory.createRouteStation(station, route);
-            buildable.addRouteStation(routeStation);
+            container.addRouteStation(routeStation);
         }
     }
 
@@ -452,26 +452,21 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
     private void preLoadStation(IdMap<Station> allStations, StopData stopData, GridPosition position, TransportEntityFactory factory) {
         String stopId = stopData.getId();
-        IdFor<Station> stationId = Station.formId(stopId);
+        IdFor<Station> stationId = factory.formStationId(stopId);
 
-        // NOTE: Tram data has unique positions for each platform
-        // TODO What is the right position to use for a tram station?
-        Station station = allStations.getOrAdd(stationId, () -> factory.createStation(stationId, stopData, position));
+//        Station station =
+        allStations.getOrAdd(stationId, () -> factory.createStation(stationId, stopData, position));
 
-        if (stopData.hasPlatforms()) {
-            Platform platform = formPlatform(stopData, factory);
-            if (!station.getPlatforms().contains(platform)) {
-                station.addPlatform(platform);
-            }
-        }
+//        if (stopData.hasPlatforms()) {
+//            Platform platform = formPlatform(stopData, factory);
+//            if (!station.getPlatforms().contains(platform)) {
+//                station.addPlatform(platform);
+//            }
+//        }
     }
 
     private GridPosition getGridPosition(LatLong latLong) {
         return CoordinateTransforms.getGridPosition(latLong);
-    }
-
-    private Platform formPlatform(StopData stop, TransportEntityFactory factory) {
-        return factory.createPlatform(stop);
     }
 
     private static class TripAndServices  {

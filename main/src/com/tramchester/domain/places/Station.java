@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class Station implements Location<Station> {
 
-    public static final String METROLINK_PREFIX = "9400ZZ";
+    @Deprecated
     public static final String TRAM_STATION_POSTFIX = "(Manchester Metrolink)";
 
     private final String area;
@@ -55,14 +55,14 @@ public class Station implements Location<Station> {
     }
 
     // Metrolink stations ID the platform with a number on the end of the stationID
-    public static IdFor<Station> formId(String text) {
-        if (text.startsWith(METROLINK_PREFIX)) {
-            // metrolink platform ids include platform as final digit, remove to give id of station itself
-            int index = text.length()-1;
-            return StringIdFor.createId(text.substring(0,index));
-        }
-        return StringIdFor.createId(text);
-    }
+//    public static IdFor<Station> formId(String text) {
+//        if (text.startsWith(METROLINK_PREFIX)) {
+//            // metrolink platform ids include platform as final digit, remove to give id of station itself
+//            int index = text.length()-1;
+//            return StringIdFor.createId(text.substring(0,index));
+//        }
+//        return StringIdFor.createId(text);
+//    }
 
     @Override
     public String getArea() {

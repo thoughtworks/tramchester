@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.Objects;
@@ -81,9 +80,10 @@ public class StopData {
         return area;
     }
 
-    public boolean hasPlatforms() {
-        return id.startsWith(Station.METROLINK_PREFIX);
-    }
+//    @Deprecated
+//    public boolean hasPlatforms() {
+//        return id.startsWith(Station.METROLINK_PREFIX);
+//    }
 
     public LatLong getLatLong() {
         if (latitude==0 || longitude==0) {

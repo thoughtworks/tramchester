@@ -44,6 +44,11 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
         return routeType;
     }
 
+    @Override
+    public IdFor<Station> formStationId(String stopId) {
+        return StringIdFor.createId(stopId);
+    }
+
     private String expandRouteNameFor(String original, IdMap<Station> allStations, Agency agency) {
         //
         // many train routes names have formats:
