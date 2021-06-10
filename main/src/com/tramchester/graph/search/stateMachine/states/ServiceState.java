@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -21,9 +21,11 @@ public class ServiceState extends TraversalState {
     public static class Builder implements Towards<ServiceState> {
 
         private final boolean depthFirst;
+        private final NodeContentsRepository nodeContents;
 
-        public Builder(boolean depthFirst) {
+        public Builder(boolean depthFirst, NodeContentsRepository nodeContents) {
             this.depthFirst = depthFirst;
+            this.nodeContents = nodeContents;
         }
 
         @Override
@@ -56,7 +58,8 @@ public class ServiceState extends TraversalState {
         private Stream<Relationship> getHourRelationships(Node node) {
             Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, TO_HOUR));
             if (depthFirst) {
-                return relationships.sorted(Comparator.comparingInt(GraphProps::getHour));
+                return relationships.
+                        sorted(Comparator.comparingInt(relationship -> nodeContents.getHour(relationship.getEndNode())));
             }
             return relationships;
         }

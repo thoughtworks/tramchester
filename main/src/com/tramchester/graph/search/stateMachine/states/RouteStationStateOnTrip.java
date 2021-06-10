@@ -6,12 +6,12 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -29,9 +29,11 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
         private final boolean interchangesOnly;
+        private final NodeContentsRepository nodeContents;
 
-        public Builder(boolean interchangesOnly) {
+        public Builder(boolean interchangesOnly, NodeContentsRepository nodeContents) {
             this.interchangesOnly = interchangesOnly;
+            this.nodeContents = nodeContents;
         }
 
         @Override
@@ -57,7 +59,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
             // outbound service relationships that continue the current trip
             Stream<Relationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE),
-                    minuteState.traversalOps, trip);
+                    trip);
 
             // now add outgoing to platforms/stations
             Stream<Relationship> departs;
@@ -77,9 +79,10 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode);
         }
 
-        private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, TraversalOps traversalOps, Trip trip) {
+        private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, Trip trip) {
             IdFor<Service> currentSvcId = trip.getService().getId();
-            return traversalOps.filterByServiceId(svcRelationships, currentSvcId);
+            return Streams.stream(svcRelationships).
+                    filter(relationship -> currentSvcId.equals(nodeContents.getServiceId(relationship.getEndNode())));
         }
 
     }

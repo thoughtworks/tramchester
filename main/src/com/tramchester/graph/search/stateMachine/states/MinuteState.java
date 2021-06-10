@@ -1,9 +1,11 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.google.common.collect.Streams;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
@@ -11,6 +13,8 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -21,9 +25,11 @@ public class MinuteState extends TraversalState {
     public static class Builder implements Towards<MinuteState> {
 
         private final boolean changeAtInterchangeOnly;
+        private final NodeContentsRepository nodeContents;
 
-        public Builder(boolean changeAtInterchangeOnly) {
+        public Builder(boolean changeAtInterchangeOnly, NodeContentsRepository nodeContents) {
             this.changeAtInterchangeOnly = changeAtInterchangeOnly;
+            this.nodeContents = nodeContents;
         }
 
         @Override
@@ -43,7 +49,7 @@ public class MinuteState extends TraversalState {
             if (existingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = existingTrip.getTripId();
                 Iterable<Relationship> filterBySingleTripId =
-                        hourState.traversalOps.filterBySingleTripId(relationships, existingTripId);
+                        filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
                 // starting a brand new journey, since at minute node now have specific tripid to use
@@ -51,6 +57,12 @@ public class MinuteState extends TraversalState {
                 journeyState.beginTrip(newTripId);
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly);
             }
+        }
+
+        public Iterable<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, IdFor<Trip> existingTripId) {
+            return Streams.stream(relationships).
+                    filter(relationship -> nodeContents.getTrip(relationship).equals(existingTripId)).
+                    collect(Collectors.toList());
         }
     }
 

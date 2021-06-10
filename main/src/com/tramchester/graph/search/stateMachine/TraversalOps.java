@@ -37,6 +37,7 @@ public class TraversalOps {
     private final SortsPositions sortsPositions;
     private final RouteToRouteCosts routeToRouteCosts;
 
+    // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, Set<Station> destinationStations,
                         LatLong destinationLatLon, RouteToRouteCosts routeToRouteCosts) {
@@ -60,18 +61,6 @@ public class TraversalOps {
                 filter(depart -> destinationStationIds.contains(GraphProps.getStationIdFrom(depart))).
                 collect(Collectors.toList());
     }
-
-    public IdFor<Service> getServiceIdFor(Node svcNode) {
-        return nodeOperations.getServiceId(svcNode);
-    }
-
-    public Iterable<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, IdFor<Trip> existingTripId) {
-        return Streams.stream(relationships).
-                filter(relationship -> nodeOperations.getTrip(relationship).equals(existingTripId)).
-                collect(Collectors.toList());
-    }
-
-
 
     public int onDestRouteFirst(HasId<Route> a, HasId<Route> b) {
         IdFor<Route> routeA = a.getId();
@@ -109,19 +98,24 @@ public class TraversalOps {
         return nodeOperations.getTime(node);
     }
 
+//
+//    public int getHourFrom(Node hourNode) {
+//        return nodeOperations.getHour(hourNode);
+//    }
+
     public Trip getTrip(IdFor<Trip> tripId) {
         return tripRepository.getTripById(tripId);
     }
 
-    public Stream<Relationship> filterByServiceId(Iterable<Relationship> relationships, IdFor<Service> svcId) {
-        return Streams.stream(relationships).
-                filter(relationship -> serviceNodeMatches(relationship, svcId));
-    }
+//    public Stream<Relationship> filterByServiceId(Iterable<Relationship> relationships, IdFor<Service> svcId) {
+//        return Streams.stream(relationships).
+//                filter(relationship -> serviceNodeMatches(relationship, svcId));
+//    }
 
     private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {
         // TODO Add ServiceID to Service Relationship??
         Node svcNode = relationship.getEndNode();
-        IdFor<Service> svcId = getServiceIdFor(svcNode);
+        IdFor<Service> svcId = nodeOperations.getServiceId(svcNode);
         return currentSvcId.equals(svcId);
     }
 
@@ -129,8 +123,6 @@ public class TraversalOps {
         return Streams.stream(node.getRelationships(Direction.OUTGOING, TO_SERVICE)).
                 anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
-
-
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
         private final Relationship relationship;

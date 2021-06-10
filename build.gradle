@@ -160,8 +160,6 @@ task cdkApp(type:JavaExec, dependsOn:classes) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-
-
 task buses(type:JavaExec, dependsOn: 'webpack') {
     main = mainClassName
     classpath = sourceSets.main.runtimeClasspath

@@ -165,11 +165,10 @@ public class TramTime implements Comparable<TramTime> {
 
     // inclusive
     public boolean between(TramTime start, TramTime end) {
-        boolean startFlag = (this.equals(start)) || isAfter(start);
-        if (!startFlag) {
-            return false;
+        if ((this.equals(start)) || isAfter(start)) {
+            return (this.equals(end) || isBefore(end));
         }
-        return (this.equals(end) || isBefore(end));
+        return false;
     }
 
     public boolean isBefore(TramTime other) {

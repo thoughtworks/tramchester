@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -21,9 +21,11 @@ public class HourState extends TraversalState {
     public static class Builder implements Towards<HourState> {
 
         private final boolean depthFirst;
+        private final NodeContentsRepository nodeContents;
 
-        public Builder(boolean depthFirst) {
+        public Builder(boolean depthFirst, NodeContentsRepository nodeContents) {
             this.depthFirst = depthFirst;
+            this.nodeContents = nodeContents;
         }
 
         public HourState fromService(ServiceState serviceState, Node node, int cost, ExistingTrip maybeExistingTrip) {
@@ -44,7 +46,9 @@ public class HourState extends TraversalState {
         Stream<Relationship> getMinuteRelationships(Node node) {
             Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, TO_MINUTE));
             if (depthFirst) {
-                return relationships.sorted(TramTime.comparing(GraphProps::getTime));
+                //return relationships.sorted(TramTime.comparing(GraphProps::getTime));
+                return relationships.
+                        sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode())));
             }
             return relationships;
         }
@@ -59,15 +63,15 @@ public class HourState extends TraversalState {
     }
 
     @Override
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node node, int cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node minuteNode, int cost, JourneyStateUpdate journeyState) {
         try {
-            TramTime time = traversalOps.getTimeFrom(node);
+            TramTime time = traversalOps.getTimeFrom(minuteNode);
             journeyState.recordTime(time, getTotalCost());
         } catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);
         }
 
-        return towardsMinute.fromHour(this, node, cost, maybeExistingTrip, journeyState);
+        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, journeyState);
     }
 
     @Override

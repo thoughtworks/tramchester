@@ -57,13 +57,13 @@ class JourneyStateTest extends EasyMockSupport {
 
         TripRepository tripRepository = createMock(TripRepository.class);
         RouteToRouteCosts routeToRouteCosts = createMock(RouteToRouteCosts.class);
-        NodeContentsRepository cachedNodeOperations = createMock(NodeContentsRepository.class);
+        NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);
         final TramchesterConfig config = TestEnv.GET();
 
         RegistersStates registersStates = new RegistersStates();
-        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, config);
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
 
-        traversalState = new NotStartedState(new TraversalOps(cachedNodeOperations, tripRepository, sortsPositions, destinations,
+        traversalState = new NotStartedState(new TraversalOps(nodeContentsRepository, tripRepository, sortsPositions, destinations,
                 latLongHint, routeToRouteCosts), traversalStateFactory);
         queryTime = TramTime.of(9, 15);
     }
