@@ -22,7 +22,8 @@
 				"Type" : "AWS::EC2::Route",
 				"Properties" : {
 					"RouteTableId" : { "Ref" : "webRouteTable" },
-					"DestinationCidrBlock" : "0.0.0.0/0", "InstanceId" : { "Ref" : "natInstance" }
+					"DestinationCidrBlock" : "0.0.0.0/0",
+					"NatGatewayId" : { "Ref" : "natInstance" }
 				}
 			},
 			"webRouteTableAssociationA" : {

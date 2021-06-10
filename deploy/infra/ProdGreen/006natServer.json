@@ -12,35 +12,17 @@
 		"Parameters" : {
 			"env" : { "Type" : "String" },
 			"vpc" : { "Type" : "String" },
-			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" },
-			"sgNat" : { "Type" : "String" , "Description" : "::sgNat" },
-			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" },
-			"keypairname": { "Type" : "String" , "Description" : "::CFN_TAG" }
-
+			"natSubnet" : { "Type" : "String" , "Description" : "::natSubnet" }
 		},
 		"Resources" : {
-			"natInstance": {
-				"Type": "AWS::EC2::Instance",
-				"Properties": {
-					"AvailabilityZone": { "Ref" : "zoneA" },
-					"DisableApiTermination": "FALSE",
-					"ImageId": "ami-0236d0cbbbe64730c",
-					"InstanceType": "t2.micro",
-					"KeyName": { "Ref" : "keypairname" } ,
-					"Monitoring": "false",
-					"SecurityGroupIds" : [ { "Ref" : "sgNat" } ],
-					"SubnetId": { "Ref" : "natSubnet" },
-					"SourceDestCheck" : "false",
+			"natInstance" : {
+				"Type" : "AWS::EC2::NatGateway",
+				"Properties" : {
+					"AllocationId": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]},
+					"SubnetId" :  { "Ref" : "natSubnet" },
 					"Tags": [
 						{ "Key" : "Name", "Value": { "Fn::Join" : ["", [ { "Ref": "env" } , "NatServer" ] ] } }
-                    ]
-				}
-			},
-			"natInstanceEIPAssociation" : {
-				"Type": "AWS::EC2::EIPAssociation",
-				"Properties" : {
-					"InstanceId" : { "Ref" : "natInstance" },
-					"AllocationId": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]}
+					]
 				}
 			}
 		},

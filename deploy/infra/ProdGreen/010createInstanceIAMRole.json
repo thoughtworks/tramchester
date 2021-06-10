@@ -1,6 +1,3 @@
-
-TODO UPDATE THIS
-
 {
    "AWSTemplateFormatVersion": "2010-09-09",
    "Description" : "IAM template to allow instances to log via cloudwatch logs agent. NOTE The user you run this as will need IAM create permissions",
@@ -23,7 +20,8 @@ TODO UPDATE THIS
                } ]
             },
             "Path":  { "Fn::Join" : ["", [ "/tramchester/", { "Ref": "env"}, "/" ] ] },
-            "ManagedPolicyArns": [ "arn:aws:iam::300752856189:policy/tramchesterServers" ]
+            "ManagedPolicyArns": [ "arn:aws:iam::300752856189:policy/tramchesterServers",
+              "arn:aws:iam::300752856189:policy/tramchesterLoggingPolicy"]
             }
       	},
 		"InstanceProfile": {
