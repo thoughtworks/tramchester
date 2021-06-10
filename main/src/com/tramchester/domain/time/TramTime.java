@@ -55,7 +55,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public static TramTime nextDay(int hour, int minute) {
-        return of(hour, minute, 1);
+        return factory.of(hour, minute, 1);
     }
 
     public static int diffenceAsMinutes(TramTime first, TramTime second) {
@@ -237,10 +237,6 @@ public class TramTime implements Comparable<TramTime> {
         return offsetDays>0;
     }
 
-    private int getMinuteOfDay() {
-        return (getHourOfDay()*60) + getMinuteOfHour();
-    }
-
     public String serialize() {
         String result = toPattern;
         if (isNextDay()) {
@@ -267,7 +263,7 @@ public class TramTime implements Comparable<TramTime> {
         if (time.isNextDay()) {
             startOfInterval = time.minusMinutes(proceedingMinutes);
         } else {
-            startOfInterval = (time.getMinuteOfDay()>proceedingMinutes) ? time.minusMinutes(proceedingMinutes)
+            startOfInterval = (time.minutesOfDay() > proceedingMinutes) ? time.minusMinutes(proceedingMinutes)
                     : TramTime.of(0,0);
         }
         return between(startOfInterval, time);
@@ -281,7 +277,7 @@ public class TramTime implements Comparable<TramTime> {
     private static class Factory {
         private final TramTime[][][] tramTimes = new TramTime[2][24][60];
 
-        protected Factory() {
+        private Factory() {
             for (int day = 0; day < 2; day++) {
                 for(int hour=0; hour<24; hour++) {
                     for(int minute=0; minute<60; minute++) {
@@ -291,19 +287,19 @@ public class TramTime implements Comparable<TramTime> {
             }
         }
 
-        public TramTime of(LocalTime time) {
+        private TramTime of(LocalTime time) {
             return tramTimes[0][time.getHour()][time.getMinute()];
         }
 
-        public TramTime midnight() {
+        private TramTime midnight() {
             return tramTimes[1][0][0];
         }
 
-        public TramTime of(int hours, int minutes, int offsetDays) {
+        private TramTime of(int hours, int minutes, int offsetDays) {
             return tramTimes[offsetDays][hours][minutes];
         }
 
-        public Optional<TramTime> parse(String text) {
+        private Optional<TramTime> parse(String text) {
             int offsetDays = 0;
 
             if (text.endsWith(nextDaySuffix)) {

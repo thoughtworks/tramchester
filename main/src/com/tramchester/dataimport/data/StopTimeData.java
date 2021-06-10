@@ -27,8 +27,7 @@ public class StopTimeData {
     @JsonProperty("drop_off_type")
     private String dropOffType;
 
-    // supports testing only, TODO remove
-    public StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
+    private StopTimeData(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
                         int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType) {
         this.tripId = tripId;
         this.stopId = stopId;
@@ -40,9 +39,15 @@ public class StopTimeData {
         this.dropOffType = dropOffType.getText();
     }
 
+    public static StopTimeData forTestOnly(String tripId, TramTime arrivalTime, TramTime departureTime, String stopId,
+                                           int stopSequence, GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropOffType)
+    {
+        return new StopTimeData(tripId, arrivalTime, departureTime,stopId, stopSequence, pickupType, dropOffType);
+    }
+
     // for CSV parse via jackson
     public StopTimeData() {
-
+        // deserialisation
     }
 
     @Override

@@ -202,7 +202,7 @@ public class TestEnv {
                                                       TramTime depart) {
         Platform platform = createPlatform(stopId, station.getLatLong());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
-        StopTimeData stopTimeData = new StopTimeData(tripId, arrive, depart, stopId, seq, pickupDropoff, pickupDropoff);
+        StopTimeData stopTimeData = StopTimeData.forTestOnly(tripId, arrive, depart, stopId, seq, pickupDropoff, pickupDropoff);
         return new PlatformStopCall(platform, TramStations.of(station), stopTimeData);
     }
 

@@ -244,7 +244,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         Platform platform = new Platform(platformId, format("%s platform 1", station.getName()), station.getLatLong());
         container.addPlatform(platform);
         station.addPlatform(platform);
-        StopTimeData stopTimeData = new StopTimeData(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
+        StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
                 GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
         return new PlatformStopCall(platform, station, stopTimeData);
     }
