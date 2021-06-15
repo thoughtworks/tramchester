@@ -62,11 +62,13 @@ public class ServiceState extends TraversalState {
             Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, TO_HOUR));
             if (depthFirst) {
                 return relationships.sorted(Comparator.comparingInt(
-                        relationship -> GraphProps.hourLabelFor(relationship.getEndNode()).ordinal()));
-//                return relationships.
-//                        sorted(Comparator.comparingInt(relationship -> nodeContents.getHour(relationship.getEndNode())));
+                        relationship -> hourLabelFor(relationship.getEndNode())));
             }
             return relationships;
+        }
+
+        private int hourLabelFor(Node endNode) {
+            return nodeContents.getHour(endNode);
         }
 
     }

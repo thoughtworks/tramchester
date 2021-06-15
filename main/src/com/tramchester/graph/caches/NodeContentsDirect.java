@@ -1,13 +1,17 @@
 package com.tramchester.graph.caches;
 
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 // KEEP for assisting with debugging
 public class NodeContentsDirect implements NodeContentsRepository {
@@ -45,5 +49,11 @@ public class NodeContentsDirect implements NodeContentsRepository {
     @Override
     public void deleteFromCostCache(Relationship relationship) {
         // no-op
+    }
+
+    @Override
+    public EnumSet<GraphLabel> getLabels(Node node) {
+        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
+        return EnumSet.copyOf(graphLabels);
     }
 }

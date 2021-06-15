@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -40,13 +41,12 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<Long, Integer> relationshipCostCache;
     private final Cache<Long, TramTime> timeNodeCache;
 
-    private final HourNodeCache prebuildHourCache;
+    private final Cache<Long, EnumSet<GraphLabel>> labelCache;
+
     private final NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository;
 
     @Inject
-    public CachedNodeOperations(CacheMetrics cacheMetrics, HourNodeCache prebuildHourCache,
-                                NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository) {
-        this.prebuildHourCache = prebuildHourCache;
+    public CachedNodeOperations(CacheMetrics cacheMetrics, NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository) {
         this.numberOfNodesAndRelationshipsRepository = numberOfNodesAndRelationshipsRepository;
 
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
@@ -54,6 +54,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         routeStationIdCache = createCache("routeStationIdCache", GraphLabel.ROUTE_STATION);
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
         serviceNodeCache = createCache("serviceNodeCache", GraphLabel.SERVICE);
+        labelCache = Caffeine.newBuilder().maximumSize(50000).expireAfterAccess(10, TimeUnit.MINUTES).
+                recordStats().build();
 
         cacheMetrics.register(this);
     }
@@ -72,6 +74,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         tripIdRelationshipCache.invalidateAll();
         timeNodeCache.invalidateAll();
         routeStationIdCache.invalidateAll();
+        labelCache.invalidateAll();
     }
 
     @NonNull
@@ -94,6 +97,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
         result.add(Pair.of("timeNodeCache", timeNodeCache.stats()));
         result.add(Pair.of("routeStationIdCache", routeStationIdCache.stats()));
+        result.add(Pair.of("labelCache", labelCache.stats()));
 
         return result;
     }
@@ -120,15 +124,19 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     }
 
     public int getHour(Node node) {
+        return GraphLabel.getHourFrom(getLabels(node));
+    }
+
+    @Override
+    public EnumSet<GraphLabel> getLabels(Node node) {
         long nodeId = node.getId();
-        return prebuildHourCache.getHourFor(nodeId);
+        return labelCache.get(nodeId, id -> GraphProps.getLabelsFor(node));
     }
 
     public int getCost(Relationship relationship) {
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.from(relationship);
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
             long relationshipId = relationship.getId();
-            //noinspection ConstantConditions
             return relationshipCostCache.get(relationshipId, id ->  GraphProps.getCost(relationship));
         } else {
             return 0;
@@ -139,5 +147,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         long relationshipId = relationship.getId();
         relationshipCostCache.invalidate(relationshipId);
     }
+
 
 }

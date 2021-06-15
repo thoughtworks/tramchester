@@ -3,6 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.tramchester.domain.reference.TransportMode;
 import org.neo4j.graphdb.Label;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,7 +78,12 @@ public enum GraphLabel implements Label {
         return hourLabels[hour];
     }
 
-//    public static GraphLabel hourLabelFor(Set<GraphLabel> nodeLabels) {
-//        return nodeLabels.stream().filter(graphLabel -> graphLabel!=HOUR).findAny().orElseThrow();
-//    }
+    public static int getHourFrom(EnumSet<GraphLabel> labels) {
+        for (int hour = 0; hour < 24    ; hour++) {
+            if (labels.contains(hourLabels[hour])) {
+                return hour;
+            }
+        }
+        throw new RuntimeException("Could not find hour from " + labels);
+    }
 }

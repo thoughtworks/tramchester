@@ -19,10 +19,13 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.StringIdFor.getCompositeIdFromGraphEntity;
@@ -36,7 +39,7 @@ public class GraphProps {
         node.setProperty(name.getName(), dataSourceInfo.getVersion());
     }
 
-    public static <C extends GraphProperty>  void setProperty(Entity entity, HasId<C> item) {
+    public static <C extends GraphProperty> void setProperty(Entity entity, HasId<C> item) {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
@@ -73,7 +76,7 @@ public class GraphProps {
             }
         }
 
-        short[] replacement =  Arrays.copyOf(existing, existing.length+1);
+        short[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = modeNumber;
         entity.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
@@ -115,7 +118,7 @@ public class GraphProps {
         }
         entiy.setProperty(TRIPS.getText(), ids);
     }
-    
+
     public static int getCost(Entity entity) {
         return (int) getProperty(entity, COST);
     }
@@ -172,7 +175,7 @@ public class GraphProps {
     }
 
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
-        entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString()+"_"+uid.toString());
+        entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
     }
 
     public static void setStopSequenceNumber(Relationship relationship, int stopSequenceNumber) {
@@ -211,11 +214,17 @@ public class GraphProps {
         return getIdFromGraphEntity(entity, PLATFORM_ID);
     }
 
-    public static GraphLabel hourLabelFor(Node endNode) {
-        // should usually just be two labels, HOUR and HOUR_N
-        Stream<Label> labels = Streams.stream(endNode.getLabels());
-        Label hourLabel = labels.filter(label -> !label.name().equals(GraphLabel.HOUR.name())).findFirst().orElseThrow();
-        return GraphLabel.valueOf(hourLabel.name());
-    }
+//    public static GraphLabel hourLabelFor(Node endNode) {
+//        // should usually just be two labels, HOUR and HOUR_N
+//        Stream<Label> labels = Streams.stream(endNode.getLabels());
+//        Label hourLabel = labels.filter(label -> !label.name().equals(GraphLabel.HOUR.name())).findFirst().orElseThrow();
+//        return GraphLabel.valueOf(hourLabel.name());
+//    }
 
+    public static EnumSet<GraphLabel> getLabelsFor(Node node) {
+        Iterable<Label> iter = node.getLabels();
+
+        Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
+        return EnumSet.copyOf(set);
+    }
 }

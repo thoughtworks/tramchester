@@ -22,6 +22,7 @@ import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Stream;
@@ -79,7 +80,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {
-            logger.warn("Depth first is enabled");
+            logger.info("Depth first is enabled");
+        } else {
+            logger.info("Breadth first is enabled");
         }
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
@@ -153,7 +156,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             }
         }
 
-        Set<GraphLabel> labels = GraphLabel.from(endNode.getLabels());
+        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endNode);
+        //Set<GraphLabel> labels =  GraphLabel.from(endNode.getLabels());
 
         TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
                 journeyStateForChildren, cost);

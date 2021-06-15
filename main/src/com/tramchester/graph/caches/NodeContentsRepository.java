@@ -1,14 +1,16 @@
 package com.tramchester.graph.caches;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.CachedNodeOperations;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+
+import java.util.EnumSet;
 
 @ImplementedBy(CachedNodeOperations.class)
 public interface NodeContentsRepository  {
@@ -23,4 +25,5 @@ public interface NodeContentsRepository  {
     int getCost(Relationship lastRelationship);
     void deleteFromCostCache(Relationship relationship);
 
+    EnumSet<GraphLabel> getLabels(Node node);
 }
