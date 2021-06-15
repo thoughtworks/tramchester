@@ -7,14 +7,13 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.*;
@@ -37,9 +36,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final GraphDatabase graphDatabaseService;
-    //private final ServiceHeuristics serviceHeuristics;
     private final NodeContentsRepository nodeContentsRepository;
-    private final NodeTypeRepository nodeTypeRepository;
     private final CompositeStationRepository stationRepository;
     private final TripRepository tripRespository;
     private final TramTime queryTime;
@@ -57,7 +54,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                 CompositeStationRepository stationRepository, SortsPositions sortsPosition,
                                 NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
-                                NodeTypeRepository nodeTypeRepository, Set<Long> destinationNodeIds, ServiceReasons reasons,
+                                Set<Long> destinationNodeIds, ServiceReasons reasons,
                                 PreviousSuccessfulVisits previousSuccessfulVisit, RouteToRouteCosts routeToRouteCosts) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
@@ -68,7 +65,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.destinationNodeIds = destinationNodeIds;
         this.endStations = endStations;
         this.config = config;
-        this.nodeTypeRepository = nodeTypeRepository;
         this.reasons = reasons;
         this.previousSuccessfulVisit = previousSuccessfulVisit;
         this.routeToRouteCosts = routeToRouteCosts;
@@ -86,7 +82,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         }
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
-                destinationNodeIds, nodeTypeRepository, reasons, previousSuccessfulVisit, config, startNode.getId());
+                destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, config, startNode.getId());
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
@@ -157,7 +153,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         }
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endNode);
-        //Set<GraphLabel> labels =  GraphLabel.from(endNode.getLabels());
 
         TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
                 journeyStateForChildren, cost);

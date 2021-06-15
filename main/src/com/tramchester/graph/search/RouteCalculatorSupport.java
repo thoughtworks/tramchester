@@ -11,7 +11,6 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
@@ -37,7 +36,6 @@ public class RouteCalculatorSupport {
     private final GraphQuery graphQuery;
     private final PathToStages pathToStages;
     private final NodeContentsRepository nodeOperations;
-    private final NodeTypeRepository nodeTypeRepository;
     private final ReachabilityRepository reachabilityRepository;
     private final GraphDatabase graphDatabaseService;
     private final ProvidesLocalNow providesLocalNow;
@@ -51,7 +49,7 @@ public class RouteCalculatorSupport {
     private final RouteToRouteCosts routeToRouteCosts;
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeOperations,
-                                     NodeTypeRepository nodeTypeRepository, ReachabilityRepository reachabilityRepository,
+                                     ReachabilityRepository reachabilityRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory, ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition,
                                      MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
@@ -59,7 +57,6 @@ public class RouteCalculatorSupport {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeOperations = nodeOperations;
-        this.nodeTypeRepository = nodeTypeRepository;
         this.reachabilityRepository = reachabilityRepository;
         this.graphDatabaseService = graphDatabaseService;
         this.traversalStateFactory = traversalStateFactory;
@@ -116,7 +113,7 @@ public class RouteCalculatorSupport {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest, compositeStationRepository, sortsPosition, nodeOperations,
-                tripRepository, traversalStateFactory, endStations, config, nodeTypeRepository, destinationNodeIds,
+                tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
                 reasons, previousSuccessfulVisit, routeToRouteCosts);
 
         logger.info("Traverse for " + pathRequest);

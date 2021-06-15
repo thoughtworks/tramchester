@@ -12,7 +12,6 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
@@ -44,11 +43,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    TransportData transportData,
                                    GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
                                    PathToStages pathToStages,
-                                   NodeContentsRepository nodeOperations, NodeTypeRepository nodeTypeRepository,
+                                   NodeContentsRepository nodeOperations,
                                    ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    CompositeStationRepository compositeStationRepository, RouteToRouteCosts routeToRouteCosts) {
-        super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
+        super(graphQuery, pathToStages, nodeOperations, reachabilityRepository, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
                 transportData, config, transportData, routeToRouteCosts);
         this.config = config;

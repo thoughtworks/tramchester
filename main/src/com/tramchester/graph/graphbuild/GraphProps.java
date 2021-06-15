@@ -214,13 +214,6 @@ public class GraphProps {
         return getIdFromGraphEntity(entity, PLATFORM_ID);
     }
 
-//    public static GraphLabel hourLabelFor(Node endNode) {
-//        // should usually just be two labels, HOUR and HOUR_N
-//        Stream<Label> labels = Streams.stream(endNode.getLabels());
-//        Label hourLabel = labels.filter(label -> !label.name().equals(GraphLabel.HOUR.name())).findFirst().orElseThrow();
-//        return GraphLabel.valueOf(hourLabel.name());
-//    }
-
     public static EnumSet<GraphLabel> getLabelsFor(Node node) {
         Iterable<Label> iter = node.getLabels();
 

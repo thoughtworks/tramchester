@@ -12,7 +12,6 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.caches.PreviousSuccessfulVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
@@ -44,10 +43,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
                            TramchesterConfig config, ReachabilityRepository reachabilityRepository, CreateQueryTimes createQueryTimes,
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
-                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery, NodeTypeRepository nodeTypeRepository,
+                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            CompositeStationRepository compositeStationRepository, RouteToRouteCosts routeToRouteCosts) {
-        super(graphQuery, pathToStages, nodeOperations, nodeTypeRepository, reachabilityRepository, graphDatabaseService,
+        super(graphQuery, pathToStages, nodeOperations, reachabilityRepository, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
                 transportData, config, transportData, routeToRouteCosts);
         this.serviceRepository = transportData;

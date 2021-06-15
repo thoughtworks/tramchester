@@ -12,8 +12,8 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.NodeTypeRepository;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
@@ -47,13 +47,12 @@ public class LocationJourneyPlanner {
     private final NodeContentsRepository nodeOperations;
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabase;
-    private final NodeTypeRepository nodeTypeRepository;
     private final MarginInMeters margin;
 
     @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
-                                  GraphQuery graphQuery, GraphDatabase graphDatabase, NodeTypeRepository nodeTypeRepository,
+                                  GraphQuery graphQuery, GraphDatabase graphDatabase,
                                   GraphFilter graphFilter) {
         this.config = config;
         this.routeCalculator = routeCalculator;
@@ -61,7 +60,6 @@ public class LocationJourneyPlanner {
         this.nodeOperations = nodeOperations;
         this.graphQuery = graphQuery;
         this.graphDatabase = graphDatabase;
-        this.nodeTypeRepository = nodeTypeRepository;
         this.stationLocations = stationLocations;
         this.graphFilter = graphFilter;
         this.margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
@@ -203,7 +201,7 @@ public class LocationJourneyPlanner {
     }
 
     public Node createWalkingNode(Transaction txn, LatLong origin, JourneyRequest journeyRequest) {
-        Node startOfWalkNode = nodeTypeRepository.createQueryNode(graphDatabase, txn);
+        Node startOfWalkNode = graphDatabase.createNode(txn, GraphLabel.QUERY_NODE);
         GraphProps.setLatLong(startOfWalkNode, origin);
         GraphProps.setWalkId(startOfWalkNode, origin, journeyRequest.getUid());
         logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
@@ -219,7 +217,7 @@ public class LocationJourneyPlanner {
             relationship.delete();
         });
         for (Node node : nodesToDelete) {
-            nodeTypeRepository.deleteQueryNode(node);
+            node.delete();
         }
     }
 

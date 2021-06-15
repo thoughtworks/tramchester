@@ -4,8 +4,6 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -13,7 +11,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.Comparator;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_HOUR;

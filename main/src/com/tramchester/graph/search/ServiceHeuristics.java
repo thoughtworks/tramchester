@@ -14,6 +14,8 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
+
 public class ServiceHeuristics {
 
     private static final Logger logger;
@@ -89,15 +91,17 @@ public class ServiceHeuristics {
     public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime,
                                           ServiceReasons reasons, int maxWait) {
         reasons.incrementTotalChecked();
+        EnumSet<GraphLabel> labels = nodeOperations.getLabels(node);
 
         int queryTimeHour = journeyClockTime.getHourOfDay();
         //if (hour == queryTimeHour) {
-        if (node.hasLabel(GraphLabel.getHourLabel(queryTimeHour))) {
+        if (labels.contains(GraphLabel.getHourLabel(queryTimeHour))) {
             // quick win
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-        int hour = nodeOperations.getHour(node);
+        //int hour = nodeOperations.getHour(node);
+        int hour = GraphLabel.getHourFrom(labels);
 
         TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
         if (journeyClockTime.withinInterval(maxWait, currentHour)) {
