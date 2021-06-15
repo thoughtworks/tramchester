@@ -78,9 +78,9 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost,
-                                             JourneyStateUpdate journeyState) {
+    protected void toDestination(DestinationState.Builder towardsDestination, Node node, int cost,
+                                 JourneyStateUpdate journeyState) {
         journeyState.endWalk(node, true);
-        return towardsDestination.from(this, cost);
+        towardsDestination.from(this, cost);
     }
 }

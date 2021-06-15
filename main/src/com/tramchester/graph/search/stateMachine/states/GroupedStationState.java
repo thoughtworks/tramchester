@@ -71,8 +71,8 @@ public class GroupedStationState extends TraversalState {
     }
 
     @Override
-    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
-        return towardsDestination.from(this, cost);
+    protected void toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+        towardsDestination.from(this, cost);
     }
 
 }

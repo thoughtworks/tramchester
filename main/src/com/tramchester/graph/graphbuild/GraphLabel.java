@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 public enum GraphLabel implements Label {
     GROUPED,  // composite station node
     ROUTE_STATION,
@@ -25,7 +27,20 @@ public enum GraphLabel implements Label {
     NEIGHBOURS_ENABLED,
     COMPOSITES_ADDED,
     HAS_PLATFORMS, // label added to stations if have platforms
-    INTERCHANGE; // label added to stations if they are interchanges
+    INTERCHANGE, // label added to stations if they are interchanges
+    // Order for HOUR_N matters, used in sorting
+    HOUR_0, HOUR_1, HOUR_2, HOUR_3, HOUR_4, HOUR_5, HOUR_6, HOUR_7,
+    HOUR_8, HOUR_9, HOUR_10, HOUR_11, HOUR_12, HOUR_13, HOUR_14, HOUR_15,
+    HOUR_16, HOUR_17, HOUR_18, HOUR_19, HOUR_20, HOUR_21, HOUR_22, HOUR_23;
+
+    private static final GraphLabel[] hourLabels;
+
+    static {
+        hourLabels = new GraphLabel[24];
+        for (int hour = 0; hour < 24; hour++) {
+            hourLabels[hour] = GraphLabel.valueOf(format("HOUR_%d", hour));
+        }
+    }
 
     public static GraphLabel forMode(TransportMode mode) {
         return switch (mode) {
@@ -57,4 +72,12 @@ public enum GraphLabel implements Label {
         }
         return false;
     }
+
+    public static Label getHourLabel(int hour) {
+        return hourLabels[hour];
+    }
+
+//    public static GraphLabel hourLabelFor(Set<GraphLabel> nodeLabels) {
+//        return nodeLabels.stream().filter(graphLabel -> graphLabel!=HOUR).findAny().orElseThrow();
+//    }
 }

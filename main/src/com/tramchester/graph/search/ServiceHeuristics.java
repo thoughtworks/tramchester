@@ -6,6 +6,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
@@ -85,16 +86,18 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, howIGotHere));
     }
 
-    public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime, ServiceReasons reasons, int maxWait) {
+    public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime,
+                                          ServiceReasons reasons, int maxWait) {
         reasons.incrementTotalChecked();
 
-        int hour = nodeOperations.getHour(node);
-
         int queryTimeHour = journeyClockTime.getHourOfDay();
-        if (hour == queryTimeHour) {
+        //if (hour == queryTimeHour) {
+        if (node.hasLabel(GraphLabel.getHourLabel(queryTimeHour))) {
             // quick win
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
+
+        int hour = nodeOperations.getHour(node);
 
         TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
         if (journeyClockTime.withinInterval(maxWait, currentHour)) {

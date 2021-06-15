@@ -54,7 +54,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
 
         boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
         boolean hasPlatforms = nodeLabels.contains(GraphLabel.HAS_PLATFORMS);
-        boolean isStation = nodeLabels.contains(GraphLabel.STATION);
 
         GraphLabel actualNodeType;
         final int numLabels = nodeLabels.size();
@@ -62,8 +61,10 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             actualNodeType = nodeLabels.iterator().next();
         } else if (numLabels==2 && isInterchange && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
             actualNodeType = GraphLabel.ROUTE_STATION;
-        } else if (isStation) {
+        } else if (nodeLabels.contains(GraphLabel.STATION)) {
             actualNodeType = GraphLabel.STATION;
+        } else if (nodeLabels.contains(GraphLabel.HOUR)) {
+            actualNodeType = GraphLabel.HOUR;
         } else {
             throw new RuntimeException("Not a station, unexpected multi-label condition: " + nodeLabels);
         }
@@ -74,7 +75,6 @@ public abstract class TraversalState implements ImmuatableTraversalState {
             case HOUR -> { return toHour(builders.getTowardsHour(from), node, cost); }
             case GROUPED -> { return toGrouped(node, cost, journeyState); }
             case STATION -> { return toStation(node, journeyState, cost, hasPlatforms); }
-//            case TRAM_STATION -> { return toTramStation(node, journeyState, cost); }
             case SERVICE -> { return toService(builders.getTowardsService(from), node, cost); }
             case PLATFORM -> { return toPlatform(builders.getTowardsPlatform(from), node, cost, journeyState); }
             case QUERY_NODE -> { return toWalk(builders.getTowardsWalk(from), node, cost, journeyState);}
@@ -119,7 +119,7 @@ public abstract class TraversalState implements ImmuatableTraversalState {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 
-    protected DestinationState toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, Node node, int cost, JourneyStateUpdate journeyStateUpdate) {
         throw new RuntimeException("No such transition at " + this.getClass());
     }
 

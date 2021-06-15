@@ -1,5 +1,6 @@
 package com.tramchester.graph.graphbuild;
 
+import com.google.common.collect.Streams;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -13,6 +14,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -21,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.StringIdFor.getCompositeIdFromGraphEntity;
 import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
@@ -168,11 +171,9 @@ public class GraphProps {
         return new LatLong(lat, lon);
     }
 
-
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
         entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString()+"_"+uid.toString());
     }
-
 
     public static void setStopSequenceNumber(Relationship relationship, int stopSequenceNumber) {
         relationship.setProperty(STOP_SEQ_NUM.getText(), stopSequenceNumber);
@@ -208,6 +209,13 @@ public class GraphProps {
 
     public static IdFor<Platform> getPlatformIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, PLATFORM_ID);
+    }
+
+    public static GraphLabel hourLabelFor(Node endNode) {
+        // should usually just be two labels, HOUR and HOUR_N
+        Stream<Label> labels = Streams.stream(endNode.getLabels());
+        Label hourLabel = labels.filter(label -> !label.name().equals(GraphLabel.HOUR.name())).findFirst().orElseThrow();
+        return GraphLabel.valueOf(hourLabel.name());
     }
 
 }

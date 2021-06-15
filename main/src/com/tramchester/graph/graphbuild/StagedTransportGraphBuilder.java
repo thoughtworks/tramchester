@@ -624,6 +624,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (!builderCache.hasHourNode(routeId, service, startId, hour)) {
             Node hourNode = createGraphNode(tx, GraphLabel.HOUR);
             setHourProp(hourNode, hour);
+
+            hourNode.addLabel(GraphLabel.getHourLabel(hour));
             builderCache.putHour(routeId, service, startId, hour, hourNode);
 
             // service node -> time node
