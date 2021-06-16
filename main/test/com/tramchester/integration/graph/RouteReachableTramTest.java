@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -51,47 +54,15 @@ class RouteReachableTramTest {
     }
 
     @Test
-    void shouldHaveCorrectReachabilityOrInterchanges() {
-        assertTrue(reachableInterchange(AltrinchamPiccadilly, NavigationRoad));
-        assertFalse(reachableInterchange(PiccadillyAltrincham, NavigationRoad));
+    void shouldTestGetRoutesFromStartToNeighbour() {
+        Station start = stationRepository.getStationById(Altrincham.getId());
+        Station next = stationRepository.getStationById(NavigationRoad.getId());
+        List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next));
+        assertEquals(1, results.size());
 
-        assertTrue(reachableStations(ManchesterAirportWythenshaweVictoria, ManAirport).contains(StWerburghsRoad.getId()));
-        assertFalse(reachableStations(VictoriaWythenshaweManchesterAirport, ManAirport).contains(StWerburghsRoad.getId()));
+        Route route = results.get(0);
+        assertEquals(route.getId(), tramRouteHelper.getId(AltrinchamPiccadilly));
     }
 
-    @Test
-    void shouldCorrectNotReachable() {
-        assertTrue(reachableStations(AltrinchamPiccadilly, NavigationRoad).contains(OldTrafford.getId()));
-        assertFalse(reachableStations(PiccadillyAltrincham, NavigationRoad).contains(OldTrafford.getId()));
 
-        assertTrue(reachableStations(PiccadillyAltrincham, OldTrafford).contains(NavigationRoad.getId()));
-        // Old Trafford towards Piccadilly encouters an interchance
-        assertTrue(reachableInterchange(AltrinchamPiccadilly, NavigationRoad));
-    }
-
-    @Test
-    void shouldHaveCorrectReachabilityMonsalToRochs() {
-        assertTrue(reachableStations(RochdaleShawandCromptonManchesterEastDidisbury, RochdaleRail).contains(Monsall.getId()));
-        assertTrue(reachableStations(EastDidisburyManchesterShawandCromptonRochdale, Monsall).contains(RochdaleRail.getId()));
-    }
-
-    private Station getReal(TramStations stations) {
-        return TestStation.real(stationRepository, stations);
-    }
-
-    private boolean reachableInterchange(KnownTramRoute knownRoute, TramStations routeStation) {
-        Route route = tramRouteHelper.get(knownRoute);
-        RouteStation start = createRouteStation(route, getReal(routeStation));
-        return reachable.isInterchangeReachableOnRoute(start);
-    }
-
-    private IdSet<Station> reachableStations(KnownTramRoute knownRoute, TramStations routeStation) {
-        Route route = tramRouteHelper.get(knownRoute);
-        RouteStation start = createRouteStation(route, getReal(routeStation));
-        return reachable.getReachableStationsOnRoute(start);
-    }
-
-    private RouteStation createRouteStation(Route route, Station station) {
-        return new RouteStation(station, route);
-    }
 }
