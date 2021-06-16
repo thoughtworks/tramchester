@@ -102,7 +102,7 @@ public class RouteCalculatorSupport {
     @NotNull
     private ServiceHeuristics createHeuristics(TramTime time, JourneyConstraints journeyConstraints, int maxNumChanges) {
         return new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,
-                journeyConstraints, time, maxNumChanges);
+                journeyConstraints, time, routeToRouteCosts, maxNumChanges);
     }
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,

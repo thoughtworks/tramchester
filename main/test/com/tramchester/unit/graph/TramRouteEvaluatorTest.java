@@ -314,7 +314,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.ROUTE_STATION));
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
                 andReturn(ServiceReason.StationNotReachable(howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
@@ -352,7 +352,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.ROUTE_STATION));
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
                 andReturn(ServiceReason.StationClosed(howIGotHere, TramStations.of(Shudehill)));
@@ -393,7 +393,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
 
-        EasyMock.expect(serviceHeuristics.canReachDestination(node, howIGotHere, reasons)).
+        EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.Reachable, howIGotHere));
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
                 andReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.StationOpen, howIGotHere));

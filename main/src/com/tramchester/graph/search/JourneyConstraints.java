@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdFor;
@@ -13,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class JourneyConstraints {
 
@@ -101,5 +104,10 @@ public class JourneyConstraints {
 
     public int getMaxNeighbourConnections() {
         return maxNeighbourConnections;
+    }
+
+    public Set<Route> getRouteDestinationIsOn() {
+        return endStations.stream().
+                map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 }

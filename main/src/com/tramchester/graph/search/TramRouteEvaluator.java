@@ -191,7 +191,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // -->Route Station
         // is even reachable from here? is the station open?
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            if (!serviceHeuristics.canReachDestination(nextNode, howIGotHere, reasons).isValid()) {
+            if (!serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(), howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;
             }
             if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {

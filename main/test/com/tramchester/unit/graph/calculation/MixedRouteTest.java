@@ -181,7 +181,7 @@ class MixedRouteTest {
         public int getQueryInterval() {
             return 6;
         }
-        
+
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
             return Collections.singletonList(new NaptanRemoteDataSourceConfig("data/naptan"));

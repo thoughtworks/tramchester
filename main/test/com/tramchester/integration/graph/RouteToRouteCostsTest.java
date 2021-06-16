@@ -11,7 +11,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,15 +65,24 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldComputeCostsRouteOtherDirection() {
         Route routeA = routeHelper.get(AltrinchamPiccadilly);
-        Route routeB = routeHelper.get(KnownTramRoute.PiccadillyAltrincham);
+        Route routeB = routeHelper.get(PiccadillyAltrincham);
 
         assertEquals(1,routeCosts.getFor(routeA, routeB));
         assertEquals(1,routeCosts.getFor(routeB, routeA));
     }
 
     @Test
-    void shouldComputeCostsDifferentRoutes() {
-        // only ever one hop between routes on tram network
+    void shouldComputeCostsDifferentRoutesOneChange() {
+        Route routeA = routeHelper.get(CornbrookTheTraffordCentre);
+        Route routeB = routeHelper.get(BuryPiccadilly);
+
+        assertEquals(2, routeCosts.getFor(routeA, routeB));
+        assertEquals(2, routeCosts.getFor(routeB, routeA));
+
+    }
+
+    @Test
+    void shouldComputeCostsDifferentRoutesTwoChanges() {
         Route routeA = routeHelper.get(AltrinchamPiccadilly);
         Route routeB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
 

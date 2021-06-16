@@ -1,5 +1,6 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
@@ -14,7 +15,9 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.Set;
 
 public class ServiceHeuristics {
 
@@ -29,11 +32,13 @@ public class ServiceHeuristics {
     private final ReachabilityRepository reachabilityRepository;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
+    private final RouteToRouteCosts routeToRouteCosts;
     private final int currentChangesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              ReachabilityRepository reachabilityRepository,
                              JourneyConstraints journeyConstraints, TramTime queryTime,
+                             RouteToRouteCosts routeToRouteCosts,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
@@ -41,6 +46,7 @@ public class ServiceHeuristics {
 
         this.journeyConstraints = journeyConstraints;
         this.queryTime = queryTime;
+        this.routeToRouteCosts = routeToRouteCosts;
         this.currentChangesLimit = currentChangesLimit; // NOTE: this changes from 1->num , which is set in journeyConstraints
     }
     
@@ -59,7 +65,7 @@ public class ServiceHeuristics {
     public ServiceReason checkNumberChanges(int currentNumChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
        reasons.incrementTotalChecked();
 
-       if (currentNumChanges> currentChangesLimit) {
+       if (currentNumChanges > currentChangesLimit) {
          return reasons.recordReason(ServiceReason.TooManyChanges(howIGotHere));
        }
        return valid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere, reasons);
@@ -135,7 +141,7 @@ public class ServiceHeuristics {
 
     }
 
-    public ServiceReason canReachDestination(Node endNode, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public ServiceReason canReachDestination(Node endNode, int currentNumberOfChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
 
         IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
         RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
@@ -146,13 +152,22 @@ public class ServiceHeuristics {
             throw new RuntimeException(message);
         }
 
+        Route currentRoute = routeStation.getRoute();
+        Set<Route> routes = journeyConstraints.getRouteDestinationIsOn();
+        int fewestChanges = routes.stream().
+                map(destRoute -> routeToRouteCosts.getFor(currentRoute, destRoute)).
+                min(Comparator.comparingInt(a -> a)).orElse(Integer.MAX_VALUE);
+
+        if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
+        }
+
         for(Station endStation : journeyConstraints.getEndStations()) {
             if (reachabilityRepository.stationReachable(routeStation, endStation)) {
                 return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
             }
         }
         return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
-
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -173,5 +188,6 @@ public class ServiceHeuristics {
     public int getMaxPathLength() {
         return journeyConstraints.getMaxPathLength();
     }
+
 
 }

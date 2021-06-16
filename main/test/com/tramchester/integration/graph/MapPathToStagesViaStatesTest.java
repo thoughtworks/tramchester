@@ -58,6 +58,7 @@ public class MapPathToStagesViaStatesTest {
     private ReachabilityRepository reachabilityRepository;
     private PathToStages pathToStages;
     private LocationJourneyPlanner locationJourneyPlanner;
+    private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -84,6 +85,7 @@ public class MapPathToStagesViaStatesTest {
         stationRepository = componentContainer.get(StationRepository.class);
         pathToStages = componentContainer.get(MapPathToStagesViaStates.class);
         locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
+        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
     }
 
     @AfterEach
@@ -293,7 +295,7 @@ public class MapPathToStagesViaStatesTest {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, endStations);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,
-                journeyConstraints, queryTime, numChanges);
+                journeyConstraints, queryTime, routeToRouteCosts, numChanges);
         RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryTime, numChanges,
                 serviceHeuristics);
 

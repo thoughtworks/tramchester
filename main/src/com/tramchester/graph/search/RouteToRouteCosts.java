@@ -16,13 +16,12 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 @LazySingleton
 public class RouteToRouteCosts {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
-    public static final int DEPTH = 3;
+    public static final int DEPTH = 4;
 
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
@@ -54,7 +53,7 @@ public class RouteToRouteCosts {
         logger.info("Have " +  costs.size() + " connections from " + interchangeRepository.size() + " interchanges");
 
         // for existing connections infer next degree of connections, stop if no more added
-        for (byte currentDegree = 1; currentDegree < DEPTH; currentDegree++) {
+        for (byte currentDegree = 1; currentDegree <= DEPTH; currentDegree++) {
             Map<Route, Set<Route>> newLinks = addConnectionsFor(currentDegree, linksForRoutes);
             if (newLinks.isEmpty()) {
                 logger.info("Finished at degree " + (currentDegree-1));
@@ -134,6 +133,11 @@ public class RouteToRouteCosts {
             return 0;
         }
         Key key = new Key(routeA, routeB);
+        if (!costs.containsKey(key)) {
+            final String msg = "Missing key " + key;
+            logger.warn(msg);
+            return Integer.MAX_VALUE;
+        }
         return costs.get(key);
     }
 
