@@ -14,8 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -56,6 +57,7 @@ public class RouteToRouteCosts {
         for (byte currentDegree = 1; currentDegree < DEPTH; currentDegree++) {
             Map<Route, Set<Route>> newLinks = addConnectionsFor(currentDegree, linksForRoutes);
             if (newLinks.isEmpty()) {
+                logger.info("Finished at degree " + (currentDegree-1));
                 linksForRoutes.clear();
                 break;
             }
@@ -139,36 +141,57 @@ public class RouteToRouteCosts {
         return costs.size();
     }
 
-    public <T extends HasId<Route>> Stream<T> sortByDestinations(IdSet<Route> destinationRouteIds, Stream<T> startingRoutes) {
-        Set<Route> destinations = destinationRouteIds.stream().map(routeRepository::getRouteById).collect(Collectors.toSet());
+    public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds) {
         return startingRoutes.
-                map(start -> findLowestCost(destinations, start)).
-                sorted(Comparator.comparingInt(Pair::getLeft)).
+                map(start -> findLowestCost(start, destinationRouteIds)).
+                sorted(comparingByte(Pair::getLeft)).
                 map(Pair::getRight);
     }
 
-    private <T extends HasId<Route>> Pair<Integer, T> findLowestCost(Set<Route> destinations, T hasStartId) {
-        Route start = routeRepository.getRouteById(hasStartId.getId());
+    private <T extends HasId<Route>> Pair<Byte, T> findLowestCost(T hasStartId, IdSet<Route> destinations) {
+        IdFor<Route> start = hasStartId.getId();
         if (destinations.contains(start)) {
-            return Pair.of(0, hasStartId); // start on route that is present at destination
+            return Pair.of((byte)0, hasStartId); // start on route that is present at destination
         }
 
-        int result = destinations.stream().map(destination -> new Key(start, destination)).
+        byte result = destinations.stream().map(destination -> new Key(start, destination)).
                 filter(costs::containsKey).
-                map(key -> (int) costs.get(key)).
-                min(Comparator.comparingInt(a -> a)).orElse(Integer.MAX_VALUE);
+                map(costs::get).
+                min(comparingByte(a -> a)).orElse(Byte.MAX_VALUE);
         return Pair.of(result, hasStartId);
     }
 
+    public static <T> Comparator<T> comparingByte(ToByteFunction<? super T> keyExtractor) {
+        return (Comparator<T> & Serializable)
+                (c1, c2) -> Byte.compare(keyExtractor.applyAsByte(c1), keyExtractor.applyAsByte(c2));
+    }
+
+    @FunctionalInterface
+    public interface ToByteFunction<T> {
+        byte applyAsByte(T value);
+    }
 
     private static class Key {
 
         private final IdFor<Route> first;
         private final IdFor<Route> second;
+        private final int hashCode;
 
         public Key(Route routeA, Route routeB) {
-            this.first = routeA.getId();
-            this.second = routeB.getId();
+            this(routeA.getId(), routeB.getId());
+
+        }
+
+        public Key(IdFor<Route> first, IdFor<Route> second) {
+            this.first = first;
+            this.second = second;
+            this.hashCode = Key.createHashCode(this);
+        }
+
+        private static int createHashCode(Key key) {
+            int result = key.first.hashCode();
+            result = 31 * result + key.second.hashCode();
+            return result;
         }
 
         @Override
@@ -184,9 +207,7 @@ public class RouteToRouteCosts {
 
         @Override
         public int hashCode() {
-            int result = first.hashCode();
-            result = 31 * result + second.hashCode();
-            return result;
+            return hashCode;
         }
 
         @Override
@@ -198,4 +219,5 @@ public class RouteToRouteCosts {
         }
 
     }
+
 }

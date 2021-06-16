@@ -35,7 +35,6 @@ public class RouteCalculatorSupport {
 
     private final GraphQuery graphQuery;
     private final PathToStages pathToStages;
-    private final NodeContentsRepository nodeOperations;
     private final ReachabilityRepository reachabilityRepository;
     private final GraphDatabase graphDatabaseService;
     private final ProvidesLocalNow providesLocalNow;
@@ -48,7 +47,9 @@ public class RouteCalculatorSupport {
     private final TraversalStateFactory traversalStateFactory;
     private final RouteToRouteCosts routeToRouteCosts;
 
-    protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeOperations,
+    private final NodeContentsRepository nodeContentsRepository;
+
+    protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      ReachabilityRepository reachabilityRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory, ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition,
                                      MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository,
@@ -56,7 +57,7 @@ public class RouteCalculatorSupport {
                                      RouteToRouteCosts routeToRouteCosts) {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
-        this.nodeOperations = nodeOperations;
+        this.nodeContentsRepository = nodeContentsRepository;
         this.reachabilityRepository = reachabilityRepository;
         this.graphDatabaseService = graphDatabaseService;
         this.traversalStateFactory = traversalStateFactory;
@@ -102,7 +103,7 @@ public class RouteCalculatorSupport {
 
     @NotNull
     private ServiceHeuristics createHeuristics(TramTime time, JourneyConstraints journeyConstraints, int maxNumChanges) {
-        return new ServiceHeuristics(stationRepository, nodeOperations, reachabilityRepository,
+        return new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,
                 journeyConstraints, time, maxNumChanges);
     }
 
@@ -112,7 +113,7 @@ public class RouteCalculatorSupport {
                                                                  PreviousSuccessfulVisits previousSuccessfulVisit) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
-                pathRequest, compositeStationRepository, sortsPosition, nodeOperations,
+                pathRequest, compositeStationRepository, sortsPosition, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
                 reasons, previousSuccessfulVisit, routeToRouteCosts);
 
@@ -156,6 +157,10 @@ public class RouteCalculatorSupport {
             TransportStage<?, ?> lastStage = stages.get(size - 1);
             return lastStage.getExpectedArrivalTime();
         }
+    }
+
+    protected PreviousSuccessfulVisits createPreviousSuccessfulVisits() {
+        return new PreviousSuccessfulVisits(nodeContentsRepository);
     }
 
     @NotNull

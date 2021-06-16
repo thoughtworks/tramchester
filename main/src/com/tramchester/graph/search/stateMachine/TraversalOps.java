@@ -90,7 +90,7 @@ public class TraversalOps {
 
     public Stream<Relationship> orderBoardingRelationsByRouteConnections(Iterable<Relationship> toServices) {
         Stream<RelationshipWithRoute> withRouteId = Streams.stream(toServices).map(RelationshipWithRoute::new);
-        Stream<RelationshipWithRoute> sorted = routeToRouteCosts.sortByDestinations(destinationRoutes, withRouteId);
+        Stream<RelationshipWithRoute> sorted = routeToRouteCosts.sortByDestinations(withRouteId, destinationRoutes);
         return sorted.map(RelationshipWithRoute::getRelationship);
     }
 
@@ -98,19 +98,9 @@ public class TraversalOps {
         return nodeOperations.getTime(node);
     }
 
-//
-//    public int getHourFrom(Node hourNode) {
-//        return nodeOperations.getHour(hourNode);
-//    }
-
     public Trip getTrip(IdFor<Trip> tripId) {
         return tripRepository.getTripById(tripId);
     }
-
-//    public Stream<Relationship> filterByServiceId(Iterable<Relationship> relationships, IdFor<Service> svcId) {
-//        return Streams.stream(relationships).
-//                filter(relationship -> serviceNodeMatches(relationship, svcId));
-//    }
 
     private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {
         // TODO Add ServiceID to Service Relationship??

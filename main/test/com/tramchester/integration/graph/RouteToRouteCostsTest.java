@@ -91,7 +91,7 @@ public class RouteToRouteCostsTest {
         List<HasId<Route>> toSort = Arrays.asList(routeC, routeB, routeA);
 
         IdSet<Route> destinations = new IdSet<>(routeA.getId());
-        Stream<HasId<Route>> results = routeCosts.sortByDestinations(destinations, toSort.stream());
+        Stream<HasId<Route>> results = routeCosts.sortByDestinations(toSort.stream(), destinations);
 
         List<HasId<Route>> list = results.collect(Collectors.toList());
         assertEquals(toSort.size(), list.size());

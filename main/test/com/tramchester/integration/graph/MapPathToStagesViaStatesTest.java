@@ -289,7 +289,7 @@ public class MapPathToStagesViaStatesTest {
     private @NotNull List<RouteCalculator.TimedPath> getPathBetweenNodes(
             JourneyRequest journeyRequest, Node startNode, Set<Long> destinationNodeIds, Set<Station> endStations,
                                                                          int numChanges, TramTime queryTime) {
-        PreviousSuccessfulVisits previous = new PreviousSuccessfulVisits();
+        PreviousSuccessfulVisits previous = new PreviousSuccessfulVisits(nodeContentsRepository);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, endStations);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,

@@ -64,7 +64,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // NOTE: This makes a very(!) significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
-        ServiceReason.ReasonCode previousResult = previousSuccessfulVisits.getPreviousResult(nextNode.getId(), journeyClock);
+        ServiceReason.ReasonCode previousResult = previousSuccessfulVisits.getPreviousResult(nextNode, journeyClock);
         if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
             HowIGotHere howIGotHere = new HowIGotHere(path);
             reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
@@ -73,7 +73,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
         Evaluation result = decideEvaluationAction(reasonCode);
-        previousSuccessfulVisits.recordVisitIfUseful(reasonCode, nextNode.getId(), journeyClock);
+        previousSuccessfulVisits.recordVisitIfUseful(reasonCode, nextNode, journeyClock);
 
         return result;
     }

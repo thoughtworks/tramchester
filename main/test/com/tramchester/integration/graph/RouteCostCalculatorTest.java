@@ -64,24 +64,6 @@ class RouteCostCalculatorTest {
         assertEquals(61, getApproxCostBetween(txn, TramStations.ManAirport, TramStations.MediaCityUK));
     }
 
-//    @Test
-//    void shouldComputeNumberOfRouteHopsSameRoute() {
-//        assertEquals(11, routeCostCalc.getNumberHops(txn, of(Altrincham), of(StPetersSquare)));
-//        assertEquals(11, routeCostCalc.getNumberHops(txn, of(StPetersSquare), of(Altrincham)));
-//    }
-//
-//    @Test
-//    void shouldComputeNumberOfRouteHopsWithChange() {
-//        assertEquals(26, routeCostCalc.getNumberHops(txn, of(Altrincham), of(ManAirport)));
-//        assertEquals(26, routeCostCalc.getNumberHops(txn, of(ManAirport), of(Altrincham)));
-//    }
-//
-//    @Test
-//    void shouldComputeNumberOfRouteHopsCentral() {
-//        assertEquals(2, routeCostCalc.getNumberHops(txn, of(StPetersSquare), of(Shudehill)));
-//        assertEquals(2, routeCostCalc.getNumberHops(txn, of(Shudehill), of(StPetersSquare)));
-//    }
-
     private int getApproxCostBetween(Transaction txn, TramStations start, TramStations dest) {
         return routeCostCalc.getApproxCostBetween(txn, of(start), of(dest));
     }

@@ -43,11 +43,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    TransportData transportData,
                                    GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
                                    PathToStages pathToStages,
-                                   NodeContentsRepository nodeOperations,
+                                   NodeContentsRepository nodeContentsRepository,
                                    ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    CompositeStationRepository compositeStationRepository, RouteToRouteCosts routeToRouteCosts) {
-        super(graphQuery, pathToStages, nodeOperations, reachabilityRepository, graphDatabaseService,
+        super(graphQuery, pathToStages, nodeContentsRepository, reachabilityRepository, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
                 transportData, config, transportData, routeToRouteCosts);
         this.config = config;
@@ -69,7 +69,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
             // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
-            PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
+            PreviousSuccessfulVisits previousSuccessfulVisit = createPreviousSuccessfulVisits();
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
@@ -89,12 +89,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
 
                 // yielding
+                previousSuccessfulVisit.reportStatsFor(journeyRequest);
                 previousSuccessfulVisit.clear();
                 return new JourneysForBox(box, collect);
             }
         });
 
     }
-
-
 }

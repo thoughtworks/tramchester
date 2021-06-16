@@ -92,7 +92,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         Set<Station> destinations = CompositeStation.expandStations(unexpanded);
         if (destinations.size()!=unexpanded.size()) {
-            logger.info("Expanded destinations from " + unexpanded.size() + " to " + destinations.size());
+            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
         }
 
         List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
@@ -101,7 +101,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
-        PreviousSuccessfulVisits previousSuccessfulVisit = new PreviousSuccessfulVisits();
+        PreviousSuccessfulVisits previousSuccessfulVisit = createPreviousSuccessfulVisits();
         Stream<Journey> results = numChangesRange(journeyRequest).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
@@ -110,10 +110,13 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 limit(journeyRequest.getMaxNumberOfJourneys()).
                 map(path -> createJourney(txn, journeyRequest, path, destinations));
 
-        if (journeyRequest.getDiagnosticsEnabled()) {
-            results.onClose(() -> previousSuccessfulVisit.reportStatsFor(journeyRequest));
-        }
-        previousSuccessfulVisit.clear();
+        //if (journeyRequest.getDiagnosticsEnabled()) {
+            results.onClose(() -> {
+                previousSuccessfulVisit.reportStatsFor(journeyRequest);
+                previousSuccessfulVisit.clear();
+            });
+        //}
+
         return results;
     }
 

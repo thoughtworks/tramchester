@@ -4,28 +4,36 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.ServiceReason;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PreviousSuccessfulVisits implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(PreviousSuccessfulVisits.class);
-    private static final long MAX_CACHE_SZIE = 10000;
-    private static final int CACHE_DURATION_MINS = 30;
 
+    private static final long MAX_CACHE_SZIE = 100000;
+
+    // Only per stream at the moment, so likely deleted before ever hitting this time
+    private static final int CACHE_DURATION_MINS = 10;
+
+    private final NodeContentsRepository contentsRepository;
     private final Cache<Long, ServiceReason.ReasonCode> timeNodePrevious;
     private final Cache<NodeIdAndTime, ServiceReason.ReasonCode> hourNodePrevious;
     private int lowestCost;
 
-    public PreviousSuccessfulVisits() {
+    public PreviousSuccessfulVisits(NodeContentsRepository contentsRepository) {
+        this.contentsRepository = contentsRepository;
         timeNodePrevious = createCache();
         hourNodePrevious = createCache();
         lowestCost = Integer.MAX_VALUE;
@@ -42,23 +50,30 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
         hourNodePrevious.invalidateAll();
     }
 
-    public void recordVisitIfUseful(ServiceReason.ReasonCode result, Long nodeId, TramTime journeyClock) {
+    public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, TramTime journeyClock) {
         switch (result) {
-            case NotAtQueryTime, TimeOk -> timeNodePrevious.put(nodeId, result);
-            case HourOk, NotAtHour -> hourNodePrevious.put(new NodeIdAndTime(nodeId, journeyClock), result);
+            case NotAtQueryTime, TimeOk -> timeNodePrevious.put(node.getId(), result);
+            case HourOk, NotAtHour -> hourNodePrevious.put(new NodeIdAndTime(node.getId(), journeyClock), result);
         }
     }
 
-    public ServiceReason.ReasonCode getPreviousResult(Long nodeId, TramTime journeyClock) {
+    public ServiceReason.ReasonCode getPreviousResult(Node node, TramTime journeyClock) {
 
-        ServiceReason.ReasonCode timeFound = timeNodePrevious.getIfPresent(nodeId);
-        if (timeFound != null) {
-            return timeFound;
+        EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
+
+        if (labels.contains(GraphLabel.MINUTE)) {
+            // time node has by definition a unique time
+            ServiceReason.ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
+            if (timeFound != null) {
+                return timeFound;
+            }
         }
 
-        ServiceReason.ReasonCode hourFound = hourNodePrevious.getIfPresent(new NodeIdAndTime(nodeId, journeyClock));
-        if (hourFound != null) {
-            return hourFound;
+        if (labels.contains(GraphLabel.HOUR)) {
+            ServiceReason.ReasonCode hourFound = hourNodePrevious.getIfPresent(new NodeIdAndTime(node.getId(), journeyClock));
+            if (hourFound != null) {
+                return hourFound;
+            }
         }
 
         return ServiceReason.ReasonCode.PreviousCacheMiss;
