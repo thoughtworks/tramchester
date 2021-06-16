@@ -17,8 +17,9 @@ import java.util.Set;
 
 public class JourneyConstraints {
 
+    private static final int TRAMS_MAX_PATH_LENGTH = 400; // likely bigger than needed, but does not impact performance
+
     private static final int BUSES_MAX_PATH_LENGTH = 1000; // todo right value?
-    private static final int TRAMS_MAX_PATH_LENGTH = 400;
     private static final int TRAINS_MAX_PATH_LENGTH = 2000; // todo right value?
     private static final int FERRY_MAX_PATH_LENGTH = 200; // todo right value?
     private static final int SUBWAY_MAX_PATH_LENGTH = 400; // todo right value?

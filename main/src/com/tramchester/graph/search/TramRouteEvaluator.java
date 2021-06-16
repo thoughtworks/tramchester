@@ -96,6 +96,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         TraversalState previousTraversalState = journeyState.getTraversalState();
         HowIGotHere howIGotHere = new HowIGotHere(thePath);
+
         if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
             int totalCost = previousTraversalState.getTotalCost();
@@ -113,8 +114,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
-        } else if (success>0) {
-            // Not arrived, but we do have at least one successful route to our destination that is shorter?
+        } else if (success>0) { // Not arrived, at least one successful route
             int totalCost = previousTraversalState.getTotalCost();
             if (totalCost > previousVisits.getLowestCost()) {
                 // already longer that current shortest, no need to continue
@@ -126,7 +126,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         reasons.recordStat(journeyState);
 
         // no journey longer than N nodes
-        if (thePath.length()>serviceHeuristics.getMaxPathLength()) {
+        if (thePath.length() > serviceHeuristics.getMaxPathLength()) {
             logger.warn("Hit max path length");
             reasons.recordReason(ServiceReason.PathToLong(howIGotHere));
             return ServiceReason.ReasonCode.PathTooLong;

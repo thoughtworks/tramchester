@@ -35,10 +35,4 @@ public class GraphLabelTest {
         }
     }
 
-    @Test
-    void shouldIdStationNodes() {
-        assertFalse(GraphLabel.isStation(Arrays.asList(BUS_STATION, INTERCHANGE)));
-
-        assertTrue(GraphLabel.isStation(Arrays.asList(BUS_STATION, STATION)));
-    }
 }

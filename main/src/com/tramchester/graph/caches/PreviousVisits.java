@@ -8,7 +8,6 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.ServiceReason;
-import com.tramchester.graph.search.TramRouteEvaluator;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -30,14 +29,14 @@ public class PreviousVisits implements ReportsCacheStats {
     private final NodeContentsRepository contentsRepository;
     private final Cache<Long, ServiceReason.ReasonCode> timeNodePrevious;
     private final Cache<Key<TramTime>, ServiceReason.ReasonCode> hourNodePrevious;
-    private final Cache<Key<ImmutableJourneyState>, ServiceReason.ReasonCode> previousNodes;
+    //private final Cache<Key<ImmutableJourneyState>, ServiceReason.ReasonCode> previousNodes;
     private int lowestCost;
 
     public PreviousVisits(NodeContentsRepository contentsRepository) {
         this.contentsRepository = contentsRepository;
         timeNodePrevious = createCache(100000);
         hourNodePrevious = createCache(400000);
-        previousNodes = createCache(400000);
+        //previousNodes = createCache(400000);
         lowestCost = Integer.MAX_VALUE;
     }
 
@@ -50,7 +49,7 @@ public class PreviousVisits implements ReportsCacheStats {
     public void clear() {
         timeNodePrevious.invalidateAll();
         hourNodePrevious.invalidateAll();
-        previousNodes.invalidateAll();
+        //previousNodes.invalidateAll();
     }
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState) {
@@ -62,11 +61,12 @@ public class PreviousVisits implements ReportsCacheStats {
                 case NotAtQueryTime -> timeNodePrevious.put(node.getId(), result);
                 case NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), result);
             }
-        } else if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            if (!TramRouteEvaluator.decideEvaluationAction(result).continues()) {
-                previousNodes.put(new Key<>(node, journeyState), result);
-            }
         }
+//        else if (labels.contains(GraphLabel.ROUTE_STATION)) {
+//            if (!TramRouteEvaluator.decideEvaluationAction(result).continues()) {
+//                previousNodes.put(new Key<>(node, journeyState), result);
+//            }
+//        }
     }
 
     public ServiceReason.ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState) {
@@ -88,11 +88,10 @@ public class PreviousVisits implements ReportsCacheStats {
             }
         }
 
-        ServiceReason.ReasonCode nodeFound = previousNodes.getIfPresent(new Key<>(node, journeyState));
-        if (nodeFound != null) {
-            return nodeFound;
-        }
-
+//        ServiceReason.ReasonCode nodeFound = previousNodes.getIfPresent(new Key<>(node, journeyState));
+//        if (nodeFound != null) {
+//            return nodeFound;
+//        }
 
         return ServiceReason.ReasonCode.PreviousCacheMiss;
     }
@@ -102,7 +101,7 @@ public class PreviousVisits implements ReportsCacheStats {
         List<Pair<String, CacheStats>> results = new ArrayList<>();
         results.add(Pair.of("timeNodePrevious", timeNodePrevious.stats()));
         results.add(Pair.of("hourNodePrevious", hourNodePrevious.stats()));
-        results.add(Pair.of("previousNodes", previousNodes.stats()));
+//        results.add(Pair.of("previousNodes", previousNodes.stats()));
         return results;
     }
 

@@ -14,7 +14,6 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
@@ -45,10 +44,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                           CompositeStationRepository compositeStationRepository, RouteToRouteCosts routeToRouteCosts) {
+                           RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         super(graphQuery, pathToStages, nodeOperations, reachabilityRepository, graphDatabaseService,
-                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
-                transportData, config, transportData, routeToRouteCosts);
+                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations,
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.serviceRepository = transportData;
         this.config = config;
         this.createQueryTimes = createQueryTimes;
@@ -101,7 +100,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
-        PreviousVisits previousSuccessfulVisit = createPreviousSuccessfulVisits();
+        PreviousVisits previousSuccessfulVisit = createPreviousVisits();
+
         Stream<Journey> results = numChangesRange(journeyRequest).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
@@ -110,12 +110,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 limit(journeyRequest.getMaxNumberOfJourneys()).
                 map(path -> createJourney(txn, journeyRequest, path, destinations));
 
-        //if (journeyRequest.getDiagnosticsEnabled()) {
-            results.onClose(() -> {
+        results.onClose(() -> {
+            if (journeyRequest.getDiagnosticsEnabled()) {
                 previousSuccessfulVisit.reportStatsFor(journeyRequest);
-                previousSuccessfulVisit.clear();
-            });
-        //}
+            }
+            previousSuccessfulVisit.clear();
+        });
 
         return results;
     }

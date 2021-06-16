@@ -3,7 +3,6 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.CompositeStationRepository;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +50,9 @@ public class ServiceReasons {
         Arrays.asList(ServiceReason.ReasonCode.values()).forEach(code -> statistics.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(Transaction transaction, CompositeStationRepository stationRepository, RouteCalculatorSupport.PathRequest pathRequest) {
+    public void reportReasons(Transaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
         if (diagnosticsEnabled) {
-            createGraphFile(transaction, stationRepository);
+            createGraphFile(transaction, reasonToGraphViz);
         }
 
         if (!success || diagnosticsEnabled) {
@@ -112,7 +111,7 @@ public class ServiceReasons {
         };
     }
 
-    private void createGraphFile(Transaction transaction, CompositeStationRepository stationRepository) {
+    private void createGraphFile(Transaction txn, ReasonsToGraphViz reasonsToGraphViz) {
         String fileName = createFilename();
 
         if (reasons.isEmpty()) {
@@ -125,11 +124,7 @@ public class ServiceReasons {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("digraph G {\n");
-
-            ReasonsToGraphViz reasonsToGraphViz = new ReasonsToGraphViz(transaction, stationRepository, builder);
-
-            reasons.forEach(reasonsToGraphViz::add);
-
+            reasonsToGraphViz.appendTo(builder, reasons, txn);
             builder.append("}");
 
             FileWriter writer = new FileWriter(fileName);

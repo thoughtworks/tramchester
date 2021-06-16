@@ -13,7 +13,6 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
@@ -40,21 +39,20 @@ public class RouteCalculatorSupport {
     private final ProvidesLocalNow providesLocalNow;
     private final SortsPositions sortsPosition;
     private final MapPathToLocations mapPathToLocations;
-    private final CompositeStationRepository compositeStationRepository;
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
     private final TripRepository tripRepository;
     private final TraversalStateFactory traversalStateFactory;
     private final RouteToRouteCosts routeToRouteCosts;
-
     private final NodeContentsRepository nodeContentsRepository;
+    private final ReasonsToGraphViz reasonToGraphViz;
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      ReachabilityRepository reachabilityRepository,
-                                     GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory, ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition,
-                                     MapPathToLocations mapPathToLocations, CompositeStationRepository compositeStationRepository,
+                                     GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
+                                     ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     RouteToRouteCosts routeToRouteCosts) {
+                                     RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -64,11 +62,11 @@ public class RouteCalculatorSupport {
         this.providesLocalNow = providesLocalNow;
         this.sortsPosition = sortsPosition;
         this.mapPathToLocations = mapPathToLocations;
-        this.compositeStationRepository = compositeStationRepository;
         this.stationRepository = stationRepository;
         this.config = config;
         this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
+        this.reasonToGraphViz = reasonToGraphViz;
     }
 
     protected Node getStationNodeSafe(Transaction txn, Station station) {
@@ -113,9 +111,9 @@ public class RouteCalculatorSupport {
                                                                  PreviousVisits previousSuccessfulVisit) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
-                pathRequest, compositeStationRepository, sortsPosition, nodeContentsRepository,
+                pathRequest, sortsPosition, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
-                reasons, previousSuccessfulVisit, routeToRouteCosts);
+                reasons, previousSuccessfulVisit, routeToRouteCosts, reasonToGraphViz);
 
         logger.info("Traverse for " + pathRequest);
 
@@ -159,7 +157,7 @@ public class RouteCalculatorSupport {
         }
     }
 
-    protected PreviousVisits createPreviousSuccessfulVisits() {
+    protected PreviousVisits createPreviousVisits() {
         return new PreviousVisits(nodeContentsRepository);
     }
 

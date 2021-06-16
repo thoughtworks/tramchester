@@ -14,7 +14,6 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
@@ -46,10 +45,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    NodeContentsRepository nodeContentsRepository,
                                    ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                                   CompositeStationRepository compositeStationRepository, RouteToRouteCosts routeToRouteCosts) {
+                                   RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         super(graphQuery, pathToStages, nodeContentsRepository, reachabilityRepository, graphDatabaseService,
-                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations, compositeStationRepository,
-                transportData, config, transportData, routeToRouteCosts);
+                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations,
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;
         this.serviceRepository = transportData;
         this.graphDatabaseService = graphDatabaseService;
@@ -69,7 +68,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
             // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
-            PreviousVisits previousSuccessfulVisit = createPreviousSuccessfulVisits();
+            PreviousVisits previousSuccessfulVisit = createPreviousVisits();
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();

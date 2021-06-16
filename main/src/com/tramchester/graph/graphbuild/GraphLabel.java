@@ -65,15 +65,6 @@ public enum GraphLabel implements Label {
         return result;
     }
 
-    public static boolean isStation(Iterable<Label> labels) {
-        for (Label label : labels) {
-            if (label.name().equals(STATION.name())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static Label getHourLabel(int hour) {
         return hourLabels[hour];
     }

@@ -1,7 +1,5 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.graphbuild.GraphLabel;
-
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
     PLATFORM_ID("platform_id"),
@@ -31,19 +29,6 @@ public enum GraphPropertyKey {
 
     public String getText() {
         return text;
-    }
-
-    public static GraphPropertyKey keyForLabel(GraphLabel label) {
-        return switch (label) {
-            case TRAIN_STATION, BUS_STATION, TRAM_STATION, FERRY_STATION, SUBWAY_STATION, GROUPED -> STATION_ID;
-            case ROUTE_STATION -> ROUTE_STATION_ID;
-            case SERVICE -> SERVICE_ID;
-            case PLATFORM -> PLATFORM_ID;
-            case QUERY_NODE -> WALK_ID;
-            case HOUR -> HOUR;
-            case MINUTE -> TIME;
-            default -> throw new RuntimeException("No Key for label" + label);
-        };
     }
 
 }

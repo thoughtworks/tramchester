@@ -14,7 +14,6 @@ import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.*;
@@ -37,7 +36,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     private final GraphDatabase graphDatabaseService;
     private final NodeContentsRepository nodeContentsRepository;
-    private final CompositeStationRepository stationRepository;
     private final TripRepository tripRespository;
     private final TramTime queryTime;
     private final Set<Long> destinationNodeIds;
@@ -49,15 +47,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TraversalStateFactory traversalStateFactory;
     private final RouteToRouteCosts routeToRouteCosts;
     private final RouteCalculatorSupport.PathRequest pathRequest;
+    private final ReasonsToGraphViz reasonToGraphViz;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, RouteCalculatorSupport.PathRequest pathRequest,
-                                CompositeStationRepository stationRepository, SortsPositions sortsPosition,
-                                NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
+                                SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
-                                Set<Long> destinationNodeIds, ServiceReasons reasons,
-                                PreviousVisits previousSuccessfulVisit, RouteToRouteCosts routeToRouteCosts) {
+                                Set<Long> destinationNodeIds, ServiceReasons reasons, PreviousVisits previousSuccessfulVisit,
+                                RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         this.graphDatabaseService = graphDatabaseService;
-        this.stationRepository = stationRepository;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRespository = tripRespository;
@@ -71,6 +68,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.pathRequest = pathRequest;
 
         this.queryTime = pathRequest.getServiceHeuristics().getQueryTime();
+        this.reasonToGraphViz = reasonToGraphViz;
     }
 
     public Stream<Path> findPaths(Transaction txn, Node startNode) {
@@ -127,7 +125,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
-            reasons.reportReasons(txn, stationRepository, pathRequest);
+            reasons.reportReasons(txn, pathRequest, reasonToGraphViz);
             traversalState.dispose();
         });
 
