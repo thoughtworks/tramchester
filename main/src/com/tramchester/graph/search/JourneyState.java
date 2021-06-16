@@ -10,45 +10,34 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
-import java.util.Objects;
-
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
-    private TramTime journeyClock;
-    private TransportMode transportMode;
+
+    private final CoreState coreState;
 
     private int journeyOffset;
     private TramTime boardingTime;
     private TraversalState traversalState;
-    private int numberOfBoardings;
-    private int numberOfWalkingConnections;
-    private boolean hasBegun;
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
-        this.journeyClock = queryTime;
-        this.traversalState = traversalState;
+        coreState = new CoreState(queryTime);
 
+        this.traversalState = traversalState;
         journeyOffset = 0;
-        transportMode = TransportMode.NotSet;
-        numberOfBoardings = 0;
-        numberOfWalkingConnections = 0;
-        hasBegun = false;
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
         return new JourneyState((JourneyState) previousState);
     }
 
+    // Copy cons
     private JourneyState(JourneyState previousState) {
-        this.journeyClock = previousState.journeyClock;
-        this.transportMode = previousState.transportMode;
+        this.coreState = new CoreState(previousState.coreState);
+
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
-        if (onBoard()) {
+        if (coreState.onBoard()) {
             this.boardingTime = previousState.boardingTime;
         }
-        this.numberOfBoardings = previousState.numberOfBoardings;
-        this.numberOfWalkingConnections = previousState.numberOfWalkingConnections;
-        this.hasBegun = previousState.hasBegun;
     }
 
     public static InitialBranchState<JourneyState> initialState(TramTime queryTime, TraversalState traversalState) {
@@ -66,34 +55,31 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     public TramTime getJourneyClock() {
-        return journeyClock;
+        return coreState.journeyClock;
     }
-
 
     public void updateTotalCost(int currentTotalCost) {
         int costForTrip = currentTotalCost - journeyOffset;
 
-        if (onBoard()) {
-            journeyClock = boardingTime.plusMinutes(costForTrip);
+        if (coreState.onBoard()) {
+            coreState.setJourneyClock(boardingTime.plusMinutes(costForTrip));
         } else {
-            journeyClock = journeyClock.plusMinutes(costForTrip);
+            coreState.incrementJourneyClock(costForTrip);
         }
     }
 
     public void recordTime(TramTime boardingTime, int currentCost) throws TramchesterException {
-        if (! (onBoard()) ) {
+        if ( !coreState.onBoard() ) {
             throw new TramchesterException("Not on a bus or tram");
         }
-        this.journeyClock = boardingTime;
+        coreState.setJourneyClock(boardingTime);
         this.boardingTime = boardingTime;
         this.journeyOffset = currentCost;
     }
 
-
-
     @Override
     public void beginWalk(Node beforeWalkNode, boolean atStart, int cost) {
-        numberOfWalkingConnections = numberOfWalkingConnections + 1;
+        coreState.incrementWalkingConnections();
     }
 
     @Override
@@ -108,20 +94,16 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
     @Override
     public void toNeighbour(Node startNode, Node endNode, int cost) {
-        numberOfWalkingConnections = numberOfWalkingConnections + 1;
-    }
-
-    private boolean onBoard() {
-        return !transportMode.equals(TransportMode.NotSet);
+        coreState.incrementWalkingConnections();
     }
 
     @Override
     public void leave(TransportMode mode, int totalCost, Node node) throws TramchesterException {
-        if (!transportMode.equals(mode)) {
-            throw new TramchesterException("Not currently on " +mode+ " was " + transportMode);
+        if (!coreState.modeEquals(mode)) {
+            throw new TramchesterException("Not currently on " +mode+ " was " + coreState.currentMode);
         }
         leave(totalCost);
-        transportMode = TransportMode.NotSet;
+        coreState.leaveVehicle();
     }
 
     private void leave(int currentTotalCost) {
@@ -130,7 +112,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
 
         int tripCost = currentTotalCost - journeyOffset;
-        journeyClock = boardingTime.plusMinutes(tripCost);
+        coreState.setJourneyClock(boardingTime.plusMinutes(tripCost));
 
         journeyOffset = currentTotalCost;
         boardingTime = null;
@@ -138,33 +120,28 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
     @Override
     public int getNumberChanges() {
-        if (numberOfBoardings==0) {
-            return 0;
-        }
-        return numberOfBoardings-1; // initial boarding
+        return coreState.getNumberOfChanges();
     }
 
     @Override
     public int getNumberWalkingConnections() {
-        return numberOfWalkingConnections;
+        return coreState.numberOfWalkingConnections;
     }
 
     @Override
     public boolean hasBegunJourney() {
-        return hasBegun;
+        return coreState.hasBegun;
     }
 
     @Override
     public void board(TransportMode mode, Node node, boolean hasPlatform) throws TramchesterException {
         guardAlreadyOnboard();
-        numberOfBoardings = numberOfBoardings + 1;
-        transportMode = mode;
-        hasBegun = true;
+        coreState.board(mode);
     }
 
     private void guardAlreadyOnboard() throws TramchesterException {
-        if (!transportMode.equals(TransportMode.NotSet)) {
-            throw new TramchesterException("Already on a " + transportMode);
+        if (!coreState.currentMode.equals(TransportMode.NotSet)) {
+            throw new TramchesterException("Already on a " + coreState.currentMode);
         }
     }
 
@@ -176,34 +153,132 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.traversalState = traversalState;
     }
 
+
+    @Override
+    public TransportMode getTransportMode() {
+        return coreState.currentMode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         JourneyState that = (JourneyState) o;
-        return transportMode == that.transportMode &&
-                Objects.equals(journeyClock, that.journeyClock);
+
+        return coreState.equals(that.coreState);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(journeyClock, transportMode);
+        return coreState.hashCode();
     }
 
     @Override
     public String toString() {
         return "JourneyState{" +
-                "journeyClock=" + journeyClock +
-                ", transportMode=" + transportMode +
+                "coreState=" + coreState +
                 ", journeyOffset=" + journeyOffset +
                 ", boardingTime=" + boardingTime +
                 ", traversalState=" + traversalState +
                 '}';
     }
 
-    @Override
-    public TransportMode getTransportMode() {
-        return transportMode;
+    private static class CoreState {
+        private boolean hasBegun;
+        private TramTime journeyClock;
+        private TransportMode currentMode;
+        private int numberOfBoardings;
+        private int numberOfWalkingConnections;
+
+        public CoreState(TramTime queryTime) {
+            this(queryTime, false, 0, TransportMode.NotSet, 0);
+        }
+
+        // Copy cons
+        public CoreState(CoreState previous) {
+            this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections);
+        }
+
+        private CoreState(TramTime journeyClock, boolean hasBegun, int numberOfBoardings, TransportMode currentMode, int numberOfWalkingConnections) {
+            this.hasBegun = hasBegun;
+            this.journeyClock = journeyClock;
+            this.currentMode = currentMode;
+            this.numberOfBoardings = numberOfBoardings;
+            this.numberOfWalkingConnections = numberOfWalkingConnections;
+        }
+
+        public void incrementWalkingConnections() {
+            numberOfWalkingConnections = numberOfWalkingConnections + 1;
+        }
+
+        public void board(TransportMode mode) {
+            numberOfBoardings = numberOfBoardings + 1;
+            currentMode = mode;
+            hasBegun = true;
+        }
+
+        public void setJourneyClock(TramTime time) {
+            journeyClock = time;
+        }
+
+        public void incrementJourneyClock(int minutes) {
+            journeyClock = journeyClock.plusMinutes(minutes);
+        }
+
+        public boolean onBoard() {
+            return !currentMode.equals(TransportMode.NotSet);
+        }
+
+        public void leaveVehicle() {
+            currentMode = TransportMode.NotSet;
+        }
+
+        public int getNumberOfChanges() {
+            if (numberOfBoardings==0) {
+                return 0;
+            }
+            return numberOfBoardings-1; // initial boarding
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CoreState coreState = (CoreState) o;
+
+            if (hasBegun != coreState.hasBegun) return false;
+            if (numberOfBoardings != coreState.numberOfBoardings) return false;
+            if (numberOfWalkingConnections != coreState.numberOfWalkingConnections) return false;
+            if (!journeyClock.equals(coreState.journeyClock)) return false;
+            return currentMode == coreState.currentMode;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = (hasBegun ? 1 : 0);
+            result = 31 * result + journeyClock.hashCode();
+            result = 31 * result + currentMode.hashCode();
+            result = 31 * result + numberOfBoardings;
+            result = 31 * result + numberOfWalkingConnections;
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "CoreState{" +
+                    "hasBegun=" + hasBegun +
+                    ", journeyClock=" + journeyClock +
+                    ", currentMode=" + currentMode +
+                    ", numberOfBoardings=" + numberOfBoardings +
+                    ", numberOfWalkingConnections=" + numberOfWalkingConnections +
+                    '}';
+        }
+
+        public boolean modeEquals(TransportMode mode) {
+            return currentMode==mode;
+        }
     }
 
 }

@@ -457,18 +457,6 @@ class TramRouteTest {
         assertEquals(-1, costCalculator.getApproxCostBetween(txn, transportData.getLast(), transportData.getFirst()));
     }
 
-//    @Test
-//    void shouldHaveNumberHopsAsExpected() {
-//        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
-//        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getSecond()));
-//        assertEquals(2, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getInterchange()));
-//        assertEquals(3, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getFourthStation()));
-//        assertEquals(3, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getFifthStation()));
-//        assertEquals(3, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getLast()));
-//
-//        assertEquals(-1, costCalculator.getNumberHops(txn, transportData.getLast(), transportData.getFirst()));
-//    }
-
     @Test
     void createDiagramOfTestNetwork() {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
