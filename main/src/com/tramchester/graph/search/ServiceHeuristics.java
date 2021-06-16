@@ -94,13 +94,12 @@ public class ServiceHeuristics {
         EnumSet<GraphLabel> labels = nodeOperations.getLabels(node);
 
         int queryTimeHour = journeyClockTime.getHourOfDay();
-        //if (hour == queryTimeHour) {
+        //noinspection SuspiciousMethodCalls
         if (labels.contains(GraphLabel.getHourLabel(queryTimeHour))) {
             // quick win
             return valid(ServiceReason.ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-        //int hour = nodeOperations.getHour(node);
         int hour = GraphLabel.getHourFrom(labels);
 
         TramTime currentHour = hour==0 ? TramTime.midnight() : TramTime.of(hour, 0);
