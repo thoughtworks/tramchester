@@ -3,7 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
@@ -28,7 +28,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceHeuristics serviceHeuristics;
     private final NodeContentsRepository nodeContentsRepository;
     private final ServiceReasons reasons;
-    private final PreviousSuccessfulVisits previousSuccessfulVisits;
+    private final PreviousVisits previousVisits;
 
     private final int maxWait;
     private final int maxInitialWait;
@@ -38,12 +38,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
-                              PreviousSuccessfulVisits previousSuccessfulVisits, TramchesterConfig config, long startNodeId) {
+                              PreviousVisits previousVisits, TramchesterConfig config, long startNodeId) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
         this.reasons = reasons;
-        this.previousSuccessfulVisits = previousSuccessfulVisits;
+        this.previousVisits = previousVisits;
         maxWait = config.getMaxWait();
         maxInitialWait = config.getMaxInitialWait();
         this.startNodeId = startNodeId;
@@ -64,7 +64,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // NOTE: This makes a very(!) significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
-        ServiceReason.ReasonCode previousResult = previousSuccessfulVisits.getPreviousResult(nextNode, journeyClock);
+        ServiceReason.ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState);
         if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
             HowIGotHere howIGotHere = new HowIGotHere(path);
             reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
@@ -73,7 +73,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
         Evaluation result = decideEvaluationAction(reasonCode);
-        previousSuccessfulVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState);
+        previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState);
 
         return result;
     }
@@ -99,13 +99,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
             int totalCost = previousTraversalState.getTotalCost();
-            if (totalCost <= previousSuccessfulVisits.getLowestCost()) {
+            if (totalCost <= previousVisits.getLowestCost()) {
                 // a better route than seen so far
                 // <= equals so we include multiple options and routes in the results
                 // An alternative to this would be to search over a finer grained list of times and catch alternatives
                 // that way
                 success = success + 1;
-                previousSuccessfulVisits.setLowestCost(totalCost);
+                previousVisits.setLowestCost(totalCost);
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
             } else {
@@ -116,7 +116,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         } else if (success>0) {
             // Not arrived, but we do have at least one successful route to our destination that is shorter?
             int totalCost = previousTraversalState.getTotalCost();
-            if (totalCost > previousSuccessfulVisits.getLowestCost()) {
+            if (totalCost > previousVisits.getLowestCost()) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
@@ -160,7 +160,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
         // --> Minute
         // check time
-        //if (nodeTypeRepository.isTime(nextNode)) {
         if (labels.contains(GraphLabel.MINUTE)) {
             ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
             if (!serviceReason.isValid()) {
@@ -170,7 +169,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // -->Hour
         // check time, just hour first
-        //if (nodeTypeRepository.isHour(nextNode)) {
         if (labels.contains(GraphLabel.HOUR)) {
             if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
@@ -178,7 +176,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // -->Service
-        // is the service running today?
         boolean isService = labels.contains(GraphLabel.SERVICE); //nodeTypeRepository.isService(nextNode);
         if (isService) {
             if (!serviceHeuristics.checkServiceDate(nextNode, howIGotHere, reasons).isValid()) {
@@ -188,7 +185,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // -->Route Station
         // is even reachable from here? is the station open?
-        //if (nodeTypeRepository.isRouteStation(nextNode)) {
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
             if (!serviceHeuristics.canReachDestination(nextNode, howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;

@@ -7,7 +7,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
@@ -45,7 +45,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
-    private final PreviousSuccessfulVisits previousSuccessfulVisit;
+    private final PreviousVisits previousSuccessfulVisit;
     private final TraversalStateFactory traversalStateFactory;
     private final RouteToRouteCosts routeToRouteCosts;
     private final RouteCalculatorSupport.PathRequest pathRequest;
@@ -55,7 +55,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                 NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons,
-                                PreviousSuccessfulVisits previousSuccessfulVisit, RouteToRouteCosts routeToRouteCosts) {
+                                PreviousVisits previousSuccessfulVisit, RouteToRouteCosts routeToRouteCosts) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
         this.sortsPosition = sortsPosition;

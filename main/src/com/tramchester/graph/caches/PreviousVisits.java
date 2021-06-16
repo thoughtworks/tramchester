@@ -20,8 +20,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class PreviousSuccessfulVisits implements ReportsCacheStats {
-    private static final Logger logger = LoggerFactory.getLogger(PreviousSuccessfulVisits.class);
+public class PreviousVisits implements ReportsCacheStats {
+    private static final Logger logger = LoggerFactory.getLogger(PreviousVisits.class);
 
     private static final long MAX_CACHE_SZIE = 100000;
 
@@ -30,13 +30,15 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
 
     private final NodeContentsRepository contentsRepository;
     private final Cache<Long, ServiceReason.ReasonCode> timeNodePrevious;
-    private final Cache<NodeIdAndTime, ServiceReason.ReasonCode> hourNodePrevious;
+    private final Cache<Key<TramTime>, ServiceReason.ReasonCode> hourNodePrevious;
+    private final Cache<Key<ImmutableJourneyState>, ServiceReason.ReasonCode> routeStationPrevious;
     private int lowestCost;
 
-    public PreviousSuccessfulVisits(NodeContentsRepository contentsRepository) {
+    public PreviousVisits(NodeContentsRepository contentsRepository) {
         this.contentsRepository = contentsRepository;
         timeNodePrevious = createCache();
         hourNodePrevious = createCache();
+        routeStationPrevious = createCache();
         lowestCost = Integer.MAX_VALUE;
     }
 
@@ -49,17 +51,25 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
     public void clear() {
         timeNodePrevious.invalidateAll();
         hourNodePrevious.invalidateAll();
+        routeStationPrevious.invalidateAll();
     }
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState) {
-        TramTime journeyClock = journeyState.getJourneyClock();
-        switch (result) {
-            case NotAtQueryTime, TimeOk -> timeNodePrevious.put(node.getId(), result);
-            case HourOk, NotAtHour -> hourNodePrevious.put(new NodeIdAndTime(node.getId(), journeyClock), result);
+        EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
+        if (labels.contains(GraphLabel.ROUTE_STATION)) {
+            if (result == ServiceReason.ReasonCode.NotReachable || result == ServiceReason.ReasonCode.StationClosed) {
+                routeStationPrevious.put(new Key<>(node, journeyState), result);
+            }
+        } else if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
+            TramTime journeyClock = journeyState.getJourneyClock();
+            switch (result) {
+                case NotAtQueryTime, TimeOk -> timeNodePrevious.put(node.getId(), result);
+                case HourOk, NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), result);
+            }
         }
     }
 
-    public ServiceReason.ReasonCode getPreviousResult(Node node, TramTime journeyClock) {
+    public ServiceReason.ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState) {
 
         EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
 
@@ -72,9 +82,16 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.HOUR)) {
-            ServiceReason.ReasonCode hourFound = hourNodePrevious.getIfPresent(new NodeIdAndTime(node.getId(), journeyClock));
+            ServiceReason.ReasonCode hourFound = hourNodePrevious.getIfPresent(new Key<>(node, journeyState.getJourneyClock()));
             if (hourFound != null) {
                 return hourFound;
+            }
+        }
+
+        if (labels.contains(GraphLabel.ROUTE_STATION)) {
+            ServiceReason.ReasonCode routeStationFound = routeStationPrevious.getIfPresent(new Key<>(node, journeyState));
+            if (routeStationFound != null) {
+                return routeStationFound;
             }
         }
 
@@ -86,6 +103,7 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
         List<Pair<String, CacheStats>> results = new ArrayList<>();
         results.add(Pair.of("timeNodePrevious", timeNodePrevious.stats()));
         results.add(Pair.of("hourNodePrevious", hourNodePrevious.stats()));
+        results.add(Pair.of("routeStationPrevious", routeStationPrevious.stats()));
         return results;
     }
 
@@ -102,14 +120,14 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
         this.lowestCost = cost;
     }
 
-    private static class NodeIdAndTime {
+    private static class Key<T> {
 
         private final long nodeId;
-        private final TramTime tramTime;
+        private final T other;
 
-        public NodeIdAndTime(long nodeId, TramTime tramTime) {
-            this.nodeId = nodeId;
-            this.tramTime = tramTime;
+        public Key(Node node, T other) {
+            this.nodeId = node.getId();
+            this.other = other;
         }
 
         @Override
@@ -117,17 +135,18 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            NodeIdAndTime that = (NodeIdAndTime) o;
+            Key<?> key = (Key<?>) o;
 
-            if (nodeId != that.nodeId) return false;
-            return tramTime.equals(that.tramTime);
+            if (nodeId != key.nodeId) return false;
+            return other.equals(key.other);
         }
 
         @Override
         public int hashCode() {
             int result = (int) (nodeId ^ (nodeId >>> 32));
-            result = 31 * result + tramTime.hashCode();
+            result = 31 * result + other.hashCode();
             return result;
         }
     }
+
 }

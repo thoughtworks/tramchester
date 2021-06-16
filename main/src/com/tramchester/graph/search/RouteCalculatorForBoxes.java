@@ -12,7 +12,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
@@ -69,7 +69,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
             // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
-            PreviousSuccessfulVisits previousSuccessfulVisit = createPreviousSuccessfulVisits();
+            PreviousVisits previousSuccessfulVisit = createPreviousSuccessfulVisits();
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();

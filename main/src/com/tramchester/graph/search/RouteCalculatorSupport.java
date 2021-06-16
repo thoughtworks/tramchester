@@ -11,7 +11,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.ReachabilityRepository;
@@ -110,7 +110,7 @@ public class RouteCalculatorSupport {
     public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
                                                                  final Set<Station> endStations,
                                                                  ServiceReasons reasons, PathRequest pathRequest,
-                                                                 PreviousSuccessfulVisits previousSuccessfulVisit) {
+                                                                 PreviousVisits previousSuccessfulVisit) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest, compositeStationRepository, sortsPosition, nodeContentsRepository,
@@ -159,8 +159,8 @@ public class RouteCalculatorSupport {
         }
     }
 
-    protected PreviousSuccessfulVisits createPreviousSuccessfulVisits() {
-        return new PreviousSuccessfulVisits(nodeContentsRepository);
+    protected PreviousVisits createPreviousSuccessfulVisits() {
+        return new PreviousVisits(nodeContentsRepository);
     }
 
     @NotNull

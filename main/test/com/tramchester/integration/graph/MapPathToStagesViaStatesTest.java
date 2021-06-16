@@ -14,7 +14,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.PreviousSuccessfulVisits;
+import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.*;
@@ -289,7 +289,7 @@ public class MapPathToStagesViaStatesTest {
     private @NotNull List<RouteCalculator.TimedPath> getPathBetweenNodes(
             JourneyRequest journeyRequest, Node startNode, Set<Long> destinationNodeIds, Set<Station> endStations,
                                                                          int numChanges, TramTime queryTime) {
-        PreviousSuccessfulVisits previous = new PreviousSuccessfulVisits(nodeContentsRepository);
+        PreviousVisits previous = new PreviousVisits(nodeContentsRepository);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, endStations);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,
