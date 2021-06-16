@@ -121,7 +121,6 @@ class BusRouteCalculatorTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(TestEnv.nextMonday()),
                 TramTime.of(9, 0), false, 1, maxJourneyDuration, 3);
-        journeyRequest.setDiag(true);
 
         Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(alty, stockport, journeyRequest);
 

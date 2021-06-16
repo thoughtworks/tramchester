@@ -13,7 +13,6 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +33,6 @@ public class RouteCalculatorSupport {
 
     private final GraphQuery graphQuery;
     private final PathToStages pathToStages;
-    private final ReachabilityRepository reachabilityRepository;
     private final GraphDatabase graphDatabaseService;
     private final ProvidesLocalNow providesLocalNow;
     private final SortsPositions sortsPosition;
@@ -48,7 +46,6 @@ public class RouteCalculatorSupport {
     private final ReasonsToGraphViz reasonToGraphViz;
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
-                                     ReachabilityRepository reachabilityRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
@@ -56,7 +53,6 @@ public class RouteCalculatorSupport {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
-        this.reachabilityRepository = reachabilityRepository;
         this.graphDatabaseService = graphDatabaseService;
         this.traversalStateFactory = traversalStateFactory;
         this.providesLocalNow = providesLocalNow;
@@ -101,7 +97,7 @@ public class RouteCalculatorSupport {
 
     @NotNull
     private ServiceHeuristics createHeuristics(TramTime time, JourneyConstraints journeyConstraints, int maxNumChanges) {
-        return new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,
+        return new ServiceHeuristics(stationRepository, nodeContentsRepository,
                 journeyConstraints, time, routeToRouteCosts, maxNumChanges);
     }
 

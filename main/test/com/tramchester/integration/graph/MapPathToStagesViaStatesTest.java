@@ -19,7 +19,6 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -55,7 +54,6 @@ public class MapPathToStagesViaStatesTest {
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
     private NodeContentsRepository nodeContentsRepository;
-    private ReachabilityRepository reachabilityRepository;
     private PathToStages pathToStages;
     private LocationJourneyPlanner locationJourneyPlanner;
     private RouteToRouteCosts routeToRouteCosts;
@@ -80,7 +78,6 @@ public class MapPathToStagesViaStatesTest {
         providesLocalNow = componentContainer.get(ProvidesLocalNow.class);
         serviceRepository = componentContainer.get(ServiceRepository.class);
         nodeContentsRepository = componentContainer.get(NodeContentsRepository.class);
-        reachabilityRepository = componentContainer.get(ReachabilityRepository.class);
         graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
         pathToStages = componentContainer.get(MapPathToStagesViaStates.class);
@@ -294,7 +291,7 @@ public class MapPathToStagesViaStatesTest {
         PreviousVisits previous = new PreviousVisits(nodeContentsRepository);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, endStations);
-        ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository, reachabilityRepository,
+        ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository,
                 journeyConstraints, queryTime, routeToRouteCosts, numChanges);
         RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryTime, numChanges,
                 serviceHeuristics);

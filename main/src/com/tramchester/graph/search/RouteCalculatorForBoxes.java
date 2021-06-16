@@ -14,7 +14,6 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Transaction;
@@ -43,10 +42,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
                                    PathToStages pathToStages,
                                    NodeContentsRepository nodeContentsRepository,
-                                   ReachabilityRepository reachabilityRepository, ProvidesLocalNow providesLocalNow,
+                                   ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
-        super(graphQuery, pathToStages, nodeContentsRepository, reachabilityRepository, graphDatabaseService,
+        super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;

@@ -14,7 +14,6 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Node;
@@ -40,12 +39,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
-                           TramchesterConfig config, ReachabilityRepository reachabilityRepository, CreateQueryTimes createQueryTimes,
+                           TramchesterConfig config, CreateQueryTimes createQueryTimes,
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesLocalNow providesLocalNow, GraphQuery graphQuery,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
-        super(graphQuery, pathToStages, nodeOperations, reachabilityRepository, graphDatabaseService,
+        super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.serviceRepository = transportData;

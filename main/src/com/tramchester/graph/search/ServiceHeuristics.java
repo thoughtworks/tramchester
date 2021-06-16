@@ -9,7 +9,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.HowIGotHere;
-import com.tramchester.repository.ReachabilityRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -29,20 +28,17 @@ public class ServiceHeuristics {
 
     private final JourneyConstraints journeyConstraints;
     private final TramTime queryTime;
-    private final ReachabilityRepository reachabilityRepository;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
     private final RouteToRouteCosts routeToRouteCosts;
     private final int currentChangesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
-                             ReachabilityRepository reachabilityRepository,
                              JourneyConstraints journeyConstraints, TramTime queryTime,
                              RouteToRouteCosts routeToRouteCosts,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
-        this.reachabilityRepository = reachabilityRepository;
 
         this.journeyConstraints = journeyConstraints;
         this.queryTime = queryTime;
@@ -162,12 +158,7 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
         }
 
-        for(Station endStation : journeyConstraints.getEndStations()) {
-            if (reachabilityRepository.stationReachable(routeStation, endStation)) {
-                return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
-            }
-        }
-        return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
+        return valid(ServiceReason.ReasonCode.Reachable, howIGotHere, reasons);
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
