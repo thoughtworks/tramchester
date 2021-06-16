@@ -16,7 +16,7 @@ public abstract class ServiceReason {
     public enum ReasonCode {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
-        WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk,
+        WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk, NeighbourConnectionsOk,
 
         NotOnQueryDate,
         NotAtQueryTime,
@@ -34,6 +34,7 @@ public abstract class ServiceReason {
         ReturnedToStart,
         TooManyChanges,
         TooManyWalkingConnections,
+        TooManyNeighbourConnections,
         StationClosed,
 
         Cached,
@@ -217,6 +218,26 @@ public abstract class ServiceReason {
 
     //////////////
 
+    private static class TooManyNeighbourConnections extends ServiceReason {
+
+        protected TooManyNeighbourConnections(HowIGotHere path) {
+            super(ReasonCode.TooManyNeighbourConnections, path);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof TooManyChanges;
+        }
+
+
+        @Override
+        public String textForGraph() {
+            return ReasonCode.TooManyNeighbourConnections.name();
+        }
+    }
+
+    //////////////
+
     private static class StationClosed extends ServiceReason {
 
         private final Station closed;
@@ -293,6 +314,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason TooManyWalkingConnections(HowIGotHere path) {
         return new TooManyWalkingConnections(path);
+    }
+
+    public static ServiceReason TooManyNeighbourConnections(HowIGotHere path) {
+        return new TooManyNeighbourConnections(path);
     }
 
     public static ServiceReason TookTooLong(TramTime currentElapsed, HowIGotHere path) {

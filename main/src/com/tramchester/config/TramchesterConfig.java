@@ -115,6 +115,9 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     // number of connections to make by walking
     public abstract int getMaxWalkingConnections();
 
+    // number of direct walks between stations
+    public abstract int getMaxNeighbourConnections();
+
     public abstract boolean getSendCloudWatchMetrics();
 
     public boolean liveDataEnabled() {

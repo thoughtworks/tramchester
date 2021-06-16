@@ -137,9 +137,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return ServiceReason.ReasonCode.TooManyChanges;
         }
 
-        // number of connections
+        // number of walks connections, usually just 2, beginning and end
         if (!serviceHeuristics.checkNumberWalkingConnections(journeyState.getNumberWalkingConnections(), howIGotHere, reasons).isValid()) {
             return ServiceReason.ReasonCode.TooManyWalkingConnections;
+        }
+
+        // number of walks between stations aka Neighbours
+        if (!serviceHeuristics.checkNumberNeighbourConnections(journeyState.getNumberNeighbourConnections(), howIGotHere, reasons).isValid()) {
+            return ServiceReason.ReasonCode.TooManyNeighbourConnections;
         }
 
         // journey too long?

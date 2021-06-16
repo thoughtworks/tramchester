@@ -65,6 +65,15 @@ public class ServiceHeuristics {
        return valid(ServiceReason.ReasonCode.NumChangesOK, howIGotHere, reasons);
     }
 
+    public ServiceReason checkNumberNeighbourConnections(int currentNumberConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
+        reasons.incrementTotalChecked();
+
+        if (currentNumberConnections > journeyConstraints.getMaxNeighbourConnections()) {
+            return reasons.recordReason(ServiceReason.TooManyNeighbourConnections(howIGotHere));
+        }
+        return valid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere, reasons);
+    }
+
     public ServiceReason checkNumberWalkingConnections(int currentNumConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 

@@ -10,4 +10,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
     int getNumberChanges();
     int getNumberWalkingConnections();
     boolean hasBegunJourney();
+    int getNumberNeighbourConnections();
 }

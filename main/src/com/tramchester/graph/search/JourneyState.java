@@ -94,7 +94,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
     @Override
     public void toNeighbour(Node startNode, Node endNode, int cost) {
-        coreState.incrementWalkingConnections();
+        coreState.incrementNeighbourConnections();
     }
 
     @Override
@@ -131,6 +131,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public boolean hasBegunJourney() {
         return coreState.hasBegun;
+    }
+
+    @Override
+    public int getNumberNeighbourConnections() {
+        return coreState.numberNeighbourConnections;
     }
 
     @Override
@@ -190,26 +195,34 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private TransportMode currentMode;
         private int numberOfBoardings;
         private int numberOfWalkingConnections;
+        private int numberNeighbourConnections;
 
         public CoreState(TramTime queryTime) {
-            this(queryTime, false, 0, TransportMode.NotSet, 0);
+            this(queryTime, false, 0, TransportMode.NotSet, 0, 0);
         }
 
         // Copy cons
         public CoreState(CoreState previous) {
-            this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections);
+            this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
+                    previous.numberNeighbourConnections);
         }
 
-        private CoreState(TramTime journeyClock, boolean hasBegun, int numberOfBoardings, TransportMode currentMode, int numberOfWalkingConnections) {
+        private CoreState(TramTime journeyClock, boolean hasBegun, int numberOfBoardings, TransportMode currentMode,
+                          int numberOfWalkingConnections, int numberNeighbourConnections) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
             this.numberOfBoardings = numberOfBoardings;
             this.numberOfWalkingConnections = numberOfWalkingConnections;
+            this.numberNeighbourConnections = numberNeighbourConnections;
         }
 
         public void incrementWalkingConnections() {
             numberOfWalkingConnections = numberOfWalkingConnections + 1;
+        }
+
+        public void incrementNeighbourConnections() {
+            numberNeighbourConnections = numberNeighbourConnections + 1;
         }
 
         public void board(TransportMode mode) {
@@ -251,6 +264,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             if (hasBegun != coreState.hasBegun) return false;
             if (numberOfBoardings != coreState.numberOfBoardings) return false;
             if (numberOfWalkingConnections != coreState.numberOfWalkingConnections) return false;
+            if (numberNeighbourConnections != coreState.numberNeighbourConnections) return false;
             if (!journeyClock.equals(coreState.journeyClock)) return false;
             return currentMode == coreState.currentMode;
         }
@@ -262,6 +276,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             result = 31 * result + currentMode.hashCode();
             result = 31 * result + numberOfBoardings;
             result = 31 * result + numberOfWalkingConnections;
+            result = 31 * result + numberNeighbourConnections;
             return result;
         }
 
@@ -273,12 +288,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                     ", currentMode=" + currentMode +
                     ", numberOfBoardings=" + numberOfBoardings +
                     ", numberOfWalkingConnections=" + numberOfWalkingConnections +
+                    ", numberNeighbourConnections=" + numberNeighbourConnections +
                     '}';
         }
 
         public boolean modeEquals(TransportMode mode) {
             return currentMode==mode;
         }
+
     }
 
 }

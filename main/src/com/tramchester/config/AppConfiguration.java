@@ -97,6 +97,10 @@ public class AppConfiguration extends TramchesterConfig {
     private Integer maxWalkingConnections;
 
     @NotNull
+    @JsonProperty("maxNeighbourConnections")
+    private int maxNeighbourConnections;
+
+    @NotNull
     @JsonProperty("createNeighbours")
     private Boolean createNeighbours;
 
@@ -271,6 +275,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public int getMaxWalkingConnections() {
         return maxWalkingConnections;
+    }
+
+    @Override
+    public int getMaxNeighbourConnections() {
+        return maxNeighbourConnections;
     }
 
     @Override
