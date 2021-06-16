@@ -73,7 +73,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
         Evaluation result = decideEvaluationAction(reasonCode);
-        previousSuccessfulVisits.recordVisitIfUseful(reasonCode, nextNode, journeyClock);
+        previousSuccessfulVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState);
 
         return result;
     }

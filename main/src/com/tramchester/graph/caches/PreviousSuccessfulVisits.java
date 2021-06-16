@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.ServiceReason;
 import com.tramchester.repository.ReportsCacheStats;
@@ -50,7 +51,8 @@ public class PreviousSuccessfulVisits implements ReportsCacheStats {
         hourNodePrevious.invalidateAll();
     }
 
-    public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, TramTime journeyClock) {
+    public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState) {
+        TramTime journeyClock = journeyState.getJourneyClock();
         switch (result) {
             case NotAtQueryTime, TimeOk -> timeNodePrevious.put(node.getId(), result);
             case HourOk, NotAtHour -> hourNodePrevious.put(new NodeIdAndTime(node.getId(), journeyClock), result);
