@@ -33,7 +33,6 @@ public enum TransportRelationshipTypes implements RelationshipType {
 
     // routes, allow faster initial estimation of cost and 'hop' counts while traversing minimal number of nodes
     ON_ROUTE,  // links route stations on same route
-    CONNECT_ROUTES, // link adjacent route stations
     ROUTE_TO_STATION, // link stations and routes irrespective of whether have platforms or not
     STATION_TO_ROUTE,
 

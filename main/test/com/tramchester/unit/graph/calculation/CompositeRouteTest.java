@@ -180,13 +180,13 @@ class CompositeRouteTest {
         assertEquals(0, routeCostCalculator.getApproxCostBetween(txn, startCompositeStation, transportData.getFirst()));
     }
 
-    @Test
-    void shouldHaveCorrectRouteHopsForComposites() {
-        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
-        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getSecond()));
-        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirstDupName(), transportData.getSecond()));
-
-    }
+//    @Test
+//    void shouldHaveCorrectRouteHopsForComposites() {
+//        RouteCostCalculator costCalculator = componentContainer.get(RouteCostCalculator.class);
+//        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirst(), transportData.getSecond()));
+//        assertEquals(1, costCalculator.getNumberHops(txn, transportData.getFirstDupName(), transportData.getSecond()));
+//
+//    }
 
     @Test
     void createDiagramOfTestNetwork() {

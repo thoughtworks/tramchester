@@ -16,6 +16,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -86,7 +87,8 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void reproCacheStalenessIssueWithNearAltyToDeansgate() {
-        for (int i = 0; i <1000; i++) {
+        final int count = 20; // 2000
+        for (int i = 0; i < count; i++) {
             LocalTime localTime = LocalTime.of(10, 15);
             Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Deansgate.getId(),
                     localTime, false);

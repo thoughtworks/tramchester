@@ -246,13 +246,13 @@ class TramGraphBuilderTest {
         assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
 
-        long routeConnected = routeStationOutbounds.stream().
-                filter(relationship -> relationship.isType(CONNECT_ROUTES)).count();
-        if (testConfig.getChangeAtInterchangeOnly() && interchangeRepository.isInterchange(TramStations.of(tramStation))) {
-            assertNotEquals(0, routeConnected);
-        } else {
-            assertEquals(0, routeConnected);
-        }
+//        long routeConnected = routeStationOutbounds.stream().
+//                filter(relationship -> relationship.isType(CONNECT_ROUTES)).count();
+//        if (testConfig.getChangeAtInterchangeOnly() && interchangeRepository.isInterchange(TramStations.of(tramStation))) {
+//            assertNotEquals(0, routeConnected);
+//        } else {
+//            assertEquals(0, routeConnected);
+//        }
 
         long connectedToRouteStation = routeStationOutbounds.stream().filter(relationship -> relationship.isType(ROUTE_TO_STATION)).count();
         assertNotEquals(0, connectedToRouteStation);

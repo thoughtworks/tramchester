@@ -73,7 +73,7 @@ public class RouteToRouteCosts {
         for(Map.Entry<Route, Set<Route>> entry : linksPreviousDegree.entrySet()) {
             Set<Route> connectedToRoute = entry.getValue();
 
-            Set<Route> newConnections = connectedToRoute.stream().
+            Set<Route> newConnections = connectedToRoute.parallelStream().
                     map(linksPreviousDegree::get).
                     filter(found -> !found.isEmpty()).
                     collect(HashSet::new, HashSet::addAll, HashSet::addAll);

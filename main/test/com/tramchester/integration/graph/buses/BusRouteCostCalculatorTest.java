@@ -109,30 +109,30 @@ class BusRouteCostCalculatorTest {
         assertEquals(44, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
     }
 
-    @Test
-    void shouldFindHopsCorrectlyForShudehillStockport() {
-        assertEquals(45, getHopsBetween(ShudehillInterchange, StopAtStockportBusStation));
-    }
+//    @Test
+//    void shouldFindHopsCorrectlyForShudehillStockport() {
+//        assertEquals(45, getHopsBetween(ShudehillInterchange, StopAtStockportBusStation));
+//    }
+//
+//    @Test
+//    void shouldFindHopsForStockportShudehill() {
+//        assertEquals(37, getHopsBetween(StopAtStockportBusStation, ShudehillInterchange));
+//    }
+//
+//    @Test
+//    void shouldFindHopsCorrectlyForShudehillAlty() {
+//        assertEquals(52, getHopsBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
+//    }
+//
+//    @Test
+//    void shouldFindHopsCorrectlyForAltyShudehill() {
+//        assertEquals(42, getHopsBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
+//    }
 
-    @Test
-    void shouldFindHopsForStockportShudehill() {
-        assertEquals(37, getHopsBetween(StopAtStockportBusStation, ShudehillInterchange));
-    }
-
-    @Test
-    void shouldFindHopsCorrectlyForShudehillAlty() {
-        assertEquals(52, getHopsBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
-    }
-
-    @Test
-    void shouldFindHopsCorrectlyForAltyShudehill() {
-        assertEquals(42, getHopsBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
-    }
-
-    private long getHopsBetween(BusStations start, BusStations end) {
-        return routeCost.getNumberHops(txn,
-                TestStation.real(stationRepository,start), TestStation.real(stationRepository,end));
-    }
+//    private long getHopsBetween(BusStations start, BusStations end) {
+//        return routeCost.getNumberHops(txn,
+//                TestStation.real(stationRepository,start), TestStation.real(stationRepository,end));
+//    }
 
     private int getApproxCostBetween(BusStations start, BusStations end) {
         return routeCost.getApproxCostBetween(txn,

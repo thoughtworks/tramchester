@@ -1,6 +1,5 @@
 package com.tramchester.graph;
 
-import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -69,45 +68,6 @@ public class RouteCostCalculator {
         }
         double weight  = Math.floor(path.weight());
         return (int) weight;
-    }
-
-    // TODO Remove this and code in Staged Graph builder, not used
-    public long getNumberHops(Transaction txn, Station start, Station end) {
-        PathExpander<Double> forTypesAndDirections = expanderForNumberHops();
-
-        EvaluationContext context = graphDatabaseService.createContext(txn);
-
-        PathFinder < WeightedPath > finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections, COST.getText());
-
-        Node startNode = graphQuery.getStationNode(txn, start);
-        Node endNode = graphQuery.getStationNode(txn, end);
-        if (startNode==null) {
-            logger.error("Start node is null");
-            return -1;
-        }
-        if (endNode==null) {
-            logger.error("End node is null");
-            return -1;
-        }
-
-        WeightedPath path = finder.findSinglePath(startNode, endNode);
-        if (path==null) {
-            logger.error("No path found between " + start.getId() + " and " + end.getId());
-            return -1;
-        }
-
-        return Streams.stream(path.relationships()).
-                filter(relationship -> relationship.isType(ON_ROUTE)).
-                count();
-    }
-
-    private PathExpander<Double> expanderForNumberHops() {
-        return PathExpanders.forTypesAndDirections(
-                ON_ROUTE, Direction.OUTGOING,
-                CONNECT_ROUTES, Direction.OUTGOING,
-                ROUTE_TO_STATION, Direction.OUTGOING,
-                STATION_TO_ROUTE, Direction.OUTGOING
-        );
     }
 
     private PathExpander<Double> fullExpanderForCostApproximation() {
