@@ -147,8 +147,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public int getMaxWalkingConnections() {
-        // TODO Should now be 2
-        return 3;
+        return 2;
     }
 
     @Override
