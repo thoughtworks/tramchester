@@ -13,7 +13,7 @@ import java.util.Set;
 public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
 
     //
-    // https://data.gov.uk/dataset/c96c4140-8b6c-4130-9642-49866498d268/gm-public-transport-schedules-gtfs
+    // https://data.gov.uk/dataset/c3ca6469-7955-4a57-8bfc-58ef2361b797/gm-public-transport-schedules-new-gtfs-dataset
     //
 
     private final String dataFolder;
@@ -21,7 +21,8 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     private final Set<TransportMode> modesWithPlatforms;
     private final Set<String> additionalInterchanges;
 
-    public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes, Set<TransportMode> modesWithPlatforms, Set<String> additionalInterchanges) {
+    public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes,
+                                    Set<TransportMode> modesWithPlatforms, Set<String> additionalInterchanges) {
         this.dataFolder = dataFolder;
         this.sourceModes = sourceModes;
         this.modesWithPlatforms = modesWithPlatforms;

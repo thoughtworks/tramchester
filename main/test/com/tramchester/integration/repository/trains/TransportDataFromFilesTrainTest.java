@@ -85,8 +85,8 @@ class TransportDataFromFilesTrainTest {
         assertNotNull(result);
         assertEquals("Arriva Trains Wales train service from Manchester Airport to Chester", result.getName());
         assertEquals(ArrivaTrainsWales, result.getAgency());
-       //assertEquals(routeId,result.getId().forDTO()); changes frequently
-        assertTrue(TransportMode.isTrain(result));
+       //assertEquals(routeId,result.getId().forDTO()); changes too frequently
+        assertEquals(TransportMode.Train, result.getTransportMode());
     }
 
     @Test

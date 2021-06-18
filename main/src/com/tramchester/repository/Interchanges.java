@@ -4,7 +4,10 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -16,13 +19,13 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.isBus;
 import static java.lang.String.format;
-
-// TODO Split out I/F here
 
 @LazySingleton
 public class Interchanges implements InterchangeRepository {
@@ -111,10 +114,13 @@ public class Interchanges implements InterchangeRepository {
 
     private int getLinkThreshhold(TransportMode mode) {
         // todo into config? Per datasource & transport mode?
-        if (isBus(mode)) {
-            return 2;
-        }
-        return 3;
+        return switch (mode) {
+            case Bus -> 2;
+            case Tram -> 3;
+            case Train -> 4;
+            case Ferry -> 2;
+            default -> throw new RuntimeException("Todo for " + mode);
+        };
     }
 
     private IdFor<Station> formStationId(String raw) {

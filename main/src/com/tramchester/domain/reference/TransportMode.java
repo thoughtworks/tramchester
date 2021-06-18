@@ -61,18 +61,6 @@ public enum TransportMode implements HasTransportMode {
         return hasModes.getTransportModes().contains(TransportMode.Tram);
     }
 
-    public static boolean isBus(HasTransportMode item) {
-        return item.getTransportMode().equals(TransportMode.Bus);
-    }
-
-    public static boolean isBus(HasTransportModes item) {
-        return item.getTransportModes().contains(TransportMode.Bus);
-    }
-
-    public static boolean isTrain(HasTransportMode item) {
-        return item.getTransportMode().equals(TransportMode.Train);
-    }
-
     public static Set<TransportMode> fromGTFS(Set<GTFSTransportationType> gtfsTransportationTypes) {
         Set<TransportMode> result = new HashSet<>();
         gtfsTransportationTypes.forEach(gtfsTransportationType -> result.add(fromGTFS(gtfsTransportationType)));

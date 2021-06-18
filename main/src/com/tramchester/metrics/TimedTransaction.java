@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import java.time.Duration;
 import java.time.Instant;
 
-public class TimedTransaction implements AutoCloseable{
+public class TimedTransaction implements AutoCloseable {
     private final Transaction transaction;
     private final Logger logger;
     private final String name;

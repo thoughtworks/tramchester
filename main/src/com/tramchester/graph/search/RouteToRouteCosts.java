@@ -6,6 +6,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
@@ -15,7 +16,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -39,7 +43,9 @@ public class RouteToRouteCosts {
    @PostConstruct
     public void start() {
         logger.info("starting");
-        populateCosts();
+        try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
+           populateCosts();
+       }
         logger.info("started");
    }
 
@@ -47,57 +53,75 @@ public class RouteToRouteCosts {
         List<Route> routes = new ArrayList<>(routeRepository.getRoutes());
         int size = routes.size();
         logger.info("Find costs between " + size + " routes");
+        final int fullyConnected = size * size;
+        double fullyConnectedPercentage = fullyConnected / 100D;
 
+        // route -> [reachable routes]
         Map<Route, Set<Route>> linksForRoutes = addInitialConnectionsFromInterchanges();
 
         logger.info("Have " +  costs.size() + " connections from " + interchangeRepository.size() + " interchanges");
 
         // for existing connections infer next degree of connections, stop if no more added
         for (byte currentDegree = 1; currentDegree <= DEPTH; currentDegree++) {
-            Map<Route, Set<Route>> newLinks = addConnectionsFor(currentDegree, linksForRoutes);
-            if (newLinks.isEmpty()) {
+            // create new: route -> [reachable routes]
+            Map<Route, Set<Route>> newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
+            if (newLinksForRoutes.isEmpty()) {
                 logger.info("Finished at degree " + (currentDegree-1));
                 linksForRoutes.clear();
                 break;
+            } else {
+                logger.info("Total is " + costs.size() + " " + costs.size()/fullyConnectedPercentage +"%");
             }
             linksForRoutes.clear();
-            linksForRoutes = newLinks;
+            linksForRoutes = newLinksForRoutes;
         }
 
-        logger.info("Added cost for " + costs.size() + " route combinations");
+        final int finalSize = costs.size();
+        logger.info("Added cost for " + finalSize + " route combinations");
+        if (finalSize != fullyConnected) {
+            logger.warn("Not fully connected, only " + finalSize + " of " + fullyConnected);
+        }
     }
 
-    private Map<Route, Set<Route>> addConnectionsFor(byte currentDegree, Map<Route, Set<Route>> linksPreviousDegree) {
-        Map<Route, Set<Route>> links = new HashMap<>();
+    private Map<Route, Set<Route>> addConnectionsFor(byte currentDegree, Map<Route, Set<Route>> currentlyReachableRoutes) {
+        Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
+        Map<Route, Set<Route>> additional = new HashMap<>(); // discovered route -> [route] for this degree
+        for(Map.Entry<Route, Set<Route>> entry : currentlyReachableRoutes.entrySet()) {
 
-        for(Map.Entry<Route, Set<Route>> entry : linksPreviousDegree.entrySet()) {
-            Set<Route> connectedToRoute = entry.getValue();
+            final Route route = entry.getKey();
+            Set<Route> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
 
+            // for each reachable route, find the routes we can in turn reach from them not already found previous degree
             Set<Route> newConnections = connectedToRoute.parallelStream().
-                    map(linksPreviousDegree::get).
-                    filter(found -> !found.isEmpty()).
+                    map(currentlyReachableRoutes::get).
+                    filter(routeSet -> !routeSet.isEmpty()).
+                    map(routeSet ->
+                            routeSet.stream().filter(found -> !costs.containsKey(new Key(route, found))).collect(Collectors.toSet())
+                    ).
                     collect(HashSet::new, HashSet::addAll, HashSet::addAll);
 
             if (!newConnections.isEmpty()) {
-                final Route route = entry.getKey();
-                links.put(route, newConnections);
+                additional.put(route, newConnections);
             }
         }
+        logger.info("Discover " + Duration.between(startTime, Instant.now()).toMillis() + " ms");
 
-        Stream<Key> keysToAdd = links.keySet().stream().
-                flatMap(route -> links.get(route).stream().map(newConnection -> new Key(route, newConnection))).
-                filter(key -> !costs.containsKey(key));
+        // filter based on not already present
+        Stream<Key> keysToAdd = additional.keySet().stream().
+                flatMap(route -> additional.get(route).stream().map(newConnection -> new Key(route, newConnection)));
+        //.filter(key -> !costs.containsKey(key));
 
         int before = costs.size();
         keysToAdd.forEach(key -> costs.put(key, nextDegree));
         if (costs.size()==before) {
-            links.clear();
+            additional.clear();
         }
 
         final int added = costs.size() - before;
-        logger.info("Added " + added + " extra connections for degree " + currentDegree);
-        return links;
+        long took = Duration.between(startTime, Instant.now()).toMillis();
+        logger.info("Added " + added + " extra connections for degree " + currentDegree + " in " + took + " ms");
+        return additional;
     }
 
     private Map<Route, Set<Route>> addInitialConnectionsFromInterchanges() {

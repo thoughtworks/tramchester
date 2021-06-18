@@ -79,7 +79,9 @@ public class TestEnv {
     public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(),
             StringIdFor.createId("WBTR"), "Warrington's Own Buses");
 
-    public static final String TFGM_TIMETABLE_URL = "http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
+    public static final String BACKUP_TIMETABLE_URL = "https://tramchester2dist.s3.eu-west-1.amazonaws.com/1981/tfgm_data.zip";
+    public static final String TFGM_TIMETABLE_URL = BACKUP_TIMETABLE_URL; //"http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
+
     public static final String NAPTAN_URL = "https://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv";
 
     public final static HashSet<GTFSTransportationType> tramAndBus =
