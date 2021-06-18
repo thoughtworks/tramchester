@@ -10,6 +10,7 @@ import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private Map<IdFor<Route>, IdSet<Route>> addConnectionsFor(byte currentDegree, Map<IdFor<Route>, IdSet<Route>> currentlyReachableRoutes) {
         Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
-        Map<IdFor<Route>, IdSet<Route>> additional = new HashMap<>(); // discovered route -> [route] for this degree
+        Map<IdFor<Route>, IdSet<Route>> additional = new TreeMap<>(); // discovered route -> [route] for this degree
         for(Map.Entry<IdFor<Route>, IdSet<Route>> entry : currentlyReachableRoutes.entrySet()) {
 
             final IdFor<Route> routeId = entry.getKey();
@@ -101,7 +102,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     ).
                     flatMap(Collection::stream).
                     collect(IdSet.idCollector());
-                    //collect(HashSet::new, HashSet::addAll, HashSet::addAll);
 
             if (!newConnections.isEmpty()) {
                 additional.put(routeId, newConnections);
@@ -200,7 +200,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         byte applyAsByte(T value);
     }
 
-    private static class Key {
+    private static class Key implements Comparable<Key> {
 
         private final IdFor<Route> first;
         private final IdFor<Route> second;
@@ -247,6 +247,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     '}';
         }
 
+        @Override
+        public int compareTo(@NotNull RouteToRouteCosts.Key o) {
+            int initial = this.first.compareTo(o.first);
+            if (initial!=0) {
+                return initial;
+            }
+            return this.second.compareTo(o.second);
+        }
     }
 
 }
