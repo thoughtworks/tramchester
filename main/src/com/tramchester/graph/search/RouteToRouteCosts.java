@@ -58,14 +58,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         double fullyConnectedPercentage = fullyConnected / 100D;
 
         // route -> [reachable routes]
-        Map<IdFor<Route>, IdSet<Route>> linksForRoutes = addInitialConnectionsFromInterchanges();
+        InterimResults linksForRoutes = addInitialConnectionsFromInterchanges();
 
         logger.info("Have " +  costs.size() + " connections from " + interchangeRepository.size() + " interchanges");
 
         // for existing connections infer next degree of connections, stop if no more added
         for (byte currentDegree = 1; currentDegree <= DEPTH; currentDegree++) {
             // create new: route -> [reachable routes]
-            Map<IdFor<Route>, IdSet<Route>> newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
+            InterimResults newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
             if (newLinksForRoutes.isEmpty()) {
                 logger.info("Finished at degree " + (currentDegree-1));
                 linksForRoutes.clear();
@@ -84,10 +84,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private Map<IdFor<Route>, IdSet<Route>> addConnectionsFor(byte currentDegree, Map<IdFor<Route>, IdSet<Route>> currentlyReachableRoutes) {
+    private InterimResults addConnectionsFor(byte currentDegree, InterimResults currentlyReachableRoutes) {
         Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
-        Map<IdFor<Route>, IdSet<Route>> additional = new TreeMap<>(); // discovered route -> [route] for this degree
+        InterimResults additional = new InterimResults(); // discovered route -> [route] for this degree
         for(Map.Entry<IdFor<Route>, IdSet<Route>> entry : currentlyReachableRoutes.entrySet()) {
 
             final IdFor<Route> routeId = entry.getKey();
@@ -125,14 +125,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return additional;
     }
 
-    private Map<IdFor<Route>, IdSet<Route>> addInitialConnectionsFromInterchanges() {
+    private InterimResults addInitialConnectionsFromInterchanges() {
         // seed connections between routes using interchanges
-        Map<IdFor<Route>, IdSet<Route>> linksForRoutes = new TreeMap<>();
+        InterimResults linksForRoutes = new InterimResults();
         interchangeRepository.getAllInterchanges().forEach(interchange -> addOverlapsFor(interchange, linksForRoutes));
         return linksForRoutes;
     }
 
-    private void addOverlapsFor(Station interchange, Map<IdFor<Route>,IdSet<Route>> linksForDegree) {
+    private void addOverlapsFor(Station interchange, InterimResults linksForDegree) {
         List<IdFor<Route>> list = interchange.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
         int size = list.size();
         for (int i = 0; i < size; i++) {
@@ -198,6 +198,42 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @FunctionalInterface
     public interface ToByteFunction<T> {
         byte applyAsByte(T value);
+    }
+
+    private static class InterimResults {
+        private final Map<IdFor<Route>, IdSet<Route>> theMap;
+
+        private InterimResults() {
+            theMap = new TreeMap<>();
+        }
+
+        public boolean containsKey(IdFor<Route> key) {
+            return theMap.containsKey(key);
+        }
+
+        public void clear() {
+            theMap.clear();
+        }
+
+        public boolean isEmpty() {
+            return theMap.isEmpty();
+        }
+
+        public Iterable<? extends Map.Entry<IdFor<Route>, IdSet<Route>>> entrySet() {
+            return theMap.entrySet();
+        }
+
+        public IdSet<Route> get(IdFor<Route> routeId) {
+            return theMap.get(routeId);
+        }
+
+        public void put(IdFor<Route> routeId, IdSet<Route> idSet) {
+            theMap.put(routeId, idSet);
+        }
+
+        public Set<IdFor<Route>> keySet() {
+            return theMap.keySet();
+        }
     }
 
     private static class Key implements Comparable<Key> {
