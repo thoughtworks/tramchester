@@ -18,7 +18,15 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
     }
 
     public IdSet(Set<IdFor<T>> set) {
-        theSet = new HashSet<>(set);
+        this(set, true);
+    }
+
+    public static <W extends GraphProperty> IdSet<W> wrap(Set<IdFor<W>> set) {
+        return new IdSet<>(set, false);
+    }
+
+    private IdSet(Set<IdFor<T>> set, boolean copy) {
+        theSet = copy ? new HashSet<>(set) : set;
     }
 
     public IdSet(Collection<IdFor<T>> ids) {
@@ -171,4 +179,5 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
     public boolean containsAll(IdSet<T> other) {
         return theSet.containsAll(other.theSet);
     }
+
 }

@@ -10,6 +10,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
@@ -56,7 +57,7 @@ class JourneyStateTest extends EasyMockSupport {
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         TripRepository tripRepository = createMock(TripRepository.class);
-        RouteToRouteCosts routeToRouteCosts = createMock(RouteToRouteCosts.class);
+        BetweenRoutesCostRepository routeToRouteCosts = createMock(RouteToRouteCosts.class);
         NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);
         final TramchesterConfig config = TestEnv.GET();
 

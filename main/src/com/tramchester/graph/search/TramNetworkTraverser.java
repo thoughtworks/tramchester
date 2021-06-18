@@ -45,7 +45,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final SortsPositions sortsPosition;
     private final PreviousVisits previousSuccessfulVisit;
     private final TraversalStateFactory traversalStateFactory;
-    private final RouteToRouteCosts routeToRouteCosts;
+    private final BetweenRoutesCostRepository routeToRouteCosts;
     private final RouteCalculatorSupport.PathRequest pathRequest;
     private final ReasonsToGraphViz reasonToGraphViz;
 
@@ -53,7 +53,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons, PreviousVisits previousSuccessfulVisit,
-                                RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                                BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         this.graphDatabaseService = graphDatabaseService;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;

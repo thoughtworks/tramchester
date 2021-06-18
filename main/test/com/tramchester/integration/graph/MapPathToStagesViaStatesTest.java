@@ -56,7 +56,7 @@ public class MapPathToStagesViaStatesTest {
     private NodeContentsRepository nodeContentsRepository;
     private PathToStages pathToStages;
     private LocationJourneyPlanner locationJourneyPlanner;
-    private RouteToRouteCosts routeToRouteCosts;
+    private BetweenRoutesCostRepository routeToRouteCosts;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

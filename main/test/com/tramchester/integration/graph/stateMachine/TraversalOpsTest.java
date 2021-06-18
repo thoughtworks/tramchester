@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -33,7 +34,7 @@ public class TraversalOpsTest {
     private SortsPositions sortsPositions;
     private StationRepository stationRepository;
     private Transaction txn;
-    private RouteToRouteCosts routeToRouteCosts;
+    private BetweenRoutesCostRepository routeToRouteCosts;
 
 
     @BeforeAll

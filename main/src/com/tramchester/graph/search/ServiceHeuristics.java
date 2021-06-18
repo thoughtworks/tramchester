@@ -30,12 +30,12 @@ public class ServiceHeuristics {
     private final TramTime queryTime;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
-    private final RouteToRouteCosts routeToRouteCosts;
+    private final BetweenRoutesCostRepository routeToRouteCosts;
     private final int currentChangesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              JourneyConstraints journeyConstraints, TramTime queryTime,
-                             RouteToRouteCosts routeToRouteCosts,
+                             BetweenRoutesCostRepository routeToRouteCosts,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;

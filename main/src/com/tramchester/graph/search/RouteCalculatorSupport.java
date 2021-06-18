@@ -41,7 +41,7 @@ public class RouteCalculatorSupport {
     private final TramchesterConfig config;
     private final TripRepository tripRepository;
     private final TraversalStateFactory traversalStateFactory;
-    private final RouteToRouteCosts routeToRouteCosts;
+    private final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
 
@@ -49,7 +49,7 @@ public class RouteCalculatorSupport {
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;

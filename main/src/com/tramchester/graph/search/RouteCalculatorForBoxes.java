@@ -44,7 +44,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    NodeContentsRepository nodeContentsRepository,
                                    ProvidesLocalNow providesLocalNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                                   RouteToRouteCosts routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                                   BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);

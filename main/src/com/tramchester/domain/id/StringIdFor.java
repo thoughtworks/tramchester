@@ -2,18 +2,19 @@ package com.tramchester.domain.id;
 
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.graph.GraphPropertyKey;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Entity;
 
-public class StringIdFor<T extends GraphProperty> implements Comparable<StringIdFor<T>>, IdFor<T> {
+public class StringIdFor<T extends GraphProperty> implements IdFor<T> {
     private final String theId;
+    private final int hashcode;
 
     protected StringIdFor(String theId) {
-        this.theId = theId;
+        this.theId = theId.intern();
+        this.hashcode = theId.hashCode();
     }
 
     private StringIdFor() {
-        this.theId = "";
+        this("");
     }
 
     public static <C extends GraphProperty> IdFor<C> createId(String text) {
@@ -45,7 +46,7 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
 
     @Override
     public int hashCode() {
-        return theId.hashCode();
+        return hashcode;
     }
 
     @Override
@@ -74,8 +75,4 @@ public class StringIdFor<T extends GraphProperty> implements Comparable<StringId
         return MixedCompositeId.parse(value);
     }
 
-    @Override
-    public int compareTo(@NotNull StringIdFor<T> other) {
-        return theId.compareTo(other.theId);
-    }
 }

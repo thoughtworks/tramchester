@@ -51,7 +51,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private JourneyConstraints journeyConstraints;
     private int maxJourneyDuration;
     private long maxNumberOfJourneys;
-    private RouteToRouteCosts routeToRouteCosts;
+    private BetweenRoutesCostRepository routeToRouteCosts;
 
     @BeforeEach
     void beforeEachTestRuns() {

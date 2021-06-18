@@ -46,13 +46,13 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final TripRepository tripRepository;
     private final SortsPositions sortsPosition;
     private final ObjectMapper mapper;
-    private final RouteToRouteCosts routeToRouteCosts;
+    private final BetweenRoutesCostRepository routeToRouteCosts;
 
     @Inject
     public MapPathToStagesViaStates(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
                                     TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
                                     TripRepository tripRepository, SortsPositions sortsPosition,
-                                    ObjectMapper mapper, RouteToRouteCosts routeToRouteCosts) {
+                                    ObjectMapper mapper, BetweenRoutesCostRepository routeToRouteCosts) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;

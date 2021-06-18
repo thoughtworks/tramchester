@@ -60,7 +60,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private Long destinationNodeId;
     private Relationship lastRelationship;
     private TripRepository tripRepository;
-    private RouteToRouteCosts routeToRouteCosts;
+    private BetweenRoutesCostRepository routeToRouteCosts;
     private long startNodeId;
 
     @BeforeEach

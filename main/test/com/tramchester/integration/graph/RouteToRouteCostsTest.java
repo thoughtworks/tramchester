@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.graph.search.RouteToRouteCosts;
+import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -28,7 +28,7 @@ public class RouteToRouteCostsTest {
 
     private static ComponentContainer componentContainer;
 
-    private RouteToRouteCosts routeCosts;
+    private BetweenRoutesCostRepository routeCosts;
     private TramRouteHelper routeHelper;
 
     @BeforeAll
@@ -45,7 +45,7 @@ public class RouteToRouteCostsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        routeCosts = componentContainer.get(RouteToRouteCosts.class);
+        routeCosts = componentContainer.get(BetweenRoutesCostRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(routeRepository);
     }

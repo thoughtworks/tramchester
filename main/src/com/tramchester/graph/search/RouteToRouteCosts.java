@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class RouteToRouteCosts {
+public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
     public static final int DEPTH = 4;
 
@@ -110,7 +110,6 @@ public class RouteToRouteCosts {
         // filter based on not already present
         Stream<Key> keysToAdd = additional.keySet().stream().
                 flatMap(route -> additional.get(route).stream().map(newConnection -> new Key(route, newConnection)));
-        //.filter(key -> !costs.containsKey(key));
 
         int before = costs.size();
         keysToAdd.forEach(key -> costs.put(key, nextDegree));
