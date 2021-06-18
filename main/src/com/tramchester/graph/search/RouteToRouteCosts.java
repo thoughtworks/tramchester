@@ -57,14 +57,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         double fullyConnectedPercentage = fullyConnected / 100D;
 
         // route -> [reachable routes]
-        Map<Route, Set<Route>> linksForRoutes = addInitialConnectionsFromInterchanges();
+        Map<IdFor<Route>, IdSet<Route>> linksForRoutes = addInitialConnectionsFromInterchanges();
 
         logger.info("Have " +  costs.size() + " connections from " + interchangeRepository.size() + " interchanges");
 
         // for existing connections infer next degree of connections, stop if no more added
         for (byte currentDegree = 1; currentDegree <= DEPTH; currentDegree++) {
             // create new: route -> [reachable routes]
-            Map<Route, Set<Route>> newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
+            Map<IdFor<Route>, IdSet<Route>> newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
             if (newLinksForRoutes.isEmpty()) {
                 logger.info("Finished at degree " + (currentDegree-1));
                 linksForRoutes.clear();
@@ -83,26 +83,28 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private Map<Route, Set<Route>> addConnectionsFor(byte currentDegree, Map<Route, Set<Route>> currentlyReachableRoutes) {
+    private Map<IdFor<Route>, IdSet<Route>> addConnectionsFor(byte currentDegree, Map<IdFor<Route>, IdSet<Route>> currentlyReachableRoutes) {
         Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
-        Map<Route, Set<Route>> additional = new HashMap<>(); // discovered route -> [route] for this degree
-        for(Map.Entry<Route, Set<Route>> entry : currentlyReachableRoutes.entrySet()) {
+        Map<IdFor<Route>, IdSet<Route>> additional = new HashMap<>(); // discovered route -> [route] for this degree
+        for(Map.Entry<IdFor<Route>, IdSet<Route>> entry : currentlyReachableRoutes.entrySet()) {
 
-            final Route route = entry.getKey();
-            Set<Route> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
+            final IdFor<Route> routeId = entry.getKey();
+            IdSet<Route> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
 
             // for each reachable route, find the routes we can in turn reach from them not already found previous degree
-            Set<Route> newConnections = connectedToRoute.parallelStream().
+            IdSet<Route> newConnections = connectedToRoute.parallelStream().
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
                     map(routeSet ->
-                            routeSet.stream().filter(found -> !costs.containsKey(new Key(route, found))).collect(Collectors.toSet())
+                            routeSet.stream().filter(found -> !costs.containsKey(new Key(routeId, found))).collect(Collectors.toSet())
                     ).
-                    collect(HashSet::new, HashSet::addAll, HashSet::addAll);
+                    flatMap(Collection::stream).
+                    collect(IdSet.idCollector());
+                    //collect(HashSet::new, HashSet::addAll, HashSet::addAll);
 
             if (!newConnections.isEmpty()) {
-                additional.put(route, newConnections);
+                additional.put(routeId, newConnections);
             }
         }
         logger.info("Discover " + Duration.between(startTime, Instant.now()).toMillis() + " ms");
@@ -123,24 +125,24 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return additional;
     }
 
-    private Map<Route, Set<Route>> addInitialConnectionsFromInterchanges() {
+    private Map<IdFor<Route>, IdSet<Route>> addInitialConnectionsFromInterchanges() {
         // seed connections between routes using interchanges
-        Map<Route,Set<Route>> linksForRoutes = new HashMap<>();
+        Map<IdFor<Route>, IdSet<Route>> linksForRoutes = new TreeMap<>();
         interchangeRepository.getAllInterchanges().forEach(interchange -> addOverlapsFor(interchange, linksForRoutes));
         return linksForRoutes;
     }
 
-    private void addOverlapsFor(Station interchange, Map<Route,Set<Route>> linksForDegree) {
-        List<Route> list = new ArrayList<>(interchange.getRoutes());
+    private void addOverlapsFor(Station interchange, Map<IdFor<Route>,IdSet<Route>> linksForDegree) {
+        List<IdFor<Route>> list = interchange.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
         int size = list.size();
         for (int i = 0; i < size; i++) {
-            final Route from = list.get(i);
+            final IdFor<Route> from = list.get(i);
             if (!linksForDegree.containsKey(from)) {
-                linksForDegree.put(from, new HashSet<>());
+                linksForDegree.put(from, new IdSet<>());
             }
             for (int j = 0; j < size; j++) {
                 if (i != j) {
-                    final Route towards = list.get(j);
+                    final IdFor<Route> towards = list.get(j);
                     linksForDegree.get(from).add(towards);
                     Key key = new Key(from, towards);
                     if (!costs.containsKey(key)) {

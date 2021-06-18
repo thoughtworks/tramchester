@@ -2,6 +2,7 @@ package com.tramchester.domain.id;
 
 
 import com.google.common.collect.Sets;
+import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.domain.GraphProperty;
 import org.jetbrains.annotations.NotNull;
 
@@ -180,4 +181,7 @@ public class IdSet<T extends GraphProperty> implements Iterable<IdFor<T>> {
         return theSet.containsAll(other.theSet);
     }
 
+    public Stream<IdFor<T>> parallelStream() {
+        return theSet.parallelStream();
+    }
 }
