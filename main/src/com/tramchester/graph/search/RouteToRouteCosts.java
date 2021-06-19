@@ -91,19 +91,19 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         InterimResults additional = new InterimResults(); // discovered route -> [route] for this degree
         for(Map.Entry<Integer, Set<Integer>> entry : currentlyReachableRoutes.entrySet()) {
 
-            final int routeId = entry.getKey();
+            final int routeIndex = entry.getKey();
             Set<Integer> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
 
             // for each reachable route, find the routes we can in turn reach from them not already found previous degree
             Set<Integer> newConnections = connectedToRoute.parallelStream().
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
-                    map(routeSet -> routeSet.stream().filter(found -> !costs.contains(routeId, found)).collect(Collectors.toSet())).
+                    map(routeSet -> costs.notAlreadyAdded(routeIndex, routeSet)).
                     flatMap(Collection::stream).
                     collect(Collectors.toSet());
 
             if (!newConnections.isEmpty()) {
-                additional.put(routeId, newConnections);
+                additional.put(routeIndex, newConnections);
             }
         }
         logger.info("Discover " + Duration.between(startTime, Instant.now()).toMillis() + " ms");
@@ -116,6 +116,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("Added " + added + " extra connections for degree " + currentDegree + " in " + took + " ms");
         return additional;
     }
+
 
     private InterimResults addInitialConnectionsFromInterchanges() {
         // seed connections between routes using interchanges
@@ -222,15 +223,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return theMap.get(routeIndex);
         }
 
+        // only storing new things to add here, hence the put
         public void put(int routeIndex, Set<Integer> routes) {
             theMap.put(routeIndex, routes);
         }
 
-        public Set<Integer> keySet() {
-            return theMap.keySet();
-        }
-
         public void addTo(Costs costs, byte degree) {
+            // todo could optimise further by getting row first, then updating each element for that row
             theMap.forEach((key, dests) -> dests.forEach(dest -> costs.put(key, dest, degree)));
         }
     }
@@ -292,23 +291,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return count.get();
         }
 
-//        @Deprecated
-//        public boolean contains(IdFor<Route> idA, IdFor<Route> idB) {
-//            int i = index.get(idA);
-//            int j = index.get(idB);
-//            return array[i][j] != MAX_VALUE;
-//        }
-
         public boolean contains(int i, int j) {
             return array[i][j] != MAX_VALUE;
         }
-
-//        @Deprecated
-//        public void put(IdFor<Route> idA, IdFor<Route> idB, byte value) {
-//            int i = index.get(idA);
-//            int j = index.get(idB);
-//            put(i, j, value);
-//        }
 
         public void put(int indexA, int indexB, byte value) {
             count.incrementAndGet();
@@ -320,9 +305,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             if (value == MAX_VALUE) {
                 final String msg = "Missing (" + index.find(a) + ", " + index.find(b) +")";
                 logger.warn(msg);
-//                return Integer.MAX_VALUE;
             }
             return value;
+        }
+
+        // Collectors.toList marginally faster, parallelstream slower
+        public List<Integer> notAlreadyAdded(int routeIndex, Set<Integer> routeSet) {
+            final byte[] forIndex = array[routeIndex]; // get row for current routeIndex
+            return routeSet.stream().filter(found -> forIndex[found]==MAX_VALUE).collect(Collectors.toList());
         }
     }
 
