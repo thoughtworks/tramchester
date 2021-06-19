@@ -10,7 +10,6 @@ import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +19,7 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,14 +31,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
 
-    // size is a real issue here, > 2M entries for buses
-    private final Map<Key, Byte> costs;
+    private final Costs costs;
+    private final Index index;
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
-        costs = new HashMap<>();
+        index = new Index(routeRepository);
+        costs = new Costs(index);
     }
 
    @PostConstruct
@@ -88,20 +89,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         Instant startTime = Instant.now();
         final byte nextDegree = (byte)(currentDegree+1);
         InterimResults additional = new InterimResults(); // discovered route -> [route] for this degree
-        for(Map.Entry<IdFor<Route>, IdSet<Route>> entry : currentlyReachableRoutes.entrySet()) {
+        for(Map.Entry<Integer, Set<Integer>> entry : currentlyReachableRoutes.entrySet()) {
 
-            final IdFor<Route> routeId = entry.getKey();
-            IdSet<Route> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
+            final int routeId = entry.getKey();
+            Set<Integer> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
 
             // for each reachable route, find the routes we can in turn reach from them not already found previous degree
-            IdSet<Route> newConnections = connectedToRoute.parallelStream().
+            Set<Integer> newConnections = connectedToRoute.parallelStream().
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
-                    map(routeSet ->
-                            routeSet.stream().filter(found -> !costs.containsKey(new Key(routeId, found))).collect(Collectors.toSet())
-                    ).
+                    map(routeSet -> routeSet.stream().filter(found -> !costs.contains(routeId, found)).collect(Collectors.toSet())).
                     flatMap(Collection::stream).
-                    collect(IdSet.idCollector());
+                    collect(Collectors.toSet());
 
             if (!newConnections.isEmpty()) {
                 additional.put(routeId, newConnections);
@@ -109,17 +108,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
         logger.info("Discover " + Duration.between(startTime, Instant.now()).toMillis() + " ms");
 
-        // filter based on not already present
-        Stream<Key> keysToAdd = additional.keySet().stream().
-                flatMap(route -> additional.get(route).stream().map(newConnection -> new Key(route, newConnection)));
-
         int before = costs.size();
-        keysToAdd.forEach(key -> costs.put(key, nextDegree));
-        if (costs.size()==before) {
-            additional.clear();
-        }
-
+        additional.addTo(costs, nextDegree);
         final int added = costs.size() - before;
+
         long took = Duration.between(startTime, Instant.now()).toMillis();
         logger.info("Added " + added + " extra connections for degree " + currentDegree + " in " + took + " ms");
         return additional;
@@ -136,17 +128,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         List<IdFor<Route>> list = interchange.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
         int size = list.size();
         for (int i = 0; i < size; i++) {
-            final IdFor<Route> from = list.get(i);
+            final IdFor<Route> fromId = list.get(i);
+            final int from = index.find(fromId);
             if (!linksForDegree.containsKey(from)) {
-                linksForDegree.put(from, new IdSet<>());
+                linksForDegree.put(from, new HashSet<>());
             }
             for (int j = 0; j < size; j++) {
                 if (i != j) {
-                    final IdFor<Route> towards = list.get(j);
+                    final IdFor<Route> towardsId = list.get(j);
+                    final int towards = index.find(towardsId);
                     linksForDegree.get(from).add(towards);
-                    Key key = new Key(from, towards);
-                    if (!costs.containsKey(key)) {
-                        costs.put(key, (byte) 1);
+                    if (!costs.contains(from, towards)) {
+                        costs.put(from, towards, (byte) 1);
                     }
                 }
             }
@@ -157,13 +150,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (routeA.equals(routeB)) {
             return 0;
         }
-        Key key = new Key(routeA, routeB);
-        if (!costs.containsKey(key)) {
-            final String msg = "Missing key " + key;
-            logger.warn(msg);
+        final IdFor<Route> idA = routeA.getId();
+        final IdFor<Route> idB = routeB.getId();
+        byte result = costs.get(index.find(idA), index.find(idB));
+        if (result==Costs.MAX_VALUE) {
             return Integer.MAX_VALUE;
         }
-        return costs.get(key);
+        return result;
     }
 
     public int size() {
@@ -178,14 +171,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private <T extends HasId<Route>> Pair<Byte, T> findLowestCost(T hasStartId, IdSet<Route> destinations) {
-        IdFor<Route> start = hasStartId.getId();
-        if (destinations.contains(start)) {
+        IdFor<Route> startId = hasStartId.getId();
+        if (destinations.contains(startId)) {
             return Pair.of((byte)0, hasStartId); // start on route that is present at destination
         }
 
-        byte result = destinations.stream().map(destination -> new Key(start, destination)).
-                filter(costs::containsKey).
-                map(costs::get).
+        int start = index.find(startId);
+        byte result = destinations.stream().//map(destination -> new Key(start, destination)).
+                map(index::find).
+                filter(dest -> costs.contains(start, dest)).
+                map(dest -> costs.get(start, dest)).
                 min(comparingByte(a -> a)).orElse(Byte.MAX_VALUE);
         return Pair.of(result, hasStartId);
     }
@@ -201,13 +196,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     private static class InterimResults {
-        private final Map<IdFor<Route>, IdSet<Route>> theMap;
+        private final Map<Integer, Set<Integer>> theMap;
 
         private InterimResults() {
             theMap = new TreeMap<>();
         }
 
-        public boolean containsKey(IdFor<Route> key) {
+        public boolean containsKey(int key) {
             return theMap.containsKey(key);
         }
 
@@ -219,77 +214,115 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return theMap.isEmpty();
         }
 
-        public Iterable<? extends Map.Entry<IdFor<Route>, IdSet<Route>>> entrySet() {
+        public Set<Map.Entry<Integer, Set<Integer>>> entrySet() {
             return theMap.entrySet();
         }
 
-        public IdSet<Route> get(IdFor<Route> routeId) {
-            return theMap.get(routeId);
+        public Set<Integer> get(int routeIndex) {
+            return theMap.get(routeIndex);
         }
 
-        public void put(IdFor<Route> routeId, IdSet<Route> idSet) {
-            theMap.put(routeId, idSet);
+        public void put(int routeIndex, Set<Integer> routes) {
+            theMap.put(routeIndex, routes);
         }
 
-        public Set<IdFor<Route>> keySet() {
+        public Set<Integer> keySet() {
             return theMap.keySet();
+        }
+
+        public void addTo(Costs costs, byte degree) {
+            theMap.forEach((key, dests) -> dests.forEach(dest -> costs.put(key, dest, degree)));
         }
     }
 
-    private static class Key implements Comparable<Key> {
+    private static class Index {
+        private final Map<IdFor<Route>, Integer> map;
 
-        private final IdFor<Route> first;
-        private final IdFor<Route> second;
-        private final int hashCode;
-
-        public Key(Route routeA, Route routeB) {
-            this(routeA.getId(), routeB.getId());
-
+        private Index(RouteRepository routeRepository) {
+            List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
+            int size = routesList.size();
+            map = new HashMap<>(size);
+            createIndex(routesList);
         }
 
-        public Key(IdFor<Route> first, IdFor<Route> second) {
-            this.first = first;
-            this.second = second;
-            this.hashCode = Key.createHashCode(this);
-        }
-
-        private static int createHashCode(Key key) {
-            int result = key.first.hashCode();
-            result = 31 * result + key.second.hashCode();
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Key key = (Key) o;
-
-            if (!first.equals(key.first)) return false;
-            return second.equals(key.second);
-        }
-
-        @Override
-        public int hashCode() {
-            return hashCode;
-        }
-
-        @Override
-        public String toString() {
-            return "Key{" +
-                    "first=" + first +
-                    ", second=" + second +
-                    '}';
-        }
-
-        @Override
-        public int compareTo(@NotNull RouteToRouteCosts.Key o) {
-            int initial = this.first.compareTo(o.first);
-            if (initial!=0) {
-                return initial;
+        private void createIndex(List<IdFor<Route>> routesList) {
+            for (int i = 0; i < routesList.size(); i++) {
+                map.put(routesList.get(i), i);
             }
-            return this.second.compareTo(o.second);
+        }
+
+        public int size() {
+            return map.size();
+        }
+
+        public int find(IdFor<Route> from) {
+            return map.get(from);
+        }
+
+        public IdFor<Route> find(int index) {
+            return map.entrySet().stream().
+                    filter(entry -> entry.getValue()==index).
+                    map(Map.Entry::getKey).
+                    findFirst().orElseThrow();
+        }
+    }
+
+    private static class Costs {
+        public static final byte MAX_VALUE = Byte.MAX_VALUE;
+
+        private final byte[][] array;
+        private final AtomicInteger count;
+        private final Index index;
+
+        private Costs(Index index) {
+            this.index = index;
+            count = new AtomicInteger(0);
+            int size = index.size();
+            array = new byte[size][size];
+            resetArray(size);
+        }
+
+        private void resetArray(int size) {
+            for (int i = 0; i < size; i++) {
+                Arrays.fill(array[i], MAX_VALUE);
+            }
+        }
+
+        public int size() {
+            return count.get();
+        }
+
+//        @Deprecated
+//        public boolean contains(IdFor<Route> idA, IdFor<Route> idB) {
+//            int i = index.get(idA);
+//            int j = index.get(idB);
+//            return array[i][j] != MAX_VALUE;
+//        }
+
+        public boolean contains(int i, int j) {
+            return array[i][j] != MAX_VALUE;
+        }
+
+//        @Deprecated
+//        public void put(IdFor<Route> idA, IdFor<Route> idB, byte value) {
+//            int i = index.get(idA);
+//            int j = index.get(idB);
+//            put(i, j, value);
+//        }
+
+        public void put(int indexA, int indexB, byte value) {
+            count.incrementAndGet();
+            array[indexA][indexB] = value;
+        }
+
+        public byte get(int a, int b) {
+            final byte value = array[a][b];
+            if (value == MAX_VALUE) {
+                final String msg = "Missing (" + index.find(a) + ", " + index.find(b) +")";
+                logger.warn(msg);
+//                return Integer.MAX_VALUE;
+            }
+            return value;
         }
     }
 
