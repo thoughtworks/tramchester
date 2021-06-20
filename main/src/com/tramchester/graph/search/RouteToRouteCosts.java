@@ -10,6 +10,7 @@ import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -92,10 +94,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         for(Map.Entry<Integer, Set<Integer>> entry : currentlyReachableRoutes.entrySet()) {
 
             final int routeIndex = entry.getKey();
-            Set<Integer> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
+            final Set<Integer> connectedToRoute = entry.getValue(); // routes we can currently reach for current key
 
             // for each reachable route, find the routes we can in turn reach from them not already found previous degree
-            Set<Integer> newConnections = connectedToRoute.parallelStream().
+            final Set<Integer> newConnections = connectedToRoute.parallelStream().
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
                     map(routeSet -> costs.notAlreadyAdded(routeIndex, routeSet)).
@@ -270,15 +272,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public static final byte MAX_VALUE = Byte.MAX_VALUE;
 
         private final byte[][] array;
+        private final int[] numberSetFor;
         private final AtomicInteger count;
         private final Index index;
+        private final int numRoutes;
 
         private Costs(Index index) {
             this.index = index;
             count = new AtomicInteger(0);
-            int size = index.size();
-            array = new byte[size][size];
-            resetArray(size);
+            this.numRoutes = index.size();
+            array = new byte[numRoutes][numRoutes];
+            resetArray(numRoutes);
+            numberSetFor = new int[numRoutes];
         }
 
         private void resetArray(int size) {
@@ -298,6 +303,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public void put(int indexA, int indexB, byte value) {
             count.incrementAndGet();
             array[indexA][indexB] = value;
+            numberSetFor[indexA]++;
         }
 
         public byte get(int a, int b) {
@@ -309,10 +315,18 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return value;
         }
 
-        // Collectors.toList marginally faster, parallelstream slower
+        // Collectors.toList marginally faster, parallelStream slower
         public List<Integer> notAlreadyAdded(int routeIndex, Set<Integer> routeSet) {
+            if (numberSetFor[routeIndex]==numRoutes) {
+                return Collections.emptyList();
+            }
             final byte[] forIndex = array[routeIndex]; // get row for current routeIndex
-            return routeSet.stream().filter(found -> forIndex[found]==MAX_VALUE).collect(Collectors.toList());
+            return routeSet.stream().filter(present(forIndex)).collect(Collectors.toList());
+        }
+
+        @NotNull
+        private Predicate<Integer> present(byte[] forIndex) {
+            return found -> forIndex[found] == MAX_VALUE;
         }
     }
 

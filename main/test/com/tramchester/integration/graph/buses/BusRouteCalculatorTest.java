@@ -235,7 +235,7 @@ class BusRouteCalculatorTest {
         int maxChanges = 3;
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,40),
-                false, maxChanges, maxJourneyDuration, 1);
+                false, maxChanges, maxJourneyDuration, 3);
 
         CompositeStation shudehill = compositeStationRepository.findByName("Shudehill Interchange");
         Station asdaBroadhealth = compositeStationRepository.getStationById(StringIdFor.createId("1800SJ18511"));

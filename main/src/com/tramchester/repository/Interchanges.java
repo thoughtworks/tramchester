@@ -117,7 +117,7 @@ public class Interchanges implements InterchangeRepository {
         return switch (mode) {
             case Bus -> 2;
             case Tram -> 3;
-            case Train -> 4;
+            case Train -> 3;
             case Ferry -> 2;
             default -> throw new RuntimeException("Todo for " + mode);
         };
