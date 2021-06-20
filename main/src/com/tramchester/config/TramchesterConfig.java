@@ -6,6 +6,7 @@ import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
+import java.nio.file.Path;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
@@ -127,4 +128,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public final boolean getDepthFirst() {
         return true;
     }
+
+    public abstract Path getCacheFolder();
 }

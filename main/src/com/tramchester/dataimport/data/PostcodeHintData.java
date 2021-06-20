@@ -20,7 +20,6 @@ public class PostcodeHintData {
         this.minNorthing = boundingBox.getMinNorthings();
         this.maxEasting = boundingBox.getMaxEasting();
         this.maxNorthing = boundingBox.getMaxNorthings();
-
     }
 
     public String getCode() {

@@ -63,6 +63,7 @@ class MixedRouteTest {
 
     @AfterAll
     static void onceAfterAllTestsRun() throws IOException {
+        TestEnv.clearCache(componentContainer);
         componentContainer.close();
         TestEnv.deleteDBIfPresent(config);
     }
@@ -185,6 +186,11 @@ class MixedRouteTest {
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
             return Collections.singletonList(new NaptanRemoteDataSourceConfig("data/naptan"));
+        }
+
+        @Override
+        public Path getCacheFolder() {
+            return Path.of("testData/cache/mixedRouteTest");
         }
     }
 }

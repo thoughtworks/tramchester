@@ -11,6 +11,7 @@ import io.dropwizard.server.ServerFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -158,5 +159,10 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Path getCacheFolder() {
+        throw new RuntimeException("Must define");
     }
 }

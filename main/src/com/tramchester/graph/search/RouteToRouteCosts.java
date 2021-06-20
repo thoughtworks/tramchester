@@ -1,6 +1,10 @@
 package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.caching.DataCache;
+import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataimport.data.RouteIndexData;
+import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -28,30 +32,55 @@ import java.util.stream.Stream;
 @LazySingleton
 public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteToRouteCosts.class);
-    public static final int DEPTH = 4;
+
+    public final static String INDEX_FILE = "route_index.csv";
+    public final static String ROUTE_MATRIX_FILE = "route_matrix.csv";
+
+    public static final int MAX_DEPTH = 4;
 
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
 
     private final Costs costs;
     private final Index index;
+    private final DataCache dataCache;
 
     @Inject
-    public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository) {
+    public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
+                             DataCache dataCache) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
-        index = new Index(routeRepository);
-        costs = new Costs(index);
+        this.dataCache = dataCache;
+
+        int numberOfRoutes = routeRepository.numberOfRoutes();
+        index = new Index(numberOfRoutes);
+        costs = new Costs(numberOfRoutes);
     }
 
    @PostConstruct
     public void start() {
         logger.info("starting");
-        try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
-           populateCosts();
-       }
+        if (dataCache.has(index) && dataCache.has(costs)) {
+            loadIndex();
+            loadCosts();
+        } else {
+            try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
+                index.populateFrom(routeRepository);
+                populateCosts();
+            }
+            dataCache.save(index, RouteIndexData.class);
+            dataCache.save(costs, RouteMatrixData.class);
+        }
         logger.info("started");
    }
+
+    private void loadCosts() {
+        throw new RuntimeException("todo");
+    }
+
+    private void loadIndex() {
+        throw new RuntimeException("todo");
+    }
 
     private void populateCosts() {
         List<Route> routes = new ArrayList<>(routeRepository.getRoutes());
@@ -66,7 +95,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("Have " +  costs.size() + " connections from " + interchangeRepository.size() + " interchanges");
 
         // for existing connections infer next degree of connections, stop if no more added
-        for (byte currentDegree = 1; currentDegree <= DEPTH; currentDegree++) {
+        for (byte currentDegree = 1; currentDegree <= MAX_DEPTH; currentDegree++) {
             // create new: route -> [reachable routes]
             InterimResults newLinksForRoutes = addConnectionsFor(currentDegree, linksForRoutes);
             if (newLinksForRoutes.isEmpty()) {
@@ -155,7 +184,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
         final IdFor<Route> idA = routeA.getId();
         final IdFor<Route> idB = routeB.getId();
-        byte result = costs.get(index.find(idA), index.find(idB));
+        byte result = costs.get(index, index.find(idA), index.find(idB));
         if (result==Costs.MAX_VALUE) {
             return Integer.MAX_VALUE;
         }
@@ -183,7 +212,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         byte result = destinations.stream().//map(destination -> new Key(start, destination)).
                 map(index::find).
                 filter(dest -> costs.contains(start, dest)).
-                map(dest -> costs.get(start, dest)).
+                map(dest -> costs.get(index, start, dest)).
                 min(comparingByte(a -> a)).orElse(Byte.MAX_VALUE);
         return Pair.of(result, hasStartId);
     }
@@ -196,6 +225,136 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @FunctionalInterface
     public interface ToByteFunction<T> {
         byte applyAsByte(T value);
+    }
+
+    private static class Index implements DataCache.Cacheable<RouteIndexData> {
+        private final Map<IdFor<Route>, Integer> map;
+
+        private Index(int size) {
+            map = new HashMap<>(size);
+        }
+
+        public void populateFrom(RouteRepository routeRepository) {
+            logger.info("Creating index");
+            List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
+            createIndex(routesList);
+        }
+
+        private void createIndex(List<IdFor<Route>> routesList) {
+            for (int i = 0; i < routesList.size(); i++) {
+                map.put(routesList.get(i), i);
+            }
+        }
+
+        public int size() {
+            return map.size();
+        }
+
+        public int find(IdFor<Route> from) {
+            return map.get(from);
+        }
+
+        public IdFor<Route> find(int index) {
+            return map.entrySet().stream().
+                    filter(entry -> entry.getValue()==index).
+                    map(Map.Entry::getKey).
+                    findFirst().orElseThrow();
+        }
+
+        @Override
+        public void cacheTo(DataSaver<RouteIndexData> saver) {
+            List<RouteIndexData> indexData = map.entrySet().stream().
+                    map(entry -> new RouteIndexData(entry.getValue(), entry.getKey())).
+                    collect(Collectors.toList());
+            saver.save(indexData);
+            indexData.clear();
+        }
+
+        @Override
+        public String getFilename() {
+            return INDEX_FILE;
+        }
+    }
+
+    private static class Costs implements DataCache.Cacheable<RouteMatrixData> {
+        public static final byte MAX_VALUE = Byte.MAX_VALUE;
+
+        private final byte[][] array;
+        private final int[] numberSetFor;
+        private final AtomicInteger count;
+        private final int numRoutes;
+
+        private Costs(int numRoutes) {
+            count = new AtomicInteger(0);
+            this.numRoutes = numRoutes;
+            array = new byte[numRoutes][numRoutes];
+            resetArray(numRoutes);
+            numberSetFor = new int[numRoutes];
+        }
+
+        private void resetArray(int size) {
+            for (int i = 0; i < size; i++) {
+                Arrays.fill(array[i], MAX_VALUE);
+            }
+        }
+
+        public int size() {
+            return count.get();
+        }
+
+        public boolean contains(int i, int j) {
+            return array[i][j] != MAX_VALUE;
+        }
+
+        public void put(int indexA, int indexB, byte value) {
+            count.incrementAndGet();
+            array[indexA][indexB] = value;
+            numberSetFor[indexA]++;
+        }
+
+        public byte get(Index index, int a, int b) {
+            final byte value = array[a][b];
+            if (value == MAX_VALUE) {
+                final String msg = "Missing (" + index.find(a) + ", " + index.find(b) +")";
+                logger.warn(msg);
+            }
+            return value;
+        }
+
+        // Collectors.toList marginally faster, parallelStream slower
+        public List<Integer> notAlreadyAdded(int routeIndex, Set<Integer> routeSet) {
+            if (numberSetFor[routeIndex]==numRoutes) {
+                return Collections.emptyList();
+            }
+            final byte[] forIndex = array[routeIndex]; // get row for current routeIndex
+            return routeSet.stream().filter(present(forIndex)).collect(Collectors.toList());
+        }
+
+        @NotNull
+        private Predicate<Integer> present(byte[] forIndex) {
+            return found -> forIndex[found] == MAX_VALUE;
+        }
+
+        @Override
+        public void cacheTo(DataSaver<RouteMatrixData> saver) {
+            List<RouteMatrixData> dataToSave = new ArrayList<>(numRoutes);
+            for (int i = 0; i < numRoutes; i++) {
+                byte[] row = array[i];
+                List<Integer> destinations = new ArrayList<>(numRoutes);
+                for (int j = 0; j < numRoutes; j++) {
+                    destinations.add(j, (int) row[j]);
+                }
+                RouteMatrixData routeMatrixData = new RouteMatrixData(i, destinations);
+                dataToSave.add(i, routeMatrixData);
+            }
+            saver.save(dataToSave);
+            dataToSave.clear();
+        }
+
+        @Override
+        public String getFilename() {
+            return ROUTE_MATRIX_FILE;
+        }
     }
 
     private static class InterimResults {
@@ -233,100 +392,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public void addTo(Costs costs, byte degree) {
             // todo could optimise further by getting row first, then updating each element for that row
             theMap.forEach((key, dests) -> dests.forEach(dest -> costs.put(key, dest, degree)));
-        }
-    }
-
-    private static class Index {
-        private final Map<IdFor<Route>, Integer> map;
-
-        private Index(RouteRepository routeRepository) {
-            List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
-            int size = routesList.size();
-            map = new HashMap<>(size);
-            createIndex(routesList);
-        }
-
-        private void createIndex(List<IdFor<Route>> routesList) {
-            for (int i = 0; i < routesList.size(); i++) {
-                map.put(routesList.get(i), i);
-            }
-        }
-
-        public int size() {
-            return map.size();
-        }
-
-        public int find(IdFor<Route> from) {
-            return map.get(from);
-        }
-
-        public IdFor<Route> find(int index) {
-            return map.entrySet().stream().
-                    filter(entry -> entry.getValue()==index).
-                    map(Map.Entry::getKey).
-                    findFirst().orElseThrow();
-        }
-    }
-
-    private static class Costs {
-        public static final byte MAX_VALUE = Byte.MAX_VALUE;
-
-        private final byte[][] array;
-        private final int[] numberSetFor;
-        private final AtomicInteger count;
-        private final Index index;
-        private final int numRoutes;
-
-        private Costs(Index index) {
-            this.index = index;
-            count = new AtomicInteger(0);
-            this.numRoutes = index.size();
-            array = new byte[numRoutes][numRoutes];
-            resetArray(numRoutes);
-            numberSetFor = new int[numRoutes];
-        }
-
-        private void resetArray(int size) {
-            for (int i = 0; i < size; i++) {
-                Arrays.fill(array[i], MAX_VALUE);
-            }
-        }
-
-        public int size() {
-            return count.get();
-        }
-
-        public boolean contains(int i, int j) {
-            return array[i][j] != MAX_VALUE;
-        }
-
-        public void put(int indexA, int indexB, byte value) {
-            count.incrementAndGet();
-            array[indexA][indexB] = value;
-            numberSetFor[indexA]++;
-        }
-
-        public byte get(int a, int b) {
-            final byte value = array[a][b];
-            if (value == MAX_VALUE) {
-                final String msg = "Missing (" + index.find(a) + ", " + index.find(b) +")";
-                logger.warn(msg);
-            }
-            return value;
-        }
-
-        // Collectors.toList marginally faster, parallelStream slower
-        public List<Integer> notAlreadyAdded(int routeIndex, Set<Integer> routeSet) {
-            if (numberSetFor[routeIndex]==numRoutes) {
-                return Collections.emptyList();
-            }
-            final byte[] forIndex = array[routeIndex]; // get row for current routeIndex
-            return routeSet.stream().filter(present(forIndex)).collect(Collectors.toList());
-        }
-
-        @NotNull
-        private Predicate<Integer> present(byte[] forIndex) {
-            return found -> forIndex[found] == MAX_VALUE;
         }
     }
 

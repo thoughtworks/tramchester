@@ -6,6 +6,7 @@ import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,4 +35,8 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
         return 6;
     }
 
+    @Override
+    public Path getCacheFolder() {
+        return Path.of("testData/cache/unit");
+    }
 }

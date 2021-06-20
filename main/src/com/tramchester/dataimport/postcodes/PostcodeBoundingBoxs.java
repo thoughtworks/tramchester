@@ -1,11 +1,10 @@
 package com.tramchester.dataimport.postcodes;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.geo.BoundingBox;
@@ -17,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -107,20 +104,13 @@ public class PostcodeBoundingBoxs {
     private void recordBoundsForPostcodes() {
         logger.info("Recording bounds for postcode files in " + hintsFilePath.toAbsolutePath());
 
-        CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = mapper.schemaFor(PostcodeHintData.class).withHeader();
-        ObjectWriter myObjectWriter = mapper.writer(schema);
+        DataSaver<PostcodeHintData> dataSaver = new DataSaver<>(PostcodeHintData.class, hintsFilePath);
 
         List<PostcodeHintData> hints = postcodeBounds.entrySet().stream().
-                map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+                map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).
+                collect(Collectors.toList());
 
-        try(FileOutputStream outputStream = new FileOutputStream(hintsFilePath.toFile())) {
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-            OutputStreamWriter writerOutputStream = new OutputStreamWriter(bufferedOutputStream, StandardCharsets.UTF_8);
-            myObjectWriter.writeValue(writerOutputStream, hints);
-        } catch (IOException fileNotFoundException) {
-            logger.error("Exception when saving hints", fileNotFoundException);
-        }
+        dataSaver.save(hints);
     }
 
     public boolean checkOrRecord(Path sourceFilePath, PostcodeData postcode) {

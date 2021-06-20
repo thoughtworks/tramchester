@@ -1,6 +1,8 @@
 package com.tramchester.testSupport;
 
 import com.codahale.metrics.Gauge;
+import com.tramchester.ComponentContainer;
+import com.tramchester.caching.DataCache;
 import com.tramchester.config.*;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.dataimport.data.StopTimeData;
@@ -274,5 +276,10 @@ public class TestEnv {
         Set<Route> routes = routeRepository.findRoutesByShortName(agencyId, shortName);
         assertEquals(1, routes.size(), format("expected to find only one route for %s and %s", agencyId, shortName));
         return routes.iterator().next();
+    }
+
+    public static void clearCache(ComponentContainer componentContainer) {
+        DataCache cache = componentContainer.get(DataCache.class);
+        cache.clearFiles();
     }
 }

@@ -12,7 +12,9 @@ public interface RouteRepository {
     Set<Route> getRoutes();
     Route getRouteById(IdFor<Route> routeId);
     boolean hasRouteId(IdFor<Route> routeId);
+    int numberOfRoutes();
 
     Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName);
     Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName);
+
 }

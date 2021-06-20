@@ -12,6 +12,7 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestLiveDataConfig;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,6 +79,11 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         public String getNeo4jPagecacheMemory() {
             return "100m";
         }
+    }
+
+    @Override
+    public Path getCacheFolder() {
+        return Path.of("testData/cache/tramIntegration");
     }
 }
 

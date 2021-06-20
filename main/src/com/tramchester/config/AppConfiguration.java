@@ -8,6 +8,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.nio.file.Path;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -136,6 +137,10 @@ public class AppConfiguration extends TramchesterConfig {
     @NotNull
     @JsonProperty("sendCloudWatchMetrics")
     private boolean sendCloudWatchMetrics;
+
+    @NotNull
+    @JsonProperty("cacheFolder")
+    private Path cacheFolder;
 
     @Override
     public String getInstanceDataUrl() {
@@ -285,6 +290,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean getSendCloudWatchMetrics() {
         return sendCloudWatchMetrics;
+    }
+
+    @Override
+    public Path getCacheFolder() {
+        return cacheFolder;
     }
 
 }
