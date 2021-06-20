@@ -49,7 +49,7 @@ public class PostcodeResource {
     public Response getAll(@Context Request request) {
         logger.info("Get all postcodes");
 
-        // TODO this could potentilly be very big.....
+        // TODO this could potentially be very big.....
         Collection<PostcodeLocation> allPostcodes = postcodeRepository.getPostcodes();
 
         LocalDateTime modTime = importer.getTargetFolderModTime();

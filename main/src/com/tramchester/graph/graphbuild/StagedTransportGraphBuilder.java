@@ -111,7 +111,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                 }
             }
 
-            // only add version node if we manage to build graph, so partial builds that fail we cause a rebuild
+            // only add version node if we manage to build graph, so partial builds that fail cause a rebuild
             addVersionNode(graphDatabase, transportData.getDataSourceInfo());
 
             try(Transaction tx = graphDatabase.beginTx()) {

@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RouteCalulcatorForBoundingBoxTest {
+class RouteCalculatorForBoundingBoxTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
 

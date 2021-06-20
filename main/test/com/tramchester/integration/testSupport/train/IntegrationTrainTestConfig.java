@@ -10,6 +10,7 @@ import com.tramchester.integration.testSupport.train.RailRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.train.RailTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -75,6 +76,11 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getQueryInterval() { return 15; }
+
+    @Override
+    public Path getCacheFolder() {
+        return Path.of("testData/cache/trainIntegration");
+    }
 
     private static class GraphDBIntegrationTrainTestConfig extends GraphDBTestConfig {
 

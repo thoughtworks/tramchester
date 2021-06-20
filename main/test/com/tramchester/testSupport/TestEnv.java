@@ -278,7 +278,7 @@ public class TestEnv {
         return routes.iterator().next();
     }
 
-    public static void clearCache(ComponentContainer componentContainer) {
+    public static void clearDataCache(ComponentContainer componentContainer) {
         DataCache cache = componentContainer.get(DataCache.class);
         cache.clearFiles();
     }

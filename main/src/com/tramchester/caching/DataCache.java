@@ -1,8 +1,12 @@
 package com.tramchester.caching;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.RemoteDataRefreshed;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,24 +18,33 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @LazySingleton
 public class DataCache {
     private static final Logger logger = LoggerFactory.getLogger(DataCache.class);
 
     private final Path cacheFolder;
+    private final RemoteDataRefreshed remoteDataRefreshed;
+    private final CsvMapper mapper;
+    private final TramchesterConfig config;
     private boolean ready;
 
     @Inject
-    public DataCache(TramchesterConfig config) {
+    public DataCache(TramchesterConfig config, RemoteDataRefreshed remoteDataRefreshed, CsvMapper mapper) {
+        this.config = config;
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
+        this.remoteDataRefreshed = remoteDataRefreshed;
+        this.mapper = mapper;
     }
 
     @PostConstruct
     public void start() {
         logger.info("Starting");
         ready = false;
+
         if (Files.exists(cacheFolder)) {
             logger.info("Cached folder exists at " + cacheFolder);
             ready = true;
@@ -44,6 +57,19 @@ public class DataCache {
                 logger.warn("Could not create cache folder ", exception);
             }
         }
+
+        clearCacheIfDataRefreshed();
+    }
+
+    private void clearCacheIfDataRefreshed() {
+        Set<String> refreshedSources = config.getRemoteDataSourceConfig().stream().
+                map(RemoteDataSourceConfig::getName).
+                filter(remoteDataRefreshed::refreshed).collect(Collectors.toSet());
+        if (refreshedSources.isEmpty()) {
+            return;
+        }
+        logger.warn("Some data sources (" + refreshedSources+ ") have refreshed, clearning cache " + cacheFolder);
+        clearFiles();
     }
 
     @PreDestroy
@@ -85,10 +111,16 @@ public class DataCache {
     }
 
     public void clearFiles() {
+        if (!Files.exists(cacheFolder)) {
+            logger.warn("Not clearing cache, folder not present: " + cacheFolder);
+            return;
+        }
+
+        logger.warn("Clearing cache");
         try {
             List<Path> files = filesInCache();
             for (Path file : files) {
-                Files.delete(file);
+                Files.deleteIfExists(file);
             }
         } catch (IOException exception) {
             final String msg = "Unable to clear cache";
@@ -97,8 +129,25 @@ public class DataCache {
         }
     }
 
+    public <T> void loadInto(Cacheable<T> cacheable, Class<T> theClass)  {
+        if (ready) {
+            Path hintsFilePath = getPathFor(cacheable);
+            logger.info("Loading " + hintsFilePath.toAbsolutePath()  + " to " + theClass.getSimpleName());
+
+            DataLoader<T> loader = new DataLoader<T>(hintsFilePath, theClass, mapper);
+            Stream<T> data = loader.load();
+            cacheable.loadFrom(data);
+            data.close();
+        } else {
+            throw new RuntimeException("Attempt to load from " + cacheable.getFilename() + " for " + theClass.getSimpleName()
+                    + " when not ready");
+        }
+
+    }
+
     public interface Cacheable<T> {
         void cacheTo(DataSaver<T> saver);
         String getFilename();
+        void loadFrom(Stream<T> stream);
     }
 }

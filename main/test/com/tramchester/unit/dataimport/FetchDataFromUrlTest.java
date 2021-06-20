@@ -23,6 +23,9 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class FetchDataFromUrlTest extends EasyMockSupport {
 
     private URLDownloadAndModTime downloader;
@@ -75,6 +78,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
+        assertTrue(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
     }
 
     @Test
@@ -85,6 +89,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
+        assertTrue(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
     }
 
     @Test
@@ -96,6 +101,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
+        assertFalse(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
     }
 
     @Test
@@ -112,6 +118,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
+        assertTrue(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
     }
 
     @Test
@@ -124,6 +131,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
         verifyAll();
+        assertFalse(fetchDataFromUrl.refreshed("intergationTestRemoteSource"));
     }
 
     @Test

@@ -27,7 +27,7 @@ import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-class RouteCalulatorKeyRoutesTest {
+class RouteCalculatorKeyRoutesTest {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig testConfig;

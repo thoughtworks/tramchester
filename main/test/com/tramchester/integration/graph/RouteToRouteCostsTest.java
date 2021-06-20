@@ -16,10 +16,12 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -41,24 +43,22 @@ public class RouteToRouteCostsTest {
     private static Path matrixFile;
 
     @BeforeAll
-    static void onceBeforeAnyTestRuns() throws IOException {
+    static void onceBeforeAnyTestRuns() {
         TramchesterConfig config = new IntegrationTramTestConfig();
         final Path cacheFolder = config.getCacheFolder();
 
         indexFile = cacheFolder.resolve(RouteToRouteCosts.INDEX_FILE);
         matrixFile = cacheFolder.resolve(RouteToRouteCosts.ROUTE_MATRIX_FILE);
-        Files.deleteIfExists(indexFile);
-        Files.deleteIfExists(matrixFile);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+        TestEnv.clearDataCache(componentContainer);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
+        TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
-        Files.deleteIfExists(indexFile);
-        Files.deleteIfExists(matrixFile);
     }
 
     @BeforeEach

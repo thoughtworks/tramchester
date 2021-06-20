@@ -1,9 +1,12 @@
 package com.tramchester.integration.dataimport.postcodes;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.tramchester.caching.DataCache;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
+import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.RemoteDataRefreshed;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
@@ -24,29 +27,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PostcodeBoundingBoxsTest {
 
-    private final  Path testFolder = Path.of("data", "test", "postcodeTest");
     private Path hintsFile;
     private PostcodeBoundingBoxs postcodeBoundingBoxs;
     private CsvMapper mapper;
+    private DataCache dataCache;
 
     @BeforeEach
-    void beforeEachTest() throws IOException {
+    void beforeEachTest() {
         mapper = CsvMapper.builder().build();
 
         TramchesterConfig config = new TramWithPostcodesEnabled();
-        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig("postcodes");
-        hintsFile = sourceConfig.getDataPath().resolve("postcode_hints.csv");
-        postcodeBoundingBoxs = new PostcodeBoundingBoxs(config, mapper);
 
-        if (!Files.exists(testFolder)) {
-            Files.createDirectory(testFolder);
-        }
-        Files.deleteIfExists(hintsFile);
+        hintsFile = config.getCacheFolder().resolve("postcode_hints.csv");
+
+        RemoteDataRefreshed dataRefresh = name -> false;
+
+        dataCache = new DataCache(config, dataRefresh, mapper);
+        dataCache.start();
+
+        postcodeBoundingBoxs = new PostcodeBoundingBoxs(config, dataCache);
+
+        dataCache.clearFiles();
     }
 
     @AfterEach
-    void afterEachTest() throws IOException {
-        Files.deleteIfExists(hintsFile);
+    void afterEachTest() {
+        dataCache.clearFiles();
+        dataCache.stop();
     }
 
     @Test
@@ -84,7 +91,7 @@ class PostcodeBoundingBoxsTest {
         postcodeBoundingBoxs.stop();
 
         // check file on disc is as expected
-        assertTrue(Files.exists(hintsFile));
+        assertTrue(Files.exists(hintsFile), "cache file missing " + hintsFile);
         DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFile, PostcodeHintData.class, mapper);
         List<PostcodeHintData> loadedFromFile = loader.load().collect(Collectors.toList());
         assertEquals(1, loadedFromFile.size());
@@ -136,7 +143,7 @@ class PostcodeBoundingBoxsTest {
         assertFalse(postcodeBoundingBoxs.checkOrRecord(path, new PostcodeData("eee", 0, 0)));
 
         postcodeBoundingBoxs.stop();
-        assertTrue(Files.exists(hintsFile));
+        assertTrue(Files.exists(hintsFile), "Cache file missing " + hintsFile);
 
         // now should be playback
         postcodeBoundingBoxs.start();

@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +89,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return Arrays.asList(remoteDataSourceConfig, remoteNaptanConfig, postCodeDatasourceConfig);
+    }
+
+    @Override
+    public Path getCacheFolder() {
+        return Path.of("testData/cache/busIntegration");
     }
 
     private static class GraphDBIntegrationBusTestConfig extends GraphDBTestConfig {

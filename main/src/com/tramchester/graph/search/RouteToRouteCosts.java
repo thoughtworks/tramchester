@@ -10,6 +10,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
@@ -44,13 +45,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final Costs costs;
     private final Index index;
     private final DataCache dataCache;
+    private final GraphFilter graphFilter;
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
-                             DataCache dataCache) {
+                             DataCache dataCache, GraphFilter graphFilter) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
         this.dataCache = dataCache;
+        this.graphFilter = graphFilter;
 
         int numberOfRoutes = routeRepository.numberOfRoutes();
         index = new Index(numberOfRoutes);
@@ -61,26 +64,22 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public void start() {
         logger.info("starting");
         if (dataCache.has(index) && dataCache.has(costs)) {
-            loadIndex();
-            loadCosts();
+            dataCache.loadInto(index, RouteIndexData.class);
+            dataCache.loadInto(costs, RouteMatrixData.class);
         } else {
             try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
                 index.populateFrom(routeRepository);
                 populateCosts();
             }
-            dataCache.save(index, RouteIndexData.class);
-            dataCache.save(costs, RouteMatrixData.class);
+            if (graphFilter.isFiltered()) {
+                logger.warn("Filtering is enabled, not caching results");
+            } else {
+                dataCache.save(index, RouteIndexData.class);
+                dataCache.save(costs, RouteMatrixData.class);
+            }
         }
         logger.info("started");
    }
-
-    private void loadCosts() {
-        throw new RuntimeException("todo");
-    }
-
-    private void loadIndex() {
-        throw new RuntimeException("todo");
-    }
 
     private void populateCosts() {
         List<Route> routes = new ArrayList<>(routeRepository.getRoutes());
@@ -209,7 +208,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         int start = index.find(startId);
-        byte result = destinations.stream().//map(destination -> new Key(start, destination)).
+        byte result = destinations.stream().
                 map(index::find).
                 filter(dest -> costs.contains(start, dest)).
                 map(dest -> costs.get(index, start, dest)).
@@ -274,6 +273,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public String getFilename() {
             return INDEX_FILE;
         }
+
+        @Override
+        public void loadFrom(Stream<RouteIndexData> stream) {
+            logger.info("Loading from cache");
+            stream.forEach(item -> map.put(item.getRouteId(), item.getIndex()));
+        }
     }
 
     private static class Costs implements DataCache.Cacheable<RouteMatrixData> {
@@ -315,7 +320,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public byte get(Index index, int a, int b) {
             final byte value = array[a][b];
             if (value == MAX_VALUE) {
-                final String msg = "Missing (" + index.find(a) + ", " + index.find(b) +")";
+                final String msg = "Missing (" + index.find(a) + ", " + index.find(b) + ")";
                 logger.warn(msg);
             }
             return value;
@@ -323,7 +328,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // Collectors.toList marginally faster, parallelStream slower
         public List<Integer> notAlreadyAdded(int routeIndex, Set<Integer> routeSet) {
-            if (numberSetFor[routeIndex]==numRoutes) {
+            if (numberSetFor[routeIndex] == numRoutes) {
                 return Collections.emptyList();
             }
             final byte[] forIndex = array[routeIndex]; // get row for current routeIndex
@@ -354,6 +359,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         @Override
         public String getFilename() {
             return ROUTE_MATRIX_FILE;
+        }
+
+        @Override
+        public void loadFrom(Stream<RouteMatrixData> stream) {
+            stream.forEach(item -> {
+                int source = item.getSource();
+                List<Integer> dest = item.getDestinations();
+                for (int j = 0; j < numRoutes; j++) {
+                    array[source][j] = dest.get(j).byteValue();
+                }
+            });
         }
     }
 

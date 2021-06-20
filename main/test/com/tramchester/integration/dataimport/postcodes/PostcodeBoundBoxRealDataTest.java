@@ -31,7 +31,6 @@ public class PostcodeBoundBoxRealDataTest {
     private static ComponentContainer componentContainer;
     private static TramWithPostcodesEnabled config;
     private PostcodeBoundingBoxs boundingBoxs;
-    private RemoteDataSourceConfig sourceConfig;
     private Path centralManchesterPostcodes;
 
     @BeforeAll
@@ -49,7 +48,7 @@ public class PostcodeBoundBoxRealDataTest {
     @BeforeEach
     void beforeEachTestRuns() {
         boundingBoxs = componentContainer.get(PostcodeBoundingBoxs.class);
-        sourceConfig = config.getDataSourceConfig("postcodes");
+        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig("postcodes");
 
         // force creation of hints file
         PostcodeRepository repository = componentContainer.get(PostcodeRepository.class);
@@ -63,7 +62,7 @@ public class PostcodeBoundBoxRealDataTest {
 
     @Test
     void shouldHaveHintsFile() {
-        Path hintsFile = sourceConfig.getDataPath().resolve("postcode_hints.csv");
+        Path hintsFile = config.getCacheFolder().resolve("postcode_hints.csv");
         assertTrue(hintsFile.toFile().exists());
     }
 

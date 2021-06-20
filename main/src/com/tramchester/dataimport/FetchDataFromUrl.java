@@ -17,12 +17,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
 
 @LazySingleton
-public class FetchDataFromUrl  {
+public class FetchDataFromUrl implements RemoteDataRefreshed {
     private static final Logger logger = LoggerFactory.getLogger(FetchDataFromUrl.class);
 
     // TODO Config?
@@ -31,12 +32,14 @@ public class FetchDataFromUrl  {
     private final URLDownloadAndModTime downloader;
     private final List<RemoteDataSourceConfig> configs;
     private final ProvidesNow providesLocalNow;
+    private final List<String> refreshed;
 
     @Inject
     public FetchDataFromUrl(URLDownloadAndModTime downloader, HasRemoteDataSourceConfig config, ProvidesNow providesLocalNow) {
         this.downloader = downloader;
         this.configs = config.getRemoteDataSourceConfig();
         this.providesLocalNow = providesLocalNow;
+        refreshed = new ArrayList<>();
     }
 
     @PostConstruct
@@ -49,7 +52,7 @@ public class FetchDataFromUrl  {
         logger.info("started");
     }
 
-    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
+    // force construction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
         return new Ready();
     }
@@ -57,14 +60,16 @@ public class FetchDataFromUrl  {
     public void fetchData() {
         configs.forEach(config -> {
             try {
-                refreshDataIfNewerAvailable(config);
+                if (refreshDataIfNewerAvailable(config)) {
+                    refreshed.add(config.getName());
+                }
             } catch (IOException e) {
                 logger.info("Unable to refresh data for config " + config);
             }
         });
     }
 
-    private void refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
+    private boolean refreshDataIfNewerAvailable(RemoteDataSourceConfig config) throws IOException {
         String url = config.getDataUrl();
         Path downloadDirectory = config.getDataPath();
         String targetFile = config.getDownloadFilename();
@@ -78,19 +83,17 @@ public class FetchDataFromUrl  {
             if (config.getDataCheckUrl().isBlank()) {
                 // skip mod time check
                 logger.info("Skipping mod time check for " + config.getName());
-                loadIfCachePeriodExpired(url, destination, localMod);
-                return;
+                return loadIfCachePeriodExpired(url, destination, localMod);
             }
 
             LocalDateTime serverMod = downloader.getModTime(url);
             if (serverMod.isEqual(LocalDateTime.MIN)) {
-                loadIfCachePeriodExpired(url, destination, localMod);
-                return;
+                return loadIfCachePeriodExpired(url, destination, localMod);
             }
 
             if (serverMod.isEqual(LocalDateTime.MAX)) {
                 logger.error("Requested URL is (not status 200) missing " + url);
-                return;
+                return false;
             }
 
             logger.info(format("%s: Server mod time: %s File mod time: %s ", name, serverMod, localMod));
@@ -99,38 +102,49 @@ public class FetchDataFromUrl  {
                 if (serverMod.isAfter(localMod)) {
                     logger.warn(name + ": server time is after local, downloading new data");
                     downloader.downloadTo(destination, url);
-                } else {
-                    logger.info(name + ": no newer data");
+                    return true;
                 }
+                logger.info(name + ": no newer data");
+                return false;
             }
             catch (UnknownHostException disconnected) {
                 logger.error("Cannot connect to check or refresh data " + config, disconnected);
+                return false;
             }
         } else {
             logger.info(name + ": no local file " + destination + " so down loading new data from " + url);
             FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
             downloader.downloadTo(destination, url);
+            return true;
         }
     }
 
-    private void loadIfCachePeriodExpired(String url, Path destination, LocalDateTime fileModTime)  {
+    private boolean loadIfCachePeriodExpired(String url, Path destination, LocalDateTime fileModTime)  {
         LocalDateTime localNow = providesLocalNow.getDateTime();
         String prefix = format("Local mod time: %s Current Local Time: %s ", fileModTime, localNow);
+        boolean downloaded = false;
         try {
             if (fileModTime.plusMinutes(DEFAULT_EXPIRY_MINS).isBefore(localNow)) {
                 logger.info(prefix + " expired downloading from " + url);
                 downloader.downloadTo(destination, url);
+                downloaded = true;
             } else {
                 logger.info(prefix + " not expired, using current " + destination);
             }
         } catch (IOException e) {
             logger.error("Cannot download from " + url);
         }
+        return downloaded;
     }
 
     private LocalDateTime getFileModLocalTime(Path destination) {
         long localModMillis = destination.toFile().lastModified();
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(localModMillis  / 1000), TramchesterConfig.TimeZone);
+    }
+
+    @Override
+    public boolean refreshed(String name) {
+        return refreshed.contains(name);
     }
 
     public static class Ready {

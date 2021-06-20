@@ -1,11 +1,9 @@
 package com.tramchester.dataimport.postcodes;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.caching.DataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
-import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
@@ -16,12 +14,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,25 +25,19 @@ import static com.tramchester.dataimport.postcodes.PostcodeDataImporter.POSTCODE
 public class PostcodeBoundingBoxs {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeBoundingBoxs.class);
 
-    public final static String HINTS_FILES = "postcode_hints.csv";
-    private final Map<String, BoundingBox> postcodeBounds;
-    private final boolean enabled;
-    private final CsvMapper mapper;
-    private boolean playback;
+    public final static String POSTCODE_HINTS_CSV = "postcode_hints.csv";
 
-    private Path hintsFilePath;
+    private final PostcodeBounds postcodeBounds;
+
+    private final boolean enabled;
+    private final DataCache dataCache;
+    private boolean cacheAvailable;
 
     @Inject
-    public PostcodeBoundingBoxs(TramchesterConfig config, CsvMapper mapper) {
-        this.mapper = mapper;
-        postcodeBounds = new HashMap<>();
+    public PostcodeBoundingBoxs(TramchesterConfig config, DataCache dataCache) {
+        this.dataCache = dataCache;
+        postcodeBounds = new PostcodeBounds();
         enabled = config.hasDataSourceConfig(POSTCODES_CONFIG_NAME);
-        if (enabled) {
-            RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig(POSTCODES_CONFIG_NAME);
-            Path directory = sourceConfig.getDataPath();
-
-            hintsFilePath = directory.resolve(HINTS_FILES).toAbsolutePath();
-        }
     }
 
     @PreDestroy
@@ -67,12 +55,12 @@ public class PostcodeBoundingBoxs {
             return;
         }
 
-        playback = Files.exists(hintsFilePath);
+        cacheAvailable = dataCache.has(postcodeBounds);
 
-        if (playback) {
-            loadDataFromFile();
+        if (cacheAvailable) {
+            dataCache.loadInto(postcodeBounds, PostcodeHintData.class);
         } else {
-            logger.info("File "+hintsFilePath+" missing, in record mode");
+            logger.info("No cached data, in record mode");
         }
     }
 
@@ -82,35 +70,10 @@ public class PostcodeBoundingBoxs {
             return;
         }
 
-        if (playback) {
-            logger.info("Not recording");
-        } else {
-            recordBoundsForPostcodes();
+        if (!cacheAvailable) {
+            logger.info("Caching postcode bounds");
+            dataCache.save(postcodeBounds, PostcodeHintData.class);
         }
-    }
-
-    private void loadDataFromFile() {
-        logger.info("File "+hintsFilePath+" existed, in playback mode");
-
-        DataLoader<PostcodeHintData> loader = new DataLoader<>(hintsFilePath, PostcodeHintData.class, mapper);
-
-        Stream<PostcodeHintData> data = loader.load();
-        data.forEach(item -> postcodeBounds.put(item.getCode(),
-                new BoundingBox(item.getMinEasting(), item.getMinNorthing(), item.getMaxEasting(), item.getMaxNorthing())));
-        data.close();
-        logger.info("Loaded " + postcodeBounds.size() +" bounding boxes");
-    }
-
-    private void recordBoundsForPostcodes() {
-        logger.info("Recording bounds for postcode files in " + hintsFilePath.toAbsolutePath());
-
-        DataSaver<PostcodeHintData> dataSaver = new DataSaver<>(PostcodeHintData.class, hintsFilePath);
-
-        List<PostcodeHintData> hints = postcodeBounds.entrySet().stream().
-                map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).
-                collect(Collectors.toList());
-
-        dataSaver.save(hints);
     }
 
     public boolean checkOrRecord(Path sourceFilePath, PostcodeData postcode) {
@@ -121,13 +84,13 @@ public class PostcodeBoundingBoxs {
 
         String code = convertPathToCode(sourceFilePath);
 
-        if (playback) {
-            if (postcodeBounds.containsKey(code)) {
+        if (cacheAvailable) {
+            if (postcodeBounds.contains(code)) {
                 return postcodeBounds.get(code).contained(postcode.getGridPosition());
             }
             logger.warn("Missing file when in playback mode: " + sourceFilePath);
         } else {
-            if (postcodeBounds.containsKey(code)) {
+            if (postcodeBounds.contains(code)) {
                 BoundingBox boundingBox = postcodeBounds.get(code);
                 if (!boundingBox.contained(postcode.getGridPosition())) {
                     updateFor(code, postcode, boundingBox);
@@ -166,11 +129,11 @@ public class PostcodeBoundingBoxs {
     }
 
     public boolean isLoaded() {
-        return playback;
+        return cacheAvailable;
     }
 
     public boolean hasBoundsFor(Path file) {
-        return postcodeBounds.containsKey(convertPathToCode(file));
+        return postcodeBounds.contains(convertPathToCode(file));
     }
 
     /***
@@ -182,5 +145,58 @@ public class PostcodeBoundingBoxs {
                 filter(entry -> entry.getValue().within(margin, location)).
                 map(Map.Entry::getKey).
                 collect(Collectors.toSet());
+    }
+
+    private static class PostcodeBounds implements DataCache.Cacheable<PostcodeHintData> {
+        private final Map<String, BoundingBox> theMap;
+
+        public PostcodeBounds() {
+            theMap = new HashMap<>();
+        }
+
+        @Override
+        public String getFilename() {
+            return POSTCODE_HINTS_CSV;
+        }
+
+        @Override
+        public void cacheTo(DataSaver<PostcodeHintData> saver) {
+            List<PostcodeHintData> hints = theMap.entrySet().stream().
+                    map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).
+                    collect(Collectors.toList());
+
+            saver.save(hints);
+        }
+
+        @Override
+        public void loadFrom(Stream<PostcodeHintData> data) {
+            logger.info("Loading bounds from cache");
+            data.forEach(item -> theMap.put(item.getCode(),
+                    new BoundingBox(item.getMinEasting(), item.getMinNorthing(), item.getMaxEasting(), item.getMaxNorthing())));
+        }
+
+        public void clear() {
+            theMap.clear();
+        }
+
+        public Set<Map.Entry<String, BoundingBox>> entrySet() {
+            return theMap.entrySet();
+        }
+
+        public int size() {
+            return theMap.size();
+        }
+
+        public boolean contains(String code) {
+            return theMap.containsKey(code);
+        }
+
+        public BoundingBox get(String code) {
+            return theMap.get(code);
+        }
+
+        public void put(String code, BoundingBox box) {
+            theMap.put(code, box);
+        }
     }
 }

@@ -63,7 +63,7 @@ class CompositeRouteTest {
 
     @AfterAll
     static void onceAfterAllTestsRun() throws IOException {
-        TestEnv.clearCache(componentContainer);
+        TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
         TestEnv.deleteDBIfPresent(config);
     }
