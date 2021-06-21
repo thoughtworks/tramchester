@@ -180,7 +180,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
 
     private Station findStation(String stationName) {
-        List<Station> found = stationRepository.getStationsForModeStream(TransportMode.Bus).
+        List<Station> found = stationRepository.getStationsForMode(TransportMode.Bus).stream().
                 filter(station -> graphFilter.shouldInclude(station)).
                 filter(station -> station.getName().equals(stationName)).collect(Collectors.toList());
         assertEquals(1, found.size());

@@ -116,8 +116,7 @@ public class TransportDataContainer implements TransportData {
         return getStationsForModeStream(mode).collect(Collectors.toUnmodifiableSet());
     }
 
-    @Override
-    public Stream<Station> getStationsForModeStream(TransportMode mode) {
+    private Stream<Station> getStationsForModeStream(TransportMode mode) {
         return stationsById.filterStream(item -> item.getTransportModes().contains(mode));
     }
 
