@@ -3,16 +3,20 @@ package com.tramchester.unit.graph.calculation;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
+import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
@@ -27,10 +31,12 @@ import org.neo4j.graphdb.Transaction;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.nearAltrincham;
 import static com.tramchester.testSupport.TestEnv.nearKnutsfordBusStation;
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,7 +58,7 @@ class CompositeRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig("CompositeRouteTest.db");
+        config = new SimpleCompositeGraphConfig("CompositeRouteTest.db");
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -169,6 +175,12 @@ class CompositeRouteTest {
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
                 nearKnutsfordBusStation, journeyRequest, 3);
         assertFalse(journeys.isEmpty());
+    }
+
+    @Test
+    void shouldFindTheCompositeStations() {
+        assertNotNull(startCompositeStation);
+        assertNotNull(fourthStationComposite);
     }
 
     @Test

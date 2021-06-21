@@ -348,6 +348,11 @@ class GraphDatabaseLifecycleTest {
             public Set<String> getAdditionalInterchanges() {
                 return Collections.emptySet();
             }
+
+            @Override
+            public Set<TransportMode> compositeStationModes() {
+                return Collections.emptySet();
+            }
         };
     }
 }

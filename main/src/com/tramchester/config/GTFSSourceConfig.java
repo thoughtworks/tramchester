@@ -46,4 +46,5 @@ public interface GTFSSourceConfig extends HasDataPath {
     }
 
 
+    Set<TransportMode> compositeStationModes();
 }

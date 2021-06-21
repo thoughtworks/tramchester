@@ -9,6 +9,7 @@ import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.unit.graph.calculation.SimpleCompositeGraphConfig;
 import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,7 +33,7 @@ public class StationLocationsFromTestDataTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig("tramroutetest.db");
+        config = new SimpleCompositeGraphConfig("tramroutetest.db");
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

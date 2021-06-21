@@ -1,6 +1,8 @@
 package com.tramchester.repository;
 
+import com.codahale.metrics.ConsoleReporter;
 import com.google.inject.ImplementedBy;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.reference.TransportMode;
@@ -33,4 +35,6 @@ public interface StationRepository extends StationRepositoryPublic {
     Stream<Station> getStationsForModeStream(TransportMode mode);
 
     Set<RouteStation> getRouteStationsFor(IdFor<Station> stationId);
+
+    Stream<Station> getStationsFromSource(DataSourceID dataSourceID);
 }

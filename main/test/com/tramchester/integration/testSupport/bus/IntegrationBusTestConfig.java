@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport.bus;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -29,7 +30,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         super(new GraphDBIntegrationBusTestConfig(folder, dbName));
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/bus",
                 Collections.singleton(GTFSTransportationType.bus),
-                Collections.emptySet(), Collections.emptySet());
+                Collections.emptySet(), Collections.emptySet(), Collections.singleton(TransportMode.Bus));
         remoteDataSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
     }
 

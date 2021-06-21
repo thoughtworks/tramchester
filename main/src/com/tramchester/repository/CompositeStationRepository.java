@@ -1,7 +1,9 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -18,10 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,21 +69,36 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     @PostConstruct
     public void start() {
         logger.info("starting");
-        if (!naptanRespository.isEnabled() && config.getTransportModes().contains(Bus)) {
-            String msg = "Naptan config not present in remoteSources, it is required when Bus is enabled.";
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
-        Set<TransportMode> modes = config.getTransportModes();
-        modes.forEach(this::capture);
+        List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
+        dataSources.forEach(dataSource -> {
+            final Set<TransportMode> compositeStationModes = dataSource.compositeStationModes();
+            if (!compositeStationModes.isEmpty()) {
+                populateFor(dataSource, compositeStationModes);
+            }
+        });
         logger.info("started");
     }
 
-    private void capture(TransportMode mode) {
+    private void populateFor(GTFSSourceConfig dataSource, Set<TransportMode> modes) {
         if (graphFilter.isFiltered()) {
             logger.warn("Filtering is enabled");
         }
-        Set<String> duplicatedNames = getDuplicatedNamesFor(mode);
+
+        if (dataSource.getDataSourceId()==DataSourceID.tfgm && modes.contains(Bus)) {
+            if (!naptanRespository.isEnabled()) {
+                String msg = "Naptan config not present in remoteSources, it is required when Bus is enabled for TFGM " + dataSource;
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            }
+        }
+
+        logger.info("Populating for source:" + dataSource.getDataSourceId() + " modes:" + modes);
+        modes.forEach(mode -> capture(dataSource.getDataSourceId(), mode) );
+    }
+
+    private void capture(DataSourceID dataSourceID, TransportMode mode) {
+
+        Set<String> duplicatedNames = getDuplicatedNamesFor(dataSourceID, mode);
 
         if (duplicatedNames.isEmpty()) {
             logger.info("Not creating any composite stations for " + mode);
@@ -94,8 +108,9 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         logger.info("Found " + duplicatedNames.size() + " duplicated names for " + mode +
                 " out of " + stationRepository.getNumberOfStations());
 
-        Map<String, Set<Station>> groupedByName = stationRepository.getStationsForMode(mode).stream().
+        Map<String, Set<Station>> groupedByName = stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
+                filter(station -> station.getTransportModes().contains(mode)).
                 filter(station -> !station.getArea().isBlank()).
                 filter(station -> duplicatedNames.contains(station.getName())).
                 collect(Collectors.groupingBy(Station::getName, Collectors.toSet()));
@@ -105,9 +120,10 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     }
 
     @NotNull
-    private Set<String> getDuplicatedNamesFor(TransportMode mode) {
-        return stationRepository.getStationsForModeStream(mode).
+    private Set<String> getDuplicatedNamesFor(DataSourceID dataSourceID, TransportMode mode) {
+        return stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
+                filter(station -> station.getTransportModes().contains(mode)).
                 map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
                 entrySet().stream().

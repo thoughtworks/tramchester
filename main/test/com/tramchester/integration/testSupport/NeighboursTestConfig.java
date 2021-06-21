@@ -21,7 +21,7 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         return Collections.singletonList(
                 new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
-                        Collections.singleton(Tram), AdditionalTramInterchanges.get()));
+                        Collections.singleton(Tram), AdditionalTramInterchanges.get(), Collections.emptySet()));
     }
 
 

@@ -23,7 +23,8 @@ class CompositeStationRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new TramWithPostcodesEnabled(), TestEnv.NoopRegisterMetrics());
+        final TramWithPostcodesEnabled config = new TramWithPostcodesEnabled();
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -40,7 +41,7 @@ class CompositeStationRepositoryTest {
 
     @Test
     void shouldHaveNoneForTramStationsAsNoDuplicatedNames() {
-        assertEquals(0,repository.getNumberOfComposites());
+        assertEquals(0, repository.getNumberOfComposites());
         assertTrue(repository.getCompositesFor(Tram).isEmpty());
     }
 

@@ -51,7 +51,6 @@ public class TransportDataContainer implements TransportData {
     public void dispose() {
         logger.info("stopping for " + sourceName);
         // clear's are here due to memory usage during testing
-//        trips.forEach(Trip::dispose);
         trips.clear();
         stationsById.clear();
         tramStationsByName.clear();
@@ -141,6 +140,11 @@ public class TransportDataContainer implements TransportData {
             logger.warn("Found no route stations for " + stationId);
         }
         return result;
+    }
+
+    @Override
+    public Stream<Station> getStationsFromSource(DataSourceID dataSourceID) {
+        return this.stationsById.getValuesStream().filter(station -> station.getDataSourceID()==dataSourceID);
     }
 
     @Override
@@ -291,6 +295,7 @@ public class TransportDataContainer implements TransportData {
         return Optional.empty();
     }
 
+    // TODO Move into own repo to support live data
     @Override
     public Optional<Station> getTramStationByName(String name) {
         String lowerCase = name.toLowerCase();

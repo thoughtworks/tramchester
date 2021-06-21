@@ -40,7 +40,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         super(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName));
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
-                TransportMode.Tram, AdditionalTramInterchanges.get());
+                TransportMode.Tram, AdditionalTramInterchanges.get(), Collections.emptySet());
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
     }
 

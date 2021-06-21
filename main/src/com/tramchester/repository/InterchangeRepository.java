@@ -16,7 +16,5 @@ public interface InterchangeRepository {
 
     Set<Station> getAllInterchanges();
 
-    Set<Station> getInterchangesOn(Route route);
-
     int size();
 }

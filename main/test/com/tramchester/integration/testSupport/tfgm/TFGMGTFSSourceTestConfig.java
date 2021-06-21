@@ -20,17 +20,22 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     private final Set<GTFSTransportationType> sourceModes;
     private final Set<TransportMode> modesWithPlatforms;
     private final Set<String> additionalInterchanges;
+    private final Set<TransportMode> compositeStationModes;
 
     public TFGMGTFSSourceTestConfig(String dataFolder, Set<GTFSTransportationType> sourceModes,
-                                    Set<TransportMode> modesWithPlatforms, Set<String> additionalInterchanges) {
+                                    Set<TransportMode> modesWithPlatforms, Set<String> additionalInterchanges,
+                                    Set<TransportMode> compositeStationModes) {
         this.dataFolder = dataFolder;
         this.sourceModes = sourceModes;
         this.modesWithPlatforms = modesWithPlatforms;
         this.additionalInterchanges = additionalInterchanges;
+        this.compositeStationModes = compositeStationModes;
     }
 
-    public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform, Set<String> additionalInterchanges) {
-        this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform), additionalInterchanges);
+    public TFGMGTFSSourceTestConfig(String dataFolder, GTFSTransportationType mode, TransportMode modeWithPlatform,
+                                    Set<String> additionalInterchanges, Set<TransportMode> compositeStationModes) {
+        this(dataFolder, Collections.singleton(mode), Collections.singleton(modeWithPlatform),
+                additionalInterchanges, compositeStationModes);
     }
 
     @Override
@@ -66,5 +71,10 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     @Override
     public Set<String> getAdditionalInterchanges() {
         return additionalInterchanges;
+    }
+
+    @Override
+    public Set<TransportMode> compositeStationModes() {
+        return compositeStationModes;
     }
 }

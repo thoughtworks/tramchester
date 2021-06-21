@@ -165,4 +165,5 @@ public abstract class TestConfig extends AppConfiguration {
     public Path getCacheFolder() {
         throw new RuntimeException("Must define");
     }
+
 }

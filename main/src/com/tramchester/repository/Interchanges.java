@@ -3,7 +3,6 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -230,13 +229,6 @@ public class Interchanges implements InterchangeRepository {
     @Override
     public Set<Station> getAllInterchanges() {
         return interchanges;
-    }
-
-    @Override
-    public Set<Station> getInterchangesOn(Route route) {
-        return interchanges.stream().
-                filter(station -> station.servesRoute(route)).
-                collect(Collectors.toSet());
     }
 
     @Override

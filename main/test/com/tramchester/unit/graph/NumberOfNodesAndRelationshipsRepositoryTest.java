@@ -7,6 +7,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
+import com.tramchester.unit.graph.calculation.SimpleCompositeGraphConfig;
 import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,7 +26,7 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig("ServiceNodeCacheTest.db");
+        config = new SimpleCompositeGraphConfig("ServiceNodeCacheTest.db");
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

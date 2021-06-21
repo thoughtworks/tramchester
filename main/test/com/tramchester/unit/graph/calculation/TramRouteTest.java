@@ -53,7 +53,7 @@ class TramRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig("tramroutetest.db");
+        config = new SimpleCompositeGraphConfig("tramroutetest.db");
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

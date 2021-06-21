@@ -53,4 +53,9 @@ public class RailTestDataSourceConfig implements GTFSSourceConfig {
     public Set<String> getAdditionalInterchanges() {
         return Collections.emptySet();
     }
+
+    @Override
+    public Set<TransportMode> compositeStationModes() {
+        return Collections.emptySet();
+    }
 }
