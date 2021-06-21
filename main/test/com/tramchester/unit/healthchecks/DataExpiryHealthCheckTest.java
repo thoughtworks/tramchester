@@ -29,9 +29,9 @@ class DataExpiryHealthCheckTest extends EasyMockSupport {
         FeedInfo feedInfo = createFeedInfo(localDate.minusDays(30), localDate.plusDays(3));
         EasyMock.expect(providesLocalNow.getDate()).andStubReturn(localDate);
 
-        DataSourceID name = new DataSourceID("feedName");
+        DataSourceID dataSourceID = DataSourceID.tfgm;
         ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
-        healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesLocalNow, TestEnv.GET(), serviceTimeLimits);
+        healthCheck = new DataExpiryHealthCheck(feedInfo, dataSourceID, providesLocalNow, TestEnv.GET(), serviceTimeLimits);
     }
 
     @Test

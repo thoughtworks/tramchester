@@ -23,4 +23,5 @@ public interface Location<TYPE extends Location<?>> extends IdForDTO, HasId<TYPE
 
     LocationType getLocationType();
 
+    DataSourceID getDataSourceID();
 }

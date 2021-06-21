@@ -167,8 +167,8 @@ public class GraphDatabase implements DatabaseEventListener {
 
             dataSourceInfo.forEach(sourceInfo -> {
                 DataSourceID sourceName = sourceInfo.getID();
-                String name = sourceName.getName();
-                logger.info("Checking version for " + name);
+                String name = sourceName.name();
+                logger.info("Checking version for " + sourceName);
 
                 if (allProps.containsKey(name)) {
                     String graphValue = allProps.get(name).toString();
@@ -279,11 +279,14 @@ public class GraphDatabase implements DatabaseEventListener {
             Transaction tx = timed.transaction();
             Schema schema = tx.schema();
 
-            configuration.getTransportModes().forEach(mode -> {
-                GraphLabel label = GraphLabel.forMode(mode);
-                createUniqueIdConstraintFor(schema, label, GraphPropertyKey.STATION_ID);
-                schema.indexFor(label).on(GraphPropertyKey.ROUTE_ID.getText()).create();
-            });
+//            configuration.getTransportModes().forEach(mode -> {
+//                GraphLabel label = GraphLabel.forMode(mode);
+//                createUniqueIdConstraintFor(schema, label, GraphPropertyKey.STATION_ID);
+//                schema.indexFor(label).on(GraphPropertyKey.ROUTE_ID.getText()).create();
+//            });
+
+            schema.indexFor(GraphLabel.STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
+            createUniqueIdConstraintFor(schema, GraphLabel.STATION, GraphPropertyKey.STATION_ID);
 
             createUniqueIdConstraintFor(schema, GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);
             schema.indexFor(GraphLabel.ROUTE_STATION).on(GraphPropertyKey.STATION_ID.getText()).create();

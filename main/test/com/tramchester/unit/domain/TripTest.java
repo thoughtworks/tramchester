@@ -45,7 +45,7 @@ class TripTest {
         Trip tripA = new Trip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));
         Route busRoute = new Route(StringIdFor.createId("busRouteId"), "busRouteCode", "busRouteName",
-                new Agency(DataSourceID.TFGM(), StringIdFor.createId("BUS"), "agencyName"),
+                new Agency(DataSourceID.tfgm, StringIdFor.createId("BUS"), "agencyName"),
                 TransportMode.Bus);
         Trip tripB = new Trip(StringIdFor.createId("tripId"), "headSign", service, busRoute);
         assertFalse(TransportMode.isTram(tripB));

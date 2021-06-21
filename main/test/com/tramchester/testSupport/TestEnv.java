@@ -72,13 +72,13 @@ public class TestEnv {
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100053338";
 
-    private static final Agency MET = new Agency(DataSourceID.TFGM(), Agency.METL, "Metrolink");
-    public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.GBRail(),
+    private static final Agency MET = new Agency(DataSourceID.tfgm, Agency.METL, "Metrolink");
+    public static final Agency ArrivaTrainsWales = new Agency(DataSourceID.gbRail,
             StringIdFor.createId("AW"), "Arriva Trains Wales");
 
-    public static final Agency StagecoachManchester = new Agency(DataSourceID.TFGM(),
+    public static final Agency StagecoachManchester = new Agency(DataSourceID.tfgm,
             StringIdFor.createId("SCMN"), "Stagecoach Manchester");
-    public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.TFGM(),
+    public static final Agency WarringtonsOwnBuses = new Agency(DataSourceID.tfgm,
             StringIdFor.createId("WBTR"), "Warrington's Own Buses");
 
     public static final String BACKUP_TIMETABLE_URL = "https://tramchester2dist.s3.eu-west-1.amazonaws.com/1981/tfgm_data.zip";

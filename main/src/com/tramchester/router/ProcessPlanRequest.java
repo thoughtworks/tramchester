@@ -156,12 +156,13 @@ public class ProcessPlanRequest {
         if (stationRepository.hasStationId(stationId)) {
             return stationRepository.getStationById(stationId);
         }
+        // failed, now try composite ID
         CompositeId<Station> compositeId = CompositeId.parse(text);
         if (stationRepository.hasStationId(compositeId)) {
             return stationRepository.getStationById(compositeId);
         }
 
-        String msg = "Unable to find " + diagnostic + " station from id: "+ text;
+        String msg = "Unable to find " + diagnostic + " station from id: " + text;
         logger.warn(msg);
         throw new RuntimeException(msg);
     }

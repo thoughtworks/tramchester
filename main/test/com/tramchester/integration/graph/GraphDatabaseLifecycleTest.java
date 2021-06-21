@@ -31,8 +31,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GraphDatabaseLifecycleTest {
 
-    private static final DataSourceID SRC_1_NAME = new DataSourceID("src1");
-    private static final DataSourceID SRC_2_NAME = new DataSourceID("src2");
+    private static final DataSourceID SRC_1_NAME = DataSourceID.gbRail;
+    private static final DataSourceID SRC_2_NAME = DataSourceID.tfgm;
+
     private static final String VERSION_1_VALID = "version1";
     private static final String VERSION_2_VALID = "version21";
     private static final int SHUTDOWN_TIMEOUT_MILLI = 100;
@@ -122,7 +123,6 @@ class GraphDatabaseLifecycleTest {
         // query node gone, fresh DB
         assertEquals(0, countNodeType(GraphLabel.QUERY_NODE).intValue());
     }
-
 
     @Test
     void shouldLoadExistingIfVersionPresentWithCorrectVersionInDB() {

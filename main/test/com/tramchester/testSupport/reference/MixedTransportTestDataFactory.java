@@ -59,7 +59,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     }
 
     private static final Route FERRY_ROUTE = new Route(StringIdFor.createId("FER:42:C"), "42", "Lakes",
-            new Agency(DataSourceID.GBRail(), StringIdFor.createId("FER"), "ferryAgency"), TransportMode.Ferry);
+            new Agency(DataSourceID.gbRail, StringIdFor.createId("FER"), "ferryAgency"), TransportMode.Ferry);
 
     private void populateTestData(TransportDataContainer container) {
         Route routeA = BusRoutesForTesting.AIR_TO_BUXTON;
@@ -261,7 +261,8 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                     LocalDate.of(2016, 6, 30), "version");
 
             Map<DataSourceID, FeedInfo> result = new HashMap<>();
-            result.put(new DataSourceID("TransportDataForTest"), info);
+            //result.put(new DataSourceID("TransportDataForTest"), info);
+            result.put(DataSourceID.unknown, info);
             return result;
         }
 

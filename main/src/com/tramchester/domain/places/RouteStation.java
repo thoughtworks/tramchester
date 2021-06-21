@@ -1,9 +1,6 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.MixedCompositeId;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -106,6 +103,11 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, Locatio
     @Override
     public LocationType getLocationType() {
         return LocationType.RouteStation;
+    }
+
+    @Override
+    public DataSourceID getDataSourceID() {
+        return station.getDataSourceID();
     }
 
     @Override

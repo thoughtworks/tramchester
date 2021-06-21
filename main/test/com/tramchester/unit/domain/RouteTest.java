@@ -18,7 +18,7 @@ class RouteTest {
         Assertions.assertTrue(TransportMode.isTram(route));
 
         route = new Route(StringIdFor.createId("idB"),"code","name",
-                new Agency(DataSourceID.TFGM(), StringIdFor.createId("GMS"), "agencyName"),
+                new Agency(DataSourceID.tfgm, StringIdFor.createId("GMS"), "agencyName"),
                 TransportMode.Bus);
         Assertions.assertFalse(TransportMode.isTram(route));
     }

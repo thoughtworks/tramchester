@@ -63,7 +63,7 @@ public class Interchanges implements InterchangeRepository {
         logger.info("Starting");
         Set<TransportMode> enabledModes = config.getTransportModes();
 
-        enabledModes.forEach(mode -> {
+        enabledModes.stream().filter(this::discoveryEnabled).forEach(mode -> {
             int linkThreshhold = getLinkThreshhold(mode);
             populateInterchangesFor(mode, linkThreshhold);
             addCompositeStations(mode, 3); // 3 otherwise all 'pairs' of stations on single routes included
@@ -77,6 +77,13 @@ public class Interchanges implements InterchangeRepository {
         }
 
         logger.info("started");
+    }
+
+    private boolean discoveryEnabled(TransportMode mode) {
+        return switch (mode) {
+            case Tram, Bus, Train, Ferry, Subway -> true;
+            case RailReplacementBus, Connect, NotSet, Walk -> false;
+        };
     }
 
     private void populateInterchangesFor(TransportMode mode, int linkThreshhold) {
@@ -113,12 +120,10 @@ public class Interchanges implements InterchangeRepository {
     }
 
     private int getLinkThreshhold(TransportMode mode) {
-        // todo into config? Per datasource & transport mode?
+        // todo into config? Per datasource & transport mode? Bus 2??
         return switch (mode) {
-            case Bus -> 2;
-            case Tram -> 3;
-            case Train -> 3;
-            case Ferry -> 2;
+            case Bus, Ferry -> 2;
+            case Tram, Subway, Train -> 3;
             default -> throw new RuntimeException("Todo for " + mode);
         };
     }

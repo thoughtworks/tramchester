@@ -78,10 +78,10 @@ public class TransportDataStreams implements Iterable<TransportDataSource> {
     }
 
     private TransportEntityFactory getEntityFactoryFor(GTFSSourceConfig sourceConfig) {
-        DataSourceID sourceName = new DataSourceID(sourceConfig.getName());
-        if (DataSourceID.TFGM().equals(sourceName)) {
+        DataSourceID sourceID = DataSourceID.valueOf(sourceConfig.getName());
+        if (DataSourceID.tfgm == sourceID) {
             return new TransportEntityFactoryForTFGM(naptanRespository);
-        } else if (DataSourceID.GBRail().equals(sourceName)) {
+        } else if (DataSourceID.gbRail == sourceID) {
             return new TransportEntityFactoryForGBRail();
         } else {
             throw new RuntimeException("No entity factory is defined for " + sourceConfig.getName());

@@ -83,7 +83,7 @@ class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetFeedInfo() {
-        FeedInfo result = transportData.getFeedInfos().get(DataSourceID.TFGM());
+        FeedInfo result = transportData.getFeedInfos().get(DataSourceID.tfgm);
         assertEquals("https://www.tfgm.com", result.getPublisherUrl());
     }
 
@@ -280,8 +280,7 @@ class TransportDataFromFilesTramTest {
         assertEquals( "1", platformOne.getPlatformNumber());
         assertEquals( "Altrincham platform 1", platformOne.getName());
 
-        // naptan load is disabled for trams
-        // assertEquals("Altrincham", station.getArea());
+        assertEquals(DataSourceID.tfgm, station.getDataSourceID());
     }
 
     @Test

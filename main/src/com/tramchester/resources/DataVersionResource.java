@@ -42,7 +42,7 @@ public class DataVersionResource {
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
         Map<DataSourceID, FeedInfo> map = providesFeedInfo.getFeedInfos();
-        FeedInfo feedinfo = map.get(DataSourceID.TFGM());
+        FeedInfo feedinfo = map.get(DataSourceID.tfgm);
 
         if (feedinfo==null) {
             logger.error("No feedinfo found for tfgm");

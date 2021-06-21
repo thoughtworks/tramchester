@@ -1,51 +1,30 @@
 package com.tramchester.domain;
 
-public class DataSourceID {
-    private static final DataSourceID internal = new DataSourceID("internal");
-    private static final DataSourceID tfgm = new DataSourceID("tfgm");
-    private static final DataSourceID gbRail = new DataSourceID("gb-rail");
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    private final String name;
+public enum DataSourceID {
+    internal, // for walks, MyLocation, etc
+    tfgm,
+    gbRail,
+    postcode,
+    unknown;
 
-    public DataSourceID(String name) {
-        this.name = name;
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceID.class);
+
+    public static DataSourceID findOrUnknown(String name) {
+        try {
+            return valueOf(name);
+        }
+        catch (IllegalArgumentException exception) {
+            // TODO Rethrow as Runtime ??
+            logger.error("Unknown DataSourceId " + name, exception);
+            return unknown;
+        }
     }
 
-    public static DataSourceID Internal() {
-        return internal;
-    }
-
-    public static DataSourceID TFGM() {
-        return tfgm;
-    }
-
-    public static DataSourceID GBRail() {
-        return gbRail;
-    }
-
+    @Deprecated
     public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return "DataSourceName{" +
-                "name='" + name + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DataSourceID that = (DataSourceID) o;
-
-        return name.equals(that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
+        return name();
     }
 }

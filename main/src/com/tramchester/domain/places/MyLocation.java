@@ -86,6 +86,11 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
+    public DataSourceID getDataSourceID() {
+        return DataSourceID.internal;
+    }
+
+    @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.WALK_ID;
     }

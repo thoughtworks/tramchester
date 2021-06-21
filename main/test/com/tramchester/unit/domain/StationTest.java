@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class StationTest {
 
     @Test
-    void testShouldSetTramNameCorrecly() {
+    void testShouldCreateCorrecly() {
         Station tramStation = TestStation.forTest("id", "area", "stopName",
                 new LatLong(-2.0, 2.3), Tram);
 
@@ -29,7 +30,7 @@ class StationTest {
         assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         assertEquals(2.3, tramStation.getLatLong().getLon(),0);
         assertEquals("area", tramStation.getArea());
-        //assertTrue(TransportMode.isTram(tramStation));
+        assertEquals(DataSourceID.tfgm, tramStation.getDataSourceID());
     }
 
     @Test

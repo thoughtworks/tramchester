@@ -26,7 +26,7 @@ public class RailTestDataSourceConfig implements GTFSSourceConfig {
 
     @Override
     public String getName() {
-        return "gb-rail";
+        return "gbRail";
     }
 
     @Override

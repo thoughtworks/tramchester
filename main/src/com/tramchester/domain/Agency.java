@@ -18,7 +18,7 @@ public class Agency implements HasId<Agency>, GraphProperty {
     public static final IdFor<Agency> METL = StringIdFor.createId("METL");
 
     static {
-        Walking = new Agency(DataSourceID.Internal(), StringIdFor.createId("Walking"), "Walking");
+        Walking = new Agency(DataSourceID.internal, StringIdFor.createId("Walking"), "Walking");
     }
 
     public Agency(DataSourceID dataSourceID, IdFor<Agency> agencyId, String agencyName) {

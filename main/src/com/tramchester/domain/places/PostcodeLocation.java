@@ -1,5 +1,6 @@
 package com.tramchester.domain.places;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.HasCaseInsensitiveId;
@@ -88,6 +89,11 @@ public class PostcodeLocation implements Location<PostcodeLocation>, HasCaseInse
     @Override
     public LocationType getLocationType() {
         return LocationType.Postcode;
+    }
+
+    @Override
+    public DataSourceID getDataSourceID() {
+        return DataSourceID.postcode;
     }
 
     @Override

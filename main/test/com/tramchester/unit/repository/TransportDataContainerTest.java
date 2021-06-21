@@ -21,9 +21,9 @@ class TransportDataContainerTest {
         LocalDateTime baseTime = providesLocalNow.getDateTime();
 
         TransportDataContainer container = new TransportDataContainer(providesLocalNow, "local");
-        DataSourceInfo dataSourceA = new DataSourceInfo(new DataSourceID("A"), "v1", baseTime.plusHours(1), Collections.singleton(Tram));
-        DataSourceInfo dataSourceB = new DataSourceInfo(new DataSourceID("B"), "v1", baseTime.minusHours(1), Collections.singleton(Bus));
-        DataSourceInfo dataSourceC = new DataSourceInfo(new DataSourceID("C"), "v1", baseTime, Collections.singleton(Tram));
+        DataSourceInfo dataSourceA = new DataSourceInfo(DataSourceID.tfgm, "v1", baseTime.plusHours(1), Collections.singleton(Tram));
+        DataSourceInfo dataSourceB = new DataSourceInfo(DataSourceID.tfgm, "v1", baseTime.minusHours(1), Collections.singleton(Bus));
+        DataSourceInfo dataSourceC = new DataSourceInfo(DataSourceID.gbRail, "v1", baseTime, Collections.singleton(Tram));
 
         container.addDataSourceInfo(dataSourceA);
         container.addDataSourceInfo(dataSourceB);

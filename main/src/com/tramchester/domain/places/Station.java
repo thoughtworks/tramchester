@@ -22,6 +22,7 @@ public class Station implements Location<Station> {
     private final Set<Platform> platforms;
     private final Set<Route> servesRoutes;
     private final Set<Agency> servesAgencies;
+    private final DataSourceID dataSourceID;
 
     public Station(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
         this.gridPosition = gridPosition;
@@ -33,6 +34,8 @@ public class Station implements Location<Station> {
         this.name = stationName;
         this.latLong = latLong;
         this.area = area;
+
+        dataSourceID = DataSourceID.unknown;
     }
 
     @Override
@@ -77,6 +80,11 @@ public class Station implements Location<Station> {
     @Override
     public LocationType getLocationType() {
         return LocationType.Station;
+    }
+
+    @Override
+    public DataSourceID getDataSourceID() {
+        return dataSourceID;
     }
 
     public Set<Platform> getPlatformsForRoute(Route route) {

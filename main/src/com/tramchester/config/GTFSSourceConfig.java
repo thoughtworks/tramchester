@@ -1,6 +1,8 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -8,11 +10,17 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@JsonDeserialize(as= GTFSSourceAppConfig.class)
+@JsonDeserialize(as = GTFSSourceAppConfig.class)
 public interface GTFSSourceConfig extends HasDataPath {
 
     // name for diag, logging and entity factory selection
     String getName();
+
+    // TODO Best way to deal with this??
+    @JsonIgnore
+    default DataSourceID getDataSourceId() {
+        return DataSourceID.findOrUnknown(getName());
+    }
 
     // expect to see feedinfo.txt for this data set
     boolean getHasFeedInfo();
@@ -36,5 +44,6 @@ public interface GTFSSourceConfig extends HasDataPath {
                 map(TransportMode::fromGTFS).
                 collect(Collectors.toSet());
     }
+
 
 }

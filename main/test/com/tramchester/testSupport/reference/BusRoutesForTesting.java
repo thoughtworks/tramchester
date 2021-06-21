@@ -24,7 +24,7 @@ public class BusRoutesForTesting {
             "Alty to Stockport", WarringtonsOwnBuses, Bus);
 
     @Deprecated
-    public static final Agency HIGH_PEAK_BUSES = new Agency(DataSourceID.TFGM(), StringIdFor.createId("HGP"),
+    public static final Agency HIGH_PEAK_BUSES = new Agency(DataSourceID.tfgm, StringIdFor.createId("HGP"),
             "High Peak Buses");
 
     @Deprecated

@@ -386,7 +386,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
             GTFSTransportationType routeType = factory.getRouteType(routeData, agencyId);
 
             if (transportModes.contains(routeType)) {
-                DataSourceID dataSourceID = new DataSourceID(sourceConfig.getName());
+                DataSourceID dataSourceID = sourceConfig.getDataSourceId();
                 Agency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory) : allAgencies.get(agencyId);
 
                 Route route = factory.createRoute(routeType, routeData, agency, allStations);

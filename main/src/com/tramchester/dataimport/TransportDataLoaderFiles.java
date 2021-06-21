@@ -58,8 +58,8 @@ public class TransportDataLoaderFiles implements TransportDataLoader {
     @NotNull
     private DataSourceInfo createSourceInfoFrom(GTFSSourceConfig config) {
         LocalDateTime modTime = fetchFileModTime.getFor(config);
-        DataSourceID name = new DataSourceID(config.getName());
-        return new DataSourceInfo(name, modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), modTime,
+        DataSourceID dataSourceId = config.getDataSourceId();
+        return new DataSourceInfo(dataSourceId, modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), modTime,
                 TransportMode.fromGTFS(config.getTransportGTFSModes()));
     }
 
