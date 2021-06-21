@@ -22,16 +22,17 @@ graphDBConfig:
   maxHeapSize: 200m
 gtfsSourceConfig:
   -
-    name: gb-rail
+    name: gbRail
     dataPath: data/trains
     hasFeedInfo: false
     transportModes: [ train, bus, subway, ferry, replacementBus ]
     transportModesWithPlatforms: []
     noServices: []
     additionalInterchanges: []
+    compositeStationModes: []
 remoteSources:
   -
-    name: gb-rail
+    name: gbRail
     dataURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
     dataCheckURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
     dataPath: data/trains
@@ -42,6 +43,7 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/naptan
     filename: naptan_csv.zip
+cacheFolder: data/cacheTrains
 bounds:
   minEastings: 147588
   minNorthings: 30599

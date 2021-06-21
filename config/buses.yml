@@ -30,6 +30,7 @@ gtfsSourceConfig:
     transportModesWithPlatforms: []
     noServices: []
     additionalInterchanges: []
+    compositeStationModes: [ Bus ]
 remoteSources:
   -
     name: tfgm
@@ -44,11 +45,12 @@ remoteSources:
     dataPath: data/naptan
     filename: naptan_csv.zip
   -
-    name: postcodes
+    name: postcode
     dataURL: https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect
     dataCheckURL: ""
     dataPath: data/postcodes
     filename: codepo_gb.zip
+cacheFolder: data/cacheBuses
 bounds:
   minEastings: 112685
   minNorthings: 015490

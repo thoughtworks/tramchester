@@ -50,7 +50,7 @@ class BusStationsLocationsTest {
     void shouldGetAllStationsCloseToPiccGardens() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens.getLatLong(),
                 500, inMeters);
-        assertEquals(23, result.size());
+        assertEquals(24, result.size());
     }
 
     @Test

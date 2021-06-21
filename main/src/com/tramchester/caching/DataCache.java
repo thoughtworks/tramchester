@@ -131,12 +131,17 @@ public class DataCache {
 
     public <T> void loadInto(Cacheable<T> cacheable, Class<T> theClass)  {
         if (ready) {
-            Path hintsFilePath = getPathFor(cacheable);
-            logger.info("Loading " + hintsFilePath.toAbsolutePath()  + " to " + theClass.getSimpleName());
+            Path cacheFile = getPathFor(cacheable);
+            logger.info("Loading " + cacheFile.toAbsolutePath()  + " to " + theClass.getSimpleName());
 
-            DataLoader<T> loader = new DataLoader<T>(hintsFilePath, theClass, mapper);
+            DataLoader<T> loader = new DataLoader<T>(cacheFile, theClass, mapper);
             Stream<T> data = loader.load();
-            cacheable.loadFrom(data);
+            try {
+                cacheable.loadFrom(data);
+            } catch (CacheLoadException exception) {
+                throw new RuntimeException("Failed to load from cache for "
+                        + cacheFile + " and " + theClass.getSimpleName(), exception);
+            }
             data.close();
         } else {
             throw new RuntimeException("Attempt to load from " + cacheable.getFilename() + " for " + theClass.getSimpleName()
@@ -145,9 +150,16 @@ public class DataCache {
 
     }
 
+    public static class CacheLoadException extends Exception {
+
+        public CacheLoadException(String msg) {
+            super(msg);
+        }
+    }
+
     public interface Cacheable<T> {
         void cacheTo(DataSaver<T> saver);
         String getFilename();
-        void loadFrom(Stream<T> stream);
+        void loadFrom(Stream<T> stream) throws CacheLoadException;
     }
 }

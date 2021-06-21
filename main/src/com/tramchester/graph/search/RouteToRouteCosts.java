@@ -63,23 +63,30 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
    @PostConstruct
     public void start() {
         logger.info("starting");
-        if (dataCache.has(index) && dataCache.has(costs)) {
-            dataCache.loadInto(index, RouteIndexData.class);
-            dataCache.loadInto(costs, RouteMatrixData.class);
+        if (graphFilter.isFiltered()) {
+           logger.warn("Filtering is enabled, skipping all caching");
+           buildIndexAndCostMatrix();
         } else {
-            try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
-                index.populateFrom(routeRepository);
-                populateCosts();
-            }
-            if (graphFilter.isFiltered()) {
-                logger.warn("Filtering is enabled, not caching results");
+            if (dataCache.has(index) && dataCache.has(costs)) {
+                dataCache.loadInto(index, RouteIndexData.class);
+                dataCache.loadInto(costs, RouteMatrixData.class);
             } else {
+                buildIndexAndCostMatrix();
+
                 dataCache.save(index, RouteIndexData.class);
                 dataCache.save(costs, RouteMatrixData.class);
             }
         }
+
         logger.info("started");
    }
+
+    private void buildIndexAndCostMatrix() {
+        try (Timing ignored = new Timing(logger, "RouteToRouteCosts")) {
+            index.populateFrom(routeRepository);
+            populateCosts();
+        }
+    }
 
     private void populateCosts() {
         List<Route> routes = new ArrayList<>(routeRepository.getRoutes());
@@ -228,9 +235,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private static class Index implements DataCache.Cacheable<RouteIndexData> {
         private final Map<IdFor<Route>, Integer> map;
+        private final int numberOfRoutes;
 
-        private Index(int size) {
-            map = new HashMap<>(size);
+        private Index(int numberOfRoutes) {
+            map = new HashMap<>(numberOfRoutes);
+            this.numberOfRoutes = numberOfRoutes;
         }
 
         public void populateFrom(RouteRepository routeRepository) {
@@ -275,9 +284,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @Override
-        public void loadFrom(Stream<RouteIndexData> stream) {
+        public void loadFrom(Stream<RouteIndexData> stream) throws DataCache.CacheLoadException {
             logger.info("Loading from cache");
             stream.forEach(item -> map.put(item.getRouteId(), item.getIndex()));
+            if (map.size()!=numberOfRoutes) {
+                throw new DataCache.CacheLoadException("Mismatch on number of routes, got " + map.size() +
+                        " expected " + numberOfRoutes);
+            }
         }
     }
 
@@ -362,14 +375,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @Override
-        public void loadFrom(Stream<RouteMatrixData> stream) {
-            stream.forEach(item -> {
-                int source = item.getSource();
-                List<Integer> dest = item.getDestinations();
-                for (int j = 0; j < numRoutes; j++) {
-                    array[source][j] = dest.get(j).byteValue();
-                }
-            });
+        public void loadFrom(Stream<RouteMatrixData> stream) throws DataCache.CacheLoadException {
+            AtomicInteger loadedOk = new AtomicInteger(0);
+
+            stream.filter(item -> item.getDestinations().size()==numRoutes).
+                    forEach(item -> {
+                        int source = item.getSource();
+                        List<Integer> dest = item.getDestinations();
+                        for (int j = 0; j < numRoutes; j++) {
+                            array[source][j] = dest.get(j).byteValue();
+                        }
+                        loadedOk.incrementAndGet();
+                    });
+
+            if (loadedOk.get() != numRoutes) {
+                throw new DataCache.CacheLoadException("Could not load all rows, mismatch on number routes, loaded " +
+                        loadedOk.get() + " expected " + numRoutes);
+            }
         }
     }
 

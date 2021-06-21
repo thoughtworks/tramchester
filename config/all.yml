@@ -32,8 +32,9 @@ gtfsSourceConfig:
     noServices: []
     additionalInterchanges: [ "9400ZZMACRN", "9400ZZMASTP", "9400ZZMAPGD", "9400ZZMATRA", "9400ZZMASTW",
                               "9400ZZMAVIC", "9400ZZMAGMX", "9400ZZMAPIC" ]
+    compositeStationModes: [ Bus ]
   -
-    name: rail
+    name: gbRail
     dataPath: data/trains
     hasFeedInfo: false
     transportModes: [ train ]
@@ -42,7 +43,7 @@ gtfsSourceConfig:
     additionalInterchanges: []
 remoteSources:
   -
-    name: gb-rail
+    name: gbRail
     dataURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
     dataCheckURL: https://s3.eu-west-2.amazonaws.com/feeds.planar.network/gb-rail-latest.zip
     dataPath: data/trains
@@ -59,6 +60,7 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/naptan
     filename: naptan_csv.zip
+cacheFolder: data/cacheAll
 bounds:
   minEastings: 112685
   minNorthings: 015490

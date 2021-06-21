@@ -25,6 +25,7 @@ gtfsSourceConfig:
     noServices: []
     additionalInterchanges: [ "9400ZZMACRN", "9400ZZMASTP", "9400ZZMAPGD", "9400ZZMATRA", "9400ZZMASTW",
                               "9400ZZMAVIC", "9400ZZMAGMX", "9400ZZMAPIC" ]
+    compositeStationModes: []
 remoteSources:
   -
     name: tfgm
@@ -32,6 +33,7 @@ remoteSources:
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     filename: tfgm_data.zip
+cacheFolder: data/cache
 bounds:
   minEastings: 333211
   minNorthings: 373264

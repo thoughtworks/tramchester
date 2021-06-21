@@ -109,6 +109,12 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     }
 
     @Test
+    void shouldFindRoutesForTest() {
+        assertNotNull(altyToKnutsford);
+        assertNotNull(knutsfordToAlty);
+    }
+
+    @Test
     void shouldHaveJourneyAltyToKnutsford() {
         Station start = findStation("Altrincham Interchange");
         Station end = compositeStationRepository.findByName("Bus Station");
