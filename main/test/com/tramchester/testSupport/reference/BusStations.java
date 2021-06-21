@@ -1,5 +1,6 @@
 package com.tramchester.testSupport.reference;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -44,7 +45,7 @@ public enum BusStations implements TestStations {
 
     BusStations(String id, String area, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Bus);
+        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Bus, DataSourceID.tfgm);
     }
 
     public static Station of(BusStations enumValue) {

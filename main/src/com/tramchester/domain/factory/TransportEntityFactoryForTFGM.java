@@ -4,6 +4,7 @@ import com.tramchester.dataimport.NaPTAN.StopsData;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -33,6 +34,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
+    public DataSourceID getDataSourceId() {
+        return DataSourceID.tfgm;
+    }
+
+    @Override
     public Route createRoute(GTFSTransportationType routeType, RouteData routeData, Agency agency, IdMap<Station> allStations) {
 
         IdFor<Route> routeId = createRouteId(routeData.getId());
@@ -48,7 +54,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         // NOTE: Tram data has unique positions for each platform
         // TODO What is the right position to use for a tram station?
         final String stationName = createStationName(stopData);
-        final Station station = new Station(stationId, area, workAroundName(stationName), stopData.getLatLong(), position);
+        final Station station = new Station(stationId, area, workAroundName(stationName), stopData.getLatLong(), position,
+                getDataSourceId());
 
         // metrolink tram station, has platforms
         addPlatformIfMissing(stopData, station);

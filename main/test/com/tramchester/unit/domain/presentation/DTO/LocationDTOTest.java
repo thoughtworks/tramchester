@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,7 +14,6 @@ import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +28,8 @@ class LocationDTOTest {
     @Test
     void shouldCreateDTOAsExpected() {
 
-        Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham", new LatLong(1,1), TransportMode.Tram);
+        Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham",
+                new LatLong(1,1), TransportMode.Tram, DataSourceID.tfgm);
 
         testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA")));
         testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB")));

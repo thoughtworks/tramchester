@@ -23,7 +23,7 @@ class StationTest {
     @Test
     void testShouldCreateCorrecly() {
         Station tramStation = TestStation.forTest("id", "area", "stopName",
-                new LatLong(-2.0, 2.3), Tram);
+                new LatLong(-2.0, 2.3), Tram, DataSourceID.tfgm);
 
         assertEquals("stopName", tramStation.getName());
         assertEquals(StringIdFor.createId("id"), tramStation.getId());
@@ -36,7 +36,7 @@ class StationTest {
     @Test
     void testShouldSetBusNameCorrecly() {
         Station busStation = TestStation.forTest("id", "area", "stopName",
-                new LatLong(-2.0, 2.3), TransportMode.Bus);
+                new LatLong(-2.0, 2.3), TransportMode.Bus, DataSourceID.tfgm);
 
         assertEquals("stopName", busStation.getName());
         assertEquals(StringIdFor.createId("id"), busStation.getId());
@@ -49,7 +49,7 @@ class StationTest {
     @Test
     void shouldHaveCorrectTransportModes() {
         Station station = new Station(StringIdFor.createId("stationId"), "area", "name", TestEnv.nearPiccGardens,
-                CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens));
+                CoordinateTransforms.getGridPosition(TestEnv.nearPiccGardens), DataSourceID.tfgm);
 
         assertTrue(station.getTransportModes().isEmpty());
 

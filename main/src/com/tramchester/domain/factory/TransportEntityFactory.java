@@ -19,6 +19,8 @@ public abstract class TransportEntityFactory {
     public TransportEntityFactory() {
     }
 
+    public abstract DataSourceID getDataSourceId();
+
     public Agency createAgency(DataSourceID dataSourceID, AgencyData agencyData) {
         return new Agency(dataSourceID, agencyData.getId(), agencyData.getName());
     }
@@ -47,7 +49,7 @@ public abstract class TransportEntityFactory {
 
         final String area = "";
 
-        return new Station(stationId, area, stopData.getName(), stopData.getLatLong(), position);
+        return new Station(stationId, area, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
     }
 
     public RouteStation createRouteStation(Station station, Route route) {

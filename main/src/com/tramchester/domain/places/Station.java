@@ -24,8 +24,9 @@ public class Station implements Location<Station> {
     private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
 
-    public Station(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition) {
+    public Station(IdFor<Station> id, String area, String stationName, LatLong latLong, GridPosition gridPosition, DataSourceID dataSourceID) {
         this.gridPosition = gridPosition;
+        this.dataSourceID = dataSourceID;
         platforms = new HashSet<>();
         servesRoutes = new HashSet<>();
         servesAgencies = new HashSet<>();
@@ -34,8 +35,6 @@ public class Station implements Location<Station> {
         this.name = stationName;
         this.latLong = latLong;
         this.area = area;
-
-        dataSourceID = DataSourceID.unknown;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.tramchester.domain.factory;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
@@ -21,6 +22,11 @@ public class TransportEntityFactoryForGBRail extends TransportEntityFactory {
 
     public TransportEntityFactoryForGBRail() {
         super();
+    }
+
+    @Override
+    public DataSourceID getDataSourceId() {
+        return DataSourceID.gbRail;
     }
 
     @Override

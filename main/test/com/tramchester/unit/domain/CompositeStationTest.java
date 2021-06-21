@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.CompositeId;
@@ -23,11 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CompositeStationTest {
 
+    private final DataSourceID dataSourceID = DataSourceID.tfgm;
+
     @Test
     void shouldHaveCorrectValuesForOneStation() {
         LatLong latLong = new LatLong(-2.0, 2.3);
         Station stationA = TestStation.forTest("id", "area", "stopName",
-                latLong, Tram);
+                latLong, Tram, dataSourceID);
 
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoute(route);
@@ -63,14 +66,14 @@ class CompositeStationTest {
     @Test
     void shouldHaveCorrectValuesForTwoStation() {
         Station stationA = TestStation.forTest("idA", "areaA", "stopNameA",
-                new LatLong(2, 4), Tram);
+                new LatLong(2, 4), Tram, dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"));
         stationA.addRoute(routeA);
         Platform platformA = new Platform("platformIdA", "platformNameA",  new LatLong(2, 4));
         stationA.addPlatform(platformA);
 
         Station stationB = TestStation.forTest("idB", "areaB", "stopNameB",
-                new LatLong(4, 8), Bus);
+                new LatLong(4, 8), Bus, dataSourceID);
         Route routeB = new Route(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRoute(routeB);
         stationB.addRoute(routeA);

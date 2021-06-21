@@ -1,5 +1,6 @@
 package com.tramchester.testSupport.reference;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
@@ -94,7 +95,7 @@ public enum TramStations implements TestStations {
 
     TramStations(String id, String area, String name, LatLong latlong) {
         @NotNull GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram);
+        this.station = new TestStation(id, area, name, latlong, grid, TransportMode.Tram, DataSourceID.tfgm);
     }
 
     @Override

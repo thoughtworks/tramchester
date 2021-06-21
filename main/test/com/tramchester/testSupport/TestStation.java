@@ -18,15 +18,15 @@ public class TestStation extends Station {
     private boolean platformsAdded;
     private boolean routesAdded;
 
-    public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode initialMode) {
-        super(StringIdFor.createId(id), area, stationName, latLong, gridPosition);
+    public TestStation(String id, String area, String stationName, LatLong latLong, GridPosition gridPosition, TransportMode initialMode, DataSourceID dataSourceID) {
+        super(StringIdFor.createId(id), area, stationName, latLong, gridPosition, dataSourceID);
         this.initialMode = initialMode;
         platformsAdded = false;
         routesAdded = false;
     }
 
-    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode) {
-        return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode);
+    public static Station forTest(String id, String area, String stationName, LatLong latLong, TransportMode mode, DataSourceID dataSourceID) {
+        return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
     }
 
     private void guardPlatformsAddedIntent() {

@@ -1,5 +1,6 @@
 package com.tramchester.unit.geo;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -43,7 +44,8 @@ class SortsPositionsTest {
         stationNearShudehill = dataForTest.getInterchange();   // near Shudehill
         StationNearStockportBus = dataForTest.getFifthStation();  // nearStockportBus
 
-        alsoNearAlty = TestStation.forTest("ALSO1122", "area2", "alsoNearAltr", TestEnv.nearAltrincham, TransportMode.Tram);
+        alsoNearAlty = TestStation.forTest("ALSO1122", "area2", "alsoNearAltr",
+                TestEnv.nearAltrincham, TransportMode.Tram, DataSourceID.tfgm);
         dataForTest.addStation(alsoNearAlty);
     }
 
