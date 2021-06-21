@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport.tfgm;
 
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
@@ -39,5 +40,10 @@ public class TFGMRemoteDataSourceConfig implements RemoteDataSourceConfig {
     @Override
     public String getName() {
         return "intergationTestRemoteSource";
+    }
+
+    @Override
+    public DataSourceID getDataSourceId() {
+        return DataSourceID.tfgm;
     }
 }

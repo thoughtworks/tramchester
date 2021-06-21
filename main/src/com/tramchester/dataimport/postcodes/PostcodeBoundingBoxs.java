@@ -5,6 +5,7 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.PostcodeHintData;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
@@ -18,8 +19,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.tramchester.dataimport.postcodes.PostcodeDataImporter.POSTCODES_CONFIG_NAME;
 
 @LazySingleton
 public class PostcodeBoundingBoxs {
@@ -37,7 +36,7 @@ public class PostcodeBoundingBoxs {
     public PostcodeBoundingBoxs(TramchesterConfig config, DataCache dataCache) {
         this.dataCache = dataCache;
         postcodeBounds = new PostcodeBounds();
-        enabled = config.hasDataSourceConfig(POSTCODES_CONFIG_NAME);
+        enabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
     }
 
     @PreDestroy

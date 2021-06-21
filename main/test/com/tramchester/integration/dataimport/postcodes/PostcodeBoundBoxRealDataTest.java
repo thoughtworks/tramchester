@@ -7,6 +7,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.*;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
@@ -48,7 +49,7 @@ public class PostcodeBoundBoxRealDataTest {
     @BeforeEach
     void beforeEachTestRuns() {
         boundingBoxs = componentContainer.get(PostcodeBoundingBoxs.class);
-        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig("postcodes");
+        RemoteDataSourceConfig sourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
 
         // force creation of hints file
         PostcodeRepository repository = componentContainer.get(PostcodeRepository.class);

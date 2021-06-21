@@ -23,29 +23,40 @@ import java.util.List;
 public class TransportDataLoaderFiles implements TransportDataLoader {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataLoaderFiles.class);
 
-    private final TramchesterConfig config;
+    private final TramchesterConfig tramchesterConfig;
     private final List<TransportDataReader> dataReaders;
     private final FetchFileModTime fetchFileModTime;
     private final CsvMapper mapper;
 
     @Inject
-    public TransportDataLoaderFiles(TramchesterConfig config, FetchFileModTime fetchFileModTime, CsvMapper mapper) {
+    public TransportDataLoaderFiles(TramchesterConfig tramchesterConfig, FetchFileModTime fetchFileModTime, CsvMapper mapper) {
         this.fetchFileModTime = fetchFileModTime;
         this.mapper = mapper;
         dataReaders = new ArrayList<>();
-        this.config = config;
+        this.tramchesterConfig = tramchesterConfig;
     }
     
     @PostConstruct
     public void start() {
         logger.info("start");
-        config.getGTFSDataSource().forEach(config -> {
-            logger.info("Creating reader for config " + config.getName());
-            Path path = config.getDataPath(); //.resolve(config.getUnzipPath());
-            DataSourceInfo dataSourceInfo = createSourceInfoFrom(config);
+        tramchesterConfig.getGTFSDataSource().forEach(sourceConfig -> {
+            logger.info("Creating reader for config " + sourceConfig.getName());
+            Path path = sourceConfig.getDataPath();
+
+            final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
+            if (tramchesterConfig.hasRemoteDataSourceConfig(dataSourceId)) {
+                Path remoteLoadPath = tramchesterConfig.getDataRemoteSourceConfig(dataSourceId).getDataPath();
+                if (!remoteLoadPath.equals(path)) {
+                    throw new RuntimeException("Pass mismatch for gtfs and remote source configs: " + dataSourceId);
+                }
+            } else {
+                logger.warn("Not remote source config found for " + dataSourceId);
+            }
+
+            DataSourceInfo dataSourceInfo = createSourceInfoFrom(sourceConfig);
 
             DataLoaderFactory factory = new DataLoaderFactory(path, mapper);
-            TransportDataReader transportLoader = new TransportDataReader(dataSourceInfo, factory, config);
+            TransportDataReader transportLoader = new TransportDataReader(dataSourceInfo, factory, sourceConfig);
             dataReaders.add(transportLoader);
         });
         logger.info("started");

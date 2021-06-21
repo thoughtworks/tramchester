@@ -6,6 +6,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,6 @@ import java.util.stream.Stream;
  */
 @LazySingleton
 public class NaPTANDataImporter {
-    private static final String NAPTAN_CONFIG_NAME = "naptan";
     private static final Logger logger = LoggerFactory.getLogger(NaPTANDataImporter.class);
 
     private final TramchesterConfig config;
@@ -42,19 +42,19 @@ public class NaPTANDataImporter {
         logger.info("starting");
 
         if (!isEnabled()) {
-            logger.warn("Naptan is disabled, no config section found for " + NAPTAN_CONFIG_NAME);
+            logger.warn("Naptan is disabled, no config section found for " + DataSourceID.naptan);
             stream = Stream.empty();
             return;
         }
 
-        RemoteDataSourceConfig sourceConfig = config.getDataSourceConfig(NAPTAN_CONFIG_NAME);
+        RemoteDataSourceConfig sourceConfig = config.getDataRemoteSourceConfig(DataSourceID.naptan);
         loadForConfig(sourceConfig);
 
         logger.info("started");
     }
 
     public boolean isEnabled() {
-        return config.hasDataSourceConfig(NAPTAN_CONFIG_NAME);
+        return config.hasRemoteDataSourceConfig(DataSourceID.naptan);
     }
 
     private void loadForConfig(RemoteDataSourceConfig sourceConfig) {

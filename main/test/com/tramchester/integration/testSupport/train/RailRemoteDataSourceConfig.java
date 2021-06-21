@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport.train;
 
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.DataSourceID;
 
 import java.nio.file.Path;
 
@@ -36,5 +37,10 @@ public class RailRemoteDataSourceConfig implements RemoteDataSourceConfig {
     @Override
     public String getName() {
         return "gbRailIntegrationTest";
+    }
+
+    @Override
+    public DataSourceID getDataSourceId() {
+        return DataSourceID.gbRail;
     }
 }

@@ -27,7 +27,7 @@ public class PostCodeDatasourceConfig implements RemoteDataSourceConfig {
 
     @Override
     public String getName() {
-        return "postcodes";
+        return "postcode";
     }
 
 }

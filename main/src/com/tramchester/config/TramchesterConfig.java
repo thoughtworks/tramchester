@@ -1,5 +1,6 @@
 package com.tramchester.config;
 
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
@@ -103,14 +104,14 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
                 collect(Collectors.toSet());
     }
 
-    public RemoteDataSourceConfig getDataSourceConfig(String name) {
+    public RemoteDataSourceConfig getDataRemoteSourceConfig(DataSourceID dataSourceID) {
         return getRemoteDataSourceConfig().stream().
-                filter(config -> config.getName().equals(name)).
+                filter(config -> config.getDataSourceId()==dataSourceID).
                 findFirst().orElseThrow();
     }
 
-    public boolean hasDataSourceConfig(String name) {
-        return getRemoteDataSourceConfig().stream().anyMatch(config -> config.getName().equals(name));
+    public boolean hasRemoteDataSourceConfig(DataSourceID dataSourceID) {
+        return getRemoteDataSourceConfig().stream().anyMatch(config -> config.getDataSourceId()==dataSourceID);
     }
 
     // number of connections to make by walking

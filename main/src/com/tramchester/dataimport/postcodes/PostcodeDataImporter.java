@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -34,7 +35,6 @@ public class PostcodeDataImporter {
 
     private static final Logger logger = LoggerFactory.getLogger(PostcodeDataImporter.class);
     public static final String CSV = ".csv";
-    public static final String POSTCODES_CONFIG_NAME = "postcodes";
 
     private static final Path dataFolder = Paths.get("Data", "CSV");
 
@@ -57,7 +57,7 @@ public class PostcodeDataImporter {
         this.stationLocations = stationLocations;
         this.postcodeBounds = postcodeBounds;
 
-        this.enabled = config.hasDataSourceConfig(POSTCODES_CONFIG_NAME);
+        this.enabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
     }
 
     public List<PostcodeDataStream> loadLocalPostcodes() {
@@ -66,7 +66,7 @@ public class PostcodeDataImporter {
             return Collections.emptyList();
         }
 
-        RemoteDataSourceConfig dataSourceConfig = config.getDataSourceConfig(POSTCODES_CONFIG_NAME);
+        RemoteDataSourceConfig dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
         Path dataFilesDirectory = dataSourceConfig.getDataPath().resolve(dataFolder);
 
         logger.info("Load postcode files files from " + dataFilesDirectory.toAbsolutePath());
@@ -138,7 +138,7 @@ public class PostcodeDataImporter {
     }
 
     public LocalDateTime getTargetFolderModTime() {
-        RemoteDataSourceConfig dataSourceConfig = config.getDataSourceConfig(POSTCODES_CONFIG_NAME);
+        RemoteDataSourceConfig dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
         return fetchFileModTime.getFor(dataSourceConfig.getDataPath());
     }
 

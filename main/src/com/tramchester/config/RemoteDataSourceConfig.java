@@ -1,6 +1,8 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.tramchester.domain.DataSourceID;
 
 @JsonDeserialize(as=RemoteDataSourceAppConfig.class)
 public interface RemoteDataSourceConfig extends HasDataPath {
@@ -16,4 +18,10 @@ public interface RemoteDataSourceConfig extends HasDataPath {
 
     // useful name for data set
     String getName();
+
+    @JsonIgnore
+    default DataSourceID getDataSourceId() {
+        return DataSourceID.findOrUnknown(getName());
+    }
+
 }

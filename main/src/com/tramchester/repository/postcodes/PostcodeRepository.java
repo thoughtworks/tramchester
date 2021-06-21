@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.CaseInsensitiveId;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -20,8 +21,6 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.tramchester.dataimport.postcodes.PostcodeDataImporter.POSTCODES_CONFIG_NAME;
 
 @LazySingleton
 public class PostcodeRepository {
@@ -52,7 +51,7 @@ public class PostcodeRepository {
     public void start() {
         logger.info("starting");
 
-        if (!config.hasDataSourceConfig(POSTCODES_CONFIG_NAME)) {
+        if (!config.hasRemoteDataSourceConfig(DataSourceID.postcode)) {
             logger.warn("Not loading postcodes");
             return;
         }
