@@ -41,6 +41,7 @@ gtfsSourceConfig:
     transportModesWithPlatforms: []
     noServices: []
     additionalInterchanges: []
+    compositeStationModes: []
 remoteSources:
   -
     name: gbRail
@@ -62,10 +63,10 @@ remoteSources:
     filename: naptan_csv.zip
 cacheFolder: data/cacheAll
 bounds:
-  minEastings: 112685
-  minNorthings: 015490
-  maxEasting: 619307
-  maxNorthings: 1108843
+  minEastings: 333211
+  minNorthings: 373264
+  maxEasting: 414492
+  maxNorthings: 437779
 createNeighbours: true
 distanceToNeighboursKM: 0.2
 maxWait: 35

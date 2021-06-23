@@ -35,10 +35,10 @@ remoteSources:
     filename: tfgm_data.zip
 cacheFolder: data/cache
 bounds:
-  minEastings: 333211
-  minNorthings: 373264
-  maxEasting: 414492
-  maxNorthings: 437779
+  minEastings: 333200
+  minNorthings: 373250
+  maxEasting: 414500
+  maxNorthings: 437850
 liveData:
   dataUrl: https://api.tfgm.com/odata/Metrolinks
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}

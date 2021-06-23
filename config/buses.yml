@@ -52,10 +52,10 @@ remoteSources:
     filename: codepo_gb.zip
 cacheFolder: data/cacheBuses
 bounds:
-  minEastings: 112685
-  minNorthings: 015490
-  maxEasting: 619307
-  maxNorthings: 1108843
+  minEastings: 333200
+  minNorthings: 373250
+  maxEasting: 414500
+  maxNorthings: 437850
 instanceDataUrl: http://169.254.169.254
 createNeighbours: false
 distanceToNeighboursKM: 0.4
