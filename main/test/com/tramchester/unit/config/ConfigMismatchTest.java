@@ -3,6 +3,7 @@ package com.tramchester.unit.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.integration.testSupport.train.IntegrationTrainTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
@@ -57,6 +58,15 @@ class ConfigMismatchTest {
     }
 
     @Test
+    void shouldHaveKeyParametersSameForTrainIntegrationTests() throws IOException, ConfigurationException {
+
+        AppConfiguration appConfig = loadConfigFromFile("trains.yml");
+        IntegrationTrainTestConfig testConfig = new IntegrationTrainTestConfig();
+
+        validateCoreParameters(appConfig, testConfig);
+    }
+
+    @Test
     void shouldHaveKeyParametersSameForAcceptanceTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
@@ -69,22 +79,62 @@ class ConfigMismatchTest {
     }
 
     private void validateCoreParameters(AppConfiguration expected, AppConfiguration testConfig) {
-        assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds());
-        assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration());
-        assertEquals(expected.getMaxWait(), testConfig.getMaxWait());
-        assertEquals(expected.getMaxInitialWait(), testConfig.getMaxInitialWait());
-        assertEquals(expected.getChangeAtInterchangeOnly(), testConfig.getChangeAtInterchangeOnly());
-        assertEquals(expected.getWalkingMPH(), testConfig.getWalkingMPH());
-        assertEquals(expected.getNearestStopRangeKM(), testConfig.getNearestStopRangeKM());
-        assertEquals(expected.getNearestStopForWalkingRangeKM(), testConfig.getNearestStopForWalkingRangeKM());
-        assertEquals(expected.getNumOfNearestStopsToOffer(), testConfig.getNumOfNearestStopsToOffer());
-        assertEquals(expected.getNumOfNearestStopsForWalking(), testConfig.getNumOfNearestStopsForWalking());
-        assertEquals(expected.getRecentStopsToShow(), testConfig.getRecentStopsToShow());
-        assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults());
-        assertEquals(expected.getCreateNeighbours(), testConfig.getCreateNeighbours());
-        assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM());
-        assertEquals(expected.getTransportModes(), testConfig.getTransportModes());
+        assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
+        assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
+        assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");
+        assertEquals(expected.getMaxInitialWait(), testConfig.getMaxInitialWait(), "MaxInitialWait");
+        assertEquals(expected.getChangeAtInterchangeOnly(), testConfig.getChangeAtInterchangeOnly(), "ChangeAtInterchangeOnly");
+        assertEquals(expected.getWalkingMPH(), testConfig.getWalkingMPH(), "WalkingMPH");
+        assertEquals(expected.getNearestStopRangeKM(), testConfig.getNearestStopRangeKM(), "NearestStopRangeKM");
+        assertEquals(expected.getNearestStopForWalkingRangeKM(), testConfig.getNearestStopForWalkingRangeKM(), "NearestStopForWalkingRangeKM");
+        assertEquals(expected.getNumOfNearestStopsToOffer(), testConfig.getNumOfNearestStopsToOffer(), "NumOfNearestStopsToOffer");
+        assertEquals(expected.getNumOfNearestStopsForWalking(), testConfig.getNumOfNearestStopsForWalking(), "NumOfNearestStopsForWalking");
+        assertEquals(expected.getRecentStopsToShow(), testConfig.getRecentStopsToShow(), "RecentStopsToShow");
+        assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults(), "MaxNumResults");
+        assertEquals(expected.getCreateNeighbours(), testConfig.getCreateNeighbours(), "CreateNeighbours");
+        assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
+        assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
 
+        assertEquals(expected.getBounds(), testConfig.getBounds(), "bounds");
+
+        checkDBConfig(expected, testConfig);
+
+        checkGTFSSourceConfig(expected, testConfig);
+
+        checkRemoteDataSourceConfig(expected, testConfig);
+
+    }
+
+    private void checkRemoteDataSourceConfig(AppConfiguration expected, AppConfiguration testConfig) {
+        List<RemoteDataSourceConfig> expectedRemoteDataSourceConfig = expected.getRemoteDataSourceConfig();
+        List<RemoteDataSourceConfig> foundRemoteDataSourceConfig = testConfig.getRemoteDataSourceConfig();
+
+        assertFalse(expectedRemoteDataSourceConfig.isEmpty());
+        assertEquals(expectedRemoteDataSourceConfig.size(), foundRemoteDataSourceConfig.size(), "RemoteDataSourceConfig");
+        for (int i = 0; i < expectedRemoteDataSourceConfig.size(); i++) {
+            RemoteDataSourceConfig expectedRemote = expectedRemoteDataSourceConfig.get(0);
+            RemoteDataSourceConfig foundRemote = foundRemoteDataSourceConfig.get(0);
+            //assertEquals(expectedRemote.getDataUrl(), foundRemote.getDataUrl());
+            assertEquals(expectedRemote.getDataCheckUrl(), foundRemote.getDataCheckUrl(), "DataCheckUrl");
+        }
+    }
+
+    private void checkGTFSSourceConfig(AppConfiguration expected, AppConfiguration testConfig) {
+        List<GTFSSourceConfig> expectedgtfsDataSource = expected.getGTFSDataSource();
+        List<GTFSSourceConfig> foundgtfsDataSource = testConfig.getGTFSDataSource();
+        assertEquals(expectedgtfsDataSource.size(), foundgtfsDataSource.size());
+        //assume same order
+        for (int i = 0; i < expectedgtfsDataSource.size(); i++) {
+            GTFSSourceConfig expectedDataSource = expectedgtfsDataSource.get(i);
+            GTFSSourceConfig dataSourceConfig = foundgtfsDataSource.get(i);
+
+            assertEquals(expectedDataSource.getNoServices(), dataSourceConfig.getNoServices() , "NoServices");
+            assertEquals(expectedDataSource.getTransportGTFSModes(), dataSourceConfig.getTransportGTFSModes(), "TransportGTFSModes");
+            assertEquals(expectedDataSource.getAdditionalInterchanges(), dataSourceConfig.getAdditionalInterchanges(), "AdditionalInterchanges");
+        }
+    }
+
+    private void checkDBConfig(AppConfiguration expected, AppConfiguration testConfig) {
         GraphDBConfig expectedGraphDBConfig = expected.getGraphDBConfig();
         GraphDBConfig testGraphDBConfig = testConfig.getGraphDBConfig();
         assertEquals(expectedGraphDBConfig.getNeo4jPagecacheMemory(), testGraphDBConfig.getNeo4jPagecacheMemory());
@@ -98,32 +148,6 @@ class ConfigMismatchTest {
         } else {
             assertNull(testConfig.getLiveDataConfig());
         }
-
-        List<GTFSSourceConfig> expectedgtfsDataSource = expected.getGTFSDataSource();
-        List<GTFSSourceConfig> foundgtfsDataSource = testConfig.getGTFSDataSource();
-        assertEquals(expectedgtfsDataSource.size(), foundgtfsDataSource.size());
-        //assume same order
-        for (int i = 0; i < expectedgtfsDataSource.size(); i++) {
-            GTFSSourceConfig expectedDataSource = expectedgtfsDataSource.get(i);
-            GTFSSourceConfig dataSourceConfig = foundgtfsDataSource.get(i);
-
-            assertEquals(expectedDataSource.getNoServices(), dataSourceConfig.getNoServices());
-            assertEquals(expectedDataSource.getTransportGTFSModes(), dataSourceConfig.getTransportGTFSModes());
-            assertEquals(expectedDataSource.getAdditionalInterchanges(), dataSourceConfig.getAdditionalInterchanges());
-        }
-
-        List<RemoteDataSourceConfig> expectedRemoteDataSourceConfig = expected.getRemoteDataSourceConfig();
-        List<RemoteDataSourceConfig> foundRemoteDataSourceConfig = testConfig.getRemoteDataSourceConfig();
-
-        assertFalse(expectedRemoteDataSourceConfig.isEmpty());
-        assertEquals(expectedRemoteDataSourceConfig.size(), foundRemoteDataSourceConfig.size());
-        for (int i = 0; i < expectedRemoteDataSourceConfig.size(); i++) {
-            RemoteDataSourceConfig expectedRemote = expectedRemoteDataSourceConfig.get(0);
-            RemoteDataSourceConfig foundRemote = foundRemoteDataSourceConfig.get(0);
-            //assertEquals(expectedRemote.getDataUrl(), foundRemote.getDataUrl());
-            assertEquals(expectedRemote.getDataCheckUrl(), foundRemote.getDataCheckUrl());
-        }
-
     }
 
     private AppConfiguration loadConfigFromFile(String configFilename) throws IOException, ConfigurationException {

@@ -15,7 +15,7 @@ public class BoundingBox {
     //    minEastings: 112685
     //    minNorthings: 015490
     //    maxEasting: 619307
-    //    maxNorthings: 1108843
+    //    maxNorthings: 118843
 
     private final GridPosition bottomLeft;
     private final GridPosition topRight;

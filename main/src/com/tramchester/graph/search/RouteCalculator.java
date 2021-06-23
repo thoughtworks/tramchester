@@ -11,8 +11,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
@@ -93,28 +93,24 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
         }
 
-        List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getTime(), walkAtStart);
+        List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), walkAtStart);
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
-        PreviousVisits previousSuccessfulVisit = createPreviousVisits();
+        LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
         Stream<Journey> results = numChangesRange(journeyRequest).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                        createServiceReasons(journeyRequest, pathRequest), pathRequest, previousSuccessfulVisit)).
+                        createServiceReasons(journeyRequest, pathRequest), pathRequest, createPreviousVisits(),
+                        lowestCostSeen)).
                 limit(journeyRequest.getMaxNumberOfJourneys()).
                 map(path -> createJourney(txn, journeyRequest, path, destinations));
 
-        results.onClose(() -> {
-            if (journeyRequest.getDiagnosticsEnabled()) {
-                previousSuccessfulVisit.reportStatsFor(journeyRequest);
-            }
-            previousSuccessfulVisit.clear();
-        });
+        results.onClose(() -> logger.info("Journey stream closed"));
 
         return results;
     }

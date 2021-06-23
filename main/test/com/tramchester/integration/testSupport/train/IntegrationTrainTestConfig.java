@@ -6,18 +6,17 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.train.RailRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.train.RailTestDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     private final RailTestDataSourceConfig sourceConfig;
-    private final RemoteDataSourceConfig remoteDataSourceConfig;
+    private final RemoteDataSourceConfig remoteDataRailConfig;
     private final GraphDBConfig graphDBConfig;
 
     public IntegrationTrainTestConfig() {
@@ -28,7 +27,7 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
         super(new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename));
         graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename);
         sourceConfig = new RailTestDataSourceConfig("data/trains");
-        remoteDataSourceConfig = new RailRemoteDataSourceConfig("data/trains");
+        remoteDataRailConfig = new RailRemoteDataSourceConfig("data/trains");
     }
 
     @Override
@@ -43,12 +42,12 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Collections.singletonList(remoteDataSourceConfig);
+        return Arrays.asList(remoteDataRailConfig, remoteNaptanConfig);
     }
 
     @Override
     public boolean getChangeAtInterchangeOnly() {
-        return false;
+        return true;
     }
 
     @Override
@@ -58,24 +57,24 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getMaxJourneyDuration() {
-        return 8*60;
+        return 840;
     }
 
     @Override
     public int getMaxInitialWait() {
-        return 15;
+        return 25;
     }
 
     @Override
     public int getMaxWait() {
-        return 60;
+        return 35;
     }
 
     @Override
-    public int getNumberQueries() { return 4; }
+    public int getNumberQueries() { return 6; }
 
     @Override
-    public int getQueryInterval() { return 15; }
+    public int getQueryInterval() { return 10; }
 
     @Override
     public Path getCacheFolder() {

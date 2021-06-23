@@ -6,6 +6,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -37,13 +38,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final GraphDatabase graphDatabaseService;
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRespository;
-    private final TramTime queryTime;
+    private final TramTime actualQueryTime;
     private final Set<Long> destinationNodeIds;
     private final Set<Station> endStations;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
-    private final PreviousVisits previousSuccessfulVisit;
     private final TraversalStateFactory traversalStateFactory;
     private final BetweenRoutesCostRepository routeToRouteCosts;
     private final RouteCalculatorSupport.PathRequest pathRequest;
@@ -52,7 +52,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, RouteCalculatorSupport.PathRequest pathRequest,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
-                                Set<Long> destinationNodeIds, ServiceReasons reasons, PreviousVisits previousSuccessfulVisit,
+                                Set<Long> destinationNodeIds, ServiceReasons reasons,
                                 BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         this.graphDatabaseService = graphDatabaseService;
         this.sortsPosition = sortsPosition;
@@ -63,15 +63,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.endStations = endStations;
         this.config = config;
         this.reasons = reasons;
-        this.previousSuccessfulVisit = previousSuccessfulVisit;
         this.routeToRouteCosts = routeToRouteCosts;
         this.pathRequest = pathRequest;
 
-        this.queryTime = pathRequest.getServiceHeuristics().getQueryTime();
+        this.actualQueryTime = pathRequest.getActualQueryTime();
         this.reasonToGraphViz = reasonToGraphViz;
     }
 
-    public Stream<Path> findPaths(Transaction txn, Node startNode) {
+    public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {
             logger.info("Depth first is enabled");
@@ -80,16 +79,16 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         }
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
-                destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, config, startNode.getId());
+                destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config, startNode.getId());
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, endStations,
                 destinationLatLon, routeToRouteCosts);
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory);
-        final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(queryTime, traversalState);
+        final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
-        logger.info("Create traversal");
+        logger.info("Create traversal for " + actualQueryTime);
 
         final BranchOrderingPolicies selector = depthFirst ? PREORDER_DEPTH_FIRST : PREORDER_BREADTH_FIRST;
         TraversalDescription traversalDesc =
@@ -126,6 +125,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
             reasons.reportReasons(txn, pathRequest, reasonToGraphViz);
+            previousSuccessfulVisit.reportStats();
             traversalState.dispose();
         });
 

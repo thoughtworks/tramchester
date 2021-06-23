@@ -262,6 +262,7 @@ class JourneyPlannerLocationResourceTest {
 
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension, startId,
                 MyLocation.MY_LOCATION_PLACEHOLDER_ID, queryTime, when, location, arriveBy, 3);
+
         assertEquals(200, response.getStatus());
 
         return validateJourneyPresent(response);

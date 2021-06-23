@@ -111,8 +111,8 @@ public class MapPathToStagesViaStates implements PathToStages {
         final List<TransportStage<?, ?>> stages = mapStatesToStages.getStages();
         if (stages.isEmpty()) {
             if (path.length()==2) {
-                if (path.startNode().hasRelationship(OUTGOING, GROUPED_TO_PARENT) && (path.endNode().hasRelationship(INCOMING,
-                        GROUPED_TO_CHILD))) {
+                if (path.startNode().hasRelationship(OUTGOING, GROUPED_TO_PARENT) &&
+                        (path.endNode().hasRelationship(INCOMING, GROUPED_TO_CHILD))) {
                     addViaCompositeStation(path, journeyRequest, stages);
                 }
             } else {
@@ -130,7 +130,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         Station start = stationRepository.getStationById(startId);
         Station end = stationRepository.getStationById(endId);
-        ConnectingStage connectingStage = new ConnectingStage(start, end, 0, journeyRequest.getTime());
+        ConnectingStage connectingStage = new ConnectingStage(start, end, 0, journeyRequest.getOriginalTime());
         stages.add(connectingStage);
     }
 

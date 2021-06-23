@@ -68,7 +68,7 @@ public class RouteCalculationCombinations {
     @NotNull
     private Map<StationIdPair, JourneyOrNot> computeJourneys(Set<StationIdPair> combinations, JourneyRequest request) {
         LocalDate queryDate = request.getDate().getDate();
-        TramTime queryTime = request.getTime();
+        TramTime queryTime = request.getOriginalTime();
         return combinations.parallelStream().
                 map(requested -> {
                     try (Transaction txn = database.beginTx()) {

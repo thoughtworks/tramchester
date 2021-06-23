@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -29,6 +30,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final NodeContentsRepository nodeContentsRepository;
     private final ServiceReasons reasons;
     private final PreviousVisits previousVisits;
+    private final LowestCostSeen lowestCostSeen;
 
     private final int maxWait;
     private final int maxInitialWait;
@@ -38,12 +40,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
-                              PreviousVisits previousVisits, TramchesterConfig config, long startNodeId) {
+                              PreviousVisits previousVisits, LowestCostSeen lowestCostSeen, TramchesterConfig config,
+                              long startNodeId) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
         this.reasons = reasons;
         this.previousVisits = previousVisits;
+        this.lowestCostSeen = lowestCostSeen;
         maxWait = config.getMaxWait();
         maxInitialWait = config.getMaxInitialWait();
         this.startNodeId = startNodeId;
@@ -73,6 +77,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
         Evaluation result = decideEvaluationAction(reasonCode);
+
         previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState);
 
         return result;
@@ -84,39 +89,42 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                     DurationOk, WalkOk, StationOpen, Continue -> Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived -> Evaluation.INCLUDE_AND_PRUNE;
             case LongerPath, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
-                    TookTooLong, ServiceNotRunningAtTime, NotAtHour, NotAtQueryTime, NotOnQueryDate,
-                    AlreadyDeparted, StationClosed -> Evaluation.EXCLUDE_AND_PRUNE;
+                    TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate,
+                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections -> Evaluation.EXCLUDE_AND_PRUNE;
             default -> throw new RuntimeException("Unexpected reasoncode during evaluation: " + code.name());
         };
     }
 
     private ServiceReason.ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode) {
 
-        long nextNodeId = nextNode.getId();
+        final long nextNodeId = nextNode.getId();
 
-        TraversalState previousTraversalState = journeyState.getTraversalState();
-        HowIGotHere howIGotHere = new HowIGotHere(thePath);
+        final TraversalState previousTraversalState = journeyState.getTraversalState();
+        final HowIGotHere howIGotHere = new HowIGotHere(thePath);
 
         if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
-            int totalCost = previousTraversalState.getTotalCost();
-            if (totalCost <= previousVisits.getLowestCost()) {
+            final int totalCost = previousTraversalState.getTotalCost();
+            final int numberChanges = journeyState.getNumberChanges();
+            if (totalCost <= lowestCostSeen.getLowestCost()
+                    && numberChanges <= lowestCostSeen.getLowestNumChanges()) {
                 // a better route than seen so far
                 // <= equals so we include multiple options and routes in the results
                 // An alternative to this would be to search over a finer grained list of times and catch alternatives
                 // that way
                 success = success + 1;
-                previousVisits.setLowestCost(totalCost);
+                lowestCostSeen.setLowestCost(totalCost);
+                lowestCostSeen.setLowestNumChanges(numberChanges);
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
             } else {
-                // found a route, but longer than current shortest
+                // found a route, but longer or more hops than current shortest
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
             }
         } else if (success>0) { // Not arrived, at least one successful route
             int totalCost = previousTraversalState.getTotalCost();
-            if (totalCost > previousVisits.getLowestCost()) {
+            if (totalCost > lowestCostSeen.getLowestCost()) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
@@ -147,7 +155,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return ServiceReason.ReasonCode.TooManyNeighbourConnections;
         }
 
-        // journey too long?
+        // journey duration too long?
         if (!serviceHeuristics.journeyDurationUnderLimit(previousTraversalState.getTotalCost(), howIGotHere, reasons).isValid()) {
             return ServiceReason.ReasonCode.TookTooLong;
         }
@@ -159,16 +167,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // these next are ordered by frequency / number of nodes of type
-        EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
+        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
-        TramTime visitingTime = journeyState.getJourneyClock();
-        int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
+        final TramTime visitingTime = journeyState.getJourneyClock();
+        final int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
         // --> Minute
         // check time
         if (labels.contains(GraphLabel.MINUTE)) {
             ServiceReason serviceReason = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
             if (!serviceReason.isValid()) {
-                return serviceReason.getReasonCode(); // valid, or not at time
+                return serviceReason.getReasonCode();
             }
         }
 
@@ -181,7 +189,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // -->Service
-        boolean isService = labels.contains(GraphLabel.SERVICE); //nodeTypeRepository.isService(nextNode);
+        final boolean isService = labels.contains(GraphLabel.SERVICE); //nodeTypeRepository.isService(nextNode);
         if (isService) {
             if (!serviceHeuristics.checkServiceDate(nextNode, howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotOnQueryDate;
@@ -199,8 +207,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
-        // TOOD is this still needed, should drop through via continue anyway?
-        Relationship inboundRelationship = thePath.lastRelationship();
+        // TODO is this still needed, should drop through via continue anyway?
+        final Relationship inboundRelationship = thePath.lastRelationship();
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO)) {

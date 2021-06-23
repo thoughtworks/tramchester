@@ -19,7 +19,7 @@ public abstract class ServiceReason {
         WalkOk, StationOpen, Continue, NumConnectionsOk, NumWalkingConnectionsOk, NeighbourConnectionsOk,
 
         NotOnQueryDate,
-        NotAtQueryTime,
+        DoesNotOperateOnTime,
         NotReachable,
         ServiceNotRunningAtTime,
         TookTooLong,
@@ -305,7 +305,7 @@ public abstract class ServiceReason {
     }
 
     public static ServiceReason DoesNotOperateOnTime(TramTime currentElapsed, HowIGotHere path) {
-        return new DoesNotOperateOnTime(ReasonCode.NotAtQueryTime, currentElapsed, path);
+        return new DoesNotOperateOnTime(ReasonCode.DoesNotOperateOnTime, currentElapsed, path);
     }
 
     public static ServiceReason TooManyChanges(HowIGotHere path) {

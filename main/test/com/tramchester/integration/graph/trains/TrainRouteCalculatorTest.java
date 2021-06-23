@@ -4,7 +4,9 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
@@ -39,6 +41,7 @@ class TrainRouteCalculatorTest {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
+    private static StationRepository stationRepository;
     private RouteCalculatorTestFacade testFacade;
 
     private final LocalDate when = TestEnv.testDay();
@@ -49,6 +52,7 @@ class TrainRouteCalculatorTest {
         TramchesterConfig testConfig = new IntegrationTrainTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+        stationRepository = componentContainer.get(StationRepository.class);
 
         database = componentContainer.get(GraphDatabase.class);
     }
@@ -127,12 +131,36 @@ class TrainRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveKnutsfordToHale() {
+    void shouldHaveKnutsfordToHale9am() {
         TramTime travelTime = TramTime.of(9, 0);
+
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
+                120, 1);
+
+        atLeastOneDirect(request, Knutsford, Hale);
+    }
+
+    @Test
+    void shouldHaveKnutsfordToHale910am() {
+        TramTime travelTime = TramTime.of(9, 10);
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), travelTime, false, 1,
                 30, 1);
         atLeastOneDirect(request, Knutsford, Hale);
+    }
+
+    @Test
+    void shouldFindCorrectNumberOfJourneys() {
+        TramTime travelTime = TramTime.of(11,4);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
+                840, 3);
+
+        Station derby = stationRepository.getStationById(StringIdFor.createId("DBY"));
+        Station altrincham = stationRepository.getStationById(StringIdFor.createId("ALT"));
+
+        Set<Journey> results = testFacade.calculateRouteAsSet(derby, altrincham, journeyRequest);
+
+        assertEquals(3, results.size(), results.toString());
     }
 
     private void atLeastOneDirect(JourneyRequest request, TrainStations start, TrainStations dest) {

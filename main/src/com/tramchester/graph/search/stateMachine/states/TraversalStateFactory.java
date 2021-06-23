@@ -19,12 +19,14 @@ public class TraversalStateFactory {
     private final RegistersStates registersStates;
     private final TramchesterConfig config;
     private final NodeContentsRepository nodeContents;
+    private boolean running;
 
     @Inject
     public TraversalStateFactory(RegistersStates registersStates, NodeContentsRepository nodeContents, TramchesterConfig config) {
         this.registersStates = registersStates;
         this.nodeContents = nodeContents;
         this.config = config;
+        running = false;
     }
 
     @PostConstruct
@@ -45,17 +47,24 @@ public class TraversalStateFactory {
         registersStates.addBuilder(new MinuteState.Builder(interchangesOnly, nodeContents));
         registersStates.addBuilder(new DestinationState.Builder());
         registersStates.addBuilder(new GroupedStationState.Builder());
+
+        running = true;
         logger.info("started");
     }
 
     @PreDestroy
     public void stop() {
         logger.info("stopping");
+        running = false;
         registersStates.clear();
         logger.info("stopped");
     }
 
     private <S extends TraversalState, T extends Towards<S>> T getFor(Class<? extends TraversalState> from, Class<S> to) {
+        if (!running) {
+            // help to diagnose / pinpoint issues with timeout causing shutdown from integration tests
+            throw new RuntimeException("Not running");
+        }
         return registersStates.getBuilderFor(from,to);
     }
 

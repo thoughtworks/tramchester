@@ -68,7 +68,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
 
     private JourneyRequest calcDepartTime(JourneyRequest originalRequest, int costToDest) {
         // TODO Handle buses & trains
-        TramTime queryTime = originalRequest.getTime();
+        TramTime queryTime = originalRequest.getOriginalTime();
         TramTime computedDepartTime = queryTime.minusMinutes(costToDest).minusMinutes(config.getMaxInitialWait() / 2);
         return new JourneyRequest(originalRequest.getDate(), computedDepartTime, true,
                 originalRequest.getMaxChanges(), originalRequest.getMaxJourneyDuration(), originalRequest.getMaxNumberOfJourneys());

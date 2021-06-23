@@ -13,6 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -277,7 +278,7 @@ public class MapPathToStagesViaStatesTest {
                                                        JourneyRequest journeyRequest) {
 
         int numChanges = journeyRequest.getMaxChanges();
-        TramTime queryTime = journeyRequest.getTime();
+        TramTime queryTime = journeyRequest.getOriginalTime();
         Node startNode = graphQuery.getStationNode(txn, startStation);
         Node endNode = graphQuery.getStationNode(txn, destination);
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
@@ -293,11 +294,14 @@ public class MapPathToStagesViaStatesTest {
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, endStations);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository,
                 journeyConstraints, queryTime, routeToRouteCosts, numChanges);
+
+        LowestCostSeen lowestCostSeen = new LowestCostSeen();
+
         RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryTime, numChanges,
                 serviceHeuristics);
 
         final List<RouteCalculator.TimedPath> timedPaths = routeCalculator.findShortestPath(txn, destinationNodeIds, endStations,
-                reasons, pathRequest, previous).collect(Collectors.toList());
+                reasons, pathRequest, previous, lowestCostSeen).collect(Collectors.toList());
         // Sort to give consistent test results, otherwise order is undefined
         return sorted(timedPaths);
     }

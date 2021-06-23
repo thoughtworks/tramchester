@@ -190,8 +190,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
         final IdFor<Route> idA = routeA.getId();
         final IdFor<Route> idB = routeB.getId();
-        byte result = costs.get(index, index.find(idA), index.find(idB));
+        byte result = costs.get(index.find(idA), index.find(idB));
         if (result==Costs.MAX_VALUE) {
+            boolean sameMode = routeA.getTransportMode()==routeB.getTransportMode();
+            // for mixed transport mode having no value is quite comment
+            if (sameMode) {
+                final String msg = "Missing (routeId:" + idA + ", routeId:" + idB + ")";
+                logger.warn(msg);
+            }
             return Integer.MAX_VALUE;
         }
         return result;
@@ -218,7 +224,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         byte result = destinations.stream().
                 map(index::find).
                 filter(dest -> costs.contains(start, dest)).
-                map(dest -> costs.get(index, start, dest)).
+                map(dest -> costs.get(start, dest)).
                 min(comparingByte(a -> a)).orElse(Byte.MAX_VALUE);
         return Pair.of(result, hasStartId);
     }
@@ -330,13 +336,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             numberSetFor[indexA]++;
         }
 
-        public byte get(Index index, int a, int b) {
-            final byte value = array[a][b];
-            if (value == MAX_VALUE) {
-                final String msg = "Missing (" + index.find(a) + ", " + index.find(b) + ")";
-                logger.warn(msg);
-            }
-            return value;
+        public byte get(int a, int b) {
+            return array[a][b];
         }
 
         // Collectors.toList marginally faster, parallelStream slower

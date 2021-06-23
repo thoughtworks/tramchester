@@ -121,9 +121,11 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleJourney() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 15), config.getMaxNumResults());
+        final TramTime originalQueryTime = TramTime.of(10, 15);
+        JourneyRequest journeyRequest = new JourneyRequest(when, originalQueryTime, false, maxChanges,
+                maxJourneyDuration, config.getMaxNumResults());
         Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Deansgate, journeyRequest);
-        Set<Journey> results = checkJourneys(Altrincham, Deansgate, journeyRequest.getTime(), journeyRequest.getDate(), journeys);
+        Set<Journey> results = checkJourneys(Altrincham, Deansgate, originalQueryTime, journeyRequest.getDate(), journeys);
 
         results.forEach(journey -> {
             List<Location<?>> pathCallingPoints = journey.getPath();
@@ -134,7 +136,7 @@ public class RouteCalculatorTest {
             assertEquals(Deansgate.getId(), pathCallingPoints.get(10).getId());
 
             List<TransportStage<?, ?>> stages = journey.getStages();
-            assertEquals(1, stages.size());
+            assertEquals(1, stages.size(), "wrong number stages " + stages);
             TransportStage<?, ?> stage = stages.get(0);
             assertEquals(9, stage.getPassedStopsCount());
             List<StopCall> callingPoints = stage.getCallingPoints();
@@ -484,7 +486,7 @@ public class RouteCalculatorTest {
 
     private void assertGetAndCheckJourneys(JourneyRequest journeyRequest, TramStations start, TramStations dest) {
         Set<Journey> journeys = calculator.calculateRouteAsSet(start, dest, journeyRequest);
-        checkJourneys(start, dest, journeyRequest.getTime(), journeyRequest.getDate(), journeys);
+        checkJourneys(start, dest, journeyRequest.getOriginalTime(), journeyRequest.getDate(), journeys);
     }
 
     @NotNull

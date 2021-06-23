@@ -13,6 +13,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -63,6 +64,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private TripRepository tripRepository;
     private BetweenRoutesCostRepository routeToRouteCosts;
     private long startNodeId;
+    private LowestCostSeen lowestCostSeen;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -71,6 +73,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         destinationStations = Collections.singleton(forTest);
         forTest.addRoute(TestEnv.getTramTestRoute());
 
+        lowestCostSeen = createMock(LowestCostSeen.class);
         previousSuccessfulVisit = createMock(PreviousVisits.class);
         tripRepository = createMock(TripRepository.class);
 
@@ -127,7 +130,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         Set<Long> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
         return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, contentsRepository,
-                reasons, previousSuccessfulVisit, config, startNodeId);
+                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId);
     }
 
     @Test
@@ -160,7 +163,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotAtHour));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.AlreadyDeparted));
-        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.NotAtQueryTime));
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.DoesNotOperateOnTime));
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, TramRouteEvaluator.decideEvaluationAction(ServiceReason.ReasonCode.StationClosed));
 
     }
@@ -178,9 +181,14 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
-        EasyMock.expect(previousSuccessfulVisit.getLowestCost()).andReturn(1000);
-        previousSuccessfulVisit.setLowestCost(0);
+        EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(1000);
+        EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(999);
+
+        lowestCostSeen.setLowestCost(0);
         EasyMock.expectLastCall();
+        lowestCostSeen.setLowestNumChanges(0);
+        EasyMock.expectLastCall();
+
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Arrived, node, journeyState);
         EasyMock.expectLastCall();
 
@@ -222,7 +230,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final JourneyState journeyState = new JourneyState(time, traversalState);
         state.setState(journeyState);
 
-        EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.NotAtQueryTime);
+        EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.DoesNotOperateOnTime);
 
         replayAll();
         Evaluation result = evaluator.evaluate(path, state);
@@ -568,7 +576,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(ServiceReason.DoesNotOperateOnTime(time, howIGotHere));
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
-        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.NotAtQueryTime, node, journeyState);
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.DoesNotOperateOnTime, node, journeyState);
         EasyMock.expectLastCall();
 
         replayAll();

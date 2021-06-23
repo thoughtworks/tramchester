@@ -10,6 +10,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -96,25 +97,25 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    private ServiceHeuristics createHeuristics(TramTime time, JourneyConstraints journeyConstraints, int maxNumChanges) {
+    private ServiceHeuristics createHeuristics(TramTime actualQueryTime, JourneyConstraints journeyConstraints, int maxNumChanges) {
         return new ServiceHeuristics(stationRepository, nodeContentsRepository,
-                journeyConstraints, time, routeToRouteCosts, maxNumChanges);
+                journeyConstraints, actualQueryTime, routeToRouteCosts, maxNumChanges);
     }
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
-                                                                 final Set<Station> endStations,
-                                                                 ServiceReasons reasons, PathRequest pathRequest,
-                                                                 PreviousVisits previousSuccessfulVisit) {
+                                                              final Set<Station> endStations,
+                                                              ServiceReasons reasons, PathRequest pathRequest,
+                                                              PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest, sortsPosition, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
-                reasons, previousSuccessfulVisit, routeToRouteCosts, reasonToGraphViz);
+                reasons, routeToRouteCosts, reasonToGraphViz);
 
         logger.info("Traverse for " + pathRequest);
 
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode).
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
@@ -135,7 +136,7 @@ public class RouteCalculatorSupport {
     private TramTime getDepartTimeFor(List<TransportStage<?, ?>> stages, JourneyRequest journeyRequest) {
         if (stages.isEmpty()) {
             logger.warn("No stages were mapped, can't get depart time");
-            return journeyRequest.getTime();
+            return journeyRequest.getOriginalTime();
         } else {
             TransportStage<?, ?> firstStage = stages.get(0);
             return firstStage.getFirstDepartureTime();
@@ -146,7 +147,7 @@ public class RouteCalculatorSupport {
         int size = stages.size();
         if (size == 0) {
             logger.warn("No stages were mapped, can't get arrival time");
-            return journeyRequest.getTime();
+            return journeyRequest.getOriginalTime();
         } else {
             TransportStage<?, ?> lastStage = stages.get(size - 1);
             return lastStage.getExpectedArrivalTime();
@@ -167,9 +168,9 @@ public class RouteCalculatorSupport {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesLocalNow);
     }
 
-    public PathRequest createPathRequest(Node startNode, TramTime queryTime, int numChanges, JourneyConstraints journeyConstraints) {
-        ServiceHeuristics serviceHeuristics = createHeuristics(queryTime, journeyConstraints, numChanges);
-        return new PathRequest(startNode, queryTime, numChanges, serviceHeuristics);
+    public PathRequest createPathRequest(Node startNode, TramTime actualQueryTime, int numChanges, JourneyConstraints journeyConstraints) {
+        ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
+        return new PathRequest(startNode, actualQueryTime, numChanges, serviceHeuristics);
     }
 
     public static class PathRequest {
@@ -206,6 +207,7 @@ public class RouteCalculatorSupport {
                     ", serviceHeuristics=" + serviceHeuristics +
                     '}';
         }
+
     }
 
 

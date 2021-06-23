@@ -64,7 +64,8 @@ public class ServiceReasons {
 
     private void reportStats(RouteCalculatorSupport.PathRequest pathRequest) {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for " + journeyRequest + " at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges());
+            logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
+                    " for " + journeyRequest );
         }
         logger.info("Service reasons for query time: " + queryTime);
         logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());

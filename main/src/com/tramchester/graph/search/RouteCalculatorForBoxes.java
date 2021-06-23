@@ -11,8 +11,8 @@ import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
@@ -57,7 +57,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                                   List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
 
-        final TramTime time = journeyRequest.getTime();
+        // TODO Compute over a range of times
+        final TramTime originalTime = journeyRequest.getOriginalTime();
 
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
@@ -66,20 +67,22 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         return grouped.parallelStream().map(box -> {
 
             // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-            // trying to share across boxes causes RouteCalulcatorForBoundingBoxTest tests to fail
-            PreviousVisits previousSuccessfulVisit = createPreviousVisits();
+            // trying to share across boxes causes RouteCalculatorForBoundingBoxTest tests to fail
+            //PreviousVisits previousSuccessfulVisit = createPreviousVisits();
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
+            LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
                         map(start -> getStationNodeSafe(txn, start)).
                         flatMap(startNode -> numChangesRange(journeyRequest).
-                                map(numChanges -> createPathRequest(startNode, time, numChanges, journeyConstraints))).
+                                map(numChanges -> createPathRequest(startNode, originalTime, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                createServiceReasons(journeyRequest, time), pathRequest, previousSuccessfulVisit)).
+                                createServiceReasons(journeyRequest, originalTime), pathRequest, createPreviousVisits(),
+                                lowestCostSeenForBox)).
                         map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations));
 
                 List<Journey> collect = journeys.
@@ -87,8 +90,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
 
                 // yielding
-                previousSuccessfulVisit.reportStatsFor(journeyRequest);
-                previousSuccessfulVisit.clear();
+//                previousSuccessfulVisit.reportStatsFor(journeyRequest);
+//                previousSuccessfulVisit.clear();
                 return new JourneysForBox(box, collect);
             }
         });

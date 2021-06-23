@@ -3,6 +3,7 @@ package com.tramchester.graph.search.stateMachine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ public class RegistersStates implements RegistersFromState {
 
     final HashMap<FromTo, Towards<? extends TraversalState>> map;
 
+    @Inject
     public RegistersStates() {
         map = new HashMap<>();
     }
@@ -22,7 +24,6 @@ public class RegistersStates implements RegistersFromState {
             throw new NextStateNotFoundException(key);
         }
         return (T) map.get(key);
-
     }
 
     public void addBuilder(Towards<? extends TraversalState> builder) {

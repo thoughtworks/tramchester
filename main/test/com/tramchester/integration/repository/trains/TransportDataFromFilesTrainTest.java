@@ -63,9 +63,8 @@ class TransportDataFromFilesTrainTest {
     }
 
     @Test
-    void shouldHaveExpectedNumbersForTrain() {
-        assertEquals(2572,transportData.getStations().size());
-        assertEquals(3529, transportData.getRoutes().size());
+    void shouldHaveCheckForStations() {
+        assertEquals(2652,transportData.getStations().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -74,7 +73,7 @@ class TransportDataFromFilesTrainTest {
     @Test
     void shouldGetAgencies() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
-        assertEquals(27, agencies.size());
+        assertEquals(30, agencies.size());
         assertTrue(agencies.contains(ArrivaTrainsWales));
     }
 
@@ -91,10 +90,12 @@ class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldGetTrainRoutes() {
+        assertEquals(3665, transportData.getRoutes().size());
+
         Collection<Route> results = transportData.getRoutes();
         long walesTrainRoutes = results.stream().filter(route -> route.getAgency().equals(ArrivaTrainsWales)).count();
 
-        assertEquals(235, walesTrainRoutes);
+        assertEquals(251, walesTrainRoutes);
     }
 
     @Test
@@ -113,12 +114,25 @@ class TransportDataFromFilesTrainTest {
     }
 
     @Test
-    void shouldGetStation() {
+    void shouldGetStations() {
         assertTrue(transportData.hasStationId(TrainStations.ManchesterPiccadilly.getId()));
-        Station station = transportData.getStationById(TrainStations.ManchesterPiccadilly.getId());
-        assertEquals("Manchester Piccadilly", station.getName());
+        Station manPicc = transportData.getStationById(TrainStations.ManchesterPiccadilly.getId());
+        assertEquals("Manchester Piccadilly", manPicc.getName());
 
-        assertFalse(station.hasPlatforms());
+        assertFalse(manPicc.hasPlatforms());
+
+        Station derby = transportData.getStationById(StringIdFor.createId("DBY"));
+        assertNotNull(derby);
+        assertEquals("Derby", derby.getName());
+
+        Station edinburgh = transportData.getStationById(StringIdFor.createId("EDB"));
+        assertNotNull(edinburgh);
+        assertEquals("Edinburgh", edinburgh.getName());
+
+        Station cardiff = transportData.getStationById(StringIdFor.createId("CDF"));
+        assertNotNull(cardiff);
+        assertEquals("Cardiff Central", cardiff.getName());
+
     }
 
     @Test

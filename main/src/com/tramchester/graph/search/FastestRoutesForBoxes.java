@@ -14,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,41 +45,33 @@ public class FastestRoutesForBoxes {
     @NotNull
     public Stream<BoundingBoxWithCost> findForGrid(GridPosition destination, long gridSize, JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
-        List<BoundingBoxWithStations> grouped = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
+        List<BoundingBoxWithStations> searchGrid = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
 
-        Optional<BoundingBoxWithStations> searchBoxWithDest = grouped.stream().
-                filter(box -> box.contained(destination)).findFirst();
+        BoundingBoxWithStations searchBoxWithDest = searchGrid.stream().
+                filter(box -> box.contained(destination)).findFirst().
+                orElseThrow(() -> new RuntimeException("Unable to find destination in any boxes " + destination));
 
-        if (searchBoxWithDest.isEmpty()) {
-            throw new RuntimeException("Unable to find destination in any boxes " + destination);
-        }
-        Set<Station> destinations = searchBoxWithDest.get().getStaions();
+        Set<Station> destinations = searchBoxWithDest.getStaions();
 
-        logger.info(format("Using %s groups and %s destinations", grouped.size(), destinations.size()));
-        return calculator.calculateRoutes(destinations, journeyRequest, grouped).
+        logger.info(format("Using %s groups and %s destinations", searchGrid.size(), destinations.size()));
+
+        return calculator.calculateRoutes(destinations, journeyRequest, searchGrid).
                 map(box -> cheapest(box, destination));
     }
 
-    private BoundingBoxWithCost cheapest(JourneysForBox journeysForBox, GridPosition destination) {
+    private BoundingBoxWithCost cheapest(JourneysForBox results, GridPosition destination) {
 
-        if (journeysForBox.getBox().contained(destination)) {
-            return new BoundingBoxWithCost(journeysForBox.getBox(), 0, null);
+        if (results.contains(destination)) {
+            return new BoundingBoxWithCost(results.getBox(), 0, null);
         }
 
-        if (journeysForBox.getJourneys().isEmpty()) {
-            logger.info("No journeys for " + journeysForBox.getBox());
-            return new BoundingBoxWithCost(journeysForBox.getBox(), -1, null);
+        if (results.isEmpty()) {
+            return new BoundingBoxWithCost(results.getBox(), -1, null);
         }
 
-        Optional<Journey> findEarliest = journeysForBox.getJourneys().stream().min(Comparator.comparing(Journey::getArrivalTime));
-        if (findEarliest.isPresent()) {
-            Journey journey = findEarliest.get();
-            int cost = TramTime.diffenceAsMinutes(journey.getDepartTime(), journey.getArrivalTime());
-            return new BoundingBoxWithCost(journeysForBox.getBox(), cost, journey);
-        } else {
-            logger.error("Could not find any cheapest journey for " + journeysForBox);
-            return new BoundingBoxWithCost(journeysForBox.getBox(), -1, null);
-        }
+        Journey result = results.getLowestCost();
 
+        int cost = TramTime.diffenceAsMinutes(result.getDepartTime(), result.getArrivalTime());
+        return new BoundingBoxWithCost(results.getBox(), cost, result);
     }
 }

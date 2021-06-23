@@ -27,23 +27,23 @@ public class ServiceHeuristics {
     }
 
     private final JourneyConstraints journeyConstraints;
-    private final TramTime queryTime;
+    private final TramTime actualQueryTime;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
     private final BetweenRoutesCostRepository routeToRouteCosts;
     private final int currentChangesLimit;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
-                             JourneyConstraints journeyConstraints, TramTime queryTime,
+                             JourneyConstraints journeyConstraints, TramTime actualQueryTime,
                              BetweenRoutesCostRepository routeToRouteCosts,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
 
         this.journeyConstraints = journeyConstraints;
-        this.queryTime = queryTime;
+        this.actualQueryTime = actualQueryTime;
         this.routeToRouteCosts = routeToRouteCosts;
-        this.currentChangesLimit = currentChangesLimit; // NOTE: this changes from 1->num , which is set in journeyConstraints
+        this.currentChangesLimit = currentChangesLimit;
     }
     
     public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -96,6 +96,7 @@ public class ServiceHeuristics {
         if (currentElapsed.withinInterval(maxWait, nodeTime)) {
             return valid(ServiceReason.ReasonCode.TimeOk, howIGotHere, reasons);
         }
+
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentElapsed, howIGotHere));
     }
 
@@ -162,18 +163,14 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason journeyDurationUnderLimit(final int totalCost, final HowIGotHere howIGotHere, ServiceReasons reasons) {
-        if (totalCost>journeyConstraints.getMaxJourneyDuration()) {
-            return reasons.recordReason(ServiceReason.TookTooLong(queryTime.plusMinutes(totalCost), howIGotHere));
+        if (totalCost > journeyConstraints.getMaxJourneyDuration()) {
+            return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plusMinutes(totalCost), howIGotHere));
         }
         return valid(ServiceReason.ReasonCode.DurationOk, howIGotHere, reasons);
     }
 
     private ServiceReason valid(ServiceReason.ReasonCode code, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         return reasons.recordReason(ServiceReason.IsValid(code, howIGotHere));
-    }
-
-    public TramTime getQueryTime() {
-        return queryTime;
     }
 
     public int getMaxPathLength() {

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class JourneyRequest {
     private final TramServiceDate date;
-    private final TramTime time;
+    private final TramTime originalQueryTime;
     private final boolean arriveBy;
     private final int maxChanges;
     private final UUID uid;
@@ -18,15 +18,15 @@ public class JourneyRequest {
     private boolean diagnostics;
     private boolean warnIfNoResults;
 
-    public JourneyRequest(LocalDate date, TramTime time, boolean arriveBy, int maxChanges, int maxJourneyDuration,
+    public JourneyRequest(LocalDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges, int maxJourneyDuration,
                           long maxNumberOfJourneys) {
-        this(new TramServiceDate(date), time, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys);
+        this(new TramServiceDate(date), originalQueryTime, arriveBy, maxChanges, maxJourneyDuration, maxNumberOfJourneys);
     }
 
-    public JourneyRequest(TramServiceDate date, TramTime time, boolean arriveBy, int maxChanges,
+    public JourneyRequest(TramServiceDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
                           int maxJourneyDuration, long maxNumberOfJourneys) {
         this.date = date;
-        this.time = time;
+        this.originalQueryTime = originalQueryTime;
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
         this.maxJourneyDuration = maxJourneyDuration;
@@ -41,8 +41,8 @@ public class JourneyRequest {
         return date;
     }
 
-    public TramTime getTime() {
-        return time;
+    public TramTime getOriginalTime() {
+        return originalQueryTime;
     }
 
     public boolean getArriveBy() {
@@ -64,13 +64,13 @@ public class JourneyRequest {
         if (getMaxChanges() != that.getMaxChanges()) return false;
         if (getMaxJourneyDuration() != that.getMaxJourneyDuration()) return false;
         if (!getDate().equals(that.getDate())) return false;
-        return getTime().equals(that.getTime());
+        return getOriginalTime().equals(that.getOriginalTime());
     }
 
     @Override
     public int hashCode() {
         int result = getDate().hashCode();
-        result = 31 * result + getTime().hashCode();
+        result = 31 * result + getOriginalTime().hashCode();
         result = 31 * result + (getArriveBy() ? 1 : 0);
         result = 31 * result + getMaxChanges();
         result = 31 * result + getMaxJourneyDuration();
@@ -110,7 +110,7 @@ public class JourneyRequest {
     public String toString() {
         return "JourneyRequest{" +
                 "date=" + date +
-                ", time=" + time +
+                ", originalQueryTime=" + originalQueryTime +
                 ", arriveBy=" + arriveBy +
                 ", maxChanges=" + maxChanges +
                 ", uid=" + uid +
