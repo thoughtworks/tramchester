@@ -10,6 +10,7 @@ import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMRemoteDataSourceConfig;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestLiveDataConfig;
 
 import java.nio.file.Path;
@@ -83,7 +84,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     @Override
     public Path getCacheFolder() {
-        return Path.of("testData/cache/tramIntegration");
+        return TestEnv.CACHE_DIR.resolve("tramIntegration");
     }
 }
 

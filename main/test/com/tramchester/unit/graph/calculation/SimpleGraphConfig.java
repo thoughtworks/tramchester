@@ -7,6 +7,7 @@ import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
+import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -44,6 +45,6 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
 
     @Override
     public Path getCacheFolder() {
-        return Path.of("testData/cache/unit");
+        return TestEnv.CACHE_DIR.resolve("unit");
     }
 }

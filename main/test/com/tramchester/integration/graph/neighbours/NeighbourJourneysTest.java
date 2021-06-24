@@ -31,8 +31,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -63,9 +62,11 @@ public class NeighbourJourneysTest {
     void onceBeforeEachTest() {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         stationRepository = componentContainer.get(StationRepository.class);
+
         CompositeStationRepository compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
 
         CompositeStation shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
+
         Optional<Station> maybeStop = shudehillCompositeBus.getContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudeHillStop = stop);
         shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());

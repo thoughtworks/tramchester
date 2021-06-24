@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationLinksNeighboursAndCompositeResourceTest {
+
     private static final AppConfiguration configuration = new NeighboursTestConfig();
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;
@@ -98,7 +99,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void expectedNumbers() {
         List<StationLinkDTO> results = getLinks();
-        assertEquals(2502, results.size(), "count of links");
+        assertEquals(2498, results.size(), "count of links");
     }
 
     @Test

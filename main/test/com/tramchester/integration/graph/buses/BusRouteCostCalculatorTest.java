@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BusRouteCostCalculatorTest {
     public static final int SHUDEHILL_TO_ALTY = 54;
     public static final int ALTY_TO_STOCKPORT = 40;
-    public static final int SHUDEHILL_TO_STOCKPORT = 41;
+    public static final int SHUDEHILL_TO_STOCKPORT = 44;
     private static ComponentContainer componentContainer;
 
     private Transaction txn;
@@ -87,13 +87,13 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        assertEquals(54, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
+        assertEquals(57, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
         assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        assertEquals(56, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
+        assertEquals(59, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
         assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
     }
 

@@ -169,25 +169,89 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldMatchDestination() {
+    void shouldMatchDestinationLowerCost() {
         long destinationNodeId = 42;
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> branchState = new TestBranchState();
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState();
-        final JourneyState journeyState = new JourneyState(time, traversalState);
+
+        JourneyState journeyState = createMock(JourneyState.class);
+        EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
+        EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(42);
+        EasyMock.expect(journeyState.getNumberChanges()).andReturn(7);
+
         branchState.setState(journeyState);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
         EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(1000);
         EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(999);
 
-        lowestCostSeen.setLowestCost(0);
+        lowestCostSeen.setLowestCost(42);
         EasyMock.expectLastCall();
-        lowestCostSeen.setLowestNumChanges(0);
+        lowestCostSeen.setLowestNumChanges(7);
         EasyMock.expectLastCall();
+
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Arrived, node, journeyState);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        Evaluation result = evaluator.evaluate(path, branchState);
+        assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
+        verifyAll();
+    }
+
+    @Test
+    void shouldMatchDestinationButHigherCost() {
+        long destinationNodeId = 42;
+        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
+
+        BranchState<JourneyState> branchState = new TestBranchState();
+
+        TramTime time = TramTime.of(8, 15);
+
+        JourneyState journeyState = createMock(JourneyState.class);
+        EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
+        EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
+        EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
+
+        branchState.setState(journeyState);
+
+        EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
+        EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(50);
+        EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(10);
+
+        previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.LongerPath, node, journeyState);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        Evaluation result = evaluator.evaluate(path, branchState);
+        assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
+        verifyAll();
+    }
+
+    @Test
+    void shouldMatchDestinationButHigherCostButLessHops() {
+        long destinationNodeId = 42;
+        TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
+
+        BranchState<JourneyState> branchState = new TestBranchState();
+
+        TramTime time = TramTime.of(8, 15);
+
+        JourneyState journeyState = createMock(JourneyState.class);
+        EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
+        EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
+        EasyMock.expect(journeyState.getNumberChanges()).andReturn(2);
+
+        branchState.setState(journeyState);
+
+        EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
+        EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(50);
+        EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(5);
+
+//        lowestCostSeen.setLowestNumChanges(2);
 
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Arrived, node, journeyState);
         EasyMock.expectLastCall();

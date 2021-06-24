@@ -78,7 +78,7 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
 
     @Override
     public Path getCacheFolder() {
-        return Path.of("testData/cache/trainIntegration");
+        return TestEnv.CACHE_DIR.resolve("trainIntegration");
     }
 
     private static class GraphDBIntegrationTrainTestConfig extends GraphDBTestConfig {

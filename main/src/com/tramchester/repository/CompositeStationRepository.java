@@ -74,6 +74,8 @@ public class CompositeStationRepository implements StationRepositoryPublic {
             final Set<TransportMode> compositeStationModes = dataSource.compositeStationModes();
             if (!compositeStationModes.isEmpty()) {
                 populateFor(dataSource, compositeStationModes);
+            } else {
+                logger.info("Not adding " + dataSource.getName() + " since no composite station modes");
             }
         });
         logger.info("started");

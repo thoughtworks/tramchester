@@ -190,7 +190,7 @@ class MixedRouteTest {
 
         @Override
         public Path getCacheFolder() {
-            return Path.of("testData/cache/mixedRouteTest");
+            return TestEnv.CACHE_DIR.resolve("mixedRouteTest");
         }
     }
 }

@@ -138,6 +138,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         return coreState.numberNeighbourConnections;
     }
 
+
+
     @Override
     public void board(TransportMode mode, Node node, boolean hasPlatform) throws TramchesterException {
         guardAlreadyOnboard();
@@ -152,6 +154,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
     public TraversalState getTraversalState() {
         return traversalState;
+    }
+
+    @Override
+    public int getTotalCostSoFar() {
+        return  traversalState.getTotalCost();
     }
 
     public void updateTraversalState(TraversalState traversalState) {

@@ -50,7 +50,7 @@ public class BusRouteToRouteCostsTest {
     // For testing, likely to vary a lot with timetable updates
     @Test
     void shouldHaveExpectedNumber() {
-        assertEquals(2134916, routeToRouteCosts.size());
+        assertEquals(2229049, routeToRouteCosts.size());
     }
 
     @Test

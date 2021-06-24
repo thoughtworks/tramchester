@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestEnv {
+    public static final Path CACHE_DIR = Path.of("testData","cache");
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
     public static final int DAYS_AHEAD = 7;

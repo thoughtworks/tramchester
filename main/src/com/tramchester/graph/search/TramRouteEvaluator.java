@@ -99,22 +99,26 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         final long nextNodeId = nextNode.getId();
 
-        final TraversalState previousTraversalState = journeyState.getTraversalState();
+        //final TraversalState previousTraversalState = journeyState.getTraversalState();
         final HowIGotHere howIGotHere = new HowIGotHere(thePath);
+        final int totalCostSoFar = journeyState.getTotalCostSoFar();
+        final int numberChanges = journeyState.getNumberChanges();
 
         if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
-            final int totalCost = previousTraversalState.getTotalCost();
-            final int numberChanges = journeyState.getNumberChanges();
-            if (totalCost <= lowestCostSeen.getLowestCost()
+            if (totalCostSoFar <= lowestCostSeen.getLowestCost()
                     && numberChanges <= lowestCostSeen.getLowestNumChanges()) {
                 // a better route than seen so far
                 // <= equals so we include multiple options and routes in the results
                 // An alternative to this would be to search over a finer grained list of times and catch alternatives
                 // that way
                 success = success + 1;
-                lowestCostSeen.setLowestCost(totalCost);
+                lowestCostSeen.setLowestCost(totalCostSoFar);
                 lowestCostSeen.setLowestNumChanges(numberChanges);
+                reasons.recordSuccess();
+                return ServiceReason.ReasonCode.Arrived;
+            } else if (numberChanges < lowestCostSeen.getLowestNumChanges()) {
+                // fewer hops can be a useful option
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
             } else {
@@ -123,8 +127,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ServiceReason.ReasonCode.LongerPath;
             }
         } else if (success>0) { // Not arrived, at least one successful route
-            int totalCost = previousTraversalState.getTotalCost();
-            if (totalCost > lowestCostSeen.getLowestCost()) {
+            if (totalCostSoFar > lowestCostSeen.getLowestCost()) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.Longer(howIGotHere));
                 return ServiceReason.ReasonCode.LongerPath;
@@ -156,7 +159,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // journey duration too long?
-        if (!serviceHeuristics.journeyDurationUnderLimit(previousTraversalState.getTotalCost(), howIGotHere, reasons).isValid()) {
+        if (!serviceHeuristics.journeyDurationUnderLimit(totalCostSoFar, howIGotHere, reasons).isValid()) {
             return ServiceReason.ReasonCode.TookTooLong;
         }
 

@@ -228,7 +228,7 @@ class PostcodeBusRouteCalculatorTest {
 
         assertFalse(journeys.isEmpty(), "no journeys");
         Set<Journey> oneStage = journeys.stream().filter(journey->journey.getStages().size()==1).collect(Collectors.toSet());
-        assertFalse(oneStage.isEmpty(), "no one stage journey");
+        assertFalse(oneStage.isEmpty(), "Missing one stage journey, got " + journeys);
 
         oneStage.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
