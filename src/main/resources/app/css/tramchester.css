@@ -48,50 +48,50 @@
 
 /* NOTE: Dont set line width here as leaflet will silently fail to update it */
 
-/* Altincham to/from Bury NO LONGER IN USE, LOCKDOWN */
-.RouteClassGreenLine  {
+/* Altincham to/from Bury */
+.RouteClass1GRN  {
     background-color: #308c2c;
     stroke: #308c2c;
     color: white;
 }
 
 /* Altrincham to/from Piccadilly */
-.RouteClassPurpleLine  {
+.RouteClass2PPL  {
     background-color: #690170;
     stroke: #690170;
     color: white;
 }
 
 /* Ashton-under-Lyne to/from Eccles */
-.RouteClassBlueLine  {
+.RouteClass3BLU  {
     background-color: #43bdee;
     stroke: #43bdee;
     color: white;
 }
 
 /* Bury to/from Piccadilly */
-.RouteClassYellowLine  {
+.RouteClass4YLW  {
     background-color: #edb700;
     stroke: #edb700;
     color: white;
 }
 
 /* E Didsbury to/from Rochdale */
-.RouteClassPinkLine  {
+.RouteClass5PNK  {
     background-color: #ee87b4;
     stroke: #ee87b4;
     color: white;
 }
 
 /* Manchester Airport tp/from Victoria */
-.RouteClassNavyLine  {
+.RouteClass6NVY  {
     background-color: #0066b1;
     stroke: #0066b1;
     color: white;
 }
 
 /* Cornbrook from The Trafford Centre */
-.RouteClassRedLine  {
+.RouteClass7RED  {
     background-color: #de0000;
     stroke: #de0000;
     color: white;
