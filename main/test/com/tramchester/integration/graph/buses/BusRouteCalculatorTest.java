@@ -30,8 +30,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.BusStations.PiccadilyStationStopA;
-import static com.tramchester.testSupport.reference.BusStations.StopAtStockportBusStation;
+import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -231,7 +230,7 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldReproIssueWithSlowPerformance() {
+    void shouldReproIssueWithSlowPerformanceShudehillToBroadheathAsda() {
         int maxChanges = 3;
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(9,40),
@@ -243,7 +242,26 @@ class BusRouteCalculatorTest {
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(shudehill, asdaBroadhealth, journeyRequest);
         assertFalse(journeys.isEmpty());
+    }
 
+    @Test
+    void shouldReproPerfIssueStockportToShudehillInterchange() {
+
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
+                false, 3, maxJourneyDuration, 3);
+
+        Set<Journey> results = calculator.calculateRouteAsSet(StopAtStockportBusStation, ShudehillInterchange, journeyRequest);
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldReproPerfIssueAltyToStockport() {
+
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
+                false, 3, maxJourneyDuration, 3);
+
+        Set<Journey> results = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, StopAtStockportBusStation, journeyRequest);
+        assertFalse(results.isEmpty());
     }
 
 }

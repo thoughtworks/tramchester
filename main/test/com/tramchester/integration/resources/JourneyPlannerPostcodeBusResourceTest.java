@@ -23,9 +23,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -89,15 +89,19 @@ class JourneyPlannerPostcodeBusResourceTest {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 BusStations.BuryInterchange.forDTO(), prefix(TestPostcodes.CentralBury),  time, day,
                 null, false, 2);
+
         assertEquals(200, response.getStatus());
 
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
-        journeys.forEach(journeyDTO -> {
-            assertEquals(1, journeyDTO.getStages().size());
-            assertEquals(TransportMode.Walk, journeyDTO.getStages().get(0).getMode());
+        Set<JourneyDTO> oneStage = journeys.stream().filter(journeyDTO -> journeyDTO.getStages().size() == 1).collect(Collectors.toSet());
+        assertFalse(oneStage.isEmpty(), "no one stage in " + journeys);
+
+        oneStage.forEach(journeyDTO -> {
+            final List<StageDTO> stages = journeyDTO.getStages();
+            assertEquals(TransportMode.Walk, stages.get(0).getMode(), stages.get(0).toString());
             assertEquals(BusStations.BuryInterchange.forDTO(), journeyDTO.getBegin().getId());
         });
     }
@@ -106,7 +110,7 @@ class JourneyPlannerPostcodeBusResourceTest {
     void shouldPlanJourneyFromPostcodeToBusStation() {
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(TestPostcodes.CentralBury), BusStations.ShudehillInterchange.forDTO(), time, day,
-                null, false, 0);
+                null, false, 1);
 
         assertEquals(200, response.getStatus());
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
@@ -115,9 +119,9 @@ class JourneyPlannerPostcodeBusResourceTest {
 
         journeys.forEach(journey -> {
             final List<StageDTO> stages = journey.getStages();
-            assertEquals(2, stages.size(), journey.toString());
+            assertTrue(stages.size()>=2, journey.toString());
             assertEquals(stages.get(0).getMode(), TransportMode.Walk, journey.toString());
-            assertEquals(stages.get(1).getMode(), TransportMode.Bus);
+            assertEquals(stages.get(stages.size()-1).getMode(), TransportMode.Bus);
         });
     }
 

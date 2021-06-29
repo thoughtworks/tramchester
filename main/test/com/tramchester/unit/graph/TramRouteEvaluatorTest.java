@@ -340,7 +340,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         BranchState<JourneyState> branchState = new TestBranchState();
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.SERVICE));
 
@@ -385,7 +385,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         journeyState.board(TransportMode.Tram, node, true);
         branchState.setState(journeyState);
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.ROUTE_STATION));
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
@@ -423,7 +423,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         journeyState.board(TransportMode.Tram, node, true);
         branchState.setState(journeyState);
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.ROUTE_STATION));
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons)).
@@ -462,7 +462,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         journeyState.board(TransportMode.Bus, node, true);
         branchState.setState(journeyState);
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.ROUTE_STATION));
 
         EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
@@ -497,7 +497,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.journeyDurationUnderLimit(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.DurationOk, howIGotHere));
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.QUERY_NODE));
 
         EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(true);
@@ -588,7 +588,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.checkNumberNeighbourConnections(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere));
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.HOUR));
 
         NotStartedState traversalState = getNotStartedState();
@@ -625,7 +625,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.checkNumberNeighbourConnections(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere));
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.MINUTE));
 
         NotStartedState traversalState = getNotStartedState();
@@ -661,7 +661,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.checkNumberNeighbourConnections(0, howIGotHere, reasons)).
                 andStubReturn(ServiceReason.IsValid(ServiceReason.ReasonCode.NeighbourConnectionsOk, howIGotHere));
 
-        EasyMock.expect(path.length()).andReturn(50);
+        EasyMock.expect(path.length()).andStubReturn(50);
         EasyMock.expect(lastRelationship.isType(WALKS_TO)).andReturn(false);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(EnumSet.of(GraphLabel.GROUPED));
 

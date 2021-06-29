@@ -164,7 +164,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // returned to the start?
-        if (journeyState.hasBegunJourney() && nextNodeId==startNodeId) {
+        if ((thePath.length() > 1) && nextNodeId==startNodeId) {
             reasons.recordReason(ServiceReason.ReturnedToStart(howIGotHere));
             return ServiceReason.ReasonCode.ReturnedToStart;
         }

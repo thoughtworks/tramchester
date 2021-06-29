@@ -17,6 +17,8 @@ import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
@@ -29,9 +31,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.reference.TramStations.Bury;
-import static com.tramchester.testSupport.reference.TramStations.Shudehill;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -44,6 +46,7 @@ public class NeighbourJourneysTest {
     private static ComponentContainer componentContainer;
     private Transaction txn;
     private Station shudeHillStop;
+    private LocationJourneyPlanner planner;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -69,10 +72,12 @@ public class NeighbourJourneysTest {
 
         Optional<Station> maybeStop = shudehillCompositeBus.getContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudeHillStop = stop);
+
         shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
 
         txn = graphDatabase.beginTx();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        planner = componentContainer.get(LocationJourneyPlanner.class);
     }
 
     @AfterEach
@@ -94,11 +99,11 @@ public class NeighbourJourneysTest {
     void shouldTramNormally() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
-                TramTime.of(11,53), false, 2, config.getMaxJourneyDuration(), 1);
+                TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
 
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Shudehill, request);
-
+        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Victoria, request);
         assertFalse(journeys.isEmpty());
+
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
             TransportStage<?,?> stage = journey.getStages().get(0);
@@ -109,35 +114,42 @@ public class NeighbourJourneysTest {
     @Test
     void shouldTramThenWalk() {
 
+        LocationJourneyPlannerTestFacade facade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
+
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()),
                 TramTime.of(11,53), false, 0, config.getMaxJourneyDuration(), 1);
 
-        Station startStation = stationRepository.getStationById(Bury.getId());
-        Set<Journey> allJourneys = routeCalculator.calculateRouteAsSet(startStation, shudeHillStop, request);
+        Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham, TestEnv.nearStPetersSquare, request, 4);
+        assertFalse(allJourneys.isEmpty(), "No journeys");
 
-        Set<Journey> maybeTram = allJourneys.stream().filter(journey -> journey.getStages().size()<=2).collect(Collectors.toSet());
-        assertFalse(maybeTram.isEmpty());
+        Set<Journey> maybeTram = allJourneys.stream().
+                filter(journey -> journey.getTransportModes().contains(Tram)).
+                collect(Collectors.toSet());
+        assertFalse(maybeTram.isEmpty(), "No tram " + allJourneys);
 
         maybeTram.forEach(journey -> {
             final List<TransportStage<?, ?>> stages = journey.getStages();
-            assertEquals(2, stages.size());
-            TransportStage<?,?> first = stages.get(0);
-            assertEquals(Tram, first.getMode());
-            TransportStage<?,?> second = stages.get(1);
-            assertEquals(TransportMode.Connect, second.getMode());
+
+            TransportStage<?,?> firstStage = stages.get(0);
+            assertEquals(Tram, firstStage.getMode(), firstStage.toString());
+
+            TransportStage<?,?> last = stages.get(stages.size()-1);
+            assertEquals(TransportMode.Walk, last.getMode(), last.toString());
         });
     }
 
     private void validateDirectWalk(Station start, Station end) {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(TestEnv.testDay()), TramTime.of(11,45),
-                        false, 0, config.getMaxJourneyDuration(), 1);
+                        false, 0, config.getMaxJourneyDuration(), 3);
 
-        Set<Journey> journeys =  routeCalculator.calculateRouteAsSet(start, end, request);
+        Set<Journey> allJourneys =  routeCalculator.calculateRouteAsSet(start, end, request);
+        assertFalse(allJourneys.isEmpty());
 
-        assertFalse(journeys.isEmpty());
+        Set<Journey> journeys = allJourneys.stream().filter(Journey::isDirect).collect(Collectors.toSet());
+
         journeys.forEach(journey -> {
-            assertEquals(1, journey.getStages().size(), journey.toString());
+            //assertEquals(1, journey.getStages().size(), journey.toString());
             TransportStage<?,?> stage = journey.getStages().get(0);
             assertEquals(TransportMode.Connect, stage.getMode());
         });

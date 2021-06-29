@@ -340,7 +340,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                          Route route, Trip trip) {
 
         // TODO when filtering this isn't really valid, we might only see a small segment of a larger trip....
-        // in unfiltered situations (i.e. non test) it is fine
+        // In unfiltered situations (i.e. not testing) it is fine
         boolean isFirstStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfFirstStop(); //stop seq num, not index
         boolean isLastStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfLastStop();
 
@@ -383,7 +383,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             createDeparts(routeBuilderCache, station, isInterchange, platformOrStation, routeStationId, routeStationNode);
         }
 
-        // TODO seems normal in most data sets, we go past stops without calling in
+        // NOTE: seems normal in most data sets, we go past stops without calling in
 //        if ((!(pickup||dropoff)) && (!TransportMode.isTrain(route))) {
 //            // this is normal for trains, timetable lists all passed stations, whether train stops or not
 //            logger.warn("No pickup or dropoff for " + stopCall);

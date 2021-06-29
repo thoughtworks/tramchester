@@ -119,7 +119,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         Set<Station> filteredStations = graphFilter.isFiltered() ?
                 transportData.getStationStream().filter(graphFilter::shouldInclude)
-//                        .filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes()))
                         .collect(Collectors.toSet()) :
                 transportData.getStations();
 
