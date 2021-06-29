@@ -1,9 +1,11 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationClient;
@@ -20,6 +22,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.AshtonUnderLyneManchesterEccles;
@@ -41,16 +44,14 @@ class RouteResourceTest {
     void shouldGetAllRoutes() {
         List<RouteDTO> routes = getRouteResponse();
 
-        // todo Lockdown 14->12
-        assertEquals(12, routes.size());
+        assertEquals(13, routes.size());
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        RouteDTO query = new RouteDTO(routeHelper.get(AshtonUnderLyneManchesterEccles), new LinkedList<>());
-        int index = routes.indexOf(query);
-        assertTrue(index>0);
+        RouteDTO ashtonRoute = routes.stream().
+                filter(routeDTO -> routeDTO.getShortName().equals(AshtonUnderLyneManchesterEccles.shortName())).
+                findFirst().orElseThrow();
 
-        RouteDTO ashtonRoute = routes.get(index);
         assertTrue(ashtonRoute.isTram());
         List<StationRefWithPosition> ashtonRouteStations = ashtonRoute.getStations();
 
@@ -64,11 +65,12 @@ class RouteResourceTest {
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
-        RouteDTO query = new RouteDTO(routeHelper.get(ManchesterAirportWythenshaweVictoria), new LinkedList<>());
-        int index = routes.indexOf(query);
-        assertTrue(index>0);
+        RouteDTO airRoute = routes.stream().
+                filter(routeDTO -> routeDTO.getShortName().equals(ManchesterAirportWythenshaweVictoria.shortName())).
+                filter(routeDTO -> routeDTO.getId().contains(RouteDirection.Inbound.getSuffix())).
+                findFirst().orElseThrow();
 
-        List<StationRefWithPosition> stations = routes.get(index).getStations();
+        List<StationRefWithPosition> stations = airRoute.getStations();
         StationRefWithPosition first = stations.get(0);
         assertEquals(TramStations.ManAirport.forDTO(), first.getId());
         TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), first.getLatLong(), 0.00001, "lat long");

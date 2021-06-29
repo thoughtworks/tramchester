@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -22,6 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -58,10 +61,13 @@ class RouteReachableTramTest {
         Station start = stationRepository.getStationById(Altrincham.getId());
         Station next = stationRepository.getStationById(NavigationRoad.getId());
         List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next));
-        assertEquals(1, results.size());
 
-        Route route = results.get(0);
-        assertEquals(route.getId(), tramRouteHelper.getId(AltrinchamPiccadilly));
+        Set<String> names = results.stream().
+                map(Route::getName).collect(Collectors.toSet());
+        assertEquals(2, names.size(), names.toString());
+
+        assertTrue(names.contains(AltrinchamPiccadilly.longName()));
+        assertTrue(names.contains(AltrinchamManchesterBury.longName()));
     }
 
 

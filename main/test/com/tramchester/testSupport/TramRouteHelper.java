@@ -2,21 +2,24 @@ package com.tramchester.testSupport;
 
 import com.tramchester.App;
 import com.tramchester.ComponentContainer;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /***
  * Test helper only
  */
 public class TramRouteHelper {
 
-    private final Map<KnownTramRoute, Route> map;
+    private final Map<KnownTramRoute, Set<Route>> map;
 
     public TramRouteHelper(ComponentContainer componentContainer) {
         this(componentContainer.get(RouteRepository.class));
@@ -39,15 +42,30 @@ public class TramRouteHelper {
     private void createMap(RouteRepository routeRepository) {
         KnownTramRoute[] knownTramRoutes = KnownTramRoute.values();
         for (KnownTramRoute knownRoute : knownTramRoutes) {
-            map.put(knownRoute, TestEnv.findTramRoute(routeRepository, knownRoute));
+            final Set<Route> routesByShortName =
+                    routeRepository.findRoutesByShortName(Agency.METL, knownRoute.shortName()).
+                            stream().filter(found -> found.getId().forDTO().contains(knownRoute.direction().getSuffix())).
+                            collect(Collectors.toSet());
+            if (routesByShortName.isEmpty()) {
+                throw new RuntimeException("Found nothing matching " + knownRoute);
+            }
+            map.put(knownRoute, routesByShortName);
         }
     }
 
-    public Route get(KnownTramRoute knownRoute) {
+    public Set<Route> get(KnownTramRoute knownRoute) {
+        guard(knownRoute);
         return map.get(knownRoute);
     }
 
-    public IdFor<Route> getId(KnownTramRoute knownTramRoute) {
-        return map.get(knownTramRoute).getId();
+    private void guard(KnownTramRoute knownRoute) {
+        if (!map.containsKey(knownRoute)) {
+            throw new RuntimeException("Missing " + knownRoute);
+        }
+    }
+
+    public IdSet<Route> getId(KnownTramRoute knownRoute) {
+        guard(knownRoute);
+        return map.get(knownRoute).stream().collect(IdSet.collector());
     }
 }

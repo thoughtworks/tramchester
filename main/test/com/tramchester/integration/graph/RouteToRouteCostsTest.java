@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,60 +72,69 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldHaveExpectedNumberOfInterconnections() {
-        assertEquals(144, routeCosts.size());
+        assertEquals((26*26), routeCosts.size());
     }
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.get(AltrinchamPiccadilly);
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
 
-        assertEquals(0,routeCosts.getFor(routeA, routeA));
+        routesA.forEach(routeA -> assertEquals(0,routeCosts.getFor(routeA, routeA)));
     }
 
     @Test
     void shouldComputeCostsRouteOtherDirection() {
-        Route routeA = routeHelper.get(AltrinchamPiccadilly);
-        Route routeB = routeHelper.get(PiccadillyAltrincham);
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
+        Set<Route> routesB = routeHelper.get(PiccadillyAltrincham);
 
-        assertEquals(1,routeCosts.getFor(routeA, routeB));
-        assertEquals(1,routeCosts.getFor(routeB, routeA));
+        routesA.forEach(routeA -> routesB.forEach(routeB -> {
+            assertEquals(1,routeCosts.getFor(routeA, routeB));
+            assertEquals(1,routeCosts.getFor(routeB, routeA));
+        }));
     }
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChange() {
-        Route routeA = routeHelper.get(CornbrookTheTraffordCentre);
-        Route routeB = routeHelper.get(BuryPiccadilly);
+        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre);
+        Set<Route> routesB = routeHelper.get(BuryPiccadilly);
 
-        assertEquals(2, routeCosts.getFor(routeA, routeB));
-        assertEquals(2, routeCosts.getFor(routeB, routeA));
+        routesA.forEach(routeA -> routesB.forEach(routeB -> {
+            assertEquals(2, routeCosts.getFor(routeA, routeB));
+            assertEquals(2, routeCosts.getFor(routeB, routeA));
+        }));
 
     }
 
     @Test
     void shouldComputeCostsDifferentRoutesTwoChanges() {
-        Route routeA = routeHelper.get(AltrinchamPiccadilly);
-        Route routeB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
+        Set<Route> routesA = routeHelper.get(AltrinchamPiccadilly);
+        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
 
-        assertEquals(1,routeCosts.getFor(routeA, routeB));
-        assertEquals(1,routeCosts.getFor(routeB, routeA));
+        routesA.forEach(routeA -> routesB.forEach(routeB -> {
+            assertEquals(1, routeCosts.getFor(routeA, routeB));
+            assertEquals(1, routeCosts.getFor(routeB, routeA));
+        }));
     }
 
     @Test
     void shouldSortAsExpected() {
-        Route routeA = routeHelper.get(CornbrookTheTraffordCentre);
-        Route routeB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
-        Route routeC = routeHelper.get(BuryPiccadilly);
+        Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre);
+        Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
+        Set<Route> routesC = routeHelper.get(BuryPiccadilly);
 
-        List<HasId<Route>> toSort = Arrays.asList(routeC, routeB, routeA);
+        routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {
 
-        IdSet<Route> destinations = new IdSet<>(routeA.getId());
-        Stream<HasId<Route>> results = routeCosts.sortByDestinations(toSort.stream(), destinations);
+            List<HasId<Route>> toSort = Arrays.asList(routeC, routeB, routeA);
 
-        List<HasId<Route>> list = results.collect(Collectors.toList());
-        assertEquals(toSort.size(), list.size());
-        assertEquals(routeA.getId(), list.get(0).getId());
-        assertEquals(routeB.getId(), list.get(1).getId());
-        assertEquals(routeC.getId(), list.get(2).getId());
+            IdSet<Route> destinations = new IdSet<>(routeA.getId());
+            Stream<HasId<Route>> results = routeCosts.sortByDestinations(toSort.stream(), destinations);
+
+            List<HasId<Route>> list = results.collect(Collectors.toList());
+            assertEquals(toSort.size(), list.size());
+            assertEquals(routeA.getId(), list.get(0).getId());
+            assertEquals(routeB.getId(), list.get(1).getId());
+            assertEquals(routeC.getId(), list.get(2).getId());
+        })));
     }
 
     @Test

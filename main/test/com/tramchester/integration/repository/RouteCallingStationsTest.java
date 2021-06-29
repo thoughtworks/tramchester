@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -16,11 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.assertIdEquals;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RouteCallingStationsTest {
 
@@ -117,7 +120,21 @@ class RouteCallingStationsTest {
     }
 
     private List<Station> getStationsFor(KnownTramRoute knownRoute) {
-        return callingStations.getStationsFor(routeHelper.get(knownRoute));
+        final Set<Route> routes = routeHelper.get(knownRoute);
+        List<List<Station>> stationsForRoute = routes.stream().map(route -> callingStations.getStationsFor(route)).collect(Collectors.toList());
+
+        assertFalse(stationsForRoute.isEmpty(), "found none for " + knownRoute);
+
+        // should all be the same
+        List<Station> first = stationsForRoute.get(0);
+        final int found = stationsForRoute.size();
+        if (found >1) {
+            for (int i = 1; i < found; i++) {
+                assertEquals(first, stationsForRoute.get(i));
+            }
+        }
+
+        return first;
     }
 
 }

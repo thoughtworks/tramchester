@@ -71,10 +71,10 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private static void configureFilter(ConfigurableGraphFilter toConfigure) {
         stations.forEach(station -> toConfigure.addStation(station.getId()));
-        toConfigure.addRoute(tramRouteHelper.getId(AshtonUnderLyneManchesterEccles));
-        toConfigure.addRoute(tramRouteHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury));
-        toConfigure.addRoute(tramRouteHelper.getId(EcclesManchesterAshtonUnderLyne));
-        toConfigure.addRoute(tramRouteHelper.getId(EastDidisburyManchesterShawandCromptonRochdale));
+        toConfigure.addRoutes(tramRouteHelper.getId(AshtonUnderLyneManchesterEccles));
+        toConfigure.addRoutes(tramRouteHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury));
+        toConfigure.addRoutes(tramRouteHelper.getId(EcclesManchesterAshtonUnderLyne));
+        toConfigure.addRoutes(tramRouteHelper.getId(EastDidisburyManchesterShawandCromptonRochdale));
     }
 
     @AfterAll

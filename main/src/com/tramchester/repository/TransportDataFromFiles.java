@@ -263,23 +263,36 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 Station station = preloadStations.get(stationId);
                 Route route = trip.getRoute();
 
-                addStationTo(buildable, route, station, factory);
-
-                StopCall stopCall = createStopCall(buildable, stopTimeData, route, station, factory, dataSourceConfig);
-                trip.addStop(stopCall);
-
-                if (!buildable.hasTripId(trip.getId())) {
-                    buildable.addTrip(trip); // seen at least one stop for this trip
+                boolean shouldAdd = true;
+                if (dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode())) {
+                    // expecting a platform here
+                    if (!station.hasPlatforms()) {
+                        logger.error(format("Did not find platform for %s %s %s source %s ", station.getId(),
+                                stopTimeData, route.getId(), dataSourceConfig.getName()));
+                        shouldAdd = false;
+                    }
                 }
 
-                Service service = trip.getService();
+                if (shouldAdd) {
+                    addStationTo(buildable, route, station, factory);
 
-                route.addTrip(trip);
-                route.addService(service);
+                    StopCall stopCall = createStopCall(buildable, stopTimeData, route, station, factory, dataSourceConfig);
 
-                addedServices.add(service);
-                buildable.addService(service);
-                count.getAndIncrement();
+                    trip.addStop(stopCall);
+
+                    if (!buildable.hasTripId(trip.getId())) {
+                        buildable.addTrip(trip); // seen at least one stop for this trip
+                    }
+
+                    Service service = trip.getService();
+
+                    route.addTrip(trip);
+                    route.addService(service);
+
+                    addedServices.add(service);
+                    buildable.addService(service);
+                    count.getAndIncrement();
+                }
 
             } else {
                 excludedStations.add(stationId);
@@ -299,7 +312,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
         IdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
 
-        // TODO Should be HasPlatform
+        // TODO Should be HasPlatform?
         if (sourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
             if (buildable.hasPlatformId(platformId)) {
                 Platform platform = buildable.getPlatform(platformId);

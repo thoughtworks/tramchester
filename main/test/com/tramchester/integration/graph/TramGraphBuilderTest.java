@@ -6,6 +6,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -29,10 +30,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -43,21 +41,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TramGraphBuilderTest {
     private static ComponentContainer componentContainer;
-    private static IntegrationTramTestConfig testConfig;
 
     private TransportData transportData;
     private Transaction txn;
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
-    private Route tramRouteAshtonEccles;
-    private Route tramRouteEcclesAshton;
-    private Route tramRouteAltPicc;
+    private Set<Route> tramRoutesAshtonEccles;
+    private Set<Route> tramRoutesEcclesAshton;
+    private Set<Route> tramRoutesAltPicc;
     private TramRouteHelper tramRouteHelper;
-    private InterchangeRepository interchangeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationTramTestConfig();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -65,14 +61,14 @@ class TramGraphBuilderTest {
     @BeforeEach
     void beforeEachTestRuns() {
         tramRouteHelper = new TramRouteHelper(componentContainer);
-        tramRouteAshtonEccles = tramRouteHelper.get(AshtonUnderLyneManchesterEccles);
-        tramRouteEcclesAshton = tramRouteHelper.get(EcclesManchesterAshtonUnderLyne);
-        tramRouteAltPicc = tramRouteHelper.get(AltrinchamPiccadilly);
+        tramRoutesAshtonEccles = tramRouteHelper.get(AshtonUnderLyneManchesterEccles);
+        tramRoutesEcclesAshton = tramRouteHelper.get(EcclesManchesterAshtonUnderLyne);
+        tramRoutesAltPicc = tramRouteHelper.get(AltrinchamPiccadilly);
 
         graphQuery = componentContainer.get(GraphQuery.class);
         transportData = componentContainer.get(TransportData.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        //InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         GraphDatabase service = componentContainer.get(GraphDatabase.class);
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
@@ -143,11 +139,17 @@ class TramGraphBuilderTest {
 
         Station mediaCityUK = TramStations.of(MediaCityUK);
 
-        RouteStation routeStationMediaCityA = stationRepository.getRouteStation(mediaCityUK, tramRouteEcclesAshton);
-        List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationMediaCityA, Direction.OUTGOING);
+        List<Relationship> outbounds = new ArrayList<>();
 
-        RouteStation routeStationMediaCityB = stationRepository.getRouteStation(mediaCityUK, tramRouteAshtonEccles);
-        outbounds.addAll(graphQuery.getRouteStationRelationships(txn, routeStationMediaCityB, Direction.OUTGOING));
+        tramRoutesEcclesAshton.forEach(tramRouteEcclesAshton -> {
+            RouteStation routeStationMediaCityA = stationRepository.getRouteStation(mediaCityUK, tramRouteEcclesAshton);
+            outbounds.addAll(graphQuery.getRouteStationRelationships(txn, routeStationMediaCityA, Direction.OUTGOING));
+        });
+
+        tramRoutesAshtonEccles.forEach(tramRouteAshtonEccles -> {
+            RouteStation routeStationMediaCityB = stationRepository.getRouteStation(mediaCityUK, tramRouteAshtonEccles);
+            outbounds.addAll(graphQuery.getRouteStationRelationships(txn, routeStationMediaCityB, Direction.OUTGOING));
+        });
 
         Set<IdFor<Service>> graphSvcIds = outbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
@@ -166,15 +168,21 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
-        RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAltPicc);
-        List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAltyPiccRoute, Direction.OUTGOING);
+        tramRoutesAltPicc.forEach(tramRouteAltPicc -> {
+            RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAltPicc);
+            List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAltyPiccRoute, Direction.OUTGOING);
 
-        assertTrue(outbounds.size()>1, "have at least one outbound");
+            assertTrue(outbounds.size()>1, "have at least one outbound");
+        });
 
-        RouteStation routeStationCornbrookAshtonEcclesRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAshtonEccles);
-        outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAshtonEcclesRoute, Direction.OUTGOING);
+        tramRoutesAshtonEccles.forEach(tramRouteAshtonEccles -> {
 
-        assertTrue(outbounds.size()>1);
+            RouteStation routeStationCornbrookAshtonEcclesRoute = stationRepository.getRouteStation(of(Cornbrook), tramRouteAshtonEccles);
+            List<Relationship> outbounds = graphQuery.getRouteStationRelationships(txn, routeStationCornbrookAshtonEcclesRoute, Direction.OUTGOING);
+
+            assertTrue(outbounds.size()>1);
+        });
+
     }
 
     @Test
@@ -192,12 +200,11 @@ class TramGraphBuilderTest {
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
-        // TODO Lockdown - Route 1 is gone for now
-//        checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.ALTY_TO_BURY);
-//        checkOutboundConsistency(Stations.StPetersSquare, RoutesForTesting.BURY_TO_ALTY);
-//
-//        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.BURY_TO_ALTY);
-//        checkOutboundConsistency(Stations.Cornbrook, RoutesForTesting.ALTY_TO_BURY);
+        checkOutboundConsistency(StPetersSquare, AltrinchamManchesterBury);
+        checkOutboundConsistency(StPetersSquare, BuryManchesterAltrincham);
+
+        checkOutboundConsistency(Cornbrook, BuryManchesterAltrincham);
+        checkOutboundConsistency(Cornbrook, AltrinchamManchesterBury);
 
         checkOutboundConsistency(StPetersSquare, AshtonUnderLyneManchesterEccles);
         checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonUnderLyne);
@@ -218,18 +225,23 @@ class TramGraphBuilderTest {
 
     private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Station station = of(tramStation);
-        Route route = tramRouteHelper.get(knownRoute);
+        Set<Route> routes = tramRouteHelper.get(knownRoute);
 
+        routes.forEach(route -> checkOutboundConsistency(station, route));
+    }
+
+    private void checkOutboundConsistency(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
 
         List<Relationship> routeStationOutbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.OUTGOING);
 
         assertTrue(routeStationOutbounds.size()>0);
 
-        List<IdFor<Service>> serviceRelatIds = routeStationOutbounds.stream().
+        // since can have 'multiple' route stations due to dup routes use set here
+       IdSet<Service> serviceRelatIds = routeStationOutbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 map(GraphProps::getServiceId).
-                collect(Collectors.toList());
+                collect(IdSet.idCollector());
 
         Set<Trip> fileCallingTrips =
                 transportData.getRouteById(route.getId()).getTrips().stream().
@@ -237,22 +249,14 @@ class TramGraphBuilderTest {
                 filter(trip -> trip.getStopCalls().callsAt(station)).
                 collect(Collectors.toSet());
 
-        Set<IdFor<Service>> fileSvcIdFromTrips = fileCallingTrips.stream().
+        IdSet<Service> fileSvcIdFromTrips = fileCallingTrips.stream().
                 map(trip -> trip.getService().getId()).
-                collect(Collectors.toSet());
+                collect(IdSet.idCollector());
 
         // NOTE: Check clean target that and graph has been rebuilt if see failure here
-        // each svc should be one outbound, no dups, so use list not set of ids
-        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size());
+        assertEquals(fileSvcIdFromTrips.size(), serviceRelatIds.size(),
+                "Did not match " + fileSvcIdFromTrips + " and " + serviceRelatIds);
         assertTrue(fileSvcIdFromTrips.containsAll(serviceRelatIds));
-
-//        long routeConnected = routeStationOutbounds.stream().
-//                filter(relationship -> relationship.isType(CONNECT_ROUTES)).count();
-//        if (testConfig.getChangeAtInterchangeOnly() && interchangeRepository.isInterchange(TramStations.of(tramStation))) {
-//            assertNotEquals(0, routeConnected);
-//        } else {
-//            assertEquals(0, routeConnected);
-//        }
 
         long connectedToRouteStation = routeStationOutbounds.stream().filter(relationship -> relationship.isType(ROUTE_TO_STATION)).count();
         assertNotEquals(0, connectedToRouteStation);
@@ -263,9 +267,13 @@ class TramGraphBuilderTest {
     }
 
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
-        Route route = tramRouteHelper.get(knownRoute);
+        Set<Route> routes = tramRouteHelper.get(knownRoute);
         Station station = of(tramStation);
 
+        routes.forEach(route -> checkInboundConsistency(station, route));
+    }
+
+    private void checkInboundConsistency(Station station, Route route) {
         RouteStation routeStation = stationRepository.getRouteStation(station, route);
         List<Relationship> inbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
 

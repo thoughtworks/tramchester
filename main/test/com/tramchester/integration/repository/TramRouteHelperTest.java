@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TramRouteHelperTest {
@@ -39,10 +41,16 @@ class TramRouteHelperTest {
     void shouldFindAllKnownRoutes() {
         KnownTramRoute[] knownRoutes = KnownTramRoute.values();
         for(KnownTramRoute knownRoute : knownRoutes) {
-            Route found = helper.get(knownRoute);
-            assertEquals(TestEnv.MetAgency(), found.getAgency());
-            assertEquals(knownRoute.shortName(), found.getShortName());
-            assertTrue(found.getId().forDTO().contains(knownRoute.direction().getSuffix()));
+            Set<Route> found = helper.get(knownRoute);
+            assertFalse(found.isEmpty(),"missing " + knownRoute.toString());
+            found.forEach(route -> {
+                assertEquals(TestEnv.MetAgency(), route.getAgency(), "agency wrong" + route.getAgency());
+                assertEquals(knownRoute.shortName(), route.getShortName(), "shortname " + route.getShortName());
+
+                final String id = route.getId().forDTO();
+                final String suffix = knownRoute.direction().getSuffix();
+                assertTrue(id.contains(suffix), id + " does not contain " + suffix);
+            });
         }
     }
 }

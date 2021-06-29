@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,17 +50,22 @@ class RouteMapperTest {
         RoutesMapper mapper = componentContainer.get(RoutesMapper.class);
 
         List<RouteDTO> dtos = mapper.getAllRoutes();
-        Route route = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria);
-        RouteDTO query = new RouteDTO(route, new LinkedList<>());
+        Set<Route> routes = tramRouteHelper.get(ManchesterAirportWythenshaweVictoria);
 
-        int index = dtos.indexOf(query);
+        routes.forEach(route -> {
+            RouteDTO query = new RouteDTO(route, new LinkedList<>());
 
-        List<StationRefWithPosition> stations = dtos.get(index).getStations();
-        StationRefWithPosition stationRefWithPosition = stations.get(0);
-        assertEquals(TramStations.ManAirport.forDTO(), stationRefWithPosition.getId());
-        TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
-                0.00001, "position");
-        assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
-        assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
+            int index = dtos.indexOf(query);
+
+            List<StationRefWithPosition> stations = dtos.get(index).getStations();
+            StationRefWithPosition stationRefWithPosition = stations.get(0);
+            assertEquals(TramStations.ManAirport.forDTO(), stationRefWithPosition.getId());
+            TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
+                    0.00001, "position");
+            assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
+            assertEquals(TramStations.Victoria.forDTO(), stations.get(stations.size()-1).getId());
+        });
+
+
     }
 }

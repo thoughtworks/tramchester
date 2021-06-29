@@ -34,27 +34,31 @@ class KnownTramRouteTest {
     }
 
     @Test
-    void shouldHaveCorrespondanceWithLoadedRoutes() {
+    void shouldHaveMatchWithLoadedRoutes() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
+        Set<String> knownRouteNames = knownRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
         Set<Route> loadedRoutes = routeRepository.getRoutes();
-        List<KnownTramRoute> knownRoutes = Arrays.asList(KnownTramRoute.values());
 
-        assertEquals(knownRoutes.size(), loadedRoutes.size());
-
-        Set<String> knownRouteNames = knownRoutes.stream().map(Enum::name).collect(Collectors.toSet());
+        // NOTE: not checking numbers here as loaded data can contain the 'same' route but with different id
 
         for (Route loaded: loadedRoutes) {
-            String name = loaded.getName().replace(" ","").replace("-","");
-            assertTrue(knownRouteNames.contains(name), name);
+            final String loadedName = loaded.getName();
+            assertTrue(knownRouteNames.contains(loadedName), "missing from known '" + loadedName+"'");
+
+            KnownTramRoute matched = knownRoutes.stream().
+                    filter(knownTramRoute -> knownTramRoute.longName().equals(loadedName)).findFirst().orElseThrow();
+
+            assertEquals(loaded.getShortName(), matched.shortName());
+            assertEquals(loaded.getTransportMode(), matched.mode());
         }
 
-        for(KnownTramRoute known : knownRoutes) {
-            Route found = TestEnv.findTramRoute(routeRepository, known);
-            String name = found.getName().replace(" ","").replace("-","");
-            assertEquals(name, known.name(), known.name());
-        }
+        Set<String> loadedRouteNames = loadedRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
+        for (KnownTramRoute knownTramRoute : knownRoutes) {
+            assertTrue(loadedRouteNames.contains(knownTramRoute.longName()), "Missing from loaded " + knownTramRoute);
+        }
 
     }
 }

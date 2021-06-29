@@ -76,19 +76,20 @@ public class TraversalOpsTest {
                 sortsPositions, destinationStations, destinationLatLon, routeToRouteCosts);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
+
         HasId<Route> otherRoute = altrincham.getRoutes().iterator().next();
         HasId<Route> vicToAirport = manchesterAirport.getRoutes().iterator().next();
 
-        assertEquals(0,traversalOps.onDestRouteFirst(vicToAirport, vicToAirport));
-        assertEquals(-1,traversalOps.onDestRouteFirst(vicToAirport, otherRoute));
-        assertEquals(+1,traversalOps.onDestRouteFirst(otherRoute, vicToAirport));
-        assertEquals(0,traversalOps.onDestRouteFirst(otherRoute, otherRoute));
+        assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, vicToAirport));
+        assertEquals(-1, traversalOps.onDestRouteFirst(vicToAirport, otherRoute));
+        assertEquals(+1, traversalOps.onDestRouteFirst(otherRoute, vicToAirport));
+        assertEquals(0, traversalOps.onDestRouteFirst(otherRoute, otherRoute));
 
-        Station sameRouteStation = stationRepository.getStationById(TramStations.StWerburghsRoad.getId());
+        Station sameRouteStation = stationRepository.getStationById(TramStations.PeelHall.getId());
         HasId<Route> sameRoute = sameRouteStation.getRoutes().iterator().next();
 
-        assertEquals(0,traversalOps.onDestRouteFirst(sameRoute, vicToAirport));
-        assertEquals(0,traversalOps.onDestRouteFirst(vicToAirport, sameRoute));
+        assertEquals(0, traversalOps.onDestRouteFirst(sameRoute, vicToAirport));
+        assertEquals(0, traversalOps.onDestRouteFirst(vicToAirport, sameRoute));
     }
 
 }

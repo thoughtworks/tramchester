@@ -44,6 +44,7 @@ public class TestEnv {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
     public static final int DAYS_AHEAD = 7;
+
     private static final LocalDate testDay;
     private static final LocalDate saturday;
     private static final LocalDate sunday;
@@ -262,15 +263,14 @@ public class TestEnv {
         assertEquals(expected.getLon(), actual.getLon(), delta, "lon: " +message);
     }
 
-    public static Route findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
-        Set<Route> routes = routeRepository.findRoutesByShortName(MET.getId(), knownTramRoute.shortName());
-        assertEquals(2, routes.size());
-        Optional<Route> directionMatch = routes.stream().
-                filter(route -> route.getId().forDTO().contains(knownTramRoute.direction().getSuffix())).
-                findFirst();
-        assertTrue(directionMatch.isPresent());
+    /**
+     * Need to find more than one for a valid test
+     */
+    public static Set<Route> findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
+        Set<Route> routes = routeRepository.findRoutesByName(MET.getId(), knownTramRoute.longName());
+        assertTrue(routes.size()>=2, "Did not find " + knownTramRoute);
 
-        return directionMatch.get();
+        return routes;
     }
 
     public static Route singleRoute(RouteRepository routeRepository, IdFor<Agency> agencyId, String shortName) {
