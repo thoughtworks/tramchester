@@ -9,7 +9,6 @@ import com.tramchester.domain.reference.TransportMode;
 @JsonIgnoreProperties(value = "tram", allowGetters = true)
 public class RouteRefDTO {
 
-    private String id;
     private String routeName;
     private TransportMode transportMode;
     private String shortName;
@@ -26,13 +25,11 @@ public class RouteRefDTO {
     public RouteRefDTO(Route route, String routeName) {
         this.routeName = routeName;
 
-        this.id = route.getId().forDTO();
+        // tfgm data have routes that are identical except for the ID, don't want to expose this to the API
+        //this.id = route.getId().forDTO();
+
         this.transportMode = route.getTransportMode();
         this.shortName = route.getShortName();
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getRouteName() {
@@ -61,18 +58,17 @@ public class RouteRefDTO {
 
         RouteRefDTO that = (RouteRefDTO) o;
 
-        return id.equals(that.id);
+        return routeName.equals(that.routeName);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return routeName.hashCode();
     }
 
     @Override
     public String toString() {
         return "RouteRefDTO{" +
-                "id='" + id + '\'' +
                 ", routeName='" + routeName + '\'' +
                 ", transportMode=" + transportMode +
                 ", shortName='" + shortName + '\'' +

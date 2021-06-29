@@ -67,7 +67,7 @@ class CompositeStationTest {
     void shouldHaveCorrectValuesForTwoStation() {
         Station stationA = TestStation.forTest("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), Tram, dataSourceID);
-        Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"));
+        Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
         stationA.addRoute(routeA);
         Platform platformA = new Platform("platformIdA", "platformNameA",  new LatLong(2, 4));
         stationA.addPlatform(platformA);

@@ -163,11 +163,11 @@ public class TestEnv {
     }
 
     public static Route getTramTestRoute() {
-        return getTramTestRoute(StringIdFor.createId("RouteId"));
+        return getTramTestRoute(StringIdFor.createId("RouteId"), "routeName");
     }
 
-    public static Route getTramTestRoute(IdFor<Route> routeId) {
-        return new Route(routeId, "routeCode", "routeName", TestEnv.MetAgency(), TransportMode.Tram);
+    public static Route getTramTestRoute(IdFor<Route> routeId, String routeName) {
+        return new Route(routeId, "routeCode", routeName, TestEnv.MetAgency(), TransportMode.Tram);
     }
 
     public static Agency MetAgency() {

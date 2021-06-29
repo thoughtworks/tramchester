@@ -31,8 +31,8 @@ class LocationDTOTest {
         Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham",
                 new LatLong(1,1), TransportMode.Tram, DataSourceID.tfgm);
 
-        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA")));
-        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB")));
+        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
+        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
 
         testStation.addPlatform(new Platform("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
         testStation.addPlatform(new Platform("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));
@@ -45,10 +45,15 @@ class LocationDTOTest {
         assertEquals(testStation.getLatLong(), dto.getLatLong());
         assertTrue(dto.isTram());
 
+//        assertEquals(2, dto.getRoutes().size());
+//        Set<String> routeIds = dto.getRoutes().stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
+//        assertTrue(routeIds.contains("routeIdA"));
+//        assertTrue(routeIds.contains("routeIdB"));
+
         assertEquals(2, dto.getRoutes().size());
-        Set<String> routeIds = dto.getRoutes().stream().map(RouteRefDTO::getId).collect(Collectors.toSet());
-        assertTrue(routeIds.contains("routeIdA"));
-        assertTrue(routeIds.contains("routeIdB"));
+        Set<String> routeNames = dto.getRoutes().stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
+        assertTrue(routeNames.contains("routeNameA"));
+        assertTrue(routeNames.contains("routeNameB"));
 
         assertTrue(dto.hasPlatforms());
         assertEquals(2, dto.getPlatforms().size());

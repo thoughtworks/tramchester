@@ -435,11 +435,11 @@ class ServiceHeuristicsTest extends EasyMockSupport {
                 false, 2, 160, maxNumberOfJourneys);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
 
-        Route destRoute = TestEnv.getTramTestRoute(StringIdFor.createId("destRoute"));
+        Route destRoute = TestEnv.getTramTestRoute(StringIdFor.createId("destRoute"), "routeName");
 
         IdFor<Station> stationId = TramStations.Altrincham.getId();
         IdFor<Route> routeId = StringIdFor.createId("currentRoute");
-        Route route = TestEnv.getTramTestRoute(routeId);
+        Route route = TestEnv.getTramTestRoute(routeId, "routeName");
         final RouteStation routeStation = new RouteStation(TramStations.of(TramStations.Altrincham), route);
 
         Node node = createMock(Node.class);

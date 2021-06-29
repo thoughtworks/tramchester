@@ -86,7 +86,10 @@ class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(stage.getDuration(), dto.getDuration());
         assertEquals(stage.getFirstStation().forDTO(), dto.getFirstStation().getId());
         assertEquals(stage.getHeadSign(), dto.getHeadSign());
-        assertEquals(stage.getRoute().getId().forDTO(), dto.getRoute().getId());
+
+        assertEquals(stage.getRoute().getName(), dto.getRoute().getRouteName());
+        assertEquals(stage.getRoute().getShortName(), dto.getRoute().getShortName());
+
         assertEquals(stage.getPassedStopsCount(), dto.getPassedStops());
         assertEquals(action.toString(), dto.getAction());
         assertEquals(hasPlatform, dto.getHasPlatform());
