@@ -69,7 +69,7 @@ export default {
             })
             var line = L.polyline(steps); 
             line.bindTooltip(route.routeName + "<br>" 
-                + "'"+route.id + "' (" + route.transportMode+")");
+                + "'"+route.shortName + "' (" + route.transportMode+")");
             line.setStyle({className: this.classForRoute(route), weight: 6});
             line.on({
                 mouseover: this.highlightRoute,
