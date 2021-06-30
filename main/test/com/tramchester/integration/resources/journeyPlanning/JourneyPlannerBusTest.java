@@ -111,7 +111,7 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanBusJourneyNoLoops() {
         TramTime queryTime = TramTime.of(8,56);
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyResults(when, queryTime,
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
                 StopAtAltrinchamInterchange, ManchesterAirportStation, false, 2);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -151,7 +151,7 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyResults(when, queryTime,
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
                 StopAtStockportBusStation, StopAtAltrinchamInterchange, true, 3);
 
         // TODO 20 mins gap? Estimation is too optimistic for Buses?
@@ -180,7 +180,7 @@ class JourneyPlannerBusTest {
     }
 
     private void validateHasJourney(TramTime queryTime, HasId<Station>  start, HasId<Station>  end, int maxChanges) {
-        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyResults(when, queryTime, start, end, false, maxChanges);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, start, end, false, maxChanges);
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
     }

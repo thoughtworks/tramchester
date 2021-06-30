@@ -48,7 +48,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         time = TramTime.of(9,35);
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
-    
+
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
 

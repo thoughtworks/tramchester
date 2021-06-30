@@ -12,6 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStations;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Assertions;
 
 import javax.ws.rs.core.Response;
@@ -29,11 +30,28 @@ public class JourneyResourceTestFacade {
         this.appExt = appExt;
     }
 
-
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate day, TramTime time, PostcodeLocation start, HasId<Station> end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, HasId<Station> end,
                                                     boolean arriveBy, int maxChanges) {
-        Response response = getResponseForJourney(day, time.asLocalTime(), prefix(start), end.getId().forDTO(),
+        Response response = getResponseForJourney(when, time.asLocalTime(), prefix(start), end.getId().forDTO(),
                 null, arriveBy, maxChanges);
+
+        Assertions.assertEquals(200, response.getStatus());
+        return response.readEntity(JourneyPlanRepresentation.class);
+    }
+
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, LatLong start, IdFor<Station> end,
+                                                    boolean arriveBy, int maxChanges) {
+        Response response = getResponseForJourney(when, time.asLocalTime(), MyLocation.MY_LOCATION_PLACEHOLDER_ID,
+                end.forDTO(), start, arriveBy, maxChanges);
+
+        Assertions.assertEquals(200, response.getStatus());
+        return response.readEntity(JourneyPlanRepresentation.class);
+    }
+
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime queryTime, TestStations start,
+                                                    LatLong end, boolean arriveBy, int maxChanges) {
+        Response response = getResponseForJourney(when, queryTime.asLocalTime(), start.getId().forDTO(),
+                MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
 
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
@@ -43,17 +61,6 @@ public class JourneyResourceTestFacade {
                                                     boolean arriveBy, int maxChanges) {
         Response response = getResponseForJourney(day, time.asLocalTime(), start.getId().forDTO(), prefix(end),
                 null, arriveBy, maxChanges);
-
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
-    }
-
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate queryDate, TramTime queryTime, LatLong start, IdFor<Station> end,
-                                                    boolean arriveBy, int maxChanges) {
-
-        // TODO??? start and end swapped??
-        Response response = getResponseForJourney(queryDate, queryTime.asLocalTime(), MyLocation.MY_LOCATION_PLACEHOLDER_ID,
-                end.forDTO(), start, arriveBy, maxChanges);
 
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
@@ -69,8 +76,8 @@ public class JourneyResourceTestFacade {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    public JourneyPlanRepresentation getJourneyResults(LocalDate when, TramTime queryTime, HasId<Station> start, HasId<Station> end,
-                                                       boolean arriveBy, int maxChanges) {
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime queryTime, HasId<Station> start, HasId<Station> end,
+                                                    boolean arriveBy, int maxChanges) {
 
         Response response = getResponseForJourney(when, queryTime.asLocalTime(), start.getId().forDTO(),
                 end.getId().forDTO(), null, arriveBy, maxChanges);

@@ -118,7 +118,7 @@ task cleanGraph() {
 }
 
 clean {
-    dependsOn 'cleanGraph', 'cleanTestCache'
+    dependsOn 'cleanGraph'
     delete 'src/main/resources/app/dist/'
     delete 'data/tram/data.zip', 'data/bus/data.zip'
     delete fileTree('data/tram') {
@@ -144,10 +144,7 @@ clean {
         include '**/*.csv'
     }
     delete('data/codepo_gb')
-}
-
-task cleanTestCache {
-    delete('testData/cache');
+    delete('testData/cache')
 }
 
 run {
