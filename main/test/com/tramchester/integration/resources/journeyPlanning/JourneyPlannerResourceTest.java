@@ -349,6 +349,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
+    @Deprecated
     public static Response getResponseForJourney(IntegrationAppExtension rule, String start, String end, LocalTime time,
                                                  LocalDate date, LatLong latlong, boolean arriveBy, int maxChanges) {
         String timeString = time.format(TestEnv.timeFormatter);

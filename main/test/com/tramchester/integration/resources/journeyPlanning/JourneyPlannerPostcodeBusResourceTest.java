@@ -6,8 +6,11 @@ import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StageDTO;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
+import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
@@ -36,26 +39,21 @@ class JourneyPlannerPostcodeBusResourceTest {
             new IntegrationBusTestConfig());
 
     private LocalDate day;
-    private LocalTime time;
+    private TramTime time;
+    private JourneyResourceTestFacade journeyPlanner;
 
     @BeforeEach
     void beforeEachTestRuns() {
         day = TestEnv.testDay();
-        time = LocalTime.of(9,35);
+        time = TramTime.of(9,35);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
-
-    private String prefix(PostcodeLocation postcode) {
-        return  "POSTCODE_"+postcode.forDTO();
-    }
-
+    
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
 
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(TestPostcodes.CentralBury), prefix(TestPostcodes.NearPiccadillyGardens), time, day,
-                null, false, 0);
-        assertEquals(200, response.getStatus());
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury,
+                TestPostcodes.NearPiccadillyGardens, false, 0);
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
@@ -70,12 +68,9 @@ class JourneyPlannerPostcodeBusResourceTest {
 
     @Test
     void shouldWalkFromPostcodeToNearbyStation() {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(TestPostcodes.CentralBury), BusStations.BuryInterchange.forDTO(), time, day,
-                null, false, 1);
-        assertEquals(200, response.getStatus());
 
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury,
+                BusStations.BuryInterchange, false, 1);
 
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
@@ -88,13 +83,10 @@ class JourneyPlannerPostcodeBusResourceTest {
 
     @Test
     void shouldWalkFromStationToNearbyPostcode() {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                BusStations.BuryInterchange.forDTO(), prefix(TestPostcodes.CentralBury),  time, day,
-                null, false, 2);
 
-        assertEquals(200, response.getStatus());
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, BusStations.BuryInterchange,
+                TestPostcodes.CentralBury, false, 1);
 
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
@@ -110,12 +102,10 @@ class JourneyPlannerPostcodeBusResourceTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(TestPostcodes.CentralBury), BusStations.ShudehillInterchange.forDTO(), time, day,
-                null, false, 1);
 
-        assertEquals(200, response.getStatus());
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury,
+                BusStations.ShudehillInterchange, false, 1);
+
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
@@ -129,12 +119,10 @@ class JourneyPlannerPostcodeBusResourceTest {
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcode() {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                BusStations.ShudehillInterchange.forDTO(), prefix(TestPostcodes.CentralBury), time, day,
-                null, false, 0);
 
-        assertEquals(200, response.getStatus());
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, BusStations.ShudehillInterchange,
+                TestPostcodes.CentralBury, false, 1);
+
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 

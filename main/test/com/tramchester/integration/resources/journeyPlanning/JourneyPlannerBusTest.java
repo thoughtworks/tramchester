@@ -3,19 +3,16 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -47,10 +44,12 @@ class JourneyPlannerBusTest {
     private static final IntegrationAppExtension appExt = new IntegrationAppExtension(App.class, configuration);
 
     private LocalDate when;
+    private JourneyResourceTestFacade journeyResourceTestFacade;
 
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
+        journeyResourceTestFacade = new JourneyResourceTestFacade(appExt);
     }
 
     @Test
@@ -112,8 +111,8 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanBusJourneyNoLoops() {
         TramTime queryTime = TramTime.of(8,56);
-        JourneyPlanRepresentation plan = getJourneyResults(queryTime, StopAtAltrinchamInterchange, ManchesterAirportStation,
-                2, false);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyResults(when, queryTime,
+                StopAtAltrinchamInterchange, ManchesterAirportStation, false, 2);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -131,8 +130,9 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, StopAtStockportBusStation.getId(), queryTime,
-                new TramServiceDate(when), false);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, TestEnv.nearAltrincham,
+                StopAtStockportBusStation.getId(),
+                false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -141,8 +141,8 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanDirectWalkToBusStopFromLocation() {
         TramTime queryTime = TramTime.of(8,15);
-        JourneyPlanRepresentation plan = getJourneyPlan(TestEnv.nearAltrincham, StopAtAltrinchamInterchange.getId(), queryTime,
-                new TramServiceDate(when), false);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, TestEnv.nearAltrincham,
+                StopAtAltrinchamInterchange.getId(), false, 3);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
@@ -151,7 +151,8 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = getJourneyResults(queryTime, StopAtStockportBusStation, StopAtAltrinchamInterchange, 3, true);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyResults(when, queryTime,
+                StopAtStockportBusStation, StopAtAltrinchamInterchange, true, 3);
 
         // TODO 20 mins gap? Estimation is too optimistic for Buses?
         List<JourneyDTO> found = new ArrayList<>();
@@ -179,33 +180,9 @@ class JourneyPlannerBusTest {
     }
 
     private void validateHasJourney(TramTime queryTime, HasId<Station>  start, HasId<Station>  end, int maxChanges) {
-        JourneyPlanRepresentation plan = getJourneyResults(queryTime, start, end, maxChanges, false);
+        JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyResults(when, queryTime, start, end, false, maxChanges);
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
     }
-
-    private JourneyPlanRepresentation getJourneyResults(TramTime queryTime, HasId<Station> start, HasId<Station>  end,
-                                                        int maxChanges, boolean arriveBy) {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, start.getId().forDTO(),
-                end.getId().forDTO(), queryTime.asLocalTime(), when, null, arriveBy, maxChanges);
-
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
-    }
-
-    private JourneyPlanRepresentation getJourneyPlan(LatLong startLocation, IdFor<Station> endId, TramTime queryTime,
-                                                     TramServiceDate queryDate, boolean arriveBy) {
-        return getJourneyPlan(startLocation, endId.forDTO(), queryTime, queryDate, arriveBy);
-    }
-
-    private JourneyPlanRepresentation getJourneyPlan(LatLong startLocation, String endId, TramTime queryTime,
-                                                     TramServiceDate queryDate, boolean arriveBy) {
-
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, MyLocation.MY_LOCATION_PLACEHOLDER_ID,
-                endId, queryTime.asLocalTime(), queryDate.getDate(), startLocation, arriveBy, 3);
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
-    }
-
 
 }
