@@ -81,7 +81,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertTrue(withinNPercent(482, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
+        assertTrue(withinNPercent(294, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
     }
 
     @Test
