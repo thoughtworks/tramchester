@@ -3,6 +3,7 @@ package com.tramchester.unit.graph;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;

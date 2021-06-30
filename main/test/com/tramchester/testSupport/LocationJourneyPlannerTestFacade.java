@@ -4,7 +4,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.search.JourneyRequest;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import org.jetbrains.annotations.NotNull;

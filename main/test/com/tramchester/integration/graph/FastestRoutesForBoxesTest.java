@@ -13,7 +13,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
-import com.tramchester.graph.search.JourneyRequest;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;

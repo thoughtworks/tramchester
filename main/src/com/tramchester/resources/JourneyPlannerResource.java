@@ -12,7 +12,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.search.JourneyRequest;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.router.ProcessPlanRequest;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;

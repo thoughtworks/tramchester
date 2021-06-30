@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.domain;
 
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;

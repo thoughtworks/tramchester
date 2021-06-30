@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.google.inject.ImplementedBy;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import org.neo4j.graphdb.Transaction;

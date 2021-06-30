@@ -3,7 +3,7 @@ package com.tramchester.integration.testSupport;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.search.JourneyRequest;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestStation;

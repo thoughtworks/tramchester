@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.Station;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
