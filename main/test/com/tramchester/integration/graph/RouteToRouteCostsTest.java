@@ -10,12 +10,15 @@ import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +45,7 @@ public class RouteToRouteCostsTest {
     private RouteRepository routeRepository;
     private static Path indexFile;
     private static Path matrixFile;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -64,7 +68,7 @@ public class RouteToRouteCostsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-
+        stationRepository = componentContainer.get(StationRepository.class);
         routeCosts = componentContainer.get(BetweenRoutesCostRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(routeRepository);
@@ -114,6 +118,42 @@ public class RouteToRouteCostsTest {
             assertEquals(1, routeCosts.getFor(routeA, routeB));
             assertEquals(1, routeCosts.getFor(routeB, routeA));
         }));
+    }
+
+    @Test
+    void shouldFindLowestHopCountForTwoStations() {
+        Station start = stationRepository.getStationById(TramStations.Altrincham.getId());
+        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
+        int result = routeCosts.minRouteHops(start, end);
+
+        assertEquals(1, result);
+    }
+
+    @Test
+    void shouldFindHighestHopCountForTwoStations() {
+        Station start = stationRepository.getStationById(TramStations.Ashton.getId());
+        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
+        int result = routeCosts.maxRouteHops(start, end);
+
+        assertEquals(1, result);
+    }
+
+    @Test
+    void shouldFindLowestHopCountForTwoStationsSameRoute() {
+        Station start = stationRepository.getStationById(TramStations.Victoria.getId());
+        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
+        int result = routeCosts.minRouteHops(start, end);
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    void shouldFindHighestHopCountForTwoStationsSameRoute() {
+        Station start = stationRepository.getStationById(TramStations.Victoria.getId());
+        Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
+        int result = routeCosts.maxRouteHops(start, end);
+
+        assertEquals(1, result);
     }
 
     @Test

@@ -132,7 +132,7 @@ class JourneyPlannerBusTest {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, TestEnv.nearAltrincham,
                 StopAtStockportBusStation.getId(),
-                false, 3);
+                false, 2);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());

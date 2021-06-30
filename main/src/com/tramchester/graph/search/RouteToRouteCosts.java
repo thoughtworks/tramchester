@@ -192,9 +192,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final IdFor<Route> idB = routeB.getId();
         byte result = costs.get(index.find(idA), index.find(idB));
         if (result==Costs.MAX_VALUE) {
-            boolean sameMode = routeA.getTransportMode()==routeB.getTransportMode();
-            // for mixed transport mode having no value is quite comment
-            if (sameMode) {
+            if (routeA.getTransportMode()==routeB.getTransportMode()) {
+                // for mixed transport mode having no value is quite normal
                 final String msg = "Missing (routeId:" + idA + ", routeId:" + idB + ")";
                 logger.warn(msg);
             }
@@ -205,6 +204,26 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     public int size() {
         return costs.size();
+    }
+
+    @Override
+    public int minRouteHops(Station start, Station end) {
+        Set<Route> startRoutes = start.getRoutes();
+        Set<Route> endRoutes = end.getRoutes();
+        return startRoutes.stream().
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
+                min(Integer::compare).orElse(Integer.MAX_VALUE);
+    }
+
+    @Override
+    public int maxRouteHops(Station start, Station end) {
+        Set<Route> startRoutes = start.getRoutes();
+        Set<Route> endRoutes = end.getRoutes();
+        return startRoutes.stream().
+                flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
+                filter(result -> result!=Integer.MAX_VALUE).
+                max(Integer::compare).orElse(Integer.MAX_VALUE);
+
     }
 
     public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds) {
@@ -384,7 +403,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                         int source = item.getSource();
                         List<Integer> dest = item.getDestinations();
                         for (int j = 0; j < numRoutes; j++) {
-                            array[source][j] = dest.get(j).byteValue();
+                            final byte value = dest.get(j).byteValue();
+                            array[source][j] = value;
+                            if (value != Byte.MAX_VALUE) {
+                                count.incrementAndGet();
+                            }
                         }
                         loadedOk.incrementAndGet();
                     });
