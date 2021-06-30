@@ -2,7 +2,6 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
@@ -11,8 +10,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStations;
-import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Assertions;
 
 import javax.ws.rs.core.Response;
@@ -32,55 +29,40 @@ public class JourneyResourceTestFacade {
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, HasId<Station> end,
                                                     boolean arriveBy, int maxChanges) {
-        Response response = getResponseForJourney(when, time.asLocalTime(), prefix(start), end.getId().forDTO(),
-                null, arriveBy, maxChanges);
-
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
+        return getApiResponse(when, time, prefix(start), end.getId().forDTO(), null, arriveBy, maxChanges);
     }
 
     public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, LatLong start, IdFor<Station> end,
                                                     boolean arriveBy, int maxChanges) {
-        Response response = getResponseForJourney(when, time.asLocalTime(), MyLocation.MY_LOCATION_PLACEHOLDER_ID,
-                end.forDTO(), start, arriveBy, maxChanges);
-
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
+        return getApiResponse(when, time, MyLocation.MY_LOCATION_PLACEHOLDER_ID, end.forDTO(), start, arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime queryTime, TestStations start,
-                                                    LatLong end, boolean arriveBy, int maxChanges) {
-        Response response = getResponseForJourney(when, queryTime.asLocalTime(), start.getId().forDTO(),
-                MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
-
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
-    }
-
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate day, TramTime time, TestStations start, PostcodeLocation end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, TestStations start, LatLong end,
                                                     boolean arriveBy, int maxChanges) {
-        Response response = getResponseForJourney(day, time.asLocalTime(), start.getId().forDTO(), prefix(end),
-                null, arriveBy, maxChanges);
-
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
+        return getApiResponse(when, time, start.getId().forDTO(), MyLocation.MY_LOCATION_PLACEHOLDER_ID, end, arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate queryDate, TramTime queryTime, PostcodeLocation start, PostcodeLocation end,
+
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, TestStations start, PostcodeLocation end,
                                                     boolean arriveBy, int maxChanges) {
-
-        Response response = getResponseForJourney(queryDate, queryTime.asLocalTime(), prefix(start), prefix(end),
-            null, arriveBy, maxChanges);
-
-        Assertions.assertEquals(200, response.getStatus());
-        return response.readEntity(JourneyPlanRepresentation.class);
+        return getApiResponse(when, time, start.getId().forDTO(), prefix(end), null, arriveBy, maxChanges);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime queryTime, HasId<Station> start, HasId<Station> end,
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, PostcodeLocation start, PostcodeLocation end,
                                                     boolean arriveBy, int maxChanges) {
+        return getApiResponse(when, time, prefix(start), prefix(end), null, arriveBy, maxChanges);
+    }
 
-        Response response = getResponseForJourney(when, queryTime.asLocalTime(), start.getId().forDTO(),
-                end.getId().forDTO(), null, arriveBy, maxChanges);
+    public JourneyPlanRepresentation getJourneyPlan(LocalDate when, TramTime time, HasId<Station> start, HasId<Station> end,
+                                                    boolean arriveBy, int maxChanges) {
+        return getApiResponse(when, time, start.getId().forDTO(), end.getId().forDTO(), null, arriveBy, maxChanges);
+    }
+
+
+    private JourneyPlanRepresentation getApiResponse(LocalDate when, TramTime time, String startAsString, String endAsString,
+                                                     LatLong position, boolean arriveBy, int maxChanges) {
+        Response response = getResponseForJourney(when, time.asLocalTime(), startAsString,
+                endAsString, position, arriveBy, maxChanges);
 
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
@@ -107,5 +89,6 @@ public class JourneyResourceTestFacade {
     private String prefix(PostcodeLocation postcode) {
         return  "POSTCODE_"+postcode.forDTO();
     }
+
 
 }

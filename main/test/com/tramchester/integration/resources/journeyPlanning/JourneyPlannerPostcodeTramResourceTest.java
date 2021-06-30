@@ -4,7 +4,9 @@ import com.tramchester.App;
 import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
+import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.*;
 import com.tramchester.testSupport.reference.TestPostcodes;
@@ -21,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -30,26 +33,22 @@ class JourneyPlannerPostcodeTramResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
 
     private LocalDate day;
-    private LocalTime time;
+    private TramTime time;
+    private JourneyResourceTestFacade journeyPlanner;
 
     @BeforeEach
     void beforeEachTestRuns() {
         day = TestEnv.testDay();
-        time = LocalTime.of(9,35);
-    }
-
-    private String prefix(PostcodeLocation postcode) {
-        return "POSTCODE_"+postcode.forDTO();
+        time = TramTime.of(9,35);
+        journeyPlanner = new JourneyResourceTestFacade(appExtension);
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcode() {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(TestPostcodes.CentralBury), prefix(TestPostcodes.NearPiccadillyGardens), time, day,
-                null, false, 5);
 
-        Assertions.assertEquals(200, response.getStatus());
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
+                false, 5);
+
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
@@ -59,12 +58,9 @@ class JourneyPlannerPostcodeTramResourceTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToStation() {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                prefix(TestPostcodes.CentralBury), TramStations.Piccadilly.forDTO(), time, day,
-                null, false, 5);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TestPostcodes.CentralBury, TramStations.Piccadilly,
+                false, 5);
 
-        Assertions.assertEquals(200, response.getStatus());
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
@@ -74,12 +70,10 @@ class JourneyPlannerPostcodeTramResourceTest {
 
     @Test
     void shouldPlanJourneyFromStationToPostcode() {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
-                TramStations.Piccadilly.forDTO(), prefix(TestPostcodes.CentralBury), time, day,
-                null, false, 5);
 
-        Assertions.assertEquals(200, response.getStatus());
-        JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(day, time, TramStations.Piccadilly, TestPostcodes.CentralBury,
+                false, 5);
+
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 
