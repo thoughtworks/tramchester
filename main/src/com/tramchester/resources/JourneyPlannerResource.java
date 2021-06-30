@@ -1,6 +1,7 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.config.TramchesterConfig;
@@ -70,15 +71,11 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChanges));
 
-        TramTime queryTime = super.parseTime(departureTimeRaw);
-        boolean secure = isHttps(forwardedHeader);
-        URI baseUri = uriInfo.getBaseUri();
 
         try(Transaction tx = graphDatabaseService.beginTx() ) {
-            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
-                    queryTime, config.getMaxJourneyDuration(), config.getMaxNumResults());
 
-            Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
+            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(startId, endId, departureTimeRaw, departureDateRaw, lat, lon,
+                    arriveByRaw, maxChanges, tx);
             JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(dtoStream.collect(Collectors.toSet()));
             dtoStream.close();
 
@@ -86,9 +83,8 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                 logger.warn(format("No journeys found from %s to %s at %s on %s", startId, endId,departureTimeRaw, departureDateRaw));
             }
 
-            Response.ResponseBuilder responseBuilder = Response.ok(planRepresentation);
-            responseBuilder.cookie(createRecentCookie(cookie, startId, endId, secure, baseUri));
-            return responseBuilder.build();
+            boolean secure = isHttps(forwardedHeader);
+            return buildResponse(Response.ok(planRepresentation), startId, endId, cookie, uriInfo, secure);
 
         } catch(Exception exception) {
             logger.error("Problem processing response", exception);
@@ -113,31 +109,39 @@ public class JourneyPlannerResource extends UsesRecentCookie {
                                   @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
                                   @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
                                   @Context UriInfo uriInfo) {
-        logger.info(format("Plan journey from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
+        logger.info(format("Plan journey (streaming) from %s to %s at %s on %s arriveBy=%s maxChanges=%s",
                 startId, endId, departureTimeRaw, departureDateRaw, arriveByRaw, maxChanges));
-
-        TramTime queryTime = parseTime(departureTimeRaw);
-
-        boolean secure = isHttps(forwardedHeader);
-        URI baseUri = uriInfo.getBaseUri();
 
         Transaction tx = graphDatabaseService.beginTx();
 
         try {
-            JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
-                    queryTime, config.getMaxJourneyDuration(), config.getMaxNumResults());
-            Stream<JourneyDTO> dtoStream = processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
+            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(startId, endId, departureTimeRaw, departureDateRaw, lat, lon,
+                    arriveByRaw, maxChanges, tx);
 
             JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
 
-            Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
-            responseBuilder.cookie(createRecentCookie(cookie, startId, endId, secure, baseUri));
-            return responseBuilder.build();
+            boolean secure = isHttps(forwardedHeader);
+            return buildResponse(Response.ok(jsonStreamingOutput), startId, endId, cookie, uriInfo, secure);
 
         } catch(Exception exception) {
             logger.error("Problem processing response", exception);
             return Response.serverError().build();
         }
+    }
+
+    private Response buildResponse(Response.ResponseBuilder responseBuilder, String startId, String endId, Cookie cookie,
+                                   UriInfo uriInfo, boolean secure) throws JsonProcessingException {
+        URI baseUri = uriInfo.getBaseUri();
+        responseBuilder.cookie(createRecentCookie(cookie, startId, endId, secure, baseUri));
+        return responseBuilder.build();
+    }
+
+    private Stream<JourneyDTO> getJourneyDTOStream(String startId, String endId, String departureTimeRaw, String departureDateRaw, String lat, String lon, String arriveByRaw, int maxChanges, Transaction tx) {
+        TramTime queryTime = parseTime(departureTimeRaw);
+        JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
+                queryTime, config.getMaxJourneyDuration(), config.getMaxNumResults());
+
+        return processPlanRequest.directRequest(tx, startId, endId, journeyRequest, lat, lon);
     }
 
     @NotNull
