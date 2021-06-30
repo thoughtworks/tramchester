@@ -59,8 +59,8 @@ public class RouteCalculationCombinations {
                 filter(RouteCalculationCombinations.JourneyOrNot::missing).
                 collect(Collectors.toList());
 
-        assertEquals(0L, failed.size(), format("Failed some of %s (finished %s) combinations %s",
-                results.size(), stationIdPairs.size(), displayFailed(failed)));
+        assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
+                journeyRequest, results.size(), stationIdPairs.size(), displayFailed(failed)));
 
         return results;
     }
@@ -70,11 +70,11 @@ public class RouteCalculationCombinations {
         LocalDate queryDate = request.getDate().getDate();
         TramTime queryTime = request.getOriginalTime();
         return combinations.parallelStream().
-                map(requested -> {
+                map(pair -> {
                     try (Transaction txn = database.beginTx()) {
-                        Optional<Journey> optionalJourney = findJourneys(txn, requested.getBeginId(), requested.getEndId(), request);
-                        JourneyOrNot journeyOrNot = new JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
-                        return Pair.of(requested, journeyOrNot);
+                        Optional<Journey> optionalJourney = findJourneys(txn, pair.getBeginId(), pair.getEndId(), request);
+                        JourneyOrNot journeyOrNot = new JourneyOrNot(pair, queryDate, queryTime, optionalJourney);
+                        return Pair.of(pair, journeyOrNot);
                     }
                 }).
                 collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
@@ -83,7 +83,7 @@ public class RouteCalculationCombinations {
     private String displayFailed(List<JourneyOrNot> pairs) {
         StringBuilder stringBuilder = new StringBuilder();
         pairs.forEach(pair -> stringBuilder.append("[").
-                append(pair.requested.getEndId()).
+                append(pair.requested.getBeginId()).
                 append(" to ").append(pair.requested.getEndId()).
                 append("] "));
         return stringBuilder.toString();

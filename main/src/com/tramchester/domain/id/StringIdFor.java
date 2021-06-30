@@ -29,14 +29,13 @@ public class StringIdFor<T extends GraphProperty> implements IdFor<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
 
-        StringIdFor<?> idFor = (StringIdFor<?>) o;
+        StringIdFor<?> otherId = (StringIdFor<?>) other;
 
-        // interned strings, so == is ok here
-        return theId.equals(idFor.theId);
+        return theId.equals(otherId.theId);
     }
 
     @Override

@@ -81,13 +81,26 @@ class RouteCalculatorKeyRoutesTest {
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
+        final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             LocalDate testDate = avoidChristmasDate(when.plusDays(day));
-
             JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
                     maxJourneyDuration, 1);
-            combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Tram), request);
+            combinations.validateAllHaveAtLeastOneJourney(pairs, request);
         }
+    }
+
+    @DataExpiryCategory
+    @Test
+    void shouldFindEndOfLinesToEndOfLinesInNDays() {
+        final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+        // helps with diagnosis when trams not running on a specific day vs. actual missing data
+        LocalDate testDate = avoidChristmasDate(when.plusDays(TestEnv.DAYS_AHEAD));
+        JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 2,
+                maxJourneyDuration, 1);
+        combinations.validateAllHaveAtLeastOneJourney(pairs, request);
+
     }
 
     @Test
