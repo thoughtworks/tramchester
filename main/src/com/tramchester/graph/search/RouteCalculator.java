@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.CreateQueryTimes;
@@ -63,31 +64,35 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         Set<Station> destinations = Collections.singleton(destination);
 
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false);
+        int minHops = routeToRouteCosts.minRouteHops(startStation, destination);
+        int maxHops = routeToRouteCosts.maxRouteHops(startStation, destination);
+
+        NumberOfChanges numberOfChanges =new NumberOfChanges(minHops, maxHops);
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false, numberOfChanges);
     }
 
     public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, Set<Station> desinationStations,
-                                                   JourneyRequest journeyRequest)
+                                                   JourneyRequest journeyRequest, NumberOfChanges numberOfChanges)
     {
         Node startNode = getStationNodeSafe(txn, start);
-        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, desinationStations, false);
+        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, desinationStations, false, numberOfChanges);
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node startOfWalkNode, Station destination,
-                                                     JourneyRequest journeyRequest) {
+                                                     JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         Node endNode = getStationNodeSafe(txn, destination);
         Set<Station> destinations = Collections.singleton(destination);
-        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, true);
+        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, true, numberOfChanges);
     }
 
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode,
-                                                           Set<Station> destinationStations, JourneyRequest journeyRequest) {
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, true);
+                                                           Set<Station> destinationStations, JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, true, numberOfChanges);
     }
 
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
-                                             Set<Station> unexpanded, boolean walkAtStart) {
+                                             Set<Station> unexpanded, boolean walkAtStart, NumberOfChanges numberOfChanges) {
 
         Set<Station> destinations = CompositeStation.expandStations(unexpanded);
         if (destinations.size()!=unexpanded.size()) {
@@ -102,7 +107,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
-        Stream<Journey> results = numChangesRange(journeyRequest).
+        Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,

@@ -65,21 +65,6 @@ class RouteCalculatorTestAllJourneys {
 
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest);
 
-        // NOTE: Not a reliable way to do this since we truncate the number of journeys for each query
-
-        // now find longest journey
-//        Optional<Integer> maxNumberStops = results.values().stream().
-//                filter(journeyOrNot -> !journeyOrNot.missing()).
-//                map(RouteCalculationCombinations.JourneyOrNot::get).
-//                map(journey -> journey.getStages().stream().
-//                        map(TransportStage::getPassedStopsCount).
-//                        reduce(Integer::sum)).
-//                filter(Optional::isPresent).
-//                map(Optional::get).
-//                max(Integer::compare);
-//
-//        Assertions.assertTrue(maxNumberStops.isPresent());
-//        Assertions.assertEquals(39, maxNumberStops.get().intValue());
     }
 
 }

@@ -6,6 +6,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 @ImplementedBy(RouteToRouteCosts.class)
@@ -16,4 +17,7 @@ public interface BetweenRoutesCostRepository {
 
     int minRouteHops(Station start, Station end);
     int maxRouteHops(Station start, Station end);
+
+    int minRouteHops(Set<Station> starts, Set<Station> destinations);
+    int maxRouteHops(Set<Station> starts, Set<Station> destinations);
 }

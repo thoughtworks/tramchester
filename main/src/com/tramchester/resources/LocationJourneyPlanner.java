@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -18,6 +19,7 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
+import com.tramchester.graph.search.RouteToRouteCosts;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -48,12 +50,13 @@ public class LocationJourneyPlanner {
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabase;
     private final MarginInMeters margin;
+    private final RouteToRouteCosts routeToRouteCosts;
 
     @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
                                   GraphQuery graphQuery, GraphDatabase graphDatabase,
-                                  GraphFilter graphFilter) {
+                                  GraphFilter graphFilter, RouteToRouteCosts routeToRouteCosts) {
         this.config = config;
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
@@ -63,6 +66,7 @@ public class LocationJourneyPlanner {
         this.stationLocations = stationLocations;
         this.graphFilter = graphFilter;
         this.margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        this.routeToRouteCosts = routeToRouteCosts;
     }
 
     public Stream<Journey> quickestRouteForLocation(Transaction txn, LatLong start, Station destination,
@@ -76,7 +80,9 @@ public class LocationJourneyPlanner {
         }
 
         Node startOfWalkNode = createWalkingNode(txn, start, journeyRequest);
-        List<Relationship> addedRelationships = createWalksToStations(txn, start, startOfWalkNode);
+        List<StationWalk> walksToStart = getStationWalks(start);
+
+        List<Relationship> addedRelationships = createWalksToStations(txn, startOfWalkNode, walksToStart);
 
         if (addedRelationships.isEmpty()) {
             removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
@@ -85,10 +91,11 @@ public class LocationJourneyPlanner {
         }
 
         Stream<Journey> journeys;
+        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination);
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, startOfWalkNode, destination, journeyRequest);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(txn, startOfWalkNode, destination, journeyRequest);
+            journeys = routeCalculator.calculateRouteWalkAtStart(txn, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -97,8 +104,7 @@ public class LocationJourneyPlanner {
     }
 
     @NotNull
-    public List<Relationship> createWalksToStations(Transaction txn, LatLong latLong, Node startOfWalkNode) {
-        List<StationWalk> walksToStart = getStationWalks(latLong);
+    public List<Relationship> createWalksToStations(Transaction txn, Node startOfWalkNode, List<StationWalk> walksToStart) {
         List<Relationship> addedRelationships = new LinkedList<>();
         walksToStart.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(txn, startOfWalkNode, stationWalk,
                 WALKS_TO)));
@@ -123,6 +129,7 @@ public class LocationJourneyPlanner {
             logger.warn("Cannot find any walks from " + destination + " to stations");
             return Stream.empty();
         }
+        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest);
 
         Node endWalk = createWalkingNode(txn, destination, journeyRequest);
         List<Relationship> addedRelationships = new LinkedList<>();
@@ -133,9 +140,9 @@ public class LocationJourneyPlanner {
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest);
+            journeys = routeCalculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -164,14 +171,16 @@ public class LocationJourneyPlanner {
             addedRelationships.add(createWalkRelationship(txn, endWalk, stationWalk, WALKS_FROM));
         });
 
+        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest);
+
         /// CALC
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, startNode,  endWalk, destinationStations,
-                    journeyRequest);
+                    journeyRequest, numberOfChanges);
         } else {
             journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endWalk, destinationStations,
-                    journeyRequest);
+                    journeyRequest, numberOfChanges);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -238,6 +247,28 @@ public class LocationJourneyPlanner {
         List<StationWalk> stationWalks = createWalks(latLong, filtered);
         logger.info(format("Stops within %s of %s are [%s]", maxResults, latLong, stationWalks));
         return stationWalks;
+    }
+
+    private NumberOfChanges findNumberChanges(Station start, List<StationWalk> walksToDest) {
+        Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
+        int min = routeToRouteCosts.minRouteHops(Collections.singleton(start), destinations);
+        int max = routeToRouteCosts.maxRouteHops(Collections.singleton(start), destinations);
+        return new NumberOfChanges(min, max);
+    }
+
+    private NumberOfChanges findNumberChanges(List<StationWalk> walksToStart, Station destination) {
+        Set<Station> starts = walksToStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
+        int min = routeToRouteCosts.minRouteHops(starts, Collections.singleton(destination));
+        int max = routeToRouteCosts.maxRouteHops(starts, Collections.singleton(destination));
+        return new NumberOfChanges(min, max);
+    }
+
+    private NumberOfChanges findNumberChanges(List<StationWalk> walksAtStart, List<StationWalk> walksToDest) {
+        Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
+        Set<Station> starts = walksAtStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
+        int min = routeToRouteCosts.minRouteHops(starts, destinations);
+        int max = routeToRouteCosts.maxRouteHops(starts, destinations);
+        return new NumberOfChanges(min, max);
     }
 
     private List<StationWalk> createWalks(LatLong latLong, List<Station> startStations) {

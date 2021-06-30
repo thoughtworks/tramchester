@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
@@ -67,19 +68,18 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         return grouped.parallelStream().map(box -> {
 
-            // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-            // trying to share across boxes causes RouteCalculatorForBoundingBoxTest tests to fail
-            //PreviousVisits previousSuccessfulVisit = createPreviousVisits();
-
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
             LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
+
+            // TODO Compute the max from the stations in the box?
+            NumberOfChanges numberOfChanges = new NumberOfChanges(0, journeyRequest.getMaxChanges());
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
                         map(start -> getStationNodeSafe(txn, start)).
-                        flatMap(startNode -> numChangesRange(journeyRequest).
+                        flatMap(startNode -> numChangesRange(journeyRequest, numberOfChanges).
                                 map(numChanges -> createPathRequest(startNode, originalTime, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, createPreviousVisits(),
@@ -91,8 +91,6 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
 
                 // yielding
-//                previousSuccessfulVisit.reportStatsFor(journeyRequest);
-//                previousSuccessfulVisit.clear();
                 return new JourneysForBox(box, collect);
             }
         });

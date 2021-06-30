@@ -208,8 +208,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public int minRouteHops(Station start, Station end) {
-        Set<Route> startRoutes = start.getRoutes();
-        Set<Route> endRoutes = end.getRoutes();
+        return minHops(start.getRoutes(), end.getRoutes());
+    }
+
+
+    @Override
+    public int minRouteHops(Set<Station> starts, Set<Station> destinations) {
+        return minHops(routesFor(starts), routesFor(destinations));
+    }
+
+    private int minHops(Set<Route> startRoutes, Set<Route> endRoutes) {
         return startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
                 min(Integer::compare).orElse(Integer.MAX_VALUE);
@@ -217,13 +225,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public int maxRouteHops(Station start, Station end) {
-        Set<Route> startRoutes = start.getRoutes();
-        Set<Route> endRoutes = end.getRoutes();
+        return maxHops(start.getRoutes(), end.getRoutes());
+    }
+
+    @Override
+    public int maxRouteHops(Set<Station> starts, Set<Station> destinations) {
+        return maxHops(routesFor(starts), routesFor(destinations));
+    }
+
+    private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes) {
         return startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
                 filter(result -> result!=Integer.MAX_VALUE).
                 max(Integer::compare).orElse(Integer.MAX_VALUE);
+    }
 
+    private Set<Route> routesFor(Set<Station> stations) {
+        return stations.stream().flatMap(station -> station.getRoutes().stream()).collect(Collectors.toSet());
     }
 
     public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds) {

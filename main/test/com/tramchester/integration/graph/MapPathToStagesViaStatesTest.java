@@ -248,7 +248,9 @@ public class MapPathToStagesViaStatesTest {
 
         Node endNode = graphQuery.getStationNode(txn, destination);
         Node startOfWalkNode = locationJourneyPlanner.createWalkingNode(txn, start, journeyRequest);
-        List<Relationship> addedRelationships =  locationJourneyPlanner.createWalksToStations(txn, start, startOfWalkNode);
+
+        List<StationWalk> walks = locationJourneyPlanner.getStationWalks(start);
+        List<Relationship> addedRelationships =  locationJourneyPlanner.createWalksToStations(txn, startOfWalkNode, walks);
 
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
         List<RouteCalculator.TimedPath> timedPaths = getPathBetweenNodes(journeyRequest, startOfWalkNode, destinationNodeIds,

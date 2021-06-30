@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class RouteCalculatorSupport {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorSupport.class);
 
@@ -43,7 +46,7 @@ public class RouteCalculatorSupport {
     private final TramchesterConfig config;
     private final TripRepository tripRepository;
     private final TraversalStateFactory traversalStateFactory;
-    private final BetweenRoutesCostRepository routeToRouteCosts;
+    protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
 
@@ -90,9 +93,15 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest) {
-        final int max = journeyRequest.getMaxChanges();
-        final int min = 0;
+    protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
+        final int journeyRequestMaxChanges = journeyRequest.getMaxChanges();
+        final int numberOfChangesMax = numberOfChanges.getMax();
+        if (numberOfChangesMax > journeyRequestMaxChanges) {
+            logger.warn(format("Number of changes (%s) is greater then max in journey request (%s)",
+                    numberOfChangesMax, journeyRequestMaxChanges));
+        }
+        final int max = Math.min(numberOfChangesMax, journeyRequestMaxChanges);
+        final int min = numberOfChanges.getMin();
         logger.info("Will check journey from " + min + " to " + max +" changes");
         return IntStream.rangeClosed(min, max).boxed();
     }

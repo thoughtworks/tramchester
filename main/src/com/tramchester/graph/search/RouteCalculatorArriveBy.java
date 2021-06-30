@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
@@ -43,28 +44,28 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
 
     @Override
     public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Station start, Node endOfWalk, Set<Station> destStations,
-                                                   JourneyRequest journeyRequest) {
+                                                   JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         int costToDest = costCalculator.getApproxCostBetween(txn, start, endOfWalk);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime);
+        return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, numberOfChanges);
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node origin, Station destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node origin, Station destination, JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         int costToDest = costCalculator.getApproxCostBetween(txn, origin, destination);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtStart(txn, origin, destination, departureTime);
+        return routeCalculator.calculateRouteWalkAtStart(txn, origin, destination, departureTime, numberOfChanges);
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Node startNode, Node endNode, Set<Station> destinationStations,
-                                                           JourneyRequest journeyRequest) {
+                                                           JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         int costToDest = costCalculator.getApproxCostBetween(txn, startNode, endNode);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-        return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endNode, destinationStations, departureTime);
+        return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, startNode, endNode, destinationStations, departureTime, numberOfChanges);
     }
 
     private JourneyRequest calcDepartTime(JourneyRequest originalRequest, int costToDest) {
