@@ -137,6 +137,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         reasons.recordStat(journeyState);
 
         // no journey longer than N nodes
+        // TODO check length based on current transport mode??
         if (thePath.length() > serviceHeuristics.getMaxPathLength()) {
             logger.warn("Hit max path length");
             reasons.recordReason(ServiceReason.PathToLong(howIGotHere));
@@ -200,7 +201,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // -->Route Station
-        // is even reachable from here? is the station open?
+        // is reachable from here?
+        // is the station open?
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
             if (!serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(), howIGotHere, reasons).isValid()) {
                 return ServiceReason.ReasonCode.NotReachable;

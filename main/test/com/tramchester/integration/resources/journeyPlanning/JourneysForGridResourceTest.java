@@ -1,4 +1,4 @@
-package com.tramchester.integration.resources;
+package com.tramchester.integration.resources.journeyPlanning;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
@@ -8,7 +8,7 @@ import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
@@ -61,7 +61,7 @@ class JourneysForGridResourceTest {
         String queryString = String.format("grid?gridSize=%s&destination=%s&departureTime=%s&departureDate=%s&maxChanges=%s&maxDuration=%s",
                 gridSize, destination.forDTO(), time, date, maxChanges, maxDuration);
 
-        Response response = IntegrationClient.getApiResponse(appExtension, queryString);
+        Response response = APIClient.getApiResponse(appExtension, queryString);
         assertEquals(200, response.getStatus());
 
         InputStream inputStream = response.readEntity(InputStream.class);

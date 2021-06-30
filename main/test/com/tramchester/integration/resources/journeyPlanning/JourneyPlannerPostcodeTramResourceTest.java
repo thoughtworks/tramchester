@@ -1,4 +1,4 @@
-package com.tramchester.integration.resources;
+package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.places.PostcodeLocation;

@@ -13,11 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class IntegrationClient {
+public class APIClient {
 
     private final Invocation.Builder builder;
 
-    private IntegrationClient(IntegrationAppExtension appExtension, String endPoint) {
+    private APIClient(IntegrationAppExtension appExtension, String endPoint) {
         Client client = appExtension.client();
         WebTarget target = client.target("http://localhost:" + appExtension.getLocalPort() + "/api/" + endPoint);
         builder = target.request(MediaType.APPLICATION_JSON);
@@ -29,9 +29,9 @@ public class IntegrationClient {
     }
 
     public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint, Cookie cookie) {
-        IntegrationClient integrationClient = new IntegrationClient(appExtension, endPoint);
-        integrationClient.setCookie(cookie);
-        return integrationClient.invoke();
+        APIClient APIClient = new APIClient(appExtension, endPoint);
+        APIClient.setCookie(cookie);
+        return APIClient.invoke();
     }
 
     private void setCookie(Cookie cookie) {
@@ -45,14 +45,14 @@ public class IntegrationClient {
     }
 
     public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint) {
-        IntegrationClient integrationClient = new IntegrationClient(appExtension, endPoint);
-        return integrationClient.invoke();
+        APIClient APIClient = new APIClient(appExtension, endPoint);
+        return APIClient.invoke();
     }
 
     public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint, Date lastMod) {
-        IntegrationClient integrationClient = new IntegrationClient(appExtension, endPoint);
-        integrationClient.setLastMod(lastMod);
-        return integrationClient.invoke();
+        APIClient APIClient = new APIClient(appExtension, endPoint);
+        APIClient.setLastMod(lastMod);
+        return APIClient.invoke();
     }
 
 }

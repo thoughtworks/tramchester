@@ -3,7 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
@@ -28,7 +28,7 @@ class PostcodeResourceTest {
 
     @Test
     void shouldGetLoadedPostcodes() {
-        Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, response.getStatus());
 
         List<PostcodeDTO> results = response.readEntity(new GenericType<>(){});
@@ -52,12 +52,12 @@ class PostcodeResourceTest {
 
     @Test
     void shouldGetTramStation304response() {
-        Response resultA = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response resultA = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, resultA.getStatus());
 
         Date lastMod = resultA.getLastModified();
 
-        Response resultB = IntegrationClient.getApiResponse(appExtension, endPoint, lastMod);
+        Response resultB = APIClient.getApiResponse(appExtension, endPoint, lastMod);
         assertEquals(304, resultB.getStatus());
     }
 

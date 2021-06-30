@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -110,7 +110,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
                 map(Station::forDTO).
                 collect(Collectors.toSet());
 
-        Response response = IntegrationClient.getApiResponse(appExtension, "links/composites");
+        Response response = APIClient.getApiResponse(appExtension, "links/composites");
         assertEquals(200, response.getStatus(), "status");
 
         List<StationGroupDTO> groups = response.readEntity(new GenericType<>() {});
@@ -131,7 +131,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @NotNull
     private List<StationLinkDTO> getLinks() {
 
-        Response response = IntegrationClient.getApiResponse(appExtension, "links/neighbours");
+        Response response = APIClient.getApiResponse(appExtension, "links/neighbours");
         assertEquals(200, response.getStatus(), "status");
 
        return response.readEntity(new GenericType<>() {});

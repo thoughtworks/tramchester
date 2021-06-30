@@ -85,7 +85,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     @NonNull
     private <T> Cache<Long, T> createCache(String name, long maximumSize) {
         // TODO cache expiry time into Config
-        logger.info("Create create " + name + " max size " + maximumSize);
+        logger.info("Create " + name + " max size " + maximumSize);
         return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(30, TimeUnit.MINUTES).
                 recordStats().build();
     }

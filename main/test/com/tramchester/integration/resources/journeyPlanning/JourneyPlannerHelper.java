@@ -1,4 +1,4 @@
-package com.tramchester.integration.resources;
+package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -38,6 +38,7 @@ public abstract class JourneyPlannerHelper {
 
     JourneyPlanRepresentation validateAtLeastOneJourney(TramStations start, TramStations end, LocalDate date, TramTime queryTime)  {
         TramServiceDate queryDate = new TramServiceDate(date);
+
         JourneyPlanRepresentation results = getJourneyPlan(start, end, queryDate, queryTime.asLocalTime(), false, 3);
         Set<JourneyDTO> journeys = results.getJourneys();
 

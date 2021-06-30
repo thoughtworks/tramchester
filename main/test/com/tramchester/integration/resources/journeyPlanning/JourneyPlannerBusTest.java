@@ -1,4 +1,4 @@
-package com.tramchester.integration.resources;
+package com.tramchester.integration.resources.journeyPlanning;
 
 
 import com.tramchester.App;
@@ -15,7 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -55,7 +55,7 @@ class JourneyPlannerBusTest {
 
     @Test
     void shouldHaveBusStations() {
-        Response result = IntegrationClient.getApiResponse(appExt, "stations/mode/Bus");
+        Response result = APIClient.getApiResponse(appExt, "stations/mode/Bus");
 
         assertEquals(200, result.getStatus());
 
@@ -76,7 +76,7 @@ class JourneyPlannerBusTest {
 
     @Test
     void shouldGetTransportModes() {
-        Response response = IntegrationClient.getApiResponse(appExt, "version/modes");
+        Response response = APIClient.getApiResponse(appExt, "version/modes");
         assertEquals(200, response.getStatus());
 
         ConfigDTO result = response.readEntity(new GenericType<>() {});
@@ -91,28 +91,28 @@ class JourneyPlannerBusTest {
     @Test
     void shouldBusJourneyWestEast() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, StopAtAltrinchamInterchange, StopAtStockportBusStation, 3);
-        validateHasJourney(queryTime, StopAtStockportBusStation, StopAtAltrinchamInterchange, 3);
+        validateHasJourney(queryTime, StopAtAltrinchamInterchange, StopAtStockportBusStation, 2);
+        validateHasJourney(queryTime, StopAtStockportBusStation, StopAtAltrinchamInterchange, 2);
     }
 
     @Test
     void shouldPlanBusJourneySouthern() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, ShudehillInterchange, StopAtStockportBusStation, 3);
-        validateHasJourney(queryTime, StopAtStockportBusStation, ShudehillInterchange, 3);
+        validateHasJourney(queryTime, ShudehillInterchange, StopAtStockportBusStation, 2);
+        validateHasJourney(queryTime, StopAtStockportBusStation, ShudehillInterchange, 2);
     }
 
     @Test
     void shouldPlanBusJourneyNorthern() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, ShudehillInterchange, BuryInterchange, 3);
-        validateHasJourney(queryTime, BuryInterchange, ShudehillInterchange, 3);
+        validateHasJourney(queryTime, ShudehillInterchange, BuryInterchange, 2);
+        validateHasJourney(queryTime, BuryInterchange, ShudehillInterchange, 2);
     }
 
     @Test
     void shouldPlanBusJourneyNoLoops() {
         TramTime queryTime = TramTime.of(8,56);
-        JourneyPlanRepresentation plan = createPlan(queryTime, StopAtAltrinchamInterchange, ManchesterAirportStation,
+        JourneyPlanRepresentation plan = getJourneyResults(queryTime, StopAtAltrinchamInterchange, ManchesterAirportStation,
                 2, false);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -151,7 +151,7 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
-        JourneyPlanRepresentation plan = createPlan(queryTime, StopAtStockportBusStation, StopAtAltrinchamInterchange, 3, true);
+        JourneyPlanRepresentation plan = getJourneyResults(queryTime, StopAtStockportBusStation, StopAtAltrinchamInterchange, 3, true);
 
         // TODO 20 mins gap? Estimation is too optimistic for Buses?
         List<JourneyDTO> found = new ArrayList<>();
@@ -178,28 +178,17 @@ class JourneyPlannerBusTest {
         return found;
     }
 
-
     private void validateHasJourney(TramTime queryTime, HasId<Station>  start, HasId<Station>  end, int maxChanges) {
-        JourneyPlanRepresentation plan = createPlan(queryTime, start, end, maxChanges, false);
+        JourneyPlanRepresentation plan = getJourneyResults(queryTime, start, end, maxChanges, false);
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
         Assertions.assertFalse(found.isEmpty());
     }
 
-    private JourneyPlanRepresentation createPlan(TramTime queryTime, HasId<Station> start, HasId<Station>  end, int maxChanges, boolean arriveBy) {
-        return getJourneyPlan(start.getId(), end.getId(), queryTime,
-                new TramServiceDate(when), arriveBy, maxChanges);
-    }
+    private JourneyPlanRepresentation getJourneyResults(TramTime queryTime, HasId<Station> start, HasId<Station>  end,
+                                                        int maxChanges, boolean arriveBy) {
+        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, start.getId().forDTO(),
+                end.getId().forDTO(), queryTime.asLocalTime(), when, null, arriveBy, maxChanges);
 
-    private JourneyPlanRepresentation getJourneyPlan(IdFor<Station> startId, IdFor<Station> endId, TramTime queryTime,
-                                                     TramServiceDate queryDate, boolean arriveBy, int maxChanges) {
-        return getJourneyPlan(startId.forDTO(), endId.forDTO(), queryTime, queryDate, arriveBy, maxChanges);
-    }
-
-
-    private JourneyPlanRepresentation getJourneyPlan(String startId, String endId, TramTime queryTime,
-                                                     TramServiceDate queryDate, boolean arriveBy, int maxChanges) {
-        Response response = JourneyPlannerResourceTest.getResponseForJourney(appExt, startId, endId, queryTime.asLocalTime(),
-                queryDate.getDate(), null, arriveBy, maxChanges);
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }

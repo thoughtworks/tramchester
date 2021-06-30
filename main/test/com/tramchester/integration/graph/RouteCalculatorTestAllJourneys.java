@@ -6,7 +6,7 @@ import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyRequest;
-import com.tramchester.integration.graph.testSupport.RouteCalculationCombinations;
+import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;

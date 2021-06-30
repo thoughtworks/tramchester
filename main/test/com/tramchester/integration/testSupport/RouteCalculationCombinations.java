@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph.testSupport;
+package com.tramchester.integration.testSupport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.domain.Journey;

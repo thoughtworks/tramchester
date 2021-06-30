@@ -1,4 +1,4 @@
-package com.tramchester.integration.resources;
+package com.tramchester.integration.resources.journeyPlanning;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
@@ -18,9 +18,8 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -33,7 +32,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,7 +55,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDate when;
     private LocalDateTime now;
-    private ParseStream<JourneyDTO> parseStream;
     private TramServiceDate tramServiceDate;
 
     @BeforeEach
@@ -65,7 +62,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         when = TestEnv.testDay();
         tramServiceDate = new TramServiceDate(when);
         now = TestEnv.LocalNow();
-        parseStream = new ParseStream<>(mapper);
     }
 
     @Test
@@ -249,8 +245,8 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         IdFor<Station> start = TramStations.Bury.getId();
         IdFor<Station> end = TramStations.ManAirport.getId();
 
-        Response result = getResponseForJourney(appExtension, start, end, now.toLocalTime(), now.toLocalDate(), null,
-                false, 3);
+        Response result = getResponseForJourney(appExtension, start.forDTO(),
+                end.forDTO(), now.toLocalTime(), now.toLocalDate(), null, false, 3);
 
         Assertions.assertEquals(200, result.getStatus());
 
@@ -296,7 +292,7 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
         // journey to bury
-        Response response = IntegrationClient.getApiResponse(appExtension,
+        Response response = APIClient.getApiResponse(appExtension,
                 String.format("journey?start=%s&end=%s&departureTime=%s&departureDate=%s", start.forDTO(), end.forDTO(), time, date),cookie);
 
         Assertions.assertEquals(200, response.getStatus());
@@ -328,26 +324,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
-    @Test
-    void shouldSpikeResultsAsStream() throws IOException {
-        IdFor<Station> start = TramStations.Bury.getId();
-        IdFor<Station> end = TramStations.ManAirport.getId();
-        String time = TramTime.of(11,45).toPattern();
-        String date = when.format(dateFormatDashes);
-
-        String queryString = String.format("journey/streamed?start=%s&end=%s&departureTime=%s&departureDate=%s&arriveby=%s&maxChanges=%s",
-                start.forDTO(), end.forDTO(), time, date, false, 3);
-
-        Response response = IntegrationClient.getApiResponse(appExtension, queryString);
-        Assertions.assertEquals(200, response.getStatus());
-
-        InputStream inputStream = response.readEntity(InputStream.class);
-        List<JourneyDTO> journeyDTOS = parseStream.receive(response, inputStream, JourneyDTO.class);
-
-        Assertions.assertFalse(journeyDTOS.isEmpty());
-        journeyDTOS.forEach(journeyDTO -> Assertions.assertFalse(journeyDTO.getStages().isEmpty()));
-    }
-
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {
         Map<String, NewCookie> cookies = response.getCookies();
         NewCookie recent = cookies.get("tramchesterRecent");
@@ -373,12 +349,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    static Response getResponseForJourney(IntegrationAppExtension rule, IdFor<Station> start, IdFor<Station> end,
-                                          LocalTime time, LocalDate date, LatLong latlong, boolean arriveBy, int maxChanges) {
-        return getResponseForJourney(rule, start.forDTO(), end.forDTO(), time, date, latlong, arriveBy, maxChanges);
-
-    }
-
     public static Response getResponseForJourney(IntegrationAppExtension rule, String start, String end, LocalTime time,
                                                  LocalDate date, LatLong latlong, boolean arriveBy, int maxChanges) {
         String timeString = time.format(TestEnv.timeFormatter);
@@ -394,6 +364,6 @@ public class JourneyPlannerResourceTest extends JourneyPlannerHelper {
                 queryString = String.format("%s&lat=%f&lon=%f", queryString, latlong.getLat(), latlong.getLon());
             }
         }
-        return IntegrationClient.getApiResponse(rule, queryString);
+        return APIClient.getApiResponse(rule, queryString);
     }
 }

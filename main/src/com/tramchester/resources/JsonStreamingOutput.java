@@ -30,6 +30,10 @@ class JsonStreamingOutput<T> implements StreamingOutput {
         this(null, theStream, mapper);
     }
 
+    /**
+     * Writes theStream to outputStream, closes theStream and the txn (if present)
+     * @param outputStream the stream being written to
+     */
     @Override
     public void write(final OutputStream outputStream)  {
         // NOTE: by default there is an 8K output buffer on outputStream
@@ -37,8 +41,9 @@ class JsonStreamingOutput<T> implements StreamingOutput {
         logger.info("Write stream to response");
 
         theStream.onClose(() -> {
-            logger.info("Closed stream");
+            logger.info("Closed source stream");
             if (txn!=null) {
+                logger.info("Closing transaction");
                 txn.close();
             }
         });

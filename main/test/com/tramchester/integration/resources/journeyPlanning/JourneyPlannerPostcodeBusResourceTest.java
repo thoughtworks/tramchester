@@ -1,4 +1,4 @@
-package com.tramchester.integration.resources;
+package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.places.PostcodeLocation;
@@ -50,12 +50,13 @@ class JourneyPlannerPostcodeBusResourceTest {
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBus() {
+
         Response response = JourneyPlannerResourceTest.getResponseForJourney(appExtension,
                 prefix(TestPostcodes.CentralBury), prefix(TestPostcodes.NearPiccadillyGardens), time, day,
                 null, false, 0);
         assertEquals(200, response.getStatus());
-
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+
         Set<JourneyDTO> journeys = results.getJourneys();
 
         assertFalse(journeys.isEmpty());
@@ -75,6 +76,7 @@ class JourneyPlannerPostcodeBusResourceTest {
         assertEquals(200, response.getStatus());
 
         JourneyPlanRepresentation results = response.readEntity(JourneyPlanRepresentation.class);
+
         Set<JourneyDTO> journeys = results.getJourneys();
         assertFalse(journeys.isEmpty());
 

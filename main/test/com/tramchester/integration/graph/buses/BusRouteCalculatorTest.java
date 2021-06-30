@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.search.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.graph.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
@@ -249,16 +249,27 @@ class BusRouteCalculatorTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3);
+        //journeyRequest.setDiag(true);
 
         Set<Journey> results = calculator.calculateRouteAsSet(StopAtStockportBusStation, ShudehillInterchange, journeyRequest);
         assertFalse(results.isEmpty());
     }
 
     @Test
-    void shouldReproPerfIssueAltyToStockport() {
+    void shouldReproPerfIssueAltyToStockport3Changes() {
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3);
+
+        Set<Journey> results = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, StopAtStockportBusStation, journeyRequest);
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldReproPerfIssueAltyToStockport2Changes() {
+
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
+                false, 2, maxJourneyDuration, 3);
 
         Set<Journey> results = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, StopAtStockportBusStation, journeyRequest);
         assertFalse(results.isEmpty());

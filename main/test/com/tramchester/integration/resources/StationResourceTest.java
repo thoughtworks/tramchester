@@ -11,7 +11,7 @@ import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -43,7 +43,7 @@ class StationResourceTest {
     void shouldGetSingleStationWithPlatforms() {
         String stationId = TramStations.StPetersSquare.forDTO();
         String endPoint = "stations/" + stationId;
-        Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(appExtension, endPoint);
         Assertions.assertEquals(200,response.getStatus());
         LocationDTO result = response.readEntity(LocationDTO.class);
 
@@ -63,7 +63,7 @@ class StationResourceTest {
 
     @Test
     void shouldGetTramStations() {
-        Response result = IntegrationClient.getApiResponse(appExtension, "stations/mode/Tram");
+        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Tram");
 
         assertEquals(200, result.getStatus());
 
@@ -89,18 +89,18 @@ class StationResourceTest {
 
     @Test
     void shouldGetTramStation304response() {
-        Response resultA = IntegrationClient.getApiResponse(appExtension, "stations/mode/Tram");
+        Response resultA = APIClient.getApiResponse(appExtension, "stations/mode/Tram");
         assertEquals(200, resultA.getStatus());
 
         Date lastMod = resultA.getLastModified();
 
-        Response resultB = IntegrationClient.getApiResponse(appExtension, "stations/mode/Tram", lastMod);
+        Response resultB = APIClient.getApiResponse(appExtension, "stations/mode/Tram", lastMod);
         assertEquals(304, resultB.getStatus());
     }
 
     @Test
     void shouldGetBusStations() {
-        Response result = IntegrationClient.getApiResponse(appExtension, "stations/mode/Bus");
+        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Bus");
 
         assertEquals(200, result.getStatus());
 
@@ -111,7 +111,7 @@ class StationResourceTest {
 
     @Test
     void should404ForUnknownMode() {
-        Response result = IntegrationClient.getApiResponse(appExtension, "stations/mode/Jumping");
+        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Jumping");
         assertEquals(404, result.getStatus());
     }
 
@@ -119,7 +119,7 @@ class StationResourceTest {
     void shouldGetNearestStations() {
 
         LatLong nearPiccGardens = TestEnv.nearPiccGardens;
-        Response result = IntegrationClient.getApiResponse(appExtension, String.format("stations/near?lat=%s&lon=%s",
+        Response result = APIClient.getApiResponse(appExtension, String.format("stations/near?lat=%s&lon=%s",
                 nearPiccGardens.getLat(), nearPiccGardens.getLon()));
         assertEquals(200, result.getStatus());
 
@@ -140,7 +140,7 @@ class StationResourceTest {
         Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
 
         // All
-        Response result = IntegrationClient.getApiResponse(appExtension, "stations/recent", cookie);
+        Response result = APIClient.getApiResponse(appExtension, "stations/recent", cookie);
         assertEquals(200, result.getStatus());
 
         List<StationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
@@ -157,7 +157,7 @@ class StationResourceTest {
 
     @Test
     void shouldGetClosedStations() {
-        Response result = IntegrationClient.getApiResponse(appExtension, "stations/closures");
+        Response result = APIClient.getApiResponse(appExtension, "stations/closures");
         assertEquals(200, result.getStatus());
 
         List<StationClosureDTO> results = result.readEntity(new GenericType<>() {});

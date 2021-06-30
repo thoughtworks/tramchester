@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,12 +46,13 @@ public class DataCache {
         logger.info("Starting");
         ready = false;
 
-        if (Files.exists(cacheFolder)) {
+        File cacheDir = cacheFolder.toFile();
+        if (cacheDir.exists() && cacheDir.isDirectory()) {
             logger.info("Cached folder exists at " + cacheFolder);
             ready = true;
         } else {
+            logger.info("Creating folder at " + cacheFolder);
             try {
-                logger.info("Created folder at " + cacheFolder);
                 Files.createDirectories(cacheFolder);
                 ready = true;
             } catch (IOException exception) {
@@ -68,19 +70,21 @@ public class DataCache {
         if (refreshedSources.isEmpty()) {
             return;
         }
-        logger.warn("Some data sources (" + refreshedSources+ ") have refreshed, clearning cache " + cacheFolder);
+        logger.warn("Some data sources (" + refreshedSources+ ") have refreshed, clearing cache " + cacheFolder);
         clearFiles();
     }
 
     @PreDestroy
     public void stop() {
         ready = false;
+        logger.info("Stopping");
         try {
             List<Path> filesInCacheDir = filesInCache();
-            filesInCacheDir.forEach(file -> logger.info("File present " + file));
+            filesInCacheDir.forEach(file -> logger.info("Cache file: " + file));
         } catch (IOException e) {
             logger.error("Could not list files in " + cacheFolder);
         }
+        logger.info("Stopped");
     }
 
     @NotNull

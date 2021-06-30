@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -70,7 +70,7 @@ class RouteResourceTest {
     }
 
     private List<RouteDTO> getRouteResponse() {
-        Response result = IntegrationClient.getApiResponse(appExtension, "routes");
+        Response result = APIClient.getApiResponse(appExtension, "routes");
         assertEquals(200, result.getStatus());
         return result.readEntity(new GenericType<>() {
         });

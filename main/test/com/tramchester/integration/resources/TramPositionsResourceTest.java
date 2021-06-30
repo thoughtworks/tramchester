@@ -4,7 +4,7 @@ import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
 import com.tramchester.domain.presentation.DTO.TramPositionDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -29,7 +29,7 @@ class TramPositionsResourceTest {
     @Test
     void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response responce = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, responce.getStatus());
 
         TramsPositionsDTO filtered = responce.readEntity(TramsPositionsDTO.class);
@@ -61,7 +61,7 @@ class TramPositionsResourceTest {
     @Test
     void shouldGetSomePositionsUnfiltered() {
         String endPoint = "positions?unfiltered=true";
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response responce = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, responce.getStatus());
 
         TramsPositionsDTO unfiltered = responce.readEntity(TramsPositionsDTO.class);

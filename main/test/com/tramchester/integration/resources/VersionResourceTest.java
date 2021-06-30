@@ -4,7 +4,7 @@ import com.tramchester.App;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.presentation.Version;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -31,7 +31,7 @@ class VersionResourceTest {
     @Test
     void shouldGetVersion() {
 
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response responce = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, responce.getStatus());
 
         Version version = responce.readEntity(Version.class);
@@ -47,7 +47,7 @@ class VersionResourceTest {
     void shouldGetTransportModes() {
         Set<TransportMode> expectedModes = configuration.getTransportModes();
 
-        Response responce = IntegrationClient.getApiResponse(appExtension, endPoint+"/modes");
+        Response responce = APIClient.getApiResponse(appExtension, endPoint+"/modes");
         assertEquals(200, responce.getStatus());
 
         ConfigDTO results = responce.readEntity(ConfigDTO.class);

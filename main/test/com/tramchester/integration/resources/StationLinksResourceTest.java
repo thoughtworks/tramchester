@@ -9,7 +9,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.IntegrationClient;
+import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -44,7 +44,7 @@ class StationLinksResourceTest {
     void shouldGetStationLinks() {
         String endPoint = "links/all";
 
-        Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, response.getStatus(), "status");
 
         List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
@@ -65,7 +65,7 @@ class StationLinksResourceTest {
         Set<BoundingBox> quadrants = stationLocations.getQuadrants();
 
         String endPoint = "links/quadrants";
-        Response response = IntegrationClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, response.getStatus(), "status");
 
         List<BoxDTO> results = response.readEntity(new GenericType<>() {});
