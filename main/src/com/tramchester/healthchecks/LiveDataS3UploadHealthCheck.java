@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
-import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.CountsUploadedLiveData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +19,17 @@ import java.time.temporal.ChronoUnit;
 public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataS3UploadHealthCheck.class);
 
-    private final ProvidesLocalNow providesLocalNow;
+    private final ProvidesNow providesNow;
     private final CountsUploadedLiveData countsUploadedLiveData;
     private final LiveDataConfig config;
 
     private Duration checkDuration;
 
     @Inject
-    public LiveDataS3UploadHealthCheck(ProvidesLocalNow providesLocalNow, CountsUploadedLiveData countsUploadedLiveData,
+    public LiveDataS3UploadHealthCheck(ProvidesNow providesNow, CountsUploadedLiveData countsUploadedLiveData,
                                        TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
-        this.providesLocalNow = providesLocalNow;
+        this.providesNow = providesNow;
         this.countsUploadedLiveData = countsUploadedLiveData;
         this.config = config.getLiveDataConfig();
     }
@@ -58,7 +58,7 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
     @Override
     public Result check() {
         logger.info("Check for live data in S3");
-        LocalDateTime checkTime = providesLocalNow.getDateTime().minus(checkDuration);
+        LocalDateTime checkTime = providesNow.getDateTime().minus(checkDuration);
 
         long number = countsUploadedLiveData.count(checkTime, checkDuration);
 

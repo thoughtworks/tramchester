@@ -7,7 +7,7 @@ import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
-import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -25,6 +25,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class RouteCalculatorSupport {
     private final GraphQuery graphQuery;
     private final PathToStages pathToStages;
     private final GraphDatabase graphDatabaseService;
-    private final ProvidesLocalNow providesLocalNow;
+    protected final ProvidesNow providesNow;
     private final SortsPositions sortsPosition;
     private final MapPathToLocations mapPathToLocations;
     private final StationRepository stationRepository;
@@ -52,7 +53,7 @@ public class RouteCalculatorSupport {
 
     protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
-                                     ProvidesLocalNow providesLocalNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
+                                     ProvidesNow providesNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         this.graphQuery = graphQuery;
@@ -60,7 +61,7 @@ public class RouteCalculatorSupport {
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
         this.traversalStateFactory = traversalStateFactory;
-        this.providesLocalNow = providesLocalNow;
+        this.providesNow = providesNow;
         this.sortsPosition = sortsPosition;
         this.mapPathToLocations = mapPathToLocations;
         this.stationRepository = stationRepository;
@@ -97,11 +98,15 @@ public class RouteCalculatorSupport {
         final int journeyRequestMaxChanges = journeyRequest.getMaxChanges();
         final int numberOfChangesMax = numberOfChanges.getMax();
         if (numberOfChangesMax > journeyRequestMaxChanges) {
-            logger.warn(format("Number of changes (%s) is greater then max in journey request (%s)",
+            logger.info(format("Number of changes max (%s) is greater then max in journey request (%s)",
                     numberOfChangesMax, journeyRequestMaxChanges));
         }
         final int max = Math.min(numberOfChangesMax, journeyRequestMaxChanges);
         final int min = numberOfChanges.getMin();
+        if (journeyRequestMaxChanges<min) {
+            logger.warn(format("Minimum number of changes needed (%s) is overridden by journey request (%s)", min, journeyRequestMaxChanges));
+        }
+
         logger.info("Will check journey from " + min + " to " + max +" changes");
         return IntStream.rangeClosed(min, max).boxed();
     }
@@ -115,17 +120,18 @@ public class RouteCalculatorSupport {
     public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
                                                               final Set<Station> endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
-                                                              PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen) {
+                                                              PreviousVisits previousSuccessfulVisit,
+                                                              LowestCostSeen lowestCostSeen, Instant begin) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest, sortsPosition, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
-                reasons, routeToRouteCosts, reasonToGraphViz);
+                reasons, routeToRouteCosts, reasonToGraphViz, providesNow);
 
         logger.info("Traverse for " + pathRequest);
 
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen).
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, begin).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
@@ -170,12 +176,12 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time) {
-        return new ServiceReasons(journeyRequest, time, providesLocalNow);
+        return new ServiceReasons(journeyRequest, time, providesNow);
     }
 
     @NotNull
     protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, PathRequest pathRequest) {
-        return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesLocalNow);
+        return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow);
     }
 
     public PathRequest createPathRequest(Node startNode, TramTime actualQueryTime, int numChanges, JourneyConstraints journeyConstraints) {

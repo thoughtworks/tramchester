@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
@@ -44,7 +45,7 @@ class TramPositionInferenceTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
+        ProvidesNow providesLocalNow = new ProvidesLocalNow();
 
         LiveDataUpdater liveDataSource = componentContainer.get(LiveDataUpdater.class);
         liveDataSource.refreshRespository();

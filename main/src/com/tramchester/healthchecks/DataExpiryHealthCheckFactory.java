@@ -3,7 +3,7 @@ package com.tramchester.healthchecks;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
-import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.TransportData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +21,15 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
 
     private final List<TramchesterHealthCheck> healthChecks;
     private final TransportData transportData;
-    private final ProvidesLocalNow providesLocalNow;
+    private final ProvidesNow providesNow;
     private final TramchesterConfig config;
     private final ServiceTimeLimits serviceTimeLimits;
 
     @Inject
-    public DataExpiryHealthCheckFactory(TransportData transportData, ProvidesLocalNow providesLocalNow,
+    public DataExpiryHealthCheckFactory(TransportData transportData, ProvidesNow providesNow,
                                         TramchesterConfig config, ServiceTimeLimits serviceTimeLimits) {
         this.transportData = transportData;
-        this.providesLocalNow = providesLocalNow;
+        this.providesNow = providesNow;
         this.config = config;
         this.serviceTimeLimits = serviceTimeLimits;
         healthChecks = new ArrayList<>();
@@ -49,7 +49,7 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
     public void start() {
         transportData.getFeedInfos().forEach((name, feedInfo) -> {
             if (feedInfo.validUntil()!=null) {
-                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesLocalNow, config, serviceTimeLimits);
+                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesNow, config, serviceTimeLimits);
                 healthChecks.add(healthCheck);
             } else {
                 logger.warn("Cannot add healthcheck for " + feedInfo + " since 'valid until' is missing");

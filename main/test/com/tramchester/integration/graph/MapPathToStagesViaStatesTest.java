@@ -26,6 +26,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import io.swagger.models.auth.In;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Node;
@@ -33,6 +34,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -303,8 +305,9 @@ public class MapPathToStagesViaStatesTest {
         RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryTime, numChanges,
                 serviceHeuristics);
 
+        Instant begin = Instant.now();
         final List<RouteCalculator.TimedPath> timedPaths = routeCalculator.findShortestPath(txn, destinationNodeIds, endStations,
-                reasons, pathRequest, previous, lowestCostSeen).collect(Collectors.toList());
+                reasons, pathRequest, previous, lowestCostSeen, begin).collect(Collectors.toList());
         // Sort to give consistent test results, otherwise order is undefined
         return sorted(timedPaths);
     }

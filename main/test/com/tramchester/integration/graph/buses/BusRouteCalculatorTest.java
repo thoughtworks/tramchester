@@ -266,12 +266,15 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldReproPerfIssueAltyToStockport2Changes() {
+    void shouldReproPerfIssueAltyToAirport() {
+        CompositeStation alty = compositeStationRepository.findByName("Altrincham Interchange");
+        CompositeStation airport = compositeStationRepository.findByName("Manchester Airport The Station");
 
-        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(when), TramTime.of(8,45),
-                false, 2, maxJourneyDuration, 3);
+        LocalDate date =  LocalDate.of(2021, 6, 30);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(date), TramTime.of(11,11),
+                false, 3, maxJourneyDuration, 3);
 
-        Set<Journey> results = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, StopAtStockportBusStation, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(alty, airport, journeyRequest);
         assertFalse(results.isEmpty());
     }
 

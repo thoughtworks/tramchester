@@ -62,6 +62,7 @@ remoteSources:
     dataPath: data/naptan
     filename: naptan_csv.zip
 cacheFolder: data/cacheAll
+calcTimeoutMillis: 3500
 bounds:
   minEastings: 333211
   minNorthings: 373264

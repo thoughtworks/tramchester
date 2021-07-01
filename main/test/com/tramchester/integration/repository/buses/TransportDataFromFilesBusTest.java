@@ -64,7 +64,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldHaveExpectedNumbersForBus() {
-        assertEquals(40, transportData.getAgencies().size());
+        assertEquals(41, transportData.getAgencies().size());
 
         int numberRoutes = transportData.getRoutes().size();
         assertTrue(withinNPercent(1485, numberRoutes, 0.1F), Integer.toString(numberRoutes));

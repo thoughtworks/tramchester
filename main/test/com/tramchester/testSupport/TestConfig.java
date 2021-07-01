@@ -108,6 +108,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public long getCalcTimeoutMillis() {
+        return 3500;
+    }
+
+    @Override
     public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
         SwaggerBundleConfiguration bundleConfiguration = new SwaggerBundleConfiguration();
         bundleConfiguration.setResourcePackage("com.tramchester.resources");

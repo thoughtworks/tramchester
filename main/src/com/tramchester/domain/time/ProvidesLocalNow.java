@@ -3,12 +3,12 @@ package com.tramchester.domain.time;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 
 @LazySingleton
 public class ProvidesLocalNow implements ProvidesNow {
+
+    private final Clock clock = Clock.system(TramchesterConfig.TimeZone);
 
     private LocalDateTime getLocalNow() {
         return ZonedDateTime.now(TramchesterConfig.TimeZone).toLocalDateTime();
@@ -27,6 +27,11 @@ public class ProvidesLocalNow implements ProvidesNow {
     @Override
     public LocalDateTime getDateTime() {
         return getLocalNow();
+    }
+
+    @Override
+    public Instant getInstant() {
+        return Instant.now(clock);
     }
 
 }

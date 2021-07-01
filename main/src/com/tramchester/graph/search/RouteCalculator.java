@@ -9,6 +9,7 @@ import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -43,11 +45,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
-                           ProvidesLocalNow providesLocalNow, GraphQuery graphQuery,
+                           ProvidesNow providesNow, GraphQuery graphQuery,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
-                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations,
+                traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.serviceRepository = transportData;
         this.config = config;
@@ -94,25 +96,26 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private Stream<Journey> getJourneyStream(Transaction txn, Node startNode, Node endNode, JourneyRequest journeyRequest,
                                              Set<Station> unexpanded, boolean walkAtStart, NumberOfChanges numberOfChanges) {
 
-        Set<Station> destinations = CompositeStation.expandStations(unexpanded);
+        final Set<Station> destinations = CompositeStation.expandStations(unexpanded);
         if (destinations.size()!=unexpanded.size()) {
             logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
         }
 
-        List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), walkAtStart);
-        Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
+        final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), walkAtStart);
+        final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
 
-        LowestCostSeen lowestCostSeen = new LowestCostSeen();
+        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
-        Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
+        final Instant begin = providesNow.getInstant();
+        final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, createPreviousVisits(),
-                        lowestCostSeen)).
+                        lowestCostSeen, begin)).
                 limit(journeyRequest.getMaxNumberOfJourneys()).
                 map(path -> createJourney(txn, journeyRequest, path, destinations));
 

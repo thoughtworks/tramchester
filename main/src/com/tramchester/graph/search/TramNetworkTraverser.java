@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -21,6 +22,7 @@ import org.neo4j.graphdb.traversal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.Spliterator;
@@ -48,12 +50,13 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final BetweenRoutesCostRepository routeToRouteCosts;
     private final RouteCalculatorSupport.PathRequest pathRequest;
     private final ReasonsToGraphViz reasonToGraphViz;
+    private final ProvidesNow providesNow;
 
     public TramNetworkTraverser(GraphDatabase graphDatabaseService, RouteCalculatorSupport.PathRequest pathRequest,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons,
-                                BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                                BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
         this.graphDatabaseService = graphDatabaseService;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -68,9 +71,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         this.actualQueryTime = pathRequest.getActualQueryTime();
         this.reasonToGraphViz = reasonToGraphViz;
+        this.providesNow = providesNow;
     }
 
-    public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen) {
+    public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen, Instant begin) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {
             logger.info("Depth first is enabled");
@@ -79,7 +83,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         }
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
-                destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config, startNode.getId());
+                destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
+                startNode.getId(), begin, providesNow);
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 

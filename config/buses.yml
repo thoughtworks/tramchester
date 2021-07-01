@@ -51,6 +51,7 @@ remoteSources:
     dataPath: data/postcodes
     filename: codepo_gb.zip
 cacheFolder: data/cacheBuses
+calcTimeoutMillis: 3500
 bounds:
   minEastings: 333200
   minNorthings: 373250

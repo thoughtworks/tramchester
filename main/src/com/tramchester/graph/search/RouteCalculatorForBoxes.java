@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,11 +46,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
                                    PathToStages pathToStages,
                                    NodeContentsRepository nodeContentsRepository,
-                                   ProvidesLocalNow providesLocalNow,
+                                   ProvidesNow providesNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
-                traversalStateFactory, providesLocalNow, sortsPosition, mapPathToLocations,
+                traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;
         this.serviceRepository = transportData;
@@ -73,7 +75,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
             // TODO Compute the max from the stations in the box?
-            NumberOfChanges numberOfChanges = new NumberOfChanges(0, journeyRequest.getMaxChanges());
+            NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations);
+
+            Instant begin = providesNow.getInstant();
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().
@@ -83,7 +87,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                 map(numChanges -> createPathRequest(startNode, originalTime, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, createPreviousVisits(),
-                                lowestCostSeenForBox)).
+                                lowestCostSeenForBox, begin)).
                         map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations));
 
                 List<Journey> collect = journeys.
@@ -95,5 +99,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             }
         });
 
+    }
+
+    private NumberOfChanges computeNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
+        int min = routeToRouteCosts.minRouteHops(starts, destinations);
+        int max = routeToRouteCosts.maxRouteHops(starts, destinations);
+        return new NumberOfChanges(min, max);
     }
 }

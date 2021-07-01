@@ -94,6 +94,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getCreateNeighbours(), testConfig.getCreateNeighbours(), "CreateNeighbours");
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
         assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
+        assertEquals(expected.getCalcTimeoutMillis(), testConfig.getCalcTimeoutMillis(), "CalcTimeoutMillis");
 
         assertEquals(expected.getBounds(), testConfig.getBounds(), "bounds");
 

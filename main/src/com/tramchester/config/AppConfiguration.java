@@ -142,6 +142,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("cacheFolder")
     private Path cacheFolder;
 
+    @NotNull
+    @JsonProperty("calcTimeoutMillis")
+    private long calcTimeoutMillis;
+
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -295,6 +299,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public Path getCacheFolder() {
         return cacheFolder;
+    }
+
+    @Override
+    public long getCalcTimeoutMillis() {
+        return calcTimeoutMillis;
     }
 
 }

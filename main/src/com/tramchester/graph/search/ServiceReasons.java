@@ -2,7 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class ServiceReasons {
     }
 
     private final TramTime queryTime;
-    private final ProvidesLocalNow providesLocalNow;
+    private final ProvidesNow providesLocalNow;
     private final JourneyRequest journeyRequest;
     private final List<ServiceReason> reasons;
     // stats
@@ -34,7 +34,7 @@ public class ServiceReasons {
 
     private boolean success;
 
-    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesLocalNow providesLocalNow) {
+    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesNow providesLocalNow) {
         this.queryTime = queryTime;
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;

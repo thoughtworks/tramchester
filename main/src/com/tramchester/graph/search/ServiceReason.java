@@ -12,7 +12,6 @@ import static java.lang.String.format;
 
 public abstract class ServiceReason {
 
-
     public enum ReasonCode {
 
         ServiceDateOk, ServiceTimeOk, NumChangesOK, TimeOk, HourOk, Reachable, ReachableNoCheck, DurationOk,
@@ -36,6 +35,7 @@ public abstract class ServiceReason {
         TooManyWalkingConnections,
         TooManyNeighbourConnections,
         StationClosed,
+        TimedOut,
 
         Cached,
         PreviousCacheMiss,
@@ -136,6 +136,8 @@ public abstract class ServiceReason {
         }
     }
 
+    //////////////
+
     private static class ReturnedToStart extends ServiceReason
     {
         protected ReturnedToStart(HowIGotHere path) {
@@ -193,6 +195,25 @@ public abstract class ServiceReason {
         @Override
         public String textForGraph() {
             return ReasonCode.TooManyChanges.name();
+        }
+    }
+
+    //////////////
+
+    private static class TimedOut extends ServiceReason {
+
+        protected TimedOut(HowIGotHere path) {
+            super(ReasonCode.TimedOut, path);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof TooManyChanges;
+        }
+
+        @Override
+        public String textForGraph() {
+            return ReasonCode.TimedOut.name();
         }
     }
 
@@ -350,6 +371,10 @@ public abstract class ServiceReason {
 
     public static ServiceReason StationClosed(HowIGotHere howIGotHere, Station closed) {
         return new ServiceReason.StationClosed(howIGotHere, closed);
+    }
+
+    public static ServiceReason TimedOut(HowIGotHere howIGotHere) {
+        return new ServiceReason.TimedOut(howIGotHere);
     }
 
 

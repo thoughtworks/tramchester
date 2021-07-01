@@ -4,7 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.ServiceTimeLimits;
-import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,20 +18,20 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     private final FeedInfo feedInfo;
     private final TramchesterConfig config;
     private final DataSourceID name;
-    private final ProvidesLocalNow providesLocalNow;
+    private final ProvidesNow providesNow;
 
-    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesLocalNow providesLocalNow, TramchesterConfig config,
+    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesNow providesNow, TramchesterConfig config,
                                  ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.feedInfo = feedInfo;
         this.name = name;
-        this.providesLocalNow = providesLocalNow;
+        this.providesNow = providesNow;
         this.config = config;
     }
 
     @Override
     public Result check() {
-        return checkForDate(providesLocalNow.getDate());
+        return checkForDate(providesNow.getDate());
     }
 
     public Result checkForDate(LocalDate currentDate) {
