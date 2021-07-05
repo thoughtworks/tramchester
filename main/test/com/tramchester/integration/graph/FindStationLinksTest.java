@@ -65,7 +65,7 @@ class FindStationLinksTest {
     @Test
     void shouldHaveCorrectTransportMode() {
         Set<StationLink> forTrams = findStationLinks.findLinkedFor(Tram);
-        long notTram = forTrams.stream().filter(link -> !link.getModes().contains(Tram)).count();
+        long notTram = forTrams.stream().filter(link -> !link.getLinkingModes().contains(Tram)).count();
         assertEquals(0, notTram);
     }
 

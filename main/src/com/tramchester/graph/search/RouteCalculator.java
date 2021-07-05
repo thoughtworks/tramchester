@@ -69,7 +69,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         int minHops = routeToRouteCosts.minRouteHops(startStation, destination);
         int maxHops = routeToRouteCosts.maxRouteHops(startStation, destination);
 
-        NumberOfChanges numberOfChanges =new NumberOfChanges(minHops, maxHops);
+        NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, false, numberOfChanges);
     }
 

@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -12,15 +13,15 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
 import java.util.Set;
 
 import static com.tramchester.domain.reference.CentralZoneStation.Shudehill;
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.integration.repository.common.InterchangeRepositoryTestSupport.RoutesWithInterchanges;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static com.tramchester.integration.testSupport.InterchangeRepositoryTestSupport.RoutesWithInterchanges;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InterchangesTramTest {
     private static ComponentContainer componentContainer;
@@ -50,21 +51,32 @@ public class InterchangesTramTest {
     void shouldHaveOfficialTramInterchanges() {
         for (IdFor<Station> interchangeId : AdditionalTramInterchanges.stations()) {
             Station interchange = stationRepository.getStationById(interchangeId);
-            Assertions.assertTrue(interchangeRepository.isInterchange(interchange), interchange.toString());
+            assertTrue(interchangeRepository.isInterchange(interchange), interchange.toString());
         }
     }
 
     @Test
+    void shouldHaveInterchangesForMediaCity() {
+        assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));
+        assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
+    }
+
+    @Test
+    void shouldAllBeSingleModeForTram() {
+        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
+    }
+
+    @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
-        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, stationRepository, Tram);
+        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, Tram);
         Set<Route> all = routeRepository.getRoutes();
 
         assertEquals(all, routesWithInterchanges);
     }
 
-
     /***
-     * Here to validate shude neighbours testing and interchanges
+     * Here to validate shudehill neighbours testing and interchanges
      * @see NeighboursAsInterchangesTest#shudehillBecomesInterchangeWhenNeighboursCreated()
      */
     @Test

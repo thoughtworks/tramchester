@@ -54,6 +54,7 @@ public class BusRouteToRouteCostsTest {
 ;    }
 
     // For testing, likely to vary a lot with timetable updates
+    @Disabled("Changes too often to be useful")
     @Test
     void shouldHaveExpectedNumber() {
         assertEquals(1827904, routeToRouteCosts.size());

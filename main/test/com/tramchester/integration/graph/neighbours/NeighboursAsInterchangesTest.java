@@ -2,6 +2,7 @@ package com.tramchester.integration.graph.neighbours;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.repository.InterchangesTramTest;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,8 +49,21 @@ public class NeighboursAsInterchangesTest {
      * @see InterchangesTramTest#shudehillNotAnInterchange()
      */
     @Test
-    void shudehillBecomesInterchangeWhenNeighboursCreated() {
+    public void shudehillBecomesInterchangeWhenNeighboursCreated() {
         assertTrue(interchangeRepository.isInterchange(shudehillTram));
+    }
+
+    @Test
+    public void shouldHaveShudehillAsMultimode() {
+        Optional<InterchangeStation> results = interchangeRepository.getAllInterchanges().stream().
+                filter(interchangeStation -> interchangeStation.getStationId().equals(shudehillTram.getId()))
+                .findFirst();
+
+        assertTrue(results.isPresent(), "missing");
+
+        InterchangeStation interchange = results.get();
+        assertTrue(interchange.isMultiMode(), "multimode");
+
     }
 
 }

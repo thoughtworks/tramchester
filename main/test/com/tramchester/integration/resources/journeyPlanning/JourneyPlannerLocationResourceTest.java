@@ -19,6 +19,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -73,13 +74,13 @@ class JourneyPlannerLocationResourceTest {
         //List<TramTime> possibleTimes = Arrays.asList(TramTime.of(20, 19), TramTime.of(20, 12));
 
         // todo new lockdown timetable
-        List<LocalDateTime> possibleTimes = Collections.singletonList(LocalDateTime.of(when, LocalTime.of(19, 5)));
+        List<LocalDateTime> possibleTimes = Collections.singletonList(LocalDateTime.of(when, LocalTime.of(19, 7)));
 
         assertTrue(possibleTimes.contains(departureTime), "Expected time "+departureTime.toString());
 
         // assertEquals(firstJourney.toString(), TramTime.of(20,48), firstJourney.getExpectedArrivalTime());
         // todo new lockdown timetable
-        assertEquals(LocalDateTime.of(when, LocalTime.of(19,34)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
+        assertEquals(LocalDateTime.of(when, LocalTime.of(19,36)), firstJourney.getExpectedArrivalTime(), firstJourney.toString());
     }
 
     private JourneyDTO getEarliestArrivingJourney(Set<JourneyDTO> journeys) {
@@ -111,16 +112,23 @@ class JourneyPlannerLocationResourceTest {
     @Test
     void planRouteAllowingForWalkingTimeArriveBy() {
         TramTime queryTime = TramTime.of(20, 9);
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Deansgate.getId(), queryTime, true);
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(TestEnv.nearAltrincham, Deansgate.getId(),
+                queryTime, true);
         assertTrue(journeys.size()>0);
 
-        journeys.forEach(journeyDTO -> {
-            assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
+        List<JourneyDTO> sorted = journeys.stream().
+                sorted(Comparator.comparing(JourneyDTO::getExpectedArrivalTime)).
+                collect(Collectors.toList());
 
-            List<StageDTO> stages = journeyDTO.getStages();
-            assertEquals(2, stages.size());
-        });
+        JourneyDTO earliest = sorted.get(0);
 
+        final LocalDateTime query = queryTime.toDate(when);
+        final LocalDateTime firstDepartureTime = earliest.getFirstDepartureTime();
+
+        assertTrue(firstDepartureTime.isBefore(query));
+
+        List<StageDTO> stages = earliest.getStages();
+        assertEquals(2, stages.size());
     }
 
     @Test

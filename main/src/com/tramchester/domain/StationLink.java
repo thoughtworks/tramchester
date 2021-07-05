@@ -14,8 +14,12 @@ public class StationLink {
         this.modes = modes;
     }
 
-    public StationPair getStations() {
-        return pair;
+    public Station getBegin() {
+        return pair.getBegin();
+    }
+
+    public Station getEnd() {
+        return pair.getEnd();
     }
 
     @Override
@@ -47,13 +51,14 @@ public class StationLink {
     /***
      * The transport modes that link these two stations
      * NOT the modes of the stations themselves which might be subset of linking modes
-     * @return The transport modes that link these two stations
+     * @return The transport modes that link these two stations i.e. Walk
      */
-    public Set<TransportMode> getModes() {
+    public Set<TransportMode> getLinkingModes() {
         return modes;
     }
 
     public boolean hasValidLatlongs() {
         return pair.getBegin().getLatLong().isValid() && pair.getEnd().getLatLong().isValid();
     }
+
 }

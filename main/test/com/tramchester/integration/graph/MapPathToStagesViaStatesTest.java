@@ -25,6 +25,7 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import io.swagger.models.auth.In;
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +107,7 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(result.isEmpty());
         TransportStage<?, ?> firstStage = result.get(0);
 
-        validateAltyToTraffordBar(firstStage, startStation, destination, TramTime.of(9, 21),
+        validateAltyToTraffordBar(firstStage, startStation, destination, TramTime.of(9, 19),
                 17, NavigationRoad.getId(), 7);
     }
 
@@ -170,7 +171,7 @@ public class MapPathToStagesViaStatesTest {
         validateWalkTo(walkingStage, start, endOfWalk, 4);
 
         TransportStage<?, ?> tramStage = result.get(1);
-        final TramTime tramDepart = TramTime.of(9, 31);
+        final TramTime tramDepart = TramTime.of(9, 25);
         validateAltyToTraffordBar(tramStage, endOfWalk, destination, tramDepart,
                 17, NavigationRoad.getId(), 7);
     }
@@ -199,7 +200,11 @@ public class MapPathToStagesViaStatesTest {
                                            TramTime firstDep, int stageDuration, IdFor<Station> firstCall, int passedStops) {
         assertEquals(startStation, stage.getFirstStation());
         assertEquals(destination, stage.getLastStation());
-        assertEquals("Altrincham - Piccadilly", stage.getRoute().getName());
+
+        final String routeName = stage.getRoute().getName();
+        assertTrue(KnownTramRoute.AltrinchamPiccadilly.longName().equals(routeName) ||
+                KnownTramRoute.AltrinchamManchesterBury.longName().equals(routeName));
+
         assertEquals(firstDep, stage.getFirstDepartureTime());
         assertEquals(stageDuration, stage.getDuration());
         assertEquals(firstDep.plusMinutes(stageDuration), stage.getExpectedArrivalTime());

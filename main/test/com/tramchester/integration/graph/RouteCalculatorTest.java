@@ -30,6 +30,7 @@ import org.neo4j.graphdb.Transaction;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
@@ -163,8 +164,8 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSameResultWithinReasonableTime() {
-        final TramTime queryTimeA = TramTime.of(8, 51);
-        final TramTime queryTimeB = queryTimeA.plusMinutes(4);
+        final TramTime queryTimeA = TramTime.of(8, 50);
+        final TramTime queryTimeB = queryTimeA.plusMinutes(3);
 
         JourneyRequest journeyRequestA = standardJourneyRequest(when, queryTimeA, config.getMaxNumResults());
         JourneyRequest journeyRequestB = standardJourneyRequest(when, queryTimeB, config.getMaxNumResults());
@@ -181,7 +182,8 @@ public class RouteCalculatorTest {
         final TramTime firstDeparttimeA = earliestA.get().getDepartTime();
         final TramTime firstDeparttimeB = earliestB.get().getDepartTime();
 
-        assertTrue(firstDeparttimeA.isAfter(queryTimeB)); // check assumption first
+        assertTrue(firstDeparttimeA.isAfter(queryTimeB) || firstDeparttimeA.equals(queryTimeB),
+                firstDeparttimeA + " not after " + queryTimeB); // check assumption first
         assertEquals(firstDeparttimeA, firstDeparttimeB);
     }
 
@@ -362,9 +364,7 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldNotGenerateDuplicateJourneys() {
-
-        Set<List<TransportStage<?,?>>> stages = new HashSet<>();
+    void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
 
         JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(11, 45), false,
                 4, maxJourneyDuration, 3);
@@ -372,11 +372,29 @@ public class RouteCalculatorTest {
 
         assertTrue(journeys.size()>0);
 
-        journeys.forEach(journey -> {
-            assertFalse(stages.contains(journey.getStages()), stages.toString());
-            stages.add(journey.getStages());
+        Set<Integer> reqNumChanges = journeys.stream().map(Journey::getRequestedNumberChanges).collect(Collectors.toSet());
+
+        reqNumChanges.forEach(numChange -> {
+            Set<List<TransportStage<?,?>>> uniqueStages = new HashSet<>();
+
+            journeys.stream().filter(journey -> numChange.equals(journey.getRequestedNumberChanges())).forEach(journey -> {
+
+                assertFalse(uniqueStages.contains(journey.getStages()),
+                        journey.getStages() + " seen before in " + journeys);
+                uniqueStages.add(journey.getStages());
+            });
         });
 
+    }
+
+    @Test
+    void ShouldReproIssueWithSomeMediaCityJourneys() {
+        JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
+                2, maxJourneyDuration, 2);
+
+        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Etihad, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Ashton, request).isEmpty());
     }
 
     @Test

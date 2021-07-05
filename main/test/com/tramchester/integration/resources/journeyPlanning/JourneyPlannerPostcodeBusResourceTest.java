@@ -127,8 +127,9 @@ class JourneyPlannerPostcodeBusResourceTest {
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journeyDTO -> {
-            assertEquals(2, journeyDTO.getStages().size(), journeyDTO.toString());
-            assertEquals(journeyDTO.getStages().get(0).getMode(), TransportMode.Bus);
+            final List<StageDTO> stages = journeyDTO.getStages();
+            assertEquals(stages.get(0).getMode(), TransportMode.Bus);
+            assertEquals(stages.get(stages.size()-1).getMode(), TransportMode.Walk);
         });
     }
 

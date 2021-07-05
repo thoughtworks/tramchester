@@ -112,7 +112,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
         Map<String, Set<Station>> groupedByName = stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
-                filter(station -> station.getTransportModes().contains(mode)).
+                filter(station -> station.serves(mode)).
                 filter(station -> !station.getArea().isBlank()).
                 filter(station -> duplicatedNames.contains(station.getName())).
                 collect(Collectors.groupingBy(Station::getName, Collectors.toSet()));
@@ -125,7 +125,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
     private Set<String> getDuplicatedNamesFor(DataSourceID dataSourceID, TransportMode mode) {
         return stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
-                filter(station -> station.getTransportModes().contains(mode)).
+                filter(station -> station.serves(mode)).
                 map(Station::getName).
                 collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).
                 entrySet().stream().
@@ -226,7 +226,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
 
     public Set<CompositeStation> getCompositesFor(TransportMode mode) {
         return compositeStations.values().stream().
-                filter(item -> item.getTransportModes().contains(mode)).
+                filter(station -> station.serves(mode)).
                 collect(Collectors.toSet());
     }
 

@@ -52,10 +52,10 @@ class FindStationLinksTestBus {
     @Test
     void shouldHaveCorrectTransportMode() {
         Set<StationLink> forBus = findStationLinks.findLinkedFor(Bus);
-        long notBus = forBus.stream().filter(link -> !link.getModes().contains(Bus)).count();
+        long notBus = forBus.stream().filter(link -> !link.getLinkingModes().contains(Bus)).count();
         assertEquals(0, notBus);
 
-        long isBus = forBus.stream().filter(link -> link.getModes().contains(Bus)).count();
+        long isBus = forBus.stream().filter(link -> link.getLinkingModes().contains(Bus)).count();
         assertEquals(forBus.size(), isBus);
     }
 

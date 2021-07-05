@@ -66,6 +66,6 @@ public class StationPair {
     }
 
     public boolean both(TransportMode mode) {
-        return begin.getTransportModes().contains(mode) && end.getTransportModes().contains(mode);
+        return begin.serves(mode) && end.serves(mode);
     }
 }

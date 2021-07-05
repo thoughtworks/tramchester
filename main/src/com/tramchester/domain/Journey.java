@@ -16,19 +16,21 @@ import java.util.stream.Collectors;
 
 public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms {
 
-    private final List<Location<?>> path;
-    private final List<TransportStage<?,?>> stages;
     private final TramTime queryTime;
-    private final TramTime departTime;
     private final TramTime arrivalTime;
+    private final TramTime departTime;
+    private final int requestedNumberChanges;
+    private final List<TransportStage<?,?>> stages;
+    private final List<Location<?>> path;
 
-    public Journey(List<TransportStage<?, ?>> stages, TramTime queryTime, List<Location<?>> path, TramTime departTime,
-                   TramTime arrivalTime) {
+    public Journey(TramTime departTime, TramTime queryTime, TramTime arrivalTime, List<TransportStage<?, ?>> stages,
+                   List<Location<?>> path, int requestedNumberChanges) {
         this.stages = stages;
         this.queryTime = queryTime;
         this.path = path;
         this.departTime = departTime;
         this.arrivalTime = arrivalTime;
+        this.requestedNumberChanges = requestedNumberChanges;
     }
     
     public @NotNull Iterator<TransportStage<?,?>> iterator() {
@@ -53,11 +55,12 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
     @Override
     public String toString() {
         return "Journey{" +
-                "path=" + HasId.dtoAsIds(path) +
-                ", stages=" + stages +
-                ", queryTime=" + queryTime +
+                "queryTime=" + queryTime +
                 ", arrivalTime=" + arrivalTime +
                 ", departTime=" + departTime +
+                ", requestedNumberChanges=" + requestedNumberChanges +
+                ", stages=" + stages +
+                ", path=" + HasId.dtoAsIds(path) +
                 '}';
     }
 
@@ -102,6 +105,10 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
             }
         }
         return stages.get(0).getFirstStation();
+    }
+
+    public int getRequestedNumberChanges() {
+        return requestedNumberChanges;
     }
 
     public List<Location<?>> getChangeStations() {

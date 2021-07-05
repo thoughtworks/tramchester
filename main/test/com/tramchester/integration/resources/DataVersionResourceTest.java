@@ -32,7 +32,6 @@ public class DataVersionResourceTest {
         DataVersionDTO result = responce.readEntity(DataVersionDTO.class);
 
         assertEquals(version, result.getVersion());
-
     }
 
 }

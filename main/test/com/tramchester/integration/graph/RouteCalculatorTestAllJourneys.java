@@ -2,6 +2,7 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -50,13 +51,17 @@ class RouteCalculatorTestAllJourneys {
     void shouldFindRouteEachStationToEveryOtherStream() {
         TransportData data = componentContainer.get(TransportData.class);
 
-        Set<Station> allStations = data.getStationsForMode(Tram);
+        final TramTime time = TramTime.of(8, 5);
+        Set<Station> haveServices = data.getStationsForMode(Tram).stream().
+                //filter(station -> hasServices(station, time)).
+                collect(Collectors.toSet());
 
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, 2,
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
                 testConfig.getMaxJourneyDuration(), 1);
 
         // pairs of stations to check
-        Set<StationIdPair> stationIdPairs = allStations.stream().flatMap(start -> allStations.stream().
+        Set<StationIdPair> stationIdPairs = haveServices.stream().flatMap(start -> haveServices.stream().
                 filter(dest -> !combinations.betweenInterchanges(start, dest)).
                 map(dest -> StationIdPair.of(start, dest))).
                 filter(pair -> !pair.same()).
@@ -66,5 +71,20 @@ class RouteCalculatorTestAllJourneys {
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest);
 
     }
+
+    private boolean hasServices(Station station, TramTime time) {
+        Set<Route> routes = station.getRoutes();
+        boolean anyServices = routes.stream().
+                flatMap(route -> route.getServices().stream()).
+                anyMatch(service -> service.getCalendar().operatesOn(when));
+        if (!anyServices) {
+            return false;
+        }
+        return routes.stream().flatMap(route -> route.getTrips().stream()).
+                flatMap(trip -> trip.getStopCalls().stream()).
+                filter(stopCall -> stopCall.getStationId().equals(station.getId())).
+                anyMatch(stopCall -> time.between(stopCall.getArrivalTime(), stopCall.getDepartureTime()));
+    }
+
 
 }

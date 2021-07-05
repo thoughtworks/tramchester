@@ -45,10 +45,15 @@ class RouteEndRepositoryBusTest {
         IdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
 
         assertTrue(result.contains(StringIdFor.createId("2500ACC0009"))); // Accrington, Bus Station (Stand 9)
-
         assertFalse(result.contains(StringIdFor.createId("2500LAA15791"))); // Accrington, opp Infant Street
 
-        assertEquals(1061, result.size());
+        // TODO More here useful
+    }
 
+    @Test
+    void shouldHaveExpectedNumberOfEndOfRouteStations() {
+        IdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
+
+        assertEquals(1063, result.size());
     }
 }

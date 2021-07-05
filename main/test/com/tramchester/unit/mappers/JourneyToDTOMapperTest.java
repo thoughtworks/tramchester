@@ -57,6 +57,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     private ProvidesNotes providesNotes;
     private List<Note> notes;
     private MyLocation nearPiccGardensLocation;
+    private final int requestedNumberChanges = 5;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -94,7 +95,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOA);
 
         final List<Location<?>> path = Collections.singletonList(of(Deansgate));
-        Journey journey = new Journey(stages, pm10, path, pm10.plusMinutes(5), pm10.plusMinutes(10));
+        Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages, path, requestedNumberChanges);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -122,7 +123,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         StageDTO stageDTOA = new StageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, when)).andReturn(stageDTOA);
 
-        Journey journey = new Journey(stages, pm10, Collections.singletonList(of(Deansgate)), pm10.plusMinutes(5), pm10.plusMinutes(10));
+        Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages, Collections.singletonList(of(Deansgate)), requestedNumberChanges);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -163,7 +164,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(tramStage, TravelAction.Change, when)).andReturn(stageDTOB);
 
         final List<Location<?>> path = Collections.singletonList(of(Altrincham));
-        Journey journey = new Journey(stages, time, path, time.plusMinutes(5), time.plusMinutes(10));
+        Journey journey = new Journey(time.plusMinutes(5), time, time.plusMinutes(10), stages, path, requestedNumberChanges);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -219,7 +220,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(finalStage, TravelAction.Change, when)).andReturn(stageDTOC);
 
         final List<Location<?>> path = Collections.singletonList(begin);
-        Journey journey = new Journey(stages, am10, path, am10.plusMinutes(5), am10.plusMinutes(10));
+        Journey journey = new Journey(am10.plusMinutes(5), am10, am10.plusMinutes(10), stages, path, requestedNumberChanges);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();
@@ -262,7 +263,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, when)).andReturn(stageDTOB);
 
         final List<Location<?>> path = Collections.singletonList(start);
-        Journey journey = new Journey(stages, startTime, path, startTime.plusMinutes(5), startTime.plusMinutes(10));
+        Journey journey = new Journey(startTime.plusMinutes(5), startTime, startTime.plusMinutes(10), stages, path, requestedNumberChanges);
         EasyMock.expect(providesNotes.createNotesForJourney(journey, tramServiceDate)).andReturn(notes);
 
         replayAll();

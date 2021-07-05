@@ -52,9 +52,8 @@ public class StationLinkDTO {
     }
 
     public static StationLinkDTO create(StationLink stationLink) {
-        StationPair stationPair = stationLink.getStations();
-        StationRefWithPosition begin = new StationRefWithPosition(stationPair.getBegin());
-        StationRefWithPosition end = new StationRefWithPosition(stationPair.getEnd());
-        return new StationLinkDTO(begin, end, stationLink.getModes());
+        StationRefWithPosition begin = new StationRefWithPosition(stationLink.getBegin());
+        StationRefWithPosition end = new StationRefWithPosition(stationLink.getEnd());
+        return new StationLinkDTO(begin, end, stationLink.getLinkingModes());
     }
 }

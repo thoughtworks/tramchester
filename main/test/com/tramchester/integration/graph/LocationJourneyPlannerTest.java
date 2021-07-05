@@ -247,8 +247,7 @@ class LocationJourneyPlannerTest {
         // find the lowest cost journey, should be tram to shudehill and then a walk
         Journey lowestCostJourney = journeyList.get(0);
 
-        // 33 -> 39
-        assertEquals(39, RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
+        assertEquals(33, RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
 
         List<TransportStage<?,?>> stages = lowestCostJourney.getStages();
         assertTrue(stages.size() >= 2);

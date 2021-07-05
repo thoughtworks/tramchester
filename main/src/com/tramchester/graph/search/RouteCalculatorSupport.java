@@ -95,16 +95,18 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
-        final int journeyRequestMaxChanges = journeyRequest.getMaxChanges();
-        final int numberOfChangesMax = numberOfChanges.getMax();
-        if (numberOfChangesMax > journeyRequestMaxChanges) {
+        final int requestedMaxChanges = journeyRequest.getMaxChanges();
+        final int computedMaxChanges = numberOfChanges.getMax();
+
+        if (computedMaxChanges > requestedMaxChanges) {
             logger.info(format("Number of changes max (%s) is greater then max in journey request (%s)",
-                    numberOfChangesMax, journeyRequestMaxChanges));
+                    computedMaxChanges, requestedMaxChanges));
         }
-        final int max = Math.min(numberOfChangesMax, journeyRequestMaxChanges);
+        // TODO Issue with MediaCity to Velocity and beyond means this does not work
+        final int max = requestedMaxChanges; //Math.min(computedMaxChanges, requestedMaxChanges);
         final int min = numberOfChanges.getMin();
-        if (journeyRequestMaxChanges<min) {
-            logger.warn(format("Minimum number of changes needed (%s) is overridden by journey request (%s)", min, journeyRequestMaxChanges));
+        if (requestedMaxChanges<min) {
+            logger.warn(format("Minimum number of changes needed (%s) is overridden by journey request (%s)", min, requestedMaxChanges));
         }
 
         logger.info("Will check journey from " + min + " to " + max +" changes");
@@ -146,7 +148,7 @@ public class RouteCalculatorSupport {
         }
         TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
         TramTime departTime = getDepartTimeFor(stages, journeyRequest);
-        return new Journey(stages, path.getQueryTime(), locationList, departTime, arrivalTime);
+        return new Journey(departTime, path.getQueryTime(), arrivalTime, stages, locationList, path.getNumChanges());
     }
 
     private TramTime getDepartTimeFor(List<TransportStage<?, ?>> stages, JourneyRequest journeyRequest) {

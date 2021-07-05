@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCostCalculatorTest {
     public static final int SHUDEHILL_TO_ALTY = 54;
-    public static final int ALTY_TO_STOCKPORT = 40;
+    public static final int ALTY_TO_STOCKPORT = 41;
     public static final int SHUDEHILL_TO_STOCKPORT = 44;
     private static ComponentContainer componentContainer;
 
@@ -100,13 +100,13 @@ class BusRouteCostCalculatorTest {
     @Test
     void shouldFindCostsCorrectlyForShudehillStockportComp() {
         assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(shudehillInterchange, stockportBusStation));
-        assertEquals(42, getApproxCostBetween(stockportBusStation, shudehillInterchange));
+        assertEquals(44, getApproxCostBetween(stockportBusStation, shudehillInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
         assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(ShudehillInterchange, StopAtStockportBusStation));
-        assertEquals(44, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
+        assertEquals(46, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
     }
 
     private int getApproxCostBetween(BusStations start, BusStations end) {

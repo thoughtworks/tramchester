@@ -2,13 +2,13 @@ package com.tramchester.integration.repository.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.integration.repository.common.InterchangeRepositoryTestSupport.RoutesWithInterchanges;
+import static com.tramchester.integration.testSupport.InterchangeRepositoryTestSupport.RoutesWithInterchanges;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class InterchangesBusTest {
     private static ComponentContainer componentContainer;
     private InterchangeRepository interchangeRepository;
-    private StationRepository stationRepository;
     private RouteRepository routeRepository;
 
     @BeforeAll
@@ -45,14 +44,16 @@ class InterchangesBusTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
     }
 
     @Test
     void shouldFindBusInterchanges() {
-        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(Bus);
+        IdSet<Station> interchanges = interchangeRepository.getAllInterchanges().stream().
+                //filter(interchange -> interchange.getTransportModes().contains(Bus)).
+                map(InterchangeStation::getStationId).
+                collect(IdSet.idCollector());
         assertFalse(interchanges.isEmpty());
 
         assertFalse(interchanges.contains(StockportAtAldi.getId()));
@@ -64,8 +65,14 @@ class InterchangesBusTest {
     }
 
     @Test
+    void shouldAllBeSingleModeForBus() {
+        Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
+        interchanges.forEach(interchangeStation -> assertFalse(interchangeStation.isMultiMode(), interchangeStation.toString()));
+    }
+
+    @Test
     void shouldHaveReachableInterchangeForEveryRoute() {
-        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, stationRepository, Bus);
+        Set<Route> routesWithInterchanges = RoutesWithInterchanges(interchangeRepository, Bus);
         Set<Route> all = routeRepository.getRoutes();
 
         // Note works for 2 links, not for 3 links

@@ -54,10 +54,10 @@ class StationTest {
         assertTrue(station.getTransportModes().isEmpty());
 
         station.addRoute(new Route(StringIdFor.createId("routeIdA"), "shortName", "name", TestEnv.MetAgency(), Tram));
-        assertTrue(station.getTransportModes().contains(Tram));
+        assertTrue(station.serves(Tram));
 
         station.addRoute(new Route(StringIdFor.createId("routeIdB"), "trainShort", "train", Walking, Train));
-        assertTrue(station.getTransportModes().contains(Train));
+        assertTrue(station.serves(Train));
 
         assertEquals(2, station.getTransportModes().size());
     }

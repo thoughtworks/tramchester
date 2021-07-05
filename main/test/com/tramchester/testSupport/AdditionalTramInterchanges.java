@@ -20,6 +20,7 @@ public class AdditionalTramInterchanges {
         VICTORIA("9400ZZMAVIC"),
         DEANSGATE("9400ZZMAGMX"),
         PICCADILLY("9400ZZMAPIC");
+        //ETIHAD("9400ZZMAECS");
 
         private final String stationId;
 

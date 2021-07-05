@@ -117,7 +117,7 @@ public class TransportDataContainer implements TransportData {
     }
 
     private Stream<Station> getStationsForModeStream(TransportMode mode) {
-        return stationsById.filterStream(item -> item.getTransportModes().contains(mode));
+        return stationsById.filterStream(item -> item.serves(mode));
     }
 
     @Override

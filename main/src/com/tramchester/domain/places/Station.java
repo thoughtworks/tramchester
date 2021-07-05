@@ -162,4 +162,7 @@ public class Station implements Location<Station> {
         return getId().forDTO();
     }
 
+    public boolean serves(TransportMode mode) {
+        return servesRoutes.stream().anyMatch(route -> route.getTransportMode().equals(mode));
+    }
 }

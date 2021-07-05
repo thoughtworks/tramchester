@@ -148,6 +148,15 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
+    void shouldFindMediaCityHops() {
+        Station start = stationRepository.getStationById(TramStations.MediaCityUK.getId());
+        Station end = stationRepository.getStationById(TramStations.Ashton.getId());
+        int result = routeCosts.minRouteHops(start, end);
+
+        assertEquals(0, result);
+    }
+
+    @Test
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = stationRepository.getStationById(TramStations.Victoria.getId());
         Station end = stationRepository.getStationById(TramStations.ManAirport.getId());

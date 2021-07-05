@@ -13,9 +13,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
@@ -32,8 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -83,6 +84,20 @@ public class NeighbourJourneysTest {
     @AfterEach
     void onceAfterEachTestHasRun() {
         txn.close();
+    }
+
+    @Test
+    void shouldFindMaxRouteHopsBetweenModes() {
+        RouteToRouteCosts routeToRoute = componentContainer.get(RouteToRouteCosts.class);
+        int hops = routeToRoute.maxRouteHops(shudehillTram, shudeHillStop);
+        assertEquals(1, hops);
+    }
+
+    @Test
+    void shouldHaveIntermodalNeighboursAsInterchanges() {
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        assertTrue(interchangeRepository.isInterchange(shudehillTram));
+        assertTrue(interchangeRepository.isInterchange(shudeHillStop));
     }
 
     @Test
@@ -144,12 +159,11 @@ public class NeighbourJourneysTest {
                         false, 0, config.getMaxJourneyDuration(), 3);
 
         Set<Journey> allJourneys =  routeCalculator.calculateRouteAsSet(start, end, request);
-        assertFalse(allJourneys.isEmpty());
+        assertFalse(allJourneys.isEmpty(), "no journeys");
 
         Set<Journey> journeys = allJourneys.stream().filter(Journey::isDirect).collect(Collectors.toSet());
 
         journeys.forEach(journey -> {
-            //assertEquals(1, journey.getStages().size(), journey.toString());
             TransportStage<?,?> stage = journey.getStages().get(0);
             assertEquals(TransportMode.Connect, stage.getMode());
         });

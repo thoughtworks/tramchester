@@ -5,6 +5,7 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.data.RouteMatrixData;
+import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -158,8 +159,37 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private InterimResults addInitialConnectionsFromInterchanges() {
         // seed connections between routes using interchanges
         InterimResults linksForRoutes = new InterimResults();
-        interchangeRepository.getAllInterchanges().forEach(interchange -> addOverlapsFor(interchange, linksForRoutes));
+        // same mode interchanges
+        interchangeRepository.getAllInterchanges().
+                forEach(station -> addOverlapsFor(station, linksForRoutes));
+
         return linksForRoutes;
+    }
+
+    private void addOverlapsFor(InterchangeStation interchange, InterimResults linksForDegree) {
+
+        List<IdFor<Route>> source = interchange.getSourceRoutes().stream().map(Route::getId).collect(Collectors.toList());
+        int sourceSize = source.size();
+        List<IdFor<Route>> dest = interchange.getDestinationRoutes().stream().map(Route::getId).collect(Collectors.toList());
+        int destSize = dest.size();
+
+        for (int i = 0; i < sourceSize; i++) {
+            final IdFor<Route> fromId = source.get(i);
+            final int from = index.find(fromId);
+            if (!linksForDegree.containsKey(from)) {
+                linksForDegree.put(from, new HashSet<>());
+            }
+            for (int j = 0; j < destSize; j++) {
+                if (i != j) {
+                    final IdFor<Route> towardsId = dest.get(j);
+                    final int towards = index.find(towardsId);
+                    linksForDegree.get(from).add(towards);
+                    if (!costs.contains(from, towards)) {
+                        costs.put(from, towards, (byte) 1);
+                    }
+                }
+            }
+        }
     }
 
     private void addOverlapsFor(Station interchange, InterimResults linksForDegree) {

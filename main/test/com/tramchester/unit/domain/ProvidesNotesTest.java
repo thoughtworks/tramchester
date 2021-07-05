@@ -40,6 +40,7 @@ class ProvidesNotesTest extends EasyMockSupport {
     private ProvidesNotes providesNotes;
     private PlatformMessageSource platformMessageSource;
     private LocalDateTime lastUpdate;
+    private final int requestedNumberChanges = 2;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -228,8 +229,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), date, queryTime)).
                 andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList(),
-                queryTime.plusMinutes(5), queryTime.plusMinutes(10));
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), Collections.singletonList(stageA), Collections.emptyList(),
+                requestedNumberChanges);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, serviceDate);
@@ -255,8 +256,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), lastUpdate.toLocalDate(), queryTime)).
                 andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList(),
-                queryTime.plusMinutes(5), queryTime.plusMinutes(10));
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), Collections.singletonList(stageA), Collections.emptyList(),
+                requestedNumberChanges);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, serviceDate);
@@ -287,8 +288,8 @@ class ProvidesNotesTest extends EasyMockSupport {
         EasyMock.expect(platformMessageSource.messagesFor(stageA.getBoardingPlatform().getId(), localDate, queryTime))
                 .andReturn(Optional.of(info));
 
-        Journey journey = new Journey(Collections.singletonList(stageA), queryTime, Collections.emptyList(),
-                queryTime.plusMinutes(5), queryTime.plusMinutes(10));
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), Collections.singletonList(stageA), Collections.emptyList(),
+                requestedNumberChanges);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, queryDate);
@@ -330,7 +331,7 @@ class ProvidesNotesTest extends EasyMockSupport {
 
         List<TransportStage<?,?>> stages = Arrays.asList(stageA, stageB, stageC, stageD, stageE);
 
-        Journey journey = new Journey(stages, queryTime, Collections.emptyList(), queryTime.plusMinutes(5), queryTime.plusMinutes(10));
+        Journey journey = new Journey(queryTime.plusMinutes(5), queryTime, queryTime.plusMinutes(10), stages, Collections.emptyList(), requestedNumberChanges);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForJourney(journey, serviceDate);

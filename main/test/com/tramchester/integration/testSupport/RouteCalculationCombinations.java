@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.ComponentContainer;
+import com.tramchester.domain.InterchangeStation;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
@@ -90,20 +91,27 @@ public class RouteCalculationCombinations {
     }
 
     public Set<StationIdPair> EndOfRoutesToInterchanges(TransportMode mode) {
-        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(mode);
+        IdSet<Station> interchanges = getInterchangesFor(mode);
         IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
         return createJourneyPairs(interchanges, endRoutes);
     }
 
     public Set<StationIdPair> InterchangeToInterchange(TransportMode mode) {
-        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(mode);
+        IdSet<Station> interchanges = getInterchangesFor(mode);
         return createJourneyPairs(interchanges, interchanges);
     }
 
     public Set<StationIdPair> InterchangeToEndRoutes(TransportMode mode) {
-        IdSet<Station> interchanges = interchangeRepository.getInterchangesFor(mode);
+        IdSet<Station> interchanges = getInterchangesFor(mode);
         IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
         return createJourneyPairs(endRoutes, interchanges);
+    }
+
+    private IdSet<Station> getInterchangesFor(TransportMode mode) {
+        return interchangeRepository.getAllInterchanges().stream().
+                map(InterchangeStation::getStationId).
+                filter(stationId -> stationRepository.getStationById(stationId).serves(mode)).
+                collect(IdSet.idCollector());
     }
 
     public Set<StationIdPair> EndOfRoutesToEndOfRoutes(TransportMode mode) {

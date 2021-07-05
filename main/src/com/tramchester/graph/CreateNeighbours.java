@@ -140,7 +140,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
                         // nearby could be any transport mode
                         Stream<Station> nearby = stationLocations.nearestStationsUnsorted(station, marginInMeters)
                                 .filter(found -> !found.equals(station))
-                                .filter(found -> DIFF_MODES_ONLY && !found.getTransportModes().contains(mode));
+                                .filter(found -> DIFF_MODES_ONLY && !found.serves(mode));
                         neighbours.put(station.getId(), new IdSet<>());
                         addNeighbourRelationships(txn, filter, station, nearby);
                 });
@@ -196,7 +196,7 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
     public IdSet<Station> getStationsWithNeighbours(TransportMode mode) {
         return neighbours.keySet().stream().
                 map(stationRepository::getStationById).
-                filter(station -> station.getTransportModes().contains(mode)).
+                filter(station -> station.serves(mode)).
                 collect(IdSet.collector());
     }
 
@@ -211,6 +211,11 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
     @Override
     public IdSet<Station> getNeighboursFor(IdFor<Station> id) {
         return neighbours.get(id);
+    }
+
+    @Override
+    public boolean differentModesOnly() {
+        return DIFF_MODES_ONLY;
     }
 
     private Stream<StationLink> createLinks(IdFor<Station> from, IdSet<Station> others, Set<TransportMode> modes) {

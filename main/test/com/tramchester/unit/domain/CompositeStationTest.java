@@ -51,7 +51,7 @@ class CompositeStationTest {
         assertEquals("[id]", compositeStation.getId().forDTO());
 
         assertEquals(1, compositeStation.getTransportModes().size());
-        assertTrue(compositeStation.getTransportModes().contains(Tram));
+        assertTrue(compositeStation.serves(Tram));
 
         assertTrue(compositeStation.hasPlatforms());
         assertEquals(Collections.singleton(platform), compositeStation.getPlatforms());
@@ -94,8 +94,8 @@ class CompositeStationTest {
         assertEquals(6, compositeStation.getLatLong().getLon(),0);
         assertEquals("compArea", compositeStation.getArea());
         assertEquals(2, compositeStation.getTransportModes().size());
-        assertTrue(compositeStation.getTransportModes().contains(Tram));
-        assertTrue(compositeStation.getTransportModes().contains(Bus));
+        assertTrue(compositeStation.serves(Tram));
+        assertTrue(compositeStation.serves(Bus));
 
         assertEquals(2, compositeStation.getRoutes().size());
         assertEquals(2, compositeStation.getAgencies().size());

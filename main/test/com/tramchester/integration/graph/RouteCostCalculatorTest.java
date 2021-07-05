@@ -53,6 +53,12 @@ class RouteCostCalculatorTest {
     }
 
     @Test
+    void shouldComputeCostsForMediaCityAshton() {
+        assertEquals(57, getApproxCostBetween(txn, MediaCityUK, Ashton));
+        assertEquals(54, getApproxCostBetween(txn, Ashton, MediaCityUK));
+    }
+
+    @Test
     void shouldComputeSimpleCostBetweenStationsAltyBury() {
         assertEquals(62, getApproxCostBetween(txn, TramStations.Bury, Altrincham));
         assertEquals(62, getApproxCostBetween(txn, Altrincham, TramStations.Bury));

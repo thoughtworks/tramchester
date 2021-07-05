@@ -21,7 +21,6 @@ public class LowestCostSeen {
         lowestCost.getAndSet(cost);
     }
 
-
     public void setLowestNumChanges(int numberChanges) {
         lowestNumChanges.getAndSet(numberChanges);
     }
