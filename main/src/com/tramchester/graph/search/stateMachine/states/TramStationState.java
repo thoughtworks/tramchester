@@ -32,17 +32,20 @@ public class TramStationState extends StationState {
         }
 
         public TramStationState fromWalking(WalkingState walkingState, Node stationNode, int cost) {
-            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT, NEIGHBOUR);
+            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
+                    NEIGHBOUR);
             return new TramStationState(walkingState, relationships, cost, stationNode);
         }
 
         public TramStationState fromPlatform(PlatformState platformState, Node stationNode, int cost) {
-            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
+                    NEIGHBOUR, GROUPED_TO_PARENT);
             return new TramStationState(platformState, filterExcludingEndNode(relationships, platformState), cost, stationNode);
         }
 
         public TramStationState fromStart(NotStartedState notStartedState, Node stationNode, int cost) {
-            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, ENTER_PLATFORM, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
+                    NEIGHBOUR, GROUPED_TO_PARENT);
             return new TramStationState(notStartedState, relationships, cost, stationNode);
         }
 

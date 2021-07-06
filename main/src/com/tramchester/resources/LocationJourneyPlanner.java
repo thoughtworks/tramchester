@@ -198,7 +198,7 @@ public class LocationJourneyPlanner {
         Relationship walkingRelationship;
         Node stationNode = graphQuery.getStationOrGrouped(txn, walkStation);
 
-        if (direction== WALKS_FROM) {
+        if (direction == WALKS_FROM) {
             walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
         } else {
             walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);

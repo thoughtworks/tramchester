@@ -390,7 +390,7 @@ public class RouteCalculatorTest {
     @Test
     void ShouldReproIssueWithSomeMediaCityJourneys() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                2, maxJourneyDuration, 2);
+                1, maxJourneyDuration, 2);
 
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Etihad, request).isEmpty());
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());

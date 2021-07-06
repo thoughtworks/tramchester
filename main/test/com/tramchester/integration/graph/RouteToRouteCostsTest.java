@@ -76,7 +76,7 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldHaveExpectedNumberOfInterconnections() {
-        assertEquals((26*26), routeCosts.size());
+        assertEquals((14*14), routeCosts.size());
     }
 
     @Test

@@ -70,7 +70,7 @@ class TramPositionInferenceTest {
     void shouldInferTramPosition() {
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
         // Guess this is down to signalling, track, etc.
-        int cost = 3; // cost between the stations, no due trams outside this limit should appear
+        int cost = 5; // cost between the stations, no due trams outside this limit should appear
 
         Station first = stationRepository.getStationById(TramStations.Deansgate.getId());
         Station second = stationRepository.getStationById(TramStations.Cornbrook.getId());

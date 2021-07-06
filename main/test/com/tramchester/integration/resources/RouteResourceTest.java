@@ -43,7 +43,7 @@ class RouteResourceTest {
         assertTrue(ashtonRoute.isTram());
         List<StationRefWithPosition> ashtonRouteStations = ashtonRoute.getStations();
 
-        assertEquals("3BLU", ashtonRoute.getShortName().trim());
+        assertEquals("Blue Line", ashtonRoute.getShortName().trim());
         List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
         assertTrue(ids.contains(TramStations.Ashton.forDTO()));
         assertTrue(ids.contains(TramStations.Eccles.forDTO()));

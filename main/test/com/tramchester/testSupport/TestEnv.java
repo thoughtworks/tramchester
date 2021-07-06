@@ -268,7 +268,7 @@ public class TestEnv {
      */
     public static Set<Route> findTramRoute(RouteRepository routeRepository, KnownTramRoute knownTramRoute) {
         Set<Route> routes = routeRepository.findRoutesByName(MET.getId(), knownTramRoute.longName());
-        assertTrue(routes.size()>=2, "Did not find " + knownTramRoute);
+        assertTrue(routes.size()>=1, "Found "+ routes + " for " + knownTramRoute);
 
         return routes;
     }

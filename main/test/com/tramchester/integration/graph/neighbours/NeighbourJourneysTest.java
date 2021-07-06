@@ -87,6 +87,11 @@ public class NeighbourJourneysTest {
     }
 
     @Test
+    void shouldHaveTestStations() {
+        assertNotNull(shudehillTram);
+    }
+
+    @Test
     void shouldFindMaxRouteHopsBetweenModes() {
         RouteToRouteCosts routeToRoute = componentContainer.get(RouteToRouteCosts.class);
         int hops = routeToRoute.maxRouteHops(shudehillTram, shudeHillStop);

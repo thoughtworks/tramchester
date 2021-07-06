@@ -76,7 +76,7 @@ class TransportDataFromFilesTramTest {
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().size());
         assertEquals(99,transportData.getStations().size());
-        assertEquals(2*13, transportData.getRoutes().size());
+        assertEquals(14, transportData.getRoutes().size());
 
         assertEquals(199, transportData.getPlatforms().size());
     }
@@ -116,7 +116,7 @@ class TransportDataFromFilesTramTest {
         IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
         // 2*3 expected, but includes eccles as well
-        assertEquals(18, traffordBarRoutes.size());
+        assertEquals(10, traffordBarRoutes.size());
 
         // contains -> containsAll
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
@@ -139,7 +139,7 @@ class TransportDataFromFilesTramTest {
 
         Set<Route> callingRoutes = routeStationSet.stream().map(RouteStation::getRoute).collect(Collectors.toSet());
 
-        assertEquals(6, callingRoutes.size());
+        assertEquals(4, callingRoutes.size());
     }
 
     @Test
@@ -147,16 +147,14 @@ class TransportDataFromFilesTramTest {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
 
-        // todo lockdown 14->13 (2* due to way gtfs feed works)
-        assertEquals(2*13, tramRoutes);
+        assertEquals(14, tramRoutes);
     }
 
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 
-        // routes * directions * duplicates
-        assertEquals(3*2*2, routeStations.size(), routeStations.toString());
+        assertEquals(8, routeStations.size(), routeStations.toString());
 
         Set<String> names = routeStations.stream().map(routeStation -> routeStation.getRoute().getShortName()).collect(Collectors.toSet());
         assertEquals(4, names.size());

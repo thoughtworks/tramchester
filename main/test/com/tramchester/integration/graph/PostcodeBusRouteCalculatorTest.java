@@ -19,7 +19,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.BusTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -31,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
@@ -48,6 +46,7 @@ class PostcodeBusRouteCalculatorTest {
     private Transaction txn;
     private final TramTime time = TramTime.of(9,11);
     private LocationJourneyPlannerTestFacade planner;
+    private int maxJourneyDuration;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -68,6 +67,7 @@ class PostcodeBusRouteCalculatorTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
+        maxJourneyDuration = testConfig.getMaxJourneyDuration();
     }
 
     @AfterEach
@@ -78,21 +78,24 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToPicc() {
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
-                createRequest(2, 1), 4);
+                new JourneyRequest(new TramServiceDate(day), time, false, 2, maxJourneyDuration,
+                        1), 4);
         assertFalse(journeys.isEmpty(), "no journeys");
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodeViaBusToShudehill() {
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearShudehill,
-                createRequest(3, 1), 6);
+                new JourneyRequest(new TramServiceDate(day), time, false, 3, maxJourneyDuration,
+                        1), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
     }
 
     @Test
     void shouldWalkFromBusStationToNearbyPostcode() {
-        checkNearby(ShudehillInterchange, TestPostcodes.NearShudehill);
+        checkNearby(ShudehillInterchange, TestPostcodes.NearShudehill, new JourneyRequest(new TramServiceDate(day), time, false,
+                0, maxJourneyDuration, 3));
     }
 
     @Test
@@ -103,7 +106,9 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldWalkFromPiccadillyGardensStopHToNearPiccadilyGardens() {
-        checkNearby(PiccadillyGardensStopN, TestPostcodes.NearPiccadillyGardens);
+        final JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), time, false,
+                0, maxJourneyDuration, 3);
+        checkNearby(PiccadillyGardensStopN, TestPostcodes.NearPiccadillyGardens, journeyRequest);
     }
 
     @Test
@@ -114,21 +119,24 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeSouthbound() {
         Set<Journey> journeys = planner.quickestRouteForLocation(BuryInterchange, TestPostcodes.NearShudehill,
-                createRequest(3, 1), 4);
+                new JourneyRequest(new TramServiceDate(day), time, false, 3, maxJourneyDuration,
+                        1), 4);
         assertFalse(journeys.isEmpty());
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusStation() {
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, ShudehillInterchange,
-                createRequest(5, 1), 6);
+                new JourneyRequest(new TramServiceDate(day), time, false, 5, maxJourneyDuration,
+                        1), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToBusStationCentral() {
-        JourneyRequest journeyRequest = createRequest(3, 1);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), time, false, 3, maxJourneyDuration,
+                1);
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.NearPiccadillyGardens, ShudehillInterchange,
                 journeyRequest, 4);
 
@@ -138,7 +146,8 @@ class PostcodeBusRouteCalculatorTest {
 
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeCentral() {
-        JourneyRequest journeyRequest = createRequest(2, 1);
+        JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(day), time, false, 2, maxJourneyDuration,
+                1);
         Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, TestPostcodes.NearPiccadillyGardens,
                 journeyRequest, 3);
 
@@ -148,23 +157,24 @@ class PostcodeBusRouteCalculatorTest {
     @Test
     void shouldPlanJourneyFromBusStationToPostcodeNorthbound() {
         Set<Journey> journeys = planner.quickestRouteForLocation(ShudehillInterchange, TestPostcodes.CentralBury,
-                createRequest(2, 1), 3);
+                new JourneyRequest(new TramServiceDate(day), time, false, 1, maxJourneyDuration,
+                        1), 3);
 
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
-            // connecting stage first as bus only
             List<TransportStage<?, ?>> stages = journey.getStages();
-            assertEquals(2, stages.size(), journey.toString());
-            assertEquals( TransportMode.Bus, stages.get(0).getMode(), journey.toString());
-            assertEquals( TransportMode.Walk, stages.get(1).getMode(), journey.toString());
+            final int size = stages.size();
+            assertTrue(size<=3, journey.toString());
+            assertEquals( TransportMode.Walk, stages.get(size-1).getMode(), journey.toString());
         });
     }
 
     @Test
     void shouldPlanJourneyFromPostcodeToPostcodesSouthbound() {
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.CentralBury, TestPostcodes.NearPiccadillyGardens,
-                createRequest(5, 1), 6);
+                new JourneyRequest(new TramServiceDate(day), time, false, 5, maxJourneyDuration,
+                        1), 6);
 
         assertFalse(journeys.isEmpty());
 
@@ -182,20 +192,16 @@ class PostcodeBusRouteCalculatorTest {
         final int maxChanges = 5;
 
         Set<Journey> journeys = planner.quickestRouteForLocation(TestPostcodes.NearShudehill, BuryInterchange,
-                createRequest(maxChanges, 1), 6);
+                new JourneyRequest(new TramServiceDate(day), time, false, maxChanges, maxJourneyDuration,
+                        1), 6);
         assertFalse(journeys.isEmpty());
         assertWalkAtStart(journeys);
 
         Set<Journey> fromPicc = planner.quickestRouteForLocation(TestPostcodes.NearPiccadillyGardens, BuryInterchange,
-                createRequest(maxChanges, 1), 6);
+                new JourneyRequest(new TramServiceDate(day), time, false, maxChanges, maxJourneyDuration,
+                        1), 6);
         assertFalse(fromPicc.isEmpty());
         assertWalkAtStart(fromPicc);
-    }
-
-    @NotNull
-    private JourneyRequest createRequest(int maxChanges, long maxNumberOfJourneys) {
-        return new JourneyRequest(new TramServiceDate(day), time, false, maxChanges, testConfig.getMaxJourneyDuration(),
-                maxNumberOfJourneys);
     }
 
     private void assertWalkAtStart(Set<Journey> journeys) {
@@ -203,7 +209,8 @@ class PostcodeBusRouteCalculatorTest {
     }
 
     private void checkNearby(PostcodeLocation start, BusStations end) {
-        JourneyRequest request = createRequest(3, 1);
+        JourneyRequest request = new JourneyRequest(new TramServiceDate(day), time, false, 3,
+                maxJourneyDuration, 1);
 
         Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request, 4);
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -219,10 +226,9 @@ class PostcodeBusRouteCalculatorTest {
         });
     }
 
-    private void checkNearby(BusStations start, PostcodeLocation end) {
-        JourneyRequest request = createRequest(0, 3);
+    private void checkNearby(BusStations start, PostcodeLocation end, JourneyRequest journeyRequest) {
 
-        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, request, 3);
+        Set<Journey> journeys = planner.quickestRouteForLocation(start, end, journeyRequest, 3);
         assertFalse(journeys.isEmpty(), "no journeys");
 
         Set<Journey> oneStage = journeys.stream().filter(Journey::isDirect).collect(Collectors.toSet());
