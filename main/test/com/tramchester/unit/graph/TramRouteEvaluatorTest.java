@@ -193,6 +193,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
         EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(1000);
         EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(999);
+        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
+
         lowestCostSeen.incrementArrived();
         EasyMock.expectLastCall();
 
@@ -223,6 +225,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         //EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
+        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
 
         branchState.setState(journeyState);
 
@@ -252,6 +255,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         //EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(2);
+        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
 
         branchState.setState(journeyState);
 
@@ -580,6 +584,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final int costSoFar = 100;
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(costSoFar);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
+        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
 
         branchState.setState(journeyState);
 
@@ -609,6 +614,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final JourneyState journeyState = createMock(JourneyState.class);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
+        EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
 
         branchState.setState(journeyState);
 

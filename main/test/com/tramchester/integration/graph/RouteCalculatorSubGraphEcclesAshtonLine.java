@@ -6,10 +6,15 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
+import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -22,29 +27,34 @@ import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled("Just used to track down specific issue")
 class RouteCalculatorSubGraphEcclesAshtonLine {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
 
+    private GraphQuery graphQuery;
+
     private RouteCalculatorTestFacade calculator;
     private final LocalDate when = TestEnv.testDay();
 
     private Transaction txn;
-    private TramTime tramTime;
     private int maxJourneyDuration;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -55,7 +65,6 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
                 configureGraphFilter(RouteCalculatorSubGraphEcclesAshtonLine::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-
         database = componentContainer.get(GraphDatabase.class);
     }
 
@@ -73,11 +82,11 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTx();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        tramTime = TramTime.of(8, 0);
+        graphQuery = componentContainer.get(GraphQuery.class);
         maxJourneyDuration = config.getMaxJourneyDuration();
     }
 
@@ -86,21 +95,35 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
         txn.close();
     }
 
-    // TODO Investigate so can remove workaround in RouteCalculatorSupport
     @Test
-    void ShouldReproIssueWithSomeMediaCityJourneys() {
+    void ShouldReproIssueWithMediaCityToVelopark() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                2, maxJourneyDuration, 2);
+                1, maxJourneyDuration, 2);
+        request.setDiag(true);
 
-        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Etihad, request).isEmpty());
-//        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
-//        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Ashton, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
     }
 
     @Test
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
-        creator.create(Path.of("subgraph_eccles_ashton.dot"), TramStations.of(Cornbrook), 100, false);
+        List<Station> starts = Arrays.asList( TramStations.of(VeloPark), TramStations.of(Etihad));
+        creator.create(Path.of("subgraph_eccles_ashton_velo.dot"),starts, 2, true);
+    }
+
+    @Test
+    void produceDiagramOfGraphSubsetEtihad() throws IOException {
+        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+        List<Station> starts = Collections.singletonList(of(Etihad));
+        creator.create(Path.of("subgraph_eccles_ashton_etihad.dot"),starts, 1, false);
+    }
+
+    @Test
+    void produceDiagramOfGraphSubsetMediaCity() throws IOException {
+        DiagramCreator creator = componentContainer.get(DiagramCreator.class);
+        List<Station> starts = Arrays.asList( TramStations.of(MediaCityUK), TramStations.of(HarbourCity),
+                TramStations.of(Broadway));
+        creator.create(Path.of("subgraph_eccles_ashton_mediaCity.dot"),starts, 2, true);
     }
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {

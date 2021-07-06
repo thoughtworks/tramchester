@@ -6,6 +6,7 @@ import com.tramchester.graph.search.stateMachine.states.TraversalState;
 
 public interface ImmutableJourneyState extends HasTransportMode {
     TraversalState getTraversalState();
+    String getTraversalStateName();
     TramTime getJourneyClock();
     int getNumberChanges();
     int getNumberWalkingConnections();

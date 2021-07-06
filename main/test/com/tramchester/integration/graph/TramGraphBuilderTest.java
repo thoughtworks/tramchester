@@ -16,7 +16,6 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -68,7 +67,6 @@ class TramGraphBuilderTest {
         graphQuery = componentContainer.get(GraphQuery.class);
         transportData = componentContainer.get(TransportData.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        //InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         GraphDatabase service = componentContainer.get(GraphDatabase.class);
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);

@@ -36,7 +36,8 @@ public class DiagramCreator {
 
     private final GraphDatabase graphDatabase;
     private final GraphQuery graphQuery;
-    private final TransportRelationshipTypes[] toplevelRelationships = new TransportRelationshipTypes[]{LINKED};
+    private final TransportRelationshipTypes[] toplevelRelationships =
+            new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, };
     private final CompositeStationRepository stationRepository;
 
     @Inject

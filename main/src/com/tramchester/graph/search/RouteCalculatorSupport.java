@@ -103,7 +103,7 @@ public class RouteCalculatorSupport {
                     computedMaxChanges, requestedMaxChanges));
         }
         // TODO Issue with MediaCity to Velocity and beyond means this does not work
-        final int max = requestedMaxChanges; //Math.min(computedMaxChanges, requestedMaxChanges);
+        final int max = Math.min(computedMaxChanges, requestedMaxChanges);
         final int min = numberOfChanges.getMin();
         if (requestedMaxChanges<min) {
             logger.warn(format("Minimum number of changes needed (%s) is overridden by journey request (%s)", min, requestedMaxChanges));

@@ -157,6 +157,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public String getTraversalStateName() {
+        return traversalState.getClass().getSimpleName();
+    }
+
+    @Override
     public int getTotalCostSoFar() {
         return  traversalState.getTotalCost();
     }

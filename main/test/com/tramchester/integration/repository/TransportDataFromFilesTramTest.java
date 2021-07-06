@@ -20,6 +20,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFromFiles;
 import com.tramchester.testSupport.TestEnv;
@@ -218,6 +219,23 @@ class TransportDataFromFilesTramTest {
                 collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), expiringServices, "Expiring svcs " +HasId.asIds(expiringServices));
+    }
+
+    @Disabled("Solved by removing reboarding filter which does not impact depth first performance")
+    @Test
+    void shouldCheckTripsFinishingAtNonInterchangeStationsOrEndOfLines() {
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        Set<Trip> allTrips = transportData.getTrips();
+
+        Set<String> endTripNotInterchange = allTrips.stream().
+                map(trip -> trip.getStopCalls().getStopBySequenceNumber(trip.getSeqNumOfLastStop())).
+                map(StopCall::getStation).
+                filter(station -> !interchangeRepository.isInterchange(station)).
+                filter(station -> !TramStations.isEndOfLine(station)).
+                map(Station::getName).
+                collect(Collectors.toSet());
+
+        assertTrue(endTripNotInterchange.isEmpty(), "End trip not interchange: " + endTripNotInterchange);
     }
 
     @DataExpiryCategory

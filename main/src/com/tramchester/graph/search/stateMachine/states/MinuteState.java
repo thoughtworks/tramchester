@@ -13,7 +13,10 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
@@ -48,8 +51,7 @@ public class MinuteState extends TraversalState {
 
             if (existingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = existingTrip.getTripId();
-                Iterable<Relationship> filterBySingleTripId =
-                        filterBySingleTripId(relationships, existingTripId);
+                List<Relationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly);
             } else {
                 // starting a brand new journey, since at minute node now have specific tripid to use
@@ -59,10 +61,11 @@ public class MinuteState extends TraversalState {
             }
         }
 
-        public Iterable<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, IdFor<Trip> existingTripId) {
+        private List<Relationship> filterBySingleTripId(Iterable<Relationship> relationships, IdFor<Trip> existingTripId) {
             return Streams.stream(relationships).
                     filter(relationship -> nodeContents.getTrip(relationship).equals(existingTripId)).
                     collect(Collectors.toList());
+
         }
     }
 

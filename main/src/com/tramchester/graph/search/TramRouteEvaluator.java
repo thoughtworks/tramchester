@@ -75,7 +75,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // path again and again for the same time in the case where it is a valid time.
         ServiceReason.ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState);
         if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
-            final HowIGotHere howIGotHere = new HowIGotHere(path);
+            final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState);
             final TramTime journeyClock = journeyState.getJourneyClock();
             reasons.recordReason(ServiceReason.Cached(journeyClock, howIGotHere));
             return Evaluation.EXCLUDE_AND_PRUNE;
@@ -105,7 +105,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         final long nextNodeId = nextNode.getId();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(thePath);
+        final HowIGotHere howIGotHere = new HowIGotHere(thePath, journeyState);
         final int totalCostSoFar = journeyState.getTotalCostSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 
