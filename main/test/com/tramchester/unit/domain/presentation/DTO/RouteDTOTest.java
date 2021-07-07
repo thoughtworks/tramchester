@@ -27,7 +27,7 @@ class RouteDTOTest {
 
         //assertEquals("METL7RED:I:", routeDTO.getId());
         assertEquals("TheTraffordCentreCornbrook", routeDTO.getRouteName());
-        assertEquals("7RED", routeDTO.getShortName());
+        assertEquals("Red Line", routeDTO.getShortName());
         assertEquals(TransportMode.Tram, routeDTO.getTransportMode());
 
         List<StationRefWithPosition> stationsDTO = routeDTO.getStations();

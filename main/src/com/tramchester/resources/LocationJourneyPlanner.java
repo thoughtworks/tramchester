@@ -197,6 +197,9 @@ public class LocationJourneyPlanner {
 
         Relationship walkingRelationship;
         Node stationNode = graphQuery.getStationOrGrouped(txn, walkStation);
+        if (stationNode==null) {
+            throw new RuntimeException("Could not find node for " + walkStation);
+        }
 
         if (direction == WALKS_FROM) {
             walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);

@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /***
- * Make sure have correct dependencies on "Ready" tokens alongside this class, it makes no gaurantees for any
+ * Make sure have correct dependencies on "Ready" tokens alongside this class, it makes no guarantees for any
  * data having put in the DB
  */
 @LazySingleton
@@ -31,10 +31,16 @@ public class GraphQuery {
         this.graphDatabase = graphDatabase;
     }
 
+    /**
+     * When calling from tests make sure relevant DB is fully built
+     */
     public Node getRouteStationNode(Transaction txn, HasId<RouteStation> id) {
         return findNode(txn, GraphLabel.ROUTE_STATION, id);
     }
 
+    /**
+     * When calling from tests make sure relevant DB is fully built
+     */
     public Node getStationNode(Transaction txn, Station station) {
         Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
         // ought to be able find with any of the labels, so use the first one
@@ -46,6 +52,9 @@ public class GraphQuery {
         return findNode(txn, GraphLabel.GROUPED, station);
     }
 
+    /**
+     * When calling from tests make sure relevant DB is fully built
+     */
     public Node getStationOrGrouped(Transaction txn, Station station) {
         if (station.isComposite()) {
             return getGroupedNode(txn, station);

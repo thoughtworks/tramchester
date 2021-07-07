@@ -12,16 +12,21 @@ public class TimedTransaction implements AutoCloseable {
     private final Logger logger;
     private final String name;
     private final Timing timing;
+    private boolean commited;
 
     public TimedTransaction(GraphDatabase graphDatabase, Logger logger, String name) {
         this.transaction = graphDatabase.beginTx();
         this.logger = logger;
         this.name = name;
-        timing = new Timing(logger, "transcation " + name);
+        timing = new Timing(logger, "transaction " + name);
+        commited = false;
     }
 
     @Override
     public void close() {
+        if (!commited) {
+            logger.warn("transaction " + name + " was not committed");
+        }
         transaction.close();
         timing.close();
     }
@@ -31,6 +36,7 @@ public class TimedTransaction implements AutoCloseable {
     }
 
     public void commit() {
+        commited = true;
         Instant start = Instant.now();
         transaction.commit();
         Instant finish = Instant.now();

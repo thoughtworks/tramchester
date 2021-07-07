@@ -46,7 +46,7 @@ public class NeighbourJourneysTest {
 
     private static ComponentContainer componentContainer;
     private Transaction txn;
-    private Station shudeHillStop;
+    private Station shudehillBusStop;
     private LocationJourneyPlanner planner;
 
     @BeforeAll
@@ -68,11 +68,10 @@ public class NeighbourJourneysTest {
         stationRepository = componentContainer.get(StationRepository.class);
 
         CompositeStationRepository compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
-
         CompositeStation shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
 
         Optional<Station> maybeStop = shudehillCompositeBus.getContained().stream().findAny();
-        maybeStop.ifPresent(stop -> shudeHillStop = stop);
+        maybeStop.ifPresent(stop -> shudehillBusStop = stop);
 
         shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
 
@@ -88,13 +87,14 @@ public class NeighbourJourneysTest {
 
     @Test
     void shouldHaveTestStations() {
+        assertNotNull(shudehillBusStop);
         assertNotNull(shudehillTram);
     }
 
     @Test
     void shouldFindMaxRouteHopsBetweenModes() {
         RouteToRouteCosts routeToRoute = componentContainer.get(RouteToRouteCosts.class);
-        int hops = routeToRoute.maxRouteHops(shudehillTram, shudeHillStop);
+        int hops = routeToRoute.maxRouteHops(shudehillTram, shudehillBusStop);
         assertEquals(1, hops);
     }
 
@@ -102,17 +102,17 @@ public class NeighbourJourneysTest {
     void shouldHaveIntermodalNeighboursAsInterchanges() {
         InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         assertTrue(interchangeRepository.isInterchange(shudehillTram));
-        assertTrue(interchangeRepository.isInterchange(shudeHillStop));
+        assertTrue(interchangeRepository.isInterchange(shudehillBusStop));
     }
 
     @Test
     void shouldDirectWalkIfStationIsNeighbourTramToBus() {
-        validateDirectWalk(shudehillTram, shudeHillStop);
+        validateDirectWalk(shudehillTram, shudehillBusStop);
     }
 
     @Test
     void shouldDirectWalkIfStationIsNeighbourBusToTram() {
-        validateDirectWalk(shudeHillStop, shudehillTram);
+        validateDirectWalk(shudehillBusStop, shudehillTram);
     }
 
     @Test

@@ -10,6 +10,7 @@ import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataFactory;
 
+@SuppressWarnings("unused")
 public class GetReadyModule extends AbstractModule {
     @Provides
     TransportData providesTransportdata(TransportDataFactory transportDataFactory) {

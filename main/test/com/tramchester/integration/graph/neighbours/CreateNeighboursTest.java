@@ -70,6 +70,7 @@ class CreateNeighboursTest {
 
         // force creation and init
         createNeighbours = componentContainer.get(CreateNeighbours.class);
+
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
         componentContainer.get(StagedTransportGraphBuilder.class);
     }
