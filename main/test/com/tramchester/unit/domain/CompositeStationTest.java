@@ -7,6 +7,7 @@ import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestStation;
@@ -31,12 +32,13 @@ class CompositeStationTest {
         LatLong latLong = new LatLong(-2.0, 2.3);
         Station stationA = TestStation.forTest("id", "area", "stopName",
                 latLong, Tram, dataSourceID);
+        final StationBuilder stationABuilder = stationA.getBuilder();
 
         Route route = TestEnv.getTramTestRoute();
-        stationA.addRoute(route);
+        stationABuilder.addRoute(route);
 
         Platform platform = new Platform("platformId", "platformName", latLong);
-        stationA.addPlatform(platform);
+        stationABuilder.addPlatform(platform);
 
         CompositeStation compositeStation = new CompositeStation(Collections.singleton(stationA), "compArea", "compName");
 
@@ -50,12 +52,13 @@ class CompositeStationTest {
         assertEquals("[id]", compositeStation.getId().getGraphId());
         assertEquals("[id]", compositeStation.getId().forDTO());
 
-        assertEquals(1, compositeStation.getTransportModes().size());
-        assertTrue(compositeStation.serves(Tram));
-
         assertTrue(compositeStation.hasPlatforms());
         assertEquals(Collections.singleton(platform), compositeStation.getPlatforms());
         assertEquals(Collections.singleton(route), compositeStation.getRoutes());
+
+        assertEquals(1, compositeStation.getTransportModes().size());
+        assertTrue(compositeStation.serves(Tram));
+
         assertEquals(1, compositeStation.getAgencies().size());
 
         Set<Station> containted = compositeStation.getContained();
@@ -68,17 +71,19 @@ class CompositeStationTest {
         Station stationA = TestStation.forTest("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), Tram, dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(StringIdFor.createId("routeA"), "routeName");
-        stationA.addRoute(routeA);
+        final StationBuilder stationABuilder = stationA.getBuilder();
+        stationABuilder.addRoute(routeA);
         Platform platformA = new Platform("platformIdA", "platformNameA",  new LatLong(2, 4));
-        stationA.addPlatform(platformA);
+        stationABuilder.addPlatform(platformA);
 
         Station stationB = TestStation.forTest("idB", "areaB", "stopNameB",
                 new LatLong(4, 8), Bus, dataSourceID);
         Route routeB = new Route(StringIdFor.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
-        stationB.addRoute(routeB);
-        stationB.addRoute(routeA);
+        final StationBuilder stationBBuilder = stationB.getBuilder();
+        stationBBuilder.addRoute(routeB);
+        stationBBuilder.addRoute(routeA);
         Platform platformB = new Platform("platformIdB", "platformNameB",  new LatLong(4, 8));
-        stationB.addPlatform(platformB);
+        stationBBuilder.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         CompositeStation compositeStation = new CompositeStation(stations, "compArea", "compName");

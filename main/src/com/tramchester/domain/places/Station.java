@@ -37,6 +37,10 @@ public class Station implements Location<Station> {
         this.area = area;
     }
 
+    public StationBuilder getBuilder() {
+        return new Builder(this);
+    }
+
     @Override
     public IdFor<Station> getId() {
         return id;
@@ -67,11 +71,6 @@ public class Station implements Location<Station> {
     }
 
     @Override
-    public Set<Platform> getPlatforms() {
-        return platforms;
-    }
-
-    @Override
     public Set<TransportMode> getTransportModes() {
         return servesRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
     }
@@ -90,12 +89,46 @@ public class Station implements Location<Station> {
         return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toSet());
     }
 
-    public void addPlatform(Platform platform) {
-        platforms.add(platform);
-    }
-
     public boolean hasPlatform(IdFor<Platform> platformId) {
         return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
+    }
+
+    public Set<Route> getRoutes() {
+        return servesRoutes;
+    }
+
+    public Set<Agency> getAgencies() {
+        return servesAgencies;
+    }
+
+    @Override
+    public Set<Platform> getPlatforms() {
+        return platforms;
+    }
+
+    public boolean servesRoute(Route route) {
+        return servesRoutes.contains(route);
+    }
+
+    public GridPosition getGridPosition() {
+        return gridPosition;
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.STATION_ID;
+    }
+
+    public boolean hasPlatformsForRoute(Route route) {
+        return platforms.stream().anyMatch(platform -> platform.servesRoute(route));
+    }
+
+    public String forDTO()  {
+        return getId().forDTO();
+    }
+
+    public boolean serves(TransportMode mode) {
+        return servesRoutes.stream().anyMatch(route -> route.getTransportMode().equals(mode));
     }
 
     @Override
@@ -128,41 +161,21 @@ public class Station implements Location<Station> {
                 '}';
     }
 
-    public void addRoute(Route route) {
-        servesRoutes.add(route);
-        servesAgencies.add(route.getAgency());
-    }
+    public static class Builder implements StationBuilder {
 
-    public Set<Route> getRoutes() {
-        return servesRoutes;
-    }
+        private final Station station;
 
-    public Set<Agency> getAgencies() {
-        return servesAgencies;
-    }
+        private Builder(Station station) {
+            this.station = station;
+        }
 
-    public boolean servesRoute(Route route) {
-        return servesRoutes.contains(route);
-    }
+        public void addPlatform(Platform platform) {
+            station.platforms.add(platform);
+        }
 
-    public GridPosition getGridPosition() {
-        return gridPosition;
-    }
-
-    @Override
-    public GraphPropertyKey getProp() {
-        return GraphPropertyKey.STATION_ID;
-    }
-
-    public boolean hasPlatformsForRoute(Route route) {
-        return platforms.stream().anyMatch(platform -> platform.servesRoute(route));
-    }
-
-    public String forDTO()  {
-        return getId().forDTO();
-    }
-
-    public boolean serves(TransportMode mode) {
-        return servesRoutes.stream().anyMatch(route -> route.getTransportMode().equals(mode));
+        public void addRoute(Route route) {
+            station.servesRoutes.add(route);
+            station.servesAgencies.add(route.getAgency());
+        }
     }
 }

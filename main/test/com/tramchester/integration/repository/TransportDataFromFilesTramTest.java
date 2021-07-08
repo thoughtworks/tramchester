@@ -44,8 +44,10 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TransportDataFromFilesTramTest {
+public class TransportDataFromFilesTramTest {
 
+    public static final int NUM_TFGM_TRAM_ROUTES = 14;
+    public static final int NUM_TFGM_TRAM_STATIONS = 99;
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
 
@@ -75,8 +77,8 @@ class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().size());
-        assertEquals(99,transportData.getStations().size());
-        assertEquals(14, transportData.getRoutes().size());
+        assertEquals(NUM_TFGM_TRAM_STATIONS,transportData.getStations().size());
+        assertEquals(NUM_TFGM_TRAM_ROUTES, transportData.getRoutes().size());
 
         assertEquals(199, transportData.getPlatforms().size());
     }

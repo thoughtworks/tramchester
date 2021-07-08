@@ -51,9 +51,9 @@ class AppUserJourneyTest extends UserJourneyTest {
     private final String deansgate = TramStations.Deansgate.getName();
 
     // useful consts, keep around as can swap when timetable changes
-    // No longer running
-//    private static final String altyToBuryClass = "RouteClassGreenLine";
-//    private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
+
+    private static final String altyToBuryClass = "RouteClassGreenLine";
+    private static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
 
     public static final String altyToPiccClass = getClassFor(AltrinchamPiccadilly);
     public static final String altyToPicLineName = "Altrincham - Piccadilly";
@@ -219,7 +219,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage stage = stages.get(0);
 
         validateAStage(stage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPiccClass, altyToPicLineName, TramStations.Piccadilly.getName(), 9);
+                altyToBuryClass, altyToBuryLineName, TramStations.Bury.getName(), 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -375,12 +375,12 @@ class AppUserJourneyTest extends UserJourneyTest {
         Stage secondStage = stages.get(1);
 
         validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-                altyToPiccClass, altyToPicLineName,
-                TramStations.Piccadilly.getName(), 7);
+                altyToBuryClass, altyToBuryLineName,
+                TramStations.Bury.getName(), 7);
 
         // Too timetable dependent?
         String lineClass = getClassFor(VictoriaWythenshaweManchesterAirport);
-        validateAStage(secondStage, TramTime.of(10,32), "Change Tram", TraffordBar.getName(),
+        validateAStage(secondStage, TramTime.of(10,29), "Change Tram", TraffordBar.getName(),
                 2, lineClass, "Victoria - Wythenshawe - Manchester Airport",
                 TramStations.ManAirport.getName(), 17);
 

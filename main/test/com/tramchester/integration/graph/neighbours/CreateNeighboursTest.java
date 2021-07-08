@@ -3,29 +3,41 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.CreateNeighbours;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.NEIGHBOUR;
+import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_ROUTES;
+import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
@@ -35,6 +47,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class CreateNeighboursTest {
 
+    private static GraphDatabase graphDatabase;
     private CompositeStation shudehillCompositeBus;
     private Station shudehillTram;
 
@@ -43,6 +56,7 @@ class CreateNeighboursTest {
     private Transaction txn;
     private CreateNeighbours createNeighbours;
     private CompositeStationRepository compositeStationRepository;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,6 +64,14 @@ class CreateNeighboursTest {
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
+        graphDatabase = componentContainer.get(GraphDatabase.class);
+
+        // make sure composites added to the DB
+        CompositeStationGraphBuilder builder = componentContainer.get(CompositeStationGraphBuilder.class);
+        builder.getReady();
+
+        // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
+        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
     }
 
     @AfterAll
@@ -59,20 +81,19 @@ class CreateNeighboursTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
-        GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+
         compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
 
         graphQuery = componentContainer.get(GraphQuery.class);
+
         shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
         shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
-
-        txn = graphDatabase.beginTx();
 
         // force creation and init
         createNeighbours = componentContainer.get(CreateNeighbours.class);
 
-        // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
-        componentContainer.get(StagedTransportGraphBuilder.class);
+        txn = graphDatabase.beginTx();
     }
 
     @AfterEach
@@ -81,8 +102,90 @@ class CreateNeighboursTest {
     }
 
     @Test
+    void shouldNotHaveBoth() {
+        long both = stationRepository.getStationStream().
+                filter(station -> (station.serves(Tram) && station.serves(Bus))).count();
+        assertEquals(0, both);
+    }
+
+    // tram here should make TransportDataFromFilesTest numbers
+    @Test
+    void shouldHaveExpectedNumbersForTram() {
+
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        long tramRoutes = getTramRoutes(routeRepository).count();
+        assertEquals(NUM_TFGM_TRAM_ROUTES, tramRoutes);
+
+        final Set<Station> stationsForMode = stationRepository.getStationsForMode(Tram);
+        long tram = stationsForMode.size();
+        assertEquals(NUM_TFGM_TRAM_STATIONS, tram);
+    }
+
+    @Test
+    void shouldHaveCorrectStationsForRoutes() {
+        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        Set<Route> tramRoutes = getTramRoutes(routeRepository).collect(Collectors.toSet());
+
+        Set<Station> stationsOnTramRoutes = stationRepository.getStationsForMode(Tram).stream().
+                filter(station -> station.getRoutes().stream().anyMatch(tramRoutes::contains)).
+                collect(Collectors.toSet());
+
+        assertEquals(NUM_TFGM_TRAM_STATIONS, stationsOnTramRoutes.size());
+
+    }
+
+    @NotNull
+    private Stream<Route> getTramRoutes(RouteRepository routeRepository) {
+        return routeRepository.getRoutes().stream().filter(route -> route.getTransportMode().equals(Tram));
+    }
+
+    @Test
+    void shouldHaveExpectedNumbersForStations() {
+
+        long busOnly = stationRepository.getStationStream().
+                filter(station -> !station.isComposite()).
+                filter(station -> (station.serves(Bus) && !station.serves(Tram))).count();
+
+        assertEquals(NUM_TFGM_TRAM_STATIONS, countNodes(GraphLabel.TRAM_STATION));
+        assertEquals(busOnly, countNodes(GraphLabel.BUS_STATION));
+    }
+
+    private int countNodes(GraphLabel graphLabel) {
+        ResourceIterator<Node> tramNodes = graphDatabase.findNodes(txn, graphLabel);
+        int count = 0;
+        while (tramNodes.hasNext()) {
+            tramNodes.next();
+            count++;
+        }
+        return count;
+    }
+
+    @Test
     void shouldFindTheCompositeBusStation() {
         assertNotNull(shudehillCompositeBus);
+        Node compNode = graphQuery.getStationOrGrouped(txn, shudehillCompositeBus);
+        assertNotNull(compNode, "No node found for " + compNode);
+        shudehillCompositeBus.getContained().forEach(busStop -> {
+            Node busNode = graphQuery.getStationOrGrouped(txn, busStop);
+            assertNotNull(busNode, "No node found for " + busStop);
+        });
+    }
+
+    @Test
+    void shouldHaveTramStationForTesting() {
+        assertNotNull(shudehillTram);
+        Node stationNode = graphQuery.getStationNode(txn, shudehillTram);
+        assertNotNull(stationNode);
+    }
+
+    @Test
+    void shouldHaveAllTramStations() {
+        Set<Station> missingNodes = Arrays.stream(TramStations.values()).
+                map(TramStations::getId).
+                map(id -> compositeStationRepository.getStationById(id)).
+                filter(station -> graphQuery.getStationNode(txn, station) == null).
+                collect(Collectors.toSet());
+        assertEquals(Collections.emptySet(), missingNodes);
     }
 
     @Test

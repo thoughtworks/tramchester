@@ -1,16 +1,22 @@
 package com.tramchester.domain.places;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.CompositeId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.graph.GraphPropertyKey;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,16 +24,104 @@ public class CompositeStation extends Station {
 
     // TODO Should just be implements Location<Station> extends Station??
 
-    private final Set<Station> stations;
+    private final Set<Station> containedStations;
 
-    public CompositeStation(Set<Station> stations, String area, String name) {
-        super(computeStaitonId(stations), area, name, computeLatLong(stations),
-                CoordinateTransforms.getGridPosition(computeLatLong(stations)), computeDataSourceId(stations));
-        this.stations = stations;
-        stations.forEach(station -> {
-            station.getRoutes().forEach(this::addRoute);
-            station.getPlatforms().forEach(this::addPlatform);
-        });
+    public CompositeStation(Set<Station> containedStations, String area, String name) {
+        super(computeStationId(containedStations), area, name, computeLatLong(containedStations),
+                CoordinateTransforms.getGridPosition(computeLatLong(containedStations)), computeDataSourceId(containedStations));
+        this.containedStations = containedStations;
+    }
+
+    public static Set<Station> expandStations(Collection<Station> stations) {
+        return stations.stream().flatMap(CompositeStation::expandStation).collect(Collectors.toSet());
+    }
+
+    private static Stream<Station> expandStation(Station station) {
+        if (!(station instanceof CompositeStation)) {
+            return Stream.of(station);
+        }
+
+        CompositeStation compositeStation = (CompositeStation) station;
+        return Streams.concat(compositeStation.getContained().stream(), Stream.of(station));
+    }
+
+    private boolean anyMatch(Predicate<Station> predicate) {
+        return containedStations.stream().anyMatch(predicate);
+    }
+
+    private <R> Set<R> flatten(Function<Station, Collection<R>> map) {
+        return containedStations.stream().
+                flatMap(station -> map.apply(station).stream()).
+                collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public boolean hasPlatform(IdFor<Platform> platformId) {
+        return anyMatch(station -> station.hasPlatform(platformId));
+    }
+
+    @Override
+    public Set<Platform> getPlatforms() {
+        return flatten(Station::getPlatforms);
+    }
+
+    @Override
+    public Set<Platform> getPlatformsForRoute(Route route) {
+        return flatten(station -> station.getPlatformsForRoute(route));
+    }
+
+    @Override
+    public boolean hasPlatformsForRoute(Route route) {
+        return anyMatch(station -> station.hasPlatformsForRoute(route));
+    }
+
+    @Override
+    public boolean hasPlatforms() {
+        return anyMatch(Station::hasPlatforms);
+    }
+
+    @Override
+    public Set<Route> getRoutes() {
+        return flatten(Station::getRoutes);
+    }
+
+    @Override
+    public boolean servesRoute(Route route) {
+        return anyMatch(station -> station.servesRoute(route));
+    }
+
+    @Override
+    public boolean isComposite() {
+        return true;
+    }
+
+    @Override
+    public GraphPropertyKey getProp() {
+        return GraphPropertyKey.STATION_ID;
+    }
+
+    @Override
+    public LocationType getLocationType() {
+        return LocationType.Station;
+    }
+
+    @Override
+    public Set<TransportMode> getTransportModes() {
+        return flatten(Station::getTransportModes);
+    }
+
+    @Override
+    public boolean serves(TransportMode mode) {
+        return anyMatch(station -> station.serves(mode));
+    }
+
+    @Override
+    public Set<Agency> getAgencies() {
+        return flatten(Station::getAgencies);
+    }
+
+    public Set<Station> getContained() {
+        return containedStations;
     }
 
     private static DataSourceID computeDataSourceId(Set<Station> stations) {
@@ -46,40 +140,8 @@ public class CompositeStation extends Station {
         return new LatLong(lat, lon);
     }
 
-    private static IdFor<Station> computeStaitonId(Set<Station> stations) {
+    private static IdFor<Station> computeStationId(Set<Station> stations) {
         IdSet<Station> ids = stations.stream().map(Station::getId).collect(IdSet.idCollector());
         return new CompositeId<>(ids);
-    }
-
-    public static Set<Station> expandStations(Collection<Station> stations) {
-        return stations.stream().flatMap(CompositeStation::expandStation).collect(Collectors.toSet());
-    }
-
-    private static Stream<Station> expandStation(Station station) {
-        if (!(station instanceof CompositeStation)) {
-            return Stream.of(station);
-        }
-
-        CompositeStation compositeStation = (CompositeStation) station;
-        return Streams.concat(compositeStation.getContained().stream(), Stream.of(station));
-    }
-
-    @Override
-    public boolean isComposite() {
-        return true;
-    }
-
-    @Override
-    public GraphPropertyKey getProp() {
-        return GraphPropertyKey.STATION_ID;
-    }
-
-    @Override
-    public LocationType getLocationType() {
-        return LocationType.Station;
-    }
-
-    public Set<Station> getContained() {
-        return stations;
     }
 }

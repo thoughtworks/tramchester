@@ -52,7 +52,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         station = TramStations.of(TramStations.Shudehill);
         platform = new Platform("someId1", "Shudehill platform 1", station.getLatLong());
-        station.addPlatform(platform);
+        station.getBuilder().addPlatform(platform);
 
     }
 
@@ -96,7 +96,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals("some message", stationMessages.get(0).getMessage());
 
         Station otherStation = TramStations.of(TramStations.Ashton);
-        otherStation.addPlatform(new Platform("XXXX", "platform name", otherStation.getLatLong()));
+        otherStation.getBuilder().addPlatform(new Platform("XXXX", "platform name", otherStation.getLatLong()));
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, lastUpdate.toLocalDate(), updateTime);
         assertTrue(noStationMsg.isEmpty());

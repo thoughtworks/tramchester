@@ -329,7 +329,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private void addStationTo(TransportDataContainer container, Route route, Station station, TransportEntityFactory factory) {
-        station.addRoute(route);
+        station.getBuilder().addRoute(route);
 
         IdFor<Station> stationId = station.getId();
         if (!container.hasStationId(stationId)) {

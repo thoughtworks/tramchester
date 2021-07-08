@@ -60,7 +60,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
         Platform platform = new Platform("platFormId", "platformName", new LatLong(1,1));
         final Station firstStation = of(MarketStreet);
-        firstStation.addPlatform(platform);
+        firstStation.getBuilder().addPlatform(platform);
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), TramStations.of(Bury),
                 stopCallIndexes

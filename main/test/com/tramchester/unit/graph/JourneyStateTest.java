@@ -51,7 +51,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         Station station = TestStation.forTest("destinationStationId", "area", "name", new LatLong(1,1),
                 TransportMode.Tram, DataSourceID.tfgm);
-        station.addRoute(TestEnv.getTramTestRoute());
+        station.getBuilder().addRoute(TestEnv.getTramTestRoute());
         
         Set<Station> destinations = Collections.singleton(station);
         ProvidesNow providesNow = new ProvidesLocalNow();

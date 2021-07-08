@@ -67,7 +67,7 @@ class TransportDataFromFilesBusTest {
         assertEquals(41, transportData.getAgencies().size());
 
         int numberRoutes = transportData.getRoutes().size();
-        assertTrue(withinNPercent(1485, numberRoutes, 0.1F), Integer.toString(numberRoutes));
+        assertTrue(withinNPercent(1333, numberRoutes, 0.1F), Integer.toString(numberRoutes));
 
         int numStations = transportData.getStations().size();
         assertTrue(numStations > 15400, "big change");

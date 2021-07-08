@@ -225,7 +225,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private static void addRouteStation(TransportDataContainer container, Station station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
-        station.addRoute(route);
+        station.getBuilder().addRoute(route);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,
@@ -245,7 +245,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         String platformId = station.getId() + "1";
         Platform platform = new Platform(platformId, format("%s platform 1", station.getName()), station.getLatLong());
         container.addPlatform(platform);
-        station.addPlatform(platform);
+        station.getBuilder().addPlatform(platform);
         StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, platformId,sequenceNum,
                 GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
         return new PlatformStopCall(platform, station, stopTimeData);

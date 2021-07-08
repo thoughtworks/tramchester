@@ -3,6 +3,7 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
@@ -29,6 +30,11 @@ public class TestStation extends Station {
         return new TestStation(id, area, stationName, latLong, CoordinateTransforms.getGridPosition(latLong), mode, dataSourceID);
     }
 
+    @Override
+    public StationBuilder getBuilder() {
+        return new Builder(this);
+    }
+
     private void guardPlatformsAddedIntent() {
         if (!platformsAdded) {
             throw new RuntimeException("No platforms for test station " + getName());
@@ -41,15 +47,13 @@ public class TestStation extends Station {
         }
     }
 
-    @Override
-    public void addPlatform(Platform platform) {
-        super.addPlatform(platform);
+    protected void addPlatform(Platform platform) {
+        super.getBuilder().addPlatform(platform);
         platformsAdded = true;
     }
 
-    @Override
-    public void addRoute(Route route) {
-        super.addRoute(route);
+    private void addRoute(Route route) {
+        super.getBuilder().addRoute(route);
         routesAdded = true;
     }
 
@@ -88,6 +92,26 @@ public class TestStation extends Station {
 
     public static Station real(StationRepositoryPublic repository, TestStations hasId) {
         return repository.getStationById(hasId.getId());
+    }
+
+    public static class Builder implements StationBuilder {
+
+        private final TestStation testStation;
+
+        private Builder(TestStation testStation) {
+
+            this.testStation = testStation;
+        }
+
+        @Override
+        public void addRoute(Route route) {
+            testStation.addRoute(route);
+        }
+
+        @Override
+        public void addPlatform(Platform platform) {
+            testStation.addPlatform(platform);
+        }
     }
 
 }

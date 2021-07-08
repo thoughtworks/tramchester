@@ -183,7 +183,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
     private static void addRouteStation(TransportDataContainer container, Station station, Route route) {
         RouteStation routeStation = new RouteStation(station, route);
         container.addRouteStation(routeStation);
-        station.addRoute(route);
+        station.getBuilder().addRoute(route);
     }
 
     private static void createInterchangeToStation4Trip(TransportDataContainer container, Route route, Service service,

@@ -37,6 +37,6 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
 
     @Override
     public Path getCacheFolder() {
-        return TestEnv.CACHE_DIR.resolve("tramAndBusIntegration");
+        return TestEnv.CACHE_DIR.resolve("neighboursIntegration");
     }
 }

@@ -145,7 +145,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         TramTime time = TramTime.of(15,45);
         final Station startStation = of(Altrincham);
         Platform platform = new Platform(startStation.forDTO() + "1", "platform name", startStation.getLatLong());
-        startStation.addPlatform(platform);
+        startStation.getBuilder().addPlatform(platform);
 
         ConnectingStage connectingStage = new ConnectingStage(
                 BusStations.of(StopAtAltrinchamInterchange), startStation, 1, time);
@@ -189,12 +189,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         TramTime am10 = TramTime.of(10,0);
         Station begin = of(Altrincham);
         Platform platformA = new Platform(begin.forDTO() + "1", "platform name", begin.getLatLong());
-        begin.addPlatform(platformA);
+        begin.getBuilder().addPlatform(platformA);
 
         MyLocation middleA = nearPiccGardensLocation;
         Station middleB = of(MarketStreet);
         Platform platformB = new Platform(middleB.forDTO() + "1", "platform name", middleB.getLatLong());
-        middleB.addPlatform(platformB);
+        middleB.getBuilder().addPlatform(platformB);
 
         Station end = of(Bury);
 

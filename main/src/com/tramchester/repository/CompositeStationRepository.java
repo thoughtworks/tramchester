@@ -151,7 +151,7 @@ public class CompositeStationRepository implements StationRepositoryPublic {
         String compositeName = attemptUnqiueName(nonUniqueName, area, stationsToGroup);
         CompositeStation compositeStation = new CompositeStation(stationsToGroup, area, compositeName);
 
-        stationsToGroup.stream().flatMap(station -> station.getRoutes().stream()).forEach(compositeStation::addRoute);
+        //stationsToGroup.stream().flatMap(station -> station.getRoutes().stream()).forEach(compositeStation::addRoute);
         compositeStations.put(compositeStation.getId(), compositeStation);
         compositeStationsByName.putIfAbsent(compositeName, compositeStation); // see attemptUnqiueName, might fail to get unique name
 

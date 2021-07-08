@@ -3,6 +3,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.places.StationBuilder;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -31,11 +32,12 @@ class LocationDTOTest {
         Station testStation = TestStation.forTest("9400ZZMAALT", "Altrincham area", "Altrincham",
                 new LatLong(1,1), TransportMode.Tram, DataSourceID.tfgm);
 
-        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
-        testStation.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
+        final StationBuilder testStationBuilder = testStation.getBuilder();
+        testStationBuilder.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdA"), "routeNameA"));
+        testStationBuilder.addRoute(TestEnv.getTramTestRoute(StringIdFor.createId("routeIdB"), "routeNameB"));
 
-        testStation.addPlatform(new Platform("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
-        testStation.addPlatform(new Platform("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));
+        testStationBuilder.addPlatform(new Platform("9400ZZMAALT1", "Altrincham", new LatLong(1.2,1)));
+        testStationBuilder.addPlatform(new Platform("9400ZZMAALT2", "Altrincham", new LatLong(1.1,1)));
 
         LocationDTO dto = new LocationDTO(testStation);
 

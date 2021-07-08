@@ -139,7 +139,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
             Assertions.assertEquals("Direct", result.getChanges());
         }
 
-        // select first journey
+        // select first journey - this seems to be inconsistent, not returning first displayed journey
         TestResultSummaryRow firstResult = results.get(0);
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
@@ -149,24 +149,18 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         Assertions.assertEquals(2, stages.size());
         Stage firstStage = stages.get(0);
 
-        validateWalkingStage(firstStage, TramTime.of(10,25), "Walk to",
-                TramStations.Altrincham.getName(), -1, "RouteClassWalk");
-
-        Stage secondStage = stages.get(1);
-        TramTime departTime = TramTime.of(10,31);
-        validateAStage(secondStage, departTime, "Board Tram", TramStations.Altrincham.getName(), 1,
-                AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
-    }
-
-    private void validateWalkingStage(Stage stage, TramTime departTime, String action, String actionStation, int platform,
-                                      String lineClass) {
-        Assertions.assertEquals(departTime, stage.getDepartTime(), "departtime");
-        Assertions.assertEquals(action, stage.getAction(), "action");
-        Assertions.assertEquals(actionStation, stage.getActionStation(), "actionStation");
-        Assertions.assertEquals(platform, stage.getPlatform(), "platform");
+        Assertions.assertEquals(TramTime.of(10,19), firstStage.getDepartTime(), "departtime");
+        Assertions.assertEquals("Walk to", firstStage.getAction(), "action");
+        Assertions.assertEquals(TramStations.Altrincham.getName(), firstStage.getActionStation(), "actionStation");
+        Assertions.assertEquals(-1, firstStage.getPlatform(), "platform");
 
         // hidden for walking stages
-        Assertions.assertEquals("", stage.getLine(lineClass), "lineName");
+        Assertions.assertEquals("", firstStage.getLine("RouteClassWalk"), "lineName");
+
+        Stage secondStage = stages.get(1);
+        TramTime departTime = TramTime.of(10,25);
+        validateAStage(secondStage, departTime, "Board Tram", TramStations.Altrincham.getName(), 1,
+                AppUserJourneyTest.altyToPiccClass, AppUserJourneyTest.altyToPicLineName, "Piccadilly", 9);
     }
 
     private AppPage prepare(ProvidesDriver providesDriver) throws IOException {

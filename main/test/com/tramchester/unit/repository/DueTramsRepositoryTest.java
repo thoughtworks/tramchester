@@ -45,7 +45,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         station = TramStations.of(Shudehill);
         platform = new Platform("someId1", "Shudehill platform 1", Shudehill.getLatLong());
-        station.addPlatform(platform);
+        station.getBuilder().addPlatform(platform);
     }
 
     @Test
@@ -60,7 +60,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         // second station, has due tram
         Station secondStation = of(Altrincham);
         Platform platfromForSecondStation = new Platform("a1", "Altrincham platform 1", Altrincham.getLatLong());
-        secondStation.addPlatform(platfromForSecondStation);
+        secondStation.getBuilder().addPlatform(platfromForSecondStation);
 
         DueTram dueTramOther = new DueTram(of(ManAirport), "Due", 12, "Double", lastUpdate.toLocalTime());
         addStationInfoWithDueTram(infos, lastUpdate, "displayId2", platfromForSecondStation.getId(),
@@ -69,7 +69,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
         // third, no due trams
         Station thirdStation = of(Intu);
         Platform platfromForThirdStation = new Platform("b2", "Intu platform 2", Intu.getLatLong());
-        secondStation.addPlatform(platfromForSecondStation);
+        secondStation.getBuilder().addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);
         infos.add(thirdStationInfo);
@@ -96,7 +96,7 @@ class DueTramsRepositoryTest extends EasyMockSupport {
 
         Station otherStation = of(Altrincham);
         Platform otherPlatform = new Platform("other1", "Altrincham platform 1", otherStation.getLatLong());
-        otherStation.addPlatform(otherPlatform);
+        otherStation.getBuilder().addPlatform(otherPlatform);
 
         Station destinationManAirport = of(ManAirport);
         DueTram dueTramOther = new DueTram(destinationManAirport, "Due", 12, "Double", lastUpdate.toLocalTime());
