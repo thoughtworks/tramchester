@@ -152,6 +152,7 @@ function toHourAndMins(date) {
 export default { 
     data: function () {
         return {
+            currentPage: 1,
             journeyFields: [
                 {key:'_showDetails',label:'', formatter: rowExpandedFormatter},
                 {key:'journey.firstDepartureTimeAsDate',label:'Depart', sortable:true, tdClass:'departTime', 
@@ -170,7 +171,7 @@ export default {
                 {key:'passedStops', label:'Stops', tdClass:'passedStops', formatter: stopsFormatter}]
             }
       },
-    props: ['journeysresponse'],
+    props: ['journeysresponse','numjourneystodisplay'],
     computed: { 
         journeys: function() {
             if (this.journeysresponse==null) {
@@ -197,6 +198,9 @@ export default {
                 return false; // no query has been done
             }
             return this.journeysresponse.length==0;
+        },
+        itemsPerPage: function() {
+            return this.numjourneystodisplay;
         }
     },
     methods: {
@@ -218,11 +222,13 @@ export default {
     },
     template: `
     <div id="journeysComponent">
-        <b-table id="results"  v-if="journeys.length>0"
+        <b-table id="results" v-if="journeys.length>0"
                 selectable
                 sort-icon-left
                 :items="journeys" small responsive="sm"
-                :fields="journeyFields"
+                :fields="journeyFields" 
+                :per-page="itemsPerPage"
+                :current-page="currentPage" 
                 sort-by='journey.expectedArrivalTimeAsDate'
                 select-mode='single' caption-top
                     @row-clicked="expandStages" tbody-tr-class='journeySummary' caption-top>
@@ -241,12 +247,22 @@ export default {
                 </b-table>
             </template>
         </b-table>
+
+        <b-pagination v-if="journeys.length>0 && journeys.length>itemsPerPage"
+            v-model="currentPage"
+            :total-rows="journeys.length"
+            :per-page="itemsPerPage" 
+            align="center"
+            aria-controls="results">
+        </b-pagination>
+
         <div class="container" id="earlierLater" v-if="journeys.length>0">
             <div class="row justify-content-between">
                 <b-button id="earlierButton" variant="outline-primary" v-on:click="earlier()">« Earlier</b-button>
                 <b-button id="laterButton" variant="outline-primary" v-on:click="later()">Later »</b-button>
             </div>
         </div>
+
         <div id="noResults" selectable v-if="noJourneys" class="w-75 tramchesterApp">
             <b-card bg-variant="warning">
                 No suggested routes were found for this date and time

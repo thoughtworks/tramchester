@@ -99,6 +99,7 @@ function getTransportModesThenStations(app) {
             app.networkError = false;
             app.modes = response.data.modes;
             app.postcodesEnabled = response.data.postcodesEnabled;
+            app.numberJourneysToDisplay = response.data.numberJourneysToDisplay;
             getStations(app);
         })
         .catch(function (error) {
@@ -247,6 +248,7 @@ function addParsedDatesToLive(liveData) {
     liveDepartureResponse: null,
     feedinfo: [],
     modes: [],
+    numberJourneysToDisplay: 0,
     searchInProgress: false,    // searching for routes
     liveInProgress: false,      // looking for live data
     networkError: false,        // network error on either query

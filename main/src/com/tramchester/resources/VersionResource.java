@@ -41,14 +41,16 @@ public class VersionResource {
         return VersionRepository.getVersion();
     }
 
+    // TODO Rename as /config
     @GET
-    @ApiOperation(value = "Transport modes enabled on server", response = ConfigDTO.class)
+    @ApiOperation(value = "Config from server includes, Transport modes enabled, Postcode enabled, etc", response = ConfigDTO.class)
     @Path("/modes")
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response modes() {
         Set<TransportMode> modes = repository.getModes();
 
-        ConfigDTO configDTO = new ConfigDTO(modes, config.hasRemoteDataSourceConfig(DataSourceID.postcode));
+        ConfigDTO configDTO = new ConfigDTO(modes, config.hasRemoteDataSourceConfig(DataSourceID.postcode),
+                config.getMaxNumResults());
 
         return Response.ok(configDTO).build();
     }

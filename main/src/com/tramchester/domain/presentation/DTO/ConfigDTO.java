@@ -9,10 +9,12 @@ import java.util.List;
 public class ConfigDTO {
     private List<TransportMode> modes;
     private boolean postcodesEnabled;
+    private int numberJourneysToDisplay;
 
-    public ConfigDTO(Collection<TransportMode> modes, boolean postcodesEnabled) {
+    public ConfigDTO(Collection<TransportMode> modes, boolean postcodesEnabled, int numberJourneysToDisplay) {
         this.modes = new ArrayList<>(modes);
         this.postcodesEnabled = postcodesEnabled;
+        this.numberJourneysToDisplay = numberJourneysToDisplay;
     }
 
     public ConfigDTO() {
@@ -25,5 +27,9 @@ public class ConfigDTO {
 
     public boolean getPostcodesEnabled() {
         return postcodesEnabled;
+    }
+
+    public int getNumberJourneysToDisplay() {
+        return numberJourneysToDisplay;
     }
 }

@@ -90,7 +90,8 @@
     <div id="outputs" class="mt-3 ml-1 mr-1">
         <notes :journeys="journeys" :livedataresponse="liveDepartureResponse"></notes>
         <live-departures :livedataresponse="liveDepartureResponse"></live-departures>
-        <journeys :journeysresponse="journeys" v-on:earlier-tram="changeTime" v-on:later-tram="changeTime"></journeys>
+        <journeys :journeysresponse="journeys" :numjourneystodisplay="numberJourneysToDisplay" v-on:earlier-tram="changeTime" v-on:later-tram="changeTime">
+        </journeys>
         <closures></closures>
     </div>
 
