@@ -181,26 +181,18 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         BranchState<JourneyState> branchState = new TestBranchState();
 
-        TramTime time = TramTime.of(8, 15);
-
         JourneyState journeyState = createMock(JourneyState.class);
-        //EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(42);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(7);
 
         branchState.setState(journeyState);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
-        EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(1000);
-        EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(999);
+
+        EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(true);
         EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
 
-        lowestCostSeen.incrementArrived();
-        EasyMock.expectLastCall();
-
-        lowestCostSeen.setLowestCost(42);
-        EasyMock.expectLastCall();
-        lowestCostSeen.setLowestNumChanges(7);
+        lowestCostSeen.setLowestCost(journeyState);
         EasyMock.expectLastCall();
 
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Arrived, node, journeyState);
@@ -222,7 +214,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
 
         JourneyState journeyState = createMock(JourneyState.class);
-        //EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
         EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
@@ -230,8 +221,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
-        EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(50);
-        EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(10);
+
+        EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(false);
+        EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(5);
 
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.LongerPath, node, journeyState);
         EasyMock.expectLastCall();
@@ -252,7 +244,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TramTime time = TramTime.of(8, 15);
 
         JourneyState journeyState = createMock(JourneyState.class);
-        //EasyMock.expect(journeyState.getJourneyClock()).andReturn(time);
         EasyMock.expect(journeyState.getTotalCostSoFar()).andReturn(100);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(2);
         EasyMock.expect(journeyState.getTraversalStateName()).andReturn("aName");
@@ -260,10 +251,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState)).andReturn(ServiceReason.ReasonCode.PreviousCacheMiss);
-        EasyMock.expect(lowestCostSeen.getLowestCost()).andReturn(50);
         EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(5);
-
-//        lowestCostSeen.setLowestNumChanges(2);
+        EasyMock.expect(lowestCostSeen.isLower(journeyState)).andReturn(false);
 
         previousSuccessfulVisit.recordVisitIfUseful(ServiceReason.ReasonCode.Arrived, node, journeyState);
         EasyMock.expectLastCall();

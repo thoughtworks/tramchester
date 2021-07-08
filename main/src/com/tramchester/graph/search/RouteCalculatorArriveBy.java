@@ -52,7 +52,8 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node origin, Station destination, JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
+    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Node origin, Station destination, JourneyRequest journeyRequest,
+                                                     NumberOfChanges numberOfChanges) {
         int costToDest = costCalculator.getApproxCostBetween(txn, origin, destination);
         JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest);
         logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
@@ -72,7 +73,6 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
         // TODO Handle buses & trains
         TramTime queryTime = originalRequest.getOriginalTime();
         TramTime computedDepartTime = queryTime.minusMinutes(costToDest).minusMinutes(config.getMaxInitialWait() / 2);
-        return new JourneyRequest(originalRequest.getDate(), computedDepartTime, true,
-                originalRequest.getMaxChanges(), originalRequest.getMaxJourneyDuration(), originalRequest.getMaxNumberOfJourneys());
+        return new JourneyRequest(originalRequest, computedDepartTime);
     }
 }

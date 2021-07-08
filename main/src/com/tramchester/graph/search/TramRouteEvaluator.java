@@ -111,15 +111,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         if (destinationNodeIds.contains(nextNodeId)) {
             // we've arrived
-            if (totalCostSoFar <= lowestCostSeen.getLowestCost()
-                    && numberChanges <= lowestCostSeen.getLowestNumChanges()) {
+            if (lowestCostSeen.isLower(journeyState)) {
                 // a better route than seen so far
-                // <= equals so we include multiple options and routes in the results
-                // An alternative to this would be to search over a finer grained list of times and catch alternatives
-                // that way
-                lowestCostSeen.incrementArrived();
-                lowestCostSeen.setLowestCost(totalCostSoFar);
-                lowestCostSeen.setLowestNumChanges(numberChanges);
+                lowestCostSeen.setLowestCost(journeyState);
                 reasons.recordSuccess();
                 return ServiceReason.ReasonCode.Arrived;
             } else if (numberChanges < lowestCostSeen.getLowestNumChanges()) {

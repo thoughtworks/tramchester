@@ -80,7 +80,6 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
         return departTime;
     }
 
-
     public boolean isDirect() {
         int size = stages.size();
 
@@ -125,4 +124,27 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
         return result;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Journey that = (Journey) o;
+
+        if (requestedNumberChanges != that.requestedNumberChanges) return false;
+        if (!queryTime.equals(that.queryTime)) return false;
+        if (!arrivalTime.equals(that.arrivalTime)) return false;
+        if (!departTime.equals(that.departTime)) return false;
+        return stages.equals(that.stages);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = queryTime.hashCode();
+        result = 31 * result + arrivalTime.hashCode();
+        result = 31 * result + departTime.hashCode();
+        result = 31 * result + requestedNumberChanges;
+        result = 31 * result + stages.hashCode();
+        return result;
+    }
 }

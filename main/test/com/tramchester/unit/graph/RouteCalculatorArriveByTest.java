@@ -44,7 +44,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     @Test
     void shouldArriveByTramNoWalk() {
         long maxNumberOfJourneys = 3;
-        TramTime arriveBy = TramTime.of(14,35);
+        TramTime arriveByTime = TramTime.of(14,35);
         LocalDate localDate = TestEnv.testDay();
 
         Station start = TramStations.of(TramStations.Bury);
@@ -54,7 +54,7 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
         Stream<Journey> journeyStream = Stream.empty();
 
         EasyMock.expect(costCalculator.getApproxCostBetween(txn, start, destinationId)).andReturn(costBetweenStartDest);
-        TramTime requiredDepartTime = arriveBy.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
+        TramTime requiredDepartTime = arriveByTime.minusMinutes(costBetweenStartDest).minusMinutes(17); // 17 = 34/2
 
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(serviceDate, requiredDepartTime, true,
                 5, 120, maxNumberOfJourneys);
@@ -62,7 +62,8 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
         EasyMock.expect(config.getMaxInitialWait()).andReturn(34);
 
         replayAll();
-        JourneyRequest originalRequest = new JourneyRequest(serviceDate, arriveBy, false, 5, 120, maxNumberOfJourneys);
+        JourneyRequest originalRequest = new JourneyRequest(serviceDate, arriveByTime, true, 5,
+                120, maxNumberOfJourneys);
         Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(txn, start, destinationId, originalRequest);
         verifyAll();
         assertSame(journeyStream, result);

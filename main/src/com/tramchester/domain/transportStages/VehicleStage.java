@@ -138,30 +138,18 @@ public class VehicleStage implements TransportStage<Station, Station> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        VehicleStage that = (VehicleStage) o;
+        VehicleStage stage = (VehicleStage) o;
 
-        if (cost != that.cost) return false;
-        if (!firstStation.equals(that.firstStation)) return false;
-        if (!lastStation.equals(that.lastStation)) return false;
-        if (mode != that.mode) return false;
-        if (!stopSequenceNumbers.equals(that.stopSequenceNumbers)) return false;
-        if (!trip.equals(that.trip)) return false;
-        if (!departFirstStationTime.equals(that.departFirstStationTime)) return false;
-        if (!route.equals(that.route)) return false;
-        return platform.equals(that.platform);
+        if (!firstStation.equals(stage.firstStation)) return false;
+        if (!lastStation.equals(stage.lastStation)) return false;
+        return trip.equals(stage.trip);
     }
 
     @Override
     public int hashCode() {
         int result = firstStation.hashCode();
         result = 31 * result + lastStation.hashCode();
-        result = 31 * result + mode.hashCode();
-        result = 31 * result + stopSequenceNumbers.hashCode();
         result = 31 * result + trip.hashCode();
-        result = 31 * result + departFirstStationTime.hashCode();
-        result = 31 * result + route.hashCode();
-        result = 31 * result + cost;
-        result = 31 * result + platform.hashCode();
         return result;
     }
 

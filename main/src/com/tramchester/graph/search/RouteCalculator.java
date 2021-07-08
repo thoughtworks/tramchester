@@ -8,7 +8,6 @@ import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.CreateQueryTimes;
-import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
@@ -109,6 +108,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
+        final Finished finished = new Finished(journeyRequest);
+        if (walkAtStart) {
+            finished.needToSeeAllWalksFrom(startNode);
+        }
+
         final Instant begin = providesNow.getInstant();
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
@@ -116,12 +120,17 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, createPreviousVisits(),
                         lowestCostSeen, begin)).
-                limit(journeyRequest.getMaxNumberOfJourneys()).
+                takeWhile(finished::notDoneYet).
+                //limit(journeyRequest.getMaxNumberOfJourneys()).
                 map(path -> createJourney(txn, journeyRequest, path, destinations));
 
         results.onClose(() -> logger.info("Journey stream closed"));
 
         return results;
+    }
+
+    private boolean notDone(TimedPath timedPath) {
+        return false;
     }
 
     public static class TimedPath {

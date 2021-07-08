@@ -8,7 +8,6 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -39,31 +38,27 @@ public class NoPlatformStationState extends StationState {
 
         public NoPlatformStationState fromWalking(WalkingState walkingState, Node node, int cost) {
             return new NoPlatformStationState(walkingState,
-                    boardRelationshipsPlus(walkingState.traversalOps, node, GROUPED_TO_PARENT, NEIGHBOUR),
-                    //node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT, NEIGHBOUR),
+                    boardRelationshipsPlus(node, GROUPED_TO_PARENT, NEIGHBOUR),
                     cost, node);
         }
 
         public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, int cost) {
             return new NoPlatformStationState(notStartedState,
-                    boardRelationshipsPlus(notStartedState.traversalOps, node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
-                    //node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
+                    boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
                     cost, node);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
             // end of a trip, may need to go back to this route station to catch new service
             return new NoPlatformStationState(routeStationState,
-                    boardRelationshipsPlus(routeStationState.traversalOps, node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
-                    //node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
+                    boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
                     cost, node);
         }
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
             Stream<Relationship> stationRelationships = filterExcludingEndNode(
-                    boardRelationshipsPlus(onTrip.traversalOps, node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
-                    //node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
+                    boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
                     onTrip);
             return new NoPlatformStationState(onTrip, stationRelationships, cost, node);
         }
@@ -80,10 +75,10 @@ public class NoPlatformStationState extends StationState {
                     cost,  node);
         }
 
-        Stream<Relationship> boardRelationshipsPlus(TraversalOps ops, Node node, TransportRelationshipTypes... others) {
-            Stream<Relationship> board = Streams.stream(node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD));
+        Stream<Relationship> boardRelationshipsPlus(Node node, TransportRelationshipTypes... others) {
             Stream<Relationship> other = Streams.stream(node.getRelationships(OUTGOING, others));
-            //return Stream.concat(board, other);
+            Stream<Relationship> board = Streams.stream(node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD));
+            // order matters here, i.e. explore walks first
             return Stream.concat(other, board);
         }
 

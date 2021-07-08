@@ -37,6 +37,13 @@ public class JourneyRequest {
         warnIfNoResults = true;
     }
 
+    public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {
+        this(originalRequest.date, computedDepartTime, originalRequest.arriveBy, originalRequest.maxChanges,
+                originalRequest.maxJourneyDuration, originalRequest.maxNumberOfJourneys);
+        diagnostics = originalRequest.diagnostics;
+        warnIfNoResults = originalRequest.warnIfNoResults;
+    }
+
     public TramServiceDate getDate() {
         return date;
     }

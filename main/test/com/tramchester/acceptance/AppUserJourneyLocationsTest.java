@@ -46,6 +46,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         createFactory(true);
     }
 
+    @SuppressWarnings("unused")
     private static Stream<ProvidesDriver> getProvider() {
         return getProviderCommon();
     }

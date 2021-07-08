@@ -12,6 +12,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -19,19 +20,22 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.cypher.internal.expressions.SemanticDirection;
+import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
 import static java.lang.String.format;
 
 public class RouteCalculatorSupport {
@@ -226,6 +230,40 @@ public class RouteCalculatorSupport {
                     '}';
         }
 
+    }
+
+    public static class Finished {
+
+        private final AtomicInteger count;
+        private final long maxJourneys;
+        private Set<Long> needToSee;
+
+        public Finished(JourneyRequest journeyRequest) {
+            this.maxJourneys = journeyRequest.getMaxNumberOfJourneys();
+            count = new AtomicInteger(0);
+            needToSee = Collections.emptySet();
+        }
+
+        public boolean notDoneYet(RouteCalculator.TimedPath path) {
+            if (!needToSee.isEmpty()) {
+                Relationship firstRelationship = path.getPath().relationships().iterator().next();
+                needToSee.remove(firstRelationship.getId());
+                logger.info(needToSee.size() +" walks still to be seen");
+                return true;
+            }
+
+            count.incrementAndGet();
+            return count.get() <= maxJourneys || !needToSee.isEmpty();
+        }
+
+        public void needToSeeAllWalksFrom(Node startNode) {
+            Iterable<Relationship> walks = startNode.getRelationships(Direction.OUTGOING, WALKS_TO);
+            needToSee = new HashSet<>();
+            for (Relationship relationship : walks) {
+                needToSee.add(relationship.getId());
+            }
+            logger.info("Added " +needToSee.size() + " walks");
+        }
     }
 
 

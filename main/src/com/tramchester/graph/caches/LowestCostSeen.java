@@ -1,5 +1,7 @@
 package com.tramchester.graph.caches;
 
+import com.tramchester.graph.search.ImmutableJourneyState;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LowestCostSeen {
@@ -21,19 +23,26 @@ public class LowestCostSeen {
         lowestCost.getAndSet(cost);
     }
 
-    public void setLowestNumChanges(int numberChanges) {
-        lowestNumChanges.getAndSet(numberChanges);
-    }
-
     public int getLowestNumChanges() {
         return lowestNumChanges.get();
     }
 
-    public void incrementArrived() {
-        arrived.incrementAndGet();
-    }
-
     public boolean everArrived() {
         return arrived.get()>0;
+    }
+
+    public boolean isLower(ImmutableJourneyState journeyState) {
+        // <= equals so we include multiple options and routes in the results
+        // An alternative to this would be to search over a finer grained list of times and catch alternatives
+        // that way
+        return  (journeyState.getTotalCostSoFar() <= getLowestCost()
+                && journeyState.getNumberChanges() <= getLowestNumChanges());
+
+    }
+
+    public void setLowestCost(ImmutableJourneyState journeyState) {
+        arrived.incrementAndGet();
+        lowestNumChanges.getAndSet(journeyState.getNumberChanges());
+        setLowestCost(journeyState.getTotalCostSoFar());
     }
 }

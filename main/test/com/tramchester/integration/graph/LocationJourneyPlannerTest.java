@@ -269,6 +269,24 @@ class LocationJourneyPlannerTest {
     }
 
     @Test
+    void shouldHaveNearAltyToDeansgate() {
+        // mirrors test in AppUserJourneyLocationsTest
+
+        // TODO Need to increase maxNumberJourneys at start so we try all walks at the beginning??
+        final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(10, 15),
+                false, 1, maxJourneyDuration, this.maxNumberOfJourneys);
+
+        Set<Journey> unsorted = planner.quickestRouteForLocation(nearAltrincham, TramStations.Deansgate, request, 2);
+        assertFalse(unsorted.isEmpty());
+
+        List<Journey> sorted = unsorted.stream().
+                sorted(Comparator.comparing(Journey::getDepartTime)).collect(Collectors.toList());
+
+        Journey earliestDepart = sorted.get(0);
+        assertEquals(TramTime.of(10,19), earliestDepart.getDepartTime());
+    }
+
+    @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(9, 0),
                 false, 0, maxJourneyDuration, maxNumberOfJourneys);

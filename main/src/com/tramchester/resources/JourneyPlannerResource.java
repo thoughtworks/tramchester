@@ -136,7 +136,9 @@ public class JourneyPlannerResource extends UsesRecentCookie {
         return responseBuilder.build();
     }
 
-    private Stream<JourneyDTO> getJourneyDTOStream(String startId, String endId, String departureTimeRaw, String departureDateRaw, String lat, String lon, String arriveByRaw, int maxChanges, Transaction tx) {
+    private Stream<JourneyDTO> getJourneyDTOStream(String startId, String endId, String departureTimeRaw,
+                                                   String departureDateRaw, String lat, String lon, String arriveByRaw,
+                                                   int maxChanges, Transaction tx) {
         TramTime queryTime = parseTime(departureTimeRaw);
         JourneyRequest journeyRequest = createJourneyRequest(departureDateRaw, arriveByRaw, maxChanges,
                 queryTime, config.getMaxJourneyDuration(), config.getMaxNumResults());
