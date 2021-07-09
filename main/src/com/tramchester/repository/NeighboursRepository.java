@@ -12,7 +12,6 @@ import java.util.List;
 
 @ImplementedBy(CreateNeighbours.class)
 public interface NeighboursRepository {
-    IdSet<Station> getStationsWithNeighbours(TransportMode mode);
     List<StationLink> getAll();
     IdSet<Station> getNeighboursFor(IdFor<Station> id);
     boolean differentModesOnly();

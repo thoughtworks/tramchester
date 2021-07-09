@@ -36,8 +36,11 @@ import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
+public
 class TransportDataFromFilesBusTest {
 
+    public static final int TGFM_BUS_AGENCIES = 41;
+    public static final int TGFM_BUS_ROUTES = 1382;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
@@ -63,11 +66,18 @@ class TransportDataFromFilesBusTest {
     }
 
     @Test
-    void shouldHaveExpectedNumbersForBus() {
-        assertEquals(41, transportData.getAgencies().size());
+    void shouldHaveExpectedAgenciesNumbersForBus() {
+        assertEquals(TGFM_BUS_AGENCIES, transportData.getAgencies().size());
+    }
 
+    @Test
+    void shouldHaveRouteNumbersForBus() {
         int numberRoutes = transportData.getRoutes().size();
-        assertTrue(withinNPercent(1333, numberRoutes, 0.1F), Integer.toString(numberRoutes));
+        assertEquals(TGFM_BUS_ROUTES, numberRoutes);
+    }
+
+    @Test
+    void shouldHaveExpectedStationAndPlatformNumbersForBus() {
 
         int numStations = transportData.getStations().size();
         assertTrue(numStations > 15400, "big change");

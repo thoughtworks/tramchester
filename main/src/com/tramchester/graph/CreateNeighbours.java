@@ -193,14 +193,6 @@ public class CreateNeighbours extends CreateNodesAndRelationships implements Nei
     }
 
     @Override
-    public IdSet<Station> getStationsWithNeighbours(TransportMode mode) {
-        return neighbours.keySet().stream().
-                map(stationRepository::getStationById).
-                filter(station -> station.serves(mode)).
-                collect(IdSet.collector());
-    }
-
-    @Override
     public List<StationLink> getAll() {
         final Set<TransportMode> walk = Collections.singleton(TransportMode.Walk);
         return neighbours.entrySet().stream().

@@ -3,7 +3,6 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
@@ -13,15 +12,12 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
-import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.*;
@@ -31,12 +27,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.NEIGHBOUR;
-import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_ROUTES;
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,44 +93,6 @@ class CreateNeighboursTest {
     @AfterEach
     void onceAfterEachTestHasRun() {
         txn.close();
-    }
-
-    @Test
-    void shouldNotHaveBoth() {
-        long both = stationRepository.getStationStream().
-                filter(station -> (station.serves(Tram) && station.serves(Bus))).count();
-        assertEquals(0, both);
-    }
-
-    // tram here should make TransportDataFromFilesTest numbers
-    @Test
-    void shouldHaveExpectedNumbersForTram() {
-
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        long tramRoutes = getTramRoutes(routeRepository).count();
-        assertEquals(NUM_TFGM_TRAM_ROUTES, tramRoutes);
-
-        final Set<Station> stationsForMode = stationRepository.getStationsForMode(Tram);
-        long tram = stationsForMode.size();
-        assertEquals(NUM_TFGM_TRAM_STATIONS, tram);
-    }
-
-    @Test
-    void shouldHaveCorrectStationsForRoutes() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        Set<Route> tramRoutes = getTramRoutes(routeRepository).collect(Collectors.toSet());
-
-        Set<Station> stationsOnTramRoutes = stationRepository.getStationsForMode(Tram).stream().
-                filter(station -> station.getRoutes().stream().anyMatch(tramRoutes::contains)).
-                collect(Collectors.toSet());
-
-        assertEquals(NUM_TFGM_TRAM_STATIONS, stationsOnTramRoutes.size());
-
-    }
-
-    @NotNull
-    private Stream<Route> getTramRoutes(RouteRepository routeRepository) {
-        return routeRepository.getRoutes().stream().filter(route -> route.getTransportMode().equals(Tram));
     }
 
     @Test
