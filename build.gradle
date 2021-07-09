@@ -36,7 +36,7 @@ dependencies {
     implementation 'com.google.inject:guice:5.0.1'
     implementation('org.neo4j:neo4j:4.2.6') { exclude group:'org.slf4j', module:'slf4j-nop' }
     implementation 'com.github.cliftonlabs:json-simple:3.1.1',
-            'commons-io:commons-io:2.8.0',
+            'commons-io:commons-io:2.10.0',
             'org.apache.httpcomponents:httpclient:4.5.13',
             'org.apache.commons:commons-collections4:4.4',
             'com.github.ben-manes.caffeine:caffeine:3.0.2'
