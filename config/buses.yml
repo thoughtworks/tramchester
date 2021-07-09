@@ -18,8 +18,6 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: buses.db
   neo4jPagecacheMemory: 300m
-  initialHeapSize: 100m
-  maxHeapSize: 200m
 stationClosures: []
 gtfsSourceConfig:
   -

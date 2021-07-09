@@ -14,6 +14,4 @@ public interface GraphDBConfig {
     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
     String getNeo4jPagecacheMemory();
 
-    String getInitialHeapSize();
-    String getMaxHeapSize();
 }

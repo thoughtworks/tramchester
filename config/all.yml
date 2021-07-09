@@ -18,8 +18,6 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: databases/all.db
   neo4jPagecacheMemory: 1500m
-  initialHeapSize: 100m
-  maxHeapSize: 200m
 stationClosures: []
 instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig:

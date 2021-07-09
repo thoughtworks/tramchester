@@ -21,13 +21,4 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return "100m";
     }
 
-    @Override
-    public String getInitialHeapSize() {
-        return "100m";
-    }
-
-    @Override
-    public String getMaxHeapSize() {
-        return "200m";
-    }
 }
