@@ -10,7 +10,6 @@ import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
-import org.neo4j.configuration.ExternalSettings;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.configuration.SettingValueParsers;
 import org.neo4j.configuration.connectors.BoltConnector;
@@ -52,7 +51,7 @@ import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAM
 public class GraphDatabase implements DatabaseEventListener {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
     private static final int SHUTDOWN_TIMEOUT = 200;
-    private static final int STARTUP_TIMEOUT = 200;
+    private static final int STARTUP_TIMEOUT = 1000;
 
     private final TramchesterConfig configuration;
     private final DataSourceRepository transportData;
@@ -223,8 +222,8 @@ public class GraphDatabase implements DatabaseEventListener {
             // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
 
             setConfig(GraphDatabaseSettings.pagecache_memory, config.getNeo4jPagecacheMemory()).
-            setConfig(ExternalSettings.initial_heap_size, config.getInitialHeapSize()).
-            setConfig(ExternalSettings.max_heap_size, config.getMaxHeapSize()).
+//            setConfig(ExternalSettings.initial_heap_size, config.getInitialHeapSize()).
+//            setConfig(ExternalSettings.max_heap_size, config.getMaxHeapSize()).
             // TODO This one into config?
             //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
             setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
@@ -246,11 +245,17 @@ public class GraphDatabase implements DatabaseEventListener {
 
         // for community edition must be DEFAULT_DATABASE_NAME
         logger.info("GraphDatabaseService start for " + dbName + " at " + graphDBConfig.getDbPath());
+
         GraphDatabaseService graphDatabaseService = managementService.database(dbName);
 
+        managementService.listDatabases().forEach(databaseName -> {
+            logger.info("Database from managementService: " + databaseName);
+        });
+
         logger.info("Wait for GraphDatabaseService available");
-        int retries = 10;
-        while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
+        int retries = 100;
+        // NOTE: DB can just silently fail to start if updated net4j versions, so cleanGraph in this scenario
+        while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT) && retries>0) {
             logger.error("GraphDatabaseService is not available, name: " + dbName +
                     " Path: " + graphFile.toAbsolutePath() + " check " + retries);
             retries--;
@@ -279,12 +284,6 @@ public class GraphDatabase implements DatabaseEventListener {
             Transaction tx = timed.transaction();
             Schema schema = tx.schema();
 
-//            configuration.getTransportModes().forEach(mode -> {
-//                GraphLabel label = GraphLabel.forMode(mode);
-//                createUniqueIdConstraintFor(schema, label, GraphPropertyKey.STATION_ID);
-//                schema.indexFor(label).on(GraphPropertyKey.ROUTE_ID.getText()).create();
-//            });
-
             schema.indexFor(GraphLabel.STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
             createUniqueIdConstraintFor(schema, GraphLabel.STATION, GraphPropertyKey.STATION_ID);
 
@@ -308,8 +307,14 @@ public class GraphDatabase implements DatabaseEventListener {
 
         schema.getIndexes().forEach(indexDefinition -> {
             Schema.IndexState state = schema.getIndexState(indexDefinition);
-            logger.info(String.format("Index label %s keys %s state %s",
-                indexDefinition.getLabels(), indexDefinition.getPropertyKeys(), state));
+            if (indexDefinition.isNodeIndex()) {
+                logger.info(String.format("Node Index %s labels %s keys %s state %s",
+                        indexDefinition.getName(),
+                        indexDefinition.getLabels(), indexDefinition.getPropertyKeys(), state));
+            } else {
+                logger.info(String.format("Non-Node Index %s keys %s state %s",
+                        indexDefinition.getName(), indexDefinition.getPropertyKeys(), state));
+            }
         });
 
         schema.getConstraints().forEach(definition -> logger.info(String.format("Constraint label %s keys %s type %s",

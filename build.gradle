@@ -148,6 +148,7 @@ clean {
 }
 
 run {
+    //maxHeapSize = '150m'
     dependsOn 'webpack'
     args 'server', 'config/local.yml'
 }
