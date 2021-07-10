@@ -112,7 +112,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             } else {
                 logger.info("Total is " + costs.size() + " " + costs.size()/fullyConnectedPercentage +"%");
             }
-            linksForRoutes.clear();
+            //linksForRoutes.clear();
             linksForRoutes = newLinksForRoutes;
         }
 
@@ -134,6 +134,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // for each reachable route, find the routes we can in turn reach from them not already found previous degree
             final Set<Integer> newConnections = connectedToRoute.parallelStream().
+                    filter(index -> currentlyReachableRoutes.containsKey(index)).
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
                     map(routeSet -> costs.notAlreadyAdded(routeIndex, routeSet)).
@@ -192,27 +193,27 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-    private void addOverlapsFor(Station interchange, InterimResults linksForDegree) {
-        List<IdFor<Route>> list = interchange.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
-        int size = list.size();
-        for (int i = 0; i < size; i++) {
-            final IdFor<Route> fromId = list.get(i);
-            final int from = index.find(fromId);
-            if (!linksForDegree.containsKey(from)) {
-                linksForDegree.put(from, new HashSet<>());
-            }
-            for (int j = 0; j < size; j++) {
-                if (i != j) {
-                    final IdFor<Route> towardsId = list.get(j);
-                    final int towards = index.find(towardsId);
-                    linksForDegree.get(from).add(towards);
-                    if (!costs.contains(from, towards)) {
-                        costs.put(from, towards, (byte) 1);
-                    }
-                }
-            }
-        }
-    }
+//    private void addOverlapsFor(Station interchange, InterimResults linksForDegree) {
+//        List<IdFor<Route>> list = interchange.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
+//        int size = list.size();
+//        for (int i = 0; i < size; i++) {
+//            final IdFor<Route> fromId = list.get(i);
+//            final int from = index.find(fromId);
+//            if (!linksForDegree.containsKey(from)) {
+//                linksForDegree.put(from, new HashSet<>());
+//            }
+//            for (int j = 0; j < size; j++) {
+//                if (i != j) {
+//                    final IdFor<Route> towardsId = list.get(j);
+//                    final int towards = index.find(towardsId);
+//                    linksForDegree.get(from).add(towards);
+//                    if (!costs.contains(from, towards)) {
+//                        costs.put(from, towards, (byte) 1);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     public int getFor(Route routeA, Route routeB) {
         if (routeA.equals(routeB)) {
@@ -319,6 +320,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             logger.info("Creating index");
             List<IdFor<Route>> routesList = routeRepository.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
             createIndex(routesList);
+            logger.info("Added " + map.size() +" index entries");
         }
 
         private void createIndex(List<IdFor<Route>> routesList) {
@@ -487,11 +489,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         public Set<Map.Entry<Integer, Set<Integer>>> entrySet() {
-            return theMap.entrySet();
+            return Collections.unmodifiableSet(theMap.entrySet());
         }
 
         public Set<Integer> get(int routeIndex) {
-            return theMap.get(routeIndex);
+            final Set<Integer> result = theMap.get(routeIndex);
+            if (result==null) {
+                throw new RuntimeException("Got null entry for index " + routeIndex+ " map " + theMap);
+            }
+            return result;
         }
 
         // only storing new things to add here, hence the put
@@ -501,7 +507,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         public void addTo(Costs costs, byte degree) {
             // todo could optimise further by getting row first, then updating each element for that row
-            theMap.forEach((key, dests) -> dests.forEach(dest -> costs.put(key, dest, degree)));
+            theMap.forEach((key, dests) ->
+                    dests.forEach(dest -> costs.put(key, dest, degree)));
         }
     }
 

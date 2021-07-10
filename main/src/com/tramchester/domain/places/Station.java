@@ -8,6 +8,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,7 +73,7 @@ public class Station implements Location<Station> {
 
     @Override
     public Set<TransportMode> getTransportModes() {
-        return servesRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
+        return servesRoutes.stream().map(Route::getTransportMode).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -86,7 +87,7 @@ public class Station implements Location<Station> {
     }
 
     public Set<Platform> getPlatformsForRoute(Route route) {
-        return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toSet());
+        return platforms.stream().filter(platform -> platform.getRoutes().contains(route)).collect(Collectors.toUnmodifiableSet());
     }
 
     public boolean hasPlatform(IdFor<Platform> platformId) {
@@ -94,16 +95,16 @@ public class Station implements Location<Station> {
     }
 
     public Set<Route> getRoutes() {
-        return servesRoutes;
+        return Collections.unmodifiableSet(servesRoutes);
     }
 
     public Set<Agency> getAgencies() {
-        return servesAgencies;
+        return Collections.unmodifiableSet(servesAgencies);
     }
 
     @Override
     public Set<Platform> getPlatforms() {
-        return platforms;
+        return  Collections.unmodifiableSet(platforms);
     }
 
     public boolean servesRoute(Route route) {

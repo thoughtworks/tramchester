@@ -293,7 +293,7 @@ public class GraphDatabase implements DatabaseEventListener {
 
             schema.indexFor(GraphLabel.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
 
-            tx.commit();
+            timed.commit();
         }
     }
 

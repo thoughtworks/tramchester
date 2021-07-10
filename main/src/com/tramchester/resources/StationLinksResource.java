@@ -89,7 +89,7 @@ public class StationLinksResource {
             return Response.ok(Collections.<StationLinkDTO>emptyList()).build();
         }
 
-        List<StationLink> allLinks = neighboursRepository.getAll();
+        Set<StationLink> allLinks = neighboursRepository.getAll();
 
         List<StationLinkDTO> results = allLinks.stream().
                 filter(StationLink::hasValidLatlongs).

@@ -103,7 +103,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Station> getStations() {
-        return stationsById.getValues();
+        return Collections.unmodifiableSet(stationsById.getValues());
     }
 
     @Override
@@ -127,14 +127,14 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<RouteStation> getRouteStations() {
-        return routeStations.getValues();
+        return Collections.unmodifiableSet(routeStations.getValues());
     }
 
     @Override
     public Set<RouteStation> getRouteStationsFor(IdFor<Station> stationId) {
         final Set<RouteStation> result = routeStations.getValuesStream().
                 filter(routeStation -> routeStation.getStation().getId().equals(stationId)).
-                collect(Collectors.toSet());
+                collect(Collectors.toUnmodifiableSet());
         if (result.isEmpty()) {
             logger.warn("Found no route stations for " + stationId);
         }
@@ -158,7 +158,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Service> getServices() {
-        return services.getValues();
+        return Collections.unmodifiableSet(services.getValues());
     }
 
     @Override
@@ -184,7 +184,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Platform> getPlatforms() {
-        return platforms.getValues();
+        return Collections.unmodifiableSet(platforms.getValues());
     }
 
     @Override
@@ -199,7 +199,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<Agency> getAgencies() {
-        return agencies.getValues();
+        return Collections.unmodifiableSet(agencies.getValues());
     }
 
     @Override
@@ -212,7 +212,7 @@ public class TransportDataContainer implements TransportData {
 
     @Override
     public Set<DataSourceInfo> getDataSourceInfo() {
-        return dataSourceInfos;
+        return Collections.unmodifiableSet(dataSourceInfos);
     }
 
     @Override
@@ -325,7 +325,7 @@ public class TransportDataContainer implements TransportData {
         return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getShortName().equals(shortName)).
-                collect(Collectors.toSet());
+                collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -333,7 +333,7 @@ public class TransportDataContainer implements TransportData {
         return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getName().equals(longName)).
-                collect(Collectors.toSet());
+                collect(Collectors.toUnmodifiableSet());
     }
 
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {

@@ -102,7 +102,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private Node createGroupedStationNodes(Transaction txn, CompositeStation compositeStation) {
-        Node stationNode = CompositeStationGraphBuilder.this.createGraphNode(txn, GraphLabel.GROUPED);
+        Node stationNode = createGraphNode(txn, GraphLabel.GROUPED);
         setProperty(stationNode, compositeStation);
         return stationNode;
     }
@@ -113,7 +113,6 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
-//                filter(station -> graphFilter.shouldIncludeRoutes(station.getRoutes())).
                 forEach(station -> {
                     int cost = CoordinateTransforms.calcCostInMinutes(parent, station, mph);
                     Node childNode = builderCache.getStation(txn, station.getId());

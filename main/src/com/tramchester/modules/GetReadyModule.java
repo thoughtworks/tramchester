@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.graph.AddNeighboursGraphBuilder;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -29,6 +30,11 @@ public class GetReadyModule extends AbstractModule {
 
     @Provides
     CompositeStationGraphBuilder.Ready providesReadyToken(CompositeStationGraphBuilder graphBuilder) {
+        return graphBuilder.getReady();
+    }
+
+    @Provides
+    AddNeighboursGraphBuilder.Ready providesReadyToken(AddNeighboursGraphBuilder graphBuilder) {
         return graphBuilder.getReady();
     }
 

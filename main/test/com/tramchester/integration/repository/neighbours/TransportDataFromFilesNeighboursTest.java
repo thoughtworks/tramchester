@@ -60,9 +60,6 @@ public class TransportDataFromFilesNeighboursTest {
         agencyRepository = componentContainer.get(AgencyRepository.class);
 
         compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
-
-        // force creation and init
-        //componentContainer.get(CreateNeighbours.class);
     }
 
     @Test

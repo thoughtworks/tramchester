@@ -4,6 +4,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,12 +18,13 @@ public class InterchangeStation {
 
     public InterchangeStation(Station station, Set<Route> connectedToRoutes) {
         this.station = station;
-        this.connectedToRoutes = connectedToRoutes;
+        this.connectedToRoutes = new HashSet<>(connectedToRoutes);
     }
 
     public boolean isMultiMode() {
-        Set<TransportMode> routeModes = connectedToRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
-        return routeModes.size()>1;
+        Set<TransportMode> uniqueModes = connectedToRoutes.stream().map(Route::getTransportMode).collect(Collectors.toSet());
+        uniqueModes.addAll(station.getTransportModes());
+        return uniqueModes.size()>1;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class InterchangeStation {
     }
 
     public Set<Route> getDestinationRoutes() {
-        return connectedToRoutes;
+        return Collections.unmodifiableSet(connectedToRoutes);
     }
 
     public IdFor<Station> getStationId() {

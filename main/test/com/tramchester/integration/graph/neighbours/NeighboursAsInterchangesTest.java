@@ -62,7 +62,7 @@ public class NeighboursAsInterchangesTest {
         assertTrue(results.isPresent(), "missing");
 
         InterchangeStation interchange = results.get();
-        assertTrue(interchange.isMultiMode(), "multimode");
+        assertTrue(interchange.isMultiMode(), "not multimode "  +interchange);
 
     }
 

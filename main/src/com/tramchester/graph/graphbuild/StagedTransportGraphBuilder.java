@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.AddNeighboursGraphBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.GraphFilter;
@@ -68,7 +69,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     @Inject
     public StagedTransportGraphBuilder(GraphDatabase graphDatabase, HasGraphDBConfig config, GraphFilter graphFilter,
                                        TransportData transportData, InterchangeRepository interchangeRepository,
-                                       GraphBuilderCache builderCache, StationsAndLinksGraphBuilder.Ready readyToken) {
+                                       GraphBuilderCache builderCache,
+                                       StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt)
+//                                        ,AddNeighboursGraphBuilder.Ready neighboursReady)
+    {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
