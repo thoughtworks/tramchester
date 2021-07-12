@@ -31,7 +31,13 @@ export default {
     methods: {
         updateValue(value) {
             this.$emit('input', value);
-        }
+        },
+        getArea: function(station) {
+            if (station.area === "") {
+                return "";
+            }
+            return ", " + station.area;
+        },
     },
     computed: {
         allstops: function () {
@@ -91,7 +97,7 @@ export default {
             v-model="current"
             maxMatches=20
             minMatchingChars=3
-            :serializer="item => item.name + ', ' + item.area +' (' + item.transportModes +')' "
+            :serializer="item => item.name + getArea(item) +' (' + item.transportModes +')' "
             @hit="updateValue($event.id)"
             placeholder="Select a location"
             v-if="bus"
