@@ -47,8 +47,8 @@ public class PreviousVisits implements ReportsCacheStats {
         hourNodePrevious.invalidateAll();
     }
 
-    public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState) {
-        EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
+    public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
+//        EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             TramTime journeyClock = journeyState.getJourneyClock();
 
@@ -59,9 +59,9 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    public ServiceReason.ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState) {
+    public ServiceReason.ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
 
-        EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
+        //EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time

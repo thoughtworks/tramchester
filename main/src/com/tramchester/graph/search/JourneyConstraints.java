@@ -38,6 +38,7 @@ public class JourneyConstraints {
     private final int maxJourneyDuration;
     private final int maxWalkingConnections;
     private final int maxNeighbourConnections;
+    private final Set<Route> destinationRoutes;
 
     public JourneyConstraints(TramchesterConfig config, ServiceRepository serviceRepository, JourneyRequest journeyRequest,
                               Set<Station> endStations) {
@@ -61,6 +62,9 @@ public class JourneyConstraints {
         if (!closedStations.isEmpty()) {
             logger.info("Have closed stationed " + closedStations);
         }
+
+        destinationRoutes = endStations.stream().
+                map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
 
     }
 
@@ -108,7 +112,6 @@ public class JourneyConstraints {
     }
 
     public Set<Route> getRouteDestinationIsOn() {
-        return endStations.stream().
-                map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toSet());
+        return destinationRoutes;
     }
 }

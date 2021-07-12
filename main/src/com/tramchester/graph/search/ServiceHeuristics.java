@@ -101,9 +101,8 @@ public class ServiceHeuristics {
     }
 
     public ServiceReason interestedInHour(HowIGotHere howIGotHere, Node node, TramTime journeyClockTime,
-                                          ServiceReasons reasons, int maxWait) {
+                                          ServiceReasons reasons, int maxWait,  EnumSet<GraphLabel> labels) {
         reasons.incrementTotalChecked();
-        EnumSet<GraphLabel> labels = nodeOperations.getLabels(node);
 
         int queryTimeHour = journeyClockTime.getHourOfDay();
         //noinspection SuspiciousMethodCalls

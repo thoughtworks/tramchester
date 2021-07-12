@@ -108,7 +108,7 @@ public class RouteCalculatorSupport {
         }
 
         if (computedMaxChanges > requestedMaxChanges) {
-            logger.error(format("Request max changes (%s) is greater then max in journey request (%s)",
+            logger.error(format("Computed max changes (%s) is greater then max in journey request (%s)",
                     computedMaxChanges, requestedMaxChanges));
         }
 

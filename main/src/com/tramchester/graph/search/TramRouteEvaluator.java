@@ -71,9 +71,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final ImmutableJourneyState journeyState = state.getState();
         final Node nextNode = path.endNode();
 
+        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
+
         // NOTE: This makes a very(!) significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
-        ServiceReason.ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState);
+        ServiceReason.ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
         if (previousResult != ServiceReason.ReasonCode.PreviousCacheMiss) {
             final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState);
             final TramTime journeyClock = journeyState.getJourneyClock();
@@ -81,10 +83,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
-        final ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode);
+        final ServiceReason.ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels);
         final Evaluation result = decideEvaluationAction(reasonCode);
 
-        previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState);
+        previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState, labels);
 
         return result;
     }
@@ -101,7 +103,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         };
     }
 
-    private ServiceReason.ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode) {
+    private ServiceReason.ReasonCode doEvaluate(Path thePath, ImmutableJourneyState journeyState, Node nextNode, EnumSet<GraphLabel> labels) {
 
         final long nextNodeId = nextNode.getId();
 
@@ -176,9 +178,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return ServiceReason.ReasonCode.ReturnedToStart;
         }
 
-        // these next are ordered by frequency / number of nodes of type
-        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
-
         final TramTime visitingTime = journeyState.getJourneyClock();
         final int timeToWait = journeyState.hasBegunJourney() ? maxWait : maxInitialWait;
         // --> Minute
@@ -190,10 +189,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
+        /////
+        // these next are ordered by frequency / number of nodes of type
+
         // -->Hour
         // check time, just hour first
         if (labels.contains(GraphLabel.HOUR)) {
-            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait).isValid()) {
+            if (!serviceHeuristics.interestedInHour(howIGotHere, nextNode, visitingTime, reasons, timeToWait, labels).isValid()) {
                 return ServiceReason.ReasonCode.NotAtHour;
             }
         }
