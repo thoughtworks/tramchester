@@ -17,6 +17,7 @@ import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.RouteToRouteCosts;
@@ -50,7 +51,7 @@ public class LocationJourneyPlanner {
     private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabase;
     private final MarginInMeters margin;
-    private final RouteToRouteCosts routeToRouteCosts;
+    private final BetweenRoutesCostRepository routeToRouteCosts;
 
     @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
@@ -254,24 +255,18 @@ public class LocationJourneyPlanner {
 
     private NumberOfChanges findNumberChanges(Station start, List<StationWalk> walksToDest) {
         Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
-        int min = routeToRouteCosts.minRouteHops(Collections.singleton(start), destinations);
-        int max = routeToRouteCosts.maxRouteHops(Collections.singleton(start), destinations);
-        return new NumberOfChanges(min, max);
+        return routeToRouteCosts.getNumberOfChanges(Collections.singleton(start), destinations);
     }
 
     private NumberOfChanges findNumberChanges(List<StationWalk> walksToStart, Station destination) {
         Set<Station> starts = walksToStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
-        int min = routeToRouteCosts.minRouteHops(starts, Collections.singleton(destination));
-        int max = routeToRouteCosts.maxRouteHops(starts, Collections.singleton(destination));
-        return new NumberOfChanges(min, max);
+        return routeToRouteCosts.getNumberOfChanges(starts, Collections.singleton(destination));
     }
 
     private NumberOfChanges findNumberChanges(List<StationWalk> walksAtStart, List<StationWalk> walksToDest) {
         Set<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(Collectors.toSet());
         Set<Station> starts = walksAtStart.stream().map(StationWalk::getStation).collect(Collectors.toSet());
-        int min = routeToRouteCosts.minRouteHops(starts, destinations);
-        int max = routeToRouteCosts.maxRouteHops(starts, destinations);
-        return new NumberOfChanges(min, max);
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations);
     }
 
     private List<StationWalk> createWalks(LatLong latLong, List<Station> startStations) {

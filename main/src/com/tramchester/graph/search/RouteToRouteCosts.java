@@ -6,6 +6,7 @@ import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.data.RouteMatrixData;
 import com.tramchester.domain.InterchangeStation;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -14,6 +15,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.RouteRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +44,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
+    private final NeighboursRepository neighboursRepository;
 
     private final Costs costs;
     private final Index index;
@@ -50,9 +53,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Inject
     public RouteToRouteCosts(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
-                             DataCache dataCache, GraphFilter graphFilter) {
+                             NeighboursRepository neighboursRepository, DataCache dataCache, GraphFilter graphFilter) {
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
+        this.neighboursRepository = neighboursRepository;
         this.dataCache = dataCache;
         this.graphFilter = graphFilter;
 
@@ -134,7 +138,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // for each reachable route, find the routes we can in turn reach from them not already found previous degree
             final Set<Integer> newConnections = connectedToRoute.parallelStream().
-                    filter(index -> currentlyReachableRoutes.containsKey(index)).
+                    filter(currentlyReachableRoutes::containsKey).
                     map(currentlyReachableRoutes::get).
                     filter(routeSet -> !routeSet.isEmpty()).
                     map(routeSet -> costs.notAlreadyAdded(routeIndex, routeSet)).
@@ -155,7 +159,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         logger.info("Added " + added + " extra connections for degree " + currentDegree + " in " + took + " ms");
         return additional;
     }
-
 
     private InterimResults addInitialConnectionsFromInterchanges() {
         // seed connections between routes using interchanges
@@ -193,28 +196,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
     }
 
-//    private void addOverlapsFor(Station interchange, InterimResults linksForDegree) {
-//        List<IdFor<Route>> list = interchange.getRoutes().stream().map(Route::getId).collect(Collectors.toList());
-//        int size = list.size();
-//        for (int i = 0; i < size; i++) {
-//            final IdFor<Route> fromId = list.get(i);
-//            final int from = index.find(fromId);
-//            if (!linksForDegree.containsKey(from)) {
-//                linksForDegree.put(from, new HashSet<>());
-//            }
-//            for (int j = 0; j < size; j++) {
-//                if (i != j) {
-//                    final IdFor<Route> towardsId = list.get(j);
-//                    final int towards = index.find(towardsId);
-//                    linksForDegree.get(from).add(towards);
-//                    if (!costs.contains(from, towards)) {
-//                        costs.put(from, towards, (byte) 1);
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     public int getFor(Route routeA, Route routeB) {
         if (routeA.equals(routeB)) {
             return 0;
@@ -238,30 +219,48 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public int minRouteHops(Station start, Station end) {
-        return minHops(start.getRoutes(), end.getRoutes());
+    public NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
+        if (areNeighbours(starts, destinations)) {
+            return new NumberOfChanges(0, maxHops(routesFor(starts), routesFor(destinations)));
+        }
+        return getNumberOfHops(routesFor(starts), routesFor(destinations));
     }
 
-
     @Override
-    public int minRouteHops(Set<Station> starts, Set<Station> destinations) {
-        return minHops(routesFor(starts), routesFor(destinations));
+    public NumberOfChanges getNumberOfChanges(Station startStation, Station destination) {
+        if (areNeighbours(startStation, destination)) {
+            return new NumberOfChanges(0, maxHops(startStation.getRoutes(), destination.getRoutes()));
+        }
+        return getNumberOfHops(startStation.getRoutes(), destination.getRoutes());
+    }
+
+    private boolean areNeighbours(Station startStation, Station destination) {
+        if (!neighboursRepository.hasNeighbours(startStation.getId())) {
+            return false;
+        }
+        Set<Station> neighbours = neighboursRepository.getNeighboursFor(startStation.getId());
+        return neighbours.contains(destination);
+    }
+
+    private boolean areNeighbours(Set<Station> starts, Set<Station> destinations) {
+        return starts.stream().
+                map(Station::getId).
+                filter(neighboursRepository::hasNeighbours).
+                map(neighboursRepository::getNeighboursFor).
+                anyMatch(neighbours -> destinations.stream().anyMatch(neighbours::contains));
+    }
+
+    @NotNull
+    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes) {
+        int minHops = minHops(startRoutes, destinationRoutes);
+        int maxHops = maxHops(startRoutes, destinationRoutes);
+        return new NumberOfChanges(minHops, maxHops);
     }
 
     private int minHops(Set<Route> startRoutes, Set<Route> endRoutes) {
         return startRoutes.stream().
                 flatMap(startRoute -> endRoutes.stream().map(endRoute -> getFor(startRoute, endRoute))).
                 min(Integer::compare).orElse(Integer.MAX_VALUE);
-    }
-
-    @Override
-    public int maxRouteHops(Station start, Station end) {
-        return maxHops(start.getRoutes(), end.getRoutes());
-    }
-
-    @Override
-    public int maxRouteHops(Set<Station> starts, Set<Station> destinations) {
-        return maxHops(routesFor(starts), routesFor(destinations));
     }
 
     private Integer maxHops(Set<Route> startRoutes, Set<Route> endRoutes) {

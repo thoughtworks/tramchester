@@ -101,20 +101,21 @@ public class RouteCalculatorSupport {
     protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         final int requestedMaxChanges = journeyRequest.getMaxChanges();
         final int computedMaxChanges = numberOfChanges.getMax();
+        final int computedMinChanges = numberOfChanges.getMin();
+
+        if (requestedMaxChanges < computedMinChanges) {
+            logger.error("Requested max changes is less than computed minimum changes needed");
+        }
 
         if (computedMaxChanges > requestedMaxChanges) {
-            logger.info(format("Number of changes max (%s) is greater then max in journey request (%s)",
+            logger.error(format("Request max changes (%s) is greater then max in journey request (%s)",
                     computedMaxChanges, requestedMaxChanges));
         }
-        // TODO Issue with MediaCity to Velocity and beyond means this does not work
-        final int max = Math.min(computedMaxChanges, requestedMaxChanges);
-        final int min = numberOfChanges.getMin();
-        if (requestedMaxChanges<min) {
-            logger.warn(format("Minimum number of changes needed (%s) is overridden by journey request (%s)", min, requestedMaxChanges));
-        }
 
-        logger.info("Will check journey from " + min + " to " + max +" changes");
-        return IntStream.rangeClosed(min, max).boxed();
+        int max = Math.min(computedMaxChanges, requestedMaxChanges);
+
+        logger.info("Will check journey from " + computedMinChanges + " to " + max +" changes. Computed was " + numberOfChanges);
+        return IntStream.rangeClosed(computedMinChanges, max).boxed();
     }
 
     @NotNull

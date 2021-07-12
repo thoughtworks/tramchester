@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -65,7 +66,7 @@ public class BusRouteToRouteCostsTest {
         CompositeStation start = stationRepository.findByName("Altrincham Interchange");
         CompositeStation end = stationRepository.findByName("Stockport Bus Station");
 
-        assertEquals(0, routeToRouteCosts.minRouteHops(start, end));
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(start, end).getMin());
     }
 
     @Test
@@ -73,8 +74,9 @@ public class BusRouteToRouteCostsTest {
         CompositeStation start = stationRepository.findByName("Altrincham Interchange");
         CompositeStation end = stationRepository.findByName("Shudehill Interchange");
 
-        assertEquals(1, routeToRouteCosts.minRouteHops(start, end));
-        assertEquals(3, routeToRouteCosts.maxRouteHops(start, end));
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end);
+        assertEquals(1, numberOfChanges.getMin());
+        assertEquals(3, numberOfChanges.getMax());
     }
 
     @Test
@@ -82,8 +84,10 @@ public class BusRouteToRouteCostsTest {
         Station start = stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
         CompositeStation end = stationRepository.findByName("Shudehill Interchange");
 
-        assertEquals(2, routeToRouteCosts.minRouteHops(start, end));
-        assertEquals(3, routeToRouteCosts.maxRouteHops(start, end));
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end);
+
+        assertEquals(2, numberOfChanges.getMin());
+        assertEquals(3, numberOfChanges.getMax());
     }
 
     @Test

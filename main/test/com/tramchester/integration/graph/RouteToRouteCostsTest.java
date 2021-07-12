@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DataLoader;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.data.RouteMatrixData;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
@@ -124,45 +125,45 @@ public class RouteToRouteCostsTest {
     void shouldFindLowestHopCountForTwoStations() {
         Station start = stationRepository.getStationById(TramStations.Altrincham.getId());
         Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        int result = routeCosts.minRouteHops(start, end);
+        NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
-        assertEquals(1, result);
+        assertEquals(1, result.getMin());
     }
 
     @Test
     void shouldFindHighestHopCountForTwoStations() {
         Station start = stationRepository.getStationById(TramStations.Ashton.getId());
         Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        int result = routeCosts.maxRouteHops(start, end);
+        NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
-        assertEquals(1, result);
+        assertEquals(1, result.getMax());
     }
 
     @Test
     void shouldFindLowestHopCountForTwoStationsSameRoute() {
         Station start = stationRepository.getStationById(TramStations.Victoria.getId());
         Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        int result = routeCosts.minRouteHops(start, end);
+        NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
-        assertEquals(0, result);
+        assertEquals(0, result.getMin());
     }
 
     @Test
     void shouldFindMediaCityHops() {
         Station start = stationRepository.getStationById(TramStations.MediaCityUK.getId());
         Station end = stationRepository.getStationById(TramStations.Ashton.getId());
-        int result = routeCosts.minRouteHops(start, end);
+        NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
-        assertEquals(0, result);
+        assertEquals(0, result.getMin());
     }
 
     @Test
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = stationRepository.getStationById(TramStations.Victoria.getId());
         Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
-        int result = routeCosts.maxRouteHops(start, end);
+        NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
-        assertEquals(1, result);
+        assertEquals(1, result.getMax());
     }
 
     @Test

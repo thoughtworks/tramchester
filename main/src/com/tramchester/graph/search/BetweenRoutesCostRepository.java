@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.google.inject.ImplementedBy;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
@@ -15,9 +16,6 @@ public interface BetweenRoutesCostRepository {
     <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds);
     int size();
 
-    int minRouteHops(Station start, Station end);
-    int maxRouteHops(Station start, Station end);
-
-    int minRouteHops(Set<Station> starts, Set<Station> destinations);
-    int maxRouteHops(Set<Station> starts, Set<Station> destinations);
+    NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations);
+    NumberOfChanges getNumberOfChanges(Station startStation, Station destination);
 }

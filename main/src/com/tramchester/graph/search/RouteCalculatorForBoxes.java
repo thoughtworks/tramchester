@@ -7,7 +7,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -102,8 +101,6 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     }
 
     private NumberOfChanges computeNumberOfChanges(Set<Station> starts, Set<Station> destinations) {
-        int min = routeToRouteCosts.minRouteHops(starts, destinations);
-        int max = routeToRouteCosts.maxRouteHops(starts, destinations);
-        return new NumberOfChanges(min, max);
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations);
     }
 }
