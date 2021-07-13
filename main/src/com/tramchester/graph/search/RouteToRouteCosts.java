@@ -189,6 +189,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                     final int towards = index.find(towardsId);
                     linksForDegree.get(from).add(towards);
                     if (!costs.contains(from, towards)) {
+
                         costs.put(from, towards, (byte) 1);
                     }
                 }
@@ -232,6 +233,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return new NumberOfChanges(0, maxHops(startStation.getRoutes(), destination.getRoutes()));
         }
         return getNumberOfHops(startStation.getRoutes(), destination.getRoutes());
+    }
+
+    @Override
+    public int getFewestChanges(Route startingRoute, Set<Route> destinationRoutes) {
+        return destinationRoutes.stream().
+                    map(destRoute -> getFor(startingRoute, destRoute)).
+                    min(Comparator.comparingInt(a -> a)).orElse(Integer.MAX_VALUE);
     }
 
     private boolean areNeighbours(Station startStation, Station destination) {

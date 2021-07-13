@@ -74,9 +74,6 @@ class AddNeighboursGraphBuilderTest {
         shudehillCompositeBus = compositeStationRepository.findByName("Shudehill Interchange");
         shudehillTram = compositeStationRepository.getStationById(Shudehill.getId());
 
-        // force creation and init
-        //componentContainer.get(AddNeighboursGraphBuilder.class);
-
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 

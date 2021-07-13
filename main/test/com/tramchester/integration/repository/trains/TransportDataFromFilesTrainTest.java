@@ -38,8 +38,10 @@ import static com.tramchester.testSupport.TestEnv.ArrivaTrainsWales;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
-class TransportDataFromFilesTrainTest {
+public class TransportDataFromFilesTrainTest {
 
+    public static final int GB_RAIL_AGENCIES = 30;
+    public static final int GB_RAIL_NUM_STATIONS = 2652;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
@@ -64,7 +66,7 @@ class TransportDataFromFilesTrainTest {
 
     @Test
     void shouldHaveCheckForStations() {
-        assertEquals(2652,transportData.getStations().size());
+        assertEquals(GB_RAIL_NUM_STATIONS,transportData.getStations().size());
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());
@@ -73,7 +75,7 @@ class TransportDataFromFilesTrainTest {
     @Test
     void shouldGetAgencies() {
         List<Agency> agencies = new ArrayList<>(transportData.getAgencies());
-        assertEquals(30, agencies.size());
+        assertEquals(GB_RAIL_AGENCIES, agencies.size());
         assertTrue(agencies.contains(ArrivaTrainsWales));
     }
 
@@ -124,6 +126,7 @@ class TransportDataFromFilesTrainTest {
         Station derby = transportData.getStationById(StringIdFor.createId("DBY"));
         assertNotNull(derby);
         assertEquals("Derby", derby.getName());
+        assertEquals("", derby.getArea());
 
         Station edinburgh = transportData.getStationById(StringIdFor.createId("EDB"));
         assertNotNull(edinburgh);

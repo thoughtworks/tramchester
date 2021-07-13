@@ -28,6 +28,7 @@ public class IntegrationTrainTestConfig extends IntegrationTestConfig {
         graphDBConfig = new GraphDBIntegrationTrainTestConfig("integrationTrainTest", dbFilename);
         sourceConfig = new RailTestDataSourceConfig("data/trains");
         remoteDataRailConfig = new RailRemoteDataSourceConfig("data/trains");
+
     }
 
     @Override

@@ -155,11 +155,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
         Node node = createMock(Node.class);
 
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_8));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_9));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_10));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_11));
-
         replayAll();
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
         assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_9)).isValid());
@@ -179,11 +174,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime elapsed = TramTime.of(10,29);
         Node node = createMock(Node.class);
-
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_8));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_9));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_10));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_11));
 
         replayAll();
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
@@ -208,11 +198,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         Node node = createMock(Node.class);
 
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_22));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_23));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_0));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_1));
-
         replayAll();
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
         assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
@@ -234,11 +219,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         Node node = createMock(Node.class);
-
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_22));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_23));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_0));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_1));
 
         replayAll();
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid()); // before
@@ -262,10 +242,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         Node node = createMock(Node.class);
 
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_23));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_0));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_1));
-
         replayAll();
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
         assertTrue(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_0)).isValid());
@@ -286,10 +262,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         Node node = createMock(Node.class);
-
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_23));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_0));
-//        EasyMock.expect(nodeContentsCache.getLabels(node)).andReturn(EnumSet.of(HOUR_1));
 
         replayAll();
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, node, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
@@ -450,12 +422,13 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.getRouteStationById(routeStationId)).andStubReturn(routeStation);
         EasyMock.expect(journeyConstraints.getRouteDestinationIsOn()).andStubReturn(Collections.singleton(destRoute));
 
+
         // 1
-        EasyMock.expect(routeToRouteCosts.getFor(route, destRoute)).andReturn(1);
+        EasyMock.expect(routeToRouteCosts.getFewestChanges(route, Collections.singleton(destRoute))).andReturn(1);
 
         // 2
-        EasyMock.expect(routeToRouteCosts.getFor(route, destRoute)).andReturn(2);
-
+        EasyMock.expect(routeToRouteCosts.getFewestChanges(route, Collections.singleton(destRoute))).andReturn(2);
+        
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime,
                 routeToRouteCosts, 2);

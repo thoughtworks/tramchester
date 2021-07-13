@@ -41,6 +41,7 @@ class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 41;
     public static final int TGFM_BUS_ROUTES = 1382;
+    public static final int NUM_TFGM_BUS_STATIONS = 15649;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
@@ -80,8 +81,7 @@ class TransportDataFromFilesBusTest {
     void shouldHaveExpectedStationAndPlatformNumbersForBus() {
 
         int numStations = transportData.getStations().size();
-        assertTrue(numStations > 15400, "big change");
-        assertTrue(numStations < 16400, "big change");
+        assertEquals(NUM_TFGM_BUS_STATIONS, numStations);
 
         // no platforms represented in train data
         assertEquals(0, transportData.getPlatforms().size());

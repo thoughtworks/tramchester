@@ -148,11 +148,13 @@ public class ServiceHeuristics {
             throw new RuntimeException(message);
         }
 
+        if (currentNumberOfChanges > currentChangesLimit) {
+            return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));
+        }
+
         Route currentRoute = routeStation.getRoute();
         Set<Route> routes = journeyConstraints.getRouteDestinationIsOn();
-        int fewestChanges = routes.stream().
-                map(destRoute -> routeToRouteCosts.getFor(currentRoute, destRoute)).
-                min(Comparator.comparingInt(a -> a)).orElse(Integer.MAX_VALUE);
+        int fewestChanges = routeToRouteCosts.getFewestChanges(currentRoute, routes);
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
             return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));

@@ -22,6 +22,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
     private TramTime latestDepart = null;
     private int lastIndex;
     private int firstIndex;
+    private boolean filtered; // at least one station on this trip was filtered out
 
     @Deprecated
     public Trip(String tripId, String headSign, Service service, Route route) {
@@ -36,6 +37,7 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
         stopCalls = new StopCalls(tripId);
         lastIndex = Integer.MIN_VALUE;
         firstIndex = Integer.MAX_VALUE;
+        filtered = false;
     }
 
     @Override
@@ -133,5 +135,13 @@ public class Trip implements HasId<Trip>, HasTransportMode, GraphProperty {
     @Override
     public GraphPropertyKey getProp() {
         return GraphPropertyKey.TRIP_ID;
+    }
+
+    public void setFiltered(boolean flag) {
+        this.filtered = flag;
+    }
+
+    public boolean isFiltered() {
+        return filtered;
     }
 }

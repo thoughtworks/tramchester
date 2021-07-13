@@ -342,24 +342,25 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void createBoardingAndDepart(Transaction tx, GraphBuilderCache routeBuilderCache, StopCall stopCall,
                                          Route route, Trip trip) {
 
-        // TODO when filtering this isn't really valid, we might only see a small segment of a larger trip....
-        // In unfiltered situations (i.e. not testing) it is fine
-        boolean isFirstStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfFirstStop(); //stop seq num, not index
-        boolean isLastStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfLastStop();
-
         boolean pickup = stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular);
         boolean dropoff = stopCall.getDropoffType().equals(GTFSPickupDropoffType.Regular);
 
         Station station = stopCall.getStation();
-        TramTime departureTime = stopCall.getDepartureTime();
 
-        if (isFirstStop && dropoff) {
-            String msg = "Drop off at first station for stop " + station.getId() + " dep time " + departureTime;
+        // TODO when filtering this isn't really valid, we might only see a small segment of a larger trip....
+        // In unfiltered situations (i.e. not testing) it is fine
+
+        boolean isFirstStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfFirstStop();
+        if (isFirstStop && dropoff && !trip.isFiltered()) {
+            String msg = "Drop off at first station for stop " + station.getId() + " trip " + trip.getId() + " " + stopCall.getDropoffType()
+                    + " seq:" + stopCall.getGetSequenceNumber();
             logger.info(msg);
         }
 
-        if (isLastStop && pickup) {
-            String msg = "Pick up at last station for stop " + station.getId() + " dep time " + departureTime;
+        boolean isLastStop = stopCall.getGetSequenceNumber() == trip.getSeqNumOfLastStop();
+        if (isLastStop && pickup && !trip.isFiltered()) {
+            String msg = "Pick up at last station for stop " + station.getId() + " trip " + trip.getId() + " " + stopCall.getPickupType()
+                    + " seq:" + stopCall.getGetSequenceNumber();
             logger.info(msg);
         }
 

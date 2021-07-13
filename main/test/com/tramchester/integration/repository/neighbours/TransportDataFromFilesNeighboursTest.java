@@ -114,7 +114,6 @@ public class TransportDataFromFilesNeighboursTest {
         assertEquals(0, both);
     }
 
-    // tram here should make TransportDataFromFilesTest numbers
     @Test
     void shouldHaveExpectedNumbersForTram() {
 

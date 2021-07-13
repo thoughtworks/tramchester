@@ -257,8 +257,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
             String stopId = stopTimeData.getStopId();
             IdFor<Station> stationId = factory.formStationId(stopId);
 
-            if (preloadStations.hasId(stationId)) {
-                Trip trip = trips.get(stopTimeData.getTripId());
+                    final IdFor<Trip> stopTripId = stopTimeData.getTripId();
+                    if (preloadStations.hasId(stationId)) {
+                Trip trip = trips.get(stopTripId);
 
                 Station station = preloadStations.get(stationId);
                 Route route = trip.getRoute();
@@ -296,6 +297,12 @@ public class TransportDataFromFiles implements TransportDataFactory {
 
             } else {
                 excludedStations.add(stationId);
+                if (trips.hasId(stopTripId)) {
+                    Trip trip = trips.get(stopTripId);
+                    trip.setFiltered(true);
+                } else {
+                    logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));
+                }
             }
         });
         if (!excludedStations.isEmpty()) {
@@ -337,6 +344,10 @@ public class TransportDataFromFiles implements TransportDataFactory {
             if (station.hasPlatforms()) {
                 station.getPlatforms().forEach(container::addPlatform);
             }
+            if (!station.getLatLong().isValid()) {
+                logger.warn("Station has invalid postion " + station);
+            }
+
         }
 
         if (!container.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
@@ -453,7 +464,6 @@ public class TransportDataFromFiles implements TransportDataFactory {
                     logger.info("Excluding stop outside of bounds" + stopData);
                 }
             } else {
-                logger.warn("Stop has invalid postion " + stopData);
                 preLoadStation(allStations, stopData, GridPosition.Invalid, factory);
             }
         });

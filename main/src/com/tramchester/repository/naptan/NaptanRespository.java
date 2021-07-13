@@ -43,7 +43,7 @@ public class NaptanRespository {
             logger.info("Not enabled");
             return;
         } else {
-            loadDataForConfiguredArea();
+            loadStopDataForConfiguredArea();
         }
         logger.info("started");
     }
@@ -56,7 +56,7 @@ public class NaptanRespository {
         logger.info("stopped");
     }
 
-    private void loadDataForConfiguredArea() {
+    private void loadStopDataForConfiguredArea() {
         BoundingBox bounds = config.getBounds();
         logger.info("Loading data for " + bounds);
         Double range = config.getNearestStopForWalkingRangeKM();
