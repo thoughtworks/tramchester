@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -45,6 +44,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
     private final NeighboursRepository neighboursRepository;
+    private final ByteComparator byteComparator;
 
     private final Costs costs;
     private final Index index;
@@ -59,6 +59,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         this.neighboursRepository = neighboursRepository;
         this.dataCache = dataCache;
         this.graphFilter = graphFilter;
+        byteComparator = new ByteComparator();
 
         int numberOfRoutes = routeRepository.numberOfRoutes();
         index = new Index(numberOfRoutes);
@@ -245,7 +246,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 map(dest -> index.find(dest.getId())).
                 map(indexOfDest -> costs.get(indexOfStart, indexOfDest)).
                 filter(result -> result!=Costs.MAX_VALUE).
-                min(comparingByte(a -> a)).
+                min(byteComparator).
                 map(Byte::intValue).orElse(Integer.MAX_VALUE);
     }
 
@@ -300,7 +301,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds) {
         return startingRoutes.
                 map(start -> findLowestCost(start, destinationRouteIds)).
-                sorted(comparingByte(Pair::getLeft)).
+                sorted((a,b) -> byteComparator.compare(a.getLeft(), b.getLeft())).
                 map(Pair::getRight);
     }
 
@@ -315,29 +316,35 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 map(index::find).
                 filter(dest -> costs.contains(start, dest)).
                 map(dest -> costs.get(start, dest)).
-                min(comparingByte(a -> a)).orElse(Byte.MAX_VALUE);
+                min(byteComparator).orElse(Byte.MAX_VALUE);
         return Pair.of(result, hasStartId);
     }
+    
+    private static class ByteComparator implements Comparator<Byte> {
 
-    public static <T> Comparator<T> comparingByte(ToByteFunction<? super T> keyExtractor) {
-        return (Comparator<T> & Serializable)
-                (c1, c2) -> Byte.compare(keyExtractor.applyAsByte(c1), keyExtractor.applyAsByte(c2));
-    }
-
-    @FunctionalInterface
-    public interface ToByteFunction<T> {
-        byte applyAsByte(T value);
+        @Override
+        public int compare(Byte byteA, Byte byteB) {
+            if (byteA.equals(byteB)) {
+                return 0;
+            }
+            if (byteA<byteB) {
+                return -1;
+            }
+            return 1;
+        }
     }
 
     private static class LowestCostForDestinations implements LowestCostsForRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
         private final Set<Integer> destinationIndexs;
+        private final ByteComparator byteComparator;
 
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.find(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
+            byteComparator = new ByteComparator();
         }
 
         @Override
@@ -349,7 +356,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             return destinationIndexs.stream().
                     map(indexOfDest -> routeToRouteCosts.costs.get(indexOfStart, indexOfDest)).
                     filter(result -> result!=Costs.MAX_VALUE).
-                    min(comparingByte(a -> a)).
+                    min(byteComparator).
                     map(Byte::intValue).orElse(Integer.MAX_VALUE);
         }
 
@@ -357,7 +364,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes) {
             return startingRoutes.
                     map(this::getLowestCost).
-                    sorted(comparingByte(Pair::getLeft)).
+                    sorted((a,b) -> byteComparator.compare(a.getLeft(), b.getLeft())).
                     map(Pair::getRight);
         }
 
@@ -371,7 +378,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             byte result = destinationIndexs.stream().
                     filter(dest -> routeToRouteCosts.costs.contains(indexOfStart, dest)).
                     map(dest -> routeToRouteCosts.costs.get(indexOfStart, dest)).
-                    min(comparingByte(a -> a)).orElse(Byte.MAX_VALUE);
+                    min(byteComparator).orElse(Byte.MAX_VALUE);
             return Pair.of(result, start);
         }
 
