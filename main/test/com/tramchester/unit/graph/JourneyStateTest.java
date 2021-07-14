@@ -11,9 +11,8 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.RouteToRouteCosts;
+import com.tramchester.graph.search.LowestCostsForRoutes;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -59,15 +58,17 @@ class JourneyStateTest extends EasyMockSupport {
         SortsPositions sortsPositions = new SortsPositions(repository);
 
         TripRepository tripRepository = createMock(TripRepository.class);
-        BetweenRoutesCostRepository routeToRouteCosts = createMock(RouteToRouteCosts.class);
+        //BetweenRoutesCostRepository routeToRouteCosts = createMock(RouteToRouteCosts.class);
         NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);
         final TramchesterConfig config = TestEnv.GET();
 
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
 
-        traversalState = new NotStartedState(new TraversalOps(nodeContentsRepository, tripRepository, sortsPositions, destinations,
-                latLongHint, routeToRouteCosts), traversalStateFactory);
+        LowestCostsForRoutes lowestCostsForRoutes = createMock(LowestCostsForRoutes.class);
+        final TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPositions,
+                destinations, latLongHint, lowestCostsForRoutes);
+        traversalState = new NotStartedState(traversalOps, traversalStateFactory);
         queryTime = TramTime.of(9, 15);
     }
 

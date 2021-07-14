@@ -27,7 +27,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import io.swagger.models.auth.In;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Node;
@@ -217,7 +216,6 @@ public class MapPathToStagesViaStatesTest {
         assertEquals(passedStops, stage.getPassedStopsCount());
     }
 
-
     private List<TransportStage<?, ?>> getStagesFor(TramTime queryTime, int numChanges, Station startStation, LatLong walkingDest) {
         JourneyRequest journeyRequest = new JourneyRequest(when, queryTime, false, numChanges,
                 150, 1);
@@ -242,7 +240,8 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, destinationStations);
+        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, lowestCostForRoutes, destinationStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, endNodeWalkNode);
 
@@ -265,7 +264,8 @@ public class MapPathToStagesViaStatesTest {
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, endStations);
+        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
+        final List<TransportStage<?, ?>> transportStages = pathToStages.mapDirect(txn, timedPath, journeyRequest, lowestCostForRoutes, endStations);
 
         locationJourneyPlanner.removeWalkNodeAndRelationships(addedRelationships, startOfWalkNode);
 
@@ -281,7 +281,8 @@ public class MapPathToStagesViaStatesTest {
         assertFalse(timedPaths.isEmpty());
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
-        return pathToStages.mapDirect(txn, timedPath, journeyRequest, endStations);
+        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
+        return pathToStages.mapDirect(txn, timedPath, journeyRequest, lowestCostForRoutes, endStations);
     }
 
     private List<RouteCalculator.TimedPath> getPathFor(Station startStation, Station destination, Set<Station> endStations,
@@ -301,9 +302,11 @@ public class MapPathToStagesViaStatesTest {
                                                                          int numChanges, TramTime queryTime) {
         PreviousVisits previous = new PreviousVisits(nodeContentsRepository);
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, endStations);
+        LowestCostsForRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
+                journeyRequest, endStations, lowestCostCalculator);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository,
-                journeyConstraints, queryTime, routeToRouteCosts, numChanges);
+                journeyConstraints, queryTime, numChanges);
 
         LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
@@ -312,7 +315,7 @@ public class MapPathToStagesViaStatesTest {
 
         Instant begin = Instant.now();
         final List<RouteCalculator.TimedPath> timedPaths = routeCalculator.findShortestPath(txn, destinationNodeIds, endStations,
-                reasons, pathRequest, previous, lowestCostSeen, begin).collect(Collectors.toList());
+                reasons, pathRequest, lowestCostCalculator, previous, lowestCostSeen, begin).collect(Collectors.toList());
         // Sort to give consistent test results, otherwise order is undefined
         return sorted(timedPaths);
     }

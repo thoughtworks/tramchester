@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.search.BetweenRoutesCostRepository;
+import com.tramchester.graph.search.LowestCostsForRoutes;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -34,8 +34,7 @@ public class TraversalOpsTest {
     private SortsPositions sortsPositions;
     private StationRepository stationRepository;
     private Transaction txn;
-    private BetweenRoutesCostRepository routeToRouteCosts;
-
+    private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -72,8 +71,9 @@ public class TraversalOpsTest {
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
         LatLong destinationLatLon = TestEnv.nearPiccGardens;
+        LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
         TraversalOps traversalOps = new TraversalOps(nodeOperations, tripRepository,
-                sortsPositions, destinationStations, destinationLatLon, routeToRouteCosts);
+                sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 

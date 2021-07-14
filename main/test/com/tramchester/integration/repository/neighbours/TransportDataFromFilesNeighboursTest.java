@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class TransportDataFromFilesNeighboursTest {
     private static ComponentContainer componentContainer;
     private CompositeStationRepository compositeStationRepository;

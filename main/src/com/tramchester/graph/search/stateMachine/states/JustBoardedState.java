@@ -67,7 +67,7 @@ public class JustBoardedState extends RouteStationState {
 
         /***
          * Order outbound relationships by end node distance to destination
-         * significant overall performance increase for non-trival geographically diverse networks
+         * significant overall performance increase for non-trivial geographically diverse networks
          */
         private Stream<Relationship> orderServicesByDistance(Node node, TraversalOps traversalOps) {
             Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);

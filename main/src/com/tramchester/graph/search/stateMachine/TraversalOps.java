@@ -11,10 +11,10 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
-import com.tramchester.graph.search.BetweenRoutesCostRepository;
+import com.tramchester.graph.search.LowestCostsForRoutes;
+import com.tramchester.graph.search.RelationshipWithRoute;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -35,12 +35,12 @@ public class TraversalOps {
     private final IdSet<Route> destinationRoutes;
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
-    private final BetweenRoutesCostRepository routeToRouteCosts;
+    private final LowestCostsForRoutes lowestCostsForRoutes;
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, Set<Station> destinationStations,
-                        LatLong destinationLatLon, BetweenRoutesCostRepository routeToRouteCosts) {
+                        LatLong destinationLatLon, LowestCostsForRoutes lowestCostsForRoutes) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
@@ -49,7 +49,7 @@ public class TraversalOps {
                 flatMap(station -> station.getRoutes().stream()).
                 collect(IdSet.collector());
         this.destinationLatLon = destinationLatLon;
-        this.routeToRouteCosts = routeToRouteCosts;
+        this.lowestCostsForRoutes = lowestCostsForRoutes;
     }
 
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
@@ -90,7 +90,7 @@ public class TraversalOps {
 
     public Stream<Relationship> orderBoardingRelationsByRouteConnections(Iterable<Relationship> toServices) {
         Stream<RelationshipWithRoute> withRouteId = Streams.stream(toServices).map(RelationshipWithRoute::new);
-        Stream<RelationshipWithRoute> sorted = routeToRouteCosts.sortByDestinations(withRouteId, destinationRoutes);
+        Stream<RelationshipWithRoute> sorted = lowestCostsForRoutes.sortByDestinations(withRouteId);
         return sorted.map(RelationshipWithRoute::getRelationship);
     }
 
@@ -153,31 +153,4 @@ public class TraversalOps {
         }
     }
 
-    private static class RelationshipWithRoute implements HasId<Route> {
-        private final Relationship relationship;
-        private final IdFor<Route> routeId;
-
-        public RelationshipWithRoute(Relationship relationship) {
-            routeId = GraphProps.getRouteIdFrom(relationship);
-            this.relationship = relationship;
-        }
-
-        public IdFor<Route> getRouteId() {
-            return routeId;
-        }
-
-        public Relationship getRelationship() {
-            return relationship;
-        }
-
-        @Override
-        public GraphPropertyKey getProp() {
-            return null;
-        }
-
-        @Override
-        public IdFor<Route> getId() {
-            return routeId;
-        }
-    }
 }

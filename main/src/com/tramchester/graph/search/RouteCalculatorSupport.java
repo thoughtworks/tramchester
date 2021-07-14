@@ -12,7 +12,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -20,7 +19,6 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.cypher.internal.expressions.SemanticDirection;
 import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,14 +118,14 @@ public class RouteCalculatorSupport {
 
     @NotNull
     private ServiceHeuristics createHeuristics(TramTime actualQueryTime, JourneyConstraints journeyConstraints, int maxNumChanges) {
-        return new ServiceHeuristics(stationRepository, nodeContentsRepository,
-                journeyConstraints, actualQueryTime, routeToRouteCosts, maxNumChanges);
+        return new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints, actualQueryTime,
+                maxNumChanges);
     }
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
                                                               final Set<Station> endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
-                                                              PreviousVisits previousSuccessfulVisit,
+                                                              LowestCostsForRoutes lowestCostsForRoutes, PreviousVisits previousSuccessfulVisit,
                                                               LowestCostSeen lowestCostSeen, Instant begin) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
@@ -138,14 +136,15 @@ public class RouteCalculatorSupport {
         logger.info("Traverse for " + pathRequest);
 
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, begin).
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, begin, lowestCostsForRoutes).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
     @NotNull
-    protected Journey createJourney(Transaction txn, JourneyRequest journeyRequest, RouteCalculator.TimedPath path, Set<Station> endStations) {
+    protected Journey createJourney(Transaction txn, JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
+                                    Set<Station> endStations, LowestCostsForRoutes lowestCostForRoutes) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(txn, path, journeyRequest, endStations);
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(txn, path, journeyRequest, lowestCostForRoutes, endStations);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
 
         if (stages.isEmpty()) {

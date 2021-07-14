@@ -14,9 +14,7 @@ import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.Set;
 
 public class ServiceHeuristics {
 
@@ -30,20 +28,19 @@ public class ServiceHeuristics {
     private final TramTime actualQueryTime;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeOperations;
-    private final BetweenRoutesCostRepository routeToRouteCosts;
     private final int currentChangesLimit;
+    private final LowestCostsForRoutes lowestCosts;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
-                             BetweenRoutesCostRepository routeToRouteCosts,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
         this.nodeOperations = nodeOperations;
 
         this.journeyConstraints = journeyConstraints;
         this.actualQueryTime = actualQueryTime;
-        this.routeToRouteCosts = routeToRouteCosts;
         this.currentChangesLimit = currentChangesLimit;
+        this.lowestCosts = journeyConstraints.getFewestChangesCalculator();
     }
     
     public ServiceReason checkServiceDate(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
@@ -153,8 +150,7 @@ public class ServiceHeuristics {
         }
 
         Route currentRoute = routeStation.getRoute();
-        Set<Route> routes = journeyConstraints.getRouteDestinationIsOn();
-        int fewestChanges = routeToRouteCosts.getFewestChanges(currentRoute, routes);
+        int fewestChanges = lowestCosts.getFewestChanges(currentRoute);
 
         if ((fewestChanges+currentNumberOfChanges) > currentChangesLimit) {
             return reasons.recordReason(ServiceReason.StationNotReachable(howIGotHere));

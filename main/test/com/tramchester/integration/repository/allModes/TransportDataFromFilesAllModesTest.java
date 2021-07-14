@@ -16,20 +16,18 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Set;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.integration.repository.buses.TransportDataFromFilesBusTest.NUM_TFGM_BUS_STATIONS;
 import static com.tramchester.integration.repository.trains.TransportDataFromFilesTrainTest.GB_RAIL_AGENCIES;
-import static com.tramchester.integration.repository.trains.TransportDataFromFilesTrainTest.GB_RAIL_NUM_STATIONS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BusTest
-public
-class TransportDataFromFilesAllModesTest {
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+public class TransportDataFromFilesAllModesTest {
 
     public static final int TGFM_BUS_AGENCIES = 41;
     private static ComponentContainer componentContainer;

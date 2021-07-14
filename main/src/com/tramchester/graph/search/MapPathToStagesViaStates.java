@@ -47,13 +47,12 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final TripRepository tripRepository;
     private final SortsPositions sortsPosition;
     private final ObjectMapper mapper;
-    private final BetweenRoutesCostRepository routeToRouteCosts;
 
     @Inject
     public MapPathToStagesViaStates(CompositeStationRepository stationRepository, PlatformRepository platformRepository,
                                     TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
                                     TripRepository tripRepository, SortsPositions sortsPosition,
-                                    ObjectMapper mapper, BetweenRoutesCostRepository routeToRouteCosts) {
+                                    ObjectMapper mapper) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;
@@ -62,12 +61,11 @@ public class MapPathToStagesViaStates implements PathToStages {
         this.sortsPosition = sortsPosition;
 
         this.mapper = mapper;
-        this.routeToRouteCosts = routeToRouteCosts;
     }
 
     @Override
     public List<TransportStage<?, ?>> mapDirect(Transaction txn, RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
-                                                Set<Station> endStations) {
+                                                LowestCostsForRoutes lowestCostForRoutes, Set<Station> endStations) {
         Path path = timedPath.getPath();
         TramTime queryTime = timedPath.getQueryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
@@ -76,7 +74,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPosition, endStations,
-                destinationLatLon, routeToRouteCosts);
+                destinationLatLon, lowestCostForRoutes);
 
         MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime, mapper);
 

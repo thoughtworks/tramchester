@@ -63,7 +63,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // TODO Compute over a range of times
         final TramTime originalTime = journeyRequest.getOriginalTime();
 
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
+        LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
+                journeyRequest, destinations, lowestCostForDestinations);
 
         Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 
@@ -85,9 +87,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         flatMap(startNode -> numChangesRange(journeyRequest, numberOfChanges).
                                 map(numChanges -> createPathRequest(startNode, originalTime, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                createServiceReasons(journeyRequest, originalTime), pathRequest, createPreviousVisits(),
-                                lowestCostSeenForBox, begin)).
-                        map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations));
+                                createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
+                                createPreviousVisits(), lowestCostSeenForBox, begin)).
+                        map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations, lowestCostForDestinations));
 
                 List<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).

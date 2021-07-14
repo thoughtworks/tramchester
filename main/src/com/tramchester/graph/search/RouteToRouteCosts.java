@@ -237,9 +237,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public int getFewestChanges(Route startingRoute, Set<Route> destinationRoutes) {
+        if (destinationRoutes.contains(startingRoute)) {
+            return 0;
+        }
+        int indexOfStart = index.find(startingRoute.getId());
         return destinationRoutes.stream().
-                    map(destRoute -> getFor(startingRoute, destRoute)).
-                    min(Comparator.comparingInt(a -> a)).orElse(Integer.MAX_VALUE);
+                map(dest -> index.find(dest.getId())).
+                map(indexOfDest -> costs.get(indexOfStart, indexOfDest)).
+                filter(result -> result!=Costs.MAX_VALUE).
+                min(comparingByte(a -> a)).
+                map(Byte::intValue).orElse(Integer.MAX_VALUE);
+    }
+
+    @Override
+    public LowestCostsForRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
+        Set<Route> destinationRoutes = destinations.stream().
+                map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
+        return new LowestCostForDestinations(this, destinationRoutes);
     }
 
     private boolean areNeighbours(Station startStation, Station destination) {
@@ -282,6 +296,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return stations.stream().flatMap(station -> station.getRoutes().stream()).collect(Collectors.toSet());
     }
 
+    @Deprecated
     public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds) {
         return startingRoutes.
                 map(start -> findLowestCost(start, destinationRouteIds)).
@@ -312,6 +327,54 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     @FunctionalInterface
     public interface ToByteFunction<T> {
         byte applyAsByte(T value);
+    }
+
+    private static class LowestCostForDestinations implements LowestCostsForRoutes {
+        private final RouteToRouteCosts routeToRouteCosts;
+        private final Set<Integer> destinationIndexs;
+
+        public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations) {
+            this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
+            destinationIndexs = destinations.stream().
+                    map(destination -> this.routeToRouteCosts.index.find(destination.getId())).
+                    collect(Collectors.toUnmodifiableSet());
+        }
+
+        @Override
+        public int getFewestChanges(Route startingRoute) {
+            int indexOfStart = routeToRouteCosts.index.find(startingRoute.getId());
+            if (destinationIndexs.contains(indexOfStart)) {
+                return 0;
+            }
+            return destinationIndexs.stream().
+                    map(indexOfDest -> routeToRouteCosts.costs.get(indexOfStart, indexOfDest)).
+                    filter(result -> result!=Costs.MAX_VALUE).
+                    min(comparingByte(a -> a)).
+                    map(Byte::intValue).orElse(Integer.MAX_VALUE);
+        }
+
+        @Override
+        public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes) {
+            return startingRoutes.
+                    map(this::getLowestCost).
+                    sorted(comparingByte(Pair::getLeft)).
+                    map(Pair::getRight);
+        }
+
+        @NotNull
+        private <T extends HasId<Route>> Pair<Byte, T> getLowestCost(T start) {
+            int indexOfStart = routeToRouteCosts.index.find(start.getId());
+            if (destinationIndexs.contains(indexOfStart)) {
+                return Pair.of((byte)0, start); // start on route that is present at destination
+            }
+
+            byte result = destinationIndexs.stream().
+                    filter(dest -> routeToRouteCosts.costs.contains(indexOfStart, dest)).
+                    map(dest -> routeToRouteCosts.costs.get(indexOfStart, dest)).
+                    min(comparingByte(a -> a)).orElse(Byte.MAX_VALUE);
+            return Pair.of(result, start);
+        }
+
     }
 
     private static class Index implements DataCache.Cacheable<RouteIndexData> {

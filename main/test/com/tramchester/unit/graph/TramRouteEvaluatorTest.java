@@ -65,10 +65,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private Long destinationNodeId;
     private Relationship lastRelationship;
     private TripRepository tripRepository;
-    private BetweenRoutesCostRepository routeToRouteCosts;
     private long startNodeId;
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
+    private LowestCostsForRoutes lowestCostsForRoutes;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -108,7 +108,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         path = createMock(Path.class);
         node = createMock(Node.class);
         lastRelationship = createMock(Relationship.class);
-        routeToRouteCosts = createMock(RouteToRouteCosts.class);
+        //routeToRouteCosts = createMock(RouteToRouteCosts.class);
+        lowestCostsForRoutes = createMock(LowestCostsForRoutes.class);
 
         howIGotHere = HowIGotHere.forTest(42L, 24L);
 
@@ -127,8 +128,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
-        return new NotStartedState(new TraversalOps(contentsRepository, tripRepository, sortsPositions, destinationStations,
-                latLongHint, routeToRouteCosts), traversalStateFactory);
+        final TraversalOps traversalOps = new TraversalOps(contentsRepository, tripRepository, sortsPositions, destinationStations,
+                latLongHint, lowestCostsForRoutes);
+        return new NotStartedState(traversalOps, traversalStateFactory);
     }
 
     @NotNull

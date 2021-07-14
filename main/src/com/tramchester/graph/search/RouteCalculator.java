@@ -101,7 +101,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository, journeyRequest, destinations);
+        LowestCostsForRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
+                journeyRequest, destinations, lowestCostsForRoutes);
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
@@ -115,19 +117,15 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                        createServiceReasons(journeyRequest, pathRequest), pathRequest, createPreviousVisits(),
+                        createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).
                 takeWhile(finished::notDoneYet).
                 //limit(journeyRequest.getMaxNumberOfJourneys()).
-                map(path -> createJourney(txn, journeyRequest, path, destinations));
+                map(path -> createJourney(txn, journeyRequest, path, destinations, lowestCostsForRoutes));
 
         results.onClose(() -> logger.info("Journey stream closed"));
 
         return results;
-    }
-
-    private boolean notDone(TimedPath timedPath) {
-        return false;
     }
 
     public static class TimedPath {

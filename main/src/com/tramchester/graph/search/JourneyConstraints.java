@@ -2,7 +2,6 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdFor;
@@ -15,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class JourneyConstraints {
 
@@ -38,11 +35,12 @@ public class JourneyConstraints {
     private final int maxJourneyDuration;
     private final int maxWalkingConnections;
     private final int maxNeighbourConnections;
-    private final Set<Route> destinationRoutes;
+    private final LowestCostsForRoutes lowestCostForDestinations;
 
     public JourneyConstraints(TramchesterConfig config, ServiceRepository serviceRepository, JourneyRequest journeyRequest,
-                              Set<Station> endStations) {
+                              Set<Station> endStations, LowestCostsForRoutes lowestCostForDestinations) {
         this.config = config;
+        this.lowestCostForDestinations = lowestCostForDestinations;
         this.runningServices = new RunningServices(journeyRequest.getDate(), serviceRepository);
         this.maxPathLength = computeMaxPathLength();
 
@@ -62,9 +60,6 @@ public class JourneyConstraints {
         if (!closedStations.isEmpty()) {
             logger.info("Have closed stationed " + closedStations);
         }
-
-        destinationRoutes = endStations.stream().
-                map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
 
     }
 
@@ -111,7 +106,7 @@ public class JourneyConstraints {
         return maxNeighbourConnections;
     }
 
-    public Set<Route> getRouteDestinationIsOn() {
-        return destinationRoutes;
+    public LowestCostsForRoutes getFewestChangesCalculator() {
+        return lowestCostForDestinations;
     }
 }

@@ -74,7 +74,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.providesNow = providesNow;
     }
 
-    public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen, Instant begin) {
+    public Stream<Path> findPaths(Transaction txn, Node startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
+                                  Instant begin, LowestCostsForRoutes lowestCostsForRoutes) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {
             logger.info("Depth first is enabled");
@@ -89,7 +90,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, endStations,
-                destinationLatLon, routeToRouteCosts);
+                destinationLatLon, lowestCostsForRoutes);
+
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 

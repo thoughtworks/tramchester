@@ -12,5 +12,5 @@ import java.util.Set;
 @ImplementedBy(MapPathToStagesViaStates.class)
 public interface PathToStages {
     List<TransportStage<?, ?>> mapDirect(Transaction txn, RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
-                                         Set<Station> endStations);
+                                         LowestCostsForRoutes lowestCostForRoutes, Set<Station> endStations);
 }
