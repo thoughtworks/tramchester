@@ -6,17 +6,18 @@ import com.tramchester.geo.GridPosition;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class JourneysForBox {
     private final BoundingBox box;
-    private final List<Journey> journeys;
+    private final Set<Journey> journeys;
 
-    public JourneysForBox(BoundingBox box, List<Journey> journeys) {
+    public JourneysForBox(BoundingBox box, Set<Journey> journeys) {
         this.box = box;
         this.journeys = journeys;
     }
 
-    public List<Journey> getJourneys() {
+    public Set<Journey> getJourneys() {
         return journeys;
     }
 
@@ -41,9 +42,9 @@ public class JourneysForBox {
     }
 
     public Journey getLowestCost() {
-        if (journeys.size()==1) {
-            return journeys.get(0);
-        }
+//        if (journeys.size()==1) {
+//            return journeys.get(0);
+//        }
         return journeys.stream().min(Comparator.comparing(Journey::getArrivalTime)).
                 orElseThrow(() -> new RuntimeException("Journeys empty"));
     }

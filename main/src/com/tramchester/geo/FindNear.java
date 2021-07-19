@@ -24,10 +24,10 @@ public class FindNear {
     public static <T extends Location<T>> Stream<T> getNearToSorted(Stream<T> positions,
                                                                     GridPosition gridPosition, MarginInMeters rangeInMeters) {
         return getNearTo(positions, gridPosition, rangeInMeters).
-            sorted((a, b) -> compareDistances(gridPosition, a.getGridPosition(), b.getGridPosition()));
+            sorted((a, b) -> compareDistancesNearestFirst(gridPosition, a.getGridPosition(), b.getGridPosition()));
     }
 
-    private static int compareDistances(GridPosition origin, GridPosition first, GridPosition second) {
+    public static int compareDistancesNearestFirst(GridPosition origin, GridPosition first, GridPosition second) {
         long firstDist = GridPositions.distanceTo(origin, first);
         long secondDist = GridPositions.distanceTo(origin, second);
         return Long.compare(firstDist, secondDist);

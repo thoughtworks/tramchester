@@ -20,4 +20,22 @@ public class BoundingBoxWithStations extends BoundingBox {
     public Set<Station> getStaions() {
         return stationsWithin;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        BoundingBoxWithStations that = (BoundingBoxWithStations) o;
+
+        return stationsWithin.equals(that.stationsWithin);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + stationsWithin.hashCode();
+        return result;
+    }
 }

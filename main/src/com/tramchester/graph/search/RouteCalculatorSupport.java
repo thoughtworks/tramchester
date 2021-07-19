@@ -131,7 +131,7 @@ public class RouteCalculatorSupport {
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(graphDatabaseService,
                 pathRequest, sortsPosition, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
-                reasons, routeToRouteCosts, reasonToGraphViz, providesNow);
+                reasons, reasonToGraphViz, providesNow);
 
         logger.info("Traverse for " + pathRequest);
 
@@ -177,7 +177,7 @@ public class RouteCalculatorSupport {
     }
 
     protected PreviousVisits createPreviousVisits() {
-        return new PreviousVisits(nodeContentsRepository);
+        return new PreviousVisits();
     }
 
     @NotNull

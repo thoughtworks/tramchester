@@ -69,7 +69,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 
-        return grouped.parallelStream().map(box -> {
+        return grouped.stream().map(box -> {
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             Set<Station> startingStations = box.getStaions();
@@ -91,9 +91,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                 createPreviousVisits(), lowestCostSeenForBox, begin)).
                         map(timedPath -> createJourney(txn, journeyRequest, timedPath, destinations, lowestCostForDestinations));
 
-                List<Journey> collect = journeys.
+                Set<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).
-                        limit(journeyRequest.getMaxNumberOfJourneys()).collect(Collectors.toList());
+                        limit(journeyRequest.getMaxNumberOfJourneys()).
+                        collect(Collectors.toSet());
 
                 // yielding
                 return new JourneysForBox(box, collect);

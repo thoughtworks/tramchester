@@ -26,12 +26,10 @@ public class PreviousVisits implements ReportsCacheStats {
 
     private static final int CACHE_DURATION_MINS = 5;
 
-    private final NodeContentsRepository contentsRepository;
     private final Cache<Long, ServiceReason.ReasonCode> timeNodePrevious;
     private final Cache<Key<TramTime>, ServiceReason.ReasonCode> hourNodePrevious;
 
-    public PreviousVisits(NodeContentsRepository contentsRepository) {
-        this.contentsRepository = contentsRepository;
+    public PreviousVisits() {
         timeNodePrevious = createCache(100000);
         hourNodePrevious = createCache(400000);
     }
@@ -48,7 +46,6 @@ public class PreviousVisits implements ReportsCacheStats {
     }
 
     public void recordVisitIfUseful(ServiceReason.ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
-//        EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             TramTime journeyClock = journeyState.getJourneyClock();
 
@@ -60,8 +57,6 @@ public class PreviousVisits implements ReportsCacheStats {
     }
 
     public ServiceReason.ReasonCode getPreviousResult(Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
-
-        //EnumSet<GraphLabel> labels = contentsRepository.getLabels(node);
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time

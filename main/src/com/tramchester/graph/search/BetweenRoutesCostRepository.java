@@ -13,13 +13,10 @@ import java.util.stream.Stream;
 @ImplementedBy(RouteToRouteCosts.class)
 public interface BetweenRoutesCostRepository {
     int getFor(Route routeA, Route routeB);
-    <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds);
     int size();
 
     NumberOfChanges getNumberOfChanges(Set<Station> starts, Set<Station> destinations);
     NumberOfChanges getNumberOfChanges(Station startStation, Station destination);
-
-    int getFewestChanges(Route startingRoute, Set<Route> destinationRoutes);
 
     LowestCostsForRoutes getLowestCostCalcutatorFor(Set<Station> desintationRoutes);
 }

@@ -10,7 +10,6 @@ import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
@@ -44,7 +43,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
     private final NeighboursRepository neighboursRepository;
-    private final ByteComparator byteComparator;
 
     private final Costs costs;
     private final Index index;
@@ -59,7 +57,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         this.neighboursRepository = neighboursRepository;
         this.dataCache = dataCache;
         this.graphFilter = graphFilter;
-        byteComparator = new ByteComparator();
 
         int numberOfRoutes = routeRepository.numberOfRoutes();
         index = new Index(numberOfRoutes);
@@ -237,20 +234,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public int getFewestChanges(Route startingRoute, Set<Route> destinationRoutes) {
-        if (destinationRoutes.contains(startingRoute)) {
-            return 0;
-        }
-        int indexOfStart = index.find(startingRoute.getId());
-        return destinationRoutes.stream().
-                map(dest -> index.find(dest.getId())).
-                map(indexOfDest -> costs.get(indexOfStart, indexOfDest)).
-                filter(result -> result!=Costs.MAX_VALUE).
-                min(byteComparator).
-                map(Byte::intValue).orElse(Integer.MAX_VALUE);
-    }
-
-    @Override
     public LowestCostsForRoutes getLowestCostCalcutatorFor(Set<Station> destinations) {
         Set<Route> destinationRoutes = destinations.stream().
                 map(Station::getRoutes).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
@@ -297,54 +280,15 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return stations.stream().flatMap(station -> station.getRoutes().stream()).collect(Collectors.toSet());
     }
 
-    @Deprecated
-    public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes, IdSet<Route> destinationRouteIds) {
-        return startingRoutes.
-                map(start -> findLowestCost(start, destinationRouteIds)).
-                sorted((a,b) -> byteComparator.compare(a.getLeft(), b.getLeft())).
-                map(Pair::getRight);
-    }
-
-    private <T extends HasId<Route>> Pair<Byte, T> findLowestCost(T hasStartId, IdSet<Route> destinations) {
-        IdFor<Route> startId = hasStartId.getId();
-        if (destinations.contains(startId)) {
-            return Pair.of((byte)0, hasStartId); // start on route that is present at destination
-        }
-
-        int start = index.find(startId);
-        byte result = destinations.stream().
-                map(index::find).
-                filter(dest -> costs.contains(start, dest)).
-                map(dest -> costs.get(start, dest)).
-                min(byteComparator).orElse(Byte.MAX_VALUE);
-        return Pair.of(result, hasStartId);
-    }
-    
-    private static class ByteComparator implements Comparator<Byte> {
-
-        @Override
-        public int compare(Byte byteA, Byte byteB) {
-            if (byteA.equals(byteB)) {
-                return 0;
-            }
-            if (byteA<byteB) {
-                return -1;
-            }
-            return 1;
-        }
-    }
-
     private static class LowestCostForDestinations implements LowestCostsForRoutes {
         private final RouteToRouteCosts routeToRouteCosts;
         private final Set<Integer> destinationIndexs;
-        private final ByteComparator byteComparator;
 
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, Set<Route> destinations) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             destinationIndexs = destinations.stream().
                     map(destination -> this.routeToRouteCosts.index.find(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
-            byteComparator = new ByteComparator();
         }
 
         @Override
@@ -353,32 +297,34 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;
             }
-            return destinationIndexs.stream().
+            // note: IntStream uses int in implementation so avoids any boxing overhead
+            return destinationIndexs.stream().mapToInt(item -> item).
                     map(indexOfDest -> routeToRouteCosts.costs.get(indexOfStart, indexOfDest)).
                     filter(result -> result!=Costs.MAX_VALUE).
-                    min(byteComparator).
-                    map(Byte::intValue).orElse(Integer.MAX_VALUE);
+                    min().
+                    orElse(Integer.MAX_VALUE);
         }
 
         @Override
         public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes) {
             return startingRoutes.
                     map(this::getLowestCost).
-                    sorted((a,b) -> byteComparator.compare(a.getLeft(), b.getLeft())).
+                    sorted(Comparator.comparingInt(Pair::getLeft)).
                     map(Pair::getRight);
         }
 
         @NotNull
-        private <T extends HasId<Route>> Pair<Byte, T> getLowestCost(T start) {
+        private <T extends HasId<Route>> Pair<Integer, T> getLowestCost(T start) {
             int indexOfStart = routeToRouteCosts.index.find(start.getId());
             if (destinationIndexs.contains(indexOfStart)) {
-                return Pair.of((byte)0, start); // start on route that is present at destination
+                return Pair.of(0, start); // start on route that is present at destination
             }
-
-            byte result = destinationIndexs.stream().
+            // note: IntStream uses int in implementation so avoids any boxing overhead
+            int result = destinationIndexs.stream().mapToInt(item -> item).
                     filter(dest -> routeToRouteCosts.costs.contains(indexOfStart, dest)).
                     map(dest -> routeToRouteCosts.costs.get(indexOfStart, dest)).
-                    min(byteComparator).orElse(Byte.MAX_VALUE);
+                    min().
+                    orElse(Integer.MAX_VALUE);
             return Pair.of(result, start);
         }
 

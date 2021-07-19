@@ -58,8 +58,12 @@ public class ServiceState extends TraversalState {
         private Stream<Relationship> getHourRelationships(Node node) {
             Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, TO_HOUR));
             if (depthFirst) {
+                // todo is the gain here worth the overhead of computing the hour for the end node?
                 return relationships.sorted(Comparator.comparingInt(
-                        relationship -> hourLabelFor(relationship.getEndNode())));
+                        relationship -> {
+                            final Node endNode = relationship.getEndNode();
+                            return hourLabelFor(endNode);
+                        }));
             }
             return relationships;
         }

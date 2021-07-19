@@ -300,7 +300,7 @@ public class MapPathToStagesViaStatesTest {
     private @NotNull List<RouteCalculator.TimedPath> getPathBetweenNodes(
             JourneyRequest journeyRequest, Node startNode, Set<Long> destinationNodeIds, Set<Station> endStations,
                                                                          int numChanges, TramTime queryTime) {
-        PreviousVisits previous = new PreviousVisits(nodeContentsRepository);
+        PreviousVisits previous = new PreviousVisits();
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         LowestCostsForRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,

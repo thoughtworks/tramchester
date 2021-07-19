@@ -13,6 +13,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
+import com.tramchester.graph.search.LowestCostsForRoutes;
 import com.tramchester.graph.search.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
@@ -28,14 +29,14 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteToRouteCostsTest {
 
@@ -168,24 +169,28 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldSortAsExpected() {
+
         Set<Route> routesA = routeHelper.get(CornbrookTheTraffordCentre);
         Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
         Set<Route> routesC = routeHelper.get(BuryPiccadilly);
 
+        Station destination = stationRepository.getStationById(TramStations.Intu.getId());
+        LowestCostsForRoutes sorts = routeCosts.getLowestCostCalcutatorFor(Collections.singleton(destination));
+
         routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {
 
-            List<HasId<Route>> toSort = Arrays.asList(routeC, routeB, routeA);
+            Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
 
-            IdSet<Route> destinations = new IdSet<>(routeA.getId());
-            Stream<HasId<Route>> results = routeCosts.sortByDestinations(toSort.stream(), destinations);
+            Stream<Route> results = sorts.sortByDestinations(toSort);
 
             List<HasId<Route>> list = results.collect(Collectors.toList());
-            assertEquals(toSort.size(), list.size());
+            assertEquals(3, list.size());
             assertEquals(routeA.getId(), list.get(0).getId());
             assertEquals(routeB.getId(), list.get(1).getId());
             assertEquals(routeC.getId(), list.get(2).getId());
         })));
     }
+
 
     @Test
     void shouldSaveIndexAsExpected() {

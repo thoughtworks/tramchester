@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
+import com.tramchester.geo.FindNear;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import org.jetbrains.annotations.NotNull;
@@ -44,20 +45,28 @@ public class FastestRoutesForBoxes {
     }
 
     @NotNull
-    public Stream<BoundingBoxWithCost> findForGrid(GridPosition destination, long gridSize, JourneyRequest journeyRequest) {
-        logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
-        List<BoundingBoxWithStations> searchGrid = stationLocations.getGroupedStations(gridSize).collect(Collectors.toList());
+    public Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, long gridSize, JourneyRequest journeyRequest) {
+        logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
+
+        Set<BoundingBoxWithStations> searchGrid = stationLocations.getGroupedStations(gridSize).collect(Collectors.toSet());
 
         BoundingBoxWithStations searchBoxWithDest = searchGrid.stream().
-                filter(box -> box.contained(destination)).findFirst().
-                orElseThrow(() -> new RuntimeException("Unable to find destination in any boxes " + destination));
+                filter(box -> box.contained(destinationGrid)).findFirst().
+                orElseThrow(() -> new RuntimeException("Unable to find destination in any boxes " + destinationGrid));
 
         Set<Station> destinations = searchBoxWithDest.getStaions();
 
         logger.info(format("Using %s groups and %s destinations", searchGrid.size(), destinations.size()));
 
-        return calculator.calculateRoutes(destinations, journeyRequest, searchGrid).
-                map(box -> cheapest(box, destination));
+        List<BoundingBoxWithStations> sortedSearchGrid = sortGridNearestFirst(searchGrid, destinationGrid);
+        return calculator.calculateRoutes(destinations, journeyRequest, sortedSearchGrid).
+                map(box -> cheapest(box, destinationGrid));
+    }
+
+    private List<BoundingBoxWithStations> sortGridNearestFirst(Set<BoundingBoxWithStations> searchGrid, GridPosition destinationGrid) {
+        return searchGrid.stream().
+                sorted((a,b) -> FindNear.compareDistancesNearestFirst(destinationGrid, a.getMidPoint(), b.getMidPoint())).
+                collect(Collectors.toList());
     }
 
     private BoundingBoxWithCost cheapest(JourneysForBox results, GridPosition destination) {

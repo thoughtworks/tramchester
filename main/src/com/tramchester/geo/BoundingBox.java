@@ -166,4 +166,10 @@ public class BoundingBox {
     public long height() {
         return Math.abs(bottomLeft.getNorthings() - topRight.getNorthings());
     }
+
+    public GridPosition getMidPoint() {
+        long midEasting = (bottomLeft.getEastings() + topRight.getEastings()) / 2;
+        long midNorthing = (bottomLeft.getNorthings() + topRight.getNorthings()) / 2;
+        return new GridPosition(midEasting, midNorthing);
+    }
 }

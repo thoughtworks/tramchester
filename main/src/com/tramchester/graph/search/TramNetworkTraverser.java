@@ -47,7 +47,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final ServiceReasons reasons;
     private final SortsPositions sortsPosition;
     private final TraversalStateFactory traversalStateFactory;
-    private final BetweenRoutesCostRepository routeToRouteCosts;
     private final RouteCalculatorSupport.PathRequest pathRequest;
     private final ReasonsToGraphViz reasonToGraphViz;
     private final ProvidesNow providesNow;
@@ -56,7 +55,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, Set<Station> endStations, TramchesterConfig config,
                                 Set<Long> destinationNodeIds, ServiceReasons reasons,
-                                BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
+                                ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
         this.graphDatabaseService = graphDatabaseService;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -66,7 +65,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.endStations = endStations;
         this.config = config;
         this.reasons = reasons;
-        this.routeToRouteCosts = routeToRouteCosts;
         this.pathRequest = pathRequest;
 
         this.actualQueryTime = pathRequest.getActualQueryTime();
@@ -142,17 +140,17 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     @Override
     public Iterable<Relationship> expand(Path path, BranchState<JourneyState> graphState) {
-        ImmutableJourneyState currentState = graphState.getState();
-        ImmuatableTraversalState traversalState = currentState.getTraversalState();
+        final ImmutableJourneyState currentState = graphState.getState();
+        final ImmuatableTraversalState traversalState = currentState.getTraversalState();
 
-        Node endNode = path.endNode();
-        JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
+        final Node endNode = path.endNode();
+        final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
         int cost = 0;
         if (path.lastRelationship()!=null) {
             cost = nodeContentsRepository.getCost(path.lastRelationship());
             if (cost>0) {
-                final int totalCost = currentState.getTotalCostSoFar(); // traversalState.getTotalCost();
+                final int totalCost = currentState.getTotalCostSoFar();
                 int total = totalCost + cost;
                 journeyStateForChildren.updateTotalCost(total);
             }
@@ -160,7 +158,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endNode);
 
-        TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
+        final TraversalState traversalStateForChildren = traversalState.nextState(labels, endNode,
                 journeyStateForChildren, cost);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
