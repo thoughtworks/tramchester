@@ -17,9 +17,6 @@ public interface StationRepository extends StationRepositoryPublic {
     int getNumberOfStations();
     Set<Station> getStations();
 
-    // live data association
-    Optional<Station> getTramStationByName(String name);
-
     /***
      * Use with care, return includes route stations present due to rare circumstances, such as return to depot
      * Normally use class RouteCallingStations instead if you want stations for a 'normally' defined route

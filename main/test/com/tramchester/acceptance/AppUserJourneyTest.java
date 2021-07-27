@@ -67,6 +67,7 @@ class AppUserJourneyTest extends UserJourneyTest {
         createFactory(false);
     }
 
+    @SuppressWarnings("unused")
     private static Stream<ProvidesDriver> getProvider() {
         return getProviderCommon();
     }

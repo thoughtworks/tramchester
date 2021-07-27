@@ -12,14 +12,14 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataHTTPFetcher;
 import com.tramchester.mappers.LiveDataParser;
+import com.tramchester.repository.TramStationByName;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -34,6 +34,7 @@ class LiveDataHTTPFetcherTest {
 
     private TransportData transportData;
     private LiveDataParser parser;
+    private TramStationByName tramStationByName;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -55,6 +56,7 @@ class LiveDataHTTPFetcherTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         parser = componentContainer.get(LiveDataParser.class);
+        tramStationByName = componentContainer.get(TramStationByName.class);
     }
 
     @Test
@@ -160,7 +162,7 @@ class LiveDataHTTPFetcherTest {
     @Test
     void shouldHaveRealStationNamesForMappings() {
         List<LiveDataParser.LiveDataNamesMapping> mappings = Arrays.asList(LiveDataParser.LiveDataNamesMapping.values());
-        mappings.forEach(mapping -> assertTrue(transportData.getTramStationByName(mapping.getToo()).isPresent(), mapping.name()));
+        mappings.forEach(mapping -> assertTrue(tramStationByName.getTramStationByName(mapping.getToo()).isPresent(), mapping.name()));
     }
 
     private Set<Lines> getLineAndDirectionFor(List<StationDepartureInfo> departureInfos, Station station) {

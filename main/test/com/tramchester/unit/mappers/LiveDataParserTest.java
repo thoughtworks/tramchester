@@ -10,6 +10,7 @@ import com.tramchester.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.LiveDataParser;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TramStationByName;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -40,11 +41,13 @@ class LiveDataParserTest extends EasyMockSupport {
 
     private LiveDataParser parser;
     private StationRepository stationRepository;
+    private TramStationByName tramStationByName;
 
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = createStrictMock(StationRepository.class);
-        parser = new LiveDataParser(stationRepository);
+        tramStationByName = createStrictMock(TramStationByName.class);
+        parser = new LiveDataParser(tramStationByName, stationRepository);
 
         Station mediaCity = of(MediaCityUK);
         mediaCity.getBuilder().addPlatform(new Platform("9400ZZMAMCU2", "Media City Platform 2", MediaCityUK.getLatLong()));
@@ -63,13 +66,13 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Deansgate);
         expectationByName(Ashton);
 
-        EasyMock.expect(stationRepository.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
-        EasyMock.expect(stationRepository.getTramStationByName("")).andStubReturn(Optional.empty());
+        EasyMock.expect(tramStationByName.getTramStationByName("See Tram Front")).andStubReturn(Optional.empty());
+        EasyMock.expect(tramStationByName.getTramStationByName("")).andStubReturn(Optional.empty());
 
     }
 
     private void expectationByName(TramStations station) {
-        EasyMock.expect(stationRepository.getTramStationByName(station.getName())).andStubReturn(Optional.of(of(station)));
+        EasyMock.expect(tramStationByName.getTramStationByName(station.getName())).andStubReturn(Optional.of(of(station)));
     }
 
     @Test

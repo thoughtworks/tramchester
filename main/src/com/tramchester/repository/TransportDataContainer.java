@@ -31,7 +31,6 @@ public class TransportDataContainer implements TransportData {
     private final IdMap<Platform> platforms = new IdMap<>(); // platformId -> platform
     private final IdMap<RouteStation> routeStations = new IdMap<>(); // routeStationId - > RouteStation
     private final IdMap<Agency> agencies = new IdMap<>(); // agencyId -> agencies
-    private final Map<String, Station> tramStationsByName = new HashMap<>();  // tram station name -> station
 
     private final Set<DataSourceInfo> dataSourceInfos = new HashSet<>();
 
@@ -53,7 +52,6 @@ public class TransportDataContainer implements TransportData {
         // clear's are here due to memory usage during testing
         trips.clear();
         stationsById.clear();
-        tramStationsByName.clear();
         services.clear();
         routes.clear();
         platforms.clear();
@@ -254,9 +252,6 @@ public class TransportDataContainer implements TransportData {
 
     public void addStation(Station station) {
         stationsById.add(station);
-        if (TransportMode.isTram(station)) {
-            tramStationsByName.put(station.getName().toLowerCase(), station);
-        }
     }
 
     public void addPlatform(Platform platform) {
@@ -294,16 +289,7 @@ public class TransportDataContainer implements TransportData {
         return Optional.empty();
     }
 
-    // TODO Move into own repo to support live data
-    @Override
-    public Optional<Station> getTramStationByName(String name) {
-        String lowerCase = name.toLowerCase();
-        if (tramStationsByName.containsKey(lowerCase)) {
-            return Optional.of(tramStationsByName.get(lowerCase));
-        } else {
-            return Optional.empty();
-        }
-    }
+
 
     @Override
     public Set<Service> getServicesOnDate(TramServiceDate date) {
@@ -361,7 +347,6 @@ public class TransportDataContainer implements TransportData {
                 ",\n platforms=" + platforms +
                 ",\n routeStations=" + routeStations +
                 ",\n agencies=" + agencies +
-                ",\n tramStationsByName=" + tramStationsByName +
                 ",\n dataSourceInfos=" + dataSourceInfos +
                 ",\n feedInfoMap=" + feedInfoMap +
                 ",\n sourceName='" + sourceName + '\'' +
