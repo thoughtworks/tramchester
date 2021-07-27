@@ -1,4 +1,4 @@
-package com.tramchester.domain.liveUpdates;
+package com.tramchester.livedata.domain.liveUpdates;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 
-public class PlatformMessage implements HasPlatformMessage {
+public class PlatformMessage {
     private final IdFor<Platform> stationPlatform;
     private final String message;
     private final LocalDateTime lastUpdate;
@@ -29,22 +29,18 @@ public class PlatformMessage implements HasPlatformMessage {
     }
 
     @NotNull
-    @Override
     public String getMessage() {
         return message;
     }
 
-    @Override
     public Station getStation() {
         return station;
     }
 
-    @Override
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }
 
-    @Override
     public String toString() {
         return "PlatformMessage{" +
                 "stationPlatform=" + stationPlatform +

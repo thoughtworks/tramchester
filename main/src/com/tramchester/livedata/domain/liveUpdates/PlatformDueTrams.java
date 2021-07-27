@@ -1,4 +1,4 @@
-package com.tramchester.domain.liveUpdates;
+package com.tramchester.livedata.domain.liveUpdates;
 
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;

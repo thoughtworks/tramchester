@@ -1,6 +1,7 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.livedata.domain.DTO;
 
 import com.tramchester.domain.presentation.Note;
+import com.tramchester.livedata.domain.DTO.DepartureDTO;
 
 import java.util.List;
 import java.util.SortedSet;

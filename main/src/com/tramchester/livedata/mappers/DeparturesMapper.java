@@ -1,9 +1,9 @@
-package com.tramchester.mappers;
+package com.tramchester.livedata.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.presentation.DTO.DepartureDTO;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.DTO.DepartureDTO;
 
 import java.time.LocalDate;
 import java.util.*;

@@ -1,6 +1,6 @@
-package com.tramchester.repository;
+package com.tramchester.livedata.repository;
 
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 
 import java.util.Collection;
 

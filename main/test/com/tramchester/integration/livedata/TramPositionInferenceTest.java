@@ -13,6 +13,8 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.LiveDataUpdater;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
+import com.tramchester.livedata.repository.DueTramsRepository;
+import com.tramchester.livedata.repository.DueTramsSource;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;

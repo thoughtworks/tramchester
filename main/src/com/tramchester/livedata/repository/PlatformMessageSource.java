@@ -1,11 +1,12 @@
-package com.tramchester.repository;
+package com.tramchester.livedata.repository;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.liveUpdates.PlatformMessage;
+import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.repository.PlatformMessageRepository;
 
 import java.time.LocalDate;
 import java.util.List;

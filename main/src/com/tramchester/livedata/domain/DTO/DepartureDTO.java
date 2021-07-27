@@ -1,11 +1,11 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.livedata.domain.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
 import com.tramchester.domain.places.Station;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;

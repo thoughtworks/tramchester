@@ -1,4 +1,4 @@
-package com.tramchester.domain.liveUpdates;
+package com.tramchester.livedata.domain.liveUpdates;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;

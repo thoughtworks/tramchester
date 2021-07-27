@@ -1,8 +1,8 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
-import com.tramchester.domain.presentation.DTO.TramPositionDTO;
+import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
+import com.tramchester.livedata.domain.DTO.TramPositionDTO;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;

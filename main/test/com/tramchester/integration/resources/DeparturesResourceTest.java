@@ -1,8 +1,8 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import com.tramchester.domain.presentation.DTO.DepartureListDTO;
+import com.tramchester.livedata.domain.DTO.DepartureDTO;
+import com.tramchester.livedata.domain.DTO.DepartureListDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;

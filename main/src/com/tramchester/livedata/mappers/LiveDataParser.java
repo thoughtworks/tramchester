@@ -1,4 +1,4 @@
-package com.tramchester.mappers;
+package com.tramchester.livedata.mappers;
 
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
@@ -9,13 +9,13 @@ import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.liveUpdates.LineDirection;
-import com.tramchester.domain.liveUpdates.Lines;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.LineDirection;
+import com.tramchester.livedata.domain.liveUpdates.Lines;
+import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TramStationByName;
+import com.tramchester.livedata.repository.TramStationByName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +28,8 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.tramchester.domain.liveUpdates.LineDirection.Both;
-import static com.tramchester.domain.liveUpdates.LineDirection.Unknown;
+import static com.tramchester.livedata.domain.liveUpdates.LineDirection.Both;
+import static com.tramchester.livedata.domain.liveUpdates.LineDirection.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 

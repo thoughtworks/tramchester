@@ -1,4 +1,7 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.livedata.domain.DTO;
+
+import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
+import com.tramchester.livedata.domain.DTO.DepartureDTO;
 
 import java.util.Set;
 

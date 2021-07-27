@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

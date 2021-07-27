@@ -1,10 +1,13 @@
-package com.tramchester.cloud.data;
+package com.tramchester.livedata.cloud;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
-import com.tramchester.repository.LiveDataObserver;
+import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.S3Keys;
+import com.tramchester.cloud.data.StationDepartureMapper;
+import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.repository.LiveDataObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

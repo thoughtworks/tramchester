@@ -1,7 +1,7 @@
 package com.tramchester.unit.liveData;
 
-import com.tramchester.cloud.data.DownloadsLiveDataFromS3;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
+import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.livedata.CountsUploadedLiveData;
 import com.tramchester.testSupport.TestEnv;

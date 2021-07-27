@@ -1,4 +1,4 @@
-package com.tramchester.domain.liveUpdates;
+package com.tramchester.livedata.domain.liveUpdates;
 
 public class LineAndDirection {
     private final Lines line;

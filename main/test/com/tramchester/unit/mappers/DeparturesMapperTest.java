@@ -1,8 +1,8 @@
 package com.tramchester.unit.mappers;
 
-import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.presentation.DTO.DepartureDTO;
-import com.tramchester.mappers.DeparturesMapper;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.DTO.DepartureDTO;
+import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMockSupport;

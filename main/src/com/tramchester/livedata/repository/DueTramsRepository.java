@@ -1,4 +1,4 @@
-package com.tramchester.repository;
+package com.tramchester.livedata.repository;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -8,18 +8,18 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.liveUpdates.PlatformDueTrams;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
+import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.mappers.DeparturesMapper;
+import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
+import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +92,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
         }
 
         // many platforms have more than one display, no need to warn about it
-        @Nullable PlatformDueTrams existingEntry = dueTramsCache.getIfPresent(platformId);
+        PlatformDueTrams existingEntry = dueTramsCache.getIfPresent(platformId);
         if (existingEntry!=null) {
             newDepartureInfo.getDueTrams().forEach(dueTram -> {
                 if (!existingEntry.hasDueTram(dueTram)) {
@@ -161,7 +161,7 @@ public class DueTramsRepository implements DueTramsSource, ReportsCacheStats, Ha
     }
 
     private Optional<PlatformDueTrams> departuresFor(IdFor<Platform> platformId) {
-        @Nullable PlatformDueTrams ifPresent = dueTramsCache.getIfPresent(platformId);
+        PlatformDueTrams ifPresent = dueTramsCache.getIfPresent(platformId);
 
         if (ifPresent==null) {
             logger.warn("Could not find departure info for " + platformId);

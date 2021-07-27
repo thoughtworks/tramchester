@@ -2,7 +2,7 @@ package com.tramchester.livedata;
 
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
 
 import java.util.Set;
 

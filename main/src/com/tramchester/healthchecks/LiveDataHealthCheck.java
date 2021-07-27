@@ -5,7 +5,7 @@ import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.repository.DueTramsRepository;
+import com.tramchester.livedata.repository.DueTramsRepository;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

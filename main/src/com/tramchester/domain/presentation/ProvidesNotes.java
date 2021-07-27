@@ -1,16 +1,15 @@
 package com.tramchester.domain.presentation;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.liveUpdates.HasPlatformMessage;
-import com.tramchester.domain.liveUpdates.PlatformMessage;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.repository.PlatformMessageSource;
+import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
+import com.tramchester.livedata.repository.PlatformMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +140,7 @@ public class ProvidesNotes {
         addRelevantNote(notes, info);
     }
 
-    private void addRelevantNote(List<Note> notes, HasPlatformMessage info) {
+    private void addRelevantNote(List<Note> notes, PlatformMessage info) {
 
         String message = info.getMessage();
         if (usefulNote(message)) {

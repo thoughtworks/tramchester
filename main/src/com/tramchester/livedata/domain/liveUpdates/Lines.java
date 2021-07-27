@@ -1,4 +1,4 @@
-package com.tramchester.domain.liveUpdates;
+package com.tramchester.livedata.domain.liveUpdates;
 
 // Live data lines are not same as timetable routes, see also Mapper
 public enum Lines {

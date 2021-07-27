@@ -1,4 +1,6 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.livedata.domain.DTO;
+
+import com.tramchester.livedata.domain.DTO.TramPositionDTO;
 
 import java.util.List;
 

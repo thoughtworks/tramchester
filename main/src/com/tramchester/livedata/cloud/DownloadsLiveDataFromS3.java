@@ -1,7 +1,10 @@
-package com.tramchester.cloud.data;
+package com.tramchester.livedata.cloud;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.cloud.data.S3Keys;
+import com.tramchester.cloud.data.StationDepartureMapper;
+import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

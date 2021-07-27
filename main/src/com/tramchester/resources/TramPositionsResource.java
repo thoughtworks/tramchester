@@ -1,15 +1,14 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.TramsPositionsDTO;
-import com.tramchester.domain.presentation.DTO.TramPositionDTO;
+import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
+import com.tramchester.livedata.domain.DTO.TramPositionDTO;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.TramPosition;
 import com.tramchester.livedata.TramPositionInference;
-import com.tramchester.mappers.DeparturesMapper;
+import com.tramchester.livedata.mappers.DeparturesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,8 +21,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.tramchester.domain.reference.TransportMode.Bus;
 
 @Api
 @Path("/positions")

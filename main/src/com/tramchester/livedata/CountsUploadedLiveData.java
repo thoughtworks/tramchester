@@ -1,8 +1,8 @@
 package com.tramchester.livedata;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.cloud.data.DownloadsLiveDataFromS3;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
+import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;

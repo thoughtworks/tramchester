@@ -1,11 +1,11 @@
 package com.tramchester.unit.cloud.data;
 
 import com.tramchester.cloud.data.ClientForS3;
-import com.tramchester.cloud.data.DownloadsLiveDataFromS3;
+import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.domain.liveUpdates.StationDepartureInfo;
-import com.tramchester.domain.presentation.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.domain.liveUpdates.StationDepartureInfo;
+import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.unit.repository.LiveDataUpdaterTest;
 import org.easymock.Capture;

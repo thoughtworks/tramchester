@@ -1,10 +1,10 @@
-package com.tramchester.repository;
+package com.tramchester.livedata.repository;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.liveUpdates.DueTram;
-import com.tramchester.domain.liveUpdates.PlatformDueTrams;
+import com.tramchester.livedata.domain.liveUpdates.DueTram;
+import com.tramchester.livedata.domain.liveUpdates.PlatformDueTrams;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 

@@ -3,7 +3,7 @@ package com.tramchester.domain.reference;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.liveUpdates.Lines;
+import com.tramchester.livedata.domain.liveUpdates.Lines;
 import com.tramchester.domain.places.Station;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.liveUpdates.Lines.*;
+import static com.tramchester.livedata.domain.liveUpdates.Lines.*;
 
 public enum CentralZoneStation {
     // Station Id -> Live Data Line
