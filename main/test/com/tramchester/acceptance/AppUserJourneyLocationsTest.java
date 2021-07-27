@@ -7,6 +7,7 @@ import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -89,7 +90,8 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         List<String> recentFromStops = appPage.getRecentFromStops();
         assertThat(allFrom, not(contains(recentFromStops)));
 
-        Assertions.assertEquals(TramStations.NumberOf, nearestFromStops.size() + allFrom.size() + recentFromStops.size());
+        Assertions.assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
+                nearestFromStops.size() + allFrom.size() + recentFromStops.size());
 
         // to
         List<String> myLocationToStops = appPage.getNearbyToStops();

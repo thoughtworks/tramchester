@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
@@ -178,7 +179,8 @@ class AppUserJourneyTest extends UserJourneyTest {
         assertThat(toRecent, hasItems(altrincham,bury));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
-        assertEquals(TramStations.NumberOf-1, remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
+        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS-1,
+                remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
         assertJourney(appPage, TramStations.ExchangeSquare.getName(), TramStations.PiccadillyGardens.getName(), "10:15", when, false);
