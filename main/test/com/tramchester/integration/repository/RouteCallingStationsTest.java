@@ -71,19 +71,26 @@ class RouteCallingStationsTest {
     @Test
     void shouldGetCorrectStationsForARouteEcclesToAsh() {
         List<Station> stations = getStationsFor(EcclesManchesterAshtonUnderLyne);
-        assertIdEquals(Eccles, stations.get(0));
-        assertIdEquals(MediaCityUK, stations.get(5));
-        assertIdEquals(Deansgate, stations.get(12));
-        assertIdEquals(Ashton, stations.get(27));
+
+        // summer 2021
+//        assertIdEquals(Eccles, stations.get(0));
+//        assertIdEquals(MediaCityUK, stations.get(5));
+//        assertIdEquals(Deansgate, stations.get(12));
+//        assertIdEquals(Ashton, stations.get(27));
+
+        // summer 2021
+        assertIdEquals(Piccadilly, stations.get(0));
     }
 
     @Test
     void shouldGetCorrectStationsForARouteAshToEccles() {
         List<Station> stations = getStationsFor(AshtonUnderLyneManchesterEccles);
         assertIdEquals(Ashton, stations.get(0));
-        assertIdEquals(Eccles, stations.get(27));
-        assertIdEquals(MediaCityUK, stations.get(22));
         assertIdEquals(Piccadilly, stations.get(12));
+
+        // summer 2021
+//        assertIdEquals(Eccles, stations.get(27));
+//        assertIdEquals(MediaCityUK, stations.get(22));
     }
 
     @Test
@@ -93,7 +100,9 @@ class RouteCallingStationsTest {
             List<Station> stations = callingStations.getStationsFor(route);
             foundEndOfLines.add(stations.get(0).getId());
         });
-        assertEquals(11, foundEndOfLines.size());
+
+        // 11->10 summer 2021
+        assertEquals(10, foundEndOfLines.size());
     }
 
     @Test
@@ -102,8 +111,9 @@ class RouteCallingStationsTest {
         assertEquals(14, getStationsFor(PiccadillyAltrincham).size());
 
         // not 27, some journeys skip mediacity UK
-        assertEquals(28, getStationsFor(AshtonUnderLyneManchesterEccles).size());
-        assertEquals(28, getStationsFor(EcclesManchesterAshtonUnderLyne).size());
+        // 28 -> 13 summer 2021
+        assertEquals(13, getStationsFor(AshtonUnderLyneManchesterEccles).size());
+        assertEquals(13, getStationsFor(EcclesManchesterAshtonUnderLyne).size());
 
         assertEquals(33, getStationsFor(EastDidisburyManchesterShawandCromptonRochdale).size());
         assertEquals(33, getStationsFor(RochdaleShawandCromptonManchesterEastDidisbury).size());

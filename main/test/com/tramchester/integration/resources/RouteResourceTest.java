@@ -46,7 +46,9 @@ class RouteResourceTest {
         assertEquals("Blue Line", ashtonRoute.getShortName().trim());
         List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
         assertTrue(ids.contains(TramStations.Ashton.forDTO()));
-        assertTrue(ids.contains(TramStations.Eccles.forDTO()));
+
+        // summer 2021
+        //assertTrue(ids.contains(TramStations.Eccles.forDTO()));
     }
 
     @Test

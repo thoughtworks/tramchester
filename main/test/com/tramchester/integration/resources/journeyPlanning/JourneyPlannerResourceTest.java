@@ -153,10 +153,13 @@ public class JourneyPlannerResourceTest {
             assertThat(platform2.getName(), is(oneOf(
                     "Cornbrook platform 1",
                     "Deansgate-Castlefield platform 1",
+                    "Piccadilly platform 1", // summer 2021 only
                     "St Peter's Square platform 2")));
             assertThat( platform2.getId(), is(oneOf(Cornbrook.forDTO()+platformNumber,
                     Deansgate.forDTO()+platformNumber,
-                    StPetersSquare.forDTO()+platformNumber)));
+                    StPetersSquare.forDTO()+platformNumber,
+                    Piccadilly.forDTO()+platformNumber // <- summer 2021 only
+            )));
         });
 
     }

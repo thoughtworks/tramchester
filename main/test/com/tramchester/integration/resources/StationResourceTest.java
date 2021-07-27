@@ -58,7 +58,9 @@ class StationResourceTest {
         Assertions.assertTrue(platformIds.contains(stationId+"4"));
 
         List<RouteRefDTO> routes = result.getRoutes();
-        assertEquals(10, routes.size());
+
+        // 10->8 summer 2021
+        assertEquals(8, routes.size());
     }
 
     @Test

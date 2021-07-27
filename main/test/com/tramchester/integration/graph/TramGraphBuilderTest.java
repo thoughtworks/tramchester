@@ -132,6 +132,7 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(StPetersSquare.getId()));
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -163,6 +164,7 @@ class TramGraphBuilderTest {
         assertEquals(0, fileSvcIds.size());
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
@@ -183,6 +185,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
         checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
@@ -204,15 +207,18 @@ class TramGraphBuilderTest {
         checkOutboundConsistency(Cornbrook, BuryManchesterAltrincham);
         checkOutboundConsistency(Cornbrook, AltrinchamManchesterBury);
 
-        checkOutboundConsistency(StPetersSquare, AshtonUnderLyneManchesterEccles);
-        checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonUnderLyne);
+        // summer 2021
+//        checkOutboundConsistency(StPetersSquare, AshtonUnderLyneManchesterEccles);
+//        checkOutboundConsistency(StPetersSquare, EcclesManchesterAshtonUnderLyne);
 
-        checkOutboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
-        checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
+        // summer 2021
+//        checkOutboundConsistency(MediaCityUK, AshtonUnderLyneManchesterEccles);
+//        checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
 
+        // summer 2021
         // consistent heading away from Media City ONLY, see below
-        checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
-        checkOutboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
+//        checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
+//        checkOutboundConsistency(Broadway, AshtonUnderLyneManchesterEccles);
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id

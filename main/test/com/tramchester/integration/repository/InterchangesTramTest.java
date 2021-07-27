@@ -55,6 +55,7 @@ public class InterchangesTramTest {
         }
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));

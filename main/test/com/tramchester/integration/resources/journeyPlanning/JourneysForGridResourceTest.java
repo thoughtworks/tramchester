@@ -76,7 +76,9 @@ class JourneysForGridResourceTest {
         assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
 
         List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).collect(Collectors.toList());
-        assertEquals(40, notDest.size());
+
+        // 40->37 summer 2021
+        assertEquals(37, notDest.size());
         assertFalse(results.isEmpty());
         notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
 

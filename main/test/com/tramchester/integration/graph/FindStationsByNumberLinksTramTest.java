@@ -9,10 +9,7 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,6 +36,7 @@ class FindStationsByNumberLinksTramTest {
         finder = componentContainer.get(FindStationsByNumberLinks.class);
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldIdForkPointsFromTramNetwork() {
         int threshhold = 3;
@@ -52,6 +50,24 @@ class FindStationsByNumberLinksTramTest {
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.StWerburghsRoad.getId()));
         assertTrue(found.contains(TramStations.HarbourCity.getId()));
+        assertTrue(found.contains(TramStations.Cornbrook.getId()));
+        assertTrue(found.contains(TramStations.Victoria.getId()));
+
+    }
+
+    @Test
+    void shouldIdForkPointsFromTramNetworkSummer2021Closures() {
+        int threshhold = 3;
+        IdSet<Station> found = finder.findAtLeastNConnectionsFrom(TransportMode.Tram, threshhold);
+        assertEquals(7, found.size());
+        assertTrue(found.contains(TramStations.StPetersSquare.getId()));
+        //assertTrue(found.contains(TramStations.Broadway.getId()));
+        assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
+        assertTrue(found.contains(TramStations.MarketStreet.getId()));
+        //assertTrue(found.contains(TramStations.Pomona.getId()));
+        assertTrue(found.contains(TramStations.TraffordBar.getId()));
+        assertTrue(found.contains(TramStations.StWerburghsRoad.getId()));
+        //assertTrue(found.contains(TramStations.HarbourCity.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));
         assertTrue(found.contains(TramStations.Victoria.getId()));
 

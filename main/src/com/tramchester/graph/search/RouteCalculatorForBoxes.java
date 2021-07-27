@@ -63,22 +63,21 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // TODO Compute over a range of times
         final TramTime originalTime = journeyRequest.getOriginalTime();
 
-        LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
-        JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
+        final LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
                 journeyRequest, destinations, lowestCostForDestinations);
 
-        Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
+        final Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
 
-        return grouped.stream().map(box -> {
+        return grouped.parallelStream().map(box -> {
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
-            Set<Station> startingStations = box.getStaions();
-            LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
+            final Set<Station> startingStations = box.getStaions();
+            final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
-            // TODO Compute the max from the stations in the box?
-            NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations);
+            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations);
 
-            Instant begin = providesNow.getInstant();
+            final Instant begin = providesNow.getInstant();
 
             try(Transaction txn = graphDatabaseService.beginTx()) {
                 Stream<Journey> journeys = startingStations.stream().

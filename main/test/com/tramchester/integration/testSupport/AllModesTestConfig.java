@@ -64,7 +64,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
     @Override
     public boolean getCreateNeighbours() {
-        return false;
+        return true;
     }
 
     @Override

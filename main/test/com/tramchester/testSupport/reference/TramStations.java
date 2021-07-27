@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,6 @@ public enum TramStations implements TestStations {
     Etihad("9400ZZMAECS", "Sportcity", "Etihad Campus", pos(53.48535, -2.20221)),
     Piccadilly("9400ZZMAPIC", "Manchester City Centre", "Piccadilly", pos(53.47731, -2.23121)),
     HoltTown("9400ZZMAHTN", "Holt Town", "Holt Town", pos(53.4832, -2.21228)),
-    Eccles("9400ZZMAECC", "Eccles", "Eccles", pos(53.48307, -2.33454)),
     Bury("9400ZZMABUR", "Bury", "Bury", pos(53.59082, -2.29726)),
     EastDidsbury("9400ZZMAEDY", "East Didsbury", "East Didsbury", pos(53.41208, -2.21739)),
     Rochdale("9400ZZMARIN", "Rochdale", "Rochdale Town Centre", pos(53.61736, -2.15509)),
@@ -58,18 +58,22 @@ public enum TramStations implements TestStations {
     OldTrafford("9400ZZMAOLD", "Old Trafford", "Old Trafford", pos(53.45634, -2.28496)),
     Wharfside("9400ZZMAWFS", "Old Trafford", "Wharfside", pos(53.46625, -2.28748)),
     PeelHall("9400ZZMAPLL","Peel Hall", "Peel Hall", pos(53.37373, -2.25038)),
-    Intu("9400ZZMATRC", "The Trafford Centre", "The Trafford Centre", pos(53.46782, -2.34751));
+    Intu("9400ZZMATRC", "The Trafford Centre", "The Trafford Centre", pos(53.46782, -2.34751)),
+    Eccles("9400ZZMAECC", "Eccles", "Eccles", pos(53.48307, -2.33454));
 
     public static final int NumberOf = 99;
 
     public static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
             ManAirport,
-            Eccles,
+            //Eccles, summer 2021 closures
             EastDidsbury,
             Ashton,
             Rochdale,
             Bury,
             Intu));
+
+    public static final List<TramStations> closedSummer2021 = Arrays.asList(Eccles, Broadway, HarbourCity, MediaCityUK,
+            ExchangeQuay, SalfordQuay, Anchorage);
 
     public static boolean isEndOfLine(HasId<Station> station) {
         return containedIn(station, EndOfTheLine);

@@ -9,10 +9,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,6 +35,7 @@ class RouteEndRepositoryTramTest {
         endStationsRepository = componentContainer.get(RouteEndRepository.class);
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldFindEndsOfLinesForTram() {
         IdSet<Station> results = endStationsRepository.getStations(TransportMode.Tram);
@@ -52,5 +50,18 @@ class RouteEndRepositoryTramTest {
         assertTrue(results.containsAll(eolIds));
 
         assertEquals(eolIds.size()+4, results.size());
+    }
+
+    @Test
+    void shouldFindEndsOfLinesForTramSummer2021() {
+        IdSet<Station> results = endStationsRepository.getStations(TransportMode.Tram);
+
+        assertTrue(results.contains(Cornbrook.getId()));
+        assertTrue(results.contains(Victoria.getId()));
+        assertTrue(results.contains(Piccadilly.getId()));
+        IdSet<Station> eolIds = EndOfTheLine.stream().map(TramStations::getId).collect(IdSet.idCollector());
+        assertTrue(results.containsAll(eolIds));
+
+        assertEquals(eolIds.size()+3, results.size());
     }
 }

@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TransportDataFromFilesTramTest {
 
     public static final int NUM_TFGM_TRAM_ROUTES = 14;
-    public static final int NUM_TFGM_TRAM_STATIONS = 99;
+    public static final int NUM_TFGM_TRAM_STATIONS = 99 - 10; // summer closures of eccles line
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
 
@@ -77,10 +77,11 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().size());
-        assertEquals(NUM_TFGM_TRAM_STATIONS,transportData.getStations().size());
+        assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations().size());
         assertEquals(NUM_TFGM_TRAM_ROUTES, transportData.getRoutes().size());
 
-        assertEquals(199, transportData.getPlatforms().size());
+        int expected = 199 - 19; // summer 2021 closures
+        assertEquals(expected, transportData.getPlatforms().size());
     }
 
     @Test
@@ -118,7 +119,8 @@ public class TransportDataFromFilesTramTest {
         IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
         // 2*3 expected, but includes eccles as well
-        assertEquals(10, traffordBarRoutes.size());
+        // 10->8 summer 2021 closures
+        assertEquals(8, traffordBarRoutes.size());
 
         // contains -> containsAll
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
@@ -128,8 +130,9 @@ public class TransportDataFromFilesTramTest {
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
+        // summer 2021
+        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
+        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
     }
 
     @Test
@@ -156,10 +159,13 @@ public class TransportDataFromFilesTramTest {
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 
-        assertEquals(8, routeStations.size(), routeStations.toString());
+        // 8 -> 6 summer 2021 closures
+        assertEquals(6, routeStations.size(), routeStations.toString());
 
         Set<String> names = routeStations.stream().map(routeStation -> routeStation.getRoute().getShortName()).collect(Collectors.toSet());
-        assertEquals(4, names.size());
+
+        // 4-3 summer 2021
+        assertEquals(3, names.size());
         assertTrue(names.contains(VictoriaWythenshaweManchesterAirport.shortName()));
         assertTrue(names.contains(ManchesterAirportWythenshaweVictoria.shortName()));
         assertTrue(names.contains(BuryPiccadilly.shortName()));
@@ -396,18 +402,19 @@ public class TransportDataFromFilesTramTest {
         });
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
-        //Route route = TestEnv.findTramRoute(transportData, AshtonUnderLyneManchesterEccles);
         Set<Route> routes = transportData.findRoutesByShortName(Agency.METL, AshtonUnderLyneManchesterEccles.shortName());
+
+        assertFalse(routes.isEmpty());
 
         Set<Trip> toMediaCity = allTrips.stream().
                 filter(trip -> trip.getStopCalls().callsAt(Cornbrook)).
                 filter(trip -> trip.getStopCalls().callsAt(TramStations.MediaCityUK)).
                 filter(trip -> routes.contains(trip.getRoute())).
-                //filter(trip -> trip.getRoute().getId().equals(route.getId())).
                 collect(Collectors.toSet());
 
         Set<Service> services = toMediaCity.stream().

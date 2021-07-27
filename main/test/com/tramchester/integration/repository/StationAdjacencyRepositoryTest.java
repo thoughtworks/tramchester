@@ -46,7 +46,7 @@ class StationAdjacencyRepositoryTest {
         Assertions.assertEquals(3, getAdjacent(Altrincham, NavigationRoad));
         Assertions.assertEquals(3, getAdjacent(Altrincham, NavigationRoad));
         Assertions.assertEquals(3, getAdjacent(Cornbrook, Deansgate));
-        Assertions.assertEquals(5, getAdjacent(Deansgate, Cornbrook));
+        Assertions.assertEquals(3, getAdjacent(Deansgate, Cornbrook));
 
         Assertions.assertEquals(-1, getAdjacent(NavigationRoad, Cornbrook));
     }

@@ -14,6 +14,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -40,6 +41,7 @@ class StationLinksResourceTest {
         dependencies = app.getDependencies();
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldGetStationLinks() {
         String endPoint = "links/all";
@@ -49,6 +51,25 @@ class StationLinksResourceTest {
 
         List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
         assertEquals(202, results.size(), "count");
+
+        assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
+        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
+        assertTrue(results.contains(createLink(StPetersSquare, Deansgate)));
+
+        assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
+        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare)));
+        assertTrue(results.contains(createLink(Deansgate, StPetersSquare)));
+    }
+
+    @Test
+    void shouldGetStationLinksSummer2021() {
+        String endPoint = "links/all";
+
+        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        assertEquals(200, response.getStatus(), "status");
+
+        List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
+        assertEquals(180, results.size(), "count");
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));

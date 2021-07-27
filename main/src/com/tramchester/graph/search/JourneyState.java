@@ -210,7 +210,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private int numberNeighbourConnections;
 
         public CoreState(TramTime queryTime) {
-            this(queryTime, false, 0, TransportMode.NotSet, 0, 0);
+            this(queryTime, false, 0,
+                    TransportMode.NotSet, 0, 0);
         }
 
         // Copy cons

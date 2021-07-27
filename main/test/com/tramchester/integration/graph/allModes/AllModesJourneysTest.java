@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.CompositeStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -16,6 +17,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.neo4j.graphdb.Transaction;
@@ -73,6 +75,19 @@ public class AllModesJourneysTest {
     @AfterEach
     void onceAfterEachTestHasRun() {
         txn.close();
+    }
+
+    @Test
+    void shouldHaveBusToTram() {
+        CompositeStation stockport = compositeStationRepository.findByName("Stockport Bus Station");
+        Station alty = compositeStationRepository.getStationById(TramStations.Altrincham.getId());
+
+        TramTime travelTime = TramTime.of(9, 0);
+
+        JourneyRequest requestA = new JourneyRequest(new TramServiceDate(when), travelTime, false, 2,
+                maxJourneyDuration, 3);
+        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, alty, requestA);
+        assertFalse(journeys.isEmpty());
     }
 
     @Test

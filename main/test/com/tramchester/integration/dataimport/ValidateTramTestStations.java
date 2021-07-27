@@ -12,10 +12,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.tramchester.testSupport.TestEnv.LocalNow;
 import static com.tramchester.testSupport.TestEnv.assertLatLongEquals;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ValidateTramTestStations {
@@ -44,7 +47,8 @@ class ValidateTramTestStations {
     void shouldHaveCorrectTestTramStations() {
         List<TramStations> testStations = Arrays.asList(TramStations.values());
 
-        testStations.forEach(enumValue -> {
+        // summer 2021
+        testStations.stream().filter(station -> !closedSummer2021.contains(station)).forEach(enumValue -> {
             Station testStation = TramStations.of(enumValue);
 
             Station realStation = transportData.getStationById(testStation.getId());
@@ -58,6 +62,15 @@ class ValidateTramTestStations {
                     "latlong wrong for " + testStationName);
 
         });
+    }
+
+    @Test
+    void shouldOnlyHaveMissingStationsUntilEndJuly() {
+        if (LocalDate.now().isAfter(LocalDate.of(2021, 7, 31))) {
+            assertEquals(0, closedSummer2021.size());
+        } else {
+            assertEquals(7, closedSummer2021.size());
+        }
     }
 
 

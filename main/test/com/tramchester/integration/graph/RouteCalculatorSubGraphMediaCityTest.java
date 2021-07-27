@@ -33,6 +33,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@Disabled("summer2021")
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;

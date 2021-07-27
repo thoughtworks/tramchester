@@ -21,10 +21,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -137,7 +134,8 @@ public class RouteToRouteCostsTest {
         Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
         NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
-        assertEquals(1, result.getMax());
+        // 1->2 summer 2021
+        assertEquals(2, result.getMax());
     }
 
     @Test
@@ -149,6 +147,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, result.getMin());
     }
 
+    @Disabled("summer2021")
     @Test
     void shouldFindMediaCityHops() {
         Station start = stationRepository.getStationById(TramStations.MediaCityUK.getId());
@@ -190,7 +189,6 @@ public class RouteToRouteCostsTest {
             assertEquals(routeC.getId(), list.get(2).getId());
         })));
     }
-
 
     @Test
     void shouldSaveIndexAsExpected() {
