@@ -102,7 +102,8 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         List<String> allTo = appPage.getAllStopsToStops();
         assertThat(allTo, not(contains(nearestToStops)));
         int recentToCount = appPage.getRecentToStops().size();
-        Assertions.assertEquals(TramStations.NumberOf, nearestToStops.size()+allTo.size()+recentToCount);
+        Assertions.assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
+                nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
         desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
