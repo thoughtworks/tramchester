@@ -42,9 +42,11 @@ public class ProvidesNotes {
 
     @PostConstruct
     void start() {
+        logger.info("starting");
         if (!platformMessageSource.isEnabled()) {
             logger.warn("Disabled for live data since PlatformMessageSource is disabled");
         }
+        logger.info("started");
     }
 
     /***

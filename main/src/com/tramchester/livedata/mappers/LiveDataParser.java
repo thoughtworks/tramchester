@@ -46,7 +46,7 @@ public class LiveDataParser {
 
     private final TramStationByName tramStationByName;
     private final StationRepository stationRepository;
-    private final Map<String, String> lineNameMappings;
+    private final Map<String, String> destinationNameMappings;
 
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
@@ -60,7 +60,8 @@ public class LiveDataParser {
         NewtonHeathAndMoston("Newton Heath and Moston","Newton Heath & Moston"),
         StWerburgsRoad("St Werburgh’s Road","St Werburgh's Road"),
         Rochdale("Rochdale Stn", "Rochdale Railway Station"),
-        TraffordCentre("Trafford Centre", "The Trafford Centre");
+        TraffordCentre("Trafford Centre", "The Trafford Centre"),
+        RochdaleCentre("Rochdale Ctr", "Rochdale Town Centre");
 
         private final String from;
         private final String too;
@@ -78,9 +79,9 @@ public class LiveDataParser {
     @Inject
     public LiveDataParser(TramStationByName tramStationByName, StationRepository stationRepository) {
         this.tramStationByName = tramStationByName;
-        lineNameMappings = new HashMap<>();
+        destinationNameMappings = new HashMap<>();
         List<LiveDataNamesMapping> referenceData = Arrays.asList(LiveDataNamesMapping.values());
-        referenceData.forEach(item -> lineNameMappings.put(item.from, item.too));
+        referenceData.forEach(item -> destinationNameMappings.put(item.from, item.too));
         this.stationRepository = stationRepository;
     }
 
@@ -107,12 +108,12 @@ public class LiveDataParser {
     private Optional<StationDepartureInfo> parseItem(JsonObject jsonObject) {
         logger.debug(format("Parsing JSON '%s'", jsonObject));
 
-        BigDecimal displayId = (BigDecimal) jsonObject.get("Id");
-        String rawLine = (String) jsonObject.get("Line");
-        String atcoCode = (String) jsonObject.get("AtcoCode");
-        String message = (String) jsonObject.get("MessageBoard");
-        String dateString = (String) jsonObject.get("LastUpdated");
-        String rawDirection = (String)jsonObject.get("Direction");
+        final BigDecimal displayId = (BigDecimal) jsonObject.get("Id");
+        final String rawLine = (String) jsonObject.get("Line");
+        final String atcoCode = (String) jsonObject.get("AtcoCode");
+        final String message = (String) jsonObject.get("MessageBoard");
+        final String dateString = (String) jsonObject.get("LastUpdated");
+        final String rawDirection = (String)jsonObject.get("Direction");
 
         LineDirection direction = getDirection(rawDirection);
         if (direction==Unknown) {
@@ -260,8 +261,8 @@ public class LiveDataParser {
             destinationName = destinationName.substring(0, viaIndex);
         }
 
-        if (lineNameMappings.containsKey(destinationName)) {
-            return lineNameMappings.get(destinationName);
+        if (destinationNameMappings.containsKey(destinationName)) {
+            return destinationNameMappings.get(destinationName);
         }
 
         return destinationName;
