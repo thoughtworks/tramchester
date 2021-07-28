@@ -39,7 +39,7 @@ function livedataUrl() {
     if (app.startStop==null || app.startStop==='MyLocationPlaceholderId') {
         return livedataUrlFromLocation(app)+'?querytime='+app.time;
     } else {
-        return '/api/departures/station/'+app.startStop+'?querytime='+app.time;
+        return '/api/departures/station/'+app.startStop.id+'?querytime='+app.time;
     }
 }
 
@@ -51,7 +51,7 @@ function displayLiveData(app) {
     if (busEnabled(app)) {
         // only live data for trams
         // TODO nearby when buses enabled?
-        if (!app.startStop.startsWith('9400ZZ')) {
+        if (!app.startStop.transportModes.includes('Tram')) {
             app.liveDepartureResponse = null;
             return; 
         }
@@ -196,8 +196,10 @@ function addParsedDatesToLive(liveData) {
 }
 
  function queryServerForJourneys(app, startStop, endStop, time, date, arriveBy, changes) {
+    var startStopId = (startStop=='MyLocationPlaceholderId') ? 'MyLocationPlaceholderId' : startStop.id;
+    var endStopId = (endStop=='MyLocationPlaceholderId') ? 'MyLocationPlaceholderId' : endStop.id;
     var urlParams = {
-        start: startStop, end: endStop, departureTime: time, departureDate: date, 
+        start: startStopId, end: endStopId, departureTime: time, departureDate: date, 
         arriveby: arriveBy, maxChanges: changes
     };
     if (startStop == 'MyLocationPlaceholderId' || endStop == 'MyLocationPlaceholderId') {

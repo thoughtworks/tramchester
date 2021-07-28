@@ -38,6 +38,12 @@ export default {
             }
             return ", " + station.area;
         },
+        serialize: function(station) {
+            if (station==null) {
+                return "";
+            }
+            return station.name + this.getArea(station) +' (' + station.transportModes +')';
+        }
     },
     computed: {
         allstops: function () {
@@ -60,7 +66,7 @@ export default {
             return results;
         },
         otherId: function() {
-            return this.other;
+            return this.other ? this.other.id : "";
         }
     },
     template: `
@@ -77,15 +83,15 @@ export default {
                     <option class="stop" value="MyLocationPlaceholderId">My Location</option>
                 </optgroup>
                 <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
-                    <option class="stop" v-for="stop in stops.nearestStops" :value="stop.id" 
+                    <option class="stop" v-for="stop in stops.nearestStops" :value="stop" 
                     :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="Recent" name="Recent" :id="name+'GroupRecent'">
-                    <option class="stop" v-for="stop in stops.recentStops" :value="stop.id"
+                    <option class="stop" v-for="stop in stops.recentStops" :value="stop"
                     :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
                 <optgroup label="All Stops" name="All Stops" :id="name+'GroupAllStops'">
-                    <option class="stop" v-for="stop in allstops" :value="stop.id"
+                    <option class="stop" v-for="stop in allstops" :value="stop"
                     :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
         </b-form-select>
@@ -94,11 +100,11 @@ export default {
             :disabled="disabled"
             class="mb-4"
             :data="allstops"
-            v-model="current"
+            :value="serialize(value)"
             maxMatches=20
             minMatchingChars=3
-            :serializer="item => item.name + getArea(item) +' (' + item.transportModes +')' "
-            @hit="updateValue($event.id)"
+            :serializer="item => serialize(item)"
+            @hit="updateValue($event)"
             placeholder="Select a location"
             v-if="bus"
         />
