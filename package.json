@@ -29,8 +29,8 @@
     "portal-vue": "^2.1.7",
     "serialize-javascript": "^5.0.1",
     "vue": "^2.6.12",
-    "vue-bootstrap-typeahead": "^0.2.6",
-    "vue-cookies": "^1.7.4"
+    "vue-cookies": "^1.7.4",
+    "vue-typeahead-bootstrap": "^2.11.1"
   },
   "devDependencies": {
     "css-loader": "^5.2.6",

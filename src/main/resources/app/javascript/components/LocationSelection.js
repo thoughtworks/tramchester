@@ -1,5 +1,5 @@
 
-import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
+import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap'
 
 
 function sort(stopMap, alreadyDisplayed) {
@@ -19,7 +19,7 @@ function sort(stopMap, alreadyDisplayed) {
 
 export default {
     components: {
-        VueBootstrapTypeahead
+        VueTypeaheadBootstrap
     },
     /// NOTE: don't camel case these, browser will treat them as all lowercase....
     props: ['value','other','name','bus','stops','geo','disabled'], 
@@ -65,7 +65,7 @@ export default {
     },
     template: `
     <div>
-    <!-- trams -->
+    <!-- Dropdown selection mode -->
         <b-form-select v-bind:id="name+'Stop'"
                 :disabled="disabled"
                 :value="value"
@@ -89,8 +89,8 @@ export default {
                     :disabled="stop.id == otherId">{{stop.name}}</option>
                 </optgroup>
         </b-form-select>
-    <!-- buses -->
-        <vue-bootstrap-typeahead
+    <!-- Typeahead selection mode -->
+        <vue-typeahead-bootstrap
             :disabled="disabled"
             class="mb-4"
             :data="allstops"
