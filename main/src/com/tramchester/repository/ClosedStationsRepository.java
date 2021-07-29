@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramServiceDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @LazySingleton
 public class ClosedStationsRepository {
@@ -34,7 +36,7 @@ public class ClosedStationsRepository {
     public void start() {
         logger.info("starting");
         config.getGTFSDataSource().forEach(source -> closed.addAll(source.getStationClosures()));
-        logger.warn("Added " + closed.size() + " closed stations");
+        logger.warn("Added " + closed.size() + " stations closures");
         logger.info("Started");
     }
 
@@ -55,8 +57,10 @@ public class ClosedStationsRepository {
                 collect(IdSet.idCollector());
     }
 
-    public Set<StationClosure> getClosures() {
-        return Collections.unmodifiableSet(closed);
+    public Set<StationClosure> getUpcomingClosuresFor(ProvidesNow providesNow) {
+        LocalDate date = providesNow.getDate();
+        return closed.stream().
+                filter(closure -> date.isBefore(closure.getEnd()) || date.equals(closure.getEnd())).
+                collect(Collectors.toSet());
     }
-
 }

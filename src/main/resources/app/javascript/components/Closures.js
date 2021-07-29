@@ -31,6 +31,13 @@ export default {
             });
             result += " are"
             return result;
+        },
+        displayDates(begin, end) {
+            if (begin==end) {
+                return " on " + end;
+            } else {
+                return "between " + begin + " and " + end;
+            }
         }
     },
     template: `
@@ -39,7 +46,7 @@ export default {
             <b-card-text>
                 <ul id="ClosureList" class="Closures list-group list-group-flush">
                     <li v-for="closed in closures" id="ClosedItem">
-                        {{displayStations(closed.stations)}} closed between {{closed.begin}} and {{closed.end}}
+                        {{displayStations(closed.stations)}} closed {{displayDates(closed.begin, closed.end)}}
                     </li>
                 </ul>
                 Visit <a href="https://www.tfgm.com/">www.tfgm.com</a> for full details

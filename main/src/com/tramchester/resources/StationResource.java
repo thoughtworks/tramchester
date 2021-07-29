@@ -7,7 +7,6 @@ import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -170,12 +169,13 @@ public class StationResource extends UsesRecentCookie  {
     @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
-        List<StationClosure> closures = new ArrayList<>(closedStationsRepository.getClosures());
+        List<StationClosure> closures = new ArrayList<>(closedStationsRepository.getUpcomingClosuresFor(providesNow));
 
         logger.info("Get closed stations " + closures);
 
         List<StationClosureDTO> dtos = closures.stream().
                 map(closure -> new StationClosureDTO(closure.getBegin(), closure.getEnd(), toRefs(closure))).
+                sorted(Comparator.comparing(StationClosureDTO::getBegin)).
                 collect(Collectors.toList());
 
         return Response.ok(dtos).build();
