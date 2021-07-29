@@ -15,7 +15,7 @@ def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains(
 version = 1.0
 
 project.ext {
-    dropwizardVersion = '2.0.16'
+    dropwizardVersion = '2.0.23'
 }
 
 repositories {
