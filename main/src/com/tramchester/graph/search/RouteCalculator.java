@@ -16,6 +16,7 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Node;
@@ -39,6 +40,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final ServiceRepository serviceRepository;
     private final TramchesterConfig config;
     private final CreateQueryTimes createQueryTimes;
+    private final ClosedStationsRepository closedStationsRepository;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
@@ -46,13 +48,15 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesNow providesNow, GraphQuery graphQuery,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
-                           BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                           BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
+                           ClosedStationsRepository closedStationsRepository) {
         super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.serviceRepository = transportData;
         this.config = config;
         this.createQueryTimes = createQueryTimes;
+        this.closedStationsRepository = closedStationsRepository;
     }
 
     @Override
@@ -103,7 +107,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         LowestCostsForRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
-                journeyRequest, destinations, lowestCostsForRoutes);
+                journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes);
 
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 

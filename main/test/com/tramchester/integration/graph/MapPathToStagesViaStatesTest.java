@@ -21,6 +21,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -61,6 +62,7 @@ public class MapPathToStagesViaStatesTest {
     private PathToStages pathToStages;
     private LocationJourneyPlanner locationJourneyPlanner;
     private BetweenRoutesCostRepository routeToRouteCosts;
+    private ClosedStationsRepository closedStationsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -87,6 +89,7 @@ public class MapPathToStagesViaStatesTest {
         pathToStages = componentContainer.get(MapPathToStagesViaStates.class);
         locationJourneyPlanner = componentContainer.get(LocationJourneyPlanner.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
     @AfterEach
@@ -304,7 +307,7 @@ public class MapPathToStagesViaStatesTest {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         LowestCostsForRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
         JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
-                journeyRequest, endStations, lowestCostCalculator);
+                journeyRequest, closedStationsRepository, endStations, lowestCostCalculator);
         ServiceHeuristics serviceHeuristics =  new ServiceHeuristics(stationRepository, nodeContentsRepository,
                 journeyConstraints, queryTime, numChanges);
 

@@ -1,7 +1,6 @@
 package com.tramchester.config;
 
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import io.dropwizard.Configuration;
@@ -84,9 +83,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     // config for each remote data source to be downloaded
     public abstract List<RemoteDataSourceConfig> getRemoteDataSourceConfig();
-
-    // a list of currently close stations
-    public abstract List<StationClosure> getStationClosures();
 
     // live transport data config
     public abstract LiveDataConfig getLiveDataConfig();

@@ -58,14 +58,14 @@ class TransportModeRepositoryTest {
 
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
         GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig("folder/some/pathA", configModesSourceA, modesWithPlatforms,
-                additionalInterchanges, Collections.emptySet());
+                additionalInterchanges, Collections.emptySet(), Collections.emptyList());
         dataSources.add(sourceA);
 
         Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
         configModesSourceB.add(GTFSTransportationType.bus);
         configModesSourceB.add(GTFSTransportationType.train);
         GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig("folder/some/pathB", configModesSourceB, modesWithPlatforms,
-                additionalInterchanges, Collections.emptySet());
+                additionalInterchanges, Collections.emptySet(), Collections.emptyList());
         dataSources.add(sourceB);
 
         TramchesterConfig config = new ModeConfig(dataSources);
@@ -83,7 +83,7 @@ class TransportModeRepositoryTest {
     private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
         GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig("folder/some/path", configModes, modesWithPlatforms,
-                additionalInterchanges, Collections.emptySet());
+                additionalInterchanges, Collections.emptySet(), Collections.emptyList());
         dataSources.add(tramConfig);
         return new ModeConfig(dataSources);
     }

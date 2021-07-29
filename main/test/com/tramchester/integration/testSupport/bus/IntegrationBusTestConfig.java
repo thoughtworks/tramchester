@@ -37,7 +37,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/bus",
                 Collections.singleton(GTFSTransportationType.bus),
-                modesWithPlatforms, additionalInterchanges, compositeStationModes);
+                modesWithPlatforms, additionalInterchanges, compositeStationModes, Collections.emptyList());
         remoteDataSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
     }
 

@@ -188,12 +188,11 @@ class StationResourceTest {
 
     private static class ClosedStationTestConfig extends IntegrationTramTestConfig {
 
-        @Override
-        public List<StationClosure> getStationClosures() {
-            return closedStations;
-        }
+       public ClosedStationTestConfig() {
+           super(closedStations);
+       }
 
-        private final List<StationClosure> closedStations = Collections.singletonList(
+        private static final List<StationClosure> closedStations = Collections.singletonList(
                 new StationClosure() {
                     @Override
                     public IdFor<Station> getStation() {

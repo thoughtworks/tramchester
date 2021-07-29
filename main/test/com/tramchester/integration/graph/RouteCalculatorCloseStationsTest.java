@@ -92,13 +92,13 @@ class RouteCalculatorCloseStationsTest {
 
     private static class ClosedStationsTramTestConfig extends IntegrationTramTestConfig {
 
-        @Override
-        public List<StationClosure> getStationClosures() {
-            return closedStations;
+        private final static List<StationClosure> closedStations = Collections.singletonList(
+                new StationClosureForTest(TramStations.Shudehill));
+
+        public ClosedStationsTramTestConfig() {
+            super(closedStations);
         }
 
-        private final List<StationClosure> closedStations = Collections.singletonList(
-                new StationClosureForTest(TramStations.Shudehill));
     }
 
     private static class StationClosureForTest implements StationClosure {

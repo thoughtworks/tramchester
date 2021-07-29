@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport.tram;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.LiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -26,22 +27,26 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
-       this(DB_NAME, false);
+       this(DB_NAME, false, Collections.emptyList());
     }
 
     public IntegrationTramTestConfig(boolean liveDataEnabled) {
-        this(DB_NAME, liveDataEnabled);
+        this(DB_NAME, liveDataEnabled, Collections.emptyList());
+    }
+
+    public IntegrationTramTestConfig(List<StationClosure> closedStations) {
+        this(DB_NAME, false, closedStations);
     }
 
     protected IntegrationTramTestConfig(String dbName) {
-        this(dbName, false);
+        this(dbName, false, Collections.emptyList());
     }
 
-    private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled) {
+    private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled, List<StationClosure> closedStations) {
         super(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName));
         this.liveDataEnabled = liveDataEnabled;
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
-                TransportMode.Tram, AdditionalTramInterchanges.get(), Collections.emptySet());
+                TransportMode.Tram, AdditionalTramInterchanges.get(), Collections.emptySet(), closedStations);
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
     }
 

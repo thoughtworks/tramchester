@@ -2,7 +2,6 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.StationClosure;
 import com.tramchester.geo.BoundingBox;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
@@ -116,10 +115,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Valid
     @JsonProperty("remoteSources")
     private List<RemoteDataSourceConfig> remoteDataConfig;
-
-    @NotNull
-    @JsonProperty("stationClosures")
-    private List<StationClosure> stationClosures;
 
     @NotNull
     @JsonProperty("graphDBConfig")
@@ -255,12 +250,6 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return remoteDataConfig;
-    }
-
-    @Valid
-    @Override
-    public List<StationClosure> getStationClosures() {
-        return stationClosures;
     }
 
     // optional

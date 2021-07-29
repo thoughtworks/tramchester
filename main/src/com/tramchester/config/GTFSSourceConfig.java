@@ -3,10 +3,12 @@ package com.tramchester.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,6 +47,7 @@ public interface GTFSSourceConfig extends HasDataPath {
                 collect(Collectors.toSet());
     }
 
-
     Set<TransportMode> compositeStationModes();
+
+    List<StationClosure> getStationClosures();
 }

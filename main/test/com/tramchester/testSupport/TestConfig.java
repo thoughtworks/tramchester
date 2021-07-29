@@ -38,11 +38,6 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
-    public List<StationClosure> getStationClosures() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public String getInstanceDataUrl() {
         return "";
     }

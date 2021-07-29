@@ -21,7 +21,7 @@ public class SimpleCompositeGraphConfig extends SimpleGraphConfig {
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Tram);
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
-                GTFSTransportationType.tram, Tram, Collections.emptySet(), compositeStationModes);
+                GTFSTransportationType.tram, Tram, Collections.emptySet(), compositeStationModes, Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 }

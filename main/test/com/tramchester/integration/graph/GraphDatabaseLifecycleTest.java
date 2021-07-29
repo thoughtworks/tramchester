@@ -4,6 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
@@ -353,6 +354,12 @@ class GraphDatabaseLifecycleTest {
             public Set<TransportMode> compositeStationModes() {
                 return Collections.emptySet();
             }
+
+            @Override
+            public List<StationClosure> getStationClosures() {
+                return Collections.emptyList();
+            }
+
         };
     }
 }

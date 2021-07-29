@@ -3,17 +3,16 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningServices;
 import com.tramchester.repository.ServiceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 public class JourneyConstraints {
@@ -38,7 +37,7 @@ public class JourneyConstraints {
     private final LowestCostsForRoutes lowestCostForDestinations;
 
     public JourneyConstraints(TramchesterConfig config, ServiceRepository serviceRepository, JourneyRequest journeyRequest,
-                              Set<Station> endStations, LowestCostsForRoutes lowestCostForDestinations) {
+                              ClosedStationsRepository closedStationsRepository, Set<Station> endStations, LowestCostsForRoutes lowestCostForDestinations) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.runningServices = new RunningServices(journeyRequest.getDate(), serviceRepository);
@@ -49,16 +48,10 @@ public class JourneyConstraints {
         this.maxWalkingConnections = config.getMaxWalkingConnections();
         this.maxNeighbourConnections = config.getMaxNeighbourConnections();
 
-        LocalDate date = journeyRequest.getDate().getDate();
-
-        this.closedStations = config.getStationClosures().stream().
-                filter(closure -> date.isAfter(closure.getBegin()) || date.isEqual(closure.getBegin()) ).
-                filter(closure -> date.isBefore(closure.getEnd()) || date.isEqual(closure.getEnd())).
-                map(StationClosure::getStation).
-                collect(IdSet.idCollector());
+        this.closedStations = closedStationsRepository.getClosedStationsFor(journeyRequest.getDate());
 
         if (!closedStations.isEmpty()) {
-            logger.info("Have closed stationed " + closedStations);
+            logger.info("Have closed stations " + closedStations);
         }
 
     }

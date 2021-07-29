@@ -2,6 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import io.dropwizard.Configuration;
@@ -10,6 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings("unused")
@@ -50,6 +52,10 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @JsonProperty("compositeStationModes")
     private Set<TransportMode> compositeStationModes;
 
+    @NotNull
+    @JsonProperty("stationClosures")
+    private List<StationClosure> closures;
+
     @Override
     public String getName() {
         return name;
@@ -88,6 +94,11 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @Override
     public Path getDataPath() {
         return dataPath;
+    }
+
+    @Override
+    public List<StationClosure> getStationClosures() {
+        return closures;
     }
 
 }

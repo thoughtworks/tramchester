@@ -18,6 +18,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -48,17 +49,19 @@ public class StationResource extends UsesRecentCookie  {
     private final StationRepositoryPublic stationRepository;
     private final DataSourceRepository dataSourceRepository;
     private final StationLocations stationLocations;
+    private final ClosedStationsRepository closedStationsRepository;
     private final TramchesterConfig config;
 
     @Inject
     public StationResource(CompositeStationRepository stationRepository,
                            UpdateRecentJourneys updateRecentJourneys, ObjectMapper mapper,
                            ProvidesNow providesNow,
-                           DataSourceRepository dataSourceRepository, StationLocations stationLocations, TramchesterConfig config) {
+                           DataSourceRepository dataSourceRepository, StationLocations stationLocations, ClosedStationsRepository closedStationsRepository, TramchesterConfig config) {
         super(updateRecentJourneys, providesNow, mapper);
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
         this.stationLocations = stationLocations;
+        this.closedStationsRepository = closedStationsRepository;
         this.config = config;
     }
 
@@ -166,7 +169,7 @@ public class StationResource extends UsesRecentCookie  {
     @ApiOperation(value = "Get closed stations", response = StationClosureDTO.class, responseContainer = "List")
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
-        List<StationClosure> closures = config.getStationClosures();
+        List<StationClosure> closures = new ArrayList<>(closedStationsRepository.getClosures());
 
         logger.info("Get closed stations " + closures);
 

@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport.train;
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import org.glassfish.jersey.internal.util.JerseyPublisher;
@@ -8,10 +9,7 @@ import org.glassfish.jersey.internal.util.JerseyPublisher;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.domain.reference.GTFSTransportationType.*;
 
@@ -62,5 +60,10 @@ public class RailTestDataSourceConfig implements GTFSSourceConfig {
     @Override
     public Set<TransportMode> compositeStationModes() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public List<StationClosure> getStationClosures() {
+        return Collections.emptyList();
     }
 }
