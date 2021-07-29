@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
@@ -110,8 +111,8 @@ class RouteCalculatorCloseStationsTest {
         }
 
         @Override
-        public IdFor<Station> getStation() {
-            return station.getId();
+        public IdSet<Station> getStations() {
+            return IdSet.singleton(station.getId());
         }
 
         @Override

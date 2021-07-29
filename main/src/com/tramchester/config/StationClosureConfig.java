@@ -1,6 +1,7 @@
 package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.places.Station;
@@ -8,6 +9,12 @@ import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Collections;
+
+// config example
+//      - station: 9400ZZMAEXS
+//              begin: 2021-07-22
+//              end: 2021-07-30
 
 @Valid
 public class StationClosureConfig extends Configuration implements StationClosure {
@@ -26,8 +33,8 @@ public class StationClosureConfig extends Configuration implements StationClosur
 
 
     @Override
-    public StringIdFor<Station> getStation() {
-        return station;
+    public IdSet<Station> getStations() {
+        return IdSet.singleton(station);
     }
 
     @Override

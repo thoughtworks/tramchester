@@ -6,6 +6,7 @@ import com.tramchester.App;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
@@ -195,8 +196,8 @@ class StationResourceTest {
         private static final List<StationClosure> closedStations = Collections.singletonList(
                 new StationClosure() {
                     @Override
-                    public IdFor<Station> getStation() {
-                        return TramStations.StPetersSquare.getId();
+                    public IdSet<Station> getStations() {
+                        return IdSet.singleton(TramStations.StPetersSquare.getId());
                     }
 
                     @Override

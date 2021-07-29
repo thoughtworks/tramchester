@@ -2,7 +2,6 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -52,7 +51,7 @@ public class ClosedStationsRepository {
         return closed.stream().
                 filter(closure -> date.isAfter(closure.getBegin()) || date.isEqual(closure.getBegin()) ).
                 filter(closure -> date.isBefore(closure.getEnd()) || date.isEqual(closure.getEnd())).
-                map(StationClosure::getStation).
+                flatMap(closure -> closure.getStations().stream()).
                 collect(IdSet.idCollector());
     }
 

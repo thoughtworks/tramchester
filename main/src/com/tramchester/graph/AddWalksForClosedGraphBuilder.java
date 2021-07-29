@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosure;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.MarginInMeters;
@@ -105,15 +105,16 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
         MarginInMeters range = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
         closures.forEach(closure -> {
-            IdFor<Station> closedStationId = closure.getStation();
-            if (filter.shouldInclude(closedStationId)) {
-                Station closedStation = stationRepository.getStationById(closedStationId);
-                if (closedStation.getGridPosition().isValid()) {
-                    Set<Station> nearbyStations = stationLocations.nearestStationsUnsorted(closedStation, range).
-                            filter(filter::shouldInclude).collect(Collectors.toSet());
-                    createWalksInDB(closedStation, nearbyStations);
+            IdSet<Station> closedStationIds = closure.getStations();
+            closedStationIds.stream().filter(filter::shouldInclude).
+                forEach(closedStationId -> {
+                    Station closedStation = stationRepository.getStationById(closedStationId);
+                    if (closedStation.getGridPosition().isValid()) {
+                        Set<Station> nearbyStations = stationLocations.nearestStationsUnsorted(closedStation, range).
+                                filter(filter::shouldInclude).collect(Collectors.toSet());
+                        createWalksInDB(closedStation, nearbyStations);
                     }
-            }
+                });
         });
     }
 

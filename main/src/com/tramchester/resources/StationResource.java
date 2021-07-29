@@ -173,14 +173,14 @@ public class StationResource extends UsesRecentCookie  {
 
         logger.info("Get closed stations " + closures);
 
-        List<StationClosureDTO> dtos = closures.stream().map(this::createClosureDTO).collect(Collectors.toList());
+        List<StationClosureDTO> dtos = closures.stream().flatMap(closure ->
+                        closure.getStations().stream().
+                                map(stationRepository::getStationById).
+                                map(closedStation -> new StationClosureDTO(closure, closedStation))).
+                collect(Collectors.toList());
+
         return Response.ok(dtos).build();
 
-    }
-
-    private StationClosureDTO createClosureDTO(StationClosure stationClosure) {
-        Station closedStation = stationRepository.getStationById(stationClosure.getStation());
-        return new StationClosureDTO(stationClosure, closedStation);
     }
 
 }
