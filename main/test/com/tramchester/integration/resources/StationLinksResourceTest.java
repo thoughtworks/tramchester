@@ -12,6 +12,7 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.EcclesLineWork;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -41,7 +42,7 @@ class StationLinksResourceTest {
         dependencies = app.getDependencies();
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldGetStationLinks() {
         String endPoint = "links/all";

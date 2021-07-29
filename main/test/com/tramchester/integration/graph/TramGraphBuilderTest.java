@@ -22,6 +22,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -132,7 +133,7 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(StPetersSquare.getId()));
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -164,7 +165,7 @@ class TramGraphBuilderTest {
         assertEquals(0, fileSvcIds.size());
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldHaveCorrectRelationshipsAtCornbrook() {
 
@@ -185,7 +186,7 @@ class TramGraphBuilderTest {
 
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
         checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);

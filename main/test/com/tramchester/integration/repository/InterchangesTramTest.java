@@ -14,6 +14,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.junit.jupiter.api.*;
 
 import java.util.Set;
@@ -55,7 +56,7 @@ public class InterchangesTramTest {
         }
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));

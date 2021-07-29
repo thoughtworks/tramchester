@@ -27,6 +27,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.neo4j.logging.shaded.log4j.LogManager;
 import org.slf4j.Logger;
@@ -149,6 +150,10 @@ public class App extends Application<AppConfiguration>  {
 
         // TODO This is the SameSite WORKAROUND, remove once jersey NewCookie adds SameSite method
         environment.jersey().register(new ResponseCookieFilter());
+
+        // WIP - does not work, leave above workaround in place
+//        environment.getApplicationContext().getServletContext().setAttribute(HttpCookie.SAME_SITE_DEFAULT_ATTRIBUTE,
+//                HttpCookie.SameSite.STRICT);
 
         // only enable live data present in config
         if (configuration.liveDataEnabled()) {

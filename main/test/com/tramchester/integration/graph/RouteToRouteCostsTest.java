@@ -21,6 +21,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -147,7 +148,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, result.getMin());
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldFindMediaCityHops() {
         Station start = stationRepository.getStationById(TramStations.MediaCityUK.getId());

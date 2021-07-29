@@ -27,6 +27,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -46,8 +47,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TransportDataFromFilesTramTest {
 
-    public static final int NUM_TFGM_TRAM_ROUTES = 14;
-    public static final int NUM_TFGM_TRAM_STATIONS = 99 - 10; // summer closures of eccles line
+    public static final int NUM_TFGM_TRAM_ROUTES = 26;
+    public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
 
@@ -80,7 +81,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations().size());
         assertEquals(NUM_TFGM_TRAM_ROUTES, transportData.getRoutes().size());
 
-        int expected = 199 - 19; // summer 2021 closures
+        int expected = 199; // summer 2021 closures
         assertEquals(expected, transportData.getPlatforms().size());
     }
 
@@ -119,8 +120,7 @@ public class TransportDataFromFilesTramTest {
         IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
         // 2*3 expected, but includes eccles as well
-        // 10->8 summer 2021 closures
-        assertEquals(8, traffordBarRoutes.size());
+        assertEquals(16, traffordBarRoutes.size());
 
         // contains -> containsAll
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
@@ -144,7 +144,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<Route> callingRoutes = routeStationSet.stream().map(RouteStation::getRoute).collect(Collectors.toSet());
 
-        assertEquals(4, callingRoutes.size());
+        assertEquals(6, callingRoutes.size());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class TransportDataFromFilesTramTest {
         Collection<Route> results = transportData.getRoutes();
         long tramRoutes = results.stream().filter(route -> route.getAgency().equals(TestEnv.MetAgency())).count();
 
-        assertEquals(14, tramRoutes);
+        assertEquals(NUM_TFGM_TRAM_ROUTES, tramRoutes);
     }
 
     @Test
@@ -402,7 +402,7 @@ public class TransportDataFromFilesTramTest {
         });
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);

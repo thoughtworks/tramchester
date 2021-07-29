@@ -9,6 +9,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.junit.jupiter.api.*;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -35,7 +36,7 @@ class RouteEndRepositoryTramTest {
         endStationsRepository = componentContainer.get(RouteEndRepository.class);
     }
 
-    @Disabled("summer2021")
+    @EcclesLineWork
     @Test
     void shouldFindEndsOfLinesForTram() {
         IdSet<Station> results = endStationsRepository.getStations(TransportMode.Tram);
