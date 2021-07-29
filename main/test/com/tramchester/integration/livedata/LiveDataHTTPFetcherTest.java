@@ -15,6 +15,7 @@ import com.tramchester.livedata.mappers.LiveDataParser;
 import com.tramchester.livedata.repository.TramStationByName;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import org.junit.jupiter.api.*;
 
@@ -72,7 +73,7 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @LiveDataTestCategory
+    @LiveDataMessagesCategory
     void shouldFetchValidDataFromTFGMAPI() {
         List<StationDepartureInfo> departureInfos = parser.parse(payload);
 

@@ -46,6 +46,26 @@ public class StationClosureConfig extends Configuration implements StationClosur
                 "station=" + station +
                 ", begin=" + begin +
                 ", end=" + end +
-                "} " + super.toString();
+                "} ";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StationClosureConfig that = (StationClosureConfig) o;
+
+        if (!station.equals(that.station)) return false;
+        if (!begin.equals(that.begin)) return false;
+        return end.equals(that.end);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = station.hashCode();
+        result = 31 * result + begin.hashCode();
+        result = 31 * result + end.hashCode();
+        return result;
     }
 }

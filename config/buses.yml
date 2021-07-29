@@ -29,6 +29,7 @@ gtfsSourceConfig:
     noServices: []
     additionalInterchanges: []
     compositeStationModes: [ Bus ]
+    stationClosures: []
 remoteSources:
   -
     name: tfgm

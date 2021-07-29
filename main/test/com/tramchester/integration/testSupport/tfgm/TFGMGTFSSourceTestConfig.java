@@ -87,4 +87,9 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
     public List<StationClosure> getStationClosures() {
         return closedStations;
     }
+
+    @Override
+    public boolean getAddWalksForClosed() {
+        return !closedStations.isEmpty();
+    }
 }

@@ -28,6 +28,7 @@ gtfsSourceConfig:
     noServices: []
     additionalInterchanges: []
     compositeStationModes: []
+    stationClosures: []
 remoteSources:
   -
     name: gbRail

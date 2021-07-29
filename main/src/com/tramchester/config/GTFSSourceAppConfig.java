@@ -56,6 +56,10 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @JsonProperty("stationClosures")
     private List<StationClosure> closures;
 
+    @NotNull
+    @JsonProperty("addWalksForClosed")
+    private boolean addWalksForClosed;
+
     @Override
     public String getName() {
         return name;
@@ -99,6 +103,11 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @Override
     public List<StationClosure> getStationClosures() {
         return closures;
+    }
+
+    @Override
+    public boolean getAddWalksForClosed() {
+        return addWalksForClosed;
     }
 
 }

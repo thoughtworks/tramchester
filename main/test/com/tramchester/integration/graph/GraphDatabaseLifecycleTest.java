@@ -360,6 +360,11 @@ class GraphDatabaseLifecycleTest {
                 return Collections.emptyList();
             }
 
+            @Override
+            public boolean getAddWalksForClosed() {
+                return false;
+            }
+
         };
     }
 }

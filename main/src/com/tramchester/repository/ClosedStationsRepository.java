@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -58,4 +59,5 @@ public class ClosedStationsRepository {
     public Set<StationClosure> getClosures() {
         return Collections.unmodifiableSet(closed);
     }
+
 }

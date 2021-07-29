@@ -83,4 +83,9 @@ public class GraphQuery {
         return !nodes.isEmpty();
     }
 
+    public boolean hasAnyNodesWithLabelAndId(Transaction txn, GraphLabel label, String property, String key) {
+        Node node = graphDatabase.findNode(txn, label, property, key);
+        return node != null;
+    }
+
 }

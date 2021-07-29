@@ -50,4 +50,6 @@ public interface GTFSSourceConfig extends HasDataPath {
     Set<TransportMode> compositeStationModes();
 
     List<StationClosure> getStationClosures();
+
+    boolean getAddWalksForClosed();
 }

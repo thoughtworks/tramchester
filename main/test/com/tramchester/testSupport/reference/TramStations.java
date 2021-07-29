@@ -61,11 +61,9 @@ public enum TramStations implements TestStations {
     Intu("9400ZZMATRC", "The Trafford Centre", "The Trafford Centre", pos(53.46782, -2.34751)),
     Eccles("9400ZZMAECC", "Eccles", "Eccles", pos(53.48307, -2.33454));
 
-    public static final int NumberOf = 99;
-
     public static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
             ManAirport,
-            //Eccles, summer 2021 closures
+            Eccles,
             EastDidsbury,
             Ashton,
             Rochdale,

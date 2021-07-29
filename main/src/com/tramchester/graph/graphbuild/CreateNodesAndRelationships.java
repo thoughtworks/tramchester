@@ -27,7 +27,6 @@ public class CreateNodesAndRelationships {
 
     public CreateNodesAndRelationships(GraphDatabase graphDatabase) {
         this.graphDatabase = graphDatabase;
-        //this.nodeTypeRepository = nodeTypeRepository;
         numberNodes = 0;
         numberRelationships = 0;
     }

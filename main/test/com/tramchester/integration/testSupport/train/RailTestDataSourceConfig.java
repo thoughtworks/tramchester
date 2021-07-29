@@ -66,4 +66,9 @@ public class RailTestDataSourceConfig implements GTFSSourceConfig {
     public List<StationClosure> getStationClosures() {
         return Collections.emptyList();
     }
+
+    @Override
+    public boolean getAddWalksForClosed() {
+        return false;
+    }
 }

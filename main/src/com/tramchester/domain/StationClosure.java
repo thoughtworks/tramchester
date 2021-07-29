@@ -7,6 +7,12 @@ import com.tramchester.domain.places.Station;
 
 import java.time.LocalDate;
 
+
+// config example
+//      - station: 9400ZZMAEXS
+//              begin: 2021-07-22
+//              end: 2021-07-30
+
 @JsonDeserialize(as=StationClosureConfig.class)
 public interface StationClosure {
 

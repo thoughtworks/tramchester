@@ -14,6 +14,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.AddNeighboursGraphBuilder;
+import com.tramchester.graph.AddWalksForClosedGraphBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.GraphFilter;

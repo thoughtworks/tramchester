@@ -120,7 +120,7 @@ public class TransportDataFromFilesTramTest {
         IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
         // 2*3 expected, but includes eccles as well
-        assertEquals(16, traffordBarRoutes.size());
+        assertEquals(18, traffordBarRoutes.size());
 
         // contains -> containsAll
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
@@ -131,8 +131,8 @@ public class TransportDataFromFilesTramTest {
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
 
         // summer 2021
-        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
-        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
     }
 
     @Test
@@ -160,12 +160,12 @@ public class TransportDataFromFilesTramTest {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 
         // 8 -> 6 summer 2021 closures
-        assertEquals(6, routeStations.size(), routeStations.toString());
+        assertEquals(14, routeStations.size(), routeStations.toString());
 
         Set<String> names = routeStations.stream().map(routeStation -> routeStation.getRoute().getShortName()).collect(Collectors.toSet());
 
-        // 4-3 summer 2021
-        assertEquals(3, names.size());
+        // 4->3 summer 2021
+        assertEquals(4, names.size());
         assertTrue(names.contains(VictoriaWythenshaweManchesterAirport.shortName()));
         assertTrue(names.contains(ManchesterAirportWythenshaweVictoria.shortName()));
         assertTrue(names.contains(BuryPiccadilly.shortName()));

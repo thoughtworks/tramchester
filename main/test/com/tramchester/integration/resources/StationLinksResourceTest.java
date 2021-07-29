@@ -8,14 +8,13 @@ import com.tramchester.domain.presentation.DTO.StationRefWithPosition;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.EcclesLineWork;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -70,7 +69,7 @@ class StationLinksResourceTest {
         assertEquals(200, response.getStatus(), "status");
 
         List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
-        assertEquals(180, results.size(), "count");
+        assertEquals(202, results.size(), "count");
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
         assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));

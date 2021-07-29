@@ -22,19 +22,23 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.EcclesLineWork;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_ROUTES;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RouteToRouteCostsTest {
 
@@ -76,7 +80,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldHaveExpectedNumberOfInterconnections() {
-        assertEquals((14*14), routeCosts.size());
+        final int expected = NUM_TFGM_TRAM_ROUTES * NUM_TFGM_TRAM_ROUTES;
+        assertEquals(expected, routeCosts.size());
     }
 
     @Test
@@ -136,7 +141,7 @@ public class RouteToRouteCostsTest {
         NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
         // 1->2 summer 2021
-        assertEquals(2, result.getMax());
+        assertEquals(1, result.getMax());
     }
 
     @Test

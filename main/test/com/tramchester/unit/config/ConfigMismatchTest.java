@@ -132,6 +132,7 @@ class ConfigMismatchTest {
             assertEquals(expectedDataSource.getNoServices(), dataSourceConfig.getNoServices() , "NoServices");
             assertEquals(expectedDataSource.getTransportGTFSModes(), dataSourceConfig.getTransportGTFSModes(), "TransportGTFSModes");
             assertEquals(expectedDataSource.getAdditionalInterchanges(), dataSourceConfig.getAdditionalInterchanges(), "AdditionalInterchanges");
+            //assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
         }
     }
 

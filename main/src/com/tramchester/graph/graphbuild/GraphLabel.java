@@ -26,6 +26,7 @@ public enum GraphLabel implements Label {
     MINUTE,
     VERSION,
     NEIGHBOURS_ENABLED,
+    WALK_FOR_CLOSED_ENABLED,
     COMPOSITES_ADDED,
     HAS_PLATFORMS, // label added to stations if have platforms
     INTERCHANGE, // label added to stations if they are interchanges

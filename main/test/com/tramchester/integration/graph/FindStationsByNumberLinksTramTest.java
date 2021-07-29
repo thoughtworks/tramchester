@@ -60,15 +60,15 @@ class FindStationsByNumberLinksTramTest {
     void shouldIdForkPointsFromTramNetworkSummer2021Closures() {
         int threshhold = 3;
         IdSet<Station> found = finder.findAtLeastNConnectionsFrom(TransportMode.Tram, threshhold);
-        assertEquals(8, found.size());
+        assertEquals(10, found.size());
         assertTrue(found.contains(TramStations.StPetersSquare.getId()));
-//        assertTrue(found.contains(TramStations.Broadway.getId()));
+        assertTrue(found.contains(TramStations.Broadway.getId()));
         assertTrue(found.contains(TramStations.PiccadillyGardens.getId()));
         assertTrue(found.contains(TramStations.MarketStreet.getId()));
         assertTrue(found.contains(TramStations.Pomona.getId()));
         assertTrue(found.contains(TramStations.TraffordBar.getId()));
         assertTrue(found.contains(TramStations.StWerburghsRoad.getId()));
-//        assertTrue(found.contains(TramStations.HarbourCity.getId()));
+        assertTrue(found.contains(TramStations.HarbourCity.getId()));
         assertTrue(found.contains(TramStations.Cornbrook.getId()));
         assertTrue(found.contains(TramStations.Victoria.getId()));
 

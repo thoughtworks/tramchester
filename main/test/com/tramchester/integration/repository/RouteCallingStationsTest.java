@@ -72,14 +72,11 @@ class RouteCallingStationsTest {
     void shouldGetCorrectStationsForARouteEcclesToAsh() {
         List<Station> stations = getStationsFor(EcclesManchesterAshtonUnderLyne);
 
-        // summer 2021
-//        assertIdEquals(Eccles, stations.get(0));
-//        assertIdEquals(MediaCityUK, stations.get(5));
-//        assertIdEquals(Deansgate, stations.get(12));
-//        assertIdEquals(Ashton, stations.get(27));
+        assertIdEquals(Eccles, stations.get(0));
+        assertIdEquals(MediaCityUK, stations.get(5));
+        assertIdEquals(Deansgate, stations.get(12));
+        assertIdEquals(Ashton, stations.get(27));
 
-        // summer 2021
-        assertIdEquals(Piccadilly, stations.get(0));
     }
 
     @Test
@@ -89,8 +86,8 @@ class RouteCallingStationsTest {
         assertIdEquals(Piccadilly, stations.get(12));
 
         // summer 2021
-//        assertIdEquals(Eccles, stations.get(27));
-//        assertIdEquals(MediaCityUK, stations.get(22));
+        assertIdEquals(Eccles, stations.get(27));
+        assertIdEquals(MediaCityUK, stations.get(22));
     }
 
     @Test
@@ -102,7 +99,7 @@ class RouteCallingStationsTest {
         });
 
         // 11->10 summer 2021
-        assertEquals(10, foundEndOfLines.size());
+        assertEquals(11, foundEndOfLines.size());
     }
 
     @Test
@@ -112,8 +109,8 @@ class RouteCallingStationsTest {
 
         // not 27, some journeys skip mediacity UK
         // 28 -> 13 summer 2021
-        assertEquals(13, getStationsFor(AshtonUnderLyneManchesterEccles).size());
-        assertEquals(13, getStationsFor(EcclesManchesterAshtonUnderLyne).size());
+        assertEquals(28, getStationsFor(AshtonUnderLyneManchesterEccles).size());
+        assertEquals(28, getStationsFor(EcclesManchesterAshtonUnderLyne).size());
 
         assertEquals(33, getStationsFor(EastDidisburyManchesterShawandCromptonRochdale).size());
         assertEquals(33, getStationsFor(RochdaleShawandCromptonManchesterEastDidisbury).size());
