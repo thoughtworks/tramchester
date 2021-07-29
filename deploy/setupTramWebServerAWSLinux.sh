@@ -66,7 +66,7 @@ chown -R ec2-user .
 
 # start 
 logger Start tramchester
-export JAVA_OPTS="-Xmx450m"
+export JAVA_OPTS="-Xmx550m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
 logger Finish Web bootstrap script for $BUILD and $PLACE
