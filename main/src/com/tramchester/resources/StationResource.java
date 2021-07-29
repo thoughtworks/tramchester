@@ -7,6 +7,7 @@ import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -173,14 +174,19 @@ public class StationResource extends UsesRecentCookie  {
 
         logger.info("Get closed stations " + closures);
 
-        List<StationClosureDTO> dtos = closures.stream().flatMap(closure ->
-                        closure.getStations().stream().
-                                map(stationRepository::getStationById).
-                                map(closedStation -> new StationClosureDTO(closure, closedStation))).
+        List<StationClosureDTO> dtos = closures.stream().
+                map(closure -> new StationClosureDTO(closure.getBegin(), closure.getEnd(), toRefs(closure))).
                 collect(Collectors.toList());
 
         return Response.ok(dtos).build();
 
+    }
+
+    private List<StationRefDTO> toRefs(StationClosure closure) {
+        return closure.getStations().stream().
+                map(stationRepository::getStationById).
+                map(StationRefDTO::new).
+                collect(Collectors.toList());
     }
 
 }

@@ -16,14 +16,30 @@ export default {
             console.log(error)
         });
     },
-   
+    methods: {
+        displayStations(stations) {
+            if (stations.length==1) {
+                return stations[0].name + " is"
+            }
+
+            var result = "";
+            stations.forEach(station => {
+                if (result.length!=0) {
+                    result += ", ";
+                }
+                result += station.name;
+            });
+            result += " are"
+            return result;
+        }
+    },
     template: `
     <div id="closuresComponent" v-if="closures.length>0">
         <b-card bg-variant="warning" class="tramchesterApp mb-2 w-75" >
             <b-card-text>
                 <ul id="ClosureList" class="Closures list-group list-group-flush">
                     <li v-for="closed in closures" id="ClosedItem">
-                        {{closed.station.name}} station is closed between {{closed.begin}} and {{closed.end}}
+                        {{displayStations(closed.stations)}} closed between {{closed.begin}} and {{closed.end}}
                     </li>
                 </ul>
                 Visit <a href="https://www.tfgm.com/">www.tfgm.com</a> for full details

@@ -3,7 +3,6 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
 import com.tramchester.domain.id.IdSet;
@@ -11,8 +10,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -167,7 +166,9 @@ class StationResourceTest {
 
         assertEquals(1, results.size());
         StationClosureDTO stationClosure = results.get(0);
-        assertEquals(TramStations.StPetersSquare.forDTO(), stationClosure.getStation().getId());
+        List<StationRefDTO> stations = stationClosure.getStations();
+        assertEquals(1, stations.size());;
+        assertEquals(TramStations.StPetersSquare.forDTO(), stations.get(0).getId());
         assertEquals(TestEnv.testDay(), stationClosure.getBegin());
         assertEquals(TestEnv.testDay().plusWeeks(1), stationClosure.getEnd());
     }

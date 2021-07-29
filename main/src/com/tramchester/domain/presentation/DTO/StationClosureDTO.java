@@ -8,16 +8,17 @@ import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class StationClosureDTO {
-    private StationRefDTO station;
+    private List<StationRefDTO> stations;
     private LocalDate begin;
     private LocalDate end;
 
-    public StationClosureDTO(StationClosure stationClosure, Station closedStation) {
-        this.station = new StationRefDTO(closedStation);
-        this.begin = stationClosure.getBegin();
-        this.end = stationClosure.getEnd();
+    public StationClosureDTO(LocalDate begin, LocalDate end, List<StationRefDTO> stations) {
+        this.stations = stations;
+        this.begin = begin;
+        this.end = end;
     }
 
     @SuppressWarnings("unused")
@@ -25,8 +26,8 @@ public class StationClosureDTO {
         // deserialisation
     }
 
-    public StationRefDTO getStation() {
-        return station;
+    public List<StationRefDTO> getStations() {
+        return stations;
     }
 
     @JsonSerialize(using = LocalDateJsonSerializer.class)

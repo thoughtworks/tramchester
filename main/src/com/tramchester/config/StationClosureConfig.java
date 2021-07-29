@@ -1,32 +1,32 @@
 package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.StationClosure;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.Set;
 
 // config example
-//      - station: 9400ZZMAEXS
+//      - stations: ["9400ZZMAEXS"]
 //              begin: 2021-07-22
 //              end: 2021-07-30
 
 @Valid
 public class StationClosureConfig extends Configuration implements StationClosure {
 
-    private final StringIdFor<Station> station;
+    private final Set<IdFor<Station>> stations;
     private final LocalDate begin;
     private final LocalDate end;
 
-    public StationClosureConfig(@JsonProperty(value = "station", required = true) StringIdFor<Station> station,
+    public StationClosureConfig(@JsonProperty(value = "stations", required = true) Set<IdFor<Station>> stations,
                                 @JsonProperty(value = "begin", required = true) LocalDate begin,
                                 @JsonProperty(value = "end", required = true) LocalDate end) {
-        this.station = station;
+        this.stations = stations;
         this.begin = begin;
         this.end = end;
     }
@@ -34,7 +34,7 @@ public class StationClosureConfig extends Configuration implements StationClosur
 
     @Override
     public IdSet<Station> getStations() {
-        return IdSet.singleton(station);
+        return IdSet.wrap(stations);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class StationClosureConfig extends Configuration implements StationClosur
     @Override
     public String toString() {
         return "StationClosureConfig{" +
-                "station=" + station +
+                "stations=" + stations +
                 ", begin=" + begin +
                 ", end=" + end +
                 "} ";
@@ -63,14 +63,14 @@ public class StationClosureConfig extends Configuration implements StationClosur
 
         StationClosureConfig that = (StationClosureConfig) o;
 
-        if (!station.equals(that.station)) return false;
+        if (!stations.equals(that.stations)) return false;
         if (!begin.equals(that.begin)) return false;
         return end.equals(that.end);
     }
 
     @Override
     public int hashCode() {
-        int result = station.hashCode();
+        int result = stations.hashCode();
         result = 31 * result + begin.hashCode();
         result = 31 * result + end.hashCode();
         return result;
