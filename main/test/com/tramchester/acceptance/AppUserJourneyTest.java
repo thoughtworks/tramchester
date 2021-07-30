@@ -29,10 +29,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.testSupport.reference.KnownTramRoute.AltrinchamPiccadilly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
-import static com.tramchester.testSupport.reference.TramStations.Intu;
-import static com.tramchester.testSupport.reference.TramStations.TraffordBar;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -156,36 +156,38 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
+        final String from = this.altrincham;
+        final String to = this.deansgate;
+        desiredJourney(appPage, from, to, when, TramTime.of(10,15), false);
         appPage.planAJourney();
 
-        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
 
         // so above station in recents
-        appPage.setStart(TramStations.ExchangeSquare.getName()); // so alty is available in the recents list
-        appPage.setDest(TramStations.PiccadillyGardens.getName()); // so bury is available in the recents list
+        appPage.setStart(ExchangeSquare.getName()); // so 'from' is available in the recents list
+        appPage.setDest(TramStations.PiccadillyGardens.getName()); // so 'to' is available in the recents list
 
         // check 'from' recents are set
         List<String> fromRecent = appPage.getRecentFromStops();
-        assertThat(fromRecent, hasItems(altrincham, bury));
+        assertThat(fromRecent, hasItems(from, to));
 
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations
-        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS-1,
+        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
                 remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
 
         // check 'to' recents are set
         List<String> toRecent = appPage.getRecentToStops();
-        assertThat(toRecent, hasItems(altrincham,bury));
+        assertThat(toRecent, hasItems(from, to));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
-        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS-1,
+        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
                 remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, TramStations.ExchangeSquare.getName(), TramStations.PiccadillyGardens.getName(), "10:15", when, false);
+        assertJourney(appPage, ExchangeSquare.getName(), PiccadillyGardens.getName(), "10:15", when, false);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -273,15 +275,15 @@ class AppUserJourneyTest extends UserJourneyTest {
         TramTime eightFifteen = TramTime.of(9,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
+        desiredJourney(appPage, altrincham, deansgate, when, tenFifteen, false);
         appPage.planAJourney();
-        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
         assertTrue(results.get(0).getDepartTime().isAfter(tenFifteen), "depart not after " + tenFifteen);
 
-        desiredJourney(appPage, altrincham, bury, when, eightFifteen, false);
+        desiredJourney(appPage, altrincham, deansgate, when, eightFifteen, false);
         appPage.planAJourney();
         // need way to delay response for this test to be useful
         //assertFalse(appPage.searchEnabled());
@@ -299,9 +301,9 @@ class AppUserJourneyTest extends UserJourneyTest {
         TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
+        desiredJourney(appPage, altrincham, deansgate, when, tenFifteen, false);
         appPage.planAJourney();
-        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
@@ -325,9 +327,9 @@ class AppUserJourneyTest extends UserJourneyTest {
         TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, tenFifteen, false);
+        desiredJourney(appPage, altrincham, deansgate, when, tenFifteen, false);
         appPage.planAJourney();
-        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
@@ -401,18 +403,18 @@ class AppUserJourneyTest extends UserJourneyTest {
         AppPage appPage = prepare(providesDriver, url);
         LocalDate aSaturday = TestEnv.nextSaturday();
 
-        desiredJourney(appPage, altrincham, bury, aSaturday, time, false);
+        desiredJourney(appPage, altrincham, deansgate, aSaturday, time, false);
         appPage.planAJourney();
-        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.notesPresent());
         assertTrue(appPage.hasWeekendMessage());
 
-        desiredJourney(appPage, altrincham, bury, when, time, false);
+        desiredJourney(appPage, altrincham, deansgate, when, time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.noWeekendMessage());
 
-        desiredJourney(appPage, altrincham, bury, aSaturday.plusDays(1), time, false);
+        desiredJourney(appPage, altrincham, deansgate, aSaturday.plusDays(1), time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());

@@ -45,7 +45,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
         IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
 
-        validateCoreParameters(appConfig, testConfig);
+        validateCoreParameters(false, appConfig, testConfig);
     }
 
     @Test
@@ -54,7 +54,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("buses.yml");
         IntegrationBusTestConfig testConfig = new IntegrationBusTestConfig();
 
-        validateCoreParameters(appConfig, testConfig);
+        validateCoreParameters(true, appConfig, testConfig);
     }
 
     @Test
@@ -63,7 +63,7 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("trains.yml");
         IntegrationTrainTestConfig testConfig = new IntegrationTrainTestConfig();
 
-        validateCoreParameters(appConfig, testConfig);
+        validateCoreParameters(true, appConfig, testConfig);
     }
 
     @Test
@@ -72,13 +72,13 @@ class ConfigMismatchTest {
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
         AppConfiguration accTestConfig = loadConfigFromFile("localAcceptance.yml");
 
-        validateCoreParameters(appConfig, accTestConfig);
+        validateCoreParameters(true, appConfig, accTestConfig);
 
         assertEquals(appConfig.getQueryInterval(), accTestConfig.getQueryInterval(), "getQueryInterval");
         assertEquals(appConfig.getNumberQueries(), accTestConfig.getNumberQueries(), "getNumberQueries");
     }
 
-    private void validateCoreParameters(AppConfiguration expected, AppConfiguration testConfig) {
+    private void validateCoreParameters(boolean checkClosures, AppConfiguration expected, AppConfiguration testConfig) {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");
@@ -100,7 +100,7 @@ class ConfigMismatchTest {
 
         checkDBConfig(expected, testConfig);
 
-        checkGTFSSourceConfig(expected, testConfig);
+        checkGTFSSourceConfig(expected, testConfig, checkClosures);
 
         checkRemoteDataSourceConfig(expected, testConfig);
 
@@ -120,7 +120,7 @@ class ConfigMismatchTest {
         }
     }
 
-    private void checkGTFSSourceConfig(AppConfiguration expected, AppConfiguration testConfig) {
+    private void checkGTFSSourceConfig(AppConfiguration expected, AppConfiguration testConfig, boolean checkClosures) {
         List<GTFSSourceConfig> expectedgtfsDataSource = expected.getGTFSDataSource();
         List<GTFSSourceConfig> foundgtfsDataSource = testConfig.getGTFSDataSource();
         assertEquals(expectedgtfsDataSource.size(), foundgtfsDataSource.size());
@@ -132,7 +132,9 @@ class ConfigMismatchTest {
             assertEquals(expectedDataSource.getNoServices(), dataSourceConfig.getNoServices() , "NoServices");
             assertEquals(expectedDataSource.getTransportGTFSModes(), dataSourceConfig.getTransportGTFSModes(), "TransportGTFSModes");
             assertEquals(expectedDataSource.getAdditionalInterchanges(), dataSourceConfig.getAdditionalInterchanges(), "AdditionalInterchanges");
-            //assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
+            if (checkClosures) {
+                assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
+            }
         }
     }
 
