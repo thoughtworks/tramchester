@@ -216,6 +216,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ServiceReason.ReasonCode.NotReachable;
             }
             if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
+                // NOTE: might still reach the closed station via a walk, which is not via the RouteStation
                 return ServiceReason.ReasonCode.StationClosed;
             }
         }

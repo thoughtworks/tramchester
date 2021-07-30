@@ -34,8 +34,8 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         this(DB_NAME, liveDataEnabled, Collections.emptyList());
     }
 
-    public IntegrationTramTestConfig(List<StationClosure> closedStations) {
-        this(DB_NAME, false, closedStations);
+    public IntegrationTramTestConfig(String dbName, List<StationClosure> closedStations) {
+        this(dbName, false, closedStations);
     }
 
     protected IntegrationTramTestConfig(String dbName) {

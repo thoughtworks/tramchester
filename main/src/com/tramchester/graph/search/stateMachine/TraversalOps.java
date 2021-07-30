@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -20,6 +21,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,11 +38,13 @@ public class TraversalOps {
     private final LatLong destinationLatLon;
     private final SortsPositions sortsPositions;
     private final LowestCostsForRoutes lowestCostsForRoutes;
+    private final LocalDate queryDate;
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, Set<Station> destinationStations,
-                        LatLong destinationLatLon, LowestCostsForRoutes lowestCostsForRoutes) {
+                        LatLong destinationLatLon, LowestCostsForRoutes lowestCostsForRoutes,
+                        TramServiceDate queryDate) {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
@@ -50,6 +54,7 @@ public class TraversalOps {
                 collect(IdSet.collector());
         this.destinationLatLon = destinationLatLon;
         this.lowestCostsForRoutes = lowestCostsForRoutes;
+        this.queryDate = queryDate.getDate();
     }
 
     public List<Relationship> getTowardsDestination(Iterable<Relationship> outgoing) {
@@ -112,6 +117,10 @@ public class TraversalOps {
     public boolean hasOutboundFor(Node node, IdFor<Service> serviceId) {
         return Streams.stream(node.getRelationships(Direction.OUTGOING, TO_SERVICE)).
                 anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
+    }
+
+    public LocalDate getQueryDate() {
+        return queryDate;
     }
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {

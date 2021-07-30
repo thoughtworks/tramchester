@@ -18,6 +18,7 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -41,6 +42,22 @@ public class GraphProps {
 
     public static <C extends GraphProperty> void setProperty(Entity entity, HasId<C> item) {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
+    }
+
+    public static void setEndDate(Relationship relationship, LocalDate date) {
+        relationship.setProperty(END_DATE.getText(), date);
+    }
+
+    public static LocalDate getEndDate(Relationship relationship) {
+        return (LocalDate) relationship.getProperty(END_DATE.getText());
+    }
+
+    public static void setStartDate(Relationship relationship, LocalDate date) {
+        relationship.setProperty(START_DATE.getText(), date);
+    }
+
+    public static LocalDate getStartDate(Relationship relationship) {
+        return (LocalDate) relationship.getProperty(START_DATE.getText());
     }
 
     public static void setProperty(Entity entity, TransportMode mode) {
@@ -220,4 +237,5 @@ public class GraphProps {
         Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
         return EnumSet.copyOf(set);
     }
+
 }

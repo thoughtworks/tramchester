@@ -31,8 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.id.HasId.asIds;
 import static com.tramchester.graph.GraphPropertyKey.SOURCE_NAME_PROP;
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_FROM;
-import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 @LazySingleton
 public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
@@ -67,10 +66,11 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
         config.getGTFSDataSource().forEach(source -> {
             boolean hasDBFlag = hasDBFlag(source);
 
+            final String sourceName = source.getName();
             if (!source.getAddWalksForClosed()) {
-                logger.info("Create walks is disabled in configuration");
+                logger.info("Create walks is disabled in configuration for " + sourceName);
                 if (hasDBFlag) {
-                    final String message = "DB rebuild is required, mismatch on config (false) and db (true) for " + source.getName();
+                    final String message = "DB rebuild is required, mismatch on config (false) and db (true) for " + sourceName;
                     logger.error(message);
                     throw new RuntimeException(message);
                 }
@@ -78,7 +78,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
             }
 
             if (hasDBFlag) {
-                logger.info("Node present, assuming walks for closed already built in DB");
+                logger.info("Node and prop present, assuming walks for closed already built in DB for " + sourceName);
                 return;
             }
 
@@ -110,23 +110,26 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
                 forEach(closedStationId -> {
                     Station closedStation = stationRepository.getStationById(closedStationId);
                     if (closedStation.getGridPosition().isValid()) {
-                        Set<Station> nearbyStations = stationLocations.nearestStationsUnsorted(closedStation, range).
-                                filter(filter::shouldInclude).collect(Collectors.toSet());
-                        createWalksInDB(closedStation, nearbyStations);
+                        Set<Station> nearbyOpenStations = stationLocations.nearestStationsUnsorted(closedStation, range).
+                                filter(filter::shouldInclude).
+                                filter(nearby -> !closedStationIds.contains(nearby.getId())).
+                                collect(Collectors.toSet());
+                        createWalksInDB(closedStation, nearbyOpenStations, closure);
                     }
                 });
         });
     }
 
-    private void createWalksInDB(Station station, Set<Station> neighbours) {
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create walks for " +station.getId())) {
+    private void createWalksInDB(Station closedStation, Set<Station> nearby, StationClosure closure) {
+        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create walks for " +closedStation.getId())) {
             Transaction txn = timedTransaction.transaction();
-            addWalkRelationships(txn, filter, station, neighbours);
+            addWalkRelationships(txn, filter, closedStation, nearby, closure);
             timedTransaction.commit();
         }
     }
 
     private boolean hasDBFlag(GTFSSourceConfig sourceConfig) {
+        logger.info("Checking DB if walks added for " + sourceConfig.getName() +  " closed stations");
         boolean flag;
         try (Transaction txn = graphDatabase.beginTx()) {
             flag = graphQuery.hasAnyNodesWithLabelAndId(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED,
@@ -143,7 +146,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
             Node node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
-                node = txn.createNode(GraphLabel.WALK_FOR_CLOSED_ENABLED);
+                node = createGraphNode(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
             } else {
                 if (nodes.size() != 1) {
                     final String message = "Found too many " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " nodes, should be one only";
@@ -159,7 +162,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private void addWalkRelationships(Transaction txn, GraphFilter filter, Station closedStation, Set<Station> others) {
+    private void addWalkRelationships(Transaction txn, GraphFilter filter, Station closedStation, Set<Station> others,
+                                      StationClosure closure) {
         Node closedNode = graphQuery.getStationOrGrouped(txn, closedStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + closedStation.getId();
@@ -168,7 +172,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
         }
 
         double mph = config.getWalkingMPH();
-        logger.debug("Adding walk relations from " + closedStation.getId() + " to " + asIds(others));
+        logger.info("Adding walk relations from closed " + closedStation.getId() + " to " + asIds(others));
+
         others.stream().filter(filter::shouldInclude).forEach(otherStation -> {
 
             int cost = CoordinateTransforms.calcCostInMinutes(closedStation, otherStation, mph);
@@ -180,18 +185,25 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships {
                 throw new RuntimeException(msg);
             }
 
-            Relationship fromClosed = closedNode.createRelationshipTo(otherNode, WALKS_FROM);
-            Relationship fromOther = otherNode.createRelationshipTo(closedNode, WALKS_TO);
+            Relationship fromClosed = createRelationship(closedNode, otherNode, DIVERSION);
+            Relationship fromOther = createRelationship(otherNode, closedNode, DIVERSION);
 
-            GraphProps.setCostProp(fromClosed, cost);
-            GraphProps.setCostProp(fromOther, cost);
+            setCommonProperties(fromClosed, cost, closure);
+            setCommonProperties(fromOther, cost, closure);
 
             GraphProps.setProperty(fromClosed, otherStation);
             GraphProps.setProperty(fromOther, closedStation);
+
         });
     }
 
-    public class Ready {
+    private void setCommonProperties(Relationship relationship, int cost, StationClosure closure) {
+        GraphProps.setCostProp(relationship, cost);
+        GraphProps.setStartDate(relationship, closure.getBegin());
+        GraphProps.setEndDate(relationship, closure.getEnd());
+    }
+
+    public static class Ready {
         private Ready() {
 
         }

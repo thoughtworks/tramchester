@@ -191,7 +191,7 @@ class StationResourceTest {
     private static class ClosedStationTestConfig extends IntegrationTramTestConfig {
 
        public ClosedStationTestConfig() {
-           super(closedStations);
+           super("closed_stations_int_test_tram.db", closedStations);
        }
 
         private static final List<StationClosure> closedStations = Collections.singletonList(

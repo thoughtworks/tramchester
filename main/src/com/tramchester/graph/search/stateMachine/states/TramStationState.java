@@ -14,7 +14,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 // todo rename PlatformStationState
 public class TramStationState extends StationState {
 
-    public static class Builder implements TowardsStation<TramStationState> {
+    public static class Builder extends StationStateBuilder implements TowardsStation<TramStationState>  {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -38,14 +38,16 @@ public class TramStationState extends StationState {
         }
 
         public TramStationState fromPlatform(PlatformState platformState, Node stationNode, int cost) {
-            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
+            final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
+            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, platformState.traversalOps.getQueryDate());
             return new TramStationState(platformState, filterExcludingEndNode(relationships, platformState), cost, stationNode);
         }
 
         public TramStationState fromStart(NotStartedState notStartedState, Node stationNode, int cost) {
-            final Iterable<Relationship> relationships = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
+            final Iterable<Relationship> initial = stationNode.getRelationships(OUTGOING, WALKS_FROM, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
+            Stream<Relationship> relationships = addValidDiversions(stationNode, initial, notStartedState.traversalOps.getQueryDate());
             return new TramStationState(notStartedState, relationships, cost, stationNode);
         }
 

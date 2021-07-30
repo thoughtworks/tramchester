@@ -267,6 +267,7 @@ public class DiagramCreator {
             case BUS_GOES_TO -> "Bus";
             case TRAIN_GOES_TO -> "Train";
             case LINKED -> "Link";
+            case DIVERSION -> "divert";
             case NEIGHBOUR -> "neigh";
             case FERRY_GOES_TO -> "Ferry";
             case SUBWAY_GOES_TO -> "Subway";

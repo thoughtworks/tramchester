@@ -10,6 +10,7 @@ import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.ProvidesLocalNow;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
@@ -28,7 +29,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -239,7 +239,7 @@ public class MapPathToStagesViaStatesTest {
         Set<Long> destinationNodeIds = Collections.singleton(endNodeWalkNode.getId());
 
         List<RouteCalculator.TimedPath> timedPaths = getPathBetweenNodes(journeyRequest, startNode, destinationNodeIds,
-                destinationStations, numChanges, queryTime);
+                destinationStations, numChanges, journeyRequest.getDate(), queryTime);
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
@@ -263,7 +263,7 @@ public class MapPathToStagesViaStatesTest {
 
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
         List<RouteCalculator.TimedPath> timedPaths = getPathBetweenNodes(journeyRequest, startOfWalkNode, destinationNodeIds,
-            endStations, numChanges, queryTime);
+            endStations, numChanges, journeyRequest.getDate(), queryTime);
 
         RouteCalculator.TimedPath timedPath = timedPaths.get(0);
 
@@ -292,17 +292,18 @@ public class MapPathToStagesViaStatesTest {
                                                        JourneyRequest journeyRequest) {
 
         int numChanges = journeyRequest.getMaxChanges();
+        TramServiceDate queryDate = journeyRequest.getDate();
         TramTime queryTime = journeyRequest.getOriginalTime();
         Node startNode = graphQuery.getStationNode(txn, startStation);
         Node endNode = graphQuery.getStationNode(txn, destination);
         Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
-        return getPathBetweenNodes(journeyRequest, startNode, destinationNodeIds, endStations, numChanges, queryTime);
+        return getPathBetweenNodes(journeyRequest, startNode, destinationNodeIds, endStations, numChanges, queryDate, queryTime);
     }
 
-    private @NotNull List<RouteCalculator.TimedPath> getPathBetweenNodes(
+    private List<RouteCalculator.TimedPath> getPathBetweenNodes(
             JourneyRequest journeyRequest, Node startNode, Set<Long> destinationNodeIds, Set<Station> endStations,
-                                                                         int numChanges, TramTime queryTime) {
+            int numChanges, TramServiceDate queryDate, TramTime queryTime) {
         PreviousVisits previous = new PreviousVisits();
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
         LowestCostsForRoutes lowestCostCalculator = routeToRouteCosts.getLowestCostCalcutatorFor(endStations);
@@ -313,7 +314,7 @@ public class MapPathToStagesViaStatesTest {
 
         LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
-        RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryTime, numChanges,
+        RouteCalculatorSupport.PathRequest pathRequest = new RouteCalculatorSupport.PathRequest(startNode, queryDate, queryTime, numChanges,
                 serviceHeuristics);
 
         Instant begin = Instant.now();

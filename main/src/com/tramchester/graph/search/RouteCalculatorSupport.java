@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -190,9 +191,9 @@ public class RouteCalculatorSupport {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow);
     }
 
-    public PathRequest createPathRequest(Node startNode, TramTime actualQueryTime, int numChanges, JourneyConstraints journeyConstraints) {
+    public PathRequest createPathRequest(Node startNode, TramServiceDate queryDate, TramTime actualQueryTime, int numChanges, JourneyConstraints journeyConstraints) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
-        return new PathRequest(startNode, actualQueryTime, numChanges, serviceHeuristics);
+        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics);
     }
 
     public static class PathRequest {
@@ -200,9 +201,11 @@ public class RouteCalculatorSupport {
         private final TramTime queryTime;
         private final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
+        private final TramServiceDate queryDate;
 
-        public PathRequest(Node startNode, TramTime queryTime, int numChanges, ServiceHeuristics serviceHeuristics) {
+        public PathRequest(Node startNode, TramServiceDate queryDate, TramTime queryTime, int numChanges, ServiceHeuristics serviceHeuristics) {
             this.startNode = startNode;
+            this.queryDate = queryDate;
             this.queryTime = queryTime;
             this.numChanges = numChanges;
             this.serviceHeuristics = serviceHeuristics;
@@ -227,9 +230,13 @@ public class RouteCalculatorSupport {
                     ", queryTime=" + queryTime +
                     ", numChanges=" + numChanges +
                     ", serviceHeuristics=" + serviceHeuristics +
+                    ", queryDate=" + queryDate +
                     '}';
         }
 
+        public TramServiceDate getQueryDate() {
+            return queryDate;
+        }
     }
 
     public static class Finished {

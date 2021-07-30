@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -45,6 +46,7 @@ class JourneyStateTest extends EasyMockSupport {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         LatLong latLongHint = TramStations.ManAirport.getLatLong();
+        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
 
         node = EasyMock.createMock(Node.class);
 
@@ -67,7 +69,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         LowestCostsForRoutes lowestCostsForRoutes = createMock(LowestCostsForRoutes.class);
         final TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPositions,
-                destinations, latLongHint, lowestCostsForRoutes);
+                destinations, latLongHint, lowestCostsForRoutes, queryDate);
         traversalState = new NotStartedState(traversalOps, traversalStateFactory);
         queryTime = TramTime.of(9, 15);
     }

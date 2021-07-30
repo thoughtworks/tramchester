@@ -74,7 +74,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
         TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPosition, endStations,
-                destinationLatLon, lowestCostForRoutes);
+                destinationLatLon, lowestCostForRoutes, journeyRequest.getDate());
 
         MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime, mapper);
 

@@ -129,8 +129,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
+        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
         final TraversalOps traversalOps = new TraversalOps(contentsRepository, tripRepository, sortsPositions, destinationStations,
-                latLongHint, lowestCostsForRoutes);
+                latLongHint, lowestCostsForRoutes, queryDate);
         return new NotStartedState(traversalOps, traversalStateFactory);
     }
 

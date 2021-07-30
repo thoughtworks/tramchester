@@ -18,7 +18,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NoPlatformStationState extends StationState {
 
-    public static class Builder implements TowardsStation<NoPlatformStationState> {
+    public static class Builder extends StationStateBuilder implements TowardsStation<NoPlatformStationState> {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -43,23 +43,22 @@ public class NoPlatformStationState extends StationState {
         }
 
         public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, int cost) {
-            return new NoPlatformStationState(notStartedState,
-                    boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
-                    cost, node);
+            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            Stream<Relationship> relationships = addValidDiversions(node, initial, notStartedState.traversalOps.getQueryDate());
+            return new NoPlatformStationState(notStartedState, relationships, cost, node);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
             // end of a trip, may need to go back to this route station to catch new service
-            return new NoPlatformStationState(routeStationState,
-                    boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
-                    cost, node);
+            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            Stream<Relationship> relationships = addValidDiversions(node, initial, routeStationState.traversalOps.getQueryDate());
+            return new NoPlatformStationState(routeStationState, relationships, cost, node);
         }
 
         public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, int cost) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            Stream<Relationship> stationRelationships = filterExcludingEndNode(
-                    boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT),
-                    onTrip);
+            final Stream<Relationship> relationships = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
+            Stream<Relationship> stationRelationships = filterExcludingEndNode(relationships, onTrip);
             return new NoPlatformStationState(onTrip, stationRelationships, cost, node);
         }
 

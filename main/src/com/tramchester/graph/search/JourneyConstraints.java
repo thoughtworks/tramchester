@@ -37,7 +37,8 @@ public class JourneyConstraints {
     private final LowestCostsForRoutes lowestCostForDestinations;
 
     public JourneyConstraints(TramchesterConfig config, ServiceRepository serviceRepository, JourneyRequest journeyRequest,
-                              ClosedStationsRepository closedStationsRepository, Set<Station> endStations, LowestCostsForRoutes lowestCostForDestinations) {
+                              ClosedStationsRepository closedStationsRepository, Set<Station> endStations,
+                              LowestCostsForRoutes lowestCostForDestinations) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.runningServices = new RunningServices(journeyRequest.getDate(), serviceRepository);

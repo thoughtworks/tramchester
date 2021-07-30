@@ -8,6 +8,7 @@ import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
@@ -66,6 +67,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // TODO Compute over a range of times
         final TramTime originalTime = journeyRequest.getOriginalTime();
 
+        final TramServiceDate queryDate = journeyRequest.getDate();
+
         final LowestCostsForRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
                 journeyRequest, closedStationsRepository, destinations, lowestCostForDestinations);
@@ -87,7 +90,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         filter(start -> !destinations.contains(start)).
                         map(start -> getStationNodeSafe(txn, start)).
                         flatMap(startNode -> numChangesRange(journeyRequest, numberOfChanges).
-                                map(numChanges -> createPathRequest(startNode, originalTime, numChanges, journeyConstraints))).
+                                map(numChanges -> createPathRequest(startNode, queryDate, originalTime, numChanges, journeyConstraints))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
                                 createPreviousVisits(), lowestCostSeenForBox, begin)).

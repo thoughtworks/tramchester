@@ -6,6 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -72,8 +73,9 @@ public class TraversalOpsTest {
         destinationStations.add(manchesterAirport);
         LatLong destinationLatLon = TestEnv.nearPiccGardens;
         LowestCostsForRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations);
+        TramServiceDate queryDate = new TramServiceDate(TestEnv.testDay());
         TraversalOps traversalOps = new TraversalOps(nodeOperations, tripRepository,
-                sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes);
+                sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, queryDate);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 

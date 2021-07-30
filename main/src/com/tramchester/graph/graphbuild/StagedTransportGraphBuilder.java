@@ -72,7 +72,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        TransportData transportData, InterchangeRepository interchangeRepository,
                                        GraphBuilderCache builderCache,
                                        StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
-                                       AddNeighboursGraphBuilder.Ready neighboursReady) {
+                                       AddNeighboursGraphBuilder.Ready neighboursReady,
+                                       AddWalksForClosedGraphBuilder.Ready walksForClosedReady) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;

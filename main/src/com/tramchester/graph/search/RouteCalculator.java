@@ -9,6 +9,7 @@ import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramServiceDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
@@ -101,6 +102,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
         }
 
+        final TramServiceDate queryDate = journeyRequest.getDate();
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), walkAtStart);
         final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
 
@@ -119,7 +121,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Instant begin = providesNow.getInstant();
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, queryTime, numChanges, journeyConstraints))).
+                        map(queryTime -> createPathRequest(startNode, queryDate, queryTime, numChanges, journeyConstraints))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen, begin)).
