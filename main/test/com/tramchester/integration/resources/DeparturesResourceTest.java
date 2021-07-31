@@ -1,6 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.DepartureListDTO;
 import com.tramchester.domain.time.TramTime;
@@ -31,12 +32,13 @@ class DeparturesResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new IntegrationTramTestConfig(true));
 
-    private final List<String> nearby = Arrays.asList(TramStations.PiccadillyGardens.getName(),
-            TramStations.StPetersSquare.getName(),
-            TramStations.Piccadilly.getName(),
-            TramStations.MarketStreet.getName(),
-            TramStations.ExchangeSquare.getName(),
-            "Shudehill");
+    // jul/august 2021, no trams in city
+//    private final List<String> cityCentreLocations = Arrays.asList(TramStations.PiccadillyGardens.getName(),
+//            TramStations.StPetersSquare.getName(),
+//            TramStations.Piccadilly.getName(),
+//            TramStations.MarketStreet.getName(),
+//            TramStations.ExchangeSquare.getName(),
+//            "Shudehill");
 
     private final TramStations stationWithNotes = LiveDataUpdaterTest.StationWithNotes;
 
@@ -111,10 +113,9 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldGetNearbyDeparturesQuerytimeNow() {
-        double lat = 53.4804263d;
-        double lon = -2.2392436d;
+        LatLong where = TestEnv.nearAltrinchamInterchange;
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
-        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(lat, lon, queryTime);
+        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(where.getLat(), where.getLon(), queryTime);
         assertFalse(departures.isEmpty(), "no departures");
     }
 
@@ -160,10 +161,16 @@ class DeparturesResourceTest {
     @Test
     @LiveDataTestCategory
     void shouldNotGetNearbyIfOutsideOfThreshold() {
-        double lat = 53.4804263d;
-        double lon = -2.2392436d;
+        LatLong where = TestEnv.nearAltrinchamInterchange;
 
-        Response response = APIClient.getApiResponse(appExtension, String.format("departures/%s/%s", lat, lon));
+        final List<String> nearAlty = Arrays.asList(TramStations.Altrincham.getName(),
+                TramStations.NavigationRoad.getName());
+
+//        double lat = 53.4804263d;
+//        double lon = -2.2392436d;
+
+        Response response = APIClient.getApiResponse(appExtension, String.format("departures/%s/%s",
+                where.getLat(), where.getLon()));
         assertEquals(200, response.getStatus());
 
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
@@ -178,7 +185,7 @@ class DeparturesResourceTest {
         assertTrue(when.toLocalTime().isAfter(nowMinus5mins.asLocalTime()), when.toString());
 
         String nextDepart = departureDTO.getFrom();
-        assertTrue(nearby.contains(nextDepart), nextDepart);
+        assertTrue(nearAlty.contains(nextDepart), nextDepart);
         assertFalse(departureDTO.getStatus().isEmpty());
         assertFalse(departureDTO.getDestination().isEmpty());
 

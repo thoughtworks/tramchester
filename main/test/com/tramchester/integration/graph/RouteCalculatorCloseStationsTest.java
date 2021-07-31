@@ -89,11 +89,13 @@ class RouteCalculatorCloseStationsTest {
         assertTrue(singleStage.isEmpty());
     }
 
+    @Disabled("WIP")
     @Test
     void shouldFindRouteWhenStartingFromClosedIfWalkPossible() {
         fail("todo");
     }
 
+    @Disabled("WIP")
     @Test
     void shouldFindRouteAroundCloseBackOnToTram() {
         fail("todo");
