@@ -13,15 +13,16 @@ import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 
 public abstract class StationStateBuilder {
 
-    protected Stream<Relationship> addValidDiversions(Node node, Iterable<Relationship> relationships, LocalDate queryDate) {
-        return addValidDiversions(node, Streams.stream(relationships), queryDate);
+    protected Stream<Relationship> addValidDiversions(Node node, Iterable<Relationship> relationships, TraversalState traversalState) {
+        return addValidDiversions(node, Streams.stream(relationships), traversalState);
     }
 
 
-    public Stream<Relationship> addValidDiversions(Node node, Stream<Relationship> relationships, LocalDate queryDate) {
+    public Stream<Relationship> addValidDiversions(Node node, Stream<Relationship> relationships, TraversalState traversalState) {
         if (!node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
             return relationships;
         }
+        LocalDate queryDate = traversalState.traversalOps.getQueryDate();
         Stream<Relationship> diversions = Streams.stream(node.getRelationships(Direction.OUTGOING, DIVERSION));
         Stream<Relationship> validOnDate = diversions.
                 filter(relationship -> !GraphProps.getStartDate(relationship).until(queryDate).isNegative()).

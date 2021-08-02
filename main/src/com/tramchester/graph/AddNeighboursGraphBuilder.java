@@ -62,6 +62,12 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
             return;
         }
 
+        if (config.getMaxNeighbourConnections()==0) {
+            String msg = "createNeighbours is true but maxNeighbourConnections==0";
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
         if (hasDBFlag) {
             logger.info("Node NEIGHBOURS_ENABLED present, assuming neighbours already built in DB");
             return;

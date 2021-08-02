@@ -1,5 +1,6 @@
 package com.tramchester.unit.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.*;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -8,14 +9,18 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validator;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,6 +42,17 @@ class ConfigMismatchTest {
         for (Path config : configFiles) {
             factory.build(config.toFile());
         }
+    }
+
+    @Test
+    void shouldNotUsePrimitiveTypesInAppConfigAsDisablesNullChecking() {
+        Field[] fields = AppConfiguration.class.getDeclaredFields();
+        Set<String> nonPrim = Arrays.stream(fields).
+                filter(field -> field.getAnnotation(JsonProperty.class) != null).
+                filter(field -> field.getType().isPrimitive()).
+                map(Field::getName).
+                collect(Collectors.toSet());
+        assertEquals(Collections.emptySet(), nonPrim);
     }
 
     @Test
@@ -92,6 +108,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getRecentStopsToShow(), testConfig.getRecentStopsToShow(), "RecentStopsToShow");
         assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults(), "MaxNumResults");
         assertEquals(expected.getCreateNeighbours(), testConfig.getCreateNeighbours(), "CreateNeighbours");
+        assertEquals(expected.getMaxNeighbourConnections(), testConfig.getMaxNeighbourConnections(), "Max neighbour connections");
         assertEquals(expected.getDistanceToNeighboursKM(), testConfig.getDistanceToNeighboursKM(), "DistanceToNeighboursKM");
         assertEquals(expected.getTransportModes(), testConfig.getTransportModes(), "getTransportModes");
         assertEquals(expected.getCalcTimeoutMillis(), testConfig.getCalcTimeoutMillis(), "CalcTimeoutMillis");

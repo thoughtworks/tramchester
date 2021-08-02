@@ -31,4 +31,11 @@ public class RunningServices {
     public long count() {
         return serviceIds.size();
     }
+
+    @Override
+    public String toString() {
+        return "RunningServices{" +
+                "serviceIds=" + serviceIds +
+                '}';
+    }
 }

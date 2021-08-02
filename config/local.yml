@@ -29,7 +29,7 @@ gtfsSourceConfig:
     additionalInterchanges: ["9400ZZMACRN", "9400ZZMASTP", "9400ZZMAPGD", "9400ZZMATRA", "9400ZZMASTW",
                              "9400ZZMAVIC", "9400ZZMAGMX", "9400ZZMAPIC"]
     compositeStationModes: []
-    addWalksForClosed: false
+    addWalksForClosed: true
     stationClosures:
       - stations: ["9400ZZMAEXS"]
         begin: 2021-07-22
@@ -78,6 +78,7 @@ liveData:
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
 createNeighbours: false
+maxNeighbourConnections: 0
 distanceToNeighboursKM: 0.4
 maxWait: 25
 maxInitialWait: 13

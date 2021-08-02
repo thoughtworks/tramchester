@@ -98,7 +98,7 @@ public class AppConfiguration extends TramchesterConfig {
 
     @NotNull
     @JsonProperty("maxNeighbourConnections")
-    private int maxNeighbourConnections;
+    private Integer maxNeighbourConnections;
 
     @NotNull
     @JsonProperty("createNeighbours")
@@ -131,7 +131,7 @@ public class AppConfiguration extends TramchesterConfig {
 
     @NotNull
     @JsonProperty("sendCloudWatchMetrics")
-    private boolean sendCloudWatchMetrics;
+    private Boolean sendCloudWatchMetrics;
 
     @NotNull
     @JsonProperty("cacheFolder")
@@ -139,7 +139,7 @@ public class AppConfiguration extends TramchesterConfig {
 
     @NotNull
     @JsonProperty("calcTimeoutMillis")
-    private long calcTimeoutMillis;
+    private Long calcTimeoutMillis;
 
     @Override
     public String getInstanceDataUrl() {

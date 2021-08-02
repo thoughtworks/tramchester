@@ -3,10 +3,7 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
-import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.Timestamped;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationResourceTest {
 
-    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new ClosedStationTestConfig());
+    private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -157,22 +153,6 @@ class StationResourceTest {
 
     }
 
-    @Test
-    void shouldGetClosedStations() {
-        Response result = APIClient.getApiResponse(appExtension, "stations/closures");
-        assertEquals(200, result.getStatus());
-
-        List<StationClosureDTO> results = result.readEntity(new GenericType<>() {});
-
-        assertEquals(1, results.size());
-        StationClosureDTO stationClosure = results.get(0);
-        List<StationRefDTO> stations = stationClosure.getStations();
-        assertEquals(1, stations.size());;
-        assertEquals(TramStations.StPetersSquare.forDTO(), stations.get(0).getId());
-        assertEquals(TestEnv.testDay(), stationClosure.getBegin());
-        assertEquals(TestEnv.testDay().plusWeeks(1), stationClosure.getEnd());
-    }
-
     @NotNull
     private Cookie createRecentsCookieFor(TramStations... stations) throws JsonProcessingException {
         RecentJourneys recentJourneys = new RecentJourneys();
@@ -188,28 +168,4 @@ class StationResourceTest {
         return new Cookie("tramchesterRecent", recentAsString);
     }
 
-    private static class ClosedStationTestConfig extends IntegrationTramTestConfig {
-
-       public ClosedStationTestConfig() {
-           super("closed_stations_int_test_tram.db", closedStations);
-       }
-
-        private static final List<StationClosure> closedStations = Collections.singletonList(
-                new StationClosure() {
-                    @Override
-                    public IdSet<Station> getStations() {
-                        return IdSet.singleton(TramStations.StPetersSquare.getId());
-                    }
-
-                    @Override
-                    public LocalDate getBegin() {
-                        return TestEnv.testDay();
-                    }
-
-                    @Override
-                    public LocalDate getEnd() {
-                        return getBegin().plusWeeks(1);
-                    }
-                });
-    }
 }

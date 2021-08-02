@@ -70,9 +70,6 @@ public enum TramStations implements TestStations {
             Bury,
             Intu));
 
-    public static final List<TramStations> closedSummer2021 = Arrays.asList(Eccles, Broadway, HarbourCity, MediaCityUK,
-            ExchangeQuay, SalfordQuay, Anchorage);
-
     public static boolean isEndOfLine(HasId<Station> station) {
         return containedIn(station, EndOfTheLine);
     }

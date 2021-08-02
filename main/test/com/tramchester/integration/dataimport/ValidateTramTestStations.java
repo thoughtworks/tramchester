@@ -47,8 +47,7 @@ class ValidateTramTestStations {
     void shouldHaveCorrectTestTramStations() {
         List<TramStations> testStations = Arrays.asList(TramStations.values());
 
-        // summer 2021
-        testStations.stream().filter(station -> !closedSummer2021.contains(station)).forEach(enumValue -> {
+        testStations.forEach(enumValue -> {
             Station testStation = TramStations.of(enumValue);
 
             Station realStation = transportData.getStationById(testStation.getId());
@@ -63,15 +62,5 @@ class ValidateTramTestStations {
 
         });
     }
-
-    @Test
-    void shouldOnlyHaveMissingStationsUntilEndJuly() {
-        if (LocalDate.now().isAfter(LocalDate.of(2021, 7, 31))) {
-            assertEquals(0, closedSummer2021.size());
-        } else {
-            assertEquals(7, closedSummer2021.size());
-        }
-    }
-
 
 }

@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -102,5 +103,18 @@ public class JourneyConstraints {
 
     public LowestCostsForRoutes getFewestChangesCalculator() {
         return lowestCostForDestinations;
+    }
+
+    @Override
+    public String toString() {
+        return "JourneyConstraints{" +
+                "runningServices=" + runningServices +
+                ", maxPathLength=" + maxPathLength +
+                ", endStations=" + HasId.asIds(endStations) +
+                ", closedStations=" + closedStations +
+                ", maxJourneyDuration=" + maxJourneyDuration +
+                ", maxWalkingConnections=" + maxWalkingConnections +
+                ", maxNeighbourConnections=" + maxNeighbourConnections +
+                '}';
     }
 }

@@ -36,7 +36,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     ROUTE_TO_STATION, // link stations and routes irrespective of whether have platforms or not
     STATION_TO_ROUTE,
 
-    DIVERSION, // temorary link of some kind, usually a walk
+    DIVERSION, // temporary link of some kind, usually a walk, only specific dates
     NEIGHBOUR, // stations within N meters, different transport modes
     LINKED; // station to station by transport mode, supports network visualisation and analysis
 

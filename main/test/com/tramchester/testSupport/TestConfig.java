@@ -153,7 +153,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public int getMaxNeighbourConnections() {
-        return 3;
+        return 0;
     }
 
     @Override

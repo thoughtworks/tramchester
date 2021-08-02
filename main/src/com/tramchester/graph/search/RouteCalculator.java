@@ -111,6 +111,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, serviceRepository,
                 journeyRequest, closedStationsRepository, destinations, lowestCostsForRoutes);
 
+        logger.info("Journey Constraints: " + journeyConstraints);
+
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
         final Finished finished = new Finished(journeyRequest);

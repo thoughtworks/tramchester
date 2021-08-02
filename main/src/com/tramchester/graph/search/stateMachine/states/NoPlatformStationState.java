@@ -44,14 +44,14 @@ public class NoPlatformStationState extends StationState {
 
         public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, int cost) {
             final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
-            Stream<Relationship> relationships = addValidDiversions(node, initial, notStartedState.traversalOps.getQueryDate());
+            Stream<Relationship> relationships = addValidDiversions(node, initial, notStartedState);
             return new NoPlatformStationState(notStartedState, relationships, cost, node);
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, int cost) {
             // end of a trip, may need to go back to this route station to catch new service
             final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM, NEIGHBOUR, GROUPED_TO_PARENT);
-            Stream<Relationship> relationships = addValidDiversions(node, initial, routeStationState.traversalOps.getQueryDate());
+            Stream<Relationship> relationships = addValidDiversions(node, initial, routeStationState);
             return new NoPlatformStationState(routeStationState, relationships, cost, node);
         }
 

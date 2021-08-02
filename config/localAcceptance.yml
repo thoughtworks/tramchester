@@ -87,6 +87,7 @@ recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
 createNeighbours: false
+maxNeighbourConnections: 0
 distanceToNeighboursKM: 0.4
 sendCloudWatchMetrics: true
 
