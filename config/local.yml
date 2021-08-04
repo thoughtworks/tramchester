@@ -35,9 +35,9 @@ gtfsSourceConfig:
         begin: 2021-07-22
         end: 2021-07-30
       - stations: ["9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST", "9400ZZMALWY", "9400ZZMABWY", "9400ZZMAMCU",
-                   "9400ZZMAHCY", "9400ZZMAANC", "9400ZZMASQY", "9400ZZMAEXC"]
-        begin: 2021-07-19
-        end: 2021-07-31
+                   "9400ZZMAHCY", "9400ZZMAANC", "9400ZZMASQY", "9400ZZMAEXC", "9400ZZMAPOM" ]
+        begin: 2021-08-04
+        end: 2021-08-15
       - stations: [ "9400ZZMASTP", "9400ZZMAEXS", "9400ZZMAVIC", "9400ZZMAQRD", "9400ZZMASHU", "9400ZZMAMKT",
                   "9400ZZMAPGD"]
         begin: 2021-07-31
