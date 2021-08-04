@@ -25,6 +25,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import static com.tramchester.testSupport.TestEnv.ArrivaTrainsWales;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class TransportDataFromFilesTrainTest {
 
     public static final int GB_RAIL_AGENCIES = 30;
