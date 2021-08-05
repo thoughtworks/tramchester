@@ -27,7 +27,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.neo4j.logging.shaded.log4j.LogManager;
 import org.slf4j.Logger;
@@ -164,7 +163,7 @@ public class App extends Application<AppConfiguration>  {
         if (configuration.getSendCloudWatchMetrics()) {
             final CloudWatchReporter cloudWatchReporter = CloudWatchReporter.forRegistry(metricRegistry,
                     container.get(ConfigFromInstanceUserData.class), container.get(SendMetricsToCloudWatch.class));
-            cloudWatchReporter.start(1, TimeUnit.MINUTES);
+            cloudWatchReporter.start(configuration.GetCloudWatchMetricsFrequencyMinutes(), TimeUnit.MINUTES);
         } else {
             logger.warn("Cloudwatch metrics are disabled in config");
         }

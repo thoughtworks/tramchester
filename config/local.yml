@@ -89,6 +89,7 @@ recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
 sendCloudWatchMetrics: true
+cloudWatchMetricsFrequencyMinutes: 2
 
 swagger:
   resourcePackage: com.tramchester.resources

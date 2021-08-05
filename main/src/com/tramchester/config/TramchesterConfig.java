@@ -129,4 +129,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract Path getCacheFolder();
 
     public abstract long getCalcTimeoutMillis();
+
+    public abstract long GetCloudWatchMetricsFrequencyMinutes();
 }

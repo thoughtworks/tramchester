@@ -83,6 +83,7 @@ createNeighbours: false
 maxNeighbourConnections: 0
 distanceToNeighboursKM: 0.4
 sendCloudWatchMetrics: true
+cloudWatchMetricsFrequencyMinutes: 2
 
 swagger:
   resourcePackage: com.tramchester.resources

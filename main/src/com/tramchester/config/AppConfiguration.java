@@ -141,6 +141,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("calcTimeoutMillis")
     private Long calcTimeoutMillis;
 
+    @NotNull
+    @JsonProperty("cloudWatchMetricsFrequencyMinutes")
+    private Long cloudWatchMetricsFrequencyMinutes;
+
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -293,6 +297,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public long getCalcTimeoutMillis() {
         return calcTimeoutMillis;
+    }
+
+    @Override
+    public long GetCloudWatchMetricsFrequencyMinutes() {
+        return cloudWatchMetricsFrequencyMinutes;
     }
 
 }

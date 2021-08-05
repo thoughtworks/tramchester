@@ -33,6 +33,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public long GetCloudWatchMetricsFrequencyMinutes() {
+        return 10;
+    }
+
+    @Override
     public Integer getStaticAssetCacheTimeSeconds() {
         return 5*60;
     }
