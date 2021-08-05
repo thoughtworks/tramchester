@@ -179,7 +179,7 @@ public class RouteToRouteCostsTest {
         Set<Route> routesB = routeHelper.get(VictoriaWythenshaweManchesterAirport);
         Set<Route> routesC = routeHelper.get(BuryPiccadilly);
 
-        Station destination = stationRepository.getStationById(TramStations.Intu.getId());
+        Station destination = stationRepository.getStationById(TramStations.TraffordCentre.getId());
         LowestCostsForRoutes sorts = routeCosts.getLowestCostCalcutatorFor(Collections.singleton(destination));
 
         routesA.forEach(routeA -> routesB.forEach(routeB -> routesC.forEach(routeC -> {

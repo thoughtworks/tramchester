@@ -67,8 +67,8 @@ class DueTramsRepositoryTest extends EasyMockSupport {
                 "message 2", secondStation, dueTramOther);
 
         // third, no due trams
-        Station thirdStation = of(Intu);
-        Platform platfromForThirdStation = new Platform("b2", "Intu platform 2", Intu.getLatLong());
+        Station thirdStation = of(TraffordCentre);
+        Platform platfromForThirdStation = new Platform("b2", "Intu platform 2", TraffordCentre.getLatLong());
         secondStation.getBuilder().addPlatform(platfromForSecondStation);
         StationDepartureInfo thirdStationInfo = new StationDepartureInfo("displayId3", Lines.Airport,
                 LineDirection.Incoming, platfromForThirdStation.getId(), thirdStation, "message 3", lastUpdate);

@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,7 +57,8 @@ public enum TramStations implements TestStations {
     OldTrafford("9400ZZMAOLD", "Old Trafford", "Old Trafford", pos(53.45634, -2.28496)),
     Wharfside("9400ZZMAWFS", "Old Trafford", "Wharfside", pos(53.46625, -2.28748)),
     PeelHall("9400ZZMAPLL","Peel Hall", "Peel Hall", pos(53.37373, -2.25038)),
-    Intu("9400ZZMATRC", "The Trafford Centre", "The Trafford Centre", pos(53.46782, -2.34751)),
+    TraffordCentre("9400ZZMATRC", "The Trafford Centre", "The Trafford Centre", pos(53.46782, -2.34751)),
+    ImperialWarMuseum("9400ZZMAIWM", "Imperial War Museum", "Imperial War Museum", pos(53.46862272157,-2.29682786715)),
     Eccles("9400ZZMAECC", "Eccles", "Eccles", pos(53.48307, -2.33454));
 
     public static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
@@ -68,7 +68,7 @@ public enum TramStations implements TestStations {
             Ashton,
             Rochdale,
             Bury,
-            Intu));
+            TraffordCentre));
 
     public static boolean isEndOfLine(HasId<Station> station) {
         return containedIn(station, EndOfTheLine);

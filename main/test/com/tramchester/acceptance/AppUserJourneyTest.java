@@ -6,7 +6,6 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
-import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
@@ -232,11 +231,11 @@ class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldCheckLateNightJourney(ProvidesDriver providesDriver) {
         AppPage appPage = prepare(providesDriver, url);
-        TramTime queryTime = TramTime.of(23,30);
-        desiredJourney(appPage, Intu.getName(), TraffordBar.getName(), when, queryTime, false);
+        TramTime queryTime = TramTime.of(23,42);
+        desiredJourney(appPage, TraffordCentre.getName(), ImperialWarMuseum.getName(), when, queryTime, false);
         appPage.planAJourney();
 
-        assertTrue(appPage.resultsClickable());
+        assertTrue(appPage.resultsClickable(), "results displayed");
 
         List<TestResultSummaryRow> results = appPage.getResults();
 
