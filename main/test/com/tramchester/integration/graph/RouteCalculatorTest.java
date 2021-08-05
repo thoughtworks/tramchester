@@ -20,6 +20,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -37,6 +38,7 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
+@DataUpdateTest
 public class RouteCalculatorTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After

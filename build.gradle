@@ -233,6 +233,18 @@ task integration(type: Test, dependsOn: compileJava) {
     }
 }
 
+task dataUpdated(type: Test, dependsOn: compileJava) {
+    useJUnitPlatform {
+        includeTags "DataUpdateTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        events "failed"
+    }
+}
+
 task integrationBus(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "3000m"

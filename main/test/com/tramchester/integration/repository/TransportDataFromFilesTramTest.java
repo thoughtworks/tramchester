@@ -8,7 +8,6 @@ import com.tramchester.dataimport.TransportDataLoaderFiles;
 import com.tramchester.dataimport.TransportDataReader;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
@@ -27,6 +26,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.junit.jupiter.api.*;
 
@@ -45,6 +45,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
     public static final int NUM_TFGM_TRAM_ROUTES = 26;
