@@ -44,7 +44,6 @@ class FindStationLinksTest {
     @Test
     void shouldFindExpectedLinksBetweenStations() {
         Set<StationLink> results = findStationLinks.findLinkedFor(Tram);
-        // 202 -> 180 -> 200 summer 2021
         assertEquals(202, results.size());
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
@@ -61,8 +60,7 @@ class FindStationLinksTest {
         assertTrue(results.contains(createLink(MediaCityUK, HarbourCity)));
         assertTrue(results.contains(createLink(MediaCityUK, Broadway)));
 
-        // summer 2021
-        //assertTrue(results.contains(createLink(HarbourCity, Broadway)));
+        assertTrue(results.contains(createLink(HarbourCity, Broadway)));
     }
 
     @Test

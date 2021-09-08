@@ -21,7 +21,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,7 +139,6 @@ public class RouteToRouteCostsTest {
         Station end = stationRepository.getStationById(TramStations.ManAirport.getId());
         NumberOfChanges result = routeCosts.getNumberOfChanges(start, end);
 
-        // 1->2 summer 2021
         assertEquals(1, result.getMax());
     }
 
@@ -153,7 +151,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, result.getMin());
     }
 
-    @EcclesLineWork
     @Test
     void shouldFindMediaCityHops() {
         Station start = stationRepository.getStationById(TramStations.MediaCityUK.getId());

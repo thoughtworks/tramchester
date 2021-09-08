@@ -47,8 +47,7 @@ class RouteResourceTest {
         List<String> ids = ashtonRouteStations.stream().map(StationRefDTO::getId).collect(Collectors.toList());
         assertTrue(ids.contains(TramStations.Ashton.forDTO()));
 
-        // summer 2021
-        //assertTrue(ids.contains(TramStations.Eccles.forDTO()));
+        assertTrue(ids.contains(TramStations.Eccles.forDTO()));
     }
 
     @Test

@@ -85,7 +85,6 @@ class RouteCallingStationsTest {
         assertIdEquals(Ashton, stations.get(0));
         assertIdEquals(Piccadilly, stations.get(12));
 
-        // summer 2021
         assertIdEquals(Eccles, stations.get(27));
         assertIdEquals(MediaCityUK, stations.get(22));
     }
@@ -98,7 +97,6 @@ class RouteCallingStationsTest {
             foundEndOfLines.add(stations.get(0).getId());
         });
 
-        // 11->10 summer 2021
         assertEquals(11, foundEndOfLines.size());
     }
 
@@ -108,7 +106,6 @@ class RouteCallingStationsTest {
         assertEquals(14, getStationsFor(PiccadillyAltrincham).size());
 
         // not 27, some journeys skip mediacity UK
-        // 28 -> 13 summer 2021
         assertEquals(28, getStationsFor(AshtonUnderLyneManchesterEccles).size());
         assertEquals(28, getStationsFor(EcclesManchesterAshtonUnderLyne).size());
 

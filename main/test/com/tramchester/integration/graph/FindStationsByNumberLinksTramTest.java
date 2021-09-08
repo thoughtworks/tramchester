@@ -9,7 +9,7 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.EcclesLineWork;
+import com.tramchester.testSupport.testTags.Summer2021Engineering;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,7 +37,6 @@ class FindStationsByNumberLinksTramTest {
         finder = componentContainer.get(FindStationsByNumberLinks.class);
     }
 
-    @EcclesLineWork
     @Test
     void shouldIdForkPointsFromTramNetwork() {
         int threshhold = 3;

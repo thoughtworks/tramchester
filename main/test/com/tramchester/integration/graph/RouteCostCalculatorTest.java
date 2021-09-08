@@ -8,7 +8,6 @@ import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.EcclesLineWork;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
 
@@ -53,7 +52,6 @@ class RouteCostCalculatorTest {
 
     }
 
-    @EcclesLineWork
     @Test
     void shouldComputeCostsForMediaCityAshton() {
         assertEquals(57, getApproxCostBetween(txn, MediaCityUK, Ashton));
@@ -66,7 +64,6 @@ class RouteCostCalculatorTest {
         assertEquals(62, getApproxCostBetween(txn, Altrincham, TramStations.Bury));
     }
 
-    @EcclesLineWork
     @Test
     void shouldComputeSimpleCostBetweenStationsMediaCityAirport() {
         assertEquals(61, getApproxCostBetween(txn, TramStations.MediaCityUK, TramStations.ManAirport));

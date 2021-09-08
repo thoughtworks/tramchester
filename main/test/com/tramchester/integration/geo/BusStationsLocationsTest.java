@@ -57,13 +57,13 @@ class BusStationsLocationsTest {
     void shouldGetAllStationsCloseToCentralBury() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury.getLatLong(),
                 500, inMeters);
-        assertEquals(9, result.size());
+        assertEquals(10, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
         List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.getLatLong(),
                 500, inMeters);
-        assertEquals(8, result.size());
+        assertEquals(9, result.size());
     }
 }

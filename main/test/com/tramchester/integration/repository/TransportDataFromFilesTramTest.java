@@ -27,7 +27,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.EcclesLineWork;
+import com.tramchester.testSupport.testTags.Summer2021Engineering;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
-    public static final int NUM_TFGM_TRAM_ROUTES = 26;
+    public static final int NUM_TFGM_TRAM_ROUTES = 14;
     public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
@@ -82,7 +82,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations().size());
         assertEquals(NUM_TFGM_TRAM_ROUTES, transportData.getRoutes().size());
 
-        int expected = 199; // summer 2021 closures
+        int expected = 199;
         assertEquals(expected, transportData.getPlatforms().size());
     }
 
@@ -121,7 +121,7 @@ public class TransportDataFromFilesTramTest {
         IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
         // 2*3 expected, but includes eccles as well
-        assertEquals(18, traffordBarRoutes.size());
+        assertEquals(10, traffordBarRoutes.size());
 
         // contains -> containsAll
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
@@ -131,7 +131,6 @@ public class TransportDataFromFilesTramTest {
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
 
-        // summer 2021
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
     }
@@ -145,7 +144,8 @@ public class TransportDataFromFilesTramTest {
 
         Set<Route> callingRoutes = routeStationSet.stream().map(RouteStation::getRoute).collect(Collectors.toSet());
 
-        assertEquals(6, callingRoutes.size());
+        // 6 -> 4 summer 2021
+        assertEquals(4, callingRoutes.size());
     }
 
     @Test
@@ -160,12 +160,10 @@ public class TransportDataFromFilesTramTest {
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 
-        // 8 -> 6 summer 2021 closures
-        assertEquals(14, routeStations.size(), routeStations.toString());
+        assertEquals(8, routeStations.size(), routeStations.toString());
 
         Set<String> names = routeStations.stream().map(routeStation -> routeStation.getRoute().getShortName()).collect(Collectors.toSet());
 
-        // 4->3 summer 2021
         assertEquals(4, names.size());
         assertTrue(names.contains(VictoriaWythenshaweManchesterAirport.shortName()));
         assertTrue(names.contains(ManchesterAirportWythenshaweVictoria.shortName()));
@@ -404,7 +402,7 @@ public class TransportDataFromFilesTramTest {
         });
     }
 
-    @EcclesLineWork
+    @Summer2021Engineering
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);

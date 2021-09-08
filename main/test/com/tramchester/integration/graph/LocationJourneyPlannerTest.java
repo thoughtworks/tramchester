@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.*;
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LocationJourneyPlannerTest {
@@ -121,13 +121,14 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldFindJourneyWithWalkingAtEndEarlyMorning() {
-        final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false, 3,
-                maxJourneyDuration, 1);
+        final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false,
+                3, maxJourneyDuration, 1);
         //request.setDiag(true);
-        final TramStations walkChangeStation = TramStations.NavigationRoad;
+        final TramStations walkChangeStation = NavigationRoad;
+        final TramStations start = TraffordBar;
 
-        Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Deansgate,
-                nearAltrincham, request, 2);
+        Set<Journey> journeySet = planner.quickestRouteForLocation(start, nearAltrincham, request, 2);
+        assertFalse(journeySet.isEmpty());
 
         List<Journey> journeyList = sortByCost(journeySet);
 
@@ -141,7 +142,7 @@ class LocationJourneyPlannerTest {
         TransportStage<?,?> walkStage = firstJourney.getStages().get(1);
 
         assertTrue(walkStage.getFirstDepartureTime().isAfter(tramStage.getExpectedArrivalTime()), walkStage.toString());
-        assertEquals(TramStations.Deansgate.getId(), tramStage.getFirstStation().getId());
+        assertEquals(start.getId(), tramStage.getFirstStation().getId());
         assertEquals(walkChangeStation.getId(), tramStage.getLastStation().getId());
         assertEquals(walkChangeStation.getId(), walkStage.getFirstStation().getId());
         assertEquals("MyLocationPlaceholderId", walkStage.getLastStation().forDTO());
@@ -151,10 +152,9 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingEarlyMorning() {
 
-        // TODO 3 changes here causes big performance drop off, 2 is fine
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(8, 0),
                 false, 2, maxJourneyDuration, maxNumberOfJourneys);
-        Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, TramStations.Deansgate, request, 3);
+        Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
@@ -166,8 +166,8 @@ class LocationJourneyPlannerTest {
         results.stream().filter(journey -> journey.getPath().size()==11).forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
             assertEquals(nearAltrincham, callingPoints.get(0).getLatLong());
-            assertEquals(TramStations.NavigationRoad.getId(), callingPoints.get(1).getId());
-            assertEquals(TramStations.Deansgate.getId(), callingPoints.get(10).getId());
+            assertEquals(NavigationRoad.getId(), callingPoints.get(1).getId());
+            assertEquals(Deansgate.getId(), callingPoints.get(10).getId());
         });
 
         // via alty
@@ -175,7 +175,7 @@ class LocationJourneyPlannerTest {
             List<Location<?>> callingPoints = journey.getPath();
             assertEquals(nearAltrincham, callingPoints.get(0).getLatLong());
             assertEquals(TramStations.Altrincham.getId(), callingPoints.get(1).getId());
-            assertEquals(TramStations.Deansgate.getId(), callingPoints.get(11).getId());
+            assertEquals(Deansgate.getId(), callingPoints.get(11).getId());
         });
     }
 
@@ -185,7 +185,7 @@ class LocationJourneyPlannerTest {
 
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), queryTime, true, 3,
                 maxJourneyDuration, maxNumberOfJourneys);
-        Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, TramStations.Deansgate, request, 3);
+        Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertTrue(journey.getQueryTime().isBefore(queryTime)));
@@ -197,7 +197,7 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(date, queryTime, true, 2,
                 maxJourneyDuration, 1);
 
-        Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Deansgate, nearAltrincham, request, 3);
+        Set<Journey> journeySet = planner.quickestRouteForLocation(Deansgate, nearAltrincham, request, 3);
         List<Journey> journeyList = sortByCost(journeySet);
 
         assertFalse(journeyList.isEmpty());
@@ -205,10 +205,10 @@ class LocationJourneyPlannerTest {
 
         journeyList.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(TramStations.Deansgate.getId(), callingPoints.get(0).getId());
+            assertEquals(Deansgate.getId(), callingPoints.get(0).getId());
             final int numCallingPoints = 11;
             assertEquals(numCallingPoints, callingPoints.size());
-            assertEquals(TramStations.NavigationRoad.getId(), callingPoints.get(numCallingPoints-2).getId());
+            assertEquals(NavigationRoad.getId(), callingPoints.get(numCallingPoints-2).getId());
             assertEquals(nearAltrincham, callingPoints.get(numCallingPoints-1).getLatLong());
         });
     }
@@ -238,7 +238,7 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(date, queryTime, false, 2,
                 maxJourneyDuration, maxNumberOfJourneys);
 
-        Set<Journey> journeySet = planner.quickestRouteForLocation(TramStations.Altrincham, nearShudehill, request, 3);
+        Set<Journey> journeySet = planner.quickestRouteForLocation(Altrincham, nearShudehill, request, 3);
 
         List<Journey> journeyList = sortByCost(journeySet);
 
@@ -253,7 +253,7 @@ class LocationJourneyPlannerTest {
         assertTrue(stages.size() >= 2);
 
         int lastStageIndex = stages.size() - 1;
-        List<IdFor<Station>> nearStationIds = Arrays.asList(TramStations.Shudehill.getId(), TramStations.ExchangeSquare.getId());
+        List<IdFor<Station>> nearStationIds = Arrays.asList(Shudehill.getId(), ExchangeSquare.getId());
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex-1).getLastStation().getId()));
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
     }
@@ -263,7 +263,7 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(23, 0),
                 false, 2, maxJourneyDuration, maxNumberOfJourneys);
 
-        Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, TramStations.Deansgate, request, 3);
+        Set<Journey> results = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 3);
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
@@ -276,7 +276,7 @@ class LocationJourneyPlannerTest {
         final JourneyRequest request = new JourneyRequest(new TramServiceDate(when), TramTime.of(10, 15),
                 false, 1, maxJourneyDuration, this.maxNumberOfJourneys);
 
-        Set<Journey> unsorted = planner.quickestRouteForLocation(nearAltrincham, TramStations.Deansgate, request, 2);
+        Set<Journey> unsorted = planner.quickestRouteForLocation(nearAltrincham, Deansgate, request, 2);
         assertFalse(unsorted.isEmpty());
 
         List<Journey> sorted = unsorted.stream().

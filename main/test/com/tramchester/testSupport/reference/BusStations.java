@@ -17,7 +17,7 @@ public enum BusStations implements TestStations {
 
     StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham", "Altrincham Interchange",
             new LatLong(53.38745, -2.34771)),
-    StopAtStockportBusStation("1800STBS001", "Stockport", "Stockport Bus Station",
+    StopAtStockportBusStation("1800STBS0S1", "Stockport", "Stockport Bus Station",
             new LatLong(53.4091,-2.16293)),
     ShudehillInterchange("1800SHIC001", "Shudehill", "Shudehill Interchange",
             new LatLong(53.48557, -2.23827)),

@@ -14,8 +14,10 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.EcclesLineWork;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
@@ -56,7 +58,6 @@ public class InterchangesTramTest {
         }
     }
 
-    @EcclesLineWork
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));

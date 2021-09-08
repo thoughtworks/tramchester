@@ -9,8 +9,10 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.EcclesLineWork;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +38,6 @@ class RouteEndRepositoryTramTest {
         endStationsRepository = componentContainer.get(RouteEndRepository.class);
     }
 
-    @EcclesLineWork
     @Test
     void shouldFindEndsOfLinesForTram() {
         IdSet<Station> results = endStationsRepository.getStations(TransportMode.Tram);
