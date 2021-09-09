@@ -42,8 +42,8 @@ public
 class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 33;
-    public static final int TGFM_BUS_ROUTES = 823;
-    public static final int NUM_TFGM_BUS_STATIONS = 15042;
+    public static final int TGFM_BUS_ROUTES = 976;
+    public static final int NUM_TFGM_BUS_STATIONS = 15226;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
@@ -93,7 +93,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertTrue(withinNPercent(188, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
+        assertTrue(withinNPercent(292, gmsRoutes, 0.1F), Long.toString(gmsRoutes));
     }
 
     @Test
