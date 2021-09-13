@@ -42,8 +42,8 @@ public
 class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 33;
-    public static final int TGFM_BUS_ROUTES = 976;
-    public static final int NUM_TFGM_BUS_STATIONS = 15226;
+    public static final int TGFM_BUS_ROUTES = 1017;
+    public static final int NUM_TFGM_BUS_STATIONS = 15276;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
@@ -157,8 +157,9 @@ class TransportDataFromFilesBusTest {
     void shouldGetStations() {
 
         for(BusStations testStation : BusStations.values()) {
-            assertTrue(transportData.hasStationId(testStation.getId()), testStation.name());
-            Station found = transportData.getStationById(testStation.getId());
+            IdFor<Station> testStationId = testStation.getId();
+            assertTrue(transportData.hasStationId(testStationId), "stop id is missing for " + testStation.name() + " id:"+ testStationId);
+            Station found = transportData.getStationById(testStationId);
             assertEquals(testStation.getName(), found.getName());
         }
     }
