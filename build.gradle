@@ -51,7 +51,7 @@ dependencies {
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.116.0',
             'software.amazon.awscdk:s3:1.116.0',
-            'software.amazon.awscdk:ec2:1.111.0',
+            'software.amazon.awscdk:ec2:1.123.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.111.0',
             'software.amazon.awscdk:autoscaling:1.116.0',
             'software.amazon.awscdk:cdk-cx-api:1.111.0'
