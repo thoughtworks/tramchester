@@ -41,9 +41,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public
 class TransportDataFromFilesBusTest {
 
-    public static final int TGFM_BUS_AGENCIES = 33;
-    public static final int TGFM_BUS_ROUTES = 1017;
-    public static final int NUM_TFGM_BUS_STATIONS = 15276;
+    public static final int TGFM_BUS_AGENCIES = 34;
+    public static final int TGFM_BUS_ROUTES = 1335;
+    public static final int NUM_TFGM_BUS_STATIONS = 15483;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
