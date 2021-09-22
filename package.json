@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ThoughtWorksInc/tramchester#readme",
   "dependencies": {
     "ajv": "^8.6.2",
-    "aws-cdk": "^1.111.0",
+    "aws-cdk": "^1.124.0",
     "axios": "^0.21.4",
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
