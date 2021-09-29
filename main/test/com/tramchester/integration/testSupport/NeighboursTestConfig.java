@@ -39,4 +39,9 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
     public Path getCacheFolder() {
         return TestEnv.CACHE_DIR.resolve("neighboursIntegration");
     }
+
+    @Override
+    public int getMaxNeighbourConnections() {
+        return 2;
+    }
 }

@@ -10,6 +10,7 @@ import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
@@ -55,7 +56,7 @@ public class NeighboursRepositoryTest {
 
     @Test
     void shouldHaveCorrectNeighboursForAltrinchamTram() {
-        CompositeStation altrinchamComposite = compositeStationRepository.findByName("Altrincham Interchange");
+        CompositeStation altrinchamComposite = compositeStationRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
 
         IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(TramStations.Altrincham.getId())
                 .stream().collect(IdSet.collector());

@@ -18,7 +18,6 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: buses.db
   neo4jPagecacheMemory: 300m
-stationClosures: []
 gtfsSourceConfig:
   -
     name: tfgm

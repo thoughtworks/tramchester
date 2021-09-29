@@ -2,12 +2,14 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestStation;
 import com.tramchester.testSupport.TestStations;
+import com.tramchester.testSupport.reference.BusStations;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Transaction;
 
@@ -50,4 +52,11 @@ public class RouteCalculatorTestFacade {
         return TestStation.real(repository, start);
     }
 
+    public Set<Journey> calculateRouteAsSet(CompositeStation start, TestStations end, JourneyRequest journeyRequest) {
+        return calculateRouteAsSet(start, real(end), journeyRequest);
+    }
+
+    public Set<Journey> calculateRouteAsSet(BusStations start, CompositeStation end, JourneyRequest journeyRequest) {
+        return calculateRouteAsSet(real(start), end, journeyRequest);
+    }
 }

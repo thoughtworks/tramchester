@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class BusRouteCostCalculatorTest {
-    public static final int SHUDEHILL_TO_ALTY = 54;
-    public static final int ALTY_TO_STOCKPORT = 41;
-    public static final int SHUDEHILL_TO_STOCKPORT = 44;
+    public static final int SHUDEHILL_TO_ALTY = 60;
+    public static final int ALTY_TO_STOCKPORT = 44;
+    public static final int SHUDEHILL_TO_STOCKPORT = 41;
     private static ComponentContainer componentContainer;
 
     private Transaction txn;
@@ -52,8 +52,8 @@ class BusRouteCostCalculatorTest {
         stationRepository = componentContainer.get(CompositeStationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        altrinchamInterchange = stationRepository.findByName("Altrincham Interchange");
-        stockportBusStation = stationRepository.findByName("Stockport Bus Station");
+        altrinchamInterchange = stationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        stockportBusStation = stationRepository.findByName(Composites.StockportBusStation.getName());
         shudehillInterchange = stationRepository.findByName("Shudehill Interchange");
 
         routeCost = componentContainer.get(RouteCostCalculator.class);
@@ -75,38 +75,38 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportComp() {
-        assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
-        assertEquals(39, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
+        assertEquals(46, getApproxCostBetween(altrinchamInterchange, stockportBusStation));
+        assertEquals(49, getApproxCostBetween(stockportBusStation, altrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
         assertEquals(ALTY_TO_STOCKPORT, getApproxCostBetween(StopAtAltrinchamInterchange, StopAtStockportBusStation));
-        assertEquals(41, getApproxCostBetween(StopAtStockportBusStation, StopAtAltrinchamInterchange));
+        assertEquals(50, getApproxCostBetween(StopAtStockportBusStation, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        assertEquals(57, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
+        assertEquals(55, getApproxCostBetween(altrinchamInterchange, shudehillInterchange));
         assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(shudehillInterchange, altrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        assertEquals(59, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
-        assertEquals(SHUDEHILL_TO_ALTY, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
+        assertEquals(55, getApproxCostBetween(StopAtAltrinchamInterchange, ShudehillInterchange));
+        assertEquals(61, getApproxCostBetween(ShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockportComp() {
         assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(shudehillInterchange, stockportBusStation));
-        assertEquals(44, getApproxCostBetween(stockportBusStation, shudehillInterchange));
+        assertEquals(45, getApproxCostBetween(stockportBusStation, shudehillInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
         assertEquals(SHUDEHILL_TO_STOCKPORT, getApproxCostBetween(ShudehillInterchange, StopAtStockportBusStation));
-        assertEquals(46, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
+        assertEquals(47, getApproxCostBetween(StopAtStockportBusStation, ShudehillInterchange));
     }
 
     private int getApproxCostBetween(BusStations start, BusStations end) {

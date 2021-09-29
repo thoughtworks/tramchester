@@ -16,6 +16,7 @@ import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.BusStations.Composites;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -63,15 +64,16 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamStockport() {
-        CompositeStation start = stationRepository.findByName("Altrincham Interchange");
-        CompositeStation end = stationRepository.findByName("Stockport Bus Station");
+        CompositeStation start = stationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        CompositeStation end = stationRepository.findByName(Composites.StockportTempBusStation.getName());
 
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(start, end).getMin());
+        // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
+        assertEquals(1, routeToRouteCosts.getNumberOfChanges(start, end).getMin());
     }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamShudehill() {
-        CompositeStation start = stationRepository.findByName("Altrincham Interchange");
+        CompositeStation start = stationRepository.findByName(Composites.AltrinchamInterchange.getName());
         CompositeStation end = stationRepository.findByName("Shudehill Interchange");
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end);

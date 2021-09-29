@@ -25,7 +25,6 @@ import static com.tramchester.integration.repository.trains.TransportDataFromFil
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@BusTest
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class TransportDataFromFilesAllModesTest {
 

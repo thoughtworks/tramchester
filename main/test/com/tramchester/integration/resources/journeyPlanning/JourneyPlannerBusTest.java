@@ -3,6 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -10,8 +11,8 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.StationRefDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
@@ -45,11 +46,18 @@ class JourneyPlannerBusTest {
 
     private LocalDate when;
     private JourneyResourceTestFacade journeyResourceTestFacade;
+    private CompositeStationRepository compositeStationRepository;
+    private CompositeStation stockportBusStation;
 
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         journeyResourceTestFacade = new JourneyResourceTestFacade(appExt);
+        App app = appExt.getApplication();
+
+        compositeStationRepository = app.getDependencies().get(CompositeStationRepository.class);
+
+        stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
     }
 
     @Test
@@ -60,10 +68,7 @@ class JourneyPlannerBusTest {
 
         List<StationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        App app = appExt.getApplication();
-
-        CompositeStationRepository stationRepo = app.getDependencies().get(CompositeStationRepository.class);
-        Set<String> stationsIds = stationRepo.getStationsForMode(TransportMode.Bus).stream().
+        Set<String> stationsIds = compositeStationRepository.getStationsForMode(TransportMode.Bus).stream().
                 map(station -> station.getId().forDTO()).collect(Collectors.toSet());
 
         assertEquals(stationsIds.size(), results.size());
@@ -90,15 +95,15 @@ class JourneyPlannerBusTest {
     @Test
     void shouldBusJourneyWestEast() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, StopAtAltrinchamInterchange, StopAtStockportBusStation, 2);
-        validateHasJourney(queryTime, StopAtStockportBusStation, StopAtAltrinchamInterchange, 2);
+        validateHasJourney(queryTime, StopAtAltrinchamInterchange, stockportBusStation, 2);
+        validateHasJourney(queryTime, stockportBusStation, StopAtAltrinchamInterchange, 2);
     }
 
     @Test
     void shouldPlanBusJourneySouthern() {
         TramTime queryTime = TramTime.of(8,45);
-        validateHasJourney(queryTime, ShudehillInterchange, StopAtStockportBusStation, 2);
-        validateHasJourney(queryTime, StopAtStockportBusStation, ShudehillInterchange, 2);
+        validateHasJourney(queryTime, ShudehillInterchange, stockportBusStation, 2);
+        validateHasJourney(queryTime, stockportBusStation, ShudehillInterchange, 2);
     }
 
     @Test
@@ -131,7 +136,7 @@ class JourneyPlannerBusTest {
     void shouldPlanSimpleBusJourneyFromLocation() {
         TramTime queryTime = TramTime.of(8,45);
         JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime, TestEnv.nearAltrincham,
-                StopAtStockportBusStation.getId(),
+                stockportBusStation.getId(),
                 false, 2);
 
         List<JourneyDTO> found = getValidJourneysAfter(queryTime, plan);
@@ -152,7 +157,7 @@ class JourneyPlannerBusTest {
     void shouldPlanSimpleJourneyArriveByRequiredTime() {
         TramTime queryTime = TramTime.of(11,45);
         JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(when, queryTime,
-                StopAtStockportBusStation, StopAtAltrinchamInterchange, true, 3);
+                stockportBusStation, StopAtAltrinchamInterchange, true, 3);
 
         // TODO 20 mins gap? Estimation is too optimistic for Buses?
         List<JourneyDTO> found = new ArrayList<>();

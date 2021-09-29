@@ -2,8 +2,10 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.places.CompositeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -16,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 class ValidateBusTestStations {
@@ -24,6 +26,7 @@ class ValidateBusTestStations {
     private static ComponentContainer componentContainer;
 
     private StationRepository stationRepository;
+    private CompositeStationRepository compositeStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -39,6 +42,7 @@ class ValidateBusTestStations {
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
+        compositeStationRepository = componentContainer.get(CompositeStationRepository.class);
     }
 
     @Test
@@ -52,11 +56,23 @@ class ValidateBusTestStations {
 
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
-            //assertEquals(realStation.getArea(), testStation.getArea(),"area wrong for " + testStationName);
+            // area enriched/loaded from naptan data
+            assertEquals(realStation.getArea(), testStation.getArea(),"area wrong for " + testStationName);
             assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
             TestEnv.assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001,
                     "latlong wrong for " + testStationName);
         });
 
+    }
+
+    @Test
+    void shouldHaveCorrectTestCompositeStations() {
+        List<BusStations.Composites> composites = Arrays.asList(BusStations.Composites.values());
+
+        composites.forEach(enumValue -> {
+            CompositeStation found = compositeStationRepository.findByName(enumValue.getName());
+            assertNotNull(found, enumValue.getName());
+            assertTrue(found.getContained().size()>1);
+        });
     }
 }

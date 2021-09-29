@@ -13,6 +13,7 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
+import com.tramchester.testSupport.reference.BusStations.Composites;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
@@ -77,8 +78,9 @@ class LocationJourneyPlannerBusTest {
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
                 maxDuration, 1);
 
-        Set<Journey> results = planner.quickestRouteForLocation(nearAltrinchamInterchange, StopAtStockportBusStation,
-                journeyRequest, 5);
+        CompositeStation end = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
+
+        Set<Journey> results = planner.quickestRouteForLocation(nearAltrinchamInterchange, end, journeyRequest, 5);
 
         assertFalse(results.isEmpty());
     }
@@ -86,14 +88,15 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldHaveSimpleBusAndWalk() {
 
-        CompositeStation stockportBusStation = compositeStationRepository.findByName("Stockport Bus Station");
+        CompositeStation stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
 
         TramTime travelTime = TramTime.of(8, 0);
 
         JourneyRequest journeyRequest = new JourneyRequest(new TramServiceDate(nextMonday), travelTime, false, 3,
                 maxDuration, 1);
 
-        Set<Journey> results = planner.quickestRouteForLocation(stockportBusStation, nearAltrinchamInterchange, journeyRequest, 5);
+        Set<Journey> results = planner.quickestRouteForLocation(stockportBusStation, nearAltrinchamInterchange,
+                journeyRequest, 5);
 
         assertFalse(results.isEmpty());
     }
@@ -101,7 +104,7 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldFindAltyToKnutford() {
 
-        CompositeStation alty = compositeStationRepository.findByName("Altrincham Interchange");
+        CompositeStation alty = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
 
         TramTime travelTime = TramTime.of(10, 30);
 

@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
@@ -68,7 +69,7 @@ class CompositeStationRepositoryTest {
     @Test
     void shouldFindExpectedCompositeStations() {
         assertNotNull(repository.findByName("Shudehill Interchange"));
-        assertNotNull(repository.findByName("Altrincham Interchange"));
+        assertNotNull(repository.findByName(BusStations.Composites.AltrinchamInterchange.getName()));
     }
 
     @Test

@@ -12,6 +12,7 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.CompositeStationRepository;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
@@ -99,12 +100,12 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void expectedNumbers() {
         List<StationLinkDTO> results = getLinks();
-        assertEquals(2498, results.size(), "count of links");
+        assertEquals(2494, results.size(), "count of links");
     }
 
     @Test
     void shouldGetCompositeStations() {
-        final String altrinchamInterchange = "Altrincham Interchange";
+        final String altrinchamInterchange = BusStations.Composites.AltrinchamInterchange.getName();
         CompositeStation actualComposite = compositeStationRepository.findByName(altrinchamInterchange);
         Set<String> expectedIds = actualComposite.getContained().stream().
                 map(Station::forDTO).

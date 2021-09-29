@@ -19,21 +19,23 @@ public enum BusStations implements TestStations {
             new LatLong(53.38745, -2.34771)),
     StopAtStockportBusStation("1800SGQ0021", "Stockport", "Stockport Bus Station",
             new LatLong(53.4091,-2.16443890806)),
-    ShudehillInterchange("1800SHIC001", "Shudehill", "Shudehill Interchange",
+    StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport", "Stockport Heaton Lane Bus Station",
+            new LatLong(53.41036253703,-2.16501729098)),
+    ShudehillInterchange("1800SHIC001", "Shudehill, Manchester City Centre", "Shudehill Interchange",
             new LatLong(53.48557, -2.23827)),
-    ManchesterAirportStation("1800MABS001", "Manchester Airport", "Manchester Airport The Station",
+    ManchesterAirportStation("1800MABS001", "Manchester Airport, Manchester", "Manchester Airport The Station",
             new LatLong(53.3656, -2.27242)),
     KnutsfordStationStand3("0600MA6022", "Knutsford", "Bus Station",
             new LatLong(53.30245, -2.37551)),
     BuryInterchange("1800BYIC0C1", "Bury", "Bury Interchange",
             new LatLong(53.59134, -2.29706)),
-    PiccadilyStationStopA("1800EB01201", "Manchester City Centre", "Manchester Piccadilly Rail Station",
+    PiccadilyStationStopA("1800EB01201", "Manchester City Centre, Manchester", "Manchester Piccadilly Rail Station",
             new LatLong(53.47683, -2.23146)),
-    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens", "Piccadilly Gardens",
+    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens, Manchester City Centre", "Piccadilly Gardens",
             new LatLong(53.48063,-2.23825)),
-    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens", "Piccadilly Gardens",
+    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens, Manchester City Centre", "Piccadilly Gardens",
             new LatLong(53.48017, -2.23723)),
-    // No longer in the data
+    // No longer in the data?
 //    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
 //            new LatLong(53.25831, -2.12502)),
     StockportAtAldi("1800SG15721", "Stockport", "Aldi",
@@ -52,10 +54,6 @@ public enum BusStations implements TestStations {
         return enumValue.station;
     }
 
-    public static Station real(StationRepository stationRepository, BusStations station) {
-        return stationRepository.getStationById(station.getId());
-    }
-
     @Override
     public IdFor<Station> getId() {
         return station.getId();
@@ -72,5 +70,21 @@ public enum BusStations implements TestStations {
 
     public String forDTO() {
         return getId().forDTO();
+    }
+
+    public enum Composites {
+        StockportBusStation("Stockport Bus Station"),
+        StockportTempBusStation("Stockport Heaton Lane Bus Station"),
+        AltrinchamInterchange("Altrincham Interchange");
+
+        private final String compositeName;
+
+        Composites(String compositeName) {
+            this.compositeName = compositeName;
+        }
+
+        public String getName() {
+            return compositeName;
+        }
     }
 }

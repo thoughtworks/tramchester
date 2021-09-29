@@ -245,19 +245,6 @@ task dataUpdated(type: Test, dependsOn: compileJava) {
     }
 }
 
-task summer2021(type: Test, dependsOn: compileJava) {
-    useJUnitPlatform {
-        includeTags "Summer2021Engineering"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.unit.*"
-        includeTestsMatching "com.tramchester.integration.*"
-    }
-    testLogging {
-        events "passed"
-    }
-}
-
 task integrationBus(type: Test, dependsOn: compileJava) {
     minHeapSize = "1000m"
     maxHeapSize = "3000m"

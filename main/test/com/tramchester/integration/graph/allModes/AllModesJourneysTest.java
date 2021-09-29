@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.CompositeStationRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -79,7 +80,7 @@ public class AllModesJourneysTest {
 
     @Test
     void shouldHaveBusToTram() {
-        CompositeStation stockport = compositeStationRepository.findByName("Stockport Bus Station");
+        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportBusStation.getName());
         Station alty = compositeStationRepository.getStationById(TramStations.Altrincham.getId());
 
         TramTime travelTime = TramTime.of(9, 0);
@@ -109,8 +110,8 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveStockToAltyBusJourney() {
 
-        CompositeStation stockport = compositeStationRepository.findByName("Stockport Bus Station");
-        CompositeStation alty = compositeStationRepository.findByName("Altrincham Interchange");
+        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportBusStation.getName());
+        CompositeStation alty = compositeStationRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
 
         TramTime travelTime = TramTime.of(9, 0);
 
