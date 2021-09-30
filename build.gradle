@@ -220,7 +220,6 @@ task integration(type: Test, dependsOn: compileJava) {
     maxHeapSize = "1750m"
     useJUnitPlatform {
         excludeTags "liveDataMessages" // hopefully temporary exclusion
-        //excludeTags "Summer2021Engineering"
         //excludeTags "liveData" // for when live data is down currently
         //excludeTags "dataExpiry" // ONLY exclude when impending data expiry causes issues
     }

@@ -27,7 +27,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.Summer2021Engineering;
 import org.junit.jupiter.api.*;
 
 import java.time.DayOfWeek;
@@ -402,7 +401,6 @@ public class TransportDataFromFilesTramTest {
         });
     }
 
-    @Summer2021Engineering
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);

@@ -21,7 +21,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.Summer2021Engineering;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Transaction;
@@ -343,7 +342,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Bury);
     }
 
-    @Summer2021Engineering
     @Test
     void shouldReproIssueWithMediaCityTrams() {
 
@@ -391,7 +389,6 @@ public class RouteCalculatorTest {
 
     }
 
-    @Summer2021Engineering
     @Test
     void ShouldReproIssueWithSomeMediaCityJourneys() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
@@ -402,7 +399,6 @@ public class RouteCalculatorTest {
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Ashton, request).isEmpty());
     }
 
-    @Summer2021Engineering
     @Test
     void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
         // catches issue with services, only some of which go to media city, while others direct to broadway
@@ -415,7 +411,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest9am, Cornbrook, Eccles);
     }
 
-    @Summer2021Engineering
     @Test
     void shouldReproIssueWithJourneysToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults);
@@ -440,7 +435,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestD, Cornbrook, Eccles);
     }
 
-    @Summer2021Engineering
     @Test
     void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         List<TramTime> missingTimes = checkRangeOfTimes(Cornbrook, Eccles);
@@ -459,14 +453,12 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @Summer2021Engineering
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 
-    @Summer2021Engineering
     @Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
         JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
@@ -490,7 +482,6 @@ public class RouteCalculatorTest {
         }
     }
 
-    @Summer2021Engineering
     @Test
     void reproIssueRochdaleToEccles() {
         TramTime time = TramTime.of(9,0);
