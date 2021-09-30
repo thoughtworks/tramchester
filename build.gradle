@@ -47,13 +47,13 @@ dependencies {
     // aws sdk
     implementation('software.amazon.awssdk:cloudwatch:2.17.49')
     implementation('software.amazon.awssdk:s3:2.17.49')
-    implementation('software.amazon.awssdk:cloudformation:2.17.11')
+    implementation('software.amazon.awssdk:cloudformation:2.17.49')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.116.0',
             'software.amazon.awscdk:s3:1.116.0',
             'software.amazon.awscdk:ec2:1.125.0',
             'software.amazon.awscdk:elasticloadbalancingv2:1.125.0',
-            'software.amazon.awscdk:autoscaling:1.116.0',
+            'software.amazon.awscdk:autoscaling:1.125.0',
             'software.amazon.awscdk:cdk-cx-api:1.111.0'
 
     implementation('org.geotools:gt-main:25.2')
