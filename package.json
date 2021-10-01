@@ -33,7 +33,7 @@
     "vue-typeahead-bootstrap": "^2.11.1"
   },
   "devDependencies": {
-    "css-loader": "^6.2.0",
+    "css-loader": "^6.3.0",
     "file-loader": "^6.2.0",
     "style-loader": "^3.2.1",
     "vue-loader": "^15.9.8",
