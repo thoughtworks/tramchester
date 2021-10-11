@@ -55,8 +55,8 @@ class StationResourceTest {
 
         List<RouteRefDTO> routes = result.getRoutes();
 
-        // 10->8 -> 18 summer 2021
-        assertEquals(10, routes.size());
+
+        assertEquals(2 * 10, routes.size());
     }
 
     @Test
