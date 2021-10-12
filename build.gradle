@@ -46,7 +46,7 @@ dependencies {
 
     // aws sdk
     implementation('software.amazon.awssdk:s3:2.17.50')
-    implementation('software.amazon.awssdk:cloudwatch:2.17.50')
+    implementation('software.amazon.awssdk:cloudwatch:2.17.57')
     implementation('software.amazon.awssdk:cloudformation:2.17.49')
     // aws cdk
     implementation 'software.amazon.awscdk:core:1.125.0',
