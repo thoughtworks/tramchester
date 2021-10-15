@@ -2,6 +2,7 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseLifecycleManager;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -32,7 +33,8 @@ class GraphDatabaseTest {
     void shouldStartDatabase() {
         ProvidesLocalNow providesNow = new ProvidesLocalNow();
         DataSourceRepository transportData = new TramTransportDataForTestFactory.TramTransportDataForTest(providesNow);
-        GraphDatabase graphDatabase = new GraphDatabase(config, transportData);
+        GraphDatabaseLifecycleManager lifecycleManager = new GraphDatabaseLifecycleManager(config);
+        GraphDatabase graphDatabase = new GraphDatabase(config, transportData, lifecycleManager);
 
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(5000));

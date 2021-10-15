@@ -8,6 +8,7 @@ import com.tramchester.domain.StationClosure;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
@@ -45,6 +46,7 @@ class GraphDatabaseLifecycleTest {
     private Set<DataSourceInfo> namesAndVersions;
     private List<GTFSSourceConfig> dataSourceConfigs;
     private GraphDatabase graphDatabase;
+    private GraphDatabaseLifecycleManager lifecycleManager;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
@@ -76,6 +78,7 @@ class GraphDatabaseLifecycleTest {
             }
         };
 
+        lifecycleManager = new GraphDatabaseLifecycleManager(config);
     }
 
     @AfterEach
@@ -259,7 +262,8 @@ class GraphDatabaseLifecycleTest {
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, "version42", lastModTime, modes));
 
-        graphDatabase = new GraphDatabase(config, repository);
+        GraphDatabaseLifecycleManager lifecycleManager = new GraphDatabaseLifecycleManager(config);
+        graphDatabase = new GraphDatabase(config, repository, lifecycleManager);
         graphDatabase.start();
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
 
@@ -288,7 +292,7 @@ class GraphDatabaseLifecycleTest {
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         dataSourceConfigs.add(createEmptyDataSource(SRC_2_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, VERSION_2_VALID, lastModTime, modes));
-        graphDatabase = new GraphDatabase(config, repository);
+        graphDatabase = new GraphDatabase(config, repository, lifecycleManager);
         graphDatabase.start();
     }
 
@@ -298,7 +302,7 @@ class GraphDatabaseLifecycleTest {
 
         dataSourceConfigs.add(createEmptyDataSource(SRC_1_NAME.getName()));
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
-        graphDatabase = new GraphDatabase(config, repository);
+        graphDatabase = new GraphDatabase(config, repository, lifecycleManager);
         graphDatabase.start();
     }
 
