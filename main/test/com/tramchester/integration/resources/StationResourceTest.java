@@ -56,7 +56,7 @@ class StationResourceTest {
         List<RouteRefDTO> routes = result.getRoutes();
 
 
-        assertEquals(2 * 10, routes.size());
+        assertEquals( 10, routes.size());
     }
 
     @Test

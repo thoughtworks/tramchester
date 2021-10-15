@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
-    public static final int NUM_TFGM_TRAM_ROUTES = 2 * 14; // N * since overlaps in data updates
+    public static final int NUM_TFGM_TRAM_ROUTES = 14; // N * since overlaps in data updates
     public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
     private static ComponentContainer componentContainer;
     private static IntegrationTramTestConfig config;
@@ -119,7 +119,7 @@ public class TransportDataFromFilesTramTest {
 
         IdSet<Route> traffordBarRoutes = traffordBar.stream().map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
 
-        assertEquals(2*10, traffordBarRoutes.size());
+        assertEquals(10, traffordBarRoutes.size());
 
         // contains -> containsAll
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
@@ -143,7 +143,7 @@ public class TransportDataFromFilesTramTest {
         Set<Route> callingRoutes = routeStationSet.stream().map(RouteStation::getRoute).collect(Collectors.toSet());
 
         // 6 -> 4 summer 2021
-        assertEquals(2 * 4, callingRoutes.size());
+        assertEquals(4, callingRoutes.size());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class TransportDataFromFilesTramTest {
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
 
-        assertEquals(2*8, routeStations.size(), routeStations.toString());
+        assertEquals(8, routeStations.size(), routeStations.toString());
 
         Set<String> names = routeStations.stream().map(routeStation -> routeStation.getRoute().getShortName()).collect(Collectors.toSet());
 
@@ -402,7 +402,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
-        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
+          Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
         Set<Route> routes = transportData.findRoutesByShortName(Agency.METL, AshtonUnderLyneManchesterEccles.shortName());
 
