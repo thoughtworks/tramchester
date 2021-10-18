@@ -17,8 +17,6 @@ class GraphDatabaseTest {
     private static SimpleGraphConfig config;
     private static ComponentContainer componentContainer;
 
-    // TODO Move to integration tests?
-
     @BeforeAll
     static void beforeEachTest() throws IOException {
         config = new SimpleGraphConfig("GraphDatabaseTest");

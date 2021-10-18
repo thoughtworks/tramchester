@@ -70,7 +70,9 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
 
         graphDatabase = new GraphDatabase(config, repository, lifecycleManager);
 
-        Files.createFile(dbConfig.getDbPath());
+        final Path dbPath = dbConfig.getDbPath();
+        Files.createDirectories(dbPath.getParent());
+        Files.createFile(dbPath);
     }
 
     @AfterEach
