@@ -6,25 +6,17 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.GraphDatabaseServiceFactory;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.io.FileUtils;
-import org.neo4j.configuration.GraphDatabaseSettings;
-import org.neo4j.configuration.SettingValueParsers;
-import org.neo4j.configuration.connectors.BoltConnector;
-import org.neo4j.configuration.connectors.HttpConnector;
-import org.neo4j.configuration.connectors.HttpsConnector;
-import org.neo4j.dbms.api.DatabaseManagementService;
-import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.event.DatabaseEventContext;
-import org.neo4j.graphdb.event.DatabaseEventListener;
-import org.neo4j.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,26 +27,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
 
 @LazySingleton
-public class GraphDatabaseLifecycleManager implements DatabaseEventListener  {
+public class GraphDatabaseLifecycleManager {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseLifecycleManager.class);
 
     private static final int SHUTDOWN_TIMEOUT = 200;
-    private static final int STARTUP_TIMEOUT = 1000;
 
     private final GraphDBConfig graphDBConfig;
     private final TramchesterConfig configuration;
+    private final GraphDatabaseServiceFactory serviceFactory;
 
     private boolean cleanDB;
-    private DatabaseManagementService managementService;
-    private final String dbName;
 
-    public GraphDatabaseLifecycleManager(TramchesterConfig configuration) {
+    @Inject
+    public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory) {
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.configuration = configuration;
-        dbName = DEFAULT_DATABASE_NAME; // must be this for neo4j community edition default DB
+        this.serviceFactory = serviceFactory;
+        //String dbName = DEFAULT_DATABASE_NAME; // must be this for neo4j community edition default DB
     }
 
     public GraphDatabaseService startDatabase(Set<DataSourceInfo> dataSourceInfo) {
@@ -70,12 +61,12 @@ public class GraphDatabaseLifecycleManager implements DatabaseEventListener  {
             logger.info("No db file found at " + graphFile);
         }
 
-        GraphDatabaseService databaseService = createGraphDatabaseService(graphFile, graphDBConfig);
+        GraphDatabaseService databaseService = serviceFactory.create();
 
         if (existingFile && !upToDateVersionsAndNeighbourFlag(databaseService, dataSourceInfo)) {
             cleanDB = true;
             logger.warn("Graph is out of date, rebuild needed");
-            managementService.shutdown();
+            serviceFactory.shutdownDatabase();
             int count = 5000 / SHUTDOWN_TIMEOUT; // wait 5 seconds
             while (databaseService.isAvailable(SHUTDOWN_TIMEOUT)) {
                 logger.info("Waiting for graph shutdown");
@@ -91,7 +82,7 @@ public class GraphDatabaseLifecycleManager implements DatabaseEventListener  {
                 logger.error(message,e);
                 throw new RuntimeException(message,e);
             }
-            databaseService = createGraphDatabaseService(graphFile, graphDBConfig);
+            databaseService = serviceFactory.create();
         }
 
         logger.info("graph db started at:" + graphFile);
@@ -101,78 +92,25 @@ public class GraphDatabaseLifecycleManager implements DatabaseEventListener  {
 
     public void stopDatabase() {
         try (Timing ignored = new Timing(logger, "DatabaseManagementService stopping")){
-            if (managementService==null) {
-                logger.error("Already stopped? Unable to obtain DatabaseManagementService for shutdown");
-            } else {
-                logger.info("Shutting down DatabaseManagementService");
-                managementService.shutdown();
-                managementService = null;
+            serviceFactory.shutdownDatabase();
+
+//            if (managementService==null) {
+//                logger.error("Already stopped? Unable to obtain DatabaseManagementService for shutdown");
+//            } else {
+//                logger.info("Shutting down Database");
+//                serviceFactory.shutdownDatabase();
+//                managementService.shutdown();
+//                managementService = null;
 //                databaseService = null;
-            }
+//            }
+
         } catch (Exception exceptionInClose) {
             logger.error("DatabaseManagementService Exception during close down " + graphDBConfig.getDbPath(), exceptionInClose);
         }
         logger.info("DatabaseManagementService Stopped");
     }
 
-    private GraphDatabaseService createGraphDatabaseService(Path graphFile, GraphDBConfig config) {
-        logger.info("Create GraphDatabaseService");
-
-        try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
-            managementService = new DatabaseManagementServiceBuilder( graphFile ).
-                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
-                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
-
-                    // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
-
-                            setConfig(GraphDatabaseSettings.pagecache_memory, config.getNeo4jPagecacheMemory()).
-                    // TODO This one into config?
-                    //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("256m")).
-                            setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
-
-                    // txn logs, no need to save beyond current ones
-                            setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
-
-                    // operating in embedded mode
-                            setConfig(HttpConnector.enabled, false).
-                    setConfig(HttpsConnector.enabled, false).
-                    setConfig(BoltConnector.enabled, false).
-
-                    // TODO no 4.2 version available?
-                    //setUserLogProvider(new Slf4jLogProvider()).
-                            build();
-        }
-
-        managementService.registerDatabaseEventListener(this);
-
-        // for community edition must be DEFAULT_DATABASE_NAME
-        logger.info("GraphDatabaseService start for " + dbName + " at " + graphDBConfig.getDbPath());
-
-        GraphDatabaseService graphDatabaseService = managementService.database(dbName);
-
-        managementService.listDatabases().forEach(databaseName -> {
-            logger.info("Database from managementService: " + databaseName);
-        });
-
-        logger.info("Wait for GraphDatabaseService available");
-        int retries = 100;
-        // NOTE: DB can just silently fail to start if updated net4j versions, so cleanGraph in this scenario
-        while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT) && retries>0) {
-            logger.error("GraphDatabaseService is not available (neo4j updated? dbClean needed?), name: " + dbName +
-                    " Path: " + graphFile.toAbsolutePath() + " check " + retries);
-            retries--;
-        }
-
-        if (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT)) {
-            throw new RuntimeException("Could not start " + graphDBConfig.getDbPath());
-        }
-
-        logger.info("GraphDatabaseService is available");
-        return graphDatabaseService;
-    }
-
     private boolean upToDateVersionsAndNeighbourFlag(GraphDatabaseService databaseService, Set<DataSourceInfo> dataSourceInfo) {
-        //Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
         logger.info("Checking graph version information ");
 
         // version -> flag
@@ -241,21 +179,6 @@ public class GraphDatabaseLifecycleManager implements DatabaseEventListener  {
             logger.warn("Too many "+label.name()+ " nodes, will use first");
         }
         return nodes;
-    }
-
-    @Override
-    public void databaseStart(DatabaseEventContext eventContext) {
-        logger.info("database event: start " + eventContext.getDatabaseName());
-    }
-
-    @Override
-    public void databaseShutdown(DatabaseEventContext eventContext) {
-        logger.warn("database event: shutdown " + eventContext.getDatabaseName());
-    }
-
-    @Override
-    public void databasePanic(DatabaseEventContext eventContext) {
-        logger.error("database event: panic " + eventContext.getDatabaseName());
     }
 
     public boolean isCleanDB() {

@@ -10,6 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.GraphDatabaseServiceFactory;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
@@ -47,6 +48,7 @@ class GraphDatabaseLifecycleTest {
     private List<GTFSSourceConfig> dataSourceConfigs;
     private GraphDatabase graphDatabase;
     private GraphDatabaseLifecycleManager lifecycleManager;
+    private GraphDatabaseServiceFactory serviceFactory;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
@@ -78,7 +80,8 @@ class GraphDatabaseLifecycleTest {
             }
         };
 
-        lifecycleManager = new GraphDatabaseLifecycleManager(config);
+        serviceFactory = new GraphDatabaseServiceFactory(config);
+        lifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory);
     }
 
     @AfterEach
@@ -262,7 +265,7 @@ class GraphDatabaseLifecycleTest {
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
         namesAndVersions.add(new DataSourceInfo(SRC_2_NAME, "version42", lastModTime, modes));
 
-        GraphDatabaseLifecycleManager lifecycleManager = new GraphDatabaseLifecycleManager(config);
+        GraphDatabaseLifecycleManager lifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory);
         graphDatabase = new GraphDatabase(config, repository, lifecycleManager);
         graphDatabase.start();
         assertTrue(isAvailable(START_TIMEOUT_MILLI));
