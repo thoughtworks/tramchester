@@ -8,6 +8,6 @@ public class GraphDatabaseLifecycleManagementTest {
 
     @Test
     public void todo() {
-        //fail();
+        fail();
     }
 }

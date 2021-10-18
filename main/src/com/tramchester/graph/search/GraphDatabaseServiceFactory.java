@@ -115,6 +115,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
             managementServiceImpl.shutdown();
             managementServiceImpl = null;
         }
+
         logger.info("Stopped");
     }
 
