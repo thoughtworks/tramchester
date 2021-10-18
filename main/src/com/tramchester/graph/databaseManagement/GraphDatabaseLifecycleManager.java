@@ -1,10 +1,9 @@
-package com.tramchester.graph;
+package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.search.GraphDatabaseServiceFactory;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -30,7 +29,8 @@ public class GraphDatabaseLifecycleManager {
     private boolean cleanDB;
 
     @Inject
-    public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory, GraphDatabaseStoredVersions storedVersions) {
+    public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory,
+                                         GraphDatabaseStoredVersions storedVersions) {
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.serviceFactory = serviceFactory;
         this.storedVersions = storedVersions;

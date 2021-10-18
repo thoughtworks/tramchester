@@ -2,11 +2,7 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseLifecycleManager;
-import com.tramchester.graph.search.GraphDatabaseServiceFactory;
-import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.junit.jupiter.api.AfterEach;

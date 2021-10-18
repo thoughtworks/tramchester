@@ -1,4 +1,4 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;

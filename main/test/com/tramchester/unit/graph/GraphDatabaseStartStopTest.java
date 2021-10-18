@@ -6,7 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphDatabaseLifecycleManager;
+import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
@@ -22,7 +22,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GraphDatabaseLifecycleTest extends EasyMockSupport {
+class GraphDatabaseStartStopTest extends EasyMockSupport {
 
     private static final DataSourceID SRC_1_NAME = DataSourceID.gbRail;
     private static final String VERSION_1_VALID = "version1";

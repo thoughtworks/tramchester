@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.DataSourceRepository;
