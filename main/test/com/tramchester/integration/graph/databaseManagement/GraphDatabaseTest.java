@@ -1,13 +1,12 @@
-package com.tramchester.unit.graph.calculation;
+package com.tramchester.integration.graph.databaseManagement;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 
@@ -18,11 +17,12 @@ class GraphDatabaseTest {
     private static SimpleGraphConfig config;
     private static ComponentContainer componentContainer;
 
-    @BeforeEach
-    void beforeEachTest() throws IOException {
+    // TODO Move to integration tests?
+
+    @BeforeAll
+    static void beforeEachTest() throws IOException {
         config = new SimpleGraphConfig("GraphDatabaseTest");
         TestEnv.deleteDBIfPresent(config);
-
 
         componentContainer = new ComponentsBuilder().
                 overrideProvider(TramTransportDataForTestFactory.class).
@@ -30,8 +30,9 @@ class GraphDatabaseTest {
         componentContainer.initialise();
     }
 
-    @AfterEach
-    void afterEachTest() throws IOException {
+    @AfterAll
+    static void afterEachTest() throws IOException {
+        componentContainer.close();
         TestEnv.deleteDBIfPresent(config);
     }
 
@@ -42,6 +43,8 @@ class GraphDatabaseTest {
         graphDatabase.start();
         assertTrue(graphDatabase.isAvailable(5000));
         graphDatabase.stop();
+
+        // TODO EXPAND ME
     }
 
 }

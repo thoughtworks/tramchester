@@ -46,7 +46,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
     private void start() {
         logger.info("start");
         logger.info("DBName : '"+ dbName + "' Path:'" + graphFile.toString() +"'");
-        //createManagementService();
+        //createManagementService(); - slow, only do when needed
         logger.info("started");
     }
 

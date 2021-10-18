@@ -36,22 +36,19 @@ public class GraphDatabaseLifecycleManager {
         this.storedVersions = storedVersions;
     }
 
-    public GraphDatabaseService startDatabase(Set<DataSourceInfo> dataSourceInfo) {
-        Path graphFile = graphDBConfig.getDbPath().toAbsolutePath();
-
+    public GraphDatabaseService startDatabase(Set<DataSourceInfo> dataSourceInfo, Path graphFile, boolean fileExists) {
         logger.info("Create or load graph " + graphFile);
-        boolean existingFile = Files.exists(graphFile);
 
-        if (existingFile) {
+        if (fileExists) {
             logger.info("Graph db file is present at " + graphFile);
         } else {
             logger.info("No db file found at " + graphFile);
         }
 
-        cleanDB = !existingFile;
+        cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
 
-        if (existingFile && !storedVersions.upToDate(databaseService,dataSourceInfo)) {
+        if (fileExists && !storedVersions.upToDate(databaseService,dataSourceInfo)) {
             logger.warn("Graph is out of date, rebuild needed");
             cleanDB = true;
             serviceFactory.shutdownDatabase();

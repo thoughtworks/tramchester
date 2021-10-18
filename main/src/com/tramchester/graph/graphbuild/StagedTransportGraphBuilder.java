@@ -17,6 +17,7 @@ import com.tramchester.graph.AddNeighboursGraphBuilder;
 import com.tramchester.graph.AddWalksForClosedGraphBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
@@ -61,6 +62,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private final TransportData transportData;
     private final InterchangeRepository interchangeRepository;
+    private final GraphDatabaseMetaInfo databaseMetaInfo;
 
     // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -73,10 +75,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        GraphBuilderCache builderCache,
                                        StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
                                        AddNeighboursGraphBuilder.Ready neighboursReady,
-                                       AddWalksForClosedGraphBuilder.Ready walksForClosedReady) {
+                                       AddWalksForClosedGraphBuilder.Ready walksForClosedReady, GraphDatabaseMetaInfo databaseMetaInfo) {
         super(graphDatabase, graphFilter, config, builderCache);
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
+        this.databaseMetaInfo = databaseMetaInfo;
     }
 
     @PostConstruct
@@ -149,8 +152,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
         try(Transaction tx = graphDatabase.beginTx()) {
             logger.info("Adding version node to the DB");
-            Node node = createGraphNode(tx, GraphLabel.VERSION);
-            infos.forEach(nameAndVersion -> setProp(node, nameAndVersion));
+            databaseMetaInfo.createVersionNode(tx, infos);
             tx.commit();
         }
     }

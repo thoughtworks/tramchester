@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +50,9 @@ public class GraphDatabase implements DatabaseEventListener {
     public void start() {
         logger.info("start");
         Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
-        databaseService = lifecycleManager.startDatabase(dataSourceInfo);
+        final Path dbPath = graphDBConfig.getDbPath();
+        boolean fileExists = Files.exists(dbPath);
+        databaseService = lifecycleManager.startDatabase(dataSourceInfo, dbPath, fileExists);
         logger.info("graph db started ");
     }
 

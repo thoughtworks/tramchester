@@ -1,4 +1,4 @@
-package com.tramchester.unit.graph;
+package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -12,10 +12,14 @@ import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -32,12 +36,13 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
     private GraphDatabase graphDatabase;
     private GraphDatabaseLifecycleManager lifecycleManager;
     private GraphDatabaseService graphDatabaseService;
+    private GraphDBTestConfig dbConfig;
 
     @BeforeEach
-    void beforeEachTestRuns() {
+    void beforeEachTestRuns() throws IOException {
         String dbName = "graphDbTest.db";
 
-        GraphDBTestConfig dbConfig = new GraphDBTestConfig("graphDatabaseTest", dbName);
+        dbConfig = new GraphDBTestConfig("graphDatabaseTest", dbName);
         TramchesterConfig config = new IntegrationTestConfig(dbConfig) {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
@@ -64,17 +69,25 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
         graphDatabaseService = createMock(GraphDatabaseService.class);
 
         graphDatabase = new GraphDatabase(config, repository, lifecycleManager);
+
+        Files.createFile(dbConfig.getDbPath());
+    }
+
+    @AfterEach
+    public void afterEachTestRuns() throws IOException {
+        Files.deleteIfExists(dbConfig.getDbPath());
     }
 
     @Test
-    void shouldStartLifeCycleManagerClean() {
+    void shouldStartLifeCycleManagerCleanExistingFile() {
 
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
 
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
 
-        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions)).andReturn(graphDatabaseService);
+        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions, dbConfig.getDbPath(), true)).
+                andReturn(graphDatabaseService);
         EasyMock.expect(lifecycleManager.isCleanDB()).andReturn(true);
         lifecycleManager.stopDatabase();
         EasyMock.expectLastCall();
@@ -88,14 +101,38 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldStartLifeCycleManagerNotClean() {
+    void shouldStartLifeCycleNoFile() throws IOException {
+        Files.delete(dbConfig.getDbPath());
 
         LocalDateTime lastModTime = LocalDateTime.now();
         Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
 
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
 
-        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions)).andReturn(graphDatabaseService);
+        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions, dbConfig.getDbPath(), false)).
+                andReturn(graphDatabaseService);
+        EasyMock.expect(lifecycleManager.isCleanDB()).andReturn(true);
+        lifecycleManager.stopDatabase();
+        EasyMock.expectLastCall();
+
+        replayAll();
+        graphDatabase.start();
+        assertTrue(graphDatabase.isCleanDB());
+        graphDatabase.stop();
+        verifyAll();
+
+    }
+
+    @Test
+    void shouldStartLifeCycleManagerNotCleanExistingFile() {
+
+        LocalDateTime lastModTime = LocalDateTime.now();
+        Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
+
+        namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
+
+        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions,  dbConfig.getDbPath(), true)).
+                andReturn(graphDatabaseService);
         EasyMock.expect(lifecycleManager.isCleanDB()).andReturn(false);
         lifecycleManager.stopDatabase();
         EasyMock.expectLastCall();

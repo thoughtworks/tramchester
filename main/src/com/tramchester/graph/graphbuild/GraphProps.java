@@ -35,7 +35,7 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
 
-    static void setProp(Node node, DataSourceInfo dataSourceInfo) {
+    public static void setProp(Node node, DataSourceInfo dataSourceInfo) {
         DataSourceID sourceID = dataSourceInfo.getID();
         node.setProperty(sourceID.name(), dataSourceInfo.getVersion());
     }

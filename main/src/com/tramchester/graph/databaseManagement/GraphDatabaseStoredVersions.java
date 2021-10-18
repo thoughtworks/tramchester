@@ -26,10 +26,12 @@ public class GraphDatabaseStoredVersions {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabaseStoredVersions.class);
 
     private final TramchesterConfig config;
+    private final GraphDatabaseMetaInfo databaseMetaInfo;
 
     @Inject
-    public GraphDatabaseStoredVersions(TramchesterConfig config) {
+    public GraphDatabaseStoredVersions(TramchesterConfig config, GraphDatabaseMetaInfo databaseMetaInfo) {
         this.config = config;
+        this.databaseMetaInfo = databaseMetaInfo;
     }
 
     public boolean upToDate(GraphDatabaseService databaseService, Set<DataSourceInfo> dataSourceInfo) {
@@ -43,16 +45,15 @@ public class GraphDatabaseStoredVersions {
                 return false;
             }
 
-            List<Node> versionNodes = getNodes(transaction, GraphLabel.VERSION);
-            if (versionNodes.isEmpty()) {
+            if (!databaseMetaInfo.hasVersionInfo(transaction)) {
                 logger.warn("Missing VERSION node, cannot check versions");
                 return false;
             }
-            Node versionNode = versionNodes.get(0);
-            Map<String, Object> allProps = versionNode.getAllProperties();
 
-            if (allProps.size()!=dataSourceInfo.size()) {
-                logger.warn("VERSION node property mismatch, got " +allProps.size() + " expected " + dataSourceInfo.size());
+            Map<String, String> versionsFromDB = databaseMetaInfo.getVersions(transaction);
+
+            if (versionsFromDB.size()!=dataSourceInfo.size()) {
+                logger.warn("VERSION node property mismatch, got " +versionsFromDB.size() + " expected " + dataSourceInfo.size());
                 return false;
             }
 
@@ -61,8 +62,8 @@ public class GraphDatabaseStoredVersions {
                 String name = sourceName.name();
                 logger.info("Checking version for " + sourceName);
 
-                if (allProps.containsKey(name)) {
-                    String graphValue = allProps.get(name).toString();
+                if (versionsFromDB.containsKey(name)) {
+                    String graphValue = versionsFromDB.get(name);
                     boolean matches = sourceInfo.getVersion().equals(graphValue);
                     upToDate.put(sourceInfo, matches);
                     if (matches) {
@@ -72,7 +73,7 @@ public class GraphDatabaseStoredVersions {
                     }
                 } else {
                     upToDate.put(sourceInfo, false);
-                    logger.warn("Could not find version for " + name + " properties were " + allProps);
+                    logger.warn("Could not find version for " + name + " properties were " + versionsFromDB);
                 }
             });
         }
@@ -80,9 +81,8 @@ public class GraphDatabaseStoredVersions {
     }
 
     private boolean neighboursEnabledMismatch(Transaction txn) {
-        List<Node> nodes = getNodes(txn, GraphLabel.NEIGHBOURS_ENABLED);
 
-        boolean fromDB = !nodes.isEmpty(); // presence of node means neighbours present
+        boolean fromDB = databaseMetaInfo.isNeighboursEnabled(txn);
         boolean fromConfig = config.getCreateNeighbours();
 
         if (fromDB==fromConfig) {
@@ -93,13 +93,4 @@ public class GraphDatabaseStoredVersions {
         return fromConfig != fromDB;
     }
 
-    private List<Node> getNodes(Transaction transaction, GraphLabel label) {
-        ResourceIterator<Node> query = transaction.findNodes(label); // findNodes(transaction, label);
-        List<Node> nodes = query.stream().collect(Collectors.toList());
-
-        if (nodes.size()>1) {
-            logger.warn("Too many "+label.name()+ " nodes, will use first");
-        }
-        return nodes;
-    }
 }

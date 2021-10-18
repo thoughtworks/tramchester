@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.CoordinateTransforms;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -27,6 +28,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private static final Logger logger = LoggerFactory.getLogger(AddNeighboursGraphBuilder.class);
 
     private final GraphDatabase database;
+    private final GraphDatabaseMetaInfo databaseMetaInfo;
     private final StationRepository stationRepository;
     private final NeighboursRepository neighboursRepository;
     private final GraphQuery graphQuery;
@@ -34,11 +36,12 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private final GraphFilter filter;
 
     @Inject
-    public AddNeighboursGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery, StationRepository repository,
+    public AddNeighboursGraphBuilder(GraphDatabase database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter, GraphQuery graphQuery, StationRepository repository,
                                      TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
                                      NeighboursRepository neighboursRepository) {
         super(database);
         this.database = database;
+        this.databaseMetaInfo = databaseMetaInfo;
         this.filter = filter;
         this.graphQuery = graphQuery;
         this.stationRepository = repository;
@@ -101,14 +104,15 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private boolean hasDBFlag() {
         boolean flag;
         try (Transaction txn = graphDatabase.beginTx()) {
-            flag = graphQuery.hasAnyNodesWithLabel(txn, GraphLabel.NEIGHBOURS_ENABLED);
+//            flag = graphQuery.hasAnyNodesWithLabel(txn, GraphLabel.NEIGHBOURS_ENABLED);
+            flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
     }
 
     private void addDBFlag() {
         try (Transaction txn = graphDatabase.beginTx()) {
-            txn.createNode(GraphLabel.NEIGHBOURS_ENABLED);
+            databaseMetaInfo.setNeighboursEnabled(txn);
             txn.commit();
         }
     }
