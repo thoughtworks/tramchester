@@ -159,26 +159,26 @@ test {
 }
 
 task cdkApp(type:JavaExec, dependsOn:classes) {
-    main = 'com.tramchester.deployment.CdkApp'
+    mainClass = 'com.tramchester.deployment.CdkApp'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task buses(type:JavaExec, dependsOn: 'webpack') {
-    main = mainClassName
+    mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/buses.yml'
 }
 
 task trains(type:JavaExec, dependsOn: 'webpack') {
-    main = mainClassName
+    mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/trains.yml'
 }
 
 task all(type:JavaExec, dependsOn: 'webpack') {
-    main = mainClassName
+    mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/all.yml'
@@ -415,13 +415,13 @@ distributions {
 }
 
 task pullData(type:JavaExec, dependsOn:classes) {
-    main = 'com.tramchester.deployment.cli.FetchDataCLI'
+    mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
     args 'config/local.yml'
 }
 
 task buildDatabase(type:JavaExec, dependsOn:classes) {
-    main = 'com.tramchester.deployment.cli.BuildGraphCLI'
+    mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
     args 'config/local.yml'
 }
