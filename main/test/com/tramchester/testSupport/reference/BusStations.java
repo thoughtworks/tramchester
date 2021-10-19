@@ -17,8 +17,9 @@ public enum BusStations implements TestStations {
 
     StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham", "Altrincham Interchange",
             new LatLong(53.38745, -2.34771)),
-    StopAtStockportBusStation("1800SGQ0021", "Stockport", "Stockport Bus Station",
-            new LatLong(53.4091,-2.16443890806)),
+    // stockport bus stations is no more, at least for now
+//    StopAtStockportBusStation("1800SGQ0021", "Stockport", "Stockport Bus Station",
+//            new LatLong(53.4091,-2.16443890806)),
     StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport", "Stockport Heaton Lane Bus Station",
             new LatLong(53.41036253703,-2.16501729098)),
     ShudehillInterchange("1800SHIC001", "Shudehill, Manchester City Centre", "Shudehill Interchange",
@@ -73,7 +74,8 @@ public enum BusStations implements TestStations {
     }
 
     public enum Composites {
-        StockportBusStation("Stockport Bus Station"),
+        // closed for rebuilding....
+        //StockportBusStation("Stockport Bus Station"),
         StockportTempBusStation("Stockport Heaton Lane Bus Station"),
         AltrinchamInterchange("Altrincham Interchange");
 

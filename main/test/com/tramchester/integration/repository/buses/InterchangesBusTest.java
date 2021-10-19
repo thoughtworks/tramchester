@@ -60,7 +60,8 @@ class InterchangesBusTest {
         assertFalse(interchanges.contains(StockportNewbridgeLane.getId()));
 
         assertTrue(interchanges.contains(StopAtAltrinchamInterchange.getId()));
-        assertTrue(interchanges.contains(StopAtStockportBusStation.getId()));
+        // stockport bus station is closed
+        //assertTrue(interchanges.contains(StopAtStockportBusStation.getId()));
 
     }
 

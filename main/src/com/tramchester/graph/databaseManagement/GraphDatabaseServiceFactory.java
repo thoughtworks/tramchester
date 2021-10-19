@@ -77,7 +77,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                             setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
 
                     // txn logs, no need to save beyond current ones
-                            setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
+                            //setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
 
                     // operating in embedded mode
                             setConfig(HttpConnector.enabled, false).

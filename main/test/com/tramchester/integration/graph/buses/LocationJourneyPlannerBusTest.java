@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.testSupport.TestEnv.nearAltrinchamInterchange;
-import static com.tramchester.testSupport.reference.BusStations.StopAtStockportBusStation;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @BusTest

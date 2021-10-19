@@ -80,7 +80,7 @@ public class AllModesJourneysTest {
 
     @Test
     void shouldHaveBusToTram() {
-        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportBusStation.getName());
+        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
         Station alty = compositeStationRepository.getStationById(TramStations.Altrincham.getId());
 
         TramTime travelTime = TramTime.of(9, 0);
@@ -110,7 +110,7 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveStockToAltyBusJourney() {
 
-        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportBusStation.getName());
+        CompositeStation stockport = compositeStationRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
         CompositeStation alty = compositeStationRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
 
         TramTime travelTime = TramTime.of(9, 0);
