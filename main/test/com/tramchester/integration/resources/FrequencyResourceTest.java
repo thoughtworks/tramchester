@@ -72,7 +72,8 @@ public class FrequencyResourceTest {
         TramStations station =TramStations.ManAirport;
         GridPosition stationPosition = CoordinateTransforms.getGridPosition(station.getLatLong());
 
-        List<BoxWithFrequencyDTO> containsAirport = results.stream().filter(item -> containsStation(stationPosition, item)).collect(Collectors.toList());
+        List<BoxWithFrequencyDTO> containsAirport = results.stream().
+                filter(item -> containsStation(stationPosition, item)).collect(Collectors.toList());
         assertEquals(1, containsAirport.size());
         BoxWithFrequencyDTO airport = containsAirport.get(0);
 

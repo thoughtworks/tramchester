@@ -7,7 +7,7 @@ var oboe = require('oboe');
 
 var L = require('leaflet');
 
-require('file-loader?name=[name].[ext]!../traveltimes.html');
+require('file-loader?name=[name].[ext]!../frequency.html');
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -26,43 +26,35 @@ function getCurrentDate() {
     return now.substr(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
 }
 
-function boxClicked(event) {
-    mapApp.journeyLayer.clearLayers();
-    var journey = this.journey.journey;
-    var steps = [];
+function addBoxWithFrequency(boxWithFrequency) {
+    const bounds = [[boxWithFrequency.bottomLeft.lat, boxWithFrequency.bottomLeft.lon], 
+        [boxWithFrequency.topRight.lat, boxWithFrequency.topRight.lon]];
 
-    journey.path.forEach(item => {
-        steps.push([item.latLong.lat, item.latLong.lon]);
-    })
-    var line = L.polyline( steps, { color: 'red' });
-    mapApp.journeyLayer.addLayer(line);
-    mapApp.journeyLayer.addTo(mapApp.map);
-}
+    const numberOfStopCalls = boxWithFrequency.numberOfStopcalls;
 
-function addBoxWithCost(boxWithCost) {
-    const bounds = [[boxWithCost.bottomLeft.lat, boxWithCost.bottomLeft.lon], 
-        [boxWithCost.topRight.lat, boxWithCost.topRight.lon]];
-
-    var colour = getColourForCost(boxWithCost);     
-    var rectangle = L.rectangle(bounds, {weight: 1, color: colour, fillColor: colour, fill: true, fillOpacity: 0.5});
-    if (boxWithCost.minutes>0) {
-        rectangle.bindTooltip('cost ' + boxWithCost.minutes);
-        rectangle.on('click', boxClicked, boxWithCost);
+    var colour = getColourForFrequency(boxWithFrequency);     
+    var rectangle = L.rectangle(bounds, {weight: 0, color: colour, fillColor: colour, fill: true, fillOpacity: 0.5});
+    if (numberOfStopCalls>0) {
+        rectangle.bindTooltip('numer of buses ' + numberOfStopCalls);
+        //rectangle.on('click', boxClicked, boxWithFrequency);
     }
     rectangle.addTo(mapApp.map);
 }
 
-function getColourForCost(boxWithCost) {
-    if (boxWithCost.minutes==0) {
-        return "#0000ff";
-    }
-    if (boxWithCost.minutes < 0) {
+function getColourForFrequency(boxWithFrequency) {
+    const numberOfStopCalls = boxWithFrequency.numberOfStopcalls;
+    if (numberOfStopCalls==0) {
         return "#ff0000";
     }
+
+    var limit = 10;
     var greenString = "00";
-    if (boxWithCost.minutes > 0) {
-        var red = Math.floor((255 / 112) * (112 - boxWithCost.minutes));
-        greenString = red.toString(16);
+    if (numberOfStopCalls > 0) {
+        var value = Math.floor((255 / limit) * numberOfStopCalls);
+        if (value>254) {
+            value = 254;
+        }
+        greenString = value.toString(16);
         if (greenString.length == 1) {
             greenString = '0' + greenString;
         }
@@ -70,21 +62,8 @@ function getColourForCost(boxWithCost) {
     return '#00'+greenString+'00';
 }
 
-// function queryForGrid(gridSize, destination, departureTime, departureDate, maxChanges, maxDuration) {
-//     var urlParams = {
-//         destination: destination, gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
-//         maxChanges: maxChanges, maxDuration: maxDuration};
-
-//     const searchParams = new URLSearchParams(urlParams);
-
-//     getGrids(searchParams);
-// }
-
-function queryForGridLatLong(gridSize, lat, lon, departureTime, departureDate, maxChanges, maxDuration) {
-    var urlParams = {
-        destination: "MyLocationPlaceholderId", gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
-        lat: lat, lon: lon,
-        maxChanges: maxChanges, maxDuration: maxDuration};
+function queryForFrequencies(gridSize, date, startTime, endTime) {
+    var urlParams = { gridSize: gridSize, date: date, startTime: startTime, endTime: endTime};
 
     const searchParams = new URLSearchParams(urlParams);
 
@@ -136,11 +115,11 @@ var mapApp = new Vue({
                 mapApp.networkError = false;
                 mapApp.routes = response.data;
                 mapApp.draw();
-                // 9400ZZMASTP 9400ZZMAAIR 1800MABS001 MAN
                 // make sure to use HH:MM format with leading zero
-                //queryForGrid(1000, "POSTCODE_M23AA", "08:15", getCurrentDate(), "3", "360");
-                // man picc 53.4774286,-2.2313236
-                queryForGridLatLong(1000, "53.4774286", "-2.2313236", "07:30", getCurrentDate(), "2", "60");
+                // YYYY-MM-DD
+                //var date = getCurrentDate();
+                var date = "2021-10-25"
+                queryForFrequencies(500, date, "07:30", "08:30");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
@@ -155,9 +134,9 @@ var mapApp = new Vue({
 
 
 function getGrids(searchParams) {
-    oboe('/api/grid?' + searchParams.toString())
-        .node('BoxWithCost', function (box) {
-            addBoxWithCost(box);
+    oboe('/api/frequency?' + searchParams.toString())
+        .node('BoxWithFrequency', function (box) {
+            addBoxWithFrequency(box);
         })
         .fail(function (errorReport) {
             console.log("Failed to load grid '" + errorReport.toString() + "'");

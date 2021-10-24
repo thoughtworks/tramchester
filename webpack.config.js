@@ -8,7 +8,8 @@ module.exports = {
     trammap: './src/main/resources/app/javascript/trammap.js',
     traveltimes: './src/main/resources/app/javascript/traveltimes.js',
     routemap: './src/main/resources/app/javascript/routemap.js',
-    linksmap: './src/main/resources/app/javascript/linksmap.js'
+    linksmap: './src/main/resources/app/javascript/linksmap.js',
+    frequency: './src/main/resources/app/javascript/frequency.js'
   },
   output: {
     path: path.resolve(__dirname, 'build/resources/main/app'),

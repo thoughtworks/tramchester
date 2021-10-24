@@ -1,9 +1,13 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 
+@JsonTypeName("BoxWithFrequency")
+@JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use=JsonTypeInfo.Id.NAME)
 public class BoxWithFrequencyDTO {
     private LatLong bottomLeft;
     private LatLong topRight;
