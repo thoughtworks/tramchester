@@ -56,12 +56,12 @@ public abstract class TransportEntityFactory {
         return new RouteStation(station, route);
     }
 
-    public StopCall createPlatformStopCall(Platform platform, Station station, StopTimeData stopTimeData) {
-        return new PlatformStopCall(platform, station, stopTimeData);
+    public StopCall createPlatformStopCall(Trip trip, Platform platform, Station station, StopTimeData stopTimeData) {
+        return new PlatformStopCall(trip, platform, station, stopTimeData);
     }
 
-    public StopCall createNoPlatformStopCall(Station station, StopTimeData stopTimeData) {
-        return new NoPlatformStopCall(station, stopTimeData);
+    public StopCall createNoPlatformStopCall(Trip trip, Station station, StopTimeData stopTimeData) {
+        return new NoPlatformStopCall(trip, station, stopTimeData);
     }
 
     public ServiceCalendar createServiceCalendar(CalendarData calendarData) {

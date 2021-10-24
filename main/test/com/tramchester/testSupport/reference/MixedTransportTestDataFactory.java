@@ -203,7 +203,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
                                                  TramTime arrivalTime, TramTime departureTime, int sequenceNum) {
         StopTimeData stopTimeData = StopTimeData.forTestOnly(trip.getId().forDTO(), arrivalTime, departureTime, station.forDTO(),
                 sequenceNum, GTFSPickupDropoffType.Regular, GTFSPickupDropoffType.Regular);
-        return new NoPlatformStopCall(station, stopTimeData);
+        return new NoPlatformStopCall(trip, station, stopTimeData);
     }
 
 

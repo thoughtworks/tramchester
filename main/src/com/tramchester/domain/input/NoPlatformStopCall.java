@@ -6,8 +6,8 @@ import com.tramchester.domain.places.Station;
 
 public class NoPlatformStopCall extends StopCall {
 
-    public NoPlatformStopCall(Station station, StopTimeData stopTimeData) {
-        super(station, stopTimeData);
+    public NoPlatformStopCall(Trip trip, Station station, StopTimeData stopTimeData) {
+        super(station, stopTimeData, trip);
     }
 
     @Override

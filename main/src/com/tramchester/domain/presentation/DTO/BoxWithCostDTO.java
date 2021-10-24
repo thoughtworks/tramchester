@@ -11,7 +11,7 @@ import com.tramchester.mappers.JourneyToDTOMapper;
 import org.opengis.referencing.operation.TransformException;
 
 @JsonTypeName("BoxWithCost")
-@JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
+@JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use=JsonTypeInfo.Id.NAME)
 public class BoxWithCostDTO {
 
     private LatLong bottomLeft;

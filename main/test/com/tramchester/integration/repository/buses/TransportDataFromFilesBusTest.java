@@ -42,8 +42,8 @@ public
 class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 41;
-    public static final int TGFM_BUS_ROUTES = 1491;
-    public static final int NUM_TFGM_BUS_STATIONS = 15612;
+    public static final int TGFM_BUS_ROUTES = 1650;
+    public static final int NUM_TFGM_BUS_STATIONS = 15749;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
@@ -114,11 +114,12 @@ class TransportDataFromFilesBusTest {
         Set<Route> routes = transportData.getRoutes();
         Set<Route> emptyRoutes = routes.stream().filter(route -> route.getTrips().isEmpty()).collect(Collectors.toSet());
 
+        assertEquals(Collections.emptySet(), emptyRoutes);
+
         // should be zero but seem to have one at the moment
-        //assertEquals(Collections.emptySet(), emptyRoutes);
-        assertEquals(1, emptyRoutes.size());
-        Route empty = emptyRoutes.iterator().next();
-        assertEquals("WBTR641A:O:CURRENT", empty.getId().forDTO());
+//        assertEquals(1, emptyRoutes.size());
+//        Route empty = emptyRoutes.iterator().next();
+//        assertEquals("WBTR641A:O:CURRENT", empty.getId().forDTO());
     }
 
     @Test

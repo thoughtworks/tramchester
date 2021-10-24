@@ -17,10 +17,12 @@ public abstract class StopCall {
     private final GTFSPickupDropoffType pickupType;
     private final GTFSPickupDropoffType dropoffType;
     private final int dwellTime;
+    private final Trip trip;
 
-    protected StopCall(Station station, StopTimeData stopTimeData) {
+    protected StopCall(Station station, StopTimeData stopTimeData, Trip trip) {
         this.station = station;
         this.arrivalTime = stopTimeData.getArrivalTime();
+        this.trip = trip;
         if (stopTimeData.arriveDepartSameTime()) {
             this.dwellTime = 0;
         } else {
@@ -74,6 +76,7 @@ public abstract class StopCall {
                 ", sequenceNumber=" + sequenceNumber +
                 ", pickupType=" + pickupType +
                 ", dropoffType=" + dropoffType +
+                ", trip=" + HasId.asId(trip) +
                 '}';
     }
 
@@ -81,5 +84,9 @@ public abstract class StopCall {
 
     public boolean callsAtStation() {
         return (!getDropoffType().equals(None)) || (!getPickupType().equals(None));
+    }
+
+    public Trip getTrip() {
+        return trip;
     }
 }

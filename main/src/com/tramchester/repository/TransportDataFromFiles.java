@@ -254,56 +254,57 @@ public class TransportDataFromFiles implements TransportDataFactory {
         stopTimes.
                 filter(stopTimeData -> trips.hasId(stopTimeData.getTripId())).
                 forEach((stopTimeData) -> {
-            String stopId = stopTimeData.getStopId();
-            IdFor<Station> stationId = factory.formStationId(stopId);
+                    String stopId = stopTimeData.getStopId();
+                    IdFor<Station> stationId = factory.formStationId(stopId);
 
                     final IdFor<Trip> stopTripId = stopTimeData.getTripId();
                     if (preloadStations.hasId(stationId)) {
-                Trip trip = trips.get(stopTripId);
-
-                Station station = preloadStations.get(stationId);
-                Route route = trip.getRoute();
-
-                boolean shouldAdd = true;
-                if (dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode())) {
-                    // expecting a platform here
-                    if (!station.hasPlatforms()) {
-                        logger.error(format("Did not find platform for %s %s %s source %s ", station.getId(),
-                                stopTimeData, route.getId(), dataSourceConfig.getName()));
-                        shouldAdd = false;
-                    }
-                }
-
-                if (shouldAdd) {
-                    addStationTo(buildable, route, station, factory);
-
-                    StopCall stopCall = createStopCall(buildable, stopTimeData, route, station, factory, dataSourceConfig);
-
-                    trip.addStop(stopCall);
-
-                    if (!buildable.hasTripId(trip.getId())) {
-                        buildable.addTrip(trip); // seen at least one stop for this trip
-                    }
-
-                    Service service = trip.getService();
-
-                    route.addTrip(trip);
-                    route.addService(service);
-
-                    addedServices.add(service);
-                    buildable.addService(service);
-                    count.getAndIncrement();
-                }
-
-            } else {
-                excludedStations.add(stationId);
-                if (trips.hasId(stopTripId)) {
                     Trip trip = trips.get(stopTripId);
-                    trip.setFiltered(true);
+
+                    Station station = preloadStations.get(stationId);
+                    Route route = trip.getRoute();
+
+                    boolean shouldAdd = true;
+                    if (dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode())) {
+                        // expecting a platform here
+                        if (!station.hasPlatforms()) {
+                            logger.error(format("Did not find platform for %s %s %s source %s ", station.getId(),
+                                    stopTimeData, route.getId(), dataSourceConfig.getName()));
+                            shouldAdd = false;
+                        }
+                    }
+
+                    if (shouldAdd) {
+                        addStationTo(buildable, route, station, factory);
+
+                        StopCall stopCall = createStopCall(buildable, stopTimeData, route, trip, station,
+                                factory, dataSourceConfig);
+
+                        trip.addStop(stopCall);
+
+                        if (!buildable.hasTripId(trip.getId())) {
+                            buildable.addTrip(trip); // seen at least one stop for this trip
+                        }
+
+                        Service service = trip.getService();
+
+                        route.addTrip(trip);
+                        route.addService(service);
+
+                        addedServices.add(service);
+                        buildable.addService(service);
+                        count.getAndIncrement();
+                    }
+
                 } else {
-                    logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));
+                    excludedStations.add(stationId);
+                    if (trips.hasId(stopTripId)) {
+                        Trip trip = trips.get(stopTripId);
+                        trip.setFiltered(true);
+                    } else {
+                        logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));
+                    }
                 }
-            }
         });
         if (!excludedStations.isEmpty()) {
             logger.warn("Excluded the following station ids (flagged out of area) : " + excludedStations + " for " + sourceName);
@@ -314,7 +315,7 @@ public class TransportDataFromFiles implements TransportDataFactory {
     }
 
     private StopCall createStopCall(PlatformRepository buildable, StopTimeData stopTimeData,
-                                    Route route, Station station, TransportEntityFactory factory,
+                                    Route route, Trip trip, Station station, TransportEntityFactory factory,
                                     GTFSSourceConfig sourceConfig) {
         IdFor<Platform> platformId = stopTimeData.getPlatformId();
         TransportMode transportMode = route.getTransportMode();
@@ -329,9 +330,9 @@ public class TransportDataFromFiles implements TransportDataFactory {
                 logger.warn("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
             }
             Platform platform = buildable.getPlatform(platformId);
-            return factory.createPlatformStopCall(platform, station, stopTimeData);
+            return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
         } else {
-            return factory.createNoPlatformStopCall(station, stopTimeData);
+            return factory.createNoPlatformStopCall(trip, station, stopTimeData);
         }
     }
 

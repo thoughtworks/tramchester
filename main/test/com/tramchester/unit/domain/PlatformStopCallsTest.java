@@ -1,9 +1,11 @@
 package com.tramchester.unit.domain;
 
 
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.PlatformStopCall;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.domain.time.TramTime.*;
 
 class PlatformStopCallsTest {
     private TramStations stationA;
@@ -32,9 +35,12 @@ class PlatformStopCallsTest {
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
 
-        stopA = TestEnv.createTramStopCall("tripid", "statA1", stationA, 3, TramTime.of(10, 10), TramTime.of(10, 11));
-        stopB = TestEnv.createTramStopCall("tripid", "statB1", stationB, 2, TramTime.of(10, 3), TramTime.of(10, 4));
-        stopC = TestEnv.createTramStopCall("tripid", "statC1", stationC, 1, TramTime.of(10, 0), TramTime.of(10, 1));
+        Service service = new Service(StringIdFor.createId("svc1"));
+        Trip trip = new Trip(StringIdFor.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
+
+        stopA = TestEnv.createTramStopCall(trip, "statA1", stationA, 3, of(10, 10), of(10, 11));
+        stopB = TestEnv.createTramStopCall(trip, "statB1", stationB, 2, of(10, 3), of(10, 4));
+        stopC = TestEnv.createTramStopCall(trip, "statC1", stationC, 1, of(10, 0), of(10, 1));
 
 
         stops = new StopCalls(StringIdFor.createId("parentTripId"));

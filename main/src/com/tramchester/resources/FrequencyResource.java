@@ -1,7 +1,12 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.tramchester.domain.BoundingBoxWithCost;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.domain.BoxWithServiceFrequency;
+import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
+import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.StopCallsForGrid;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -14,31 +19,53 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
 @Api
 @Path("/frequency")
 @Produces(MediaType.APPLICATION_JSON)
-public class FrequencyResource {
+public class FrequencyResource extends TransportResource {
     private static final Logger logger = LoggerFactory.getLogger(FrequencyResource.class);
 
-    @Inject
-    public FrequencyResource() {
+    private final ObjectMapper objectMapper;
+    private final StopCallsForGrid stopCallsForGrid;
 
+    @Inject
+    public FrequencyResource(ObjectMapper objectMapper, StopCallsForGrid stopCallsForGrid, ProvidesNow providesNow) {
+        super(providesNow);
+        this.objectMapper = objectMapper;
+        this.stopCallsForGrid = stopCallsForGrid;
     }
 
     @GET
     @Timed
-    @ApiOperation(value = "Get number of services for the given time period for each grid box", response = BoundingBoxWithCost.class)
+    @ApiOperation(value = "Get number of services for the given time period for each grid box", response = BoxWithServiceFrequency.class)
     //@CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Response gridCosts(@QueryParam("gridSize") int gridSize,
-                              @QueryParam("startDateTime") String startDateTimeRaw,
-                              @QueryParam("departureDate") String endDateTimeRaw) {
-        logger.info(format("Query for %s gridsize meters, start: '%s' end: '%s", gridSize, startDateTimeRaw, endDateTimeRaw));
+                              @QueryParam("date") String dateRaw,
+                              @QueryParam("startTime") String startTimeRaw,
+                              @QueryParam("endTime") String endTimeRaw) {
+        logger.info(format("Query for %s gridsize meters, date: '%s' start: '%s' end: '%s", gridSize,
+                dateRaw, startTimeRaw, endTimeRaw));
 
-        Response.ResponseBuilder responseBuilder = Response.ok();
+        LocalDate date = LocalDate.parse(dateRaw);
+        TramTime startTime = parseTime(startTimeRaw);
+        TramTime endTime = parseTime(endTimeRaw);
+
+        Set<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFreqencies(gridSize, date, startTime, endTime);
+        Stream<BoxWithFrequencyDTO> dtoStream = results.stream().map(this::createDTO);
+        JsonStreamingOutput<BoxWithFrequencyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(dtoStream, objectMapper);
+
+        Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
         return responseBuilder.build();
+    }
+
+    private BoxWithFrequencyDTO createDTO(BoxWithServiceFrequency result) {
+        return new BoxWithFrequencyDTO(result, result.getNumberOfStopcalls());
     }
 
 }
