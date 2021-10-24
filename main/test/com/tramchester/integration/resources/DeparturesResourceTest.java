@@ -32,14 +32,6 @@ class DeparturesResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new IntegrationTramTestConfig(true));
 
-    // jul/august 2021, no trams in city
-//    private final List<String> cityCentreLocations = Arrays.asList(TramStations.PiccadillyGardens.getName(),
-//            TramStations.StPetersSquare.getName(),
-//            TramStations.Piccadilly.getName(),
-//            TramStations.MarketStreet.getName(),
-//            TramStations.ExchangeSquare.getName(),
-//            "Shudehill");
-
     private final TramStations stationWithNotes = LiveDataUpdaterTest.StationWithNotes;
 
     @Test
