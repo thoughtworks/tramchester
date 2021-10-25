@@ -42,8 +42,8 @@ public
 class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 41;
-    public static final int TGFM_BUS_ROUTES = 1650;
-    public static final int NUM_TFGM_BUS_STATIONS = 15749;
+    public static final int TGFM_BUS_ROUTES = 1751;
+    public static final int NUM_TFGM_BUS_STATIONS = 15748;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
